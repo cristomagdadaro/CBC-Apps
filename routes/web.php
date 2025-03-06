@@ -32,4 +32,10 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
+
+    Route::prefix('forms')->group(function () {
+        Route::get('/', function () {
+            return Inertia::render('Forms/FormIndex');
+        })->name('forms.index');
+    });
 });
