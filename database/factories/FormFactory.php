@@ -19,7 +19,7 @@ class FormFactory extends Factory
         return [
             'id' => $this->faker->uuid(),
             'event_id' => $this->faker->numerify('####'),
-            'title' => $this->faker->title(),
+            'title' => $this->faker->sentence(),
             'description' => $this->faker->paragraph(),
             'details' => $this->faker->paragraph(),
             'date_from' => $this->faker->date(),

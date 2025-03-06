@@ -35,7 +35,9 @@ Route::middleware([
 
     Route::prefix('forms')->group(function () {
         Route::get('/', function () {
-            return Inertia::render('Forms/FormIndex');
+            return Inertia::render('Forms/FormIndex', [
+                'listOfForms' => \App\Models\Form::all(),
+            ]);
         })->name('forms.index');
     });
 });

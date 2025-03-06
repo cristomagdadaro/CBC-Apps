@@ -3,9 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class Form extends Model
+class Form extends BaseModel
 {
     use HasFactory;
 
@@ -27,5 +26,11 @@ class Form extends Model
 
     protected $casts = [
         'id' => 'string',
+        'date_from' => 'datetime',
+        'date_to' => 'datetime',
+    ];
+
+    protected $hidden = [
+        'updated_at',
     ];
 }

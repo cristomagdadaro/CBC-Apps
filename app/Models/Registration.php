@@ -3,9 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class Registration extends Model
+class Registration extends BaseModel
 {
     use HasFactory;
 
@@ -22,4 +21,14 @@ class Registration extends Model
     protected $casts = [
         'id' => 'string',
     ];
+
+    public function event()
+    {
+        return $this->hasOne(Form::class , 'event_id', 'event_id');
+    }
+
+    public function participant()
+    {
+        return $this->hasOne(Participant::class, 'id', 'participant_id');
+    }
 }

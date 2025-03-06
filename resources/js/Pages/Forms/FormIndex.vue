@@ -1,10 +1,14 @@
 <script>
 import AppLayout from "@/Layouts/AppLayout.vue";
 import Welcome from "@/Components/Welcome.vue";
+import ListOfForms from "@/Pages/Forms/components/ListOfForms.vue";
 
 export default {
     name: "FormIndex",
-    components: {Welcome, AppLayout}
+    props: {
+        listOfForms: Object,
+    },
+    components: {ListOfForms, Welcome, AppLayout}
 }
 </script>
 
@@ -18,8 +22,8 @@ export default {
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
-                    <Welcome />
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-5">
+                    <list-of-forms :forms-data="listOfForms" />
                 </div>
             </div>
         </div>
