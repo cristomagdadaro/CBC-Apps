@@ -22,6 +22,7 @@ class Form extends BaseModel
         'venue',
         'has_pretest',
         'has_posttest',
+        'has_preregistration',
     ];
 
     protected $casts = [

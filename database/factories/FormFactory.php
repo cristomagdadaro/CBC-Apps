@@ -29,6 +29,7 @@ class FormFactory extends Factory
             'venue' => $this->faker->city(),
             'has_pretest' => $this->faker->boolean(),
             'has_posttest' => $this->faker->boolean(),
+            'has_preregistration' => $this->faker->boolean(),
         ];
     }
 }
