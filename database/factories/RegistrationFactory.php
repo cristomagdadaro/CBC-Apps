@@ -20,7 +20,7 @@ class RegistrationFactory extends Factory
     {
         return [
             'id' => $this->faker->uuid(),
-            'event_id' => Form::all()->random()->event_id,
+            'event_id' => Form::inRandomOrder()->first()->event_id,
             'participant_id' => Participant::inRandomOrder()->first()->id,
             'pretest_finished' => false,
             'posttest_finished' => false,

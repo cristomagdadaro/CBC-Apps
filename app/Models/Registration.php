@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Registration extends BaseModel
 {
@@ -22,13 +23,13 @@ class Registration extends BaseModel
         'id' => 'string',
     ];
 
-    public function event()
+    public function form():BelongsTo
     {
-        return $this->hasOne(Form::class , 'event_id', 'event_id');
+        return $this->belongsTo(Form::class, 'event_id', 'event_id');
     }
 
-    public function participant()
+    public function participant():BelongsTo
     {
-        return $this->hasOne(Participant::class, 'id', 'participant_id');
+        return $this->belongsTo(Participant::class, 'participant_id', 'id');
     }
 }

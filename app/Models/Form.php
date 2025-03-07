@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Form extends BaseModel
 {
@@ -34,4 +36,21 @@ class Form extends BaseModel
     protected $hidden = [
         'updated_at',
     ];
+
+    public function registrations(): HasMany
+    {
+        return $this->hasMany(Registration::class);
+    }
+
+    public function participants(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Participant::class,
+            Registration::class,
+            'event_id', // Foreign key on registrations table
+            'id', // Foreign key on participants table
+            'event_id', // Local key on forms table
+            'participant_id' // Local key on registrations table
+        );
+    }
 }

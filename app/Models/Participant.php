@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Participant extends BaseModel
 {
@@ -29,4 +30,9 @@ class Participant extends BaseModel
     protected $casts = [
         'id' => 'string',
     ];
+
+    public function registrations(): HasMany
+    {
+        return $this->hasMany(Registration::class, 'participant_id', 'id');
+    }
 }

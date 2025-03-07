@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\CreateRegistrationRequest;
+use App\Repositories\RegistrationRepo;
+use Illuminate\Http\JsonResponse;
 
-class RegistrationController extends Controller
+class RegistrationController extends BaseController
 {
-    //
+    public function __construct(RegistrationRepo $repository)
+    {
+        $this->service = $repository;
+    }
 }

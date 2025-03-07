@@ -3,7 +3,7 @@ export default {
     name: "EventCard",
     props: {
         data: { type: Object },
-    }
+    },
 }
 </script>
 
@@ -53,15 +53,15 @@ export default {
             <div class="flex justify-evenly">
                 <div class="flex items-center gap-1" title="Require guests to pre-register">
                     <input type="checkbox" class="rounded-full" :checked="data.has_preregistration">
-                    <label>Pre-Registration</label>
+                    <label>Preregistration</label>
                 </div>
                 <div class="flex items-center gap-1" title="Require guests to take pre-test">
                     <input type="checkbox" class="rounded-full" :checked="data.has_pretest">
-                    <label>Pre-Test</label>
+                    <label>Pretest</label>
                 </div>
                 <div class="flex items-center gap-1" title="Require guests to take post-test">
                     <input type="checkbox" class="rounded-full" :checked="data.has_posttest">
-                    <label>Post-Test</label>
+                    <label>Posttest</label>
                 </div>
             </div>
         </div>
@@ -69,34 +69,45 @@ export default {
             <span class="font-bold uppercase text-center">Statistics</span>
             <div class="flex gap-1 justify-center">
                 <div class="flex flex-col items-center border-r-2 border-gray-900 text-green-900 w-fit px-2 py-1">
-                    <label class="text-xl leading-none font-[1000]">100</label>
+                    <label class="text-xl leading-none font-[1000]">{{ data.participants_count ?? 0 }}</label>
                     <span class="text-[0.6rem] leading-none select-none">Registered Participants</span>
                 </div>
 
                 <div class="flex flex-col items-center border-r-2 border-gray-900 text-green-900 w-fit px-2 py-1">
-                    <label class="text-xl leading-none font-[1000]">75</label>
-                    <span class="text-[0.6rem] leading-none select-none">Pre-Test Responses</span>
+                    <label class="text-xl leading-none font-[1000]">{{ data.pretests_count ?? 0 }}</label>
+                    <span class="text-[0.6rem] leading-none select-none">Pretest Responses</span>
                 </div>
 
                 <div class="flex flex-col items-center text-green-900 w-fit px-2 py-1">
-                    <label class="text-xl leading-none font-[1000]">80</label>
-                    <span class="text-[0.6rem] leading-none select-none">Post-Test Responses</span>
+                    <label class="text-xl leading-none font-[1000]">{{ data.posttests_count ?? 0 }}</label>
+                    <span class="text-[0.6rem] leading-none select-none">Posttest Responses</span>
                 </div>
             </div>
         </div>
         <div class="flex flex-col p-2">
             <span class="font-bold uppercase text-center">Accessibility</span>
             <div class="flex gap-1 justify-center">
-                <button class="bg-yellow-200 text-green-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
+                <a :href="route('forms.guest.index')" target="_blank" class="bg-green-200 text-green-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
+                    Visit
+                </a>
+
+                <button class="bg-blue-200 text-blue-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
+                    Register
+                </button>
+
+                <button class="bg-cyan-200 text-cyan-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
+                    Export
+                </button>
+
+                <button class="bg-yellow-200 text-yellow-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
                     Suspend
                 </button>
 
-                <button class="bg-red-200 text-green-900 w-fit px-2 py-1 rounded" title="Permanently remove this form">
+                <button class="bg-red-200 text-red-900 w-fit px-2 py-1 rounded" title="Permanently remove this form">
                     Delete
                 </button>
             </div>
         </div>
-
     </div>
 </template>
 

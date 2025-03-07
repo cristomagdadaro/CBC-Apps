@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\FormController;
+use App\Models\Form;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -24,6 +26,10 @@ Route::get('/', function () {
     ]);
 });
 
+Route::prefix('guest')->group(function () {
+    Route::get('/forms/{event?}', [FormController::class, 'formGuestView'])->name('forms.guest.index');
+});
+
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
@@ -35,8 +41,10 @@ Route::middleware([
 
     Route::prefix('forms')->group(function () {
         Route::get('/', function () {
+            $temp = (new App\Models\Form)->newQuery();
             return Inertia::render('Forms/FormIndex', [
-                'listOfForms' => \App\Models\Form::all(),
+                'listOfForms' => $temp->withCount('participants')->get(),
+                'rawSql' => $temp->with('participants')->toRawSql()
             ]);
         })->name('forms.index');
     });
