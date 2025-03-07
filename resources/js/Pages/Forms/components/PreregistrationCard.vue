@@ -9,10 +9,11 @@ import Checkbox from "@/Components/Checkbox.vue";
 import Form from "@/Modules/domain/Form";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
+import QrcodeVue, { QrcodeCanvas, QrcodeSvg } from 'qrcode.vue'
 
 export default {
     name: "PreregistrationCard",
-    components: {TransitionContainer, PrimaryButton, Checkbox, Dropdown, DropdownLink, InputError, InputLabel, TextInput},
+    components: {TransitionContainer, PrimaryButton, Checkbox, Dropdown, DropdownLink, InputError, InputLabel, TextInput, QrcodeVue, QrcodeCanvas, QrcodeSvg},
     props: {
       eventId: [String, Number],
     },
@@ -22,6 +23,8 @@ export default {
             model: null,
             showSuccess: false,
             registrationIDHashed: null,
+            value: 'https://example.com',
+            size: 200,
         }
     },
     mounted() {
@@ -50,21 +53,23 @@ export default {
 <template>
     <form  @submit.prevent="submitRegistrationCard" class="px-1 py-4 select-none relative border-t border-gray-800 mt-3">
         <transition-container type="pop-in">
-            <div v-show="showSuccess" class="absolute flex top-0 left-0 bg-AC rounded-md bg-opacity-75 w-full h-full z-50 text-white text-xl font-medium justify-center items-center">
+            <div v-show="showSuccess" class="absolute flex top-0 left-0 bg-AC bg-opacity-75 w-full h-full z-50 text-white text-xl font-medium justify-center items-center">
                 <button @click.prevent="showSuccess = false; form.reset()" class="absolute top-0 right-0 p-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
                         <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
                     </svg>
                 </button>
                 <div class="flex flex-col text-center w-full gap-0.5">
-                    <div class="drop-shadow text-5xl bg-AC w-full">
+                    <div class="drop-shadow text-2xl bg-AC w-full flex flex-col gap-1 justify-center mb-1 py-2">
                         {{ registrationIDHashed }}
+                    <!--  Documentation visit:   https://www.npmjs.com/package/qrcode.vue-->
+                        <qrcode-vue v-if="registrationIDHashed" :value="registrationIDHashed" :size="size" level="H" render-as="svg" class="mx-auto border-4 shadow" />
                     </div>
                     <span class="drop-shadow leading-none font-light">
-                        Registeration Successful!
+                        Registration Successful!
                     </span>
                     <span class="drop-shadow leading-none text-sm">
-                        Save
+                        Take a screenshot or save the image
                     </span>
                 </div>
             </div>
