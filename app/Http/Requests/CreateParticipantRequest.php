@@ -2,11 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\Sex;
 use App\Models\Participant;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
-class CreateRegistrationRequest extends FormRequest
+class CreateParticipantRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -35,12 +37,12 @@ class CreateRegistrationRequest extends FormRequest
     {
         return [
             'id' => ['required', 'string'],
-            'name' => ['nullable', 'string'],
-            'email' => ['nullable', 'email'],
-            'phone' => ['nullable', 'string'],
-            'sex' => ['nullable', 'string'],
+            'name' => ['required', 'string'],
+            'email' => ['required', 'email'],
+            'phone' => ['required', 'string'],
+            'sex' => ['required', 'string', $this->sexRule()],
             'age' => ['nullable', 'numeric'],
-            'organization' => ['nullable', 'string'],
+            'organization' => ['required', 'string'],
             'is_ip' => ['nullable', 'boolean'],
             'is_pwd' => ['nullable', 'boolean'],
             'city_address' => ['nullable', 'string'],
@@ -49,5 +51,10 @@ class CreateRegistrationRequest extends FormRequest
             'agreed_tc' => ['nullable', 'boolean'],
             'event_id' => ['required', 'string', 'exists:forms,event_id'],
         ];
+    }
+
+    private function sexRule()
+    {
+        return Rule::in([Sex::Male->value, Sex::Female->value, Sex::PreferNotToSay->value]);
     }
 }

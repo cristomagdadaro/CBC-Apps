@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateRegistrationRequest;
+use App\Http\Requests\CreateParticipantRequest;
 use App\Repositories\RegistrationRepo;
 use Illuminate\Http\JsonResponse;
 

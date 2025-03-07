@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateRegistrationRequest;
+use App\Http\Requests\CreateParticipantRequest;
 use App\Models\Registration;
 use App\Repositories\ParticipantRepo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class ParticipantController extends BaseController
 {
@@ -14,26 +15,40 @@ class ParticipantController extends BaseController
     {
         $this->service = $repository;
     }
-    public function post(CreateRegistrationRequest $request, $event_id = null): JsonResponse
+
+    public function post(CreateParticipantRequest $request, $event_id = null): JsonResponse
     {
-        $participant = $this->service->create($request->validated());
+        DB::beginTransaction();
 
-        do {
-            $temp = Str::uuid()->toString();
-        } while (Registration::where('id', $temp)->exists());
+        try {
+            $participant = $this->service->create($request->validated());
 
-        Registration::factory()->create([
-            'id' => $temp,
-            'event_id' => $request->validated('event_id'),
-            'participant_id' => $request->validated('id'),
-        ]);
+            do {
+                $temp = Str::uuid()->toString();
+            } while (Registration::where('id', $temp)->exists());
 
-        // Generate an 8-character hash of the registration ID
-        $hashed = substr(md5($temp), 0, 8); // Uses first 8 characters of MD5 hash
+            Registration::factory()->create([
+                'id' => $temp,
+                'event_id' => $request->validated('event_id'),
+                'participant_id' => $request->validated('id'),
+            ]);
 
-        return response()->json([
-            'status' => 'success',
-            'participant_hash' => $hashed
-        ], 201);
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'participant_hash' => $temp
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to register participant',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
+
 }

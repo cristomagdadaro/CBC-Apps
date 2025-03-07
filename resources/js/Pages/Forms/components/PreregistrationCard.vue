@@ -39,8 +39,14 @@ export default {
                 alert("No event id is provided");
                 return;
             }
-            const response = await this.model.postIndex(this.form.data());
-            this.checkResponseStatus(response);
+
+            await this.model.postIndex(this.form.data()).then(response => {
+                this.checkResponseStatus(response);
+            }).catch(error => {
+                Object.keys(error.response?.data.errors).forEach(key => {
+                    this.form.setError(key, error.response?.data.errors[key].join(''))
+                })
+            });
         },
         checkResponseStatus(response) {
             this.showSuccess = response.status === 'success';
@@ -74,111 +80,141 @@ export default {
                 </div>
             </div>
         </transition-container>
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-3">
             <div class="flex flex-row gap-2 items-center">
-                <div class="w-full">
+                <div class="w-full relative">
                     <TextInput
                         id="name"
                         v-model="form.name"
                         type="text"
-                        class="mt-1 w-full"
-                        required
+                        class="w-full"
+                        :class="{'border-red-500' : form.errors.name}"
                         autofocus
                         placeholder="Name"
                         autocomplete="name"
+                        @input="form.clearErrors('name')"
                     />
-                    <InputError class="mt-2" :message="form.errors.name" />
+                    <transition-container type="slide-bottom">
+                        <InputError v-show="!!form.errors.name" class="absolute -top-1 left-3" :message="form.errors.name" />
+                    </transition-container>
                 </div>
-                <div class="w-[10rem]">
+                <div class="w-[15rem] relative">
                     <Dropdown align="right" width="60">
                         <template #trigger>
-                                <span class="inline-flex rounded-md">
-                                    <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
-                                        {{ form.sex ?? 'Sex' }}
-                                        <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                                        </svg>
-                                    </button>
-                                </span>
+                            <button type="button" :class="{'border-red-500' : form.errors.name}" class="inline-flex items-center justify-between px-3 py-3 border shadow-sm text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white w-full dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
+                                {{ form.sex ?? 'Sex' }}
+                                <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                                </svg>
+                            </button>
                         </template>
 
                         <template #content>
                             <div class="w-60">
                                 <DropdownLink as="button" @click.prevent="form.sex = 'Male'">
-                                    Male
+                                    <div class="flex items-center gap-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gender-male text-blue-300" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8"/>
+                                        </svg>
+                                        <span>Male</span>
+                                    </div>
                                 </DropdownLink>
                                 <DropdownLink as="button" @click.prevent="form.sex = 'Female'">
-                                    Female
+                                    <div class="flex items-center gap-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gender-female text-red-300" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M8 1a4 4 0 1 0 0 8 4 4 0 0 0 0-8M3 5a5 5 0 1 1 5.5 4.975V12h2a.5.5 0 0 1 0 1h-2v2.5a.5.5 0 0 1-1 0V13h-2a.5.5 0 0 1 0-1h2V9.975A5 5 0 0 1 3 5"/>
+                                        </svg>
+                                        <span>Female</span>
+                                    </div>
                                 </DropdownLink>
                                 <DropdownLink as="button" @click.prevent="form.sex = 'Prefer not to say'">
-                                    Prefer not to say
+                                    <div class="flex items-center gap-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-balloon-heart text-yellow-300" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="m8 2.42-.717-.737c-1.13-1.161-3.243-.777-4.01.72-.35.685-.451 1.707.236 3.062C4.16 6.753 5.52 8.32 8 10.042c2.479-1.723 3.839-3.29 4.491-4.577.687-1.355.587-2.377.236-3.061-.767-1.498-2.88-1.882-4.01-.721zm-.49 8.5c-10.78-7.44-3-13.155.359-10.063q.068.062.132.129.065-.067.132-.129c3.36-3.092 11.137 2.624.357 10.063l.235.468a.25.25 0 1 1-.448.224l-.008-.017c.008.11.02.202.037.29.054.27.161.488.419 1.003.288.578.235 1.15.076 1.629-.157.469-.422.867-.588 1.115l-.004.007a.25.25 0 1 1-.416-.278c.168-.252.4-.6.533-1.003.133-.396.163-.824-.049-1.246l-.013-.028c-.24-.48-.38-.758-.448-1.102a3 3 0 0 1-.052-.45l-.04.08a.25.25 0 1 1-.447-.224l.235-.468ZM6.013 2.06c-.649-.18-1.483.083-1.85.798-.131.258-.245.689-.08 1.335.063.244.414.198.487-.043.21-.697.627-1.447 1.359-1.692.217-.073.304-.337.084-.398"/>
+                                        </svg>
+                                        <span>Prefer not to say</span>
+                                    </div>
                                 </DropdownLink>
                             </div>
                         </template>
                     </Dropdown>
-                    <InputError class="mt-2" :message="form.errors.sex" />
+                    <transition-container type="slide-bottom">
+                        <InputError v-show="!!form.errors.sex" class="absolute -top-1 left-3" :message="form.errors.sex" />
+                    </transition-container>
                 </div>
             </div>
             <div class="grid grid-cols-3 gap-2">
-                <div class="w-full">
+                <div class="w-full relative">
                     <TextInput
                         id="age"
                         v-model="form.age"
                         type="number"
-                        class="mt-1 w-full"
-                        required
+                        class="w-full"
+                        :class="{'border-red-500' : form.errors.age}"
                         placeholder="Age"
                         autocomplete="age"
                     />
-                    <InputError class="mt-2" :message="form.errors.age" />
+                    <transition-container type="slide-bottom">
+                        <InputError v-show="!!form.errors.age" class="absolute -top-1 left-3" :message="form.errors.age" />
+                    </transition-container>
                 </div>
-                <div class="w-full px-2 py-0.5 flex text-center leading-none lg:flex-row flex-col-reverse items-center lg:gap-2 bg-white border rounded-md shadow-sm" @click.prevent="form.is_ip = !form.is_ip">
+                <div :class="{'border-red-500' : form.errors.is_ip}" class="w-full relative px-2 py-0.5 flex text-center leading-none lg:flex-row flex-col-reverse items-center lg:gap-2 bg-white border rounded-md shadow-sm" @click.prevent="form.is_ip = !form.is_ip">
                     <label class="text-xs">Are you a member indigenous people?</label>
-                    <Checkbox v-model="form.is_ip" :checked="form.is_ip" class="mt-1" autofocus autocomplete="is_ip"/>
-                    <InputError class="mt-2" :message="form.errors.is_ip" />
+                    <Checkbox v-model="form.is_ip" :checked="form.is_ip" autofocus autocomplete="is_ip"/>
+                    <transition-container type="slide-bottom">
+                        <InputError v-show="!!form.errors.is_ip" class="absolute -top-1 left-3" :message="form.errors.is_ip" />
+                    </transition-container>
                 </div>
-                <div class="w-full px-2 py-0.5 flex text-center leading-none lg:flex-row flex-col-reverse items-center lg:gap-2 bg-white border rounded-md shadow-sm" @click.prevent="form.is_pwd = !form.is_pwd">
+                <div :class="{'border-red-500' : form.errors.is_pwd}" class="w-full relative px-2 py-0.5 flex text-center leading-none lg:flex-row flex-col-reverse items-center lg:gap-2 bg-white border rounded-md shadow-sm" @click.prevent="form.is_pwd = !form.is_pwd">
                     <label class="text-xs">Are you a person with disability?</label>
-                    <Checkbox v-model="form.is_pwd" :checked="form.is_pwd" class="mt-1" autofocus autocomplete="is_pwd"/>
-                    <InputError class="mt-2" :message="form.errors.is_pwd" />
+                    <Checkbox v-model="form.is_pwd" :checked="form.is_pwd" autofocus autocomplete="is_pwd"/>
+                    <transition-container type="slide-bottom">
+                        <InputError v-show="!!form.errors.is_pwd" class="absolute -top-1 left-3" :message="form.errors.is_pwd" />
+                    </transition-container>
                 </div>
             </div>
-            <div class="w-full">
+            <div class="w-full relative">
                 <TextInput
                     id="organization"
                     v-model="form.organization"
                     type="text"
-                    class="mt-1 w-full"
-                    required
+                    class="w-full"
+                    :class="{'border-red-500' : form.errors.organization}"
                     placeholder="Organization/Agency"
                     autocomplete="organization"
                 />
-                <InputError class="mt-2" :message="form.errors.organization" />
+                <transition-container type="slide-bottom">
+                    <InputError v-show="!!form.errors.organization" class="absolute -top-1 left-3" :message="form.errors.organization" />
+                </transition-container>
             </div>
             <div class="grid grid-cols-2 gap-2">
-                <div class="w-full">
+                <div class="w-full relative">
                     <TextInput
                         id="email"
                         v-model="form.email"
                         type="text"
-                        class="mt-1 w-full"
-                        required
+                        :class="{'border-red-500' : form.errors.email}"
+                        class="w-full"
                         placeholder="Email"
                         autocomplete="email"
                     />
-                    <InputError class="mt-2" :message="form.errors.email" />
+                    <transition-container type="slide-bottom">
+                        <InputError v-show="!!form.errors.email" class="absolute -top-1 left-3" :message="form.errors.email" />
+                    </transition-container>
                 </div>
-                <div class="w-full">
+                <div class="w-full relative">
                     <TextInput
                         id="phone"
                         v-model="form.phone"
                         type="text"
-                        class="mt-1 w-full"
-                        required
+                        :class="{'border-red-500' : form.errors.phone}"
+                        class="w-full"
                         placeholder="Phone"
                         autocomplete="phone"
                     />
-                    <InputError class="mt-2" :message="form.errors.phone" />
+                    <transition-container type="slide-bottom">
+                        <InputError v-show="!!form.errors.phone" class="absolute -top-1 left-3" :message="form.errors.phone" />
+                    </transition-container>
                 </div>
             </div>
             <div class="py-3">
@@ -187,7 +223,8 @@ export default {
                 </p>
             </div>
             <primary-button>
-                Register
+                <span v-if="!model?.processing">Register</span>
+                <span v-else>Registering</span>
             </primary-button>
         </div>
     </form>

@@ -77,7 +77,7 @@ export default {
         <div class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100 max-w-xl w-full drop-shadow-lg">
             <div class="flex flex-row bg-gray-200 p-2 rounded-md justify-between shadow py-4">
                 <div class="flex flex-col justify-center">
-                    <label class="leading-none font-semibold">Search</label>
+                    <label class="leading-none font-semibold text-xl">Event ID</label>
                     <p class="text-xs leading-none">
                         For the event id, kindly check the invitation.
                     </p>

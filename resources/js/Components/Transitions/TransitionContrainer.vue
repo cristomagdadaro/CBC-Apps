@@ -59,7 +59,7 @@ export default {
                     enterActive: "transition ease-out duration-"+this.duration,
                     enterFrom: "transform translate-y-full opacity-0",
                     enterTo: "transform translate-y-0 opacity-100",
-                    leaveActive: "transition ease-in duration-75",
+                    leaveActive: "transition ease-in duration-200",
                     leaveFrom: "transform translate-y-0 opacity-100",
                     leaveTo: "transform translate-y-full opacity-0"
                 },

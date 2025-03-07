@@ -21,12 +21,15 @@ export default abstract class ApiService {
     async post(url: string, params?: any) {
 
         this.processing = true;
-        console.log(url, params);
-        // @ts-ignore
-        const response = await axios.post(route(url), params);
-        console.log(response);
-        this.processing = false;
-        return response.data;
+        try {
+            // @ts-ignore
+            const response = await axios.post(route(url), params);
+            this.processing = false;
+            return response.data;
+        } catch (error) {
+            this.processing = false;
+            throw error;
+        }
     }
 
     castToModel(response: any) {
