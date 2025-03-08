@@ -17,7 +17,7 @@ export default {
 </script>
 
 <template>
-    <div class="grid grid-cols-2 gap-2">
+    <div class="grid lg:grid-cols-2 grid-cols-1 gap-2 p-2">
         <event-card v-for="data in formsData" :data="data" />
     </div>
 </template>

@@ -8,7 +8,7 @@ export default {
 </script>
 
 <template>
-    <div class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100 max-w-2xl min-w-[30rem] w-full overflow-x-auto">
+    <div class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100 lg:max-w-2xl max-w-full min-w-[30rem] w-full overflow-x-auto">
         <div class="flex flex-row bg-gray-200 p-2 rounded-md justify-between shadow py-4">
             <div class="flex flex-col justify-center">
                 <label class="leading-none font-semibold">{{ data.title }}</label>

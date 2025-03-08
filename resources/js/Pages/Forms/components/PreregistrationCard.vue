@@ -65,7 +65,7 @@ export default {
 
 <template>
     <form  @submit.prevent="submitRegistrationCard" class="px-1 py-4 select-none relative border-t border-gray-800 mt-3">
-        <transition-container type="pop-in">
+        <transition-container type="slide-top">
             <div v-show="showSuccess" class="absolute flex top-0 left-0 bg-AC bg-opacity-75 w-full h-full z-50 text-white text-xl font-medium justify-center items-center">
                 <button @click.prevent="showSuccess = false; form.reset()" class="absolute top-0 right-0 p-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
