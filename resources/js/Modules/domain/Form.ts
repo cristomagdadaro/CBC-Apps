@@ -5,12 +5,14 @@ export default class Form extends ApiService {
     static model = DtoForm;
     private _apiIndex: string;
     private _apiPost: string;
+    private _apiPut: string;
 
     constructor(response: DtoForm) {
         super(response);
 
         this._apiIndex = 'api.form.guest.index';
         this._apiPost = 'api.form.post';
+        this._apiPut = 'api.form.put';
     }
 
     async getIndex(params: any)
@@ -29,6 +31,11 @@ export default class Form extends ApiService {
     async postIndex(params: any)
     {
         return await this.post(this._apiPost, params);
+    }
+
+    async putIndex(params: any)
+    {
+        return await this.put(this._apiPut, params.event_id, params);
     }
 
     static createFields(): object
@@ -65,5 +72,61 @@ export default class Form extends ApiService {
             has_posttest: data.has_posttest ?? null,
             has_preregistration: data.has_preregistration ?? null,
         }
+    }
+
+    static getFilterColumns() {
+        return Form.getColumns()
+            .filter(column => column.visible !== false)
+            .map(column => ({
+                name: column.db_key,
+                label: column.title,
+            }));
+    }
+
+
+    static getColumns()
+    {
+        return [
+            {
+                title: 'ID',
+                key: 'id',
+                db_key: 'id',
+                align: 'center',
+                sortable: true,
+                visible: false,
+            },
+            {
+                title: 'Event ID',
+                key: 'event_id',
+                db_key: 'event_id',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            },
+            {
+                title: 'Title',
+                key: 'title',
+                db_key: 'title',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            },
+            {
+                title: 'Description',
+                key: 'description',
+                db_key: 'description',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            },
+            {
+                title: 'Details',
+                key: 'details',
+                db_key: 'details',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            },
+        ]
     }
 }

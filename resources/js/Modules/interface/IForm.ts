@@ -1,4 +1,4 @@
-interface IForm {
+interface IForm extends IBaseClass {
     id: string;
     event_id: string;
     title: string;

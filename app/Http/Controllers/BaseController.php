@@ -22,4 +22,9 @@ class BaseController extends Controller
     {
         return $this->service->create($request->validated());
     }
+
+    public function _update(string $id, $request): Model
+    {
+        return $this->service->update($id, $request->validated());
+    }
 }

@@ -18,13 +18,9 @@ export default {
     },
     methods: {
         parseDate(dateString) {
-            // Convert "September 28, 2025" to a valid Date object
-            const parsedDate = new Date(dateString);
-            if (isNaN(parsedDate)) {
-                console.error("Invalid date format:", dateString);
-                return null;
-            }
-            return parsedDate;
+            // Ensure correct parsing of "YYYY-MM-DD" format
+            const [year, month, day] = dateString.split('-').map(Number);
+            return new Date(year, month - 1, day); // Month is zero-based
         },
 
         updateCountdown() {
@@ -41,7 +37,7 @@ export default {
                 return;
             }
 
-            // Extract time from "19:37:20"
+            // Extract time from "HH:MM:SS" and set it on the target date
             const [hours, minutes, seconds] = this.data.time_to.split(':').map(Number);
             targetDate.setHours(hours, minutes, seconds);
 
@@ -63,6 +59,29 @@ export default {
         startCountdown() {
             this.updateCountdown();
             this.intervalId = setInterval(this.updateCountdown, 1000);
+        },
+        formatDate(dateString) {
+            if (!dateString) return "";
+
+            const [year, month, day] = dateString.split("-").map(Number);
+            const date = new Date(year, month - 1, day); // Month is zero-based in JS
+
+            return new Intl.DateTimeFormat("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            }).format(date);
+        },
+        formatTime(timeString) {
+            if (!timeString) return "";
+
+            const [hours, minutes, seconds] = timeString.split(":").map(Number);
+
+            // Convert to 12-hour format
+            const ampm = hours >= 12 ? "PM" : "AM";
+            const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
+
+            return `${formattedHours}:${minutes.toString().padStart(2, "0")} ${ampm}`;
         }
     },
     computed: {
@@ -76,28 +95,42 @@ export default {
     beforeDestroy() {
         clearInterval(this.intervalId);
     }
+
 }
 </script>
 
 <template>
 
     <div v-if="!!data" class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100 max-w-xl drop-shadow-lg">
-        <div class="flex flex-row bg-gray-200 p-2 rounded-md justify-between shadow py-4">
-            <div class="flex flex-col justify-center">
-                <label class="leading-none font-semibold">{{ data.title }}</label>
+        <div class="flex flex-row bg-AB gap-2 text-white p-2 rounded-md justify-between shadow py-4">
+            <div class="flex flex-col justify-center drop-shadow">
+                <label class="leading-none font-semibold text-2xl">{{ data.title }}</label>
                 <p class="text-xs leading-none">
                     {{ data.description }}
                 </p>
             </div>
-            <div class="flex flex-col items-center justify-center">
+            <div class="flex flex-col items-center justify-center border-l pl-2">
                 <label class="text-xl leading-none font-[1000]">{{ data.event_id }}</label>
-                <span class="text-[0.6rem] leading-none select-none">Event ID</span>
+                <span class="text-[0.6rem] leading-none select-none">Form ID</span>
             </div>
         </div>
-        <div class="flex flex-col items-center justify-center p-2 rounded-md select-none">
+
+        <div class="flex flex-col items-center justify-center p-2 rounded-md select-none drop-shadow">
             <span class="text-sm uppercase leading-none">Event Starts in </span>
             <label class="leading-none font-bold text-4xl">{{ countdownDisplay }}</label>
         </div>
+
+        <div class="grid grid-cols-2">
+            <div class="bg-AA text-center py-3 text-white rounded-l-md flex flex-col leading-none">
+                <label class="font-bold">{{ formatTime(data.time_from) }} {{ formatDate(data.date_from) }}</label>
+                <span class="text-xs">Start</span>
+            </div>
+            <div class="bg-AD text-center py-3 text-white rounded-r-md flex flex-col leading-none">
+                <label class="font-bold">{{formatTime(data.time_from) }} {{ formatDate(data.date_to) }}</label>
+                <span class="text-xs">End</span>
+            </div>
+        </div>
+
         <div class="px-1">
             <div>
                 <span class="font-bold uppercase">Venue: </span>
@@ -105,7 +138,7 @@ export default {
             </div>
             <p class="text-sm leading-none text-justify">{{ data.details }}</p>
         </div>
-        <div class="px-1 py-2 select-none bg-gray-300">
+        <div v-if="data.has_preregistration && data.has_pretest && data.has_posttest" class="px-1 py-2 select-none bg-gray-300">
             <div class="grid grid-cols-3 justify-items-center">
                 <div v-if="data.has_preregistration" class="flex items-center gap-1" title="Require guests to pre-register">
                     <div v-if="data.has_preregistration" class="rounded-full shadow bg-AC text-white">

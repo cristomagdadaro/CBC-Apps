@@ -31,11 +31,11 @@ defineExpose({ focus: () => input.value?.focus() });
 </script>
 
 <template>
-    <div class="w-full relative">
+    <div class="w-full relative " :class="{'border-red-500': error}">
         <input
             ref="input"
-            :class="{'border-red-500': error, [classes]: true}"
-            class="border-gray-300  w-full dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-AB dark:focus:border-AB focus:ring-AB dark:focus:ring-AB rounded-md shadow-sm"
+            :class="classes"
+            class=" w-full dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-AB dark:focus:border-AB focus:ring-AB dark:focus:ring-AB rounded-md shadow-sm"
             :value="modelValue"
             :placeholder="placeholder"
             :type="type"

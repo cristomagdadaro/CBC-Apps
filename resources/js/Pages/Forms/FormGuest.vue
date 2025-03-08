@@ -14,6 +14,7 @@ export default {
     components: {SearchBtn, TransitionContainer, PrimaryButton, InputError, InputLabel, TextInput, GuestCard, Head, Link},
     props: {
         eventForm: { type: Object },
+        quote: String,
     },
     data() {
         return {
@@ -28,13 +29,20 @@ export default {
                 cell4: null,
             },
             eventFormFromApi: null,
-            model: null,
+            model: new Form(),
         }
     },
     methods: {
         async searchEvent() {
-            this.model = new Form();
+            if (!this.form.search || this.form.search.length < 4) return;
+            this.eventFormFromApi = null;
             this.eventFormFromApi = await this.model.getIndex(this.form.data());
+
+            this.eventId.cell1 = null;
+            this.eventId.cell2 = null;
+            this.eventId.cell3 = null;
+            this.eventId.cell4 = null;
+            this.$refs.cell1.focus();
         },
         getLastDigit(value) {
             return /^[0-9]$/.test(value) ? value : '';
@@ -57,6 +65,8 @@ export default {
             if (!this.eventId[field] && event.key === 'Backspace' && this.$refs[`cell${index - 1}`]) {
                 this.$refs[`cell${index - 1}`].focus();
             }
+
+            this.eventFormFromApi = null;
         }
     },
     watch: {
@@ -66,6 +76,15 @@ export default {
             },
             deep: true,
         }
+    },
+    computed: {
+        formattedQuote() {
+            return this.quote
+                .replace('<options=bold>', '<strong class="text-AB drop-shadow flex flex-col text-center">')
+                .replace('</options>', '</strong>')
+                .replace('<fg=gray>', '<span class="text-AB font-light">')
+                .replace('</fg>', '</span>');
+        },
     }
 }
 </script>
@@ -73,88 +92,107 @@ export default {
 <template>
     <Head title="DA-CBC Forms" />
 
-    <div class="relative sm:flex flex-col gap-5 sm:justify-center sm:items-center min-h-screen">
-        <div class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100 max-w-xl w-full drop-shadow-lg">
-            <div class="flex flex-row bg-gray-200 p-2 rounded-md justify-between shadow py-4">
-                <div class="flex flex-col justify-center">
-                    <label class="leading-none font-semibold text-xl">Event ID</label>
-                    <p class="text-xs leading-none">
-                        For the event id, kindly check the invitation.
-                    </p>
-                </div>
-            </div>
-            <form class="flex gap-2 items-center"  @submit.prevent="searchEvent">
-                <div class="flex flex-col">
-                    <div class="grid grid-cols-4 gap-0.5 items-center">
-                        <TextInput
-                            ref="cell1"
-                            v-model="eventId.cell1"
-                            type="number"
-                            classes="text-center"
-                            required
-                            autofocus
-                            @input="handleInput('cell1', $event)"
-                            @keydown.backspace="handleBackspace('cell1', $event)"
-                            maxlength="1"
-                            pattern="[0-9]"
-                            autocomplete="event"
-                        />
-                        <TextInput
-                            ref="cell2"
-                            v-model="eventId.cell2"
-                            type="number"
-                            classes="text-center"
-                            required
-                            @input="handleInput('cell2', $event)"
-                            @keydown.backspace="handleBackspace('cell2', $event)"
-                            maxlength="1"
-                            pattern="[0-9]"
-                            autocomplete="event"
-                        />
-                        <TextInput
-                            ref="cell3"
-                            v-model="eventId.cell3"
-                            type="text"
-                            classes="text-center"
-                            required
-                            @input="handleInput('cell3', $event)"
-                            @keydown.backspace="handleBackspace('cell3', $event)"
-                            maxlength="1"
-                            pattern="[0-9]"
-                            autocomplete="event"
-                        />
-                        <TextInput
-                            ref="cell4"
-                            v-model="eventId.cell4"
-                            type="number"
-                            classes="text-center"
-                            required
-                            @input="handleInput('cell4', $event)"
-                            @keydown.backspace="handleBackspace('cell4', $event)"
-                            maxlength="1"
-                            pattern="[0-9]"
-                            autocomplete="event"
-                        />
+    <div class="absolute top-0 left-0 w-full h-full z-[999]">
+        <div class="relative sm:flex flex-col gap-5 sm:justify-center sm:items-center min-h-screen">
+            <div class="border select-none p-2 rounded-md flex flex-col gap-2 bg-gray-100 max-w-xl w-full drop-shadow-lg">
+                <div class="flex flex-row bg-AB text-white p-2 px-4 rounded-md gap-2 shadow py-4">
+                    <img src="/imgs/logo.png" alt="logo" class="w-auto h-16" />
+                    <div class="flex flex-col justify-center">
+                        <label class="leading-none font-semibold text-xl">DA-CBC Attendance Form</label>
+                        <p class="text-xs leading-none">
+                            For the form id, kindly check the invitation or ask the organizer
+                        </p>
                     </div>
-                    <InputError class="mt-2" :message="form.errors.event" />
                 </div>
-                <search-btn type="submit" :disabled="model?.processing" class="w-[10rem] text-center">
-                    <span v-if="!model?.processing">Search</span>
-                    <span v-else>Searching</span>
-                </search-btn>
-            </form>
-        </div>
-        <transition-container>
-            <guest-card v-show="!!eventForm" :data="eventForm" />
-        </transition-container>
-        <transition-container>
-            <guest-card v-show="!!eventFormFromApi?.data.length" :data="eventFormFromApi?.data[0]" />
-        </transition-container>
-        <div v-if="!eventForm && !eventFormFromApi?.data.length">
-            Event not found. Try a different event id or ask the organizer.
+                <form class="flex gap-2 items-center"  @submit.prevent="searchEvent">
+                    <div class="flex flex-col">
+                        <div class="grid grid-cols-4 gap-0.5 items-center">
+                            <TextInput
+                                ref="cell1"
+                                v-model="eventId.cell1"
+                                type="number"
+                                classes="text-center font-bold text-3xl"
+                                required
+                                autofocus
+                                @input="handleInput('cell1', $event)"
+                                @keydown.backspace="handleBackspace('cell1', $event)"
+                                maxlength="1"
+                                pattern="[0-9]"
+                                autocomplete="event"
+                            />
+                            <TextInput
+                                ref="cell2"
+                                v-model="eventId.cell2"
+                                type="number"
+                                classes="text-center font-bold text-3xl"
+                                required
+                                @input="handleInput('cell2', $event)"
+                                @keydown.backspace="handleBackspace('cell2', $event)"
+                                maxlength="1"
+                                pattern="[0-9]"
+                                autocomplete="event"
+                            />
+                            <TextInput
+                                ref="cell3"
+                                v-model="eventId.cell3"
+                                type="number"
+                                classes="text-center font-bold text-3xl"
+                                required
+                                @input="handleInput('cell3', $event)"
+                                @keydown.backspace="handleBackspace('cell3', $event)"
+                                maxlength="1"
+                                pattern="[0-9]"
+                                autocomplete="event"
+                            />
+                            <TextInput
+                                ref="cell4"
+                                v-model="eventId.cell4"
+                                type="number"
+                                classes="text-center font-bold text-3xl"
+                                required
+                                @input="handleInput('cell4', $event)"
+                                @keydown.backspace="handleBackspace('cell4', $event)"
+                                maxlength="1"
+                                pattern="[0-9]"
+                                autocomplete="event"
+                            />
+                        </div>
+                        <InputError class="mt-2" :message="form.errors.event" />
+                    </div>
+                    <search-btn type="submit" :disabled="model?.processing" class="w-[10rem] text-center">
+                        <span v-if="!model?.processing">Search</span>
+                        <span v-else>Searching</span>
+                    </search-btn>
+                </form>
+            </div>
+            <template v-if="!model?.processing">
+                <div v-if="!form.search && !eventForm && !eventFormFromApi?.data.length">
+                    <blockquote v-html="formattedQuote" class="mt-3"></blockquote>
+                </div>
+                <div v-else-if="form.search && !eventForm && !eventFormFromApi?.data.length">
+                    Use the search box to look for a form
+                </div>
+                <div v-else-if="form.search && !eventFormFromApi?.data.length">
+                    Form not found. Try a different event id or ask the organizer.
+                </div>
+            </template>
+            <div v-else class="flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search animate-ping" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                </svg>
+                <span class="animate-pulse">Searching</span>
+            </div>
+            <transition-container :duration="1000" >
+                <guest-card v-show="!!eventForm" :data="eventForm" />
+            </transition-container>
+            <transition-container :duration="1000" type="slide-bottom">
+                <guest-card v-show="!!eventFormFromApi?.data.length" :data="eventFormFromApi?.data[0]" />
+            </transition-container>
         </div>
     </div>
-
+    <div class="min-h-screen flex items-center justify-center text-white text-3xl font-bold relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-radial animate-gradient"></div>
+    </div>
 </template>
 
 <style>
@@ -163,4 +201,26 @@ export default {
         -webkit-appearance: none;
         margin: 0;
     }
+
+    @keyframes rotateGradient {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .bg-gradient-radial {
+        background: radial-gradient(circle, #A4B465, #dddddd, #ffffff, #3A7D44);
+        background-size: 100% 100%;
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        top: -50%;
+        left: -50%;
+        animation: rotateGradient 15s linear infinite;
+    }
+
+
 </style>

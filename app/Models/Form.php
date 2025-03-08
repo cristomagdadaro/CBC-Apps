@@ -37,6 +37,19 @@ class Form extends BaseModel
         'updated_at',
     ];
 
+    protected array $searchable = [
+        'id',
+        'event_id',
+        'title',
+        'description',
+        'details',
+        'date_from',
+        'date_to',
+        'time_from',
+        'time_to',
+        'venue',
+    ];
+
     public function registrations(): HasMany
     {
         return $this->hasMany(Registration::class);

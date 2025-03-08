@@ -23,7 +23,7 @@ export default class DtoForm extends DtoBaseClass implements IForm{
     updated_at: Date;
     delete_at: Date;
 
-    constructor(data: any) {
+    constructor(data: IForm) {
         super(data);
 
         this.event_id = data.event_id;

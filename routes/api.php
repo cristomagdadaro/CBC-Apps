@@ -24,6 +24,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::middleware('guest')->prefix('guest')->group(function () {
     Route::prefix('forms')->group(function () {
+        Route::put('/update/{event_id?}', [FormController::class, 'update'])->name('api.form.put');
         Route::get('/{event_id?}', [FormController::class, 'index'])->name('api.form.guest.index');
         Route::post('/registration/{event_id?}', [ParticipantController::class, 'post'])->name('api.form.registration.post');
     });
@@ -34,6 +35,7 @@ Route::middleware('guest')->prefix('guest')->group(function () {
 Route::middleware(['api','auth:sanctum','verified'])->group(function () {
     Route::prefix('forms')->group(function () {
         Route::get('/', [FormController::class, 'index'])->name('api.form.index');
-        Route::post('/create', [FormController::class, 'post'])->name('api.form.post');
+        Route::post('/create', [FormController::class, 'create'])->name('api.form.post');
+
     });
 });

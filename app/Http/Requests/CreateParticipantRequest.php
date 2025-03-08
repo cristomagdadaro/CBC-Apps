@@ -41,7 +41,7 @@ class CreateParticipantRequest extends FormRequest
             'name' => ['required', 'string'],
             'email' => ['required', 'email'],
             'phone' => ['required', 'string'],
-            'sex' => ['required', 'string', $this->sexRule()],
+            'sex' => ['nullable', 'string', $this->sexRule()],
             'age' => ['nullable', 'numeric'],
             'organization' => ['required', 'string'],
             'is_ip' => ['nullable', 'boolean'],

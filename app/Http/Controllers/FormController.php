@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateFormRequest;
 use App\Http\Requests\GetFormsRequest;
+use App\Http\Requests\UpdateFormRequest;
 use App\Models\Form;
 use App\Repositories\FormRepo;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
 
@@ -16,6 +18,7 @@ class FormController extends BaseController
     public function __construct(FormRepo $repository)
     {
         $this->service = $repository;
+        $this->service->appendCount = ['participants'];
     }
 
     public function formGuestView(GetFormsRequest $request, $event_id = null)
@@ -23,6 +26,7 @@ class FormController extends BaseController
         $temp = (new Form)->newQuery();
         return Inertia::render('Forms/FormGuest', [
             'eventForm' => $temp->where('event_id', $event_id)->withCount('participants')->first(),
+            'quote' => Inspiring::quote(),
         ]);
     }
 
@@ -31,8 +35,17 @@ class FormController extends BaseController
         return parent::_index($request);
     }
 
-    public function post(CreateFormRequest $request, $event_id = null): Model
+    public function create(CreateFormRequest $request, $event_id = null): Model
     {
         return parent::_store($request);
+    }
+
+    public function update(UpdateFormRequest $data, $event_id = null): Model
+    {
+        $model = $this->service->model->where('event_id', $event_id)->first();
+        $model->fill($data->validated());
+        $model->save();
+
+        return $model;
     }
 }

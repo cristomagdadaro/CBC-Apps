@@ -58,4 +58,35 @@ class Registeration extends TestCase
 
         $response->assertStatus(201);
     }
+
+
+    /**
+     * @test
+     */
+    public function get_update_form(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $response = $this->get('/forms/update/1234');
+
+        print_r($response->collect());
+
+        $response->assertStatus(201);
+    }
+
+    /**
+     * @test
+     */
+    public function search_form(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $response = $this->get('/api/forms?search=Multimedia&is_exact=false');
+
+        print_r($response->collect());
+
+        $response->assertStatus(201);
+    }
 }

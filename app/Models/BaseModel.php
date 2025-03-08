@@ -7,10 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class BaseModel extends Model
 {
+    protected array $searchable = [];
+
+    public function getSearchable(): array
+    {
+        return $this->searchable;
+    }
+
     protected function serializeDate(DateTimeInterface $date): string
     {
-        return $date->format('F j, Y');
+        return $date->format('Y-m-d');
+        //return $date->format('F j, Y'); //January 1, 2023
     }
+
 
     protected function serializeTime(string $time): string
     {

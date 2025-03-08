@@ -33,6 +33,7 @@ export default {
                 'AA': '#A4B465',
                 'AB': '#626F47',
                 'AC': '#3A7D44',
+                'AD': '#B9B28A',
             },
         },
     },

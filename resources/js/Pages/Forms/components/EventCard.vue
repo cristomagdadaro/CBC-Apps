@@ -90,12 +90,16 @@ export default {
                     Visit
                 </a>
 
-                <button class="bg-blue-200 text-blue-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
+                <Link :href="route('forms.update')+'/'+data.event_id" class="bg-blue-200 text-blue-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
+                    Update
+                </Link>
+
+                <button class="bg-blue-600 text-blue-100 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
                     Registration
                 </button>
 
                 <button class="bg-cyan-200 text-cyan-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
-                    Export
+                    Export At
                 </button>
 
                 <button class="bg-yellow-200 text-yellow-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">

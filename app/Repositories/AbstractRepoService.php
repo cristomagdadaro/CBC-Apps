@@ -13,6 +13,11 @@ abstract class AbstractRepoService {
 
     public Model $model;
 
+    public array $appendWith = [];
+
+    public array $appendCount = [];
+
+
     public function __construct(Model $model)
     {
         $this->model = $model;
@@ -30,20 +35,20 @@ abstract class AbstractRepoService {
         }
     }
 
-/*    public function update(int $id, array $data): JsonResponse
+   public function update(int $id, array $data): Model
     {
         try {
-            $model = $this->model->find($id);
+            $model = $this->model->findOrFail($id);
             $model->fill($data);
             $model->save();
 
-            return $this->jsonResponse('updated', $model->toArray());
+            return $model;
         } catch (Exception $error) {
             return $this->sendError($error);
         }
     }
 
-    public function delete(int $id): JsonResponse
+/*     public function delete(int $id): JsonResponse
     {
         try {
             $model = $this->find($id);
@@ -71,7 +76,7 @@ abstract class AbstractRepoService {
     protected function buildSearchQuery(Collection $parameters, bool $withPagination, bool $isTrashed)
     {
         $builder = $this->model->newQuery();
-
+        $this->applyAppends($builder, $parameters);
         $this->applySearchFilters($builder, $parameters);
         $this->applyGroupBy($builder, $parameters);
         $this->applySorting($builder, $parameters);
@@ -83,6 +88,10 @@ abstract class AbstractRepoService {
         $isExact = $parameters->get('is_exact', false);
         $filter = $parameters->get('filter', null);
         $searchTerm = $parameters->get('search', '');
+
+        if (is_string($isExact)) {
+            $isExact = $isExact === 'true';
+        }
 
         if (empty($searchTerm)) return;
 
@@ -131,6 +140,20 @@ abstract class AbstractRepoService {
                 $subQuery->orWhere($column, $operator, $value);
             }
         });
+    }
+
+    public function applyAppends(Builder &$model, Collection $parameters): void
+    {
+        $with = $this->appendWith;
+        $count = $this->appendCount;
+
+        if ($with) {
+            $model = $model->with($with);
+        }
+
+        if ($count) {
+            $model = $model->withCount($count);
+        }
     }
 
     public function applyGroupBy(Builder &$query, Collection $parameters): void

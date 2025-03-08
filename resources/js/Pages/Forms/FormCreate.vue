@@ -27,6 +27,7 @@ export default {
             await this.model.postIndex(this.form.data()).then(response => {
                 console.log(response);
             }).catch(error => {
+                console.log(error);
                 Object.keys(error.response?.data.errors).forEach(key => {
                     this.form.setError(key, error.response?.data.errors[key].join(''))
                 })

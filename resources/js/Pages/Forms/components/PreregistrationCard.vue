@@ -6,15 +6,17 @@ import {useForm} from "@inertiajs/vue3";
 import DropdownLink from "@/Components/DropdownLink.vue";
 import Dropdown from "@/Components/Dropdown.vue";
 import Checkbox from "@/Components/Checkbox.vue";
-import Form from "@/Modules/domain/Form";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
 import QrcodeVue, { QrcodeCanvas, QrcodeSvg } from 'qrcode.vue'
 import Participant from "@/Modules/domain/Participant.js";
+import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 
 export default {
     name: "PreregistrationCard",
-    components: {TransitionContainer, PrimaryButton, Checkbox, Dropdown, DropdownLink, InputError, InputLabel, TextInput, QrcodeVue, QrcodeCanvas, QrcodeSvg},
+    components: {
+        SubmitBtn,
+        TransitionContainer, PrimaryButton, Checkbox, Dropdown, DropdownLink, InputError, InputLabel, TextInput, QrcodeVue, QrcodeCanvas, QrcodeSvg},
     props: {
       eventId: [String, Number],
     },
@@ -44,15 +46,19 @@ export default {
             await this.model.postIndex(this.form.data()).then(response => {
                 this.checkResponseStatus(response);
             }).catch(error => {
-                Object.keys(error.response?.data.errors).forEach(key => {
-                    this.form.setError(key, error.response?.data.errors[key].join(''))
-                })
+
+                if (error.response.status === 422) {
+                    Object.keys(error.response?.data.errors).forEach(key => {
+                        this.form.setError(key, error.response?.data.errors[key].join(''))
+                    })
+                }
             });
         },
         checkResponseStatus(response) {
+            this.form.clearErrors();
             this.showSuccess = response.status === 'success';
             this.registrationIDHashed = response.participant_hash;
-        }
+        },
     },
 }
 </script>
@@ -69,8 +75,15 @@ export default {
                 <div class="flex flex-col text-center w-full gap-0.5">
                     <div class="drop-shadow text-2xl bg-AC w-full flex flex-col gap-1 justify-center mb-1 py-2">
                         {{ registrationIDHashed }}
-                    <!--  Documentation visit:   https://www.npmjs.com/package/qrcode.vue-->
-                        <qrcode-vue v-if="registrationIDHashed" :value="registrationIDHashed" :size="size" level="H" render-as="svg" class="mx-auto border-4 shadow" />
+                        <qrcode-vue
+                            v-if="registrationIDHashed"
+                            :value="registrationIDHashed"
+                            :size="size"
+                            level="H"
+                            render-as="canvas"
+                            class="mx-auto border-4 shadow"
+                            ref="qrcodeCanvas"
+                        />
                     </div>
                     <span class="drop-shadow leading-none font-light">
                         Registration Successful!
@@ -81,6 +94,11 @@ export default {
                 </div>
             </div>
         </transition-container>
+        <div class="py-3">
+            <p class="text-xs leading-none">
+                Please fill-in the details
+            </p>
+        </div>
         <div class="flex flex-col gap-3">
             <div class="flex flex-row gap-2 items-center">
                 <TextInput
@@ -88,14 +106,14 @@ export default {
                     v-model="form.name"
                     :error="form.errors.name"
                     autofocus
-                    placeholder="Name"
+                    placeholder="Name*"
                     autocomplete="name"
                     @input="form.clearErrors('name')"
                 />
                 <div class="w-[15rem] relative">
                     <Dropdown align="right" width="60">
                         <template #trigger>
-                            <button type="button" :class="{'border-red-500' : form.errors.name}" class="inline-flex items-center justify-between px-3 py-3 border shadow-sm text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white w-full dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
+                            <button type="button" :class="{'border-red-500' : form.errors.sex}" class="inline-flex items-center justify-between px-3 py-3 border shadow-sm text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white w-full dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
                                 {{ form.sex ?? 'Sex' }}
                                 <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
@@ -105,7 +123,7 @@ export default {
 
                         <template #content>
                             <div class="w-60">
-                                <DropdownLink as="button" @click.prevent="form.sex = 'Male'">
+                                <DropdownLink as="button" @click.prevent="form.sex = 'Male'" @click="form.clearErrors('sex')">
                                     <div class="flex items-center gap-1">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gender-male text-blue-300" viewBox="0 0 16 16">
                                             <path fill-rule="evenodd" d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8"/>
@@ -113,7 +131,7 @@ export default {
                                         <span>Male</span>
                                     </div>
                                 </DropdownLink>
-                                <DropdownLink as="button" @click.prevent="form.sex = 'Female'">
+                                <DropdownLink as="button" @click.prevent="form.sex = 'Female'" @click="form.clearErrors('sex')">
                                     <div class="flex items-center gap-1">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gender-female text-red-300" viewBox="0 0 16 16">
                                             <path fill-rule="evenodd" d="M8 1a4 4 0 1 0 0 8 4 4 0 0 0 0-8M3 5a5 5 0 1 1 5.5 4.975V12h2a.5.5 0 0 1 0 1h-2v2.5a.5.5 0 0 1-1 0V13h-2a.5.5 0 0 1 0-1h2V9.975A5 5 0 0 1 3 5"/>
@@ -121,7 +139,7 @@ export default {
                                         <span>Female</span>
                                     </div>
                                 </DropdownLink>
-                                <DropdownLink as="button" @click.prevent="form.sex = 'Prefer not to say'">
+                                <DropdownLink as="button" @click.prevent="form.sex = 'Prefer not to say'" @click="form.clearErrors('sex')">
                                     <div class="flex items-center gap-1">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-balloon-heart text-yellow-300" viewBox="0 0 16 16">
                                             <path fill-rule="evenodd" d="m8 2.42-.717-.737c-1.13-1.161-3.243-.777-4.01.72-.35.685-.451 1.707.236 3.062C4.16 6.753 5.52 8.32 8 10.042c2.479-1.723 3.839-3.29 4.491-4.577.687-1.355.587-2.377.236-3.061-.767-1.498-2.88-1.882-4.01-.721zm-.49 8.5c-10.78-7.44-3-13.155.359-10.063q.068.062.132.129.065-.067.132-.129c3.36-3.092 11.137 2.624.357 10.063l.235.468a.25.25 0 1 1-.448.224l-.008-.017c.008.11.02.202.037.29.054.27.161.488.419 1.003.288.578.235 1.15.076 1.629-.157.469-.422.867-.588 1.115l-.004.007a.25.25 0 1 1-.416-.278c.168-.252.4-.6.533-1.003.133-.396.163-.824-.049-1.246l-.013-.028c-.24-.48-.38-.758-.448-1.102a3 3 0 0 1-.052-.45l-.04.08a.25.25 0 1 1-.447-.224l.235-.468ZM6.013 2.06c-.649-.18-1.483.083-1.85.798-.131.258-.245.689-.08 1.335.063.244.414.198.487-.043.21-.697.627-1.447 1.359-1.692.217-.073.304-.337.084-.398"/>
@@ -145,6 +163,7 @@ export default {
                     :error="form.errors.age"
                     placeholder="Age"
                     autocomplete="age"
+                    @input="form.clearErrors('age')"
                 />
                 <div :class="{'border-red-500' : form.errors.is_ip}" class="w-full relative px-2 py-0.5 flex text-center leading-none lg:flex-row flex-col-reverse items-center lg:gap-2 bg-white border rounded-md shadow-sm" @click.prevent="form.is_ip = !form.is_ip">
                     <label class="text-xs">Are you a member indigenous people?</label>
@@ -166,8 +185,9 @@ export default {
                 v-model="form.organization"
                 type="text"
                 :error="form.errors.organization"
-                placeholder="Organization/Agency"
+                placeholder="Organization/Agency*"
                 autocomplete="organization"
+                @input="form.clearErrors('organization')"
             />
             <div class="grid grid-cols-2 gap-2">
                 <TextInput
@@ -175,16 +195,18 @@ export default {
                     v-model="form.email"
                     type="text"
                     :error="form.errors.email"
-                    placeholder="Email"
+                    placeholder="Email*"
                     autocomplete="email"
+                    @input="form.clearErrors('email')"
                 />
                 <TextInput
                     id="phone"
                     v-model="form.phone"
                     type="text"
                     :error="form.errors.phone"
-                    placeholder="Phone"
+                    placeholder="Phone*"
                     autocomplete="phone"
+                    @input="form.clearErrors('phone')"
                 />
             </div>
             <div class="py-3">
@@ -192,10 +214,10 @@ export default {
                     By submitting this form, you consent to the DA-Crop Biotechnology Center collecting and using your data in accordance with our privacy policy.
                 </p>
             </div>
-            <primary-button>
+            <submit-btn>
                 <span v-if="!model?.processing">Register</span>
                 <span v-else>Registering</span>
-            </primary-button>
+            </submit-btn>
         </div>
     </form>
 </template>

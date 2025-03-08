@@ -26,8 +26,8 @@ Route::get('/', function () {
     ]);
 });
 
-Route::prefix('guest')->group(function () {
-    Route::get('/forms/{event?}', [FormController::class, 'formGuestView'])->name('forms.guest.index');
+Route::prefix('forms')->group(function () {
+    Route::get('/{event?}', [FormController::class, 'formGuestView'])->name('forms.guest.index');
 });
 
 Route::middleware([
@@ -39,16 +39,30 @@ Route::middleware([
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
-    Route::prefix('forms')->group(function () {
-        Route::get('/', function () {
-            $temp = (new App\Models\Form)->newQuery();
-            return Inertia::render('Forms/FormIndex', [
-                'listOfForms' => $temp->withCount('participants')->get(),
-            ]);
-        })->name('forms.index');
+    Route::prefix('apps')->group(function () {
+        Route::prefix('forms')->group(function () {
+            Route::get('/', function () {
+                return Inertia::render('Forms/FormIndex');
+            })->name('forms.index');
 
-        Route::get('/create', function () {
-            return Inertia::render('Forms/FormCreate');
-        })->name('forms.create');
+            Route::get('/create', function () {
+                return Inertia::render('Forms/FormCreate');
+            })->name('forms.create');
+
+            Route::get('/update/{event_id?}', function ($event_id = null) {
+                if (!$event_id) {
+                    $event_id = request()->input('event_id'); // Fallback to query parameter
+                }
+
+                if (!$event_id) {
+                    $event_id = request()->query('event_id');
+                }
+
+                return Inertia::render('Forms/FormUpdate', [
+                    'data' => Form::where('event_id', $event_id)->with('participants:participants.id,name,email,phone,organization')->first(),
+                ]);
+            })->name('forms.update');
+        });
     });
+
 });
