@@ -44,8 +44,11 @@ Route::middleware([
             $temp = (new App\Models\Form)->newQuery();
             return Inertia::render('Forms/FormIndex', [
                 'listOfForms' => $temp->withCount('participants')->get(),
-                'rawSql' => $temp->with('participants')->toRawSql()
             ]);
         })->name('forms.index');
+
+        Route::get('/create', function () {
+            return Inertia::render('Forms/FormCreate');
+        })->name('forms.create');
     });
 });

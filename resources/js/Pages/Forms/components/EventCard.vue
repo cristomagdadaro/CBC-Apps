@@ -8,7 +8,7 @@ export default {
 </script>
 
 <template>
-    <div class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100 max-w-xl">
+    <div class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100 max-w-2xl min-w-[30rem] w-full overflow-x-auto">
         <div class="flex flex-row bg-gray-200 p-2 rounded-md justify-between shadow py-4">
             <div class="flex flex-col justify-center">
                 <label class="leading-none font-semibold">{{ data.title }}</label>
@@ -85,14 +85,13 @@ export default {
             </div>
         </div>
         <div class="flex flex-col p-2">
-            <span class="font-bold uppercase text-center">Accessibility</span>
             <div class="flex gap-1 justify-center">
-                <a :href="route('forms.guest.index')" target="_blank" class="bg-green-200 text-green-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
+                <a :href="route('forms.guest.index')+'/'+data.event_id" target="_blank" class="bg-green-200 text-green-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
                     Visit
                 </a>
 
                 <button class="bg-blue-200 text-blue-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
-                    Register
+                    Registration
                 </button>
 
                 <button class="bg-cyan-200 text-cyan-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">

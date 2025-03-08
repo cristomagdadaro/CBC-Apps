@@ -44,10 +44,10 @@ export default abstract class ApiService {
         }
     }
 
-    static updateFields(): object
+    static updateFields(data: any): object
     {
         return {
-            id: null,
+            id: data.id ?? null,
         }
     }
 }

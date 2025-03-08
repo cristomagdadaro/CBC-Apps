@@ -2,22 +2,29 @@
 import AppLayout from "@/Layouts/AppLayout.vue";
 import Welcome from "@/Components/Welcome.vue";
 import ListOfForms from "@/Pages/Forms/components/ListOfForms.vue";
+import AddButton from "@/Components/Buttons/AddButton.vue";
+import Modal from "@/Components/Modal.vue";
+import { Link } from '@inertiajs/vue3';
+import FormsHeaderActions from "@/Pages/Forms/components/FormsHeaderActions.vue";
 
 export default {
     name: "FormIndex",
     props: {
         listOfForms: Object,
     },
-    components: {ListOfForms, Welcome, AppLayout}
+    components: {FormsHeaderActions, Modal, AddButton, ListOfForms, Welcome, AppLayout, Link},
+    data() {
+        return {
+
+        }
+    }
 }
 </script>
 
 <template>
     <AppLayout title="Attendance Forms">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                Attendance Forms
-            </h2>
+            <forms-header-actions />
         </template>
 
         <div class="py-12">

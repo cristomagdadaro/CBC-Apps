@@ -90,7 +90,7 @@ export default {
                             ref="cell1"
                             v-model="eventId.cell1"
                             type="number"
-                            class="w-full text-center"
+                            classes="text-center"
                             required
                             autofocus
                             @input="handleInput('cell1', $event)"
@@ -103,7 +103,7 @@ export default {
                             ref="cell2"
                             v-model="eventId.cell2"
                             type="number"
-                            class="w-full text-center"
+                            classes="text-center"
                             required
                             @input="handleInput('cell2', $event)"
                             @keydown.backspace="handleBackspace('cell2', $event)"
@@ -115,7 +115,7 @@ export default {
                             ref="cell3"
                             v-model="eventId.cell3"
                             type="text"
-                            class="w-full text-center"
+                            classes="text-center"
                             required
                             @input="handleInput('cell3', $event)"
                             @keydown.backspace="handleBackspace('cell3', $event)"
@@ -127,7 +127,7 @@ export default {
                             ref="cell4"
                             v-model="eventId.cell4"
                             type="number"
-                            class="w-full text-center"
+                            classes="text-center"
                             required
                             @input="handleInput('cell4', $event)"
                             @keydown.backspace="handleBackspace('cell4', $event)"

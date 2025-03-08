@@ -4,23 +4,18 @@ import DtoForm from "@/Modules/dto/DtoForm";
 export default class Form extends ApiService {
     static model = DtoForm;
     private _apiIndex: string;
-    private _apiRegistrationPost: string;
+    private _apiPost: string;
 
     constructor(response: DtoForm) {
         super(response);
-;
-        this._apiIndex = 'api.form.guest.index'
-        this._apiRegistrationPost = 'api.form.registration.post';
+
+        this._apiIndex = 'api.form.guest.index';
+        this._apiPost = 'api.form.post';
     }
 
     async getIndex(params: any)
     {
         return await this.get(this._apiIndex, params);
-    }
-
-    async postIndex(params: any)
-    {
-        return await this.post(this._apiRegistrationPost, params);
     }
 
     get apiIndex(): string {
@@ -31,40 +26,44 @@ export default class Form extends ApiService {
         this._apiIndex = value;
     }
 
+    async postIndex(params: any)
+    {
+        return await this.post(this._apiPost, params);
+    }
+
     static createFields(): object
     {
         return {
-            name: null,
-            email: null,
-            phone: null,
-            sex: null,
-            age: null,
-            organization: null,
-            is_ip: false,
-            is_pwd: false,
-            city_address: null,
-            province_address: null,
-            country_address: null,
-            agreed_tc: false,
             event_id: null,
+            title: null,
+            description: null,
+            details: null,
+            date_from: null,
+            date_to: null,
+            time_from: null,
+            time_to: null,
+            venue: null,
+            has_pretest: false,
+            has_posttest: false,
+            has_preregistration: false,
         }
     }
 
-    static updateFields(): object
+    static updateFields(data: IForm): object
     {
         return {
-            name: null,
-            email: null,
-            phone: null,
-            sex: null,
-            age: null,
-            organization: null,
-            is_ip: false,
-            is_pwd: false,
-            city_address: null,
-            province_address: null,
-            country_address: null,
-            agreed_tc: false,
+            event_id: data.event_id ?? null,
+            title: data.title ?? null,
+            description: data.description ?? null,
+            details: data.details ?? null,
+            date_from: data.date_from ?? null,
+            date_to: data.date_to ?? null,
+            time_from: data.time_from ?? null,
+            time_to: data.time_to ?? null,
+            venue: data.venue ?? null,
+            has_pretest: data.has_pretest ?? null,
+            has_posttest: data.has_posttest ?? null,
+            has_preregistration: data.has_preregistration ?? null,
         }
     }
 }

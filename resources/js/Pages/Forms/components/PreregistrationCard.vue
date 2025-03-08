@@ -10,6 +10,7 @@ import Form from "@/Modules/domain/Form";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
 import QrcodeVue, { QrcodeCanvas, QrcodeSvg } from 'qrcode.vue'
+import Participant from "@/Modules/domain/Participant.js";
 
 export default {
     name: "PreregistrationCard",
@@ -19,7 +20,7 @@ export default {
     },
     data() {
         return {
-            form: useForm(Form.createFields),
+            form: useForm(Participant.createFields),
             model: null,
             showSuccess: false,
             registrationIDHashed: null,
@@ -28,7 +29,7 @@ export default {
         }
     },
     mounted() {
-        this.model = new Form();
+        this.model = new Participant();
     },
     methods: {
         async submitRegistrationCard() {
@@ -82,22 +83,15 @@ export default {
         </transition-container>
         <div class="flex flex-col gap-3">
             <div class="flex flex-row gap-2 items-center">
-                <div class="w-full relative">
-                    <TextInput
-                        id="name"
-                        v-model="form.name"
-                        type="text"
-                        class="w-full"
-                        :class="{'border-red-500' : form.errors.name}"
-                        autofocus
-                        placeholder="Name"
-                        autocomplete="name"
-                        @input="form.clearErrors('name')"
-                    />
-                    <transition-container type="slide-bottom">
-                        <InputError v-show="!!form.errors.name" class="absolute -top-1 left-3" :message="form.errors.name" />
-                    </transition-container>
-                </div>
+                <TextInput
+                    id="name"
+                    v-model="form.name"
+                    :error="form.errors.name"
+                    autofocus
+                    placeholder="Name"
+                    autocomplete="name"
+                    @input="form.clearErrors('name')"
+                />
                 <div class="w-[15rem] relative">
                     <Dropdown align="right" width="60">
                         <template #trigger>
@@ -144,20 +138,14 @@ export default {
                 </div>
             </div>
             <div class="grid grid-cols-3 gap-2">
-                <div class="w-full relative">
-                    <TextInput
-                        id="age"
-                        v-model="form.age"
-                        type="number"
-                        class="w-full"
-                        :class="{'border-red-500' : form.errors.age}"
-                        placeholder="Age"
-                        autocomplete="age"
-                    />
-                    <transition-container type="slide-bottom">
-                        <InputError v-show="!!form.errors.age" class="absolute -top-1 left-3" :message="form.errors.age" />
-                    </transition-container>
-                </div>
+                <TextInput
+                    id="age"
+                    v-model="form.age"
+                    type="number"
+                    :error="form.errors.age"
+                    placeholder="Age"
+                    autocomplete="age"
+                />
                 <div :class="{'border-red-500' : form.errors.is_ip}" class="w-full relative px-2 py-0.5 flex text-center leading-none lg:flex-row flex-col-reverse items-center lg:gap-2 bg-white border rounded-md shadow-sm" @click.prevent="form.is_ip = !form.is_ip">
                     <label class="text-xs">Are you a member indigenous people?</label>
                     <Checkbox v-model="form.is_ip" :checked="form.is_ip" autofocus autocomplete="is_ip"/>
@@ -173,49 +161,31 @@ export default {
                     </transition-container>
                 </div>
             </div>
-            <div class="w-full relative">
-                <TextInput
-                    id="organization"
-                    v-model="form.organization"
-                    type="text"
-                    class="w-full"
-                    :class="{'border-red-500' : form.errors.organization}"
-                    placeholder="Organization/Agency"
-                    autocomplete="organization"
-                />
-                <transition-container type="slide-bottom">
-                    <InputError v-show="!!form.errors.organization" class="absolute -top-1 left-3" :message="form.errors.organization" />
-                </transition-container>
-            </div>
+            <TextInput
+                id="organization"
+                v-model="form.organization"
+                type="text"
+                :error="form.errors.organization"
+                placeholder="Organization/Agency"
+                autocomplete="organization"
+            />
             <div class="grid grid-cols-2 gap-2">
-                <div class="w-full relative">
-                    <TextInput
-                        id="email"
-                        v-model="form.email"
-                        type="text"
-                        :class="{'border-red-500' : form.errors.email}"
-                        class="w-full"
-                        placeholder="Email"
-                        autocomplete="email"
-                    />
-                    <transition-container type="slide-bottom">
-                        <InputError v-show="!!form.errors.email" class="absolute -top-1 left-3" :message="form.errors.email" />
-                    </transition-container>
-                </div>
-                <div class="w-full relative">
-                    <TextInput
-                        id="phone"
-                        v-model="form.phone"
-                        type="text"
-                        :class="{'border-red-500' : form.errors.phone}"
-                        class="w-full"
-                        placeholder="Phone"
-                        autocomplete="phone"
-                    />
-                    <transition-container type="slide-bottom">
-                        <InputError v-show="!!form.errors.phone" class="absolute -top-1 left-3" :message="form.errors.phone" />
-                    </transition-container>
-                </div>
+                <TextInput
+                    id="email"
+                    v-model="form.email"
+                    type="text"
+                    :error="form.errors.email"
+                    placeholder="Email"
+                    autocomplete="email"
+                />
+                <TextInput
+                    id="phone"
+                    v-model="form.phone"
+                    type="text"
+                    :error="form.errors.phone"
+                    placeholder="Phone"
+                    autocomplete="phone"
+                />
             </div>
             <div class="py-3">
                 <p class="text-xs leading-none">

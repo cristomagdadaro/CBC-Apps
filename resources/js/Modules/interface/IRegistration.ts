@@ -5,6 +5,6 @@ interface IRegistration {
     pretest_finished: boolean;
     posttest_finished: boolean;
 
-    form: Array<IForm>;
-    participant: Array<IParticipant>;
+    form: IForm;
+    participant: IParticipant;
 }

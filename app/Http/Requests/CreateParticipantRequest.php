@@ -28,6 +28,7 @@ class CreateParticipantRequest extends FormRequest
             'id' => $temp,
         ]);
     }
+
     /**
      * Get the validation rules that apply to the request.
      *
