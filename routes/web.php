@@ -49,6 +49,10 @@ Route::middleware([
                 return Inertia::render('Forms/FormCreate');
             })->name('forms.create');
 
+            Route::get('/scan', function () {
+                return Inertia::render('Forms/FormScan');
+            })->name('forms.scan');
+
             Route::get('/update/{event_id?}', function ($event_id = null) {
                 if (!$event_id) {
                     $event_id = request()->input('event_id'); // Fallback to query parameter

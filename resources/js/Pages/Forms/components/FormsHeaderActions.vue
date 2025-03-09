@@ -1,10 +1,11 @@
 <script>
 import AddButton from "@/Components/Buttons/AddButton.vue";
 import {Link} from "@inertiajs/vue3";
+import ScanBtn from "@/Components/Buttons/ScanBtn.vue";
 
 export default {
     name: "FormsHeaderActions",
-    components: {Link, AddButton}
+    components: {ScanBtn, Link, AddButton}
 }
 </script>
 
@@ -16,6 +17,9 @@ export default {
         <div class="flex justify-between items-center">
             <Link :href="route('forms.create')">
                 <add-button  title="Create new form" />
+            </Link>
+            <Link :href="route('forms.scan')">
+                <scan-btn title="Scan QR code" />
             </Link>
         </div>
     </div>

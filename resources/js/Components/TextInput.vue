@@ -46,3 +46,15 @@ defineExpose({ focus: () => input.value?.focus() });
         </transition-container>
     </div>
 </template>
+<style scoped>
+/* Hide the number input spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield; /* Hide in Firefox */
+}
+</style>

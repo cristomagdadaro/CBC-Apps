@@ -1,6 +1,6 @@
 interface IError {
     status: number;
-    statusText: string;
     message: string;
-    errors: Array<String>;
+    data: Array<String>;
+    title: string;
 }

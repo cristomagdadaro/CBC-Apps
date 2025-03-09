@@ -1,10 +1,8 @@
-import {AxiosError} from "axios";
-
 export default class DtoError extends Error implements IError{
     status: number;
-    statusText: string;
     message: string;
-    errors: Array<string>;
+    data: Array<String>;
+    title: string;
 
     constructor(error?: Partial<{
         data: {
@@ -12,14 +10,15 @@ export default class DtoError extends Error implements IError{
             errors: Array<string>;
         },
         status: number,
-        statusText: string,
+        title: string,
+        message: string,
     }>) {
         super(error.data.message);
         this.status = error.status;
-        this.statusText = error.statusText;
+        this.title = error.title;
         this.message = error.data.message;
-        this.errors = error.data.errors;
-
+        this.data = error.data;
+        console.error(this.toObject());
         return this;
     }
 
@@ -27,8 +26,8 @@ export default class DtoError extends Error implements IError{
         return {
             message: this.message,
             status: this.status,
-            statusText: this.statusText,
-            errors: this.errors,
+            title: this.title,
+            data: this.data,
         }
     }
 }

@@ -14,6 +14,7 @@ import SearchBy from "@/Components/SearchBy.vue";
 import PaginateBtn from "@/Components/PaginateBtn.vue";
 import ArrowLeft from "@/Components/Icons/ArrowLeft.vue";
 import ArrowRight from "@/Components/Icons/ArrowRight.vue";
+import ApiMixin from "@/Modules/mixins/ApiMixin";
 
 export default {
     name: "FormIndex",
@@ -21,9 +22,6 @@ export default {
         Form() {
             return Form
         }
-    },
-    props: {
-        listOfForms: Object,
     },
     components: {
         ArrowRight,
@@ -35,15 +33,9 @@ export default {
         InputError,
         FormsHeaderActions, Modal, AddButton, ListOfForms, Welcome, AppLayout, Link
     },
+    mixins: [ApiMixin],
     data() {
         return {
-            form: useForm({
-                search: null,
-                filter: null,
-                is_exact: false,
-                page: 1,
-                per_page: 10
-            }),
             eventId: {
                 cell1: null,
                 cell2: null,
@@ -51,14 +43,20 @@ export default {
                 cell4: null,
             },
             eventFormFromApi: null,
-            model: new Form(),
         }
+    },
+    beforeMount() {
+        this.model = new Form();
+        this.setFormAction('get');
+    },
+    async mounted() {
+        this.eventFormFromApi =  await this.fetchData();
     },
     methods: {
         async searchEvent() {
-
             this.eventFormFromApi = null;
-            this.eventFormFromApi = await this.model.getIndex(this.form.data());
+
+            this.eventFormFromApi = await this.fetchData();
 
             this.eventId.cell1 = null;
             this.eventId.cell2 = null;
@@ -96,11 +94,14 @@ export default {
                 this.form.search = Object.values(newVal).join('');
             },
             deep: true,
+        },
+        'form.page': {
+            handler(newVal, oldVal) {
+                this.searchEvent();
+            },
+            deep: true,
         }
     },
-    mounted() {
-        this.searchEvent();
-    }
 }
 </script>
 
@@ -112,12 +113,12 @@ export default {
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <form class="flex gap-2 items-end"  @submit.prevent="searchEvent">
+                <form v-if="!!form" class="flex gap-2 items-end"  @submit.prevent="searchEvent">
                     <div class="grid grid-rows-2 w-full">
-                        <div class="w-full flex gap-2 items-end">
+                        <div class="w-full flex gap-2 items-end lg:px-0 px-2">
                             <search-by :value="form.filter" :is-exact="form.is_exact" :options="Form.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
                             <text-input v-if="form.filter !== 'event_id'" placeholder="Search..." v-model="form.search" />
-                            <div v-else class="flex flex-col">
+                            <div v-else class="flex flex-col w-full">
                                 <div class="grid grid-cols-4 gap-0.5 items-center">
                                     <TextInput
                                         ref="cell1"
@@ -178,37 +179,104 @@ export default {
                         </div>
                         <div v-if="eventFormFromApi" class="flex w-full gap-2 items-center">
                             <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
-                                <paginate-btn @click="form.page = 1" :disabled="eventFormFromApi?.current_page === 1">First</paginate-btn>
-                                <paginate-btn @click="form.page = eventFormFromApi?.current_page-1" :disabled="true"> <arrow-left class="h-auto w-6" />Prev</paginate-btn>
+                                <!-- First Button -->
+                                <paginate-btn @click="form.page = 1" :disabled="form.page === 1">
+                                    First
+                                </paginate-btn>
+
+                                <!-- Previous Button -->
+                                <paginate-btn @click="form.page = Math.max(1, form.page - 1)" :disabled="form.page === 1">
+                                    <template v-slot:icon>
+                                        <arrow-left class="h-auto w-6" />
+                                    </template>
+                                    Prev
+                                </paginate-btn>
+
+                                <!-- Current Page Indicator -->
                                 <div class="text-xs flex flex-col whitespace-nowrap text-center">
                                     <span class="font-medium mx-1" title="current page and total pages">
-                                        <input
-                                            ref="input"
-                                            type="text"
-                                            v-model="form.page"
-                                            class="border-x-0 text-right border-t-0 border-b p-0"
-                                        /> / <input
-                                            ref="input"
-                                            type="text"
-                                            v-model="form.per_page"
-                                            class="border-x-0 text-right border-t-0 border-b p-0"
-                                        />
+                                        <span>{{ eventFormFromApi?.current_page }}</span> / <span>{{ eventFormFromApi?.last_page }}</span>
                                     </span>
                                 </div>
-                                <paginate-btn @click="form.page = eventFormFromApi?.current_page+1" :disabled="true">Next <arrow-right class="h-auto w-6" /></paginate-btn>
-                                <paginate-btn @click="form.page = eventFormFromApi.last_page" :disabled="true">Last</paginate-btn>
+
+                                <!-- Next Button -->
+                                <paginate-btn
+                                    @click="form.page = Math.min(eventFormFromApi?.last_page, form.page + 1)"
+                                    :disabled="form.page === eventFormFromApi?.last_page"
+                                >
+                                    Next
+                                    <template v-slot:icon>
+                                        <arrow-right class="h-auto w-6" />
+                                    </template>
+                                </paginate-btn>
+
+                                <!-- Last Button -->
+                                <paginate-btn
+                                    @click="form.page = eventFormFromApi?.last_page"
+                                    :disabled="form.page === eventFormFromApi?.last_page"
+                                >
+                                    Last
+                                </paginate-btn>
                             </div>
                         </div>
                     </div>
                 </form>
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
-                    <list-of-forms v-if="eventFormFromApi" :forms-data="eventFormFromApi.data"/>
+                    <list-of-forms v-if="eventFormFromApi && eventFormFromApi.total > 0" :forms-data="eventFormFromApi.data"/>
+                    <div v-else-if="eventFormFromApi && !eventFormFromApi.total" class="text-center py-3 border border-AB rounded-lg">
+                        Form does not exist. Try using some filters.
+                    </div>
+                    <div v-else-if="!eventFormFromApi && model.processing" class="text-center py-3 border border-AB rounded-lg">
+                        Searching
+                    </div>
+                    <div v-else class="text-center py-3 border border-AB rounded-lg">
+                        No forms available.
+                    </div>
+                </div>
+                <div v-if="eventFormFromApi && eventFormFromApi.data.length" class="flex w-full gap-2 items-center mt-3">
+                    <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
+                        <!-- First Button -->
+                        <paginate-btn @click="form.page = 1" :disabled="form.page === 1">
+                            First
+                        </paginate-btn>
+
+                        <!-- Previous Button -->
+                        <paginate-btn @click="form.page = Math.max(1, form.page - 1)" :disabled="form.page === 1">
+                            <template v-slot:icon>
+                                <arrow-left class="h-auto w-6" />
+                            </template>
+                            Prev
+                        </paginate-btn>
+
+                        <!-- Current Page Indicator -->
+                        <div class="text-xs flex flex-col whitespace-nowrap text-center">
+                                    <span class="font-medium mx-1" title="current page and total pages">
+                                        <span>{{ eventFormFromApi?.current_page }}</span> / <span>{{ eventFormFromApi?.last_page }}</span>
+                                    </span>
+                        </div>
+
+                        <!-- Next Button -->
+                        <paginate-btn
+                            @click="form.page = Math.min(eventFormFromApi?.last_page, form.page + 1)"
+                            :disabled="form.page === eventFormFromApi?.last_page"
+                        >
+                            Next
+                            <template v-slot:icon>
+                                <arrow-right class="h-auto w-6" />
+                            </template>
+                        </paginate-btn>
+
+                        <!-- Last Button -->
+                        <paginate-btn
+                            @click="form.page = eventFormFromApi?.last_page"
+                            :disabled="form.page === eventFormFromApi?.last_page"
+                        >
+                            Last
+                        </paginate-btn>
+                    </div>
                 </div>
             </div>
         </div>
     </AppLayout>
 </template>
 
-<style scoped>
-
-</style>

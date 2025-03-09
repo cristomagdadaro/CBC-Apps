@@ -1,6 +1,5 @@
 import axios from "axios";
 import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
-import DtoError from "@/Modules/dto/DtoError";
 
 export default abstract class ApiService {
     protected axiosInstance: any;
@@ -11,25 +10,26 @@ export default abstract class ApiService {
     }
 
     async get(url: string, params?: any) {
-
-        this.processing = true;
-        // @ts-ignore
-        const response = await axios.get(route(url), { params });
-        this.processing = false;
-        return response.data;
-    }
-
-    async post(url: string, params?: any) {
-
         this.processing = true;
         try {
-            // @ts-ignore
-            const response = await axios.post(route(url), params);
+            const response = await this.axiosInstance.get(route(url), { params });
             this.processing = false;
             return response.data;
         } catch (error) {
             this.processing = false;
-            throw error
+            throw error;
+        }
+    }
+
+    async post(url: string, params?: any) {
+        this.processing = true;
+        try {
+            const response = await this.axiosInstance.post(route(url), params);
+            this.processing = false;
+            return response.data;
+        } catch (error) {
+            this.processing = false;
+            throw error;
         }
     }
 

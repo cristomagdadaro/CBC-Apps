@@ -2,37 +2,22 @@
 import ListOfForms from "@/Pages/Forms/components/ListOfForms.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import AddButton from "@/Components/Buttons/AddButton.vue";
-import {Link, useForm} from "@inertiajs/vue3";
+import {Link} from "@inertiajs/vue3";
 import FormsHeaderActions from "@/Pages/Forms/components/FormsHeaderActions.vue";
 import TextInput from "@/Components/TextInput.vue";
 import TextArea from "@/Components/TextArea.vue";
 import DateInput from "@/Components/DateInput.vue";
 import TimeInput from "@/Components/TimeInput.vue";
 import Form from "@/Modules/domain/Form";
+import ApiMixin from "@/Modules/mixins/ApiMixin";
 
 export default {
     name: "FormCreate",
     components: {TimeInput, DateInput, TextArea, TextInput, FormsHeaderActions, Link, AddButton, AppLayout, ListOfForms},
-    props: {
-        data: { type: Object },
-    },
-    data(){
-        return {
-            form: useForm(Form.createFields),
-            model: new Form(),
-        }
-    },
-    methods: {
-        async submit() {
-            await this.model.postIndex(this.form.data()).then(response => {
-                console.log(response);
-            }).catch(error => {
-                console.log(error);
-                Object.keys(error.response?.data.errors).forEach(key => {
-                    this.form.setError(key, error.response?.data.errors[key].join(''))
-                })
-            })
-        }
+    mixins: [ApiMixin],
+    beforeMount() {
+        this.model = new Form();
+        this.setFormAction('create');
     }
 }
 </script>
@@ -43,7 +28,7 @@ export default {
             <forms-header-actions />
         </template>
 
-        <form @submit.prevent="submit"  class="py-12">
+        <form v-if="!!form" @submit.prevent="submitCreate"  class="py-12 max-w-xl mx-auto">
             <div class="w-full mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
                     <div class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100">

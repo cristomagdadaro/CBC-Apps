@@ -38,7 +38,20 @@ export default class Form extends ApiService {
         return await this.put(this._apiPut, params.event_id, params);
     }
 
-    static createFields(): object
+    getFields(): object
+    {
+        return {
+            search: null,
+            filter: null,
+            is_exact: false,
+            page: 1,
+            per_page: 10,
+            sort: 'created_at',
+            order: 'desc',
+        }
+    }
+
+    createFields(): object
     {
         return {
             event_id: null,
@@ -56,7 +69,7 @@ export default class Form extends ApiService {
         }
     }
 
-    static updateFields(data: IForm): object
+    updateFields(data: IForm): object
     {
         return {
             event_id: data.event_id ?? null,
