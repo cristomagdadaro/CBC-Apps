@@ -48,20 +48,17 @@ abstract class AbstractRepoService {
         }
     }
 
-/*     public function delete(int $id): JsonResponse
+     public function delete(int $id): Model
     {
         try {
-            $model = $this->find($id);
-
-            if ($model instanceof JsonResponse)
-                return $model;
+            $model = $this->model->findOrFail($id);
 
             $model->delete();
-            return $this->jsonResponse('deleted', $model->toArray());
+            return $model;
         } catch (\Exception $e) {
             return $this->sendError($e);
         }
-    }*/
+    }
 
 
     public function search(Collection $parameters, bool $withPagination = true, bool $isTrashed = false)

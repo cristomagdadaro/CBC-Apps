@@ -26,6 +26,7 @@ Route::middleware('guest')->prefix('guest')->group(function () {
     Route::prefix('forms')->group(function () {
         Route::post('/create', [FormController::class, 'create'])->name('api.form.post');
         Route::put('/update/{event_id?}', [FormController::class, 'update'])->name('api.form.put');
+        Route::delete('/delete/{event_id?}', [FormController::class, 'delete'])->name('api.form.delete');
         Route::get('/{event_id?}', [FormController::class, 'index'])->name('api.form.guest.index');
         Route::post('/registration/{event_id?}', [ParticipantController::class, 'post'])->name('api.form.registration.post');
     });

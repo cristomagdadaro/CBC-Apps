@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateFormRequest;
+use App\Http\Requests\DeleteFormRequest;
 use App\Http\Requests\GetFormsRequest;
 use App\Http\Requests\UpdateFormRequest;
 use App\Models\Form;
@@ -40,12 +41,19 @@ class FormController extends BaseController
         return parent::_store($request);
     }
 
-    public function update(UpdateFormRequest $data, $event_id = null): Model
+    public function update(UpdateFormRequest $request, $event_id = null): Model
     {
         $model = $this->service->model->where('event_id', $event_id)->first();
-        $model->fill($data->validated());
+        $model->fill($request->validated());
         $model->save();
 
+        return $model;
+    }
+
+    public function delete(DeleteFormRequest $request, $event_id = null): Model
+    {
+        $model = $this->service->model->where('event_id', $request->validated('event_id'))->first();
+        $model->delete();
         return $model;
     }
 }

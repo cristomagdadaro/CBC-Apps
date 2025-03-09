@@ -1,27 +1,27 @@
 <script>
-import {useForm} from "@inertiajs/vue3";
 import EventCard from "@/Pages/Forms/components/EventCard.vue";
 
 export default {
     name: "ListOfForms",
-    components: {EventCard},
+    components: { EventCard },
     props: {
-        formsData: Object,
+        formsData: Array,
     },
-    computed: {
-        columnsList() {
-            return Object.keys(this.formsData[0]);
+    methods: {
+        handleDelete(deletedModel) {
+            this.$emit("removeModel", deletedModel);
         },
-    }
-}
+    },
+};
 </script>
 
 <template>
     <div class="grid lg:grid-cols-2 grid-cols-1 gap-2 p-2">
-        <event-card v-for="data in formsData" :data="data" />
+        <event-card
+            v-for="data in formsData"
+            :key="data.id"
+            :data="data"
+            @deletedModel="handleDelete"
+        />
     </div>
 </template>
-
-<style scoped>
-
-</style>

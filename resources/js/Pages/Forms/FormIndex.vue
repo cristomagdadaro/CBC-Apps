@@ -222,17 +222,29 @@ export default {
                     </div>
                 </form>
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
-                    <list-of-forms v-if="eventFormFromApi && eventFormFromApi.total > 0" :forms-data="eventFormFromApi.data"/>
-                    <div v-else-if="eventFormFromApi && !eventFormFromApi.total" class="text-center py-3 border border-AB rounded-lg">
+                    <!-- Show forms when available -->
+                    <list-of-forms
+                        v-if="eventFormFromApi && eventFormFromApi.total > 0"
+                        :forms-data="eventFormFromApi.data"
+                        @removeModel="eventFormFromApi.data = eventFormFromApi.data.filter(form => form.id !== $event.id)"
+                    />
+
+                    <!-- Show "Searching" when processing -->
+                    <div v-else-if="model.processing" class="text-center py-3 border border-AB rounded-lg">
+                        Searching...
+                    </div>
+
+                    <!-- Show "Form does not exist" when search was performed but no results -->
+                    <div v-else-if="eventFormFromApi && eventFormFromApi.total === 0 && form.search" class="text-center py-3 border border-AB rounded-lg">
                         Form does not exist. Try using some filters.
                     </div>
-                    <div v-else-if="!eventFormFromApi && model.processing" class="text-center py-3 border border-AB rounded-lg">
-                        Searching
-                    </div>
+
+                    <!-- Show "No forms available" when nothing was returned and no search was performed -->
                     <div v-else class="text-center py-3 border border-AB rounded-lg">
                         No forms available.
                     </div>
                 </div>
+
                 <div v-if="eventFormFromApi && eventFormFromApi.data.length" class="flex w-full gap-2 items-center mt-3">
                     <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
                         <!-- First Button -->

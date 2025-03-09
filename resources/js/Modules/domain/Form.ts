@@ -13,6 +13,7 @@ export default class Form extends ApiService {
         this._apiIndex = 'api.form.guest.index';
         this._apiPost = 'api.form.post';
         this._apiPut = 'api.form.put';
+        this._apiDelete = 'api.form.delete';
     }
 
     async getIndex(params: any)
@@ -28,14 +29,19 @@ export default class Form extends ApiService {
         this._apiIndex = value;
     }
 
+    async putIndex(params: any)
+    {
+        return await this.put(this._apiPut, params.event_id, params);
+    }
+
     async postIndex(params: any)
     {
         return await this.post(this._apiPost, params);
     }
 
-    async putIndex(params: any)
+    async deleteApiIndex(params: any)
     {
-        return await this.put(this._apiPut, params.event_id, params);
+        return await this.delete(this._apiDelete, params.event_id, params);
     }
 
     getFields(): object
@@ -49,6 +55,13 @@ export default class Form extends ApiService {
             sort: 'created_at',
             order: 'desc',
         }
+    }
+
+    deleteField(model): object
+    {
+        return {
+            event_id: model.event_id ?? null,
+        };
     }
 
     createFields(): object

@@ -13,6 +13,6 @@ class FormSeeder extends Seeder
      */
     public function run(): void
     {
-        Form::factory()->count(10)->create();
+        Form::factory()->count(100)->create();
     }
 }

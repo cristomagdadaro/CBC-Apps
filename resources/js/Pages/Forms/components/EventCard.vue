@@ -1,8 +1,17 @@
 <script>
+import ApiMixin from "@/Modules/mixins/ApiMixin";
+import Form from "@/Modules/domain/Form.js";
+
 export default {
     name: "EventCard",
-    props: {
-        data: { type: Object },
+    computed: {
+        Form() {
+            return Form
+        }
+    },
+    mixins: [ApiMixin],
+    beforeMount() {
+        this.model = new Form();
     },
 }
 </script>
@@ -106,7 +115,7 @@ export default {
                     Suspend
                 </button>
 
-                <button class="bg-red-200 text-red-900 w-fit px-2 py-1 rounded" title="Permanently remove this form">
+                <button @click="submitDelete"  class="bg-red-200 text-red-900 w-fit px-2 py-1 rounded" title="Permanently remove this form">
                     Delete
                 </button>
             </div>

@@ -26,7 +26,7 @@ export default {
                     this.form = useForm(this.model.updateFields(this.data));
                     break;
                 case "delete":
-                    this.form = useForm(this.model.deleteFields);
+                    this.form = useForm(this.model.deleteField(this.data));
                     break;
                 case "get":
                     this.form = useForm(this.model.getFields);
@@ -52,7 +52,16 @@ export default {
                 return this.checkError(error);
             })
         },
-        async submitDelete() {},
+        async submitDelete() {
+            this.setFormAction('delete');
+            await this.model.deleteApiIndex(this.form.data()).then(response => {
+                this.form.reset();
+                this.form.clearErrors();
+                this.$emit('deletedModel', response);
+            }).catch(error => {
+                return this.checkError(error);
+            })
+        },
         checkError(error) {
             let dto = null;
             if (error instanceof TypeError)
@@ -77,7 +86,13 @@ export default {
                     })
                 }
             }
-
+            else {
+                dto = new DtoError({
+                    title: error.name,
+                    message: error.message
+                })
+            }
+            console.log(dto.toObject());
             return dto;
         }
     }

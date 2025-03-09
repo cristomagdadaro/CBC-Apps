@@ -9,11 +9,13 @@ import Checkbox from "@/Components/Checkbox.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
 import QrcodeVue, { QrcodeCanvas, QrcodeSvg } from 'qrcode.vue'
-import Participant from "@/Modules/domain/Participant.js";
+import Participant from "@/Modules/domain/Participant";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
+import ApiMixin from "@/Modules/mixins/ApiMixin";
 
 export default {
     name: "PreregistrationCard",
+    mixins: [ApiMixin],
     components: {
         SubmitBtn,
         TransitionContainer, PrimaryButton, Checkbox, Dropdown, DropdownLink, InputError, InputLabel, TextInput, QrcodeVue, QrcodeCanvas, QrcodeSvg},
@@ -22,7 +24,6 @@ export default {
     },
     data() {
         return {
-            form: useForm(Participant.createFields),
             model: null,
             showSuccess: false,
             registrationIDHashed: null,
@@ -30,41 +31,15 @@ export default {
             size: 200,
         }
     },
-    mounted() {
+    beforeMount() {
         this.model = new Participant();
-    },
-    methods: {
-        async submitRegistrationCard() {
-            if (this.eventId)
-                this.form.event_id = this.eventId;
-            else
-            {
-                alert("No event id is provided");
-                return;
-            }
-
-            await this.model.postIndex(this.form.data()).then(response => {
-                this.checkResponseStatus(response);
-            }).catch(error => {
-
-                if (error.response.status === 422) {
-                    Object.keys(error.response?.data.errors).forEach(key => {
-                        this.form.setError(key, error.response?.data.errors[key].join(''))
-                    })
-                }
-            });
-        },
-        checkResponseStatus(response) {
-            this.form.clearErrors();
-            this.showSuccess = response.status === 'success';
-            this.registrationIDHashed = response.participant_hash;
-        },
+        this.setFormAction('create');
     },
 }
 </script>
 
 <template>
-    <form  @submit.prevent="submitRegistrationCard" class="px-1 py-4 select-none relative border-t border-gray-800 mt-3">
+    <form v-if="form" @submit.prevent="submitCreate" class="px-1 py-4 select-none relative border-t border-gray-800 mt-3">
         <transition-container type="slide-top">
             <div v-show="showSuccess" class="absolute flex top-0 left-0 bg-AC bg-opacity-75 w-full h-full z-50 text-white text-xl font-medium justify-center items-center">
                 <button @click.prevent="showSuccess = false; form.reset()" class="absolute top-0 right-0 p-2">
@@ -94,9 +69,12 @@ export default {
                 </div>
             </div>
         </transition-container>
-        <div class="py-3">
+        <div class="pb-3 pt-1">
+            <h3 class="text-lg font-semibold leading-tight">
+                Preregistration
+            </h3>
             <p class="text-xs leading-none">
-                Please fill-in the details
+                Kindly provide the required and correct details. Fields marked with * are required.
             </p>
         </div>
         <div class="flex flex-col gap-3">

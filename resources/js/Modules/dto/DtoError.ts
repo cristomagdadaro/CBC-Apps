@@ -13,12 +13,12 @@ export default class DtoError extends Error implements IError{
         title: string,
         message: string,
     }>) {
-        super(error.data.message);
+        super(error.data);
         this.status = error.status;
         this.title = error.title;
-        this.message = error.data.message;
+        this.message = error.message;
         this.data = error.data;
-        console.error(this.toObject());
+
         return this;
     }
 

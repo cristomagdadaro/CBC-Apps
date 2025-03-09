@@ -47,6 +47,21 @@ export default abstract class ApiService {
         }
     }
 
+    async delete(url: string, id: any, params?: any) {
+
+        this.processing = true;
+        try {
+            // @ts-ignore
+            const response = await axios.delete(`${route(url)}/${id}`, params);
+
+            this.processing = false;
+            return response.data;
+        } catch (error) {
+            this.processing = false;
+            throw error;
+        }
+    }
+
     castToModel(response: any) {
         if (!response || !ApiService.model) return [];
         return response.map((item: any) => (item ? new ApiService.model(item) : null));

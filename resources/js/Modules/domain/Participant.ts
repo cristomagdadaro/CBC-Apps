@@ -31,7 +31,7 @@ export default class Participant extends ApiService {
         return await this.post(this._apiPost, params);
     }
 
-    static createFields(): object
+    createFields(): object
     {
         return {
             name: null,
@@ -50,7 +50,7 @@ export default class Participant extends ApiService {
         }
     }
 
-    static updateFields(): object
+    updateFields(): object
     {
         return {
             name: null,
