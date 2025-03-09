@@ -19,6 +19,12 @@ createInertiaApp({
         vueApp.component('Head', Head);
         vueApp.component('Link', Link);
 
+        // Set global property
+        vueApp.config.globalProperties.$appVersion = import.meta.env.VITE_APP_VERSION;
+        vueApp.config.globalProperties.$appName = import.meta.env.VITE_APP_NAME;
+        vueApp.config.globalProperties.$companyName = import.meta.env.VITE_COMPANY_NAME;
+        vueApp.config.globalProperties.$companyNameShort = import.meta.env.VITE_COMPANY_NAME_SHORT;
+
         return vueApp
             .use(plugin)
             .use(ZiggyVue)

@@ -95,12 +95,12 @@ export default {
     <div class="absolute top-0 left-0 w-full h-full z-[999]">
         <div class="relative sm:flex flex-col gap-5 sm:justify-center sm:items-center min-h-screen">
             <div class="border select-none p-2 rounded-md flex flex-col gap-2 bg-gray-100 max-w-xl w-full drop-shadow-lg">
-                <div class="flex flex-row bg-AB text-white p-2 px-4 rounded-md gap-2 shadow py-4">
+                <div class="relative flex flex-row bg-AB text-white p-2 px-4 rounded-md gap-2 shadow py-4">
                     <img src="/imgs/logo.png" alt="logo" class="w-auto h-16" />
                     <div class="flex flex-col justify-center">
-                        <label class="leading-none font-semibold text-xl">DA-CBC Attendance Form</label>
-                        <p class="text-xs leading-none">
-                            For the form id, kindly check the invitation or ask the organizer
+                        <label class="leading-none font-semibold text-xl">Event Forms</label>
+                        <p class="text-sm leading-none">
+                            For the event id, kindly check the invitation or ask the organizers.
                         </p>
                     </div>
                 </div>
@@ -212,15 +212,15 @@ export default {
     }
 
     .bg-gradient-radial {
-        background: radial-gradient(circle, #A4B465, #dddddd, #ffffff, #3A7D44);
-        background-size: 100% 100%;
+        background: radial-gradient(circle, #42C2FF, #EC8305);
+        background-size: 200% 200%;
         position: absolute;
-        width: 200%;
-        height: 200%;
-        top: -50%;
-        left: -50%;
-        animation: rotateGradient 15s linear infinite;
+        width: 300%;
+        height: 300%;
+        min-width: 1700px;
+        top: -100%;
+        left: -70%;
+        animation: rotateGradient 10s linear infinite;
     }
-
 
 </style>
