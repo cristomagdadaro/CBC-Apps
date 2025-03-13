@@ -84,8 +84,6 @@ export default {
             if (!this.eventId[field] && event.key === 'Backspace' && this.$refs[`cell${index - 1}`]) {
                 this.$refs[`cell${index - 1}`].focus();
             }
-
-            this.eventFormFromApi = null;
         }
     },
     watch: {

@@ -10,10 +10,13 @@ import DateInput from "@/Components/DateInput.vue";
 import TimeInput from "@/Components/TimeInput.vue";
 import Form from "@/Modules/domain/Form";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
+import SuspendFormBtn from "@/Pages/Forms/components/SuspendFormBtn.vue";
 
 export default {
     name: "FormUpdate",
-    components: {TimeInput, DateInput, TextArea, TextInput, FormsHeaderActions, Link, AddButton, AppLayout, ListOfForms},
+    components: {
+        SuspendFormBtn,
+        TimeInput, DateInput, TextArea, TextInput, FormsHeaderActions, Link, AddButton, AppLayout, ListOfForms},
     mixins: [ApiMixin],
     beforeMount() {
         this.model = new Form();
@@ -22,7 +25,7 @@ export default {
     methods: {
         async handleUpdate() {
             console.log(await this.submitUpdate());
-        }
+        },
     }
 }
 </script>
@@ -92,7 +95,8 @@ export default {
                                 </div>
                             </div>
                             <div class="flex flex-col p-2">
-                                <div class="flex gap-1 justify-end">
+                                <div class="flex gap-1 justify-between">
+                                   <suspend-form-btn :data="form" />
                                     <button class="bg-blue-200 text-blue-900 w-fit px-4 py-2 rounded" title="Temporarily stop accepting responses">
                                         Update
                                     </button>

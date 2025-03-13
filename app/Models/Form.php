@@ -25,6 +25,7 @@ class Form extends BaseModel
         'has_pretest',
         'has_posttest',
         'has_preregistration',
+        'is_suspended'
     ];
 
     protected $casts = [

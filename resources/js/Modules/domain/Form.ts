@@ -6,6 +6,7 @@ export default class Form extends ApiService {
     private _apiIndex: string;
     private _apiPost: string;
     private _apiPut: string;
+    private _apiDelete: string;
 
     constructor(response: DtoForm) {
         super(response);
@@ -97,6 +98,7 @@ export default class Form extends ApiService {
             has_pretest: data.has_pretest ?? null,
             has_posttest: data.has_posttest ?? null,
             has_preregistration: data.has_preregistration ?? null,
+            is_suspended: data.is_suspended ?? null,
         }
     }
 

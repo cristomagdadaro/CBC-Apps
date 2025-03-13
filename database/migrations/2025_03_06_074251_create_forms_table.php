@@ -25,6 +25,7 @@ return new class extends Migration
             $table->boolean('has_pretest')->default(false);
             $table->boolean('has_posttest')->default(false);
             $table->boolean('has_preregistration')->default(false);
+            $table->boolean('is_suspended')->default(false);
 
             $table->timestamps();
         });

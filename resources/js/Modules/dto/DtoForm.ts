@@ -14,18 +14,15 @@ export default class DtoForm extends DtoBaseClass implements IForm{
     has_pretest: boolean;
     has_posttest: boolean;
     has_preregistration: boolean;
+    is_suspended: boolean;
 
     registrations: Array<IRegistration>
     participants: Array<IParticipant>
 
-    table: string;
-    created_at: Date;
-    updated_at: Date;
-    delete_at: Date;
-
     constructor(data: IForm) {
         super(data);
 
+        this.title = 'forms';
         this.event_id = data.event_id;
         this.title = data.title;
         this.description = data.description;
@@ -38,5 +35,6 @@ export default class DtoForm extends DtoBaseClass implements IForm{
         this.has_pretest = data.has_pretest;
         this.has_posttest = data.has_posttest;
         this.has_preregistration = data.has_preregistration;
+        this.is_suspended = data.is_suspended;
     }
 }

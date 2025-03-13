@@ -39,6 +39,7 @@ class FormFactory extends Factory
             'has_pretest' => $pretest,
             'has_posttest' => $pretest,
             'has_preregistration' => $this->faker->boolean(),
+            'is_suspended' => $this->faker->boolean(),
         ];
 
     }

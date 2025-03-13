@@ -53,6 +53,7 @@ class CreateFormRequest extends FormRequest
             'has_pretest' => 'nullable|boolean',
             'has_posttest' => 'nullable|boolean',
             'has_preregistration' => 'nullable|boolean',
+            'is_suspended' => 'nullable|boolean',
         ];
     }
 }
