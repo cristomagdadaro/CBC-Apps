@@ -2,7 +2,6 @@
 import TextInput from "@/Components/TextInput.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import InputError from "@/Components/InputError.vue";
-import {useForm} from "@inertiajs/vue3";
 import DropdownLink from "@/Components/DropdownLink.vue";
 import Dropdown from "@/Components/Dropdown.vue";
 import Checkbox from "@/Components/Checkbox.vue";
@@ -13,10 +12,11 @@ import Participant from "@/Modules/domain/Participant";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import DtoResponse from "@/Modules/dto/DtoResponse";
+import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 
 export default {
     name: "PreregistrationCard",
-    mixins: [ApiMixin],
+    mixins: [ApiMixin, FormLocalMixin],
     components: {
         SubmitBtn,
         TransitionContainer, PrimaryButton, Checkbox, Dropdown, DropdownLink, InputError, InputLabel, TextInput, QrcodeVue, QrcodeCanvas, QrcodeSvg},
@@ -38,6 +38,7 @@ export default {
             this.showSuccess = response.status === 201;
             if (response instanceof DtoResponse) {
                 this.registrationIDHashed = response.data.participant_hash;
+                this.saveLocalHashedIds(response.data);
             }
         }
     },
@@ -46,6 +47,7 @@ export default {
         this.setFormAction('create');
         this.form.event_id = this.eventId;
     },
+
 }
 </script>
 

@@ -37,7 +37,8 @@ class ParticipantController extends BaseController
 
             return response()->json([
                 'status' => 'success',
-                'participant_hash' => $temp
+                'participant_hash' => $temp,
+                'event_id' => $request->validated('event_id'),
             ], 201);
 
         } catch (\Exception $e) {

@@ -22,10 +22,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
-Route::middleware('guest')->prefix('guest')->group(function () {
+Route::prefix('guest')->group(function () {
     Route::prefix('forms')->group(function () {
         Route::get('/{event_id?}', [FormController::class, 'index'])->name('api.form.guest.index');
-        Route::delete('/delete/{event_id?}', [FormController::class, 'delete'])->name('api.form.delete');
         Route::middleware('check.form.suspended')->post('/registration/{event_id?}', [ParticipantController::class, 'post'])->name('api.form.registration.post');
     });
 
@@ -35,9 +34,9 @@ Route::middleware('guest')->prefix('guest')->group(function () {
 Route::middleware(['api','auth:sanctum','verified'])->group(function () {
     Route::prefix('forms')->group(function () {
         Route::get('/', [FormController::class, 'index'])->name('api.form.index');
-        Route::middleware('check.form.suspended')->put('/update/{event_id?}', [FormController::class, 'update'])->name('api.form.put');
+        Route::get('/{event_id?}', [FormController::class, 'show'])->name('api.form.show');
         Route::post('/create', [FormController::class, 'create'])->name('api.form.post');
+        Route::delete('/delete/{event_id?}', [FormController::class, 'delete'])->name('api.form.delete');
         Route::middleware('check.form.suspended')->put('/update/{event_id?}', [FormController::class, 'update'])->name('api.form.put');
-
     });
 });

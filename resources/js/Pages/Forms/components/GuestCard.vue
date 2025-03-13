@@ -138,8 +138,8 @@ export default {
             </div>
             <p class="text-sm leading-none text-justify">{{ data.details }}</p>
         </div>
-        <div v-if="data.has_preregistration && data.has_pretest && data.has_posttest" class="px-1 py-2 select-none bg-gray-300">
-            <div class="grid grid-cols-3 justify-items-center">
+        <div class="px-1 py-2 select-none bg-gray-300">
+            <div class="flex justify-evenly items-center">
                 <div v-if="data.has_preregistration" class="flex items-center gap-1" title="Require guests to pre-register">
                     <div v-if="data.has_preregistration" class="rounded-full shadow bg-AC text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">

@@ -243,7 +243,7 @@ export default {
                     </div>
                 </div>
 
-                <div v-if="eventFormFromApi && eventFormFromApi.data.length" class="flex w-full gap-2 items-center mt-3">
+                <div v-if="eventFormFromApi && eventFormFromApi.data?.length" class="flex w-full gap-2 items-center mt-3">
                     <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
                         <!-- First Button -->
                         <paginate-btn @click="form.page = 1" :disabled="form.page === 1">

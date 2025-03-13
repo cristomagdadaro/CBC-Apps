@@ -7,7 +7,6 @@ import DeleteBtn from "@/Components/Buttons/DeleteBtn.vue";
 import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
 import SuspendFormBtn from "@/Pages/Forms/components/SuspendFormBtn.vue";
 import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
-import DtoError from "@/Modules/dto/DtoError.js";
 import DtoResponse from "@/Modules/dto/DtoResponse";
 export default {
     name: "EventCard",
@@ -17,8 +16,7 @@ export default {
             return Form
         },
         formsData(){
-            console.log(this.updatedData instanceof DtoError)
-            if (this.updatedData){
+            if (this.updatedData && this.updatedData instanceof DtoResponse){
                 return this.updatedData;
             }
             return this.data;
