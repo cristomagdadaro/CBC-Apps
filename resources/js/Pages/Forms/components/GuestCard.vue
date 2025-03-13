@@ -166,7 +166,11 @@ export default {
                 </div>
             </div>
         </div>
-        <preregistration-card :event-id="data.event_id" />
+        <div v-show="data.is_suspended" v-if="data.is_suspended" class="flex flex-col border-t p-2 bg-yellow-300 w-full min-w-full rounded-md">
+            <span class="font-bold uppercase leading-none text-center">This Form is suspended</span>
+            <span class="leading-none text-xs text-center">unable to accept registration</span>
+        </div>
+        <preregistration-card v-else :event-id="data.event_id" />
     </div>
 </template>
 

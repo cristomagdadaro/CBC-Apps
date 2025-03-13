@@ -67,4 +67,9 @@ class Form extends BaseModel
             'participant_id' // Local key on registrations table
         );
     }
+
+    public function isSuspended(): bool
+    {
+        return $this->is_suspended;
+    }
 }

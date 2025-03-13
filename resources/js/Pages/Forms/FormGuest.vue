@@ -204,7 +204,7 @@ export default {
                     </div>
                 </transition-container>
             </div>
-        </div>{{ eventForm }}
+        </div>
     </div>
     <div class="min-h-screen flex items-center justify-center text-white text-3xl font-bold relative overflow-hidden">
         <div class="absolute inset-0 bg-gradient-radial animate-gradient"></div>

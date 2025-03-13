@@ -62,9 +62,8 @@ export default {
         async submitDelete() {
             this.setFormAction('delete');
             return await this.model.deleteApiIndex(this.form.data()).then(response => {
-                this.form.reset();
-                this.form.clearErrors();
-                this.$emit('deletedModel', response);
+                this.resetForm();
+                return new DtoResponse(response);
             }).catch(error => {
                 return this.checkError(error);
             })
@@ -94,7 +93,15 @@ export default {
                     status: error.response.status,
                 });
 
-                if (dto.status === 422){
+                // Validation Errors
+                if (dto.status === 422) {
+                    Object.keys(dto.data.errors).forEach(key => {
+                        this.form.setError(key, dto.data.errors[key].join(''))
+                    })
+                }
+
+                // Authorization Errors
+                if (dto.status === 403) {
                     Object.keys(dto.data.errors).forEach(key => {
                         this.form.setError(key, dto.data.errors[key].join(''))
                     })

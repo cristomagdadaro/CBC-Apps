@@ -7,7 +7,8 @@ import DeleteBtn from "@/Components/Buttons/DeleteBtn.vue";
 import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
 import SuspendFormBtn from "@/Pages/Forms/components/SuspendFormBtn.vue";
 import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
-
+import DtoError from "@/Modules/dto/DtoError.js";
+import DtoResponse from "@/Modules/dto/DtoResponse";
 export default {
     name: "EventCard",
     components: {TransitionContainer, SuspendFormBtn, CancelBtn, DeleteBtn, ConfirmationModal, Modal},
@@ -16,6 +17,7 @@ export default {
             return Form
         },
         formsData(){
+            console.log(this.updatedData instanceof DtoError)
             if (this.updatedData){
                 return this.updatedData;
             }
@@ -30,13 +32,23 @@ export default {
         return {
             confirmDelete: false,
             updatedData: null,
+            errors: null,
         }
     },
     methods: {
-        handleDelete()
+        confirmAction()
         {
             this.confirmDelete = true;
         },
+       async handleDelete()
+        {
+            const response = await this.submitDelete();
+            if (response instanceof DtoResponse)
+            {
+                this.confirmDelete = false;
+                this.$emit("deletedModel", response.data);
+            }
+        }
     },
 }
 </script>
@@ -81,9 +93,10 @@ export default {
             <p class="text-sm leading-none">{{ formsData.details }}</p>
         </div>
 
-            <div class="px-1 flex flex-row w-full">
-                <transition-container type="slide-right" :duration="500">
-                    <div v-show="!formsData.is_suspended" v-if="!formsData.is_suspended" class="w-full">
+        <div class="px-1 flex w-full">
+            <transition-container type="slide-right" :duration="1000">
+                <div v-show="!formsData.is_suspended" v-if="!formsData.is_suspended" class="relative w-full min-w-full">
+                    <div class="w-full ">
                         <label class="font-bold uppercase" title="Additional steps for the form">
                             Evaluation Requirements
                         </label>
@@ -102,14 +115,17 @@ export default {
                             </div>
                         </div>
                     </div>
-                </transition-container>
-                <transition-container type="slide-left" :duration="500">
-                    <div v-show="formsData.is_suspended" v-if="formsData.is_suspended" class="flex flex-col border-t p-2 bg-yellow-300 w-full">
+                </div>
+            </transition-container>
+            <transition-container type="slide-right" :duration="1000">
+                <div v-show="formsData.is_suspended" v-if="formsData.is_suspended" class="relative w-full min-w-full">
+                    <div class="flex flex-col border-t p-2 bg-yellow-300 w-full" >
                         <span class="font-bold uppercase leading-none text-center">This Form is suspended</span>
                         <span class="leading-none text-xs text-center">will not be able to accept request</span>
                     </div>
-                </transition-container>
-            </div>
+                </div>
+            </transition-container>
+        </div>
         <div class="flex flex-col border-t p-2 bg-gray-200 rounded-md">
             <span class="font-bold uppercase text-center">Statistics</span>
             <div class="flex gap-1 justify-center">
@@ -147,12 +163,13 @@ export default {
                     Export
                 </button>
 
-                <suspend-form-btn :data="formsData" @updated="updatedData = $event.data" />
+                <suspend-form-btn :data="formsData" @updated="updatedData = $event.data" @failedUpdate="errors = $event"/>
 
-                <button @click="handleDelete"  class="bg-red-200 text-red-900 w-fit px-2 py-1 rounded" title="Permanently remove this form">
+                <button @click="confirmAction"  class="bg-red-200 text-red-900 w-fit px-2 py-1 rounded" title="Permanently remove this form">
                     Delete
                 </button>
             </div>
+            <label class="text-xs text-center text-red-600">{{errors?.toObject()?.message}}</label>
         </div>
         <confirmation-modal :show="confirmDelete" @close="confirmDelete = false">
             <template v-slot:title>
@@ -165,7 +182,7 @@ export default {
 
             <template v-slot:footer>
                <div class="flex justify-between w-full">
-                   <delete-btn @close="confirmDelete = false" @click="submitDelete" :class="{'animate-pulse':model.processing}">
+                   <delete-btn @close="confirmDelete = false" @click="handleDelete" :class="{'animate-pulse':model.processing}">
                     <span v-if="!model.processing">
                         Confirm
                     </span>
@@ -173,6 +190,7 @@ export default {
                         Deleting
                     </span>
                    </delete-btn>
+                   <label v-if="form" class="text-red-600 text-sm">{{ form.errors.event_id}}</label>
                    <cancel-btn @click="confirmDelete = false">
                        Cancel
                    </cancel-btn>

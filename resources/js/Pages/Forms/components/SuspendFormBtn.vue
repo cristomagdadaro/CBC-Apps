@@ -1,6 +1,7 @@
 <script>
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Form from "@/Modules/domain/Form";
+import DtoError from "@/Modules/dto/DtoError.js";
 
 export default {
     name: "SuspendFormBtn",
@@ -16,8 +17,12 @@ export default {
         async handleUpdateSuspended() {
             this.form.is_suspended = !this.form.is_suspended;
             const response = await this.submitUpdate();
-            this.form.is_suspended = response.data.is_suspended;
-            this.$emit("updated", response);
+            if(!(response instanceof DtoError)) {
+                this.form.is_suspended = response.data.is_suspended;
+                this.$emit("updated", response);
+            }else {
+                this.$emit("failedUpdate", response);
+            }
         }
     }
 }

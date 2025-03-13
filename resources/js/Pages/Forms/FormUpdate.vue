@@ -38,7 +38,7 @@ export default {
         <div class="py-12 mx-auto flex flex-col gap-5 max-w-5xl">
             <form v-if="!!form" @submit.prevent="handleUpdate" class="max-w-3xl min-w-xl w-full mx-auto">
                 <div class="w-full mx-auto sm:px-6 lg:px-8 flex flex-col gap-6">
-                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg" :class="{'border border-red-600': form.hasErrors}">
                         <div class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100">
                             <div class="flex flex-row w-full gap-3 bg-gray-200 p-2 rounded-md justify-between shadow py-4">
                                 <div class="flex flex-col justify-center gap-1 w-full">

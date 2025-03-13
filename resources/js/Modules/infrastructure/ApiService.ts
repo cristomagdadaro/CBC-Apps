@@ -55,7 +55,7 @@ export default abstract class ApiService {
             const response = await axios.delete(`${route(url)}/${id}`, params);
 
             this.processing = false;
-            return response.data;
+            return response;
         } catch (error) {
             this.processing = false;
             throw error;
