@@ -201,26 +201,4 @@ export default {
         -webkit-appearance: none;
         margin: 0;
     }
-
-    @keyframes rotateGradient {
-        0% {
-            transform: rotate(0deg);
-        }
-        100% {
-            transform: rotate(360deg);
-        }
-    }
-
-    .bg-gradient-radial {
-        background: radial-gradient(circle, #42C2FF, #EC8305);
-        background-size: 200% 200%;
-        position: absolute;
-        width: 300%;
-        height: 300%;
-        min-width: 1700px;
-        top: -100%;
-        left: -70%;
-        animation: rotateGradient 10s linear infinite;
-    }
-
 </style>

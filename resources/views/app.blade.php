@@ -20,3 +20,59 @@
         @inertia
     </body>
 </html>
+
+<style>
+    @keyframes fall {
+        to {
+            transform: translateY(100vh); /* Move to bottom */
+            opacity: 0;
+        }
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    @keyframes rotateGradient {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .bg-gradient-radial {
+        background: radial-gradient(circle, #42C2FF, #EC8305);
+        background-size: 200% 200%;
+        position: absolute;
+        width: 300%;
+        height: 300%;
+        min-width: 3000px;
+        top: -90%;
+        left: -100%;
+        animation: rotateGradient 10s linear infinite;
+    }
+
+</style>
+
+
+<style>
+    #falling-logos {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        pointer-events: none; /* Prevent interaction */
+    }
+
+    .falling-logo {
+        position: absolute;
+        top: -50px; /* Start slightly above viewport */
+        animation: fall linear infinite;
+    }
+</style>
