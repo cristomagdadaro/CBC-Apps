@@ -8,7 +8,6 @@ export default class Participant extends ApiService {
 
     constructor(response: DtoParticipant) {
         super(response);
-
         this._apiIndex = 'api.form.participants.index'
         this._apiPost = 'api.form.registration.post';
     }

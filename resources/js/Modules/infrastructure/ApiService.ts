@@ -26,7 +26,7 @@ export default abstract class ApiService {
         try {
             const response = await this.axiosInstance.post(route(url), params);
             this.processing = false;
-            return response.data;
+            return response;
         } catch (error) {
             this.processing = false;
             throw error;
@@ -40,7 +40,7 @@ export default abstract class ApiService {
             // @ts-ignore
             const response = await axios.put(`${route(url)}/${id}`, params);
             this.processing = false;
-            return response.data;
+            return response;
         } catch (error) {
             this.processing = false;
             throw error;

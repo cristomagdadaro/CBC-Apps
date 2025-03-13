@@ -101,7 +101,7 @@ export default {
 
 <template>
 
-    <div v-if="!!data" class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100 max-w-xl drop-shadow-lg">
+    <div v-if="!!data" class="border p-2 md:rounded-md flex flex-col gap-2 bg-gray-100 max-w-xl drop-shadow-lg">
         <div class="flex flex-row bg-AB gap-2 text-white p-2 rounded-md justify-between shadow py-4">
             <div class="flex flex-col justify-center drop-shadow">
                 <label class="leading-none font-semibold text-2xl">{{ data.title }}</label>

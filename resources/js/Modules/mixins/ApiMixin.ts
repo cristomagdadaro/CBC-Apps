@@ -2,6 +2,7 @@ import {useForm} from "@inertiajs/vue3";
 import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
 import {AxiosError} from "axios";
 import DtoError from "@/Modules/dto/DtoError";
+import DtoResponse from "@/Modules/dto/DtoResponse";
 
 export default {
     props: {
@@ -36,25 +37,31 @@ export default {
         async fetchData() {
             return await this.model.getIndex(this.form.data());
         },
-        async submitCreate() {
-            await this.model.postIndex(this.form.data()).then(response => {
-                this.form.reset();
-                this.form.clearErrors();
+        async submitCreate(toCast: boolean = false, except: string = '') {
+            return await this.model.postIndex(this.form.data()).then(response => {
+                this.resetForm(except);
+                if (toCast) {
+                    return new DtoResponse(response).castDataToModel(this.model.constructor);
+                }
+                return new DtoResponse(response);
             }).catch(error => {
                 return this.checkError(error);
             })
         },
-        async submitUpdate() {
-            await this.model.putIndex(this.form.data()).then(response => {
-                this.form.reset();
-                this.form.clearErrors();
+        async submitUpdate(toCast: boolean = false, except: string = '') {
+            return await this.model.putIndex(this.form.data()).then(response => {
+                this.resetForm(except);
+                if (toCast) {
+                    return new DtoResponse(response).castDataToModel(this.model.constructor);
+                }
+                return new DtoResponse(response);
             }).catch(error => {
                 return this.checkError(error);
             })
         },
         async submitDelete() {
             this.setFormAction('delete');
-            await this.model.deleteApiIndex(this.form.data()).then(response => {
+            return await this.model.deleteApiIndex(this.form.data()).then(response => {
                 this.form.reset();
                 this.form.clearErrors();
                 this.$emit('deletedModel', response);
@@ -62,8 +69,15 @@ export default {
                 return this.checkError(error);
             })
         },
+        resetForm(retain: string){
+            const temp = this.form[retain];
+            this.form.reset();
+            this.form.clearErrors();
+            this.form[retain] = temp;
+        },
         checkError(error) {
             let dto = null;
+            console.log(error);
             if (error instanceof TypeError)
             {
                 dto = new DtoError({
@@ -92,7 +106,6 @@ export default {
                     message: error.message
                 })
             }
-            console.log(dto.toObject());
             return dto;
         }
     }

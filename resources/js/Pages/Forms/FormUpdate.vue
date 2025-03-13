@@ -18,6 +18,11 @@ export default {
     beforeMount() {
         this.model = new Form();
         this.setFormAction('update');
+    },
+    methods: {
+        async handleUpdate() {
+            console.log(await this.submitUpdate());
+        }
     }
 }
 </script>
@@ -28,7 +33,7 @@ export default {
             <forms-header-actions />
         </template>
         <div class="py-12 mx-auto flex flex-col gap-5 max-w-5xl">
-            <form v-if="!!form" @submit.prevent="submitUpdate" class="max-w-3xl min-w-xl w-full mx-auto">
+            <form v-if="!!form" @submit.prevent="handleUpdate" class="max-w-3xl min-w-xl w-full mx-auto">
                 <div class="w-full mx-auto sm:px-6 lg:px-8 flex flex-col gap-6">
                     <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
                         <div class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100">

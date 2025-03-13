@@ -1,4 +1,4 @@
-<script>
+        <script>
 import BaseBtn from "@/Components/Buttons/BaseBtn.vue";
 
 export default {

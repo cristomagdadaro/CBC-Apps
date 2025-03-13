@@ -1,9 +1,14 @@
 <script>
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Form from "@/Modules/domain/Form.js";
+import Modal from "@/Components/Modal.vue";
+import ConfirmationModal from "@/Components/ConfirmationModal.vue";
+import DeleteBtn from "@/Components/Buttons/DeleteBtn.vue";
+import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
 
 export default {
     name: "EventCard",
+    components: {CancelBtn, DeleteBtn, ConfirmationModal, Modal},
     computed: {
         Form() {
             return Form
@@ -13,11 +18,22 @@ export default {
     beforeMount() {
         this.model = new Form();
     },
+    data(){
+        return {
+            confirmDelete: false,
+        }
+    },
+    methods: {
+        handleDelete()
+        {
+            this.confirmDelete = true;
+        }
+    }
 }
 </script>
 
 <template>
-    <div class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100 lg:max-w-2xl max-w-full min-w-[30rem] w-full overflow-x-auto">
+    <div class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100 lg:max-w-2xl max-w-full min-w-[30rem] w-full justify-between overflow-x-auto">
         <div class="flex flex-row bg-gray-200 p-2 rounded-md justify-between shadow py-4">
             <div class="flex flex-col justify-center">
                 <label class="leading-none font-semibold">{{ data.title }}</label>
@@ -100,7 +116,7 @@ export default {
                 </a>
 
                 <Link :href="route('forms.update')+'/'+data.event_id" class="bg-blue-200 text-blue-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
-                    Update
+                    Modify
                 </Link>
 
                 <button class="bg-blue-600 text-blue-100 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
@@ -108,18 +124,43 @@ export default {
                 </button>
 
                 <button class="bg-cyan-200 text-cyan-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
-                    Export At
+                    Export
                 </button>
 
                 <button class="bg-yellow-200 text-yellow-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
                     Suspend
                 </button>
 
-                <button @click="submitDelete"  class="bg-red-200 text-red-900 w-fit px-2 py-1 rounded" title="Permanently remove this form">
+                <button @click="handleDelete"  class="bg-red-200 text-red-900 w-fit px-2 py-1 rounded" title="Permanently remove this form">
                     Delete
                 </button>
             </div>
         </div>
+        <confirmation-modal :show="confirmDelete" @close="confirmDelete = false">
+            <template v-slot:title>
+                Are you sure you want to delete this form?
+            </template>
+
+            <template v-slot:content>
+                This will permanently delete <b>{{ data.title }}</b> form.
+            </template>
+
+            <template v-slot:footer>
+               <div class="flex justify-between w-full">
+                   <delete-btn @close="confirmDelete = false" @click="submitDelete" :class="{'animate-pulse':model.processing}">
+                    <span v-if="!model.processing">
+                        Confirm
+                    </span>
+                       <span v-else>
+                        Deleting
+                    </span>
+                   </delete-btn>
+                   <cancel-btn @click="confirmDelete = false">
+                       Cancel
+                   </cancel-btn>
+               </div>
+            </template>
+        </confirmation-modal>
     </div>
 </template>
 
