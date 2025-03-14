@@ -39,6 +39,7 @@ export default {
             if (response instanceof DtoResponse) {
                 this.registrationIDHashed = response.data.participant_hash;
                 this.saveLocalHashedIds(response.data);
+                this.$emit('createdModel', response.data);
             }
         }
     },
@@ -83,7 +84,7 @@ export default {
             </div>
         </transition-container>
         <div class="pb-3 pt-1">
-            <label class="text-red-600 uppercase justify-center flex">{{form.errors.suspended}}</label>
+            <label class="text-red-600 uppercase justify-center flex">{{form.errors.suspended || form.errors.full}}</label>
             <h3 class="text-lg font-semibold leading-tight">
                 Preregistration
             </h3>
@@ -206,7 +207,7 @@ export default {
                     By submitting this form, you consent to the DA-Crop Biotechnology Center collecting and using your data in accordance with our privacy policy.
                 </p>
             </div>
-            <submit-btn>
+            <submit-btn :disabled="model.processing" :processing="model.processing">
                 <span v-if="!model?.processing">Register</span>
                 <span v-else>Registering</span>
             </submit-btn>

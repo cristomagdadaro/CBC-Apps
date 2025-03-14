@@ -80,6 +80,7 @@ export default class Form extends ApiService {
             has_pretest: false,
             has_posttest: false,
             has_preregistration: false,
+            max_slots: null,
         }
     }
 
@@ -99,6 +100,7 @@ export default class Form extends ApiService {
             has_posttest: data.has_posttest ?? null,
             has_preregistration: data.has_preregistration ?? null,
             is_suspended: data.is_suspended ?? null,
+            max_slots: data.max_slots ?? null,
         }
     }
 

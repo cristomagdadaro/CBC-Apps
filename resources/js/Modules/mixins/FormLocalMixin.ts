@@ -1,12 +1,21 @@
 export default {
     data() {
         return {
-            localHashedIds: JSON.parse(localStorage.getItem("participant_hashes")) || []
+            localHashedIds: JSON.parse(localStorage.getItem("participant_hashes")) || [],
+            lastCreatedForm: null,
         };
     },
     computed: {
         storedLocalHashedIds() {
             return this.localHashedIds; // Ensure reactivity
+        },
+        recentQrCodes(){
+            if (this.lastCreatedForm)
+            {
+                this.localHashedIds = [...this.localHashedIds, ...[this.lastCreatedForm]];
+                this.lastCreatedForm = null;
+            }
+            return this.storedLocalHashedIds;
         }
     },
     methods: {
@@ -27,7 +36,11 @@ export default {
                 // Clear all
                 this.localHashedIds = [];
                 localStorage.removeItem("participant_hashes");
-            } else {
+                this.lastCreatedForm = null;
+            } else if(hashedId == this.lastCreatedForm.participant_hash) {
+                this.lastCreatedForm = null;
+            }
+            else {
                 // Remove a specific hash
                 this.localHashedIds = this.localHashedIds.filter(item => item.participant_hash !== hashedId);
                 localStorage.setItem("participant_hashes", JSON.stringify(this.localHashedIds));

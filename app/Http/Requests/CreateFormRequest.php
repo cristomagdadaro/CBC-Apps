@@ -54,6 +54,7 @@ class CreateFormRequest extends FormRequest
             'has_posttest' => 'nullable|boolean',
             'has_preregistration' => 'nullable|boolean',
             'is_suspended' => 'nullable|boolean',
+            'max_slots' => 'nullable|integer',
         ];
     }
 }

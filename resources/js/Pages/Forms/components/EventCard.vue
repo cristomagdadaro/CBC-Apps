@@ -128,6 +128,11 @@ export default {
             <span class="font-bold uppercase text-center">Statistics</span>
             <div class="flex gap-1 justify-center">
                 <div class="flex flex-col items-center border-r-2 border-gray-900 text-green-900 w-fit px-2 py-1">
+                    <label class="text-xl leading-none font-[1000]">{{ formsData.max_slots ?? 0 }}</label>
+                    <span class="text-[0.6rem] leading-none select-none">Limit</span>
+                </div>
+
+                <div class="flex flex-col items-center border-r-2 border-gray-900 text-green-900 w-fit px-2 py-1">
                     <label class="text-xl leading-none font-[1000]">{{ formsData.participants_count ?? 0 }}</label>
                     <span class="text-[0.6rem] leading-none select-none">Registered Participants</span>
                 </div>

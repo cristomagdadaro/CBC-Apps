@@ -40,6 +40,7 @@ class FormFactory extends Factory
             'has_posttest' => $pretest,
             'has_preregistration' => $this->faker->boolean(),
             'is_suspended' => $this->faker->boolean(),
+            'max_slots' => $maxSlots = $this->faker->randomDigit(),
         ];
 
     }

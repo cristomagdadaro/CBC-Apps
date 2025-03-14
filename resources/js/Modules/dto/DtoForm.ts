@@ -15,6 +15,7 @@ export default class DtoForm extends DtoBaseClass implements IForm{
     has_posttest: boolean;
     has_preregistration: boolean;
     is_suspended: boolean;
+    max_slots: number;
 
     registrations: Array<IRegistration>
     participants: Array<IParticipant>
@@ -36,5 +37,6 @@ export default class DtoForm extends DtoBaseClass implements IForm{
         this.has_posttest = data.has_posttest;
         this.has_preregistration = data.has_preregistration;
         this.is_suspended = data.is_suspended;
+        this.max_slots = data.max_slots;
     }
 }

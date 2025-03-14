@@ -12,11 +12,13 @@ import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 import QrcodeVue from 'qrcode.vue';
 import DeleteBtn from "@/Components/Buttons/DeleteBtn.vue";
 import ConfirmationModal from "@/Components/ConfirmationModal.vue";
+import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
 
 export default {
     name: "FormGuest",
     mixins: [FormLocalMixin],
     components: {
+        CancelBtn,
         ConfirmationModal,
         DeleteBtn,
         SearchBtn, TransitionContainer, PrimaryButton, InputError, InputLabel, TextInput, GuestCard, Head, Link, QrcodeVue},
@@ -187,21 +189,23 @@ export default {
                         </div>
                     </transition-container>
                     <transition-container type="slide-right" :duration="1000">
-                        <div v-show="delayReady"  v-if="storedLocalHashedIds?.length" class="md:absolute md:top-0 md:left-full md:mx-5 p-3  bg-gray-100 md:rounded-md drop-shadow">
+                        <div v-show="delayReady"  v-if="recentQrCodes?.length" class="md:absolute md:top-0 md:left-full md:mx-5 p-3  bg-gray-100 md:rounded-md drop-shadow">
                             <h3 class="text-normal whitespace-nowrap text-center drop-shadow md:flex md:flex-col leading-none md:mb-2 mb-1"><span>Recent</span> <span class="md:text-xs">(max 6)</span></h3>
-                            <div class="flex md:flex-col flex-row gap-2  bg-gray-100">
-                                <button v-for="item in storedLocalHashedIds" class="text-center leading-none">
-                                    <qrcode-vue
-                                        v-if="item.participant_hash"
-                                        :value="item.participant_hash"
-                                        :size="50"
-                                        level="H"
-                                        render-as="canvas"
-                                        class="mx-auto my-1"
-                                        ref="qrcodeCanvas"
-                                    />
-                                    <span>{{  item.event_id }}</span>
-                                </button>
+                            <div class="flex md:flex-col flex-row gap-2  bg-gray-100 justify-between">
+                                <div class="flex md:flex-col flex-row gap-2  bg-gray-100">
+                                    <button v-for="item in recentQrCodes" class="text-center leading-none">
+                                        <qrcode-vue
+                                            v-if="item.participant_hash"
+                                            :value="item.participant_hash"
+                                            :size="50"
+                                            level="H"
+                                            render-as="canvas"
+                                            class="mx-auto my-1"
+                                            ref="qrcodeCanvas"
+                                        />
+                                        <span>{{  item.event_id }}</span>
+                                    </button>
+                                </div>
                                 <delete-btn @click="showConfirmationModel = true" title="clear locally stored data">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
                                         <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
@@ -216,9 +220,14 @@ export default {
                             This will remove the locally saved registration data in this device.
                         </template>
                         <template v-slot:footer>
-                            <delete-btn @click="clearLocalHashedIds(null); showConfirmationModel = false;">
-                                Confirm
-                            </delete-btn>
+                            <div class="flex justify-between w-full">
+                                <delete-btn @click="clearLocalHashedIds(null); showConfirmationModel = false;">
+                                    Confirm
+                                </delete-btn>
+                                <cancel-btn @click="showConfirmationModel = false">
+                                    Cancel
+                                </cancel-btn>
+                            </div>
                         </template>
                     </confirmation-modal>
                 </div>
@@ -241,15 +250,15 @@ export default {
             </div>
             <div class="flex gap-5 md:flex-row flex-col">
                 <transition-container :duration="1000" type="slide-bottom">
-                    <div v-show="!!eventForm && delayReady" v-if="eventForm">
-                        <guest-card :data="eventForm" />
-                        <label class="text-[0.6rem] leading-none select-none">Form from URL</label>
+                    <div v-show="!!eventFormFromApi?.data.length" v-if="eventFormFromApi" >
+                        <guest-card :data="eventFormFromApi?.data[0]" @createdModel="lastCreatedForm = $event" />
+                        <label class="text-[0.6rem] leading-none select-none">Form from Search</label>
                     </div>
                 </transition-container>
                 <transition-container :duration="1000" type="slide-bottom">
-                    <div v-show="!!eventFormFromApi?.data.length" v-if="eventFormFromApi" >
-                        <guest-card :data="eventFormFromApi?.data[0]" />
-                        <label class="text-[0.6rem] leading-none select-none">Form from Search</label>
+                    <div v-show="!!eventForm && delayReady" v-if="eventForm">
+                        <guest-card :data="eventForm" @createdModel="lastCreatedForm = $event" />
+                        <label class="text-[0.6rem] leading-none select-none">Form from URL</label>
                     </div>
                 </transition-container>
             </div>

@@ -26,7 +26,7 @@ class FormController extends BaseController
     {
         $temp = (new Form)->newQuery();
         return Inertia::render('Forms/FormGuest', [
-            'eventForm' => $temp->where('event_id', $event_id)->withCount('participants')->first(),
+            'eventForm' => $temp->where('event_id', $event_id)->withCount('participants')->withCount('participants')->first(),
             'quote' => Inspiring::quote(),
         ]);
     }

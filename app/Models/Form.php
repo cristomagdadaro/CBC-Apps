@@ -72,4 +72,9 @@ class Form extends BaseModel
     {
         return $this->is_suspended;
     }
+
+    public function isFull(): bool
+    {
+        return $this->participants()->count() >= $this->max_slots;
+    }
 }

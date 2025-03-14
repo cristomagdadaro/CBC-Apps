@@ -67,9 +67,15 @@ export default {
                             </div>
                             <text-area placeholder="Other details" v-model="form.details" class="w-full text-xs" :error="form.errors.details"/>
                         </div>
+                        <div class="px-1 flex flex-col gap-1">
+                            <div>
+                                <span class="font-bold uppercase">Max. no. of participants: </span>
+                                <text-input type="number" placeholder="optional" v-model="form.max_slots" class="text-sm" :error="form.errors.max_slots"/>
+                            </div>
+                        </div>
                         <div class="px-1">
                             <label class="font-bold uppercase" title="Additional steps for the form">
-                                Evaluation Requirements
+                                Form Requirements
                             </label>
                             <div class="flex justify-evenly">
                                 <div @click="form.has_preregistration = !form.has_preregistration" class="flex items-center gap-1" title="Require guests to pre-register">

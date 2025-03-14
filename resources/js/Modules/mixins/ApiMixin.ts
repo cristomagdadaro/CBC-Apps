@@ -38,6 +38,7 @@ export default {
             return await this.model.getIndex(this.form.data());
         },
         async submitCreate(toCast: boolean = false, except: string = '') {
+            this.form.clearErrors();
             return await this.model.postIndex(this.form.data()).then(response => {
                 this.resetForm(except);
                 if (toCast) {
@@ -49,6 +50,7 @@ export default {
             })
         },
         async submitUpdate(toCast: boolean = false, except: string = '') {
+            this.form.clearErrors();
             return await this.model.putIndex(this.form.data()).then(response => {
                 this.resetForm(except);
                 if (toCast) {
@@ -60,6 +62,7 @@ export default {
             })
         },
         async submitDelete() {
+            this.form.clearErrors();
             this.setFormAction('delete');
             return await this.model.deleteApiIndex(this.form.data()).then(response => {
                 this.resetForm();

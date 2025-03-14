@@ -25,7 +25,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::prefix('guest')->group(function () {
     Route::prefix('forms')->group(function () {
         Route::get('/{event_id?}', [FormController::class, 'index'])->name('api.form.guest.index');
-        Route::middleware('check.form.suspended')->post('/registration/{event_id?}', [ParticipantController::class, 'post'])->name('api.form.registration.post');
+        Route::middleware(['check.form.suspended','check.form.maxslot'])->post('/registration/{event_id?}', [ParticipantController::class, 'post'])->name('api.form.registration.post');
     });
 
 });
@@ -37,6 +37,6 @@ Route::middleware(['api','auth:sanctum','verified'])->group(function () {
         Route::get('/{event_id?}', [FormController::class, 'show'])->name('api.form.show');
         Route::post('/create', [FormController::class, 'create'])->name('api.form.post');
         Route::delete('/delete/{event_id?}', [FormController::class, 'delete'])->name('api.form.delete');
-        Route::middleware('check.form.suspended')->put('/update/{event_id?}', [FormController::class, 'update'])->name('api.form.put');
+        Route::middleware(['check.form.suspended'])->put('/update/{event_id?}', [FormController::class, 'update'])->name('api.form.put');
     });
 });

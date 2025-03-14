@@ -138,6 +138,16 @@ export default {
             </div>
             <p class="text-sm leading-none text-justify">{{ data.details }}</p>
         </div>
+        <div class="px-1 flex gap-2 justify-between">
+            <div>
+                <span class="font-bold uppercase">Max Slots: </span>
+                <label :class="{'text-red-600': data.participants_count >= data.max_slots}">{{ data.max_slots }}</label> <span v-if="data.participants_count >= data.max_slots" class="text-red-600">FULL</span>
+            </div>
+            <div>
+                <span class="font-bold uppercase">Slots Available: </span>
+                <label :class="{'text-red-600': data.participants_count >= data.max_slots}">{{ data.max_slots-data.participants_count}}</label> <span v-if="data.participants_count >= data.max_slots" class="text-red-600">FULL</span>
+            </div>
+        </div>
         <div class="px-1 py-2 select-none bg-gray-300">
             <div class="flex justify-evenly items-center">
                 <div v-if="data.has_preregistration" class="flex items-center gap-1" title="Require guests to pre-register">
@@ -170,7 +180,7 @@ export default {
             <span class="font-bold uppercase leading-none text-center">This Form is suspended</span>
             <span class="leading-none text-xs text-center">unable to accept registration</span>
         </div>
-        <preregistration-card v-else :event-id="data.event_id" />
+        <preregistration-card v-else :event-id="data.event_id" @createdModel="$emit('createdModel', $event)" />
     </div>
 </template>
 
