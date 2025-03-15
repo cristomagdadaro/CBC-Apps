@@ -20,13 +20,7 @@ class CheckFormMaxSlot
             return $next($request);
         }
 
-        $formId = $request->input('event_id'); // Assuming the form ID is in the route
-
-        if (!$formId)
-            $formId = $request->route('event_id');
-
-        if (!$formId)
-            $formId = $request->route('event_id');
+        $formId = $request->input('event_id') ?? $request->route('event_id');
 
         if (!$formId) {
             return response()->json(['errors' => [
@@ -37,17 +31,23 @@ class CheckFormMaxSlot
         $form = Form::where('event_id', $formId)->first();
 
         if (!$form) {
-            return response()->json(['errors' =>  [
+            return response()->json(['errors' => [
                 'suspended' => ['Form not found.']
             ]], 404);
         }
 
+        // ✅ Corrected: Skip validation if `max_slots` is not set (null)
+        if (is_null($form->max_slots) || $form->max_slots <= 0) {
+            return $next($request);
+        }
+
         if ($form->isFull()) {
-            return response()->json(['errors' =>  [
-                'full' => ['This form exceed the maximum number of slots.']
+            return response()->json(['errors' => [
+                'full' => ['This form exceeds the maximum number of slots.']
             ]], 403);
         }
 
         return $next($request);
     }
+
 }

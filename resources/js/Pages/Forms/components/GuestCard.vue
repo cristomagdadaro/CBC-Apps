@@ -65,7 +65,7 @@ export default {
             </div>
             <p class="text-sm leading-none text-justify">{{ data.details }}</p>
         </div>
-        <div class="px-1 flex gap-2 justify-between">
+        <div v-if="data.max_slots" class="px-1 flex gap-2 justify-between">
             <div>
                 <span class="font-bold uppercase">Max Slots: </span>
                 <label :class="{'text-red-600': data.participants_count >= data.max_slots}">{{ data.max_slots }}</label> <span v-if="data.participants_count >= data.max_slots" class="text-red-600">FULL</span>

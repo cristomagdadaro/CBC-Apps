@@ -60,7 +60,7 @@ class FormFactory extends Factory
             'has_preregistration' => $this->faker->boolean(),
             'is_suspended' => $this->faker->boolean(),
             'is_expired' => $this->faker->boolean(),
-            'max_slots' => $this->faker->numberBetween(10, 200), // Random slots between 10 and 200
+            'max_slots' => $this->faker->numberBetween(0, 50), // Random slots between 10 and 200
         ];
     }
 

@@ -38,8 +38,8 @@ export default {
                                 <text-area placeholder="Form Description" v-model="form.description" :error="form.errors.description" class="text-xs" />
                             </div>
                             <div class="flex flex-col items-center justify-center">
-                                <label class="text-xl leading-none font-[1000]">event_id</label>
-                                <span class="text-[0.6rem] leading-none select-none">Event ID</span>
+                                <label class="text-2xl leading-none font-[1000]">####</label>
+                                <span class="text-[0.6rem] leading-none select-none">Form ID</span>
                             </div>
                         </div>
                         <div class="grid grid-cols-2 grid-rows-2 px-1 gap-2">
