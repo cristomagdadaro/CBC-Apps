@@ -3,6 +3,7 @@ import PreregistrationCard from "@/Pages/Forms/components/PreregistrationCard.vu
 import TextInput from "@/Components/TextInput.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import InputError from "@/Components/InputError.vue";
+import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 
 export default {
     name: "GuestCard",
@@ -10,85 +11,7 @@ export default {
     props: {
         data: { type: Object },
     },
-    data() {
-        return {
-            intervalId: null,
-            countdownData: { days: 0, hours: 0, minutes: 0, seconds: 0 }
-        };
-    },
-    methods: {
-        parseDate(dateString) {
-            // Ensure correct parsing of "YYYY-MM-DD" format
-            const [year, month, day] = dateString.split('-').map(Number);
-            return new Date(year, month - 1, day); // Month is zero-based
-        },
-
-        updateCountdown() {
-            if (!this.data || !this.data.date_to || !this.data.time_to) {
-                this.countdownData = { days: 0, hours: 0, minutes: 0, seconds: 0 };
-                return;
-            }
-
-            const now = new Date();
-            const targetDate = this.parseDate(this.data.date_to);
-
-            if (!targetDate) {
-                console.error("Failed to parse target date.");
-                return;
-            }
-
-            // Extract time from "HH:MM:SS" and set it on the target date
-            const [hours, minutes, seconds] = this.data.time_to.split(':').map(Number);
-            targetDate.setHours(hours, minutes, seconds);
-
-            const timeDifference = targetDate - now;
-
-            if (timeDifference <= 0) {
-                this.countdownData = { days: 0, hours: 0, minutes: 0, seconds: 0 };
-                clearInterval(this.intervalId);
-                return;
-            }
-
-            this.countdownData = {
-                days: Math.floor(timeDifference / (1000 * 60 * 60 * 24)),
-                hours: Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-                minutes: Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60)),
-                seconds: Math.floor((timeDifference % (1000 * 60)) / 1000),
-            };
-        },
-        startCountdown() {
-            this.updateCountdown();
-            this.intervalId = setInterval(this.updateCountdown, 1000);
-        },
-        formatDate(dateString) {
-            if (!dateString) return "";
-
-            const [year, month, day] = dateString.split("-").map(Number);
-            const date = new Date(year, month - 1, day); // Month is zero-based in JS
-
-            return new Intl.DateTimeFormat("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric"
-            }).format(date);
-        },
-        formatTime(timeString) {
-            if (!timeString) return "";
-
-            const [hours, minutes, seconds] = timeString.split(":").map(Number);
-
-            // Convert to 12-hour format
-            const ampm = hours >= 12 ? "PM" : "AM";
-            const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
-
-            return `${formattedHours}:${minutes.toString().padStart(2, "0")} ${ampm}`;
-        }
-    },
-    computed: {
-        countdownDisplay() {
-            return `${this.countdownData.days}d ${this.countdownData.hours}h ${this.countdownData.minutes}m ${this.countdownData.seconds}s`;
-        }
-    },
+    mixins: [DataFormatterMixin],
     mounted() {
         this.startCountdown();
     },
@@ -104,7 +27,7 @@ export default {
     <div v-if="!!data" class="border p-2 md:rounded-md flex flex-col gap-2 bg-gray-100 max-w-xl drop-shadow-lg">
         <div class="flex flex-row bg-AB gap-2 text-white p-2 rounded-md justify-between shadow py-4">
             <div class="flex flex-col justify-center drop-shadow">
-                <label class="leading-none font-semibold text-2xl">{{ data.title }}</label>
+                <label class="leading-tight font-semibold text-2xl">{{ data.title }}</label>
                 <p class="text-xs leading-none">
                     {{ data.description }}
                 </p>
@@ -116,17 +39,20 @@ export default {
         </div>
 
         <div class="flex flex-col items-center justify-center p-2 rounded-md select-none drop-shadow">
-            <span class="text-sm uppercase leading-none">Event Starts in </span>
-            <label class="leading-none font-bold text-4xl">{{ countdownDisplay }}</label>
+            <span v-if="isExpired" class="text-sm uppercase leading-none text-red-600">Expired Form</span>
+            <span v-else class="text-sm uppercase leading-none">Event Starts in </span>
+            <label class="leading-none font-bold text-4xl" :class="{'text-red-600' : isExpired}">{{ countdownDisplay }}</label>
         </div>
 
         <div class="grid grid-cols-2">
             <div class="bg-AA text-center py-3 text-white rounded-l-md flex flex-col leading-none">
                 <label class="font-bold">{{ formatTime(data.time_from) }} {{ formatDate(data.date_from) }}</label>
+                <label class="font-bold">{{ data.time_from }} {{ data.date_from }}</label>
                 <span class="text-xs">Start</span>
             </div>
             <div class="bg-AD text-center py-3 text-white rounded-r-md flex flex-col leading-none">
-                <label class="font-bold">{{formatTime(data.time_from) }} {{ formatDate(data.date_to) }}</label>
+                <label class="font-bold">{{ formatTime(data.time_to) }} {{ formatDate(data.date_to) }}</label>
+                <label class="font-bold">{{ data.time_to }} {{ data.date_to }}</label>
                 <span class="text-xs">End</span>
             </div>
         </div>
@@ -176,8 +102,12 @@ export default {
                 </div>
             </div>
         </div>
-        <div v-show="data.is_suspended" v-if="data.is_suspended" class="flex flex-col border-t p-2 bg-yellow-300 w-full min-w-full rounded-md">
+        <div v-show="data.is_suspended" v-if="data.is_suspended" class="flex flex-col border-t p-2 bg-yellow-300 w-full min-w-full rounded-md min-h-[3rem]">
             <span class="font-bold uppercase leading-none text-center">This Form is suspended</span>
+            <span class="leading-none text-xs text-center">unable to accept registration</span>
+        </div>
+        <div v-show="isExpired" v-else-if="isExpired" class="flex flex-col border-t p-2 bg-yellow-300 w-full min-w-full rounded-md min-h-[3rem]">
+            <span class="font-bold uppercase leading-none text-center">This Form has expired</span>
             <span class="leading-none text-xs text-center">unable to accept registration</span>
         </div>
         <preregistration-card v-else :event-id="data.event_id" @createdModel="$emit('createdModel', $event)" />

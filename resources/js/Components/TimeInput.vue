@@ -25,7 +25,13 @@ watch(() => props.chameleon, (newVal) => {
     isChameleon.value = newVal;
 });
 
-defineExpose({ focus: () => input.value?.focus() });
+// Function to format the time value before emitting
+const formatTime = (value) => {
+    if (!value) return ''; // Handle empty input
+
+    const [hours, minutes] = value.split(':'); // Extract hours and minutes
+    return `${hours}:${minutes}:00`; // Append seconds as 00
+};
 </script>
 
 <template>
@@ -37,7 +43,7 @@ defineExpose({ focus: () => input.value?.focus() });
             :placeholder="placeholder"
             type="time"
             name="trip-start"
-            @input="$emit('update:modelValue', $event.target.value)"
+            @input="$emit('update:modelValue', formatTime($event.target.value))"
         />
         <transition-container type="slide-bottom">
             <InputError v-show="!!error" class="absolute -top-1 left-3" :message="error" />

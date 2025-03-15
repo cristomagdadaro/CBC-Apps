@@ -23,7 +23,7 @@ class BaseModel extends Model
 
     protected function serializeTime(string $time): string
     {
-        return \Carbon\Carbon::createFromFormat('H:i:s', $time)->format('h:i A');
+        return \Carbon\Carbon::createFromFormat('H:i', $time)->format('h:i A');
     }
 
 }

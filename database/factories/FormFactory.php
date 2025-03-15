@@ -17,7 +17,7 @@ class FormFactory extends Factory
     public function definition(): array
     {
         $pretest = $this->faker->boolean();
-
+        $timeFrom = $this->faker->time();
         return [
             'id' => $this->faker->uuid(),
             'event_id' => $this->faker->numerify('####'),
@@ -31,7 +31,7 @@ class FormFactory extends Factory
             'date_to' => $this->faker->dateTimeBetween($dateFrom, '+1 year')->format('Y-m-d'),
 
             // Generate a start time
-            'time_from' => $timeFrom = $this->faker->time(),
+            'time_from' => $timeFrom,
             // Ensure time_to is the same or later than time_from
             'time_to' => $this->faker->time('H:i:s', $timeFrom),
 

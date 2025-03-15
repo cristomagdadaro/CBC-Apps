@@ -62,7 +62,6 @@ export default {
             })
         },
         async submitDelete() {
-            this.form.clearErrors();
             this.setFormAction('delete');
             return await this.model.deleteApiIndex(this.form.data()).then(response => {
                 this.resetForm();

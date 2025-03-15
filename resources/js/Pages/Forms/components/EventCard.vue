@@ -8,6 +8,7 @@ import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
 import SuspendFormBtn from "@/Pages/Forms/components/SuspendFormBtn.vue";
 import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
 import DtoResponse from "@/Modules/dto/DtoResponse";
+import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 export default {
     name: "EventCard",
     components: {TransitionContainer, SuspendFormBtn, CancelBtn, DeleteBtn, ConfirmationModal, Modal},
@@ -17,14 +18,16 @@ export default {
         },
         formsData(){
             if (this.updatedData && this.updatedData instanceof DtoResponse){
-                return this.updatedData;
+                return this.updatedData.data;
             }
             return this.data;
         }
     },
-    mixins: [ApiMixin],
+    mixins: [ApiMixin, DataFormatterMixin],
     beforeMount() {
         this.model = new Form();
+        //start timer to determine if timestamp has expired
+        this.startCountdown();
     },
     data(){
         return {
@@ -54,9 +57,9 @@ export default {
 <template>
     <div v-if="formsData" class="p-2 rounded-md flex flex-col gap-2 lg:max-w-2xl max-w-full min-w-[30rem] w-full justify-between overflow-x-auto" :class="formsData.is_suspended ? 'bg-yellow-100':'bg-gray-100 border'">
         <div class="flex flex-row bg-gray-200 p-2 rounded-md justify-between shadow py-4">
-            <div class="flex flex-col justify-center">
+            <div class="flex flex-col justify-center min-h-[3rem]">
                 <label class="leading-none font-semibold">{{ formsData.title }}</label>
-                <p class="text-xs leading-none">
+                <p class="text-xs leading-none line-clamp-2 overflow-hidden">
                     {{ formsData.description }}
                 </p>
             </div>
@@ -68,33 +71,40 @@ export default {
         <div class="grid grid-cols-2 grid-rows-2 px-1">
             <div>
                 <span class="font-bold uppercase">Start Date: </span>
-                <label>{{ formsData.date_from }}</label>
+                <label>{{ formatDate(formsData.date_from) }}</label>
             </div>
             <div>
                 <span class="font-bold uppercase">End Date: </span>
-                <label>{{ formsData.date_to }}</label>
+                <label>{{ formatDate(formsData.date_to) }}</label>
             </div>
             <div>
                 <span class="font-bold uppercase">Start Time: </span>
-                <label>{{ formsData.time_from }}</label>
+                <label>{{ formatTime(formsData.time_from) }}</label>
             </div>
             <div>
                 <span class="font-bold uppercase">End Time: </span>
-                <label>{{ formsData.time_to }}</label>
+                <label>{{ formatTime(formsData.time_to) }}</label>
             </div>
         </div>
-        <div class="px-1">
-            <div>
+        <div class="px-1 min-h-[4rem]">
+            <div class="line-clamp-1">
                 <span class="font-bold uppercase">Venue: </span>
                 <label>{{ formsData.venue }}</label>
             </div>
-            <p class="text-sm leading-none">{{ formsData.details }}</p>
+            <p class="text-sm leading-none line-clamp-3">{{ formsData.details }}</p>
         </div>
-
-        <div class="px-1 flex w-full">
+        <div v-if="isExpired" class="px-1 flex w-full">
+            <div v-show="isExpired" class="relative w-full min-w-full">
+                <div class="flex flex-col border-t p-2 bg-gray-600 w-full text-white" >
+                    <span class="font-bold uppercase leading-none text-center">This Form is expired</span>
+                    <span class="leading-none text-xs text-center">adjust date or time to reopen</span>
+                </div>
+            </div>
+        </div>
+        <div v-else class="flex w-full">
             <transition-container type="slide-right" :duration="1000">
                 <div v-show="!formsData.is_suspended" v-if="!formsData.is_suspended" class="relative w-full min-w-full">
-                    <div class="w-full ">
+                    <div class="w-full border-t pt-1 border-gray-600">
                         <label class="font-bold uppercase" title="Additional steps for the form">
                             Evaluation Requirements
                         </label>
@@ -116,8 +126,8 @@ export default {
                 </div>
             </transition-container>
             <transition-container type="slide-right" :duration="1000">
-                <div v-show="formsData.is_suspended" v-if="formsData.is_suspended" class="relative w-full min-w-full">
-                    <div class="flex flex-col border-t p-2 bg-yellow-300 w-full" >
+                <div v-show="formsData.is_suspended" v-if="formsData.is_suspended" class="relative w-full min-w-full bg-yellow-300 rounded-md">
+                    <div class="flex flex-col border-t p-2" >
                         <span class="font-bold uppercase leading-none text-center">This Form is suspended</span>
                         <span class="leading-none text-xs text-center">will not be able to accept request</span>
                     </div>
@@ -166,7 +176,7 @@ export default {
                     Export
                 </button>
 
-                <suspend-form-btn :data="formsData" @updated="updatedData = $event.data" @failedUpdate="errors = $event"/>
+                <suspend-form-btn v-if="!isExpired" :data="formsData" @updated="updatedData = $event" @failedUpdate="errors = $event"/>
 
                 <button @click="confirmAction"  class="bg-red-200 text-red-900 w-fit px-2 py-1 rounded" title="Permanently remove this form">
                     Delete

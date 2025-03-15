@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class Form extends BaseModel
 {
@@ -76,5 +78,14 @@ class Form extends BaseModel
     public function isFull(): bool
     {
         return $this->participants()->count() >= $this->max_slots;
+    }
+
+    public function isExpired(): bool
+    {
+        $endDateTime = Carbon::parse($this->date_to)
+            ->setTimeFromTimeString($this->time_to)
+            ->timezone(config('app.timezone'));
+
+        return $endDateTime->isPast();
     }
 }

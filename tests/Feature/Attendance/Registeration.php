@@ -27,7 +27,7 @@ class Registeration extends TestCase
             "province_address" => null,
             "country_address" => null,
             "agreed_tc" => false,
-            "event_id" => "4751"
+            "event_id" => "9053"
         ]);
 
         print_r($response->collect());
@@ -48,8 +48,8 @@ class Registeration extends TestCase
             'title' => 'National Biotechnology Week',
             'date_from' => '2025-01-01',
             'date_to' => '2025-01-02',
-            'time_from' => '09:00',
-            'time_to' => '10:00',
+            'time_from' => '09:00:00',
+            'time_to' => '10:00:00',
             'venue' => 'Plenary Hall',
             'has_pretest' => true,
         ]);

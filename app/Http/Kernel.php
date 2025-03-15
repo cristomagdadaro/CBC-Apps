@@ -68,5 +68,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'check.form.suspended' => \App\Http\Middleware\CheckFormSuspended::class,
         'check.form.maxslot' => \App\Http\Middleware\CheckFormMaxSlot::class,
+        'check.form.expired' => \App\Http\Middleware\CheckFormExpiration::class,
     ];
 }

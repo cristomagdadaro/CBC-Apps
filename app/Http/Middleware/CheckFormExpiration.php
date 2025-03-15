@@ -7,7 +7,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class CheckFormMaxSlot
+class CheckFormExpiration
 {
     /**
      * Handle an incoming request.
@@ -16,14 +16,11 @@ class CheckFormMaxSlot
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (auth()->check()) {
+        /*if (auth()->check()) {
             return $next($request);
-        }
+        }*/
 
         $formId = $request->input('event_id'); // Assuming the form ID is in the route
-
-        if (!$formId)
-            $formId = $request->route('event_id');
 
         if (!$formId)
             $formId = $request->route('event_id');
@@ -42,9 +39,9 @@ class CheckFormMaxSlot
             ]], 404);
         }
 
-        if ($form->isFull()) {
+        if ($form->isExpired()) {
             return response()->json(['errors' =>  [
-                'full' => ['This form exceed the maximum number of slots.']
+                'expired' => ['This form is expired.']
             ]], 403);
         }
 
