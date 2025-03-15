@@ -49,8 +49,15 @@ class CreateParticipantRequest extends FormRequest
             'city_address' => ['nullable', 'string'],
             'province_address' => ['nullable', 'string'],
             'country_address' => ['nullable', 'string'],
-            'agreed_tc' => ['nullable', 'boolean'],
+            'agreed_tc' => ['required', 'accepted'],
             'event_id' => ['required', 'string', 'exists:forms,event_id'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'agreed_tc.accepted' => 'Must agree to the terms and conditions to proceed.',
         ];
     }
 

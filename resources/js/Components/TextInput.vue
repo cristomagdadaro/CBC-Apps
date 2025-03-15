@@ -5,10 +5,12 @@ import TransitionContainer from "@/Components/Transitions/TransitionContrainer.v
 
 const props = defineProps({
     modelValue: [String, Number],
+    autocomplete: String,
     placeholder: String,
     error: String,
     type: String,
     classes: String,
+    id: String,
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -33,8 +35,11 @@ defineExpose({ focus: () => input.value?.focus() });
 <template>
     <div class="w-full relative " :class="{'border-red-500': error}">
         <input
+            :id="id"
+            :name="id"
             ref="input"
             :class="classes"
+            :autocomplete="autocomplete"
             class=" w-full dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-AB dark:focus:border-AB focus:ring-AB dark:focus:ring-AB rounded-md shadow-sm"
             :value="modelValue"
             :placeholder="placeholder"

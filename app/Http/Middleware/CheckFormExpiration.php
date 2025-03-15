@@ -16,9 +16,9 @@ class CheckFormExpiration
      */
     public function handle(Request $request, Closure $next): Response
     {
-        /*if (auth()->check()) {
+        if (auth()->check()) {
             return $next($request);
-        }*/
+        }
 
         $formId = $request->input('event_id'); // Assuming the form ID is in the route
 

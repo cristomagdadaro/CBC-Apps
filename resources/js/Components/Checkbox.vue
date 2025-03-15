@@ -12,6 +12,7 @@ const props = defineProps({
         type: String,
         default: null,
     },
+    id: String,
 });
 
 const proxyChecked = computed({
@@ -28,6 +29,8 @@ const proxyChecked = computed({
 
 <template>
     <input
+        :id="id"
+        :name="id"
         v-model="proxyChecked"
         type="checkbox"
         :value="value"

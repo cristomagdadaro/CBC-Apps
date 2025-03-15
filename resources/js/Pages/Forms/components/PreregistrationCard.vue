@@ -48,12 +48,19 @@ export default {
         this.setFormAction('create');
         this.form.event_id = this.eventId;
     },
-
+    watch: {
+        'form.agreed_tc': {
+            immediate: true,
+            handler() {
+                this.form?.clearErrors('agreed_tc');
+            }
+        }
+    }
 }
 </script>
 
 <template>
-    <form v-if="form" @submit.prevent="handleCreate()" class="px-1 py-4 select-none relative border-t border-gray-800 mt-3" :class="{'border border-red-600 rounded-md': form.hasErrors}">
+    <form v-if="form" @submit.prevent="handleCreate()" class="px-1 py-4 select-none relative bg-white px-3 border-t border-gray-800 mt-3" :class="{'border border-red-600 rounded-md': form.hasErrors}">
         <transition-container type="slide-top">
             <div v-show="showSuccess" class="absolute flex top-0 left-0 bg-AC w-full h-full z-50 text-white text-xl font-medium justify-center items-center rounded-b-md shadow">
                 <button @click.prevent="showSuccess = false" class="absolute top-0 right-0 p-2">
@@ -160,14 +167,14 @@ export default {
                 />
                 <div :class="{'border-red-500' : form.errors.is_ip}" class="w-full relative px-2 py-0.5 flex text-center leading-none lg:flex-row flex-col-reverse items-center lg:gap-2 bg-white border rounded-md shadow-sm" @click.prevent="form.is_ip = !form.is_ip">
                     <label class="text-xs">Are you a member indigenous people?</label>
-                    <Checkbox v-model="form.is_ip" :checked="form.is_ip" autofocus autocomplete="is_ip"/>
+                    <Checkbox id="is_ip" v-model="form.is_ip" :checked="form.is_ip" autofocus autocomplete="is_ip"/>
                     <transition-container type="slide-bottom">
                         <InputError v-show="!!form.errors.is_ip" class="absolute -top-1 left-3" :message="form.errors.is_ip" />
                     </transition-container>
                 </div>
                 <div :class="{'border-red-500' : form.errors.is_pwd}" class="w-full relative px-2 py-0.5 flex text-center leading-none lg:flex-row flex-col-reverse items-center lg:gap-2 bg-white border rounded-md shadow-sm" @click.prevent="form.is_pwd = !form.is_pwd">
                     <label class="text-xs">Are you a person with disability?</label>
-                    <Checkbox v-model="form.is_pwd" :checked="form.is_pwd" autofocus autocomplete="is_pwd"/>
+                    <Checkbox id="is_pwd" v-model="form.is_pwd" :checked="form.is_pwd" autofocus autocomplete="is_pwd"/>
                     <transition-container type="slide-bottom">
                         <InputError v-show="!!form.errors.is_pwd" class="absolute -top-1 left-3" :message="form.errors.is_pwd" />
                     </transition-container>
@@ -202,8 +209,41 @@ export default {
                     @input="form.clearErrors('phone')"
                 />
             </div>
+            <div class="grid grid-cols-3 gap-2">
+                <TextInput
+                    id="city"
+                    v-model="form.city_address"
+                    type="text"
+                    :error="form.errors.city_address"
+                    placeholder="City"
+                    autocomplete="city"
+                    @input="form.clearErrors('city_address')"
+                />
+                <TextInput
+                    id="province"
+                    v-model="form.province_address"
+                    type="text"
+                    :error="form.errors.province_address"
+                    placeholder="Province"
+                    autocomplete="province"
+                    @input="form.clearErrors('province_address')"
+                />
+                <TextInput
+                    id="country"
+                    v-model="form.country_address"
+                    type="text"
+                    :error="form.errors.country_address"
+                    placeholder="Country"
+                    autocomplete="country"
+                    @input="form.clearErrors('country_address')"
+                />
+            </div>
             <div class="py-3">
-                <p class="text-xs leading-none">
+                <p class="text-xs leading-none" @click.prevent="form.agreed_tc = !form.agreed_tc">
+                    <Checkbox id="agreed_tc" :class="{'border border-red-600' : form.errors.agreed_tc}" v-model="form.agreed_tc" :checked="form.agreed_tc" autocomplete="agreed_tc"/>
+                    <transition-container type="slide-bottom">
+                        <InputError v-show="!!form.errors.agreed_tc" class="absolute -top-1 left-3" :message="form.errors.agreed_tc" />
+                    </transition-container>
                     By submitting this form, you consent to the DA-Crop Biotechnology Center collecting and using your data in accordance with our privacy policy.
                 </p>
             </div>

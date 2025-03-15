@@ -130,6 +130,7 @@ export default {
                                 <div class="flex flex-col">
                                     <div class="grid grid-cols-4 gap-0.5 items-center">
                                         <TextInput
+                                            id="cell1"
                                             ref="cell1"
                                             v-model="eventId.cell1"
                                             type="number"
@@ -143,6 +144,7 @@ export default {
                                             autocomplete="event"
                                         />
                                         <TextInput
+                                            id="cell2"
                                             ref="cell2"
                                             v-model="eventId.cell2"
                                             type="number"
@@ -155,6 +157,7 @@ export default {
                                             autocomplete="event"
                                         />
                                         <TextInput
+                                            id="cell3"
                                             ref="cell3"
                                             v-model="eventId.cell3"
                                             type="number"
@@ -167,6 +170,7 @@ export default {
                                             autocomplete="event"
                                         />
                                         <TextInput
+                                            id="cell4"
                                             ref="cell4"
                                             v-model="eventId.cell4"
                                             type="number"
@@ -188,8 +192,8 @@ export default {
                             </form>
                         </div>
                     </transition-container>
-                    <transition-container type="slide-right" :duration="1000">
-                        <div v-show="delayReady"  v-if="recentQrCodes?.length" class="md:absolute md:top-0 md:left-full md:mx-5 p-3  bg-gray-100 md:rounded-md drop-shadow">
+                    <transition-container type="slide-bottom" :duration="1000">
+                        <div v-show="delayReady"  v-if="recentQrCodes.length" class="md:absolute md:top-0 md:left-full md:mx-5 p-3  bg-gray-100 md:rounded-md drop-shadow">
                             <h3 class="text-normal whitespace-nowrap text-center drop-shadow md:flex md:flex-col leading-none md:mb-2 mb-1"><span>Recent</span> <span class="md:text-xs">(max 6)</span></h3>
                             <div class="flex md:flex-col flex-row gap-2  bg-gray-100 justify-between">
                                 <div class="flex md:flex-col flex-row gap-2  bg-gray-100">
