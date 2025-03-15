@@ -29,17 +29,17 @@ export default {
 </script>
 
 <template>
-    <form  v-if="!!form" @submit.prevent="handleUpdateSuspended">
-        <button v-if="model.processing && form.is_suspended" @click.prevent="handleUpdateSuspended" :class=" form.is_suspended ? 'bg-yellow-200' : 'bg-yellow-400'" :disabled="model.processing" class="disabled:bg-opacity-50 bg-yellow-200 text-yellow-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
+    <form  v-if="!!form" @submit.prevent="handleUpdateSuspended" :class=" form.is_suspended ? 'bg-yellow-200' : 'bg-yellow-400'" class="disabled:bg-opacity-50 text-yellow-900 w-fit px-2 py-1 rounded flex" title="Temporarily stop accepting responses" >
+        <button v-if="model.processing && form.is_suspended" @click.prevent="handleUpdateSuspended" :disabled="model.processing">
             Closing form
         </button>
-        <button v-else-if="model.processing && !form.is_suspended" @click.prevent="handleUpdateSuspended" :class=" form.is_suspended ? 'bg-yellow-200' : 'bg-yellow-400'" :disabled="model.processing" class="disabled:bg-opacity-50 bg-yellow-200 text-yellow-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
+        <button v-else-if="model.processing && !form.is_suspended" @click.prevent="handleUpdateSuspended" :disabled="model.processing">
             Opening form
         </button>
-        <button v-else-if="!form.is_suspended" @click.prevent="handleUpdateSuspended" :class=" form.is_suspended ? 'bg-yellow-200' : 'bg-yellow-400'" class="disabled:bg-opacity-50 bg-yellow-200 text-yellow-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
+        <button v-else-if="!form.is_suspended" @click.prevent="handleUpdateSuspended">
             Close
         </button>
-        <button v-else @click.prevent="handleUpdateSuspended" :class=" form.is_suspended ? 'bg-yellow-200' : 'bg-yellow-400'" class="disabled:bg-opacity-50  text-yellow-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
+        <button v-else @click.prevent="handleUpdateSuspended">
             Open
         </button>
     </form>

@@ -55,16 +55,16 @@ export default {
 </script>
 
 <template>
-    <div v-if="formsData" class="p-2 rounded-md flex flex-col gap-2 lg:max-w-2xl max-w-full min-w-[30rem] w-full justify-between overflow-x-auto" :class="formsData.is_suspended ? 'bg-yellow-100':'bg-gray-100 border'">
-        <div class="flex flex-row bg-gray-200 p-2 rounded-md justify-between shadow py-4">
-            <div class="flex flex-col justify-center min-h-[3rem]">
+    <div v-if="formsData" class="p-2 rounded-md flex flex-col gap-2 lg:max-w-2xl max-w-full min-w-[30rem] w-full justify-between bg-gray-100 border overflow-x-auto">
+        <div class="flex flex-row bg-gray-200 p-2 rounded-md justify-between shadow py-4 gap-1">
+            <div class="flex flex-col min-h-[3rem]">
                 <label class="leading-none font-semibold">{{ formsData.title }}</label>
                 <p class="text-xs leading-none line-clamp-2 overflow-hidden">
                     {{ formsData.description }}
                 </p>
             </div>
             <div class="flex flex-col items-center justify-center">
-                <label class="text-xl leading-none font-[1000]">{{ formsData.event_id }}</label>
+                <label class="lg:text-4xl text-2xl leading-none font-[1000]">{{ formsData.event_id }}</label>
                 <span class="text-[0.6rem] leading-none select-none">Event ID</span>
             </div>
         </div>
@@ -129,7 +129,7 @@ export default {
                 <div v-show="formsData.is_suspended" v-if="formsData.is_suspended" class="relative w-full min-w-full bg-yellow-300 rounded-md">
                     <div class="flex flex-col border-t p-2" >
                         <span class="font-bold uppercase leading-none text-center">This Form is suspended</span>
-                        <span class="leading-none text-xs text-center">will not be able to accept request</span>
+                        <span class="leading-none text-xs text-center">unable to accept request</span>
                     </div>
                 </div>
             </transition-container>
@@ -160,19 +160,19 @@ export default {
         </div>
         <div class="flex flex-col p-2">
             <div class="flex gap-1 justify-center">
-                <a :href="route('forms.guest.index')+'/'+formsData.event_id" target="_blank" class="bg-green-200 text-green-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
+                <a :href="route('forms.guest.index')+'/'+formsData.event_id" target="_blank" class="bg-green-200 text-green-900 w-fit px-2 py-1 rounded" title="Preview form">
                     Visit
                 </a>
 
-                <Link :href="route('forms.update')+'/'+formsData.event_id" class="bg-blue-200 text-blue-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
+                <Link :href="route('forms.update')+'/'+formsData.event_id" class="bg-blue-200 text-blue-900 w-fit px-2 py-1 rounded" title="Modify details in the form">
                     Modify
                 </Link>
 
-                <button class="bg-blue-600 text-blue-100 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
+                <button class="bg-blue-600 text-blue-100 w-fit px-2 py-1 rounded" title="Manually register poarticipants">
                     Registration
                 </button>
 
-                <button class="bg-cyan-200 text-cyan-900 w-fit px-2 py-1 rounded" title="Temporarily stop accepting responses">
+                <button class="bg-cyan-200 text-cyan-900 w-fit px-2 py-1 rounded" title="Download form data in csv format">
                     Export
                 </button>
 

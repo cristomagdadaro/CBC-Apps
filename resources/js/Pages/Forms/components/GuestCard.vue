@@ -39,20 +39,21 @@ export default {
         </div>
 
         <div class="flex flex-col items-center justify-center p-2 rounded-md select-none drop-shadow">
-            <span v-if="isExpired" class="text-sm uppercase leading-none text-red-600">Expired Form</span>
-            <span v-else class="text-sm uppercase leading-none">Event Starts in </span>
+            <span v-if="isExpired" class="text-sm uppercase leading-none text-red-600">Form Expired</span>
+            <span v-else class="text-sm uppercase leading-none">Form will close in </span>
             <label class="leading-none font-bold text-4xl" :class="{'text-red-600' : isExpired}">{{ countdownDisplay }}</label>
         </div>
 
-        <div class="grid grid-cols-2">
-            <div class="bg-AA text-center py-3 text-white rounded-l-md flex flex-col leading-none">
+        <div class="flex relative items-center drop-shadow">
+            <div class="bg-AA text-center py-3 text-white rounded-md flex flex-col leading-none w-full">
                 <label class="font-bold">{{ formatTime(data.time_from) }} {{ formatDate(data.date_from) }}</label>
-                <label class="font-bold">{{ data.time_from }} {{ data.date_from }}</label>
                 <span class="text-xs">Start</span>
             </div>
-            <div class="bg-AD text-center py-3 text-white rounded-r-md flex flex-col leading-none">
+            <div class="flex w-full h-full bg-AB max-w-[2rem]">
+                <label class="m-auto text-white font-bold">TO</label>
+            </div>
+            <div class="bg-AA text-center py-3 text-white rounded-md flex flex-col leading-none w-full">
                 <label class="font-bold">{{ formatTime(data.time_to) }} {{ formatDate(data.date_to) }}</label>
-                <label class="font-bold">{{ data.time_to }} {{ data.date_to }}</label>
                 <span class="text-xs">End</span>
             </div>
         </div>

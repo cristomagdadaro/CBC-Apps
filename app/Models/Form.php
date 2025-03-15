@@ -27,7 +27,8 @@ class Form extends BaseModel
         'has_pretest',
         'has_posttest',
         'has_preregistration',
-        'is_suspended'
+        'is_suspended',
+        'is_expired',
     ];
 
     protected $casts = [
@@ -82,10 +83,7 @@ class Form extends BaseModel
 
     public function isExpired(): bool
     {
-        $endDateTime = Carbon::parse($this->date_to)
-            ->setTimeFromTimeString($this->time_to)
-            ->timezone(config('app.timezone'));
-
-        return $endDateTime->isPast();
+        $expirationTime = Carbon::parse($this->date_to)->setTimeFromTimeString($this->time_to);
+        return $this->is_expired && $expirationTime->isPast();
     }
 }

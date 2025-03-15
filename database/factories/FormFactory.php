@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Carbon;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Form>
@@ -17,31 +18,50 @@ class FormFactory extends Factory
     public function definition(): array
     {
         $pretest = $this->faker->boolean();
-        $timeFrom = $this->faker->time();
+        $timeFrom = $this->faker->time('H:i:s');
+
+        // Randomly add days, months, or years to generate start date
+        $dateFrom = now();
+            /*->addDays($this->faker->numberBetween(0, 30)) // Up to 30 days ahead
+            ->addMonths($this->faker->numberBetween(0, 6)) // Up to 6 months ahead
+            ->addYears($this->faker->numberBetween(0, 1)) // Up to 1 year ahead
+            ->format('Y-m-d');*/
+
+        // Generate date_to ensuring it is after date_from
+        $dateTo = Carbon::parse($dateFrom)
+            ->addDays($this->faker->numberBetween(0, 10)) // Up to 10 days later
+            ->addMonths($this->faker->numberBetween(0, 2)) // Up to 2 months later
+            ->format('Y-m-d');
+
+        // Randomly add hours and minutes for time_from and time_to
+        $timeTo = Carbon::parse($timeFrom)
+            ->addHours($this->faker->numberBetween(1, 5)) // 1 to 5 hours later
+            ->addMinutes($this->faker->numberBetween(0, 59)) // Random minutes
+            ->format('H:i:s');
+
         return [
             'id' => $this->faker->uuid(),
             'event_id' => $this->faker->numerify('####'),
-            'title' => ucwords($this->faker->catchPhrase .' '.$this->faker->bs),
-            'description' => ucwords($this->faker->catchPhrase .' '.$this->faker->bs),
+            'title' => ucwords($this->faker->catchPhrase . ' ' . $this->faker->bs),
+            'description' => ucwords($this->faker->catchPhrase . ' ' . $this->faker->bs),
             'details' => $this->faker->paragraph(),
 
-            // Generate a future start date
-            'date_from' => $dateFrom = $this->faker->dateTimeBetween('now', '+1 year')->format('Y-m-d'),
-            // Ensure date_to is the same or later than date_from
-            'date_to' => $this->faker->dateTimeBetween($dateFrom, '+1 year')->format('Y-m-d'),
+            // Randomized dates
+            'date_from' => $dateFrom,
+            'date_to' => $dateTo,
 
-            // Generate a start time
+            // Randomized times
             'time_from' => $timeFrom,
-            // Ensure time_to is the same or later than time_from
-            'time_to' => $this->faker->time('H:i:s', $timeFrom),
+            'time_to' => $timeTo,
 
             'venue' => $this->faker->address(),
             'has_pretest' => $pretest,
             'has_posttest' => $pretest,
             'has_preregistration' => $this->faker->boolean(),
             'is_suspended' => $this->faker->boolean(),
-            'max_slots' => $maxSlots = $this->faker->randomDigit(),
+            'is_expired' => $this->faker->boolean(),
+            'max_slots' => $this->faker->numberBetween(10, 200), // Random slots between 10 and 200
         ];
-
     }
+
 }
