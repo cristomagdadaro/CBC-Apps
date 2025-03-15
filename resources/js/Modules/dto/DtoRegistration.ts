@@ -13,10 +13,6 @@ export default class DtoRegistration extends DtoBaseClass implements IRegistrati
     participant: IParticipant;
 
     table: string;
-    created_at: Date;
-    updated_at: Date;
-    delete_at: Date;
-
     constructor(data: any) {
         super(data);
 
@@ -27,9 +23,6 @@ export default class DtoRegistration extends DtoBaseClass implements IRegistrati
         this.posttest_finished = data.posttest_finished;
 
         this.table = data.table;
-        this.created_at = data.created_at;
-        this.updated_at = data.updated_at;
-        this.delete_at = data.delete_at;
 
         if (data.form){
             this.form = new DtoForm(data.form);

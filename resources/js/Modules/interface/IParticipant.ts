@@ -6,6 +6,7 @@ interface IParticipant {
     sex: string;
     age: number;
     organization: string;
+    designation: string;
     is_ip: boolean;
     is_pwd: boolean;
     city_address: string;

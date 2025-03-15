@@ -93,16 +93,6 @@ export default {
             </div>
             <p class="text-sm leading-none line-clamp-3">{{ formsData.details }}</p>
         </div>
-        <div v-if="data.max_slots" class="flex gap-2 justify-between border-t pt-1 border-gray-600">
-            <div>
-                <span class="font-bold uppercase">Max Slots: </span>
-                <label :class="{'text-red-600': data.participants_count >= data.max_slots}">{{ data.max_slots }}</label> <span v-if="data.participants_count >= data.max_slots" class="text-red-600">FULL</span>
-            </div>
-            <div>
-                <span class="font-bold uppercase">Slots Available: </span>
-                <label :class="{'text-red-600': data.participants_count >= data.max_slots}">{{ data.max_slots-data.participants_count}}</label> <span v-if="data.participants_count >= data.max_slots" class="text-red-600">FULL</span>
-            </div>
-        </div>
         <div v-if="isExpired" class="px-1 flex w-full">
             <div v-show="isExpired" class="relative w-full min-w-full">
                 <div class="flex flex-col border-t p-2 bg-gray-600 w-full text-white" >
@@ -147,12 +137,12 @@ export default {
         <div class="flex flex-col border-t p-2 bg-gray-200 rounded-md">
             <span class="font-bold uppercase text-center">Statistics</span>
             <div class="flex gap-1 justify-center">
-                <div class="flex flex-col items-center border-r-2 border-gray-900 text-green-900 w-fit px-2 py-1">
+                <div :class="{'text-red-600':  data.max_slots > 0 && data.participants_count >= data.max_slots}" class="flex flex-col items-center border-r-2 border-gray-900 text-green-900 w-fit px-2 py-1">
                     <label class="text-xl leading-none font-[1000]">{{ formsData.max_slots > 0 ? formsData.max_slots : 'No' }}</label>
                     <span class="text-[0.6rem] leading-none select-none">Limit</span>
                 </div>
 
-                <div class="flex flex-col items-center border-r-2 border-gray-900 text-green-900 w-fit px-2 py-1">
+                <div :class="{'text-red-600': data.max_slots > 0 &&data.participants_count >= data.max_slots}" class="flex flex-col items-center border-r-2 border-gray-900 text-green-900 w-fit px-2 py-1">
                     <label class="text-xl leading-none font-[1000]">{{ formsData.participants_count ?? 0 }}</label>
                     <span class="text-[0.6rem] leading-none select-none">Registered Participants</span>
                 </div>

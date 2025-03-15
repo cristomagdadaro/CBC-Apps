@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('sex')->nullable();
             $table->string('age')->nullable();
             $table->string('organization')->nullable();
+            $table->string('designation')->nullable();
             $table->boolean('is_ip')->default(false);
             $table->boolean('is_pwd')->default(false);
             $table->string('city_address')->nullable();

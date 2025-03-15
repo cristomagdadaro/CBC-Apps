@@ -10,7 +10,8 @@ class Registration extends BaseModel
     use HasFactory;
 
     protected $table = 'registrations';
-
+    public $incrementing = false; // Disable auto-incrementing
+    protected $keyType = 'string'; // Set the primary key as a string
     protected $fillable = [
         'id',
         'event_id',

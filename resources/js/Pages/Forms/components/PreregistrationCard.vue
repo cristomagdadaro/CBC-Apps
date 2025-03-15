@@ -189,6 +189,15 @@ export default {
                 autocomplete="organization"
                 @input="form.clearErrors('organization')"
             />
+            <TextInput
+                id="organization"
+                v-model="form.designation"
+                type="text"
+                :error="form.errors.designation"
+                placeholder="Designation/Position"
+                autocomplete="designation"
+                @input="form.clearErrors('designation')"
+            />
             <div class="grid grid-cols-2 gap-2">
                 <TextInput
                     id="email"

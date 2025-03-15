@@ -9,6 +9,7 @@ export default class DtoParticipant extends DtoBaseClass implements IParticipant
     sex: string;
     age: number;
     organization: string;
+    designation: string;
     is_ip: boolean;
     is_pwd: boolean;
     city_address: string;
@@ -19,12 +20,11 @@ export default class DtoParticipant extends DtoBaseClass implements IParticipant
     registrations: Array<IRegistration>
 
     table: string;
-    created_at: Date;
-    updated_at: Date;
-    delete_at: Date;
 
     constructor(data: any) {
         super(data);
+
+        this.table = data.table;
 
         this.id = data.id;
         this.name = data.name;
@@ -33,6 +33,7 @@ export default class DtoParticipant extends DtoBaseClass implements IParticipant
         this.sex = data.sex;
         this.age = data.age;
         this.organization = data.organization;
+        this.designation = data.designation;
         this.is_ip = data.is_ip;
         this.is_pwd = data.is_pwd;
         this.city_address = data.city_address;

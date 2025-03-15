@@ -25,6 +25,7 @@ class ParticipantFactory extends Factory
             'sex' => $this->faker->randomElement([Sex::Male->value, Sex::Female->value, Sex::PreferNotToSay->value]),
             'age' => $this->faker->numberBetween(1, 100),
             'organization' => $this->faker->company(),
+            'designation' => $this->faker->jobTitle(),
             'is_ip' => $this->faker->boolean(),
             'is_pwd' => $this->faker->boolean(),
             'city_address' => $this->faker->city(),

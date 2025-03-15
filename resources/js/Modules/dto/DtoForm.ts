@@ -23,7 +23,8 @@ export default class DtoForm extends DtoBaseClass implements IForm{
     constructor(data: IForm) {
         super(data);
 
-        this.title = 'forms';
+        this.table = data.table;
+
         this.event_id = data.event_id;
         this.title = data.title;
         this.description = data.description;

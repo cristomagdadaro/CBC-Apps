@@ -18,8 +18,6 @@ return new class extends Migration
             $table->boolean('pretest_finished')->default(false);
             $table->boolean('posttest_finished')->default(false);
 
-            $table->foreign('event_id')->references('event_id')->on('forms')->onDelete('cascade');
-            $table->foreign('participant_id')->references('id')->on('participants')->onDelete('cascade');
             $table->unique(['event_id', 'participant_id']);
 
             $table->timestamps();
