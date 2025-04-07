@@ -113,7 +113,6 @@ export default class Form extends ApiService {
             }));
     }
 
-
     static getColumns()
     {
         return [

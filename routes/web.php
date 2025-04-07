@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\FormController;
+use App\Http\Controllers\LabRequestFormController;
+use App\Http\Controllers\RequesterController;
 use App\Models\Form;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -27,7 +29,8 @@ Route::get('/', function () {
 });
 
 Route::prefix('forms')->group(function () {
-    Route::get('/{event?}', [FormController::class, 'formGuestView'])->name('forms.guest.index');
+    Route::get('/event/{event?}', [FormController::class, 'formGuestView'])->name('forms.guest.index');
+    Route::get('/lab-request/{request?}', [LabRequestFormController::class, 'labReqFormGuestView'])->name('labReq.guest.index');
 });
 
 Route::middleware([
@@ -40,7 +43,7 @@ Route::middleware([
     })->name('dashboard');
 
     Route::prefix('apps')->group(function () {
-        Route::prefix('forms')->group(function () {
+        Route::prefix('event-forms')->group(function () {
             Route::get('/', function () {
                 return Inertia::render('Forms/FormIndex');
             })->name('forms.index');

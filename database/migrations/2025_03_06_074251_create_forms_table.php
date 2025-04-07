@@ -30,6 +30,7 @@ return new class extends Migration
             $table->integer('max_slots')->default(0);
 
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

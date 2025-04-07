@@ -2,7 +2,6 @@ import {useForm} from "@inertiajs/vue3";
 import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
 import {AxiosError} from "axios";
 import DtoError from "@/Modules/dto/DtoError";
-import DtoResponse from "@/Modules/dto/DtoResponse";
 
 export default {
     props: {
@@ -115,6 +114,7 @@ export default {
                     message: error.message
                 })
             }
+            console.log(dto.toObject());
             return dto;
         }
     }
