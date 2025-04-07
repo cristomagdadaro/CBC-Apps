@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\FormController;
+use App\Http\Controllers\LabRequestController;
 use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\RegistrationController;
 use Illuminate\Http\Request;
@@ -33,10 +34,16 @@ Route::prefix('guest')->group(function () {
 
 Route::middleware(['api','auth:sanctum','verified'])->group(function () {
     Route::prefix('forms')->group(function () {
-        Route::get('/', [FormController::class, 'index'])->name('api.form.index');
-        Route::get('/{event_id?}', [FormController::class, 'show'])->name('api.form.show');
-        Route::post('/create', [FormController::class, 'create'])->name('api.form.post');
-        Route::delete('/delete/{event_id?}', [FormController::class, 'delete'])->name('api.form.delete');
-        Route::middleware(['check.form.suspended'])->put('/update/{event_id?}', [FormController::class, 'update'])->name('api.form.put');
+        Route::prefix('event')->group(function () {
+            Route::get('/', [FormController::class, 'index'])->name('api.form.index');
+            Route::get('/{event_id?}', [FormController::class, 'show'])->name('api.form.show');
+            Route::post('/create', [FormController::class, 'create'])->name('api.form.post');
+            Route::delete('/delete/{event_id?}', [FormController::class, 'delete'])->name('api.form.delete');
+            Route::middleware(['check.form.suspended'])->put('/update/{event_id?}', [FormController::class, 'update'])->name('api.form.put');
+        });
+
+        Route::prefix('lab-request')->group(function () {
+            Route::post('/create', [LabRequestController::class, 'create'])->name('api.labReq.post');
+        });
     });
 });

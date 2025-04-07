@@ -69,6 +69,16 @@ export default class Requester extends ApiService {
             email: null,
             position: null,
             phone: null,
+
+            request_type: null,
+            request_details: null,
+            request_purpose: null,
+            project_title: null,
+            date_of_use: null,
+            time_of_use: null,
+            labs_to_use: [],
+            equipments_to_use: [],
+            consumables_to_use: [],
         }
     }
 

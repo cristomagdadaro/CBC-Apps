@@ -2,6 +2,7 @@ import {useForm} from "@inertiajs/vue3";
 import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
 import {AxiosError} from "axios";
 import DtoError from "@/Modules/dto/DtoError";
+import DtoResponse from "@/Modules/dto/DtoResponse";
 
 export default {
     props: {
@@ -116,6 +117,18 @@ export default {
             }
             console.log(dto.toObject());
             return dto;
+        },
+        toggleOption(field: string, value: any, checked: boolean) {
+            if (Array.isArray(this.form[field])) {
+                const index = this.form[field].indexOf(value);
+                if (checked && index === -1) {
+                    this.form[field].push(value);
+                } else if (!checked && index !== -1) {
+                    this.form[field].splice(index, 1);
+                }
+            } else {
+                console.error(`Field ${field} does not exist or is not an array.`);
+            }
         }
     }
 }
