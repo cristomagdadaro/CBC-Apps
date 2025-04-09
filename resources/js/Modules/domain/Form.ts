@@ -45,19 +45,6 @@ export default class Form extends ApiService {
         return await this.delete(this._apiDelete, params.event_id, params);
     }
 
-    getFields(): object
-    {
-        return {
-            search: null,
-            filter: null,
-            is_exact: false,
-            page: 1,
-            per_page: 10,
-            sort: 'created_at',
-            order: 'desc',
-        }
-    }
-
     deleteField(model): object
     {
         return {

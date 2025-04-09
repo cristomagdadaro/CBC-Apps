@@ -30,7 +30,7 @@ export default {
                     this.form = useForm(this.model.deleteField(this.data));
                     break;
                 case "get":
-                    this.form = useForm(this.model.getFields);
+                    this.form = useForm(this.model.getSearchFields());
                     break;
             }
         },

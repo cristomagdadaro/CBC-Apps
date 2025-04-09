@@ -1,0 +1,171 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\CreateTransactionRequest;
+use App\Http\Requests\GetTransactionRequest;
+use App\Http\Requests\NewOutgoingRequest;
+use App\Http\Requests\UpdateTransactionRequest;
+use App\Models\NewBarcode;
+use App\Repositories\TransactionRepo;
+use Exception;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+
+class TransactionController extends BaseController
+{
+    public function __construct(TransactionRepo $repository)
+    {
+        $this->repository = $repository;
+    }
+
+    /**
+     * Display a listing of the resource.
+     * @param GetTransactionRequest $request
+     * @throws Exception
+     */
+    public function index(GetTransactionRequest $request)
+    {
+        return $this->repository->search(new Collection($request->validated()));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * @param CreateTransactionRequest $request
+     * @return Model | JsonResponse
+     * @throws Exception
+     */
+    public function store(CreateTransactionRequest $request): Model | JsonResponse
+    {
+        $validated = $request->validated();
+        $validated['id'] = (string) Str::uuid();
+        return $this->repository->create($validated);
+    }
+
+    /**
+     * Generate a unique barcode 128 ID.
+     * @param string $room
+     * @return string
+     */
+    public function generateUniqueBarcode128ID(string $room): string
+    {
+        return json_encode([
+            'data' => [
+                'barcode' => NewBarcode::GenerateBarcode($room),
+            ],
+        ]);
+
+    }
+
+    /**
+     * Update the specified resource in storage.
+     * @param UpdateTransactionRequest $request
+     * @param string $id
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function update(UpdateTransactionRequest $request, string $id): JsonResponse
+    {
+        return $this->repository->update($id, $request->validated());
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     * @param string $id
+     * @return Model|JsonResponse
+     * @throws Exception
+     */
+    public function destroy(string $id): Model|JsonResponse
+    {
+        return $this->repository->delete($id);
+    }
+
+    /**
+     * Remove multiple rows of data from the storage.
+     * @param Request $request
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function multiDestroy(Request $request): JsonResponse
+    {
+        return $this->repository->multiDestroy($request->input('ids'));
+    }
+
+    /**
+     * Display a listing of the resource.
+     * @param Request $request
+     * @throws Exception
+     */
+    public function remainingStocks(Request $request)
+    {
+        $search = $request->input('search');
+        $is_exact = $request->input('is_exact', false);
+        $sort = $request->input('sort', 'id');
+        $order = $request->input('order', 'asc');
+        $perPage = $request->input('per_page', 10);
+        $page = $request->input('page', 1);
+        $paginate = $request->input('paginate', true);
+
+        $orderByRaw = match ($sort) {
+            'name' => 'items.name',
+            'brand' => 'items.brand',
+            'unit' => 'transactions.unit',
+            'total_ingoing' => 'SUM(CASE WHEN transactions.quantity > 0 THEN transactions.quantity ELSE 0 END)',
+            'total_outgoing' => 'SUM(CASE WHEN transactions.quantity < 0 THEN ABS(transactions.quantity) ELSE 0 END)',
+            'remaining_quantity' => 'SUM(transactions.quantity)',
+            default => 'items.id',
+        };
+
+        $data = $this->repository->model
+            ->selectRaw('items.name, items.brand, transactions.unit, items.id as item_id,
+                     SUM(CASE WHEN transactions.quantity > 0 THEN transactions.quantity ELSE 0 END) as total_ingoing,
+                     SUM(CASE WHEN transactions.quantity < 0 THEN ABS(transactions.quantity) ELSE 0 END) as total_outgoing,
+                     SUM(transactions.quantity) as remaining_quantity')
+            ->join('items', 'transactions.item_id', '=', 'items.id')
+            ->where(function ($query) use ($search, $is_exact) {
+                if ($is_exact && $search) {
+                    $query->where('items.name', $search)
+                        ->orWhere('items.brand', $search)
+                        ->orWhere('transactions.unit', $search)
+                        ->having('total_outgoing', $search)
+                        ->having('total_ingoing', $search)
+                        ->having('remaining_quantity', $search);
+                } else {
+                    $query->where('items.name', 'like', '%' . $search . '%')
+                        ->orWhere('items.brand', 'like', '%' . $search . '%')
+                        ->orWhere('transactions.unit', 'like', '%' . $search . '%')
+                        ->having('total_outgoing', 'like', '%' . $search . '%')
+                        ->having('total_ingoing', 'like', '%' . $search . '%')
+                        ->having('remaining_quantity', 'like', '%' . $search . '%');
+                }
+            })
+            ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit')
+            ->orderByRaw($orderByRaw . ' ' . $order);
+        $count = $data->count();
+        if ($paginate) {
+            $data = $data->paginate($perPage, ['*'], 'page', $page);
+        } else {
+            $data = $data->get();
+        }
+
+        return new Collection($data);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * @param NewOutgoingRequest $request
+     * @param string $id
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function outgoingStockStore(NewOutgoingRequest $request, string $id): JsonResponse
+    {
+        $validated = $request->validated();
+        $validated['quantity'] = $validated['quantity'] * -1;
+        $validated['id'] = (string) Str::uuid();
+        return $this->repository->create($validated);
+    }
+}

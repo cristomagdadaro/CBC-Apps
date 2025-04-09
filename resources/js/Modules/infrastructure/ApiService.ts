@@ -12,6 +12,7 @@ export default abstract class ApiService {
     async get(url: string, params?: any) {
         this.processing = true;
         try {
+            // @ts-ignore
             const response = await this.axiosInstance.get(route(url), { params });
             this.processing = false;
             return response.data;
@@ -24,6 +25,7 @@ export default abstract class ApiService {
     async post(url: string, params?: any) {
         this.processing = true;
         try {
+            // @ts-ignore
             const response = await this.axiosInstance.post(route(url), params);
             this.processing = false;
             return response;
@@ -78,6 +80,19 @@ export default abstract class ApiService {
     {
         return {
             id: data.id ?? null,
+        }
+    }
+
+    getSearchFields(): object
+    {
+        return {
+            search: null,
+            filter: null,
+            is_exact: false,
+            page: 1,
+            per_page: 10,
+            sort: 'created_at',
+            order: 'desc',
         }
     }
 }

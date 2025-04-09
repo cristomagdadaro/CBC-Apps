@@ -25,6 +25,40 @@ const switchToTeam = (team) => {
 const logout = () => {
     router.post(route('logout'));
 };
+
+const services = [
+    {
+        label: 'Dashboard',
+        href: 'dashboard',
+    },{
+        label: 'Event and Attendance Form',
+        href: 'forms.index',
+    },{
+        label: 'Laboratory Use Request',
+        href: 'forms.index',
+    },{
+        label: 'Supplies and Equipment Inventory',
+        href: 'forms.index',
+        children: [
+            {
+                label: 'Scan',
+                href: 'scan.index',
+            },{
+                label: 'Transactions',
+                href: 'transactions.index'
+            },{
+                label: 'Items',
+                href: 'items.index',
+            },{
+                label: 'Suppliers',
+                href: 'suppliers.index'
+            },{
+                label: 'Personnels',
+                href: 'personnels.index'
+            }
+        ]
+    },
+]
 </script>
 
 <template>
@@ -38,7 +72,7 @@ const logout = () => {
                 <!-- Primary Navigation Menu -->
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between h-16">
-                        <div class="flex">
+                        <div class="flex items-center">
                             <!-- Logo -->
                             <div class="shrink-0 flex items-center">
                                 <Link :href="route('dashboard')">
@@ -48,12 +82,34 @@ const logout = () => {
 
                             <!-- Navigation Links -->
                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                                    Dashboard
-                                </NavLink>
-                                <NavLink :href="route('forms.index')" :active="route().current('forms.index')">
-                                    Attendance Forms
-                                </NavLink>
+                                <template v-for="service in services" :key="service.label">
+                                    <!-- Show Dropdown if service has children -->
+                                    <Dropdown v-if="service.children" align="right" width="60">
+                                        <template #trigger>
+                                            <button type="button" class="inline-flex items-center justify-between px-3 py-3 border shadow-sm text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white w-full dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
+                                                {{ service.label }}
+                                                <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                                                </svg>
+                                            </button>
+                                        </template>
+
+                                        <template #content>
+                                            <div v-for="child in service.children" :key="child.label" class="w-60">
+                                                <DropdownLink :href="route(child.href)">
+                                                    <div class="flex items-center gap-1">
+                                                        <span>{{ child.label }}</span>
+                                                    </div>
+                                                </DropdownLink>
+                                            </div>
+                                        </template>
+                                    </Dropdown>
+
+                                    <!-- Show regular NavLink if no children -->
+                                    <NavLink v-else :href="route(service.href)" :active="route().current(service.href)">
+                                        {{ service.label }}
+                                    </NavLink>
+                                </template>
                             </div>
                         </div>
 

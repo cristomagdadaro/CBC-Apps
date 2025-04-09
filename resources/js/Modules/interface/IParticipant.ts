@@ -1,4 +1,4 @@
-interface IParticipant {
+interface IParticipant extends IBaseClass {
     id: string;
     name: string;
     email: string;
