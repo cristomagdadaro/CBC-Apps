@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreatePersonnelRequest;
+use App\Http\Requests\DeletePersonnelRequest;
 use App\Http\Requests\GetPersonnelRequest;
 use App\Http\Requests\UpdatePersonnelRequest;
-use App\Repository\PersonnelRepo;
+use App\Repositories\PersonnelRepo;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
@@ -16,50 +17,26 @@ class PersonnelController extends BaseController
 
     public function __construct(PersonnelRepo $repository)
     {
-        $this->repository = $repository;
+        $this->service = $repository;
     }
 
-    /**
-     * Display a listing of the resource.
-     * @param GetPersonnelRequest $request
-     * @throws Exception
-     */
-    public function index(GetPersonnelRequest $request)
+    public function index(GetPersonnelRequest $request, $personnel_id = null): Collection
     {
-        return $this->repository->search(new Collection($request->validated()));
+        return parent::_index($request);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     * @param CreatePersonnelRequest $request
-     * @return Model | JsonResponse
-     * @throws Exception
-     */
-    public function store(CreatePersonnelRequest $request): Model | JsonResponse
+    public function create(CreatePersonnelRequest $request): Model
     {
-        return $this->repository->create($request->validated());
+        return parent::_store($request);
     }
 
-    /**
-     * Update the specified resource in storage.
-     * @param UpdatePersonnelRequest $request
-     * @param string $id
-     * @return JsonResponse
-     * @throws Exception
-     */
-    public function update(UpdatePersonnelRequest $request, string $id): JsonResponse
+    public function update(UpdatePersonnelRequest $request, string $id): Model
     {
-        return $this->repository->update($id, $request->validated());
+        return parent::_update($request, $id);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     * @param string $id
-     * @return Model | JsonResponse
-     * @throws Exception
-     */
-    public function destroy(string $id): Model | JsonResponse
+    public function destroy(DeletePersonnelRequest $request, string $id): Model | JsonResponse
     {
-        return $this->repository->delete($id);
+        return parent::_destroy($id);
     }
 }

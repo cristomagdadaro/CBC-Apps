@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
-class Item extends Model
+class Item extends BaseModel
 {
     use HasFactory, SoftDeletes;
 
@@ -31,7 +31,17 @@ class Item extends Model
         'image',
     ];
 
-    protected function serializeDate(DateTimeInterface $date)
+    protected array $searchable  = [
+        'id',
+        'name',
+        'brand',
+        'description',
+        'category_id',
+        'supplier_id',
+        'image',
+    ];
+
+    protected function serializeDate(DateTimeInterface $date): string
     {
         return $date->format('g:i a M j, Y');
     }

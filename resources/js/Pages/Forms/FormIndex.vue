@@ -18,11 +18,6 @@ import ApiMixin from "@/Modules/mixins/ApiMixin";
 
 export default {
     name: "FormIndex",
-    computed: {
-        Form() {
-            return Form
-        }
-    },
     components: {
         ArrowRight,
         ArrowLeft,
@@ -32,6 +27,11 @@ export default {
         TextInput,
         InputError,
         FormsHeaderActions, Modal, AddButton, ListOfForms, Welcome, AppLayout, Link
+    },
+    computed: {
+        Form() {
+            return Form
+        }
     },
     mixins: [ApiMixin],
     data() {

@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateItemRequest;
+use App\Http\Requests\DeleteItemRequest;
 use App\Http\Requests\GetItemRequest;
 use App\Http\Requests\UpdateItemRequest;
-use App\Repository\ItemRepo;
+use App\Repositories\ItemRepo;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
@@ -16,57 +17,26 @@ class ItemController extends BaseController
 {
     public function __construct(ItemRepo $repository)
     {
-        $this->repository = $repository;
+        $this->service = $repository;
     }
 
-    public function all()
+    public function index(GetItemRequest $request, $item_id = null): Collection
     {
-        return new Collection($this->repository->all());
+        return parent::_index($request);
     }
 
-    /**
-     * Display a listing of the resource.
-     * @param GetItemRequest $request
-     * @throws Exception
-     */
-    public function index(GetItemRequest $request)
+    public function store(CreateItemRequest $request) : Model
     {
-        return $this->repository->search(new Collection($request->validated()));
+        return parent::_store($request);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     * @param CreateItemRequest $request
-     * @return Model | JsonResponse
-     * @throws Exception
-     */
-    public function store(CreateItemRequest $request) : Model | JsonResponse
+    public function update(UpdateItemRequest $request, string $id): Model
     {
-        $validated = $request->validated();
-        $validated['id'] = (string) Str::uuid();
-        return $this->repository->create($validated);
+        return parent::_update($request, $id);
     }
 
-    /**
-     * Update the specified resource in storage.
-     * @param UpdateItemRequest $request
-     * @param string $id
-     * @return JsonResponse
-     * @throws Exception
-     */
-    public function update(UpdateItemRequest $request, string $id): JsonResponse
+    public function destroy(DeleteItemRequest $request, string $id): Model
     {
-        return $this->repository->update($id, $request->validated());
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     * @param string $id
-     * @return Model|JsonResponse
-     * @throws Exception
-     */
-    public function destroy(string $id): Model | JsonResponse
-    {
-        return $this->repository->delete($id);
+        return parent::_destroy($id);
     }
 }

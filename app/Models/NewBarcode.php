@@ -5,11 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class NewBarcode extends Model
+class NewBarcode extends BaseModel
 {
     use HasFactory;
 
     protected $fillable = [
+        'barcode',
+        'room',
+    ];
+
+    protected array $searchable  = [
         'barcode',
         'room',
     ];

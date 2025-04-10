@@ -27,4 +27,9 @@ class BaseController extends Controller
     {
         return $this->service->update($id, $request->validated());
     }
+
+    public function _destroy(string $id): Model
+    {
+        return $this->service->delete($id);
+    }
 }

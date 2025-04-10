@@ -7,17 +7,32 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Transaction extends Model
+class Transaction extends BaseModel
 {
     use HasFactory, SoftDeletes;
 
     protected $table = 'transactions';
-
+    protected $keyType = 'string';
     protected $casts = [
         'id' => 'string',
     ];
-
     protected $fillable = [
+        'id',
+        'item_id',
+        'barcode',
+        'transac_type',
+        'quantity',
+        'unit_price',
+        'unit',
+        'total_cost',
+        'project_code',
+        'personnel_id',
+        'user_id',
+        'expiration',
+        'remarks',
+    ];
+
+    protected array $searchable = [
         'id',
         'item_id',
         'barcode',

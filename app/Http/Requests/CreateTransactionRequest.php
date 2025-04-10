@@ -2,8 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Form;
+use App\Models\Transaction;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 
 class CreateTransactionRequest extends FormRequest
 {
@@ -13,6 +16,17 @@ class CreateTransactionRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    public function prepareForValidation(): void
+    {
+        do {
+            $temp = Str::uuid()->toString();
+        } while (Transaction::where('id', $temp)->exists());
+
+        $this->merge([
+            'id' => $temp,
+        ]);
     }
 
     /**

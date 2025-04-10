@@ -19,30 +19,17 @@ class TransactionController extends BaseController
 {
     public function __construct(TransactionRepo $repository)
     {
-        $this->repository = $repository;
+        $this->service = $repository;
     }
 
-    /**
-     * Display a listing of the resource.
-     * @param GetTransactionRequest $request
-     * @throws Exception
-     */
     public function index(GetTransactionRequest $request)
     {
-        return $this->repository->search(new Collection($request->validated()));
+        return $this->service->search(new Collection($request->validated()));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     * @param CreateTransactionRequest $request
-     * @return Model | JsonResponse
-     * @throws Exception
-     */
-    public function store(CreateTransactionRequest $request): Model | JsonResponse
+    public function create(CreateTransactionRequest $request): Model | JsonResponse
     {
-        $validated = $request->validated();
-        $validated['id'] = (string) Str::uuid();
-        return $this->repository->create($validated);
+        return parent::_store($request);
     }
 
     /**
@@ -60,46 +47,17 @@ class TransactionController extends BaseController
 
     }
 
-    /**
-     * Update the specified resource in storage.
-     * @param UpdateTransactionRequest $request
-     * @param string $id
-     * @return JsonResponse
-     * @throws Exception
-     */
-    public function update(UpdateTransactionRequest $request, string $id): JsonResponse
+    public function update(UpdateTransactionRequest $request, string $id): Model
     {
-        return $this->repository->update($id, $request->validated());
+        return parent::_update($id, $request);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     * @param string $id
-     * @return Model|JsonResponse
-     * @throws Exception
-     */
-    public function destroy(string $id): Model|JsonResponse
+    public function destroy(string $id): Model
     {
-        return $this->repository->delete($id);
+        return parent::_destroy($id);
     }
 
-    /**
-     * Remove multiple rows of data from the storage.
-     * @param Request $request
-     * @return JsonResponse
-     * @throws Exception
-     */
-    public function multiDestroy(Request $request): JsonResponse
-    {
-        return $this->repository->multiDestroy($request->input('ids'));
-    }
-
-    /**
-     * Display a listing of the resource.
-     * @param Request $request
-     * @throws Exception
-     */
-    public function remainingStocks(Request $request)
+    public function remainingStocks(Request $request): Collection
     {
         $search = $request->input('search');
         $is_exact = $request->input('is_exact', false);
@@ -119,7 +77,7 @@ class TransactionController extends BaseController
             default => 'items.id',
         };
 
-        $data = $this->repository->model
+        $data = $this->service->model
             ->selectRaw('items.name, items.brand, transactions.unit, items.id as item_id,
                      SUM(CASE WHEN transactions.quantity > 0 THEN transactions.quantity ELSE 0 END) as total_ingoing,
                      SUM(CASE WHEN transactions.quantity < 0 THEN ABS(transactions.quantity) ELSE 0 END) as total_outgoing,
@@ -154,18 +112,11 @@ class TransactionController extends BaseController
         return new Collection($data);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     * @param NewOutgoingRequest $request
-     * @param string $id
-     * @return JsonResponse
-     * @throws Exception
-     */
     public function outgoingStockStore(NewOutgoingRequest $request, string $id): JsonResponse
     {
         $validated = $request->validated();
         $validated['quantity'] = $validated['quantity'] * -1;
         $validated['id'] = (string) Str::uuid();
-        return $this->repository->create($validated);
+        return $this->service->create($validated);
     }
 }

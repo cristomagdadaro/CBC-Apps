@@ -4,13 +4,17 @@ namespace App\Models;
 
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class Category extends Model
+class Category extends BaseModel
 {
     use HasFactory;
 
     protected $fillable = [
+        'name',
+        'description',
+    ];
+
+    protected array $searchable = [
         'name',
         'description',
     ];

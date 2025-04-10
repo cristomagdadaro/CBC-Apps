@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Inventory;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,7 +16,10 @@ return new class extends Migration
             $table->uuid('id')->unique()->primary();
             $table->string('barcode')->unique()->nullable();
             $table->foreignUuid('item_id')->references('id')->on('items')->NoactionOnDelete()->CascadeOnUpdate();
-            $table->enum('transac_type', config('system.transaction_type'));
+            $table->enum('transac_type', [
+                Inventory::INCOMING->value,
+                Inventory::OUTGOING->value,
+            ]);
             $table->integer('quantity');
             $table->string('unit')->nullable();
             $table->decimal('unit_price')->nullable();

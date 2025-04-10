@@ -13,10 +13,20 @@ import ScannerHeaderActions from "@/Pages/Inventory/Scan/components/ScannerHeade
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import TextInput from "@/Components/TextInput.vue";
 import SearchBy from "@/Components/SearchBy.vue";
+import SearchBtn from "@/Components/Buttons/SearchBtn.vue";
+import PaginateBtn from "@/Components/PaginateBtn.vue";
+import ArrowLeft from "@/Components/Icons/ArrowLeft.vue";
+import ArrowRight from "@/Components/Icons/ArrowRight.vue";
+import ListOfForms from "@/Pages/Forms/components/ListOfForms.vue";
+import ListOfTransactions from "@/Pages/Inventory/Scan/components/ListOfTransactions.vue";
 
 export default {
     name: "Scan",
     components: {
+        ListOfTransactions,
+        ListOfForms,
+        ArrowRight, ArrowLeft, PaginateBtn,
+        SearchBtn,
         SearchBy, TextInput,
         ScannerHeaderActions,
         DropdownLink, Dropdown,
@@ -27,6 +37,11 @@ export default {
         SearchBox,
         Head,
         AppLayout
+    },
+    computed: {
+        Transaction() {
+            return Transaction;
+        },
     },
     mixins: [ApiMixin],
     data() {
@@ -45,13 +60,15 @@ export default {
             },
         }
     },
-    computed: {
-        apiUrl() {
-            return route('api.inventory.transactions.remaining-stocks');
-        },
-        Transaction() {
-            return Transaction;
-        },
+    beforeMount() {
+        this.model = new Transaction();
+        this.setFormAction('get');
+    },
+    async mounted() {
+        await this.searchEvent();
+    },
+    unmounted() {
+        this.stopHandheldScanner();
     },
     methods: {
         startHandheldScanner() {
@@ -67,6 +84,11 @@ export default {
         },
         cameraChange(deviceInfo) {
             this.selectedDevice = this.devices.find(option => option.deviceId === deviceInfo.deviceId);
+        },
+        async searchEvent() {
+            this.transactionsFromApi = await this.fetchData();
+            console.log(this.transactionsFromApi);
+            this.form.search = null;
         }
     },
     watch: {
@@ -78,18 +100,14 @@ export default {
                 this.selectedDevice = null;
                 this.startHandheldScanner();
             }
+        },
+        'form.page': {
+            handler(newVal, oldVal) {
+                this.searchEvent();
+            },
+            deep: true,
         }
     },
-    beforeMount() {
-        this.model = new Transaction();
-        this.setFormAction('get');
-    },
-    async mounted() {
-        this.transactionsFromApi =  await this.fetchData();
-    },
-    unmounted() {
-        this.stopHandheldScanner();
-    }
 }
 </script>
 
@@ -98,6 +116,7 @@ export default {
         <template #header>
             <scanner-header-actions />
         </template>
+
         <div class="sm:py-4 p-0">
             <div class="flex sm:flex-row flex-col gap-5 max-w-7xl mx-auto border border-gray-400 sm:p-5 p-1 sm:rounded-md">
                 <div class="flex flex-col gap-2 sm:border-r border-gray-400 sm:pr-5">
@@ -167,7 +186,7 @@ export default {
                             <span class="text-gray-600 text-center text-sm">QR/Barcode</span>
                         </div>
                         <div class="p-1 drop-shadow-lg bg-white my-2">
-                            <scanner @decoded="params.search = $event"
+                            <scanner @decoded="form.search = $event"
                                      @error="error = $event"
                                      :selectedDevice="selectedDevice"
                                      @detectedDevices="devices =  $event"
@@ -179,14 +198,122 @@ export default {
                     </div>{{ error }}
                 </div>
                 <div class="flex flex-col gap-2 w-full overflow-x-auto">
-                    <div class="flex gap-2">
-                        <search-by :value="params.filter" :is-exact="params.is_exact" :options="Transaction.getFilterColumns()" @isExact="params.is_exact = $event" @searchBy="params.filter = $event" />
-                        <search-box v-model="params.search" class="w-full"/>
+                    <form v-if="!!form" @submit.prevent="searchEvent" class="flex flex-col gap-2 w-full">
+                        <div class="flex gap-2 items-end">
+                            <search-by :value="form.filter" :is-exact="form.is_exact" :options="Transaction.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
+                            <text-input placeholder="Search..." v-model="form.search" />
+                            <search-btn type="submit" :disabled="model?.processing" class="w-[10rem] text-center">
+                                <span v-if="!model?.processing">Search</span>
+                                <span v-else>Searching</span>
+                            </search-btn>
+                        </div>
+                        <div v-if="transactionsFromApi" class="flex w-full gap-2 items-center">
+                            <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
+                                <!-- First Button -->
+                                <paginate-btn @click="form.page = 1" :disabled="form.page === 1">
+                                    First
+                                </paginate-btn>
+
+                                <!-- Previous Button -->
+                                <paginate-btn @click="form.page = Math.max(1, form.page - 1)" :disabled="form.page === 1">
+                                    <template v-slot:icon>
+                                        <arrow-left class="h-auto w-6" />
+                                    </template>
+                                    Prev
+                                </paginate-btn>
+
+                                <!-- Current Page Indicator -->
+                                <div class="text-xs flex flex-col whitespace-nowrap text-center">
+                                    <span class="font-medium mx-1" title="current page and total pages">
+                                        <span>{{ transactionsFromApi?.current_page }}</span> / <span>{{ transactionsFromApi?.last_page }}</span>
+                                    </span>
+                                </div>
+
+                                <!-- Next Button -->
+                                <paginate-btn
+                                    @click="form.page = Math.min(transactionsFromApi?.last_page, form.page + 1)"
+                                    :disabled="form.page === transactionsFromApi?.last_page"
+                                >
+                                    Next
+                                    <template v-slot:icon>
+                                        <arrow-right class="h-auto w-6" />
+                                    </template>
+                                </paginate-btn>
+
+                                <!-- Last Button -->
+                                <paginate-btn
+                                    @click="form.page = transactionsFromApi?.last_page"
+                                    :disabled="form.page === transactionsFromApi?.last_page"
+                                >
+                                    Last
+                                </paginate-btn>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+                        <!-- Show forms when available -->
+                        <list-of-transactions
+                            v-if="transactionsFromApi && transactionsFromApi.total > 0"
+                            :forms-data="transactionsFromApi.data"
+                            @removeModel="transactionsFromApi.data = transactionsFromApi.data.filter(form => form.id !== $event.id)"
+                        />
+
+                        <!-- Show "Searching" when processing -->
+                        <div v-else-if="model.processing" class="text-center py-3 border border-AB rounded-lg">
+                            Searching...
+                        </div>
+
+                        <!-- Show "Form does not exist" when search was performed but no results -->
+                        <div v-else-if="transactionsFromApi && transactionsFromApi.total === 0 && form.search" class="text-center py-3 border border-AB rounded-lg">
+                            Form does not exist. Try using some filters.
+                        </div>
+
+                        <!-- Show "No forms available" when nothing was returned and no search was performed -->
+                        <div v-else class="text-center py-3 border border-AB rounded-lg">
+                            No forms available.
+                        </div>
                     </div>
-                    <div class="overflow-x-auto flex flex-col gap-5">
-                        <pre v-for="item in transactionsFromApi.data">
-                            {{ item }}
-                        </pre>
+                    <div v-if="transactionsFromApi && transactionsFromApi.data?.length" class="flex w-full gap-2 items-center mt-3">
+                        <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
+                            <!-- First Button -->
+                            <paginate-btn @click="form.page = 1" :disabled="form.page === 1">
+                                First
+                            </paginate-btn>
+
+                            <!-- Previous Button -->
+                            <paginate-btn @click="form.page = Math.max(1, form.page - 1)" :disabled="form.page === 1">
+                                <template v-slot:icon>
+                                    <arrow-left class="h-auto w-6" />
+                                </template>
+                                Prev
+                            </paginate-btn>
+
+                            <!-- Current Page Indicator -->
+                            <div class="text-xs flex flex-col whitespace-nowrap text-center">
+                                    <span class="font-medium mx-1" title="current page and total pages">
+                                        <span>{{ transactionsFromApi?.current_page }}</span> / <span>{{ transactionsFromApi?.last_page }}</span>
+                                    </span>
+                            </div>
+
+                            <!-- Next Button -->
+                            <paginate-btn
+                                @click="form.page = Math.min(transactionsFromApi?.last_page, form.page + 1)"
+                                :disabled="form.page === transactionsFromApi?.last_page"
+                            >
+                                Next
+                                <template v-slot:icon>
+                                    <arrow-right class="h-auto w-6" />
+                                </template>
+                            </paginate-btn>
+
+                            <!-- Last Button -->
+                            <paginate-btn
+                                @click="form.page = transactionsFromApi?.last_page"
+                                :disabled="form.page === transactionsFromApi?.last_page"
+                            >
+                                Last
+                            </paginate-btn>
+                        </div>
                     </div>
                 </div>
             </div>

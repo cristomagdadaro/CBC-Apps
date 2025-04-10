@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Item;
 use App\Rules\UniqueItem;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 
 class CreateItemRequest extends FormRequest
 {
@@ -14,6 +16,17 @@ class CreateItemRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    public function prepareForValidation(): void
+    {
+        do {
+            $temp = Str::uuid()->toString();
+        } while (Item::where('id', $temp)->exists());
+
+        $this->merge([
+            'id' => $temp,
+        ]);
     }
 
     /**

@@ -7,11 +7,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Personnel extends Model
+class Personnel extends BaseModel
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'fname',
+        'mname',
+        'lname',
+        'suffix',
+        'position',
+        'phone',
+        'address',
+        'email',
+    ];
+
+    protected array $searchable  = [
         'fname',
         'mname',
         'lname',
