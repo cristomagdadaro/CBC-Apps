@@ -32,7 +32,7 @@ export default {
             // Extract time from "HH:MM:SS" and set it on the target date
             const [hours, minutes, seconds] = this.data.time_to.split(':').map(Number);
             targetDate.setHours(hours, minutes, seconds);
-
+            // @ts-ignore
             const timeDifference = targetDate - now;
 
             if (timeDifference <= 0) {
@@ -72,7 +72,7 @@ export default {
             // Convert to 12-hour format
             const ampm = hours >= 12 ? "PM" : "AM";
             const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
-
+            // @ts-ignore
             return `${formattedHours}:${minutes.toString().padStart(2, "0")} ${ampm}`;
         },
     },

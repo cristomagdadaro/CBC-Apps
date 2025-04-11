@@ -10,11 +10,11 @@ export default class DtoBaseClass implements IBaseClass {
     _appendedCount?: string[];
 
     constructor(data: Partial<IBaseClass>) {
-        this.id = data.id;
-        this.table = data.table;
-        this.created_at = data.created_at;
-        this.updated_at = data.updated_at;
-        this.delete_at = data.delete_at;
+        this.id = data?.id;
+        this.table = data?.table;
+        this.created_at = data?.created_at;
+        this.updated_at = data?.updated_at;
+        this.delete_at = data?.delete_at;
     }
 
     get appendedWith() {

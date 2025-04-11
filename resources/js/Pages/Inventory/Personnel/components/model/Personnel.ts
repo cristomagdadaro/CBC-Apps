@@ -1,12 +1,16 @@
-import { BaseClass } from '@/Modules/core/domain/BaseClass.js';
-export class Personnel extends BaseClass{
-    constructor(params = {}) {
-        super(params);
-        this.fullname = Personnel.fullName(params);
-    }
+import ApiService from "@/Modules/infrastructure/ApiService";
+import DtoPersonnel from "@/Pages/Inventory/Personnel/components/model/DtoPersonnel";
 
-    static toObject(obj) {
-        return Object.assign({}, obj);
+export default class Personnel extends ApiService {
+    static model = DtoPersonnel;
+
+    constructor(response: DtoPersonnel) {
+        super(response);
+
+        this._apiIndex = 'api.inventory.personnels.index';
+        this._apiPost = 'api.inventory.personnels.store';
+        this._apiPut = 'api.inventory.personnels.update';
+        this._apiDelete = 'api.inventory.personnels.destroy';
     }
 
     static getColumns() {

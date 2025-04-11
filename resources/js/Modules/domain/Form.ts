@@ -3,10 +3,6 @@ import DtoForm from "@/Modules/dto/DtoForm";
 
 export default class Form extends ApiService {
     static model = DtoForm;
-    private _apiIndex: string;
-    private _apiPost: string;
-    private _apiPut: string;
-    private _apiDelete: string;
 
     constructor(response: DtoForm) {
         super(response);
@@ -15,34 +11,6 @@ export default class Form extends ApiService {
         this._apiPost = 'api.form.post';
         this._apiPut = 'api.form.put';
         this._apiDelete = 'api.form.delete';
-    }
-
-    async getIndex(params: any)
-    {
-        return await this.get(this._apiIndex, params);
-    }
-
-    get apiIndex(): string {
-        return this._apiIndex;
-    }
-
-    set apiIndex(value: string) {
-        this._apiIndex = value;
-    }
-
-    async putIndex(params: any)
-    {
-        return await this.put(this._apiPut, params.event_id, params);
-    }
-
-    async postIndex(params: any)
-    {
-        return await this.post(this._apiPost, params);
-    }
-
-    async deleteApiIndex(params: any)
-    {
-        return await this.delete(this._apiDelete, params.event_id, params);
     }
 
     deleteField(model): object

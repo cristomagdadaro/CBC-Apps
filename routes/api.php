@@ -79,7 +79,6 @@ Route::middleware(['api','auth:sanctum','verified'])->group(function () {
         });
 
         Route::prefix('personnels')->group(function () {
-            Route::get('/all', [PersonnelController::class, 'all'])->name('api.inventory.personnels.all');
             Route::get('/', [PersonnelController::class, 'index'])->name('api.inventory.personnels.index');
             Route::post('/', [PersonnelController::class, 'store'])->name('api.inventory.personnels.store');
             Route::put('/{id}', [PersonnelController::class, 'update'])->name('api.inventory.personnels.update');

@@ -5,6 +5,12 @@ export default abstract class ApiService {
     protected axiosInstance: any;
     protected static model: { new(data: any): DtoBaseClass };
     protected processing: boolean = false;
+
+    protected _apiIndex: string;
+    protected _apiPost: string;
+    protected _apiPut: string;
+    protected _apiDelete: string;
+
     protected constructor(model: DtoBaseClass) {
         this.axiosInstance = axios.create({});
     }
@@ -94,5 +100,33 @@ export default abstract class ApiService {
             sort: 'created_at',
             order: 'desc',
         }
+    }
+
+    protected async getIndex(params: any)
+    {
+        return await this.get(this._apiIndex, params);
+    }
+
+    get apiIndex(): string {
+        return this._apiIndex;
+    }
+
+    set apiIndex(value: string) {
+        this._apiIndex = value;
+    }
+
+    async putIndex(params: any)
+    {
+        return await this.put(this._apiPut, params.event_id, params);
+    }
+
+    async postIndex(params: any)
+    {
+        return await this.post(this._apiPost, params);
+    }
+
+    async deleteApiIndex(params: any)
+    {
+        return await this.delete(this._apiDelete, params.event_id, params);
     }
 }
