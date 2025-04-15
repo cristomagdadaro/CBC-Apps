@@ -1,23 +1,16 @@
 <script>
 import {Head} from "@inertiajs/vue3";
-/*import DataTable from "@/Components/DataTable/presentation/DataTable.vue";*/
-import NavLink from "@/Components/NavLink.vue";
-import SearchBox from "@/Pages/Inventory/Scan/components/searchBox.vue";
-import AddIcon from "@/Components/Icons/AddIcon.vue";
-import SearchBy from "@/Components/DataTable/presentation/components/SearchBy.vue";
-import Personnel from "@/Pages/Inventory/Personnel/components/model/Personnel";
-import CloseIcon from "@/Components/Icons/CloseIcon.vue";
+import DataTable from "@/Components/DataTable/presentation/DataTable.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import SearchComp from "@/Components/Search/SearchComp.vue";
-import {defineAsyncComponent} from "vue";
-import DataTable from "@/Components/DataTable/presentation/DataTable.vue";
+import Personnel from "@/Pages/Inventory/Personnel/components/model/Personnel";
 import PersonnelHeaderActions from "@/Pages/Inventory/Personnel/components/presentation/PersonnelHeaderActions.vue";
 
 export default {
     name: "Personnel",
     components: {
-        PersonnelHeaderActions,
-        SearchComp, AppLayout, CloseIcon, SearchBy, AddIcon, SearchBox, NavLink, Head, DataTable},
+        PersonnelHeaderActions, SearchComp, AppLayout, Head, DataTable
+    },
     computed: {
         DataTable() {
             return DataTable
@@ -25,20 +18,6 @@ export default {
         Personnel() {
             return Personnel;
         },
-    },
-    data() {
-        return {
-            selectedItem: null,
-            apiResponse: null,
-            cardSlot: defineAsyncComponent({
-                loader: () => import("@/Pages/Inventory/Personnel/components/presentation/PersonnelList.vue"),
-            })
-        }
-    },
-    methods: {
-        selectedItemChange(item) {
-            this.selectedItem = item;
-        }
     },
 }
 </script>
