@@ -1,3 +1,5 @@
+import ConcreteApiService from "@/Modules/infrastructure/ConcreteApiService";
+
 export default class DtoBaseClass implements IBaseClass {
     id: string;
     table: string;
@@ -6,8 +8,7 @@ export default class DtoBaseClass implements IBaseClass {
     updated_at?: Date;
     delete_at?: Date;
 
-    _appendedWith?: string[];
-    _appendedCount?: string[];
+    public api: ConcreteApiService;
 
     constructor(data: Partial<IBaseClass>) {
         this.id = data?.id;
@@ -15,21 +16,12 @@ export default class DtoBaseClass implements IBaseClass {
         this.created_at = data?.created_at;
         this.updated_at = data?.updated_at;
         this.delete_at = data?.delete_at;
+
+        this.api = new ConcreteApiService();
     }
 
-    get appendedWith() {
-        return this._appendedCount;
-    }
-
-    get appendedCount() {
-        return this._appendedCount;
-    }
-
-    set appendedCount(columns: string[]) {
-        this._appendedCount = columns;
-    }
-
-    set appendWith(columns: string[]) {
-        this._appendedCount = columns;
+    get fullName() {
+        // @ts-ignore
+        return `${this?.fname} ${this?.mname} ${this?.lname} ${this?.suffix}`;
     }
 }

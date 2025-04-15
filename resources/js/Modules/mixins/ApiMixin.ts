@@ -30,16 +30,16 @@ export default {
                     this.form = useForm(this.model.deleteField(this.data));
                     break;
                 case "get":
-                    this.form = useForm(this.model.getSearchFields());
+                    this.form = useForm(this.model.api.getSearchFields());
                     break;
             }
         },
         async fetchData() {
-            return await this.model.getIndex(this.form.data());
+            return await this.model.api.getIndex(this.form.data(), this.model);
         },
         async submitCreate(toCast: boolean = false, except: string = '') {
-            this.form.clearErrors();
-            return await this.model.postIndex(this.form.data()).then(response => {
+            this.form.clearErrors(); console.log(this.model);
+            return await this.model.api.postIndex(this.form.data()).then(response => {
                 this.resetForm(except);
                 if (toCast) {
                     return new DtoResponse(response).castDataToModel(this.model.constructor);
@@ -51,7 +51,7 @@ export default {
         },
         async submitUpdate(toCast: boolean = false, except: string = '') {
             this.form.clearErrors();
-            return await this.model.putIndex(this.form.data()).then(response => {
+            return await this.model.api.putIndex(this.form.data()).then(response => {
                 this.resetForm(except);
                 if (toCast) {
                     return new DtoResponse(response).castDataToModel(this.model.constructor);
@@ -63,7 +63,7 @@ export default {
         },
         async submitDelete() {
             this.setFormAction('delete');
-            return await this.model.deleteApiIndex(this.form.data()).then(response => {
+            return await this.model.api.deleteApiIndex(this.form.data()).then(response => {
                 this.resetForm();
                 return new DtoResponse(response);
             }).catch(error => {
@@ -115,7 +115,7 @@ export default {
                     message: error.message
                 })
             }
-            console.log(dto.toObject());
+
             return dto;
         },
         toggleOption(field: string, value: any, checked: boolean) {

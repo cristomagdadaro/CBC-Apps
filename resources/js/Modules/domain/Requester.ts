@@ -3,10 +3,6 @@ import DtoRequester from "@/Modules/dto/DtoRequester";
 
 export default class Requester extends ApiService {
     static model = DtoRequester;
-    private _apiIndex: string;
-    private _apiPost: string;
-    private _apiPut: string;
-    private _apiDelete: string;
 
     constructor(response: DtoRequester) {
         super(response);

@@ -12,10 +12,15 @@ import SearchBox from "@/Pages/Inventory/Scan/components/searchBox.vue";
 import Personnel from "@/Pages/Inventory/Personnel/components/model/Personnel.js";
 import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
 import {defineAsyncComponent} from "vue";
+import FilterIcon from "@/Components/Icons/FilterIcon.vue";
+import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 
 export default {
     name: "SearchComp",
-    components: {SearchBox, ArrowRight, TextInput, SearchBtn, ArrowLeft, SearchBy, InputError, PaginateBtn},
+    components: {
+        CustomDropdown,
+        FilterIcon,
+        SearchBox, ArrowRight, TextInput, SearchBtn, ArrowLeft, SearchBy, InputError, PaginateBtn},
     mixins: [ApiMixin],
     props: {
         propModel: {
@@ -27,11 +32,11 @@ export default {
             default: "get",
         },
         cardSlot: {
-            type: [Object, Function],
+            type: Object,
             required: false,
-            /*default: defineAsyncComponent({
-                loader: () => import("@/Components/CRCMDatatable/Layouts/DefaultBlankForm.vue"),
-            }),*/
+            default: defineAsyncComponent({
+                loader: () => import("@/Components/DefaultBlankForm.vue"),
+            }),
         },
     },
     data() {
@@ -59,13 +64,19 @@ export default {
             return this.propModel.getColumns()
                 .map(column => column && column.visible ? { name: column.key, label: column.title } : null)
                 .filter(Boolean);
+        },
+        perPageOptions() {
+            return [
+                {name:10, label:'10'},
+                {name:25, label:'25'},
+                {name:50, label:'50'},
+                {name:100, label:'100'},
+            ]
         }
     },
     methods: {
         async searchEvent() {
-            this.apiResponse = null;
             this.apiResponse = await this.fetchData();
-            this.form.search = null;
             this.$emit("searchedData", this.apiResponse);
         },
     }
@@ -74,9 +85,24 @@ export default {
 
 <template>
     <form v-if="!!form" class="flex gap-2 items-end select-none"  @submit.prevent="searchEvent">
-        <div class="grid grid-rows-2 w-full">
+        <div class="flex flex-col w-full gap-2">
             <div class="w-full flex gap-2 items-end lg:px-0 px-2">
                 <div class="flex gap-3 w-full">
+                    <div class="flex flex-col gap-0.5">
+                        <div class="flex justify-between select-none">
+                            <label class="text-gray-600 text-xs">Per Page</label>
+                        </div>
+                        <custom-dropdown :show-clear="false"
+                                         :value="form.per_page"
+                                         :options="perPageOptions"
+                                         :withAllOption="false"
+                                         @selectedChange="form.per_page=$event; searchEvent();"
+                        >
+                            <template #icon>
+                                <filter-icon class="h-4 w-4" />
+                            </template>
+                        </custom-dropdown>
+                    </div>
                     <search-by
                         :value="form.filter"
                         :is-exact="form.is_exact"
@@ -85,11 +111,16 @@ export default {
                         @isExact="form.is_exact = $event"
                     />
                     <search-box class="w-full" v-model="form.search" />
+                    <div class="flex flex-col gap-0.5">
+                        <div class="flex justify-between select-none">
+                            <label class="text-gray-600 text-xs">&nbsp;</label>
+                        </div>
+                        <search-btn type="submit" :disabled="model?.processing" class="w-[10rem] text-center h-full hover:bg-AB duration-150">
+                            <span v-if="!model?.processing">Search</span>
+                            <span v-else>Searching</span>
+                        </search-btn>
+                    </div>
                 </div>
-                <search-btn type="submit" :disabled="model?.processing" class="w-[10rem] text-center">
-                    <span v-if="!model?.processing">Search</span>
-                    <span v-else>Searching</span>
-                </search-btn>
             </div>
             <div v-if="apiResponse" class="flex w-full gap-2 items-center">
                 <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
@@ -138,6 +169,9 @@ export default {
     <component v-if="cardSlot"
                :is="cardSlot"
                :apiResponse="apiResponse"
+               :processing="model.api.processing"
+               :model="propModel"
+               class="my-2"
     />
     <div v-if="apiResponse" class="flex w-full gap-2 items-center">
         <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">

@@ -1,12 +1,12 @@
 import { AxiosResponse } from "axios";
 import IResponse from "@/Modules/interface/IResponse";
 
-export default class DtoResponse<T> implements IResponse {
+export default class DtoResponse implements IResponse {
     message: string;
-    data: T;
+    data: Object;
     status: number;
 
-    constructor(response: AxiosResponse<T>) {
+    constructor(response: AxiosResponse) {
         this.message = response.statusText;
         this.data = response.data;
         this.status = response.status;
@@ -20,5 +20,10 @@ export default class DtoResponse<T> implements IResponse {
         }
 
         return new model(this.data);
+    }
+
+    get getPaginatedResponse() {
+        // @ts-ignore
+        return this.data;
     }
 }

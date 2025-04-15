@@ -1,21 +1,33 @@
 import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
 
 export default class DtoTransaction extends DtoBaseClass implements ITransaction{
-    id: string;
-    brand: string;
+    barcode: string;
+    item_id:string;
+    transac_type: string;
+    quantity: number;
     unit: string;
-    remaining_quantity: number;
-    total_outgoing: number;
+    unit_price: number;
     total_cost: number;
+    personnel_id: string;
+    project_code: string;
+    user_id: string;
+    expiration: string;
+    remarks: string;
 
     constructor(data: ITransaction) {
         super(data);
 
-        this.id = data.id ?? null;
-        this.brand = data.brand ?? null;
-        this.unit = data.unit ?? null;
-        this.remaining_quantity = data.remaining_quantity ?? null;
-        this.total_outgoing = data.total_outgoing ?? null;
-        this.total_cost = data.total_cost ?? null;
+        this.barcode = data?.barcode;
+        this.item_id = data?.item_id;
+        this.transac_type = data?.transac_type;
+        this.quantity = data?.quantity;
+        this.unit = data?.unit;
+        this.unit_price = data?.unit_price;
+        this.total_cost = data?.total_cost;
+        this.personnel_id = data?.personnel_id;
+        this.project_code = data?.project_code;
+        this.user_id = data?.user_id;
+        this.expiration = data?.expiration;
+        this.remarks = data?.remarks;
     }
 }

@@ -1,48 +1,13 @@
-import ApiService from "@/Modules/infrastructure/ApiService";
 import DtoTransaction from "@/Pages/Inventory/Scan/components/model/DtoTransaction";
 
-export default class Transaction extends ApiService {
-    static model = DtoTransaction;
-    private _apiIndex: string;
-    private _apiPost: string;
-    private _apiPut: string;
-    private _apiDelete: string;
-
-    constructor(response: DtoTransaction) {
+export default class Transaction extends DtoTransaction {
+       constructor(response: DtoTransaction) {
         super(response);
 
-        this._apiIndex = 'api.inventory.transactions.index';
-        this._apiPost = 'api.inventory.transactions.store';
-        this._apiPut = 'api.inventory.transactions.update';
-        this._apiDelete = 'api.inventory.transactions.destroy';
-    }
-
-    async getIndex(params: any)
-    {
-        return await this.get(this._apiIndex, params);
-    }
-
-    get apiIndex(): string {
-        return this._apiIndex;
-    }
-
-    set apiIndex(value: string) {
-        this._apiIndex = value;
-    }
-
-    async putIndex(params: any)
-    {
-        return await this.put(this._apiPut, params.id, params);
-    }
-
-    async postIndex(params: any)
-    {
-        return await this.post(this._apiPost, params);
-    }
-
-    async deleteApiIndex(params: any)
-    {
-        return await this.delete(this._apiDelete, params.id, params);
+        this.api._apiIndex = 'api.inventory.transactions.index';
+        this.api._apiPost = 'api.inventory.transactions.store';
+        this.api._apiPut = 'api.inventory.transactions.update';
+        this.api._apiDelete = 'api.inventory.transactions.destroy';
     }
 
     deleteField(model): object
@@ -55,11 +20,18 @@ export default class Transaction extends ApiService {
     createFields(): object
     {
         return {
-            brand: null,
+            barcode: null,
+            item_id: null,
+            transac_type: null,
+            quantity: null,
             unit: null,
-            remaining_quantity: null,
-            total_outgoing: null,
+            unit_price: null,
             total_cost: null,
+            personnel_id: null,
+            project_code: null,
+            user_id: null,
+            expiration: null,
+            remarks: null,
         };
     }
 
@@ -67,11 +39,18 @@ export default class Transaction extends ApiService {
     {
         return {
             id: model.id ?? null,
-            brand: model.brand ?? null,
+            barcode: model.barcode ?? null,
+            item_id: model.item_id ?? null,
+            transac_type: model.transac_type ?? null,
+            quantity: model.quantity ?? null,
             unit: model.unit ?? null,
-            remaining_quantity: model.remaining_quantity ?? null,
-            total_outgoing: model.total_outgoing ?? null,
+            unit_price: model.unit_price ?? null,
             total_cost: model.total_cost ?? null,
+            personnel_id: model.personnel_id ?? null,
+            project_code: model.project_code ?? null,
+            user_id: model.user_id ?? null,
+            expiration: model.expiration ?? null,
+            remarks: model.remarks ?? null,
         };
     }
 

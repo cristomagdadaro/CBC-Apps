@@ -15,6 +15,8 @@ interface IForm extends IBaseClass {
     is_suspended: boolean;
     max_slots: number;
 
+    participants_count: number;
+
     registrations: Array<IRegistration>
     participants: Array<IParticipant>
 }

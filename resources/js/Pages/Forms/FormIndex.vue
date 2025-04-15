@@ -57,7 +57,7 @@ export default {
             this.eventFormFromApi = null;
 
             this.eventFormFromApi = await this.fetchData();
-
+            console.log(this.eventFormFromApi);
             this.eventId.cell1 = null;
             this.eventId.cell2 = null;
             this.eventId.cell3 = null;

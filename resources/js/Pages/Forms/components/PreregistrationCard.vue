@@ -190,7 +190,7 @@ export default {
                 @input="form.clearErrors('organization')"
             />
             <TextInput
-                id="organization"
+                id="designation"
                 v-model="form.designation"
                 type="text"
                 :error="form.errors.designation"

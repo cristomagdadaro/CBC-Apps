@@ -46,9 +46,10 @@ export default {
     },
     methods: {
         async searchEvent() {
+            console.log(this.model);
             if (!this.form.search || this.form.search.length < 4) return;
             this.eventFormFromApi = null;
-            this.eventFormFromApi = await this.model.getIndex(this.form.data());
+            this.eventFormFromApi = await this.model.api.getIndex(this.form.data(), this.model);
 
             this.eventId.cell1 = null;
             this.eventId.cell2 = null;

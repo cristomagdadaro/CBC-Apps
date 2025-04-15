@@ -5,7 +5,7 @@ export default {
 </script>
 
 <template>
-    <td class="whitespace-nowrap max-w-32 overflow-ellipsis overflow-hidden text-center p-1">
+    <td class="lg:whitespace-nowrap max-w-32 overflow-ellipsis overflow-hidden py-1 lg:py-2">
         <slot />
     </td>
 </template>

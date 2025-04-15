@@ -1,16 +1,57 @@
-import ApiService from "@/Modules/infrastructure/ApiService";
 import DtoPersonnel from "@/Pages/Inventory/Personnel/components/model/DtoPersonnel";
 
-export default class Personnel extends ApiService {
-    static model = DtoPersonnel;
-
+export default class Personnel extends DtoPersonnel {
     constructor(response: DtoPersonnel) {
         super(response);
 
-        this._apiIndex = 'api.inventory.personnels.index';
-        this._apiPost = 'api.inventory.personnels.store';
-        this._apiPut = 'api.inventory.personnels.update';
-        this._apiDelete = 'api.inventory.personnels.destroy';
+        this.api._apiIndex = 'api.inventory.personnels.index';
+        this.api._apiPost = 'api.inventory.personnels.store';
+        this.api._apiPut = 'api.inventory.personnels.update';
+        this.api._apiDelete = 'api.inventory.personnels.destroy';
+    }
+
+    deleteField(model): object
+    {
+        return {
+            id: model?.id
+        };
+    }
+
+    createFields(): object
+    {
+        return {
+            fname: null,
+            mname: null,
+            lname: null,
+            suffix: null,
+            position: null,
+            phone: null,
+            address: null,
+            email: null,
+        }
+    }
+
+    updateFields(data: IPersonnel): object
+    {
+        return {
+            fname: data?.fname,
+            mname:  data?.mname,
+            lname: data?.lname,
+            suffix: data?.suffix,
+            position: data?.position,
+            phone: data?.phone,
+            address: data?.address,
+            email: data?.email,
+        }
+    }
+
+    static getFilterColumns() {
+        return Personnel.getColumns()
+            .filter(column => column.visible !== false)
+            .map(column => ({
+                name: column.db_key,
+                label: column.title,
+            }));
     }
 
     static getColumns() {
@@ -18,63 +59,72 @@ export default class Personnel extends ApiService {
             {
                 title: 'ID',
                 key: 'id',
-                align: 'center',
+                db_key: 'id',
+                align: 'text-center',
                 sortable: true,
-                visible: false,
+                visible: true,
             },
             {
                 title: 'Name',
-                key: 'fullname',
-                align: 'center',
+                key: 'fullName',
+                db_key: 'fname',
+                align: 'text-left',
                 sortable: true,
                 visible: true,
             },
             {
                 title: 'Middle Name',
                 key: 'mname',
-                align: 'center',
+                db_key: 'mname',
+                align: 'text-center',
                 sortable: true,
                 visible: false,
             },
             {
                 title: 'Last Name',
                 key: 'lname',
-                align: 'center',
+                db_key: 'lname',
+                align: 'text-center',
                 sortable: true,
                 visible: false,
             },
             {
                 title: 'Suffix',
                 key: 'suffix',
-                align: 'center',
+                db_key: 'suffix',
+                align: 'text-center',
                 sortable: true,
                 visible: false,
             },
             {
                 title: 'Position',
                 key: 'position',
-                align: 'center',
+                db_key: 'position',
+                align: 'text-left',
                 sortable: true,
                 visible: true,
             },
             {
                 title: 'Phone',
                 key: 'phone',
-                align: 'center',
+                db_key: 'phone',
+                align: 'text-center',
                 sortable: true,
                 visible: true,
             },
             {
                 title: 'Address',
                 key: 'address',
-                align: 'center',
+                db_key: 'address',
+                align: 'text-center',
                 sortable: true,
                 visible: false,
             },
             {
                 title: 'Email',
                 key: 'email',
-                align: 'center',
+                db_key: 'email',
+                align: 'text-center',
                 sortable: true,
                 visible: false,
             },

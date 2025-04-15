@@ -1,25 +1,38 @@
-import axios from "axios";
+import axios, {AxiosResponse} from "axios";
 import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
 
 export default abstract class ApiService {
-    protected axiosInstance: any;
-    protected static model: { new(data: any): DtoBaseClass };
-    protected processing: boolean = false;
+    public axiosInstance: any;
+    public processing: boolean = false;
 
-    protected _apiIndex: string;
-    protected _apiPost: string;
-    protected _apiPut: string;
-    protected _apiDelete: string;
+    public _apiIndex: string;
+    public _apiPost: string;
+    public _apiPut: string;
+    public _apiDelete: string;
 
-    protected constructor(model: DtoBaseClass) {
+    public _appendedWith?: string[];
+    public _appendedCount?: string[];
+
+    protected constructor() {
         this.axiosInstance = axios.create({});
     }
 
-    async get(url: string, params?: any) {
+    async get(url: string, params?: any, model?: DtoBaseClass) {
         this.processing = true;
         try {
             // @ts-ignore
-            const response = await this.axiosInstance.get(route(url), { params });
+            const response = await this.axiosInstance.get(route(url), {
+                params: {
+                    ...params,
+                    ...(model.api.appendWith && Array.isArray(model.api.appendWith) ? {with: model.api.appendWith.toString()} : {}),
+                    ...(model.api.appendedCount && Array.isArray(model.api.appendedCount) ? {count: model.api.appendedCount.toString()} : {})
+                }
+            }).then((response: AxiosResponse) => {
+                if (model) {
+                    response.data.data = this.castToModel(response.data.data, model);
+                }
+                return response;
+            });
             this.processing = false;
             return response.data;
         } catch (error) {
@@ -70,9 +83,10 @@ export default abstract class ApiService {
         }
     }
 
-    castToModel(response: any) {
-        if (!response || !ApiService.model) return [];
-        return response.map((item: any) => (item ? new ApiService.model(item) : null));
+    castToModel(response: any, model: DtoBaseClass) {
+        if (!response || !model) return [];
+        // @ts-ignore
+        return response.map((item: any) => (item ? new model.constructor(item) : null));
     }
 
     static createFields(): object
@@ -102,9 +116,9 @@ export default abstract class ApiService {
         }
     }
 
-    protected async getIndex(params: any)
+    public async getIndex(params: any, model?: DtoBaseClass)
     {
-        return await this.get(this._apiIndex, params);
+        return await this.get(this._apiIndex, params, model);
     }
 
     get apiIndex(): string {
@@ -113,6 +127,22 @@ export default abstract class ApiService {
 
     set apiIndex(value: string) {
         this._apiIndex = value;
+    }
+
+    get appendedWith() {
+        return this._appendedCount;
+    }
+
+    get appendedCount() {
+        return this._appendedCount;
+    }
+
+    set appendedCount(columns: string[]) {
+        this._appendedCount = columns;
+    }
+
+    set appendWith(columns: string[]) {
+        this._appendedCount = columns;
     }
 
     async putIndex(params: any)

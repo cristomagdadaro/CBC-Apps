@@ -1,33 +1,19 @@
-import ApiService from "@/Modules/infrastructure/ApiService";
 import DtoParticipant from "@/Modules/dto/DtoParticipant";
 
-export default class Participant extends ApiService {
-    static model = DtoParticipant;
-    private _apiIndex: string;
-    private _apiPost: string;
-
+export default class Participant extends DtoParticipant {
     constructor(response: DtoParticipant) {
         super(response);
-        this._apiIndex = 'api.form.participants.index'
-        this._apiPost = 'api.form.registration.post';
+        this.api._apiIndex = 'api.form.participants.index'
+        this.api._apiPost = 'api.form.registration.post';
+
+        this.api.appendWith = ['registrations'];
     }
 
-    get apiIndex(): string {
-        return this._apiIndex;
-    }
-
-    set apiIndex(value: string) {
-        this._apiIndex = value;
-    }
-
-    async getIndex(params: any)
+    deleteField(model): object
     {
-        return await this.get(this._apiIndex, params);
-    }
-
-    async postIndex(params: any)
-    {
-        return await this.post(this._apiPost, params);
+        return {
+            id: model.id ?? null,
+        };
     }
 
     createFields(): object
@@ -67,5 +53,118 @@ export default class Participant extends ApiService {
             country_address: null,
             agreed_tc: false,
         }
+    }
+
+    static getFilterColumns() {
+        return Participant.getColumns()
+            .filter(column => column.visible !== false)
+            .map(column => ({
+                name: column.db_key,
+                label: column.title,
+            }));
+    }
+
+    static getColumns(){
+        return [
+            {
+                title: 'ID',
+                key: 'id',
+                db_key: 'id',
+                align: 'center',
+                sortable: true,
+                visible: false,
+            }, {
+                title: 'Name',
+                key: 'name',
+                db_key: 'name',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            },{
+                title: 'Email',
+                key: 'email',
+                db_key: 'email',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            },{
+                title: 'Phone',
+                key: 'phone',
+                db_key: 'phone',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            },{
+                title: 'Sex',
+                key: 'sex',
+                db_key: 'sex',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            },{
+                title: 'Age',
+                key: 'age',
+                db_key: 'age',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            },{
+                title: 'Organization',
+                key: 'organization',
+                db_key: 'organization',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            },{
+                title: 'Designation',
+                key: 'designation',
+                db_key: 'designation',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            },{
+                title: 'Is IP',
+                key: 'is_ip',
+                db_key: 'is_ip',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            },{
+                title: 'Is PWD',
+                key: 'is_pwd',
+                db_key: 'is_pwd',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            },{
+                title: 'City',
+                key: 'city_address',
+                db_key: 'city_address',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            },{
+                title: 'Province',
+                key: 'province_address',
+                db_key: 'province_address',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            },{
+                title: 'Country',
+                key: 'country_address',
+                db_key: 'country_address',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            },{
+                title: 'Agreed T&C',
+                key: 'agreed_tc',
+                db_key: 'agreed_tc',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            },
+        ]
     }
 }

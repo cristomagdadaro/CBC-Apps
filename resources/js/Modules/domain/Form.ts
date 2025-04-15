@@ -1,22 +1,21 @@
-import ApiService from "@/Modules/infrastructure/ApiService";
 import DtoForm from "@/Modules/dto/DtoForm";
 
-export default class Form extends ApiService {
-    static model = DtoForm;
-
+export default class Form extends DtoForm {
     constructor(response: DtoForm) {
         super(response);
 
-        this._apiIndex = 'api.form.guest.index';
-        this._apiPost = 'api.form.post';
-        this._apiPut = 'api.form.put';
-        this._apiDelete = 'api.form.delete';
+        this.api._apiIndex = 'api.form.guest.index';
+        this.api._apiPost = 'api.form.post';
+        this.api._apiPut = 'api.form.put';
+        this.api._apiDelete = 'api.form.delete';
+
+        this.api.appendedCount = ['participants']
     }
 
     deleteField(model): object
     {
         return {
-            event_id: model.event_id ?? null,
+            event_id: model?.event_id,
         };
     }
 

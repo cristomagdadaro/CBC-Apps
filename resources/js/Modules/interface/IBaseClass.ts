@@ -5,7 +5,4 @@ interface IBaseClass {
     created_at?: Date;
     updated_at?: Date;
     delete_at?: Date;
-
-    _appendedWith?: string[];
-    _appendedCount?: string[];
 }
