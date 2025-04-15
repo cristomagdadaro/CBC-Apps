@@ -12,6 +12,7 @@ interface ITransaction extends IBaseClass {
     expiration: string;
     remarks: string;
 
-    //item: IItem;
-    //user: IUser;
+    item: IItem;
+    user: IUser;
+    personnel: IPersonnel;
 }

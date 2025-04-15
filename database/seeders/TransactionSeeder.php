@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\Inventory;
 use App\Models\Item;
 use App\Models\NewBarcode;
+use App\Models\Personnel;
 use App\Models\Transaction;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -26,7 +27,7 @@ class TransactionSeeder extends Seeder
                 'unit_price' => '100',
                 'unit' => 'kg',
                 'total_cost' => '10000',
-                'personnel_id' => null,
+                'personnel_id' => Personnel::all()->random()->id,
                 'project_code' => 'RTF-022-360',
                 'user_id' => '1',
                 'expiration' => '2021-12-31',

@@ -63,4 +63,8 @@ class Transaction extends BaseModel
         return$this->belongsTo(User::class, 'user_id', 'id');
     }
 
+    public function personnel()
+    {
+        return$this->belongsTo(Personnel::class, 'personnel_id', 'id');
+    }
 }

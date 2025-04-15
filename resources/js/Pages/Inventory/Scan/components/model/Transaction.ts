@@ -8,6 +8,9 @@ export default class Transaction extends DtoTransaction {
         this.api._apiPost = 'api.inventory.transactions.store';
         this.api._apiPut = 'api.inventory.transactions.update';
         this.api._apiDelete = 'api.inventory.transactions.destroy';
+
+        this.api.appendWith = ['item', 'user','personnel'];
+        this.api.appendedCount = ['item', 'user','personnel'];
     }
 
     deleteField(model): object
@@ -73,6 +76,13 @@ export default class Transaction extends DtoTransaction {
                 sortable: true,
                 visible: false,
             },{
+                title: 'Item',
+                key: 'item.fullName',
+                db_key: 'item',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            },{
                 title: 'Barcode',
                 key: 'barcode',
                 db_key: 'barcode',
@@ -106,21 +116,14 @@ export default class Transaction extends DtoTransaction {
                 db_key: 'unit_price',
                 align: 'center',
                 sortable: true,
-                visible: true,
+                visible: false,
             },{
                 title: 'Total Cost',
                 key: 'total_cost',
                 db_key: 'total_cost',
                 align: 'center',
                 sortable: true,
-                visible: true,
-            },{
-                title: 'Personnel',
-                key: 'personnel_id',
-                db_key: 'personnel_id',
-                align: 'center',
-                sortable: true,
-                visible: true,
+                visible: false,
             },{
                 title: 'Project Code',
                 key: 'project_code',
@@ -141,23 +144,22 @@ export default class Transaction extends DtoTransaction {
                 db_key: 'remarks',
                 align: 'center',
                 sortable: true,
-                visible: true,
-            },{
-                title: 'Item',
-                key: 'item',
-                db_key: 'item',
-                align: 'center',
-                sortable: true,
-                visible: true,
+                visible: false,
             },{
                 title: 'User',
-                key: 'user',
+                key: 'user.fullName',
                 db_key: 'user',
+                align: 'center',
+                sortable: true,
+                visible: false,
+            },{
+                title: 'Personnel',
+                key: 'personnel.fullName',
+                db_key: 'personnel_id',
                 align: 'center',
                 sortable: true,
                 visible: true,
             },
-
         ]
     }
 }

@@ -21,7 +21,7 @@ export default {
 
 <template>
     <div class="flex flex-col gap-0.5">
-        <div class="flex justify-between select-none">
+        <div class="flex justify-between select-none whitespace-nowrap gap-3">
             <label for="searchbox" class="text-gray-600 text-xs">Search</label>
             <span class="text-gray-500 text-xs">Scan / Type to search</span>
         </div>

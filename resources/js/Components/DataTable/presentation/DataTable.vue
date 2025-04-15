@@ -68,6 +68,11 @@ export default {
             showDeleteModal: false,
         }
     },
+    methods: {
+        getNestedValue(obj, path) {
+            return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+        },
+    }
 }
 </script>
 
@@ -111,14 +116,14 @@ export default {
                     </dt-data>
                     <template
                         v-for="head in displayedHeaders"
-                        :key="head.id"
+                        :key="head.key"
                     >
                             <dt-data
                                 v-if="head.visible"
                                 :class="head.align"
                                 class="border border-gray-500 px-2"
                             >
-                                {{ row[head.key]}}
+                                {{ getNestedValue(row, head.key) }}
                             </dt-data>
                     </template>
                     <dt-data v-if="appendActions" class="border-y border-gray-500">

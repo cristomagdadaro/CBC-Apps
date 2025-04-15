@@ -21,7 +21,15 @@ export default class DtoBaseClass implements IBaseClass {
     }
 
     get fullName() {
-        // @ts-ignore
-        return `${this?.fname} ${this?.mname} ${this?.lname} ${this?.suffix}`;
+        // check if the instance has a fname, mname, etc. attribute
+        if (this.hasOwnProperty('fname') && this.hasOwnProperty('mname') && this.hasOwnProperty('lname') && this.hasOwnProperty('suffix')){
+            //@ts-ignore
+            return [this.fname, this.mname ? this.mname?.[0]+'.' : '', this.lname, this.suffix]
+                .filter(part => part)
+                .join(" ");
+        }
+
+        //@ts-ignore
+        return this.name || this.table || this.title;
     }
 }

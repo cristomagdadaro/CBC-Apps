@@ -1,4 +1,7 @@
 import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
+import DtoItem from "@/Pages/Inventory/Items/components/model/DtoItem";
+import DtoPersonnel from "@/Pages/Inventory/Personnel/components/model/DtoPersonnel";
+import DtoUser from "@/Modules/dto/DtoUser";
 
 export default class DtoTransaction extends DtoBaseClass implements ITransaction{
     barcode: string;
@@ -13,6 +16,10 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
     user_id: string;
     expiration: string;
     remarks: string;
+
+    item: IItem;
+    user: IUser;
+    personnel: IPersonnel;
 
     constructor(data: ITransaction) {
         super(data);
@@ -29,5 +36,14 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
         this.user_id = data?.user_id;
         this.expiration = data?.expiration;
         this.remarks = data?.remarks;
+
+        if (data?.item)
+            this.item = new DtoItem(data?.item);
+
+        if (data?.user)
+            this.user = new DtoUser(data?.user);
+
+        if (data?.personnel)
+            this.personnel = new DtoPersonnel(data.personnel)
     }
 }

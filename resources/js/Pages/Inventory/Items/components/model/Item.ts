@@ -1,19 +1,51 @@
-import { BaseClass } from '@/Modules/core/domain/BaseClass.js';
-import {Supplier} from "@/Pages/Supplier/components/model/Supplier.js";
-import Category from "@/Pages/Items/components/model/Category.js";
+import DtoItem from "@/Pages/Inventory/Items/components/model/DtoItem";
 
-export class Item extends BaseClass{
-    constructor(params = {
-        category: {},
-        supplier: {}
-    }) {
-        super(params);
-        this.category_id = params && params.category ? new Category(params.category).name : null;
-        this.supplier_id = params && params.supplier ? new Supplier(params.supplier).name : null;
-  }
+export default class Item extends DtoItem {
+    constructor(response: DtoItem) {
+        super(response);
 
-    static toObject(obj) {
-        return Object.assign({}, obj);
+        this.api._apiIndex = 'api.inventory.items.index';
+        this.api._apiPost = 'api.inventory.items.store';
+        this.api._apiPut = 'api.inventory.items.update';
+        this.api._apiDelete = 'api.inventory.items.destroy';
+    }
+
+    deleteField(model): object
+    {
+        return {
+            id: model?.id
+        };
+    }
+
+    createFields(): object {
+        return {
+            name: null,
+            brand: null,
+            description: null,
+            category_id: null,
+            supplier_id: null,
+            image: null,
+        }
+    }
+
+    updateFields(data: IItem): object {
+        return {
+            name: data?.name,
+            brand: data?.brand,
+            description: data?.description,
+            category_id: data?.category_id,
+            supplier_id: data?.supplier_id,
+            image: data?.image,
+        }
+    }
+
+    static getFilterColumns() {
+        return Item.getColumns()
+            .filter(column => column.visible !== false)
+            .map(column => ({
+                name: column.db_key,
+                label: column.title,
+            }));
     }
 
     static getColumns() {
@@ -21,13 +53,15 @@ export class Item extends BaseClass{
             {
                 title: 'ID',
                 key: 'id',
+                db_key: 'id',
                 align: 'center',
                 sortable: true,
-                visible: false,
+                visible: true,
             },
             {
                 title: 'Name',
                 key: 'name',
+                db_key: 'name',
                 align: 'center',
                 sortable: true,
                 visible: true,
@@ -35,13 +69,15 @@ export class Item extends BaseClass{
             {
                 title: 'Brand',
                 key: 'brand',
+                db_key: 'brand',
                 align: 'center',
                 sortable: true,
                 visible: true,
             },
             {
                 title: 'Supplier',
-                key: 'supplier_id',
+                key: 'supplier.fullName',
+                db_key: 'supplier_id',
                 align: 'center',
                 sortable: true,
                 visible: true,
@@ -49,13 +85,15 @@ export class Item extends BaseClass{
             {
                 title: 'Description',
                 key: 'description',
+                db_key: 'description',
                 align: 'center',
                 sortable: true,
                 visible: false,
             },
             {
                 title: 'Category',
-                key: 'category_id',
+                key: 'category.fullName',
+                db_key: 'category_id',
                 align: 'center',
                 sortable: true,
                 visible: true,
@@ -63,6 +101,7 @@ export class Item extends BaseClass{
             {
                 title: 'Image',
                 key: 'image',
+                db_key: 'image',
                 align: 'center',
                 sortable: true,
                 visible: false,
@@ -70,13 +109,15 @@ export class Item extends BaseClass{
             {
                 title: 'Created At',
                 key: 'created_at',
+                db_key: 'created_at',
                 align: 'center',
                 sortable: true,
-                visible: true,
+                visible: false,
             },
             {
                 title: 'Updated At',
                 key: 'updated_at',
+                db_key: 'updated_at',
                 align: 'center',
                 sortable: true,
                 visible: false,
@@ -84,6 +125,7 @@ export class Item extends BaseClass{
             {
                 title: 'Deleted At',
                 key: 'deleted_at',
+                db_key: 'deleted_at',
                 align: 'center',
                 sortable: true,
                 visible: false,
