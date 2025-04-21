@@ -10,7 +10,6 @@ export default class Transaction extends DtoTransaction {
         this.api._apiDelete = 'api.inventory.transactions.destroy';
 
         this.api.appendWith = ['item', 'user','personnel'];
-        this.api.appendedCount = ['item', 'user','personnel'];
     }
 
     deleteField(model): object

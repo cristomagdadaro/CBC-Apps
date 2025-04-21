@@ -19,7 +19,6 @@ class FormController extends BaseController
     public function __construct(FormRepo $repository)
     {
         $this->service = $repository;
-        $this->service->appendCount = ['participants'];
     }
 
     public function formGuestView(GetFormsRequest $request, $event_id = null)

@@ -87,7 +87,7 @@ export default {
         },
         async searchEvent() {
             this.transactionsFromApi = await this.fetchData();
-            console.log(this.transactionsFromApi);
+
             this.form.search = null;
         }
     },
@@ -101,12 +101,6 @@ export default {
                 this.startHandheldScanner();
             }
         },
-        'form.page': {
-            handler(newVal, oldVal) {
-                this.searchEvent();
-            },
-            deep: true,
-        }
     },
 }
 </script>
@@ -265,12 +259,12 @@ export default {
 
                         <!-- Show "Form does not exist" when search was performed but no results -->
                         <div v-else-if="transactionsFromApi && transactionsFromApi.total === 0 && form.search" class="text-center py-3 border border-AB rounded-lg">
-                            Form does not exist. Try using some filters.
+                            Not Found. Try using some filters.
                         </div>
 
                         <!-- Show "No forms available" when nothing was returned and no search was performed -->
                         <div v-else class="text-center py-3 border border-AB rounded-lg">
-                            No forms available.
+                            No data available.
                         </div>
                     </div>
                     <div v-if="transactionsFromApi && transactionsFromApi.data?.length" class="flex w-full gap-2 items-center mt-3">

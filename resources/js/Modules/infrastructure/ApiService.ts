@@ -24,7 +24,7 @@ export default abstract class ApiService {
             const response = await this.axiosInstance.get(route(url), {
                 params: {
                     ...params,
-                    ...(model.api.appendWith && Array.isArray(model.api.appendWith) ? {with: model.api.appendWith.toString()} : {}),
+                    ...(model.api.appendedWith && Array.isArray(model.api.appendedWith) ? {with: model.api.appendedWith.toString()} : {}),
                     ...(model.api.appendedCount && Array.isArray(model.api.appendedCount) ? {count: model.api.appendedCount.toString()} : {})
                 }
             }).then((response: AxiosResponse) => {
@@ -130,18 +130,18 @@ export default abstract class ApiService {
     }
 
     get appendedWith() {
-        return this._appendedCount;
+        return this._appendedWith;
+    }
+
+    set appendWith(columns: string[]) {
+        this._appendedWith = columns;
     }
 
     get appendedCount() {
         return this._appendedCount;
     }
 
-    set appendedCount(columns: string[]) {
-        this._appendedCount = columns;
-    }
-
-    set appendWith(columns: string[]) {
+    set appendCount(columns: string[]) {
         this._appendedCount = columns;
     }
 

@@ -141,14 +141,16 @@ abstract class AbstractRepoService {
 
     public function applyAppends(Builder &$model, Collection $parameters): void
     {
-        $with = $this->appendWith;
-        $count = $this->appendCount;
+        $with = $parameters->get('with', $this->appendWith);;
+        $count = $parameters->get('count', $this->appendCount);
 
         if ($with) {
+            $with = is_array($with) ? $with : explode(',', $with);
             $model = $model->with($with);
         }
 
         if ($count) {
+            $count = is_array($count) ? $count : explode(',', $count);
             $model = $model->withCount($count);
         }
     }

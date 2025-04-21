@@ -8,6 +8,8 @@ export default class Item extends DtoItem {
         this.api._apiPost = 'api.inventory.items.store';
         this.api._apiPut = 'api.inventory.items.update';
         this.api._apiDelete = 'api.inventory.items.destroy';
+
+        this.api.appendWith = ['category', 'supplier'];
     }
 
     deleteField(model): object

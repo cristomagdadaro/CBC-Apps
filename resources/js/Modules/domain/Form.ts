@@ -9,7 +9,7 @@ export default class Form extends DtoForm {
         this.api._apiPut = 'api.form.put';
         this.api._apiDelete = 'api.form.delete';
 
-        this.api.appendedCount = ['participants']
+        this.api.appendCount = ['participants']
     }
 
     deleteField(model): object
