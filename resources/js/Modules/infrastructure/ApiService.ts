@@ -9,6 +9,7 @@ export default abstract class ApiService {
     public _apiPost: string;
     public _apiPut: string;
     public _apiDelete: string;
+    public _apiGet: string;
 
     public _appendedWith?: string[];
     public _appendedCount?: string[];
@@ -28,9 +29,10 @@ export default abstract class ApiService {
                     ...(model.api.appendedCount && Array.isArray(model.api.appendedCount) ? {count: model.api.appendedCount.toString()} : {})
                 }
             }).then((response: AxiosResponse) => {
-                if (model) {
+                console.log(response);
+               /* if (model) {
                     response.data.data = this.castToModel(response.data.data, model);
-                }
+                }*/
                 return response;
             });
             this.processing = false;
@@ -119,6 +121,19 @@ export default abstract class ApiService {
     public async getIndex(params: any, model?: DtoBaseClass)
     {
         return await this.get(this._apiIndex, params, model);
+    }
+
+    public async getApi(params: any, model?: DtoBaseClass)
+    {
+        return await this.get(this._apiGet, params, model);
+    }
+
+    set apiGet(value: string) {
+        this._apiGet = value;
+    }
+
+    get apiGet(): string {
+        return this._apiGet;
     }
 
     get apiIndex(): string {

@@ -35,10 +35,9 @@ class TransactionFactory extends Factory
         $room = $this->faker->randomElement(['01', '02', '03', '04', '05', '06']);
 
         $roomExist = NewBarcode::where('room', $room)->first();
-        //$transac_type = $this->faker->randomElement(config('system_variables.transaction_type'));
-        $transac_type =Inventory::INCOMING->value;
+        $transac_type = $this->faker->randomElement([Inventory::INCOMING->value, Inventory::OUTGOING->value]);
         if($roomExist == null){
-            $newBarcode = 'CBC-'. $room .'-000001';
+            $newBarcode = 'CBC-'. $room .'-000002';
             NewBarcode::create([
                 'barcode' => $newBarcode,
                 'room' => $room,
@@ -86,12 +85,32 @@ class TransactionFactory extends Factory
                 'unit_price' => $this->faker->randomNumber(2),
                 'unit' => $this->faker->randomElement(['kg', 'g', 'mg', 'L', 'mL', 'pc']),
                 'total_cost' => $this->faker->randomNumber(2),
-                'personnel_id' => null,
+                'personnel_id' => Personnel::all()->random()->id,
                 'project_code' => $newBarcode,
                 'user_id' => User::all()->random()->id,
                 'expiration' => $this->faker->date(),
                 'remarks' => $this->faker->text,
             ];
+        $existing = Transaction::all();
+
+        if ($existing->count()) {
+            $existing = $existing->random();
+            return [
+                'id' => $this->faker->uuid,
+                'item_id' => $existing->item_id,
+                'barcode' => $existing->barcode,
+                'transac_type' => Inventory::OUTGOING->value,
+                'quantity' => $this->faker->randomNumber(3) * -1,
+                'unit_price' => $existing->unit_price,
+                'unit' => $existing->unit,
+                'total_cost' => $existing->total_cost,
+                'personnel_id' => Personnel::all()->random()->id,
+                'project_code' => $existing->project_code,
+                'user_id' => User::all()->random()->id,
+                'expiration' => $existing->expiration,
+                'remarks' => $this->faker->text,
+            ];
+        }
 
         return [
                 'id' => $this->faker->uuid,

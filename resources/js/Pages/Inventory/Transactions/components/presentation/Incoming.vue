@@ -14,7 +14,6 @@ import AddIcon from "@/Components/Icons/AddIcon.vue";
 import VueBarcode from 'vue-barcode';
 import JsBarcode from "jsbarcode";
 import { createCanvas } from "canvas";
-import NotificationService from "@/Components/Notification/domain/NotificationService.js";
 
 export default {
     name: "Incoming",

@@ -32,10 +32,16 @@ export default {
                 case "get":
                     this.form = useForm(this.model.api.getSearchFields());
                     break;
+                case "summary":
+                    this.form = useForm(this.model.api.getSearchFields());
+                    break;
             }
         },
         async fetchData() {
             return await this.model.api.getIndex(this.form.data(), this.model);
+        },
+        async fetchGetApi() {
+            return await this.model.api.getApi(this.form.data(), this.model);
         },
         async submitCreate(toCast: boolean = false, except: string = '') {
             this.form.clearErrors(); console.log(this.model);

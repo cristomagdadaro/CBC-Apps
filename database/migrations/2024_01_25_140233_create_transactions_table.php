@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->uuid('id')->unique()->primary();
-            $table->string('barcode')->unique()->nullable();
+            $table->string('barcode')->nullable();
             $table->foreignUuid('item_id')->references('id')->on('items')->NoactionOnDelete()->CascadeOnUpdate();
             $table->enum('transac_type', [
                 Inventory::INCOMING->value,
