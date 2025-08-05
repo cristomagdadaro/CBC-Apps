@@ -12,7 +12,7 @@ export default {
 
 <template>
     <div class="flex justify-between items-center">
-        <Link :href="route('forms.index')" class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+        <Link :href="route('personnels.index')" class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             Registered Personnel
         </Link>
         <div class="flex justify-between items-center">

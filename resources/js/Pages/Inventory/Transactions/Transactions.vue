@@ -4,8 +4,7 @@ import DataTable from "@/Components/DataTable/presentation/DataTable.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import SearchComp from "@/Components/Search/SearchComp.vue";
 import Transaction from "@/Pages/Inventory/Scan/components/model/Transaction";
-import TransactionHeaderAction
-    from "@/Pages/Inventory/Transactions/components/presentation/TransactionHeaderAction.vue";
+import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/presentation/TransactionHeaderAction.vue";
 
 export default {
     name: "Transaction",

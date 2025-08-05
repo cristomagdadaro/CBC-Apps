@@ -177,7 +177,7 @@ Route::middleware([
 
                 Route::get('/{id}', [PersonnelController::class, function () {
                     return Inertia::render('Inventory/Personnel/components/presentation/EditPersonnelForm', [
-                        'show' => Personnel::find(request()->route('id')),
+                        'data' => Personnel::find(request()->route('id')),
                         'fromUrl' => route('personnels.index'),
                     ]);
                 }])->name('personnels.show');

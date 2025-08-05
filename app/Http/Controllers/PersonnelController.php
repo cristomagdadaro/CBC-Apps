@@ -20,7 +20,7 @@ class PersonnelController extends BaseController
         $this->service = $repository;
     }
 
-    public function index(GetPersonnelRequest $request, $personnel_id = null): Collection
+    public function index(GetPersonnelRequest $request)
     {
         return parent::_index($request);
     }

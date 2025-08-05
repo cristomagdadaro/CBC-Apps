@@ -29,10 +29,9 @@ export default abstract class ApiService {
                     ...(model.api.appendedCount && Array.isArray(model.api.appendedCount) ? {count: model.api.appendedCount.toString()} : {})
                 }
             }).then((response: AxiosResponse) => {
-                console.log(response);
-               /* if (model) {
+                if (model) {
                     response.data.data = this.castToModel(response.data.data, model);
-                }*/
+                }
                 return response;
             });
             this.processing = false;
@@ -70,12 +69,12 @@ export default abstract class ApiService {
         }
     }
 
-    async delete(url: string, id: any, params?: any) {
-
+    async delete(url: string, params?: any) {
+        console.log(params)
         this.processing = true;
         try {
             // @ts-ignore
-            const response = await axios.delete(`${route(url)}/${id}`, params);
+            const response = await axios.delete(route(url, params.id), params);
 
             this.processing = false;
             return response;
@@ -162,7 +161,7 @@ export default abstract class ApiService {
 
     async putIndex(params: any)
     {
-        return await this.put(this._apiPut, params.event_id, params);
+        return await this.put(this._apiPut, params.id, params);
     }
 
     async postIndex(params: any)
@@ -172,6 +171,6 @@ export default abstract class ApiService {
 
     async deleteApiIndex(params: any)
     {
-        return await this.delete(this._apiDelete, params.event_id, params);
+        return await this.delete(this._apiDelete, params);
     }
 }

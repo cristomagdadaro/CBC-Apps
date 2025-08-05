@@ -24,7 +24,7 @@ class TransactionController extends BaseController
 
     public function index(GetTransactionRequest $request)
     {
-        return $this->service->search(new Collection($request->validated()));
+        return parent::_index($request);
     }
 
     public function create(CreateTransactionRequest $request): Model | JsonResponse

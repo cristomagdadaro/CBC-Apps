@@ -23,7 +23,7 @@ class DeletePersonnelRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => 'required|exists:personnels,id',
+            'id' => 'sometimes|exists:personnels,id',
         ];
     }
 }

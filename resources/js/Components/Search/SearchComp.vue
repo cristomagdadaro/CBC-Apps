@@ -7,17 +7,19 @@ import SearchBtn from "@/Components/Buttons/SearchBtn.vue";
 import TextInput from "@/Components/TextInput.vue";
 import ArrowRight from "@/Components/Icons/ArrowRight.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
-import Form from "@/Modules/domain/Form.js";
 import SearchBox from "@/Pages/Inventory/Scan/components/searchBox.vue";
-import Personnel from "@/Pages/Inventory/Personnel/components/model/Personnel.js";
-import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
 import {defineAsyncComponent} from "vue";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
+import DeleteBtn from "@/Components/Buttons/DeleteBtn.vue";
+import ConfirmationModal from "@/Components/ConfirmationModal.vue";
+import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
+import DtoResponse from "@/Modules/dto/DtoResponse.js";
 
 export default {
     name: "SearchComp",
     components: {
+        CancelBtn, ConfirmationModal, DeleteBtn,
         CustomDropdown,
         FilterIcon,
         SearchBox, ArrowRight, TextInput, SearchBtn, ArrowLeft, SearchBy, InputError, PaginateBtn},
@@ -68,6 +70,15 @@ export default {
             this.apiResponse = await this.fetchData();
             this.$emit("searchedData", this.apiResponse);
         },
+        async handleDelete()
+        {
+            const response = await this.submitDelete();
+            if (response instanceof DtoResponse)
+            {
+                this.confirmDelete = false;
+                this.$emit("deletedModel", response.data);
+            }
+        }
     }
 }
 </script>
@@ -160,6 +171,7 @@ export default {
                :apiResponse="apiResponse"
                :processing="model.api.processing"
                :model="propModel"
+               @confirmDelete="confirmDelete = true; toDelete = $event"
                class="my-2"
     />
     <div v-if="apiResponse" class="flex w-full gap-2 items-center">
@@ -179,9 +191,9 @@ export default {
 
             <!-- Current Page Indicator -->
             <div class="text-xs flex flex-col whitespace-nowrap text-center">
-                                    <span class="font-medium mx-1" title="current page and total pages">
-                                        <span>{{ apiResponse?.current_page }}</span> / <span>{{ apiResponse?.last_page }}</span>
-                                    </span>
+                <span class="font-medium mx-1" title="current page and total pages">
+                    <span>{{ apiResponse?.current_page }}</span> / <span>{{ apiResponse?.last_page }}</span>
+                </span>
             </div>
 
             <!-- Next Button -->
@@ -204,6 +216,32 @@ export default {
             </paginate-btn>
         </div>
     </div>
+    <confirmation-modal :show="confirmDelete" @close="confirmDelete = false">
+        <template v-slot:title>
+            Are you sure you want to remove this data?
+        </template>
+
+        <template v-slot:content>
+            This will permanently delete <b>{{ toDelete.fullName }} ({{ toDelete.id }})</b> from the database.
+        </template>
+
+        <template v-slot:footer>
+            <div class="flex justify-between w-full">
+                <delete-btn @close="confirmDelete = false" @click="handleDelete" :class="{'animate-pulse':model.processing}">
+                    <span v-if="!model.processing">
+                        Confirm
+                    </span>
+                    <span v-else>
+                        Deleting
+                    </span>
+                </delete-btn>
+                <label v-if="form" class="text-red-600 text-sm">{{ form.errors.event_id}}</label>
+                <cancel-btn @click="confirmDelete = false">
+                    Cancel
+                </cancel-btn>
+            </div>
+        </template>
+    </confirmation-modal>
 </template>
 
 <style scoped>

@@ -15,6 +15,8 @@ export default {
         return {
             model: DtoBaseClass,
             form: null,
+            toDelete: null,
+            confirmDelete: false
         }
     },
     methods: {
@@ -27,7 +29,7 @@ export default {
                     this.form = useForm(this.model.updateFields(this.data));
                     break;
                 case "delete":
-                    this.form = useForm(this.model.deleteField(this.data));
+                    this.form = useForm(this.model.identifier(this.toDelete));
                     break;
                 case "get":
                     this.form = useForm(this.model.api.getSearchFields());
@@ -44,7 +46,7 @@ export default {
             return await this.model.api.getApi(this.form.data(), this.model);
         },
         async submitCreate(toCast: boolean = false, except: string = '') {
-            this.form.clearErrors(); console.log(this.model);
+            this.form.clearErrors();
             return await this.model.api.postIndex(this.form.data()).then(response => {
                 this.resetForm(except);
                 if (toCast) {
@@ -135,6 +137,9 @@ export default {
             } else {
                 console.error(`Field ${field} does not exist or is not an array.`);
             }
+        },
+        resetField(def: Object) {
+            this.form = useForm(def);
         }
     }
 }

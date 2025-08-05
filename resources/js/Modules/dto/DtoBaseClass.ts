@@ -10,6 +10,11 @@ export default class DtoBaseClass implements IBaseClass {
 
     public api: ConcreteApiService;
 
+    indexPage: string;
+    showPage: string;
+    updatePage: string;
+    createPage: string;
+
     constructor(data: Partial<IBaseClass>) {
         this.id = data?.id;
         this.table = data?.table;

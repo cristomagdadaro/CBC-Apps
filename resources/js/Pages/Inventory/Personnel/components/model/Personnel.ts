@@ -3,18 +3,24 @@ import DtoPersonnel from "@/Pages/Inventory/Personnel/components/model/DtoPerson
 export default class Personnel extends DtoPersonnel {
     constructor(response: DtoPersonnel) {
         super(response);
-
         this.api._apiIndex = 'api.inventory.personnels.index';
         this.api._apiPost = 'api.inventory.personnels.store';
         this.api._apiPut = 'api.inventory.personnels.update';
         this.api._apiDelete = 'api.inventory.personnels.destroy';
+
+        this.showPage = 'personnels.show';
     }
 
-    deleteField(model): object
+    identifier(model: DtoPersonnel): object
     {
+        if (model)
+            return {
+                id: model?.id
+            };
+
         return {
-            id: model?.id
-        };
+            id: this?.id,
+        }
     }
 
     createFields(): object
@@ -34,6 +40,7 @@ export default class Personnel extends DtoPersonnel {
     updateFields(data: IPersonnel): object
     {
         return {
+            id: data?.id,
             fname: data?.fname,
             mname:  data?.mname,
             lname: data?.lname,

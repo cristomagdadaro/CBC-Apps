@@ -16,10 +16,15 @@ import DeleteIcon from "@/Components/Icons/DeleteIcon.vue";
 import CheckallIcon from "@/Components/Icons/CheckallIcon.vue";
 import Checkbox from "@/Components/Checkbox.vue";
 import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
+import DeleteBtn from "@/Components/Buttons/DeleteBtn.vue";
+import ConfirmationModal from "@/Components/ConfirmationModal.vue";
+import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
+import DtoResponse from "@/Modules/dto/DtoResponse.js";
 
 export default {
     name: 'DataTable',
     components: {
+        CancelBtn, ConfirmationModal, DeleteBtn,
         TransitionContainer,
         Checkbox,
         CheckallIcon,
@@ -65,12 +70,15 @@ export default {
                 {label: '50', name: '50', selected: false},
                 {label: '100', name: '100', selected: false},
             ],
-            showDeleteModal: false,
         }
     },
     methods: {
         getNestedValue(obj, path) {
             return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+        },
+        confirmAction(data)
+        {
+            this.$emit('confirmDelete', data);
         },
     }
 }
@@ -128,10 +136,10 @@ export default {
                     </template>
                     <dt-data v-if="appendActions" class="border-y border-gray-500">
                         <div class="flex flex-row gap-2 justify-evenly">
-                            <dt-link-button class="text-yellow-400">
+                            <dt-link-button :href="route(dt.data[0].showPage, row.identifier()?.id)" class="text-yellow-400">
                                 <edit-icon class="w-4 h-auto" />
                             </dt-link-button>
-                            <dt-link-button class="text-red-400">
+                            <dt-link-button @click="confirmAction(row)" class="text-red-400">
                                 <delete-icon class="w-4 h-auto" />
                             </dt-link-button>
                         </div>
