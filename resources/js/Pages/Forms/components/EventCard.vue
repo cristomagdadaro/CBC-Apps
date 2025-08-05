@@ -169,7 +169,7 @@ export default {
                     Modify
                 </Link>
 
-                <button class="bg-blue-600 text-blue-100 w-fit px-2 py-1 rounded" title="Manually register poarticipants">
+                <button class="hidden bg-blue-600 text-blue-100 w-fit px-2 py-1 rounded" title="Manually register poarticipants">
                     Registration
                 </button>
 

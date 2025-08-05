@@ -104,11 +104,11 @@ export default {
                     </div>
                 </div>
             </form>
-            <div v-if="data?.participants.length" class="bg-white dark:bg-gray-800 overflow-hidden w-full shadow-xl sm:rounded-lg">
+            <div v-if="data?.participants.length" class="bg-white dark:bg-gray-800 overflow-x-auto w-full shadow-xl sm:rounded-lg">
                 <div class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100">
                     <table>
                         <thead>
-                        <tr>
+                        <tr class="text-sm">
                             <th v-for="column in Object.keys(data?.participants[0])">
                                 {{ column}}
                             </th>
@@ -116,7 +116,7 @@ export default {
                         </thead>
                         <tbody>
                         <tr v-for="participant in data.participants">
-                            <td v-for="column in Object.keys(data?.participants[0])">
+                            <td v-for="column in Object.keys(data?.participants[0])" class="max-w-24 text-xs overflow-hidden overflow-ellipsis">
                                 {{ participant[column] }}
                             </td>
                         </tr>

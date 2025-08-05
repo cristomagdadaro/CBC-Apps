@@ -58,12 +58,12 @@ export default {
             </div>
         </div>
 
-        <div class="px-1">
-            <div>
+        <div  class="px-1">
+            <div v-if="data.venue">
                 <span class="font-bold uppercase">Venue: </span>
                 <label>{{ data.venue }}</label>
             </div>
-            <p class="text-sm leading-none text-justify">{{ data.details }}</p>
+            <p v-if="data.details" class="text-sm leading-none text-justify">{{ data.details }}</p>
         </div>
         <div v-if="data.max_slots" class="px-1 flex gap-2 justify-between">
             <div>
@@ -75,7 +75,7 @@ export default {
                 <label :class="{'text-red-600': data.participants_count >= data.max_slots}">{{ data.max_slots-data.participants_count}}</label> <span v-if="data.participants_count >= data.max_slots" class="text-red-600">FULL</span>
             </div>
         </div>
-        <div class="px-1 py-2 select-none bg-gray-300">
+        <div v-if="data.has_preregistration || data.has_pretest || data.has_posttest" class="px-1 py-2 select-none bg-gray-300">
             <div class="flex justify-evenly items-center">
                 <div v-if="data.has_preregistration" class="flex items-center gap-1" title="Require guests to pre-register">
                     <div v-if="data.has_preregistration" class="rounded-full shadow bg-AC text-white">

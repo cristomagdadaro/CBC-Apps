@@ -42,6 +42,8 @@ export default {
             model: new Form(),
             delayReady: false,
             showConfirmationModel: false,
+            showFullQr: false,
+            fullQrValue: '',
         }
     },
     methods: {
@@ -83,7 +85,15 @@ export default {
         },
         confirmLocalSaveDelete(){
             this.showConfirmationModel = true;
-        }
+        },
+        openFullQr(value) {
+            this.fullQrValue = value;
+            this.showFullQr = true;
+        },
+        closeFullQr() {
+            this.showFullQr = false;
+            this.fullQrValue = '';
+        },
     },
     watch: {
         eventId: {
@@ -101,6 +111,10 @@ export default {
                 .replace('<fg=gray>', '<span class="text-AB font-light">')
                 .replace('</fg>', '</span>');
         },
+        innerSize() {
+            const isLandscape = window.innerWidth > window.innerHeight;
+            return isLandscape ? window.innerHeight : window.innerWidth;
+        }
     },
     mounted() {
         setTimeout(() => {
@@ -111,9 +125,9 @@ export default {
 </script>
 
 <template>
-    <Head title="DA-CBC Forms" />
+    <Head title="Event Forms" />
 
-    <div class="absolute top-0 left-0 w-full h-full z-[999] flex justify-center">
+    <div class="absolute w-full max-h-screen z-[999] flex justify-center overflow-y-auto">
         <div class="relative sm:flex flex-col gap-5 sm:justify-center sm:items-center min-h-screen">
                 <div class="md:relative flex flex-col lg:gap-5">
                     <transition-container :duration="500" type="pop-out">
@@ -198,17 +212,22 @@ export default {
                             <h3 class="text-normal whitespace-nowrap text-center drop-shadow md:flex md:flex-col leading-none md:mb-2 mb-1"><span>Recent</span> <span class="md:text-xs">(max 6)</span></h3>
                             <div class="flex md:flex-col flex-row gap-2  bg-gray-100 justify-between">
                                 <div class="flex md:flex-col flex-row gap-2  bg-gray-100">
-                                    <button v-for="item in recentQrCodes" class="text-center leading-none">
+                                    <button
+                                        v-for="item in recentQrCodes"
+                                        :key="item.participant_hash"
+                                        @click="openFullQr(item.participant_hash)"
+                                        class="text-center leading-none"
+                                    >
                                         <qrcode-vue
                                             v-if="item.participant_hash"
                                             :value="item.participant_hash"
                                             :size="50"
                                             level="H"
                                             render-as="canvas"
-                                            class="mx-auto my-1"
+                                            class="mx-auto my-1 active:scale-90"
                                             ref="qrcodeCanvas"
                                         />
-                                        <span>{{  item.event_id }}</span>
+                                        <span>{{ item.event_id }}</span>
                                     </button>
                                 </div>
                                 <delete-btn @click="showConfirmationModel = true" title="clear locally stored data">
@@ -216,6 +235,20 @@ export default {
                                         <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
                                     </svg>
                                 </delete-btn>
+                            </div>
+                        </div>
+                    </transition-container>
+                    <transition-container type="slide-top" :duration="500">
+                        <div v-if="showFullQr" @click="closeFullQr" class="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 flex flex-col">
+                            <div @click="closeFullQr" class="absolute inset-0 cursor-pointer"></div>
+                            <span class="text-white text-sm py-2">Show this to the organizers for scanning. Thank you!</span>
+                            <div @click="closeFullQr" class="z-50 p-4 bg-white rounded shadow-xl max-w-full max-h-full flex flex-col items-center justify-center">
+                                <qrcode-vue
+                                    :value="fullQrValue"
+                                    :size="innerSize * 0.9"
+                                    level="H"
+                                    render-as="canvas"
+                                />
                             </div>
                         </div>
                     </transition-container>
@@ -270,7 +303,7 @@ export default {
 
         </div>
     </div>
-    <div class="min-h-screen flex items-center justify-center text-white text-3xl font-bold relative overflow-hidden">
+    <div class="min-h-screen max-h-screen flex items-center justify-center text-white text-3xl font-bold relative overflow-hidden">
         <div class="absolute inset-0 bg-gradient-radial animate-gradient"></div>
     </div>
 </template>

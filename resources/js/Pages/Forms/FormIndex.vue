@@ -104,12 +104,12 @@ export default {
 </script>
 
 <template>
-    <AppLayout title="Attendance Forms">
+    <AppLayout title="Event Forms">
         <template #header>
             <forms-header-actions />
         </template>
 
-        <div class="py-12">
+        <div class="">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <form v-if="!!form" class="flex gap-2 items-end"  @submit.prevent="searchEvent">
                     <div class="grid grid-rows-2 w-full">
