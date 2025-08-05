@@ -43,6 +43,7 @@ export default {
         },
        async handleDelete()
         {
+            this.toDelete = { event_id : this.formsData.event_id };
             const response = await this.submitDelete();
             if (response instanceof DtoResponse)
             {

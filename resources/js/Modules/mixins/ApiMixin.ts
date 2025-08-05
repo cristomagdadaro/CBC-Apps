@@ -29,7 +29,7 @@ export default {
                     this.form = useForm(this.model.updateFields(this.data));
                     break;
                 case "delete":
-                    this.form = useForm(this.model.identifier(this.toDelete));
+                    this.form = useForm(this.model.deleteField(this.toDelete));
                     break;
                 case "get":
                     this.form = useForm(this.model.api.getSearchFields());

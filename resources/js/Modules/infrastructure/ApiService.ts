@@ -69,12 +69,11 @@ export default abstract class ApiService {
         }
     }
 
-    async delete(url: string, params?: any) {
-        console.log(params)
+    async delete(url: string, id: any) {
         this.processing = true;
         try {
             // @ts-ignore
-            const response = await axios.delete(route(url, params.id), params);
+            const response = await axios.delete(route(url, id), id);
 
             this.processing = false;
             return response;
@@ -161,7 +160,26 @@ export default abstract class ApiService {
 
     async putIndex(params: any)
     {
-        return await this.put(this._apiPut, params.id, params);
+        return await this.put(this._apiPut, this.getIdentifier(params), params);
+    }
+
+    private getIdentifier(params: any): string | null {
+        let identifier: any = null;
+
+        // select keys containing id or _id string
+        if ('id' in params) {
+            identifier = params.id;
+        } else if ('event_id' in params) {
+            identifier = params.event_id;
+        } else {
+            //@ts-ignore
+            const otherIdKey = Object.keys(params).find(key => key.endsWith('_id'));
+            identifier = otherIdKey ? params[otherIdKey] : null;
+        }
+
+        if (!identifier) throw new Error('No valid ID found in parameters.');
+
+        return identifier;
     }
 
     async postIndex(params: any)
@@ -171,6 +189,6 @@ export default abstract class ApiService {
 
     async deleteApiIndex(params: any)
     {
-        return await this.delete(this._apiDelete, params);
+        return await this.delete(this._apiDelete, this.getIdentifier(params));
     }
 }

@@ -68,7 +68,10 @@ export default {
                                     <span class="font-bold uppercase">Venue: </span>
                                     <text-input placeholder="Venue" v-model="form.venue" class="text-sm" :error="form.errors.venue"/>
                                 </div>
-                                <text-area placeholder="Other details" v-model="form.details" class="w-full text-xs" :error="form.errors.details"/>
+                                <div>
+                                    <span class="font-bold uppercase">Other details: </span>
+                                    <text-area placeholder="Other details" v-model="form.details" class="w-full text-xs" :error="form.errors.details"/>
+                                </div>
                             </div>
                             <div class="px-1">
                                 <label class="font-bold uppercase" title="Additional steps for the form">
