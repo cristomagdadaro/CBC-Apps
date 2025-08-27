@@ -11,6 +11,7 @@ const props = defineProps({
     type: String,
     classes: String,
     id: String,
+    label: String,
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -34,6 +35,9 @@ defineExpose({ focus: () => input.value?.focus() });
 
 <template>
     <div class="w-full relative " :class="{'border-red-500': error}">
+        <div v-if="label" class="text-xs text-gray-500 flex items-center justify-between">
+            <span class="flex gap-0.5 whitespace-nowrap">{{ label }}</span>
+        </div>
         <input
             :id="id"
             :name="id"

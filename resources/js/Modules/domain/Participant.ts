@@ -9,13 +9,6 @@ export default class Participant extends DtoParticipant {
         this.api.appendWith = ['registrations'];
     }
 
-    deleteField(model): object
-    {
-        return {
-            id: model.id ?? null,
-        };
-    }
-
     createFields(): object
     {
         return {
@@ -32,7 +25,6 @@ export default class Participant extends DtoParticipant {
             province_address: null,
             country_address: null,
             agreed_tc: false,
-            event_id: null,
         }
     }
 
@@ -53,15 +45,6 @@ export default class Participant extends DtoParticipant {
             country_address: null,
             agreed_tc: false,
         }
-    }
-
-    static getFilterColumns() {
-        return Participant.getColumns()
-            .filter(column => column.visible !== false)
-            .map(column => ({
-                name: column.db_key,
-                label: column.title,
-            }));
     }
 
     static getColumns(){
@@ -105,7 +88,7 @@ export default class Participant extends DtoParticipant {
                 title: 'Age',
                 key: 'age',
                 db_key: 'age',
-                align: 'center',
+                align: 'text-center',
                 sortable: true,
                 visible: true,
             },{
@@ -126,14 +109,14 @@ export default class Participant extends DtoParticipant {
                 title: 'Is IP',
                 key: 'is_ip',
                 db_key: 'is_ip',
-                align: 'center',
+                align: 'text-center',
                 sortable: true,
                 visible: true,
             },{
                 title: 'Is PWD',
                 key: 'is_pwd',
                 db_key: 'is_pwd',
-                align: 'center',
+                align: 'text-center',
                 sortable: true,
                 visible: true,
             },{
@@ -161,7 +144,7 @@ export default class Participant extends DtoParticipant {
                 title: 'Agreed T&C',
                 key: 'agreed_tc',
                 db_key: 'agreed_tc',
-                align: 'center',
+                align: 'text-center',
                 sortable: true,
                 visible: true,
             },

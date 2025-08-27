@@ -8,13 +8,8 @@ export default class Supplier extends DtoSupplier {
         this.api._apiPost = 'api.inventory.suppliers.store';
         this.api._apiPut = 'api.inventory.suppliers.update';
         this.api._apiDelete = 'api.inventory.suppliers.destroy';
-    }
 
-    deleteField(model): object
-    {
-        return {
-            id: model?.id
-        };
+        this.showPage = 'suppliers.show';
     }
 
     createFields(): object {
@@ -27,23 +22,16 @@ export default class Supplier extends DtoSupplier {
         }
     }
 
-    updateFields(data: ISupplier): object {
+    updateFields(data: ISupplier): object
+    {
         return {
+            id: data?.id,
             name: data?.name,
             email: data?.email,
             phone: data?.phone,
             address: data?.address,
             description: data?.description,
         }
-    }
-
-    static getFilterColumns() {
-        return Supplier.getColumns()
-            .filter(column => column.visible !== false)
-            .map(column => ({
-                name: column.db_key,
-                label: column.title,
-            }));
     }
 
     static getColumns() {

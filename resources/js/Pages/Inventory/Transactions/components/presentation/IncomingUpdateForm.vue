@@ -1,31 +1,34 @@
 <script>
 import {Head, Link} from "@inertiajs/vue3";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import CoreApi from "@/Components/DataTable/infrastracture/CoreApi.js";
 import {createCanvas} from "canvas";
 import JsBarcode from "jsbarcode";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import AddIcon from "@/Components/Icons/AddIcon.vue";
-import TextField from "@/Components/TextField.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
-import ErrorResponse from "@/Components/DataTable/domain/ErrorResponse.js";
-import BaseResponse from "@/Components/DataTable/domain/BaseResponse.js";
+import PersonnelHeaderActions from "@/Pages/Inventory/Personnel/components/presentation/PersonnelHeaderActions.vue";
+import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
+import TextInput from "@/Components/TextInput.vue";
+import AppLayout from "@/Layouts/AppLayout.vue";
+import ResetBtn from "@/Components/Buttons/ResetBtn.vue";
+import ApiMixin from "@/Modules/mixins/ApiMixin.js";
+import Transaction from "@/Pages/Inventory/Scan/components/model/Transaction";
+import TextArea from "@/Components/TextArea.vue";
 
 export default {
     name: "IngoingUpdateForm",
     components: {
+        TextArea,
+        ResetBtn, AppLayout, TextInput, SubmitBtn, PersonnelHeaderActions,
         LoaderIcon,
         PrimaryButton,
-        SecondaryButton,Link, TextField, AddIcon, FilterIcon, CustomDropdown, AuthenticatedLayout, Head},
+        SecondaryButton,Link, AddIcon, FilterIcon, CustomDropdown, Head},
     data() {
         return {
             api: null,
             noModelApi: null,
-            form: {},
-            errors: {},
             barcodeCanvas: null,
             svgText: '',
             select_storage: null,
@@ -66,22 +69,6 @@ export default {
         }
     },
     methods: {
-        cancel() {
-            if(this.show){
-                this.form = Object.assign({}, this.show);
-                this.select_storage = this.form.barcode.substring(4, 6);
-            }
-        },
-        async submit() {
-            const response = await this.api.put(this.form);
-            if (response instanceof BaseResponse && response.status === 200) {
-                this.$inertia.visit(route('transactions.index'));
-            } else if (response instanceof ErrorResponse){
-                this.errors = response.errors;
-            } else {
-                console.log(response);
-            }
-        },
         async generateBarcode(room) {
             if (!room) {
                 return;
@@ -116,100 +103,106 @@ export default {
         },
     },
     mounted() {
-        this.api = new CoreApi(route('api.inventory.transactions.update', this.show.id));
-        this.noModelApi = new CoreApi(route('api.inventory.transactions.genbarcode',{
+        /*this.noModelApi = new CoreApi(route('api.inventory.transactions.genbarcode',{
             room: '01',
-        }));
+        }));*/
         this.form = Object.assign({}, this.show);
         if (this.form.barcode)
         this.select_storage = this.form.barcode.substring(4, 6);
-    }
+    },
+    mixins: [ApiMixin],
+    beforeMount() {
+        this.model = new Transaction();
+        this.setFormAction('update');
+    },
 }
 </script>
 
 <template>
-    <Head title="Transactions" />
-
-    <AuthenticatedLayout>
+    <AppLayout title="Update Transaction Details">
         <template #header>
             <h2 class="font-semibold sm:text-xl text-sm text-gray-800 leading-tight uppercase">Incoming Transaction Update</h2>
         </template>
-        <div class="py-4" v-if="noModelApi">
-            <div class="flex flex-col gap-5 max-w-7xl mx-auto">
-                <div v-if="api && form" class="flex flex-col gap-5 w-full max-w-7xl mx-auto bg-gray-200 p-5 rounded shadow">
-                    <form @submit.prevent="submit">
-                        <div class="grid sm:grid-cols-3 grid-cols-1 gap-2 mx-auto w-full">
-                            <div class="flex flex-row gap-2 h-fit">
-                                <custom-dropdown
-                                    required
-                                    searchable
-                                    :with-all-option="false"
-                                    :value="form.item_id"
-                                    :options="items"
-                                    placeholder="Select Item"
-                                    label="Item"
-                                    :error="errors.item_id"
-                                    @selectedChange="form.item_id = $event"
-                                    class="w-3/4"
-                                >
-                                    <template #icon>
-                                        <filter-icon class="h-4 w-4" />
-                                    </template>
-                                </custom-dropdown>
-                                <div class="flex items-end">
-                                    <Link :href="route('items.create')" class="h-fit w-full py-3 shadow flex items-center justify-center bg-white text-gray-600 rounded gap-1 text-sm px-2">
-                                        <add-icon class="h-5 w-5" />
-                                        <span class="whitespace-nowrap">New Item</span>
-                                    </Link>
-                                </div>
-                            </div>
-                            <custom-dropdown
-                                required
-                                :with-all-option="false"
-                                :value="select_storage"
-                                :options="storage_locations"
-                                placeholder="Select Storage"
-                                label="Storage Location"
-                                :error="errors.barcode"
-                                @selectedChange="generateBarcode($event)"
-                            >
-                                <template #icon>
-                                    <filter-icon class="h-4 w-4" />
-                                </template>
-                            </custom-dropdown>
-                            <text-field type-input="number" required label="Quantity" name="quantity" id="quantity" v-model="form.quantity" :error="errors.quantity" />
-                            <text-field type-input="number" label="Unit Price" name="unit_price" id="unit_price" v-model="form.unit_price" :error="errors.unit_price" />
-                            <text-field required label="Unit" name="unit" id="unit" v-model="form.unit" :error="errors.unit" />
-                            <text-field type-input="number" label="Total Cost" name="total_cost" id="total_cost" v-model="form.total_cost" :error="errors.total_cost" />
-                            <text-field required label="Project Code" name="project_code" id="project_code" v-model="form.project_code" :error="errors.project_code" />
-                            <text-field type-input="date" label="Expiration" name="expiration" id="expiration" v-model="form.expiration" :error="errors.expiration" />
-                            <text-field type-input="longtext" label="Remarks" name="remarks" id="remarks" v-model="form.remarks" :error="errors.remarks" />
+        <form v-if="!!form" @submit.prevent="submitUpdate" class="py-12 max-w-xl mx-auto">
+            <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="flex flex-col gap-2 mx-auto w-full">
+                    <div class="flex flex-row gap-2 h-fit">
+                        <custom-dropdown
+                            required
+                            searchable
+                            :with-all-option="false"
+                            :value="form.item_id"
+                            :options="items"
+                            placeholder="Select Item"
+                            label="Item"
+                            :error="form.errors.item_id"
+                            @selectedChange="form.item_id = $event"
+                            class="w-3/4"
+                        >
+                            <template #icon>
+                                <filter-icon class="h-4 w-4" />
+                            </template>
+                        </custom-dropdown>
+                        <div class="flex items-end">
+                            <Link :href="route('items.create')" class="h-fit w-full py-3 shadow flex items-center justify-center bg-white text-gray-600 rounded gap-1 text-sm px-2">
+                                <add-icon class="h-5 w-5" />
+                                <span class="whitespace-nowrap">New Item</span>
+                            </Link>
                         </div>
-                        <div class="flex w-full justify-between mt-5">
-                            <secondary-button @click="cancel" class="w-1/4">Clear</secondary-button>
-                            <primary-button type="submit" class="w-1/4 text-center">
-                                <div v-if="api.processing">
-                                    <loader-icon class="w-5 h-5" />
-                                </div>
-                                <span v-else>Save</span>
-                            </primary-button>
-                        </div>
-                    </form>
-                </div>
-                <div v-else>
-                    Can't initialize the form
-                </div>
-                <div class="flex flex-row gap-5">
-                    <div v-if="svgText" class="flex sm:flex-row flex-col gap-1">
-                        <img id="barcode-image" :src="svgText" alt="SVG Image" />
-                        <button class="p-1 bg-gray-300 rounded" @click.prevent="print">
-                            Print
-                        </button>
                     </div>
+                    <custom-dropdown
+                        required
+                        :with-all-option="false"
+                        :value="select_storage"
+                        :options="storage_locations"
+                        placeholder="Select Storage"
+                        label="Storage Location"
+                        :error="form.errors.barcode"
+                        @selectedChange="generateBarcode($event)"
+                    >
+                        <template #icon>
+                            <filter-icon class="h-4 w-4" />
+                        </template>
+                    </custom-dropdown>
+                    <div class="grid grid-cols-2 gap-2">
+                        <text-input type="number" label="Quantity" v-model="form.quantity" :error="form.errors.quantity" />
+                        <text-input type="number" label="Unit Price" v-model="form.unit_price" :error="form.errors.unit_price" />
+                        <text-input label="Unit" v-model="form.unit" :error="form.errors.unit" />
+                        <text-input type="number" label="Total Cost" v-model="form.total_cost" :error="form.errors.total_cost" />
+                    </div>
+
+                    <text-input label="Project Code" v-model="form.project_code" :error="form.errors.project_code" />
+                    <text-input type="date" label="Expiration" v-model="form.expiration" :error="form.errors.expiration" />
+                    <text-area label="Remarks" v-model="form.remarks" :error="form.errors.remarks" />
+                </div>
+                <div class="flex gap-1 justify-between">
+                    <reset-btn @click="resetField($page.props.data)">
+                        Reset
+                    </reset-btn>
+                    <submit-btn :disabled="model.api.processing">
+                        <span v-if="model.api.processing">Updating</span>
+                        <span v-else>Update</span>
+                    </submit-btn>
+                </div>
+                <div class="flex flex-col w-full text-xs text-gray-400 border-t border-gray-500 pt-1">
+                        <span>
+                            Date Created: {{  $page.props.data.created_at }}
+                        </span>
+                    <span>
+                            Last Updated: {{  $page.props.data.updated_at }}
+                        </span>
                 </div>
             </div>
+        </form>
+        <div class="flex flex-row gap-5">
+            <div v-if="svgText" class="flex sm:flex-row flex-col gap-1">
+                <img id="barcode-image" :src="svgText" alt="SVG Image" />
+                <button class="p-1 bg-gray-300 rounded" @click.prevent="print">
+                    Print
+                </button>
+            </div>
         </div>
-    </AuthenticatedLayout>
+    </AppLayout>
 
 </template>
 

@@ -57,7 +57,7 @@ export default {
             this.eventFormFromApi = null;
 
             this.eventFormFromApi = await this.fetchData();
-            console.log(this.eventFormFromApi);
+
             this.eventId.cell1 = null;
             this.eventId.cell2 = null;
             this.eventId.cell3 = null;
@@ -228,7 +228,7 @@ export default {
                     />
 
                     <!-- Show "Searching" when processing -->
-                    <div v-else-if="model.processing" class="text-center py-3 border border-AB rounded-lg">
+                    <div v-else-if="model.api.processing" class="text-center py-3 border border-AB rounded-lg">
                         Searching...
                     </div>
 

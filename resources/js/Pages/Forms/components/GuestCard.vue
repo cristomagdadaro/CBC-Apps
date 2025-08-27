@@ -63,7 +63,7 @@ export default {
                 <span class="font-bold uppercase">Venue: </span>
                 <label>{{ data.venue }}</label>
             </div>
-            <p v-if="data.details" class="text-sm leading-none text-justify">{{ data.details }}</p>
+            <p v-if="data.venue"class="text-sm leading-none text-justify">{{ data.details }}</p>
         </div>
         <div v-if="data.max_slots" class="px-1 flex gap-2 justify-between">
             <div>

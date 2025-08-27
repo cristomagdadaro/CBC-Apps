@@ -25,6 +25,25 @@ export default class DtoBaseClass implements IBaseClass {
         this.api = new ConcreteApiService();
     }
 
+    identifier(model: DtoBaseClass): object
+    {
+        if (model)
+            return {
+                id: model?.id
+            };
+
+        return {
+            id: this?.id,
+        }
+    }
+
+    deleteField(model: any): object
+    {
+        return {
+            id: model?.id
+        };
+    }
+
     get fullName() {
         // check if the instance has a fname, mname, etc. attribute
         if (this.hasOwnProperty('fname') && this.hasOwnProperty('mname') && this.hasOwnProperty('lname') && this.hasOwnProperty('suffix')){
@@ -37,4 +56,18 @@ export default class DtoBaseClass implements IBaseClass {
         //@ts-ignore
         return this.name || this.table || this.title;
     }
+
+    static getFilterColumns() {
+        return this.getColumns()
+            .filter(column => column.visible !== false)
+            .map(column => ({
+                name: column.db_key,
+                label: column.title,
+            }));
+    }
+
+    static getColumns() {
+        return []
+    }
+
 }

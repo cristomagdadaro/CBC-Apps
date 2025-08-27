@@ -11,11 +11,18 @@ import TimeInput from "@/Components/TimeInput.vue";
 import Form from "@/Modules/domain/Form";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import SuspendFormBtn from "@/Pages/Forms/components/SuspendFormBtn.vue";
+import Participant from "@/Modules/domain/Participant";
+import ListOfParticipants from "@/Pages/Forms/components/ListOfParticipants.vue";
 
 export default {
     name: "FormUpdate",
+    computed: {
+        Participant() {
+            return Participant
+        }
+    },
     components: {
-        SuspendFormBtn, TimeInput, DateInput, TextArea, TextInput, FormsHeaderActions, Link, AddButton, AppLayout, ListOfForms
+        ListOfParticipants, SuspendFormBtn, TimeInput, DateInput, TextArea, TextInput, FormsHeaderActions, Link, AddButton, AppLayout, ListOfForms
     },
     mixins: [ApiMixin],
     beforeMount() {
@@ -72,6 +79,12 @@ export default {
                                     <span class="font-bold uppercase">Other details: </span>
                                     <text-area placeholder="Other details" v-model="form.details" class="w-full text-xs" :error="form.errors.details"/>
                                 </div>
+                                <div class="px-1 flex flex-col gap-1">
+                                    <div>
+                                        <span class="font-bold uppercase">Max. no. of participants: </span>
+                                        <text-input type="number" placeholder="optional" v-model="form.max_slots" class="text-sm" :error="form.errors.max_slots"/>
+                                    </div>
+                                </div>
                             </div>
                             <div class="px-1">
                                 <label class="font-bold uppercase" title="Additional steps for the form">
@@ -104,27 +117,9 @@ export default {
                     </div>
                 </div>
             </form>
-            <div v-if="data?.participants.length" class="bg-white dark:bg-gray-800 overflow-x-auto w-full shadow-xl sm:rounded-lg">
-                <div class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100">
-                    <table>
-                        <thead>
-                        <tr class="text-sm">
-                            <th v-for="column in Object.keys(data?.participants[0])">
-                                {{ column}}
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr v-for="participant in data.participants">
-                            <td v-for="column in Object.keys(data?.participants[0])" class="max-w-24 text-xs overflow-hidden overflow-ellipsis">
-                                {{ participant[column] }}
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+
         </div>
+        <list-of-participants :event-id="data?.event_id" />
     </AppLayout>
 </template>
 

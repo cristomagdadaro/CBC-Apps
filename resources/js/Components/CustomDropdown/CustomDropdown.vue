@@ -4,7 +4,7 @@
             <span class="flex gap-0.5 whitespace-nowrap">{{ label }}</span>
         </div>
         <div>
-            <div class="w-full focus-within:ring-1 flex gap-1 justify-between items-center bg-white rounded px-4 py-2 border-gray-200 border" @click.prevent="toggle">
+            <div class="w-full focus-within:ring-1 flex gap-1 justify-between border-gray-700 items-center bg-white rounded px-4 py-2 border" @click.prevent="toggle">
                 <div v-if="!searchable" class="text-gray-600 whitespace-nowrap overflow-hidden overflow-ellipsis">{{ selected? selected.label : placeholder }}</div>
                 <input v-else type="text" @keydown.esc="search = null" @keydown="filterOptions()" v-model="search" class="w-full text-gray-600 border-none focus:outline-none focus:border-transparent focus:ring-0 p-0" :placeholder="selected? selected.label : placeholder" />
                 <div class="flex gap-2 items-center">
@@ -16,7 +16,7 @@
             <transition-container>
                 <div
                     v-show="open"
-                    class="z-50 absolute border border-gray-300 shadow rounded bg-white mt-1 py-2 max-h-[30vh] overflow-hidden overflow-y-auto py-2"
+                    class="z-50 absolute border shadow rounded bg-white mt-1 py-2 max-h-[30vh] overflow-hidden overflow-y-auto py-2"
                 >
                     <div v-if="filteredOptions" class="hidden text-xs text-gray-700 px-2 shadow-lg">Options</div>
                     <dropdown-option v-if="!filteredOptions.length">No options available</dropdown-option>

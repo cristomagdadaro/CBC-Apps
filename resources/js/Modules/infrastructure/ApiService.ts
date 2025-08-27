@@ -85,6 +85,7 @@ export default abstract class ApiService {
 
     castToModel(response: any, model: DtoBaseClass) {
         if (!response || !model) return [];
+
         // @ts-ignore
         return response.map((item: any) => (item ? new model.constructor(item) : null));
     }

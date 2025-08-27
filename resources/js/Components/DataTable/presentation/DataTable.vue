@@ -19,7 +19,6 @@ import TransitionContainer from "@/Components/Transitions/TransitionContrainer.v
 import DeleteBtn from "@/Components/Buttons/DeleteBtn.vue";
 import ConfirmationModal from "@/Components/ConfirmationModal.vue";
 import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
-import DtoResponse from "@/Modules/dto/DtoResponse.js";
 
 export default {
     name: 'DataTable',
@@ -58,7 +57,7 @@ export default {
                 return this.model.getColumns();
         },
         displayedRows() {
-            if (this.dt && this.dt.data.length)
+            if (this.dt && this.dt?.data?.length)
                 return this.dt.data;
         }
     },
@@ -80,6 +79,11 @@ export default {
         {
             this.$emit('confirmDelete', data);
         },
+        getShowPageRoute(row) {
+            const showPage = this.dt?.data?.[0]?.showPage;
+            const id = row.identifier?.()?.id;
+            return showPage && id ? route(showPage, id) : '#';
+        }
     }
 }
 </script>
@@ -120,7 +124,7 @@ export default {
                     :key="row.id"
                 >
                     <dt-data class="text-center border-y border-gray-500 lg:p-0 p-1">
-                        {{ dt.from + displayedRows.indexOf(row) }}
+                        {{ (dt.from ? dt.from : 1) + displayedRows.indexOf(row) }}
                     </dt-data>
                     <template
                         v-for="head in displayedHeaders"
@@ -130,13 +134,18 @@ export default {
                                 v-if="head.visible"
                                 :class="head.align"
                                 class="border border-gray-500 px-2"
+                                :title="getNestedValue(row, head.key)"
                             >
                                 {{ getNestedValue(row, head.key) }}
                             </dt-data>
                     </template>
                     <dt-data v-if="appendActions" class="border-y border-gray-500">
                         <div class="flex flex-row gap-2 justify-evenly">
-                            <dt-link-button :href="route(dt.data[0].showPage, row.identifier()?.id)" class="text-yellow-400">
+                            <dt-link-button
+                                v-if="dt?.data?.[0]?.showPage && row.identifier?.()?.id"
+                                :href="getShowPageRoute(row)"
+                                class="text-yellow-400"
+                            >
                                 <edit-icon class="w-4 h-auto" />
                             </dt-link-button>
                             <dt-link-button @click="confirmAction(row)" class="text-red-400">

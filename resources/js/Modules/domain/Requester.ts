@@ -41,22 +41,6 @@ export default class Requester extends ApiService {
         return await this.delete(this._apiDelete, params.event_id, params);
     }
 
-    deleteField(model): object
-    {
-        return {
-            id: model.id ?? null,
-        };
-    }
-
-    static getFilterColumns() {
-        return Requester.getColumns()
-            .filter(column => column.visible !== false)
-            .map(column => ({
-                name: column.db_key,
-                label: column.title,
-            }));
-    }
-
     createFields(): object
     {
         return {

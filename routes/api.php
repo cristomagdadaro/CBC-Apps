@@ -41,6 +41,7 @@ Route::middleware(['api','auth:sanctum','verified'])->group(function () {
     Route::prefix('forms')->group(function () {
         Route::prefix('event')->group(function () {
             Route::get('/', [FormController::class, 'index'])->name('api.form.index');
+            Route::get('/participants/{event_id?}', [FormController::class, 'indexParticipants'])->name('api.form.participants.index');
             Route::get('/{event_id?}', [FormController::class, 'show'])->name('api.form.show');
             Route::post('/create', [FormController::class, 'create'])->name('api.form.post');
             Route::delete('/delete/{event_id?}', [FormController::class, 'delete'])->name('api.form.delete');

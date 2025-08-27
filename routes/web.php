@@ -75,7 +75,7 @@ Route::middleware([
                 }
 
                 return Inertia::render('Forms/FormUpdate', [
-                    'data' => Form::where('event_id', $event_id)->with('participants')->first(),
+                    'data' => Form::where('event_id', $event_id)->first(),
                 ]);
             })->name('forms.update');
         });
@@ -106,7 +106,7 @@ Route::middleware([
 
                 Route::get('/{id}', [ItemController::class, function () {
                     return Inertia::render('Inventory/Items/components/presentation/EditItemForm', [
-                        'show' => Item::find(request()->route('id')),
+                        'data' => Item::find(request()->route('id')),
                         'suppliers' => Supplier::withTrashed()->get(),
                         'categories' => Category::all(),
                         'fromUrl' => url()->previous(),
@@ -141,7 +141,7 @@ Route::middleware([
 
                     if($transaction->transac_type === Inventory::INCOMING->value){
                         return Inertia::render('Inventory/Transactions/components/presentation/IncomingUpdateForm', [
-                            'show' => $transaction,
+                            'data' => $transaction,
                             'items' => Item::withTrashed()->get(),
                             'fromUrl' => route('transactions.index'),
                         ]);
@@ -198,7 +198,7 @@ Route::middleware([
 
                 Route::get('/{id}', [SupplierController::class, function () {
                     return Inertia::render('Inventory/Supplier/components/presentation/EditSupplierForm', [
-                        'show' => Supplier::find(request()->route('id')),
+                        'data' => Supplier::find(request()->route('id')),
                         'fromUrl' => url()->previous(),
                     ]);
                 }])->name('suppliers.show');

@@ -11,18 +11,6 @@ export default class Personnel extends DtoPersonnel {
         this.showPage = 'personnels.show';
     }
 
-    identifier(model: DtoPersonnel): object
-    {
-        if (model)
-            return {
-                id: model?.id
-            };
-
-        return {
-            id: this?.id,
-        }
-    }
-
     createFields(): object
     {
         return {
@@ -50,15 +38,6 @@ export default class Personnel extends DtoPersonnel {
             address: data?.address,
             email: data?.email,
         }
-    }
-
-    static getFilterColumns() {
-        return Personnel.getColumns()
-            .filter(column => column.visible !== false)
-            .map(column => ({
-                name: column.db_key,
-                label: column.title,
-            }));
     }
 
     static getColumns() {

@@ -9,14 +9,10 @@ export default class Transaction extends DtoTransaction {
         this.api._apiPut = 'api.inventory.transactions.update';
         this.api._apiDelete = 'api.inventory.transactions.destroy';
 
-        this.api.appendWith = ['item', 'user','personnel'];
-    }
 
-    deleteField(model): object
-    {
-        return {
-            id: model.id ?? null,
-        };
+        this.api.appendWith = ['item', 'user','personnel'];
+
+        this.showPage = 'transactions.show';
     }
 
     createFields(): object
@@ -54,15 +50,6 @@ export default class Transaction extends DtoTransaction {
             expiration: model.expiration ?? null,
             remarks: model.remarks ?? null,
         };
-    }
-
-    static getFilterColumns() {
-        return Transaction.getColumns()
-            .filter(column => column.visible !== false)
-            .map(column => ({
-                name: column.db_key,
-                label: column.title,
-            }));
     }
 
     static getColumns() {

@@ -7,12 +7,12 @@ interface IParticipant extends IBaseClass {
     age: number;
     organization: string;
     designation: string;
-    is_ip: boolean;
-    is_pwd: boolean;
+    is_ip: string;
+    is_pwd: string;
     city_address: string;
     province_address: string;
     country_address: string;
-    agreed_tc: boolean;
+    agreed_tc: string;
 
     registrations: Array<IRegistration>
 }

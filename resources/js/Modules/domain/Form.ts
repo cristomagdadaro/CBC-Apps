@@ -41,30 +41,21 @@ export default class Form extends DtoForm {
     updateFields(data: IForm): object
     {
         return {
-            event_id: data.event_id ?? null,
-            title: data.title ?? null,
-            description: data.description ?? null,
-            details: data.details ?? null,
-            date_from: data.date_from ?? null,
-            date_to: data.date_to ?? null,
-            time_from: data.time_from ?? null,
-            time_to: data.time_to ?? null,
-            venue: data.venue ?? null,
-            has_pretest: data.has_pretest ?? null,
-            has_posttest: data.has_posttest ?? null,
-            has_preregistration: data.has_preregistration ?? null,
-            is_suspended: data.is_suspended ?? null,
-            max_slots: data.max_slots ?? null,
+            event_id: data?.event_id,
+            title: data?.title,
+            description: data?.description,
+            details: data?.details,
+            date_from: data?.date_from,
+            date_to: data?.date_to,
+            time_from: data?.time_from,
+            time_to: data?.time_to,
+            venue: data?.venue,
+            has_pretest: data?.has_pretest,
+            has_posttest: data?.has_posttest,
+            has_preregistration: data?.has_preregistration,
+            is_suspended: data?.is_suspended,
+            max_slots: data?.max_slots,
         }
-    }
-
-    static getFilterColumns() {
-        return Form.getColumns()
-            .filter(column => column.visible !== false)
-            .map(column => ({
-                name: column.db_key,
-                label: column.title,
-            }));
     }
 
     static getColumns()

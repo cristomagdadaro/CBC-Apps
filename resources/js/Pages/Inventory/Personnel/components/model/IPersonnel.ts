@@ -1,5 +1,4 @@
 interface IPersonnel extends IBaseClass {
-    id: string;
     fname: string;
     mname: string;
     lname: string;

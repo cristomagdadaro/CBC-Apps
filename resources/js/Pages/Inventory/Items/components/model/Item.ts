@@ -10,13 +10,8 @@ export default class Item extends DtoItem {
         this.api._apiDelete = 'api.inventory.items.destroy';
 
         this.api.appendWith = ['category', 'supplier'];
-    }
 
-    deleteField(model): object
-    {
-        return {
-            id: model?.id
-        };
+        this.showPage = 'items.show';
     }
 
     createFields(): object {
@@ -39,15 +34,6 @@ export default class Item extends DtoItem {
             supplier_id: data?.supplier_id,
             image: data?.image,
         }
-    }
-
-    static getFilterColumns() {
-        return Item.getColumns()
-            .filter(column => column.visible !== false)
-            .map(column => ({
-                name: column.db_key,
-                label: column.title,
-            }));
     }
 
     static getColumns() {

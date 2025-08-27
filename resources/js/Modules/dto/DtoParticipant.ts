@@ -9,12 +9,12 @@ export default class DtoParticipant extends DtoBaseClass implements IParticipant
     age: number;
     organization: string;
     designation: string;
-    is_ip: boolean;
-    is_pwd: boolean;
+    is_ip: string;
+    is_pwd: string;
     city_address: string;
     province_address: string;
     country_address: string;
-    agreed_tc: boolean;
+    agreed_tc: string;
 
     registrations: Array<IRegistration>
 
@@ -28,12 +28,12 @@ export default class DtoParticipant extends DtoBaseClass implements IParticipant
         this.age = data?.age;
         this.organization = data?.organization;
         this.designation = data?.designation;
-        this.is_ip = data?.is_ip;
-        this.is_pwd = data?.is_pwd;
+        this.is_ip = data?.is_ip ? "Yes" : "No";
+        this.is_pwd = data?.is_pwd ? "Yes" : "No";
         this.city_address = data?.city_address;
         this.province_address = data?.province_address;
         this.country_address = data?.city_address;
-        this.agreed_tc = data?.agreed_tc;
+        this.agreed_tc = data?.agreed_tc ? "Yes" : "No";
 
         if (data?.registrations) {
             this.registrations = data.registrations.map(i => {

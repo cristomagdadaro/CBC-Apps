@@ -7,6 +7,8 @@ use App\Http\Requests\DeleteFormRequest;
 use App\Http\Requests\GetFormsRequest;
 use App\Http\Requests\UpdateFormRequest;
 use App\Models\Form;
+use App\Models\Participant;
+use App\Models\Registration;
 use App\Repositories\FormRepo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Inspiring;
@@ -33,6 +35,18 @@ class FormController extends BaseController
     public function index(GetFormsRequest $request, $event_id = null): Collection
     {
         return parent::_index($request);
+    }
+
+    public function indexParticipants(GetFormsRequest $request, $event_id = null): Collection
+    {
+        if (!$event_id)
+            $event_id = $request->get('search');
+
+        if (!$event_id)
+            return new Collection([]);
+
+       $data = Registration::where('event_id', $event_id)->with('participant')->get()->pluck('participant');
+       return new Collection(['data' => $data]);
     }
 
     public function create(CreateFormRequest $request, $event_id = null): Model
