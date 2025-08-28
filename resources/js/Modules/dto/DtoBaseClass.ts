@@ -57,6 +57,10 @@ export default class DtoBaseClass implements IBaseClass {
         return this.name || this.table || this.title;
     }
 
+    static getNestedValue(obj, path) {
+        return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+    }
+
     static getFilterColumns() {
         return this.getColumns()
             .filter(column => column.visible !== false)
@@ -68,6 +72,10 @@ export default class DtoBaseClass implements IBaseClass {
 
     static getColumns() {
         return []
+    }
+
+    static visibleColumns() {
+        return this.getColumns().filter(column => column.visible);
     }
 
 }

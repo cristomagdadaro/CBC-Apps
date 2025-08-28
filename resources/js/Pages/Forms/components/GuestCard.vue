@@ -23,12 +23,11 @@ export default {
 </script>
 
 <template>
-
     <div v-if="!!data" class="border p-2 md:rounded-md flex flex-col gap-2 bg-gray-100 max-w-xl drop-shadow-lg">
         <div class="flex flex-row bg-AB gap-2 text-white p-2 rounded-md justify-between shadow py-4">
             <div class="flex flex-col justify-center drop-shadow">
                 <label class="leading-tight font-semibold text-2xl">{{ data.title }}</label>
-                <p class="text-xs leading-none">
+                <p class="text-xs leading-snug break-all">
                     {{ data.description }}
                 </p>
             </div>
@@ -61,18 +60,18 @@ export default {
         <div  class="px-1">
             <div v-if="data.venue">
                 <span class="font-bold uppercase">Venue: </span>
-                <label>{{ data.venue }}</label>
+                <label class="break-all overflow-ellipsis">{{ data.venue }}</label>
             </div>
-            <p v-if="data.venue"class="text-sm leading-none text-justify">{{ data.details }}</p>
+            <p v-if="data.venue"class="text-sm leading-none text-justify break-all">{{ data.details }}</p>
         </div>
         <div v-if="data.max_slots" class="px-1 flex gap-2 justify-between">
             <div>
                 <span class="font-bold uppercase">Max Slots: </span>
-                <label :class="{'text-red-600': data.participants_count >= data.max_slots}">{{ data.max_slots }}</label> <span v-if="data.participants_count >= data.max_slots" class="text-red-600">FULL</span>
+                <label>{{ data.max_slots }}</label>
             </div>
             <div>
                 <span class="font-bold uppercase">Slots Available: </span>
-                <label :class="{'text-red-600': data.participants_count >= data.max_slots}">{{ data.max_slots-data.participants_count}}</label> <span v-if="data.participants_count >= data.max_slots" class="text-red-600">FULL</span>
+                <span v-if="data.participants_count >= data.max_slots" class="text-red-600">FULL</span> <label v-else >{{ data.max_slots-data.participants_count}}</label>
             </div>
         </div>
         <div v-if="data.has_preregistration || data.has_pretest || data.has_posttest" class="px-1 py-2 select-none bg-gray-300">
@@ -110,6 +109,9 @@ export default {
         <div v-show="isExpired" v-else-if="isExpired" class="flex flex-col border-t p-2 bg-yellow-300 w-full min-w-full rounded-md min-h-[3rem]">
             <span class="font-bold uppercase leading-none text-center">This Form has expired</span>
             <span class="leading-none text-xs text-center">unable to accept registration</span>
+        </div>
+        <div v-else-if="data.participants_count >= data.max_slots" class="text-center bg-orange-500 text-white py-5 rounded-b">
+            Maximum Number of Registrations Reached!
         </div>
         <preregistration-card v-else :event-id="data.event_id" @createdModel="$emit('createdModel', $event)" />
     </div>

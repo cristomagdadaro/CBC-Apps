@@ -227,8 +227,8 @@ export default {
 
         <template v-slot:footer>
             <div class="flex justify-between w-full">
-                <delete-btn @close="confirmDelete = false" @click="handleDelete" :class="{'animate-pulse':model.processing}">
-                    <span v-if="!model.processing">
+                <delete-btn @close="confirmDelete = false" @click="handleDelete" :class="{'animate-pulse':model.api.processing}">
+                    <span v-if="!model.api.processing">
                         Confirm
                     </span>
                     <span v-else>

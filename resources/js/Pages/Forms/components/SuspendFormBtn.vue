@@ -2,9 +2,11 @@
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Form from "@/Modules/domain/Form";
 import DtoError from "@/Modules/dto/DtoError.js";
+import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 
 export default {
     name: "SuspendFormBtn",
+    components: {LoaderIcon},
     props: {
         data: Object
     },
@@ -29,20 +31,38 @@ export default {
 </script>
 
 <template>
-    <form  v-if="!!form" @submit.prevent="handleUpdateSuspended" :class=" form.is_suspended ? 'bg-yellow-200' : 'bg-yellow-400'" class="disabled:bg-opacity-50 text-yellow-900 w-fit px-2 py-1 rounded flex" title="Temporarily stop accepting responses" >
-        <button v-if="model.processing && form.is_suspended" @click.prevent="handleUpdateSuspended" :disabled="model.processing">
-            Closing form
-        </button>
-        <button v-else-if="model.processing && !form.is_suspended" @click.prevent="handleUpdateSuspended" :disabled="model.processing">
-            Opening form
-        </button>
-        <button v-else-if="!form.is_suspended" @click.prevent="handleUpdateSuspended">
-            Close
-        </button>
-        <button v-else @click.prevent="handleUpdateSuspended">
-            Open
-        </button>
-    </form>
+    <div class="flex">
+        <!-- Close Form -->
+        <form v-if="!!form"
+              @submit.prevent="handleUpdateSuspended"
+              :class="[ 'flex items-center gap-1 text-yellow-900 w-fit px-2 py-1 rounded-l transition', (form.is_suspended || model.api.processing) ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-yellow-400']"
+              title="Temporarily stop accepting responses">
+            <button
+                type="submit"
+                :disabled="form.is_suspended || model.api.processing"
+                class="disabled:cursor-not-allowed"
+            >
+                <span v-if="model.api.processing && form.is_suspended">Closing...</span>
+                <span v-else>Close</span>
+            </button>
+        </form>
+
+        <!-- Open Form -->
+        <form v-if="!!form"
+              @submit.prevent="handleUpdateSuspended"
+              :class="['flex items-center gap-1 text-green-900 w-fit px-2 py-1 rounded-r transition',(!form.is_suspended || model.api.processing)? 'bg-gray-300 text-gray-500 cursor-not-allowed': 'bg-green-400']"
+              title="Reopen to accept responses">
+            <button
+                type="submit"
+                :disabled="!form.is_suspended || model.api.processing"
+                class="disabled:cursor-not-allowed"
+            >
+                <span v-if="model.api.processing && !form.is_suspended">Opening...</span>
+                <span v-else>Open</span>
+            </button>
+        </form>
+    </div>
+
 </template>
 
 <style scoped>

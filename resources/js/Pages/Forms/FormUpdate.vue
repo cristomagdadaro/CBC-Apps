@@ -13,6 +13,7 @@ import ApiMixin from "@/Modules/mixins/ApiMixin";
 import SuspendFormBtn from "@/Pages/Forms/components/SuspendFormBtn.vue";
 import Participant from "@/Modules/domain/Participant";
 import ListOfParticipants from "@/Pages/Forms/components/ListOfParticipants.vue";
+import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 
 export default {
     name: "FormUpdate",
@@ -22,6 +23,7 @@ export default {
         }
     },
     components: {
+        LoaderIcon,
         ListOfParticipants, SuspendFormBtn, TimeInput, DateInput, TextArea, TextInput, FormsHeaderActions, Link, AddButton, AppLayout, ListOfForms
     },
     mixins: [ApiMixin],
@@ -88,7 +90,7 @@ export default {
                             </div>
                             <div class="px-1">
                                 <label class="font-bold uppercase" title="Additional steps for the form">
-                                    Evaluation Requirements
+                                    Requirements
                                 </label>
                                 <div class="flex justify-evenly">
                                     <div @click="form.has_preregistration = !form.has_preregistration" class="flex items-center gap-1" title="Require guests to pre-register">
@@ -108,8 +110,14 @@ export default {
                             <div class="flex flex-col p-2">
                                 <div class="flex gap-1 justify-between">
                                    <suspend-form-btn :data="form" />
-                                    <button class="bg-blue-200 text-blue-900 w-fit px-4 py-2 rounded" title="Temporarily stop accepting responses">
-                                        Update
+                                    <button class="bg-blue-200 text-blue-900 w-fit px-4 py-2 rounded flex items-center gap-1" title="Temporarily stop accepting responses">
+                                        <loader-icon v-if="model.api.processing" />
+                                        <span v-if="model.api.processing">
+                                            Updating
+                                        </span>
+                                        <span v-else>
+                                            Update
+                                        </span>
                                     </button>
                                 </div>
                             </div>

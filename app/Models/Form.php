@@ -31,6 +31,7 @@ class Form extends BaseModel
         'has_preregistration',
         'is_suspended',
         'is_expired',
+        'max_slots'
     ];
 
     protected $casts = [

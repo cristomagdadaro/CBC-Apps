@@ -9,9 +9,11 @@ import SuspendFormBtn from "@/Pages/Forms/components/SuspendFormBtn.vue";
 import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
 import DtoResponse from "@/Modules/dto/DtoResponse";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
+import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
+import Participant from "@/Modules/domain/Participant";
 export default {
     name: "EventCard",
-    components: {TransitionContainer, SuspendFormBtn, CancelBtn, DeleteBtn, ConfirmationModal, Modal},
+    components: {LoaderIcon, TransitionContainer, SuspendFormBtn, CancelBtn, DeleteBtn, ConfirmationModal, Modal},
     computed: {
         Form() {
             return Form
@@ -50,6 +52,18 @@ export default {
                 this.confirmDelete = false;
                 this.$emit("deletedModel", response.data);
             }
+        },
+        async handleExport(eventId)
+        {
+            this.model = new Participant();
+            this.setFormAction('get');
+            this.form.filter = 'event_id';
+            this.form.search = eventId;
+            this.form.is_exact = true;
+
+            const response = await this.fetchData();
+            await this.exportCSV(response.data);
+            this.model = new Form();
         }
     },
 }
@@ -60,7 +74,7 @@ export default {
         <div class="flex flex-row bg-gray-200 p-2 rounded-md justify-between shadow py-4 gap-1">
             <div class="flex flex-col min-h-[3rem]">
                 <label class="leading-none font-semibold">{{ formsData.title }}</label>
-                <p class="text-xs leading-none line-clamp-2 overflow-hidden">
+                <p class="text-xs leading-snug break-all">
                     {{ formsData.description }}
                 </p>
             </div>
@@ -90,9 +104,9 @@ export default {
         <div class="px-1 min-h-[4rem]">
             <div class="line-clamp-1">
                 <span class="font-bold uppercase">Venue: </span>
-                <label>{{ formsData.venue }}</label>
+                <label class="leading-snug break-all">{{ formsData.venue }}</label>
             </div>
-            <p class="text-sm leading-none line-clamp-3">{{ formsData.details }}</p>
+            <p class="text-sm leading-none line-clamp-3 break-all">{{ formsData.details }}</p>
         </div>
         <div v-if="isExpired" class="px-1 flex w-full">
             <div v-show="isExpired" class="relative w-full min-w-full">
@@ -107,7 +121,7 @@ export default {
                 <div v-show="!formsData.is_suspended" v-if="!formsData.is_suspended" class="relative w-full min-w-full">
                     <div class="w-full">
                         <label class="font-bold uppercase" title="Additional steps for the form">
-                            Evaluation Requirements
+                            Requirements
                         </label>
                         <div class="flex justify-evenly">
                             <div class="flex items-center gap-1" title="Require guests to pre-register">
@@ -173,7 +187,7 @@ export default {
                     Registration
                 </button>
 
-                <button class="bg-cyan-200 text-cyan-900 w-fit px-2 py-1 rounded" title="Download form data in csv format">
+                <button @click.prevent="handleExport(formsData.event_id)" class="bg-cyan-200 text-cyan-900 w-fit px-2 py-1 rounded" title="Download form data in csv format">
                     Export
                 </button>
 
@@ -196,13 +210,12 @@ export default {
 
             <template v-slot:footer>
                <div class="flex justify-between w-full">
-                   <delete-btn @close="confirmDelete = false" @click="handleDelete" :class="{'animate-pulse':model.processing}">
-                    <span v-if="!model.processing">
-                        Confirm
-                    </span>
-                       <span v-else>
-                        Deleting
-                    </span>
+                   <delete-btn @close="confirmDelete = false" @click="handleDelete" :class="{'animate-pulse':model.api.processing}" >
+                       <div class="flex gap-1 items-center">
+                           <loader-icon v-if="model.api.processing" />
+                           <span v-if="!model.api.processing">Confirm</span>
+                           <span v-else>Deleting</span>
+                       </div>
                    </delete-btn>
                    <label v-if="form" class="text-red-600 text-sm">{{ form.errors.event_id}}</label>
                    <cancel-btn @click="confirmDelete = false">

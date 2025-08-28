@@ -35,6 +35,7 @@ export default abstract class ApiService {
                 return response;
             });
             this.processing = false;
+            console.log(response.data);
             return response.data;
         } catch (error) {
             this.processing = false;
@@ -44,10 +45,11 @@ export default abstract class ApiService {
 
     async post(url: string, params?: any) {
         this.processing = true;
-        try {
+        try { console.log(params)
             // @ts-ignore
             const response = await this.axiosInstance.post(route(url), params);
             this.processing = false;
+            console.log(response.data);
             return response;
         } catch (error) {
             this.processing = false;
@@ -62,6 +64,7 @@ export default abstract class ApiService {
             // @ts-ignore
             const response = await axios.put(`${route(url)}/${id}`, params);
             this.processing = false;
+            console.log(response.data);
             return response;
         } catch (error) {
             this.processing = false;
@@ -74,8 +77,8 @@ export default abstract class ApiService {
         try {
             // @ts-ignore
             const response = await axios.delete(route(url, id), id);
-
             this.processing = false;
+            console.log(response.data);
             return response;
         } catch (error) {
             this.processing = false;

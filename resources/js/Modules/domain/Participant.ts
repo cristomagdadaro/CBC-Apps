@@ -25,25 +25,27 @@ export default class Participant extends DtoParticipant {
             province_address: null,
             country_address: null,
             agreed_tc: false,
+            event_id: null,
         }
     }
 
-    updateFields(): object
+    updateFields(data: IParticipant): object
     {
         return {
-            name: null,
-            email: null,
-            phone: null,
-            sex: null,
-            age: null,
-            organization: null,
-            designation: null,
-            is_ip: false,
-            is_pwd: false,
-            city_address: null,
-            province_address: null,
-            country_address: null,
-            agreed_tc: false,
+            name: data?.name,
+            email: data?.email,
+            phone: data?.phone,
+            sex: data?.sex,
+            age: data?.age,
+            organization: data?.organization,
+            designation: data?.designation,
+            is_ip: data?.is_ip,
+            is_pwd: data?.is_pwd,
+            city_address: data?.city_address,
+            province_address: data?.province_address,
+            country_address: data?.country_address,
+            agreed_tc: data?.agreed_tc,
+            event_id: data?.event_id,
         }
     }
 

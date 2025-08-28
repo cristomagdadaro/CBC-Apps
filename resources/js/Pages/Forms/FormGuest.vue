@@ -48,7 +48,6 @@ export default {
     },
     methods: {
         async searchEvent() {
-            console.log(this.model);
             if (!this.form.search || this.form.search.length < 4) return;
             this.eventFormFromApi = null;
             this.eventFormFromApi = await this.model.api.getIndex(this.form.data(), this.model);
@@ -127,7 +126,7 @@ export default {
 <template>
     <Head title="Event Forms" />
 
-    <div class="absolute w-full max-h-screen z-[999] flex justify-center overflow-y-auto">
+    <div class="absolute w-full z-[999] flex justify-center overflow-y-auto py-5">
         <div class="relative sm:flex flex-col gap-5 sm:justify-center sm:items-center min-h-screen">
                 <div class="md:relative flex flex-col lg:gap-5">
                     <transition-container :duration="500" type="pop-out">
@@ -300,10 +299,9 @@ export default {
                     </div>
                 </transition-container>
             </div>
-
         </div>
     </div>
-    <div class="min-h-screen max-h-screen flex items-center justify-center text-white text-3xl font-bold relative overflow-hidden">
+    <div class="min-h-[135vh] max-h-screen flex items-center justify-center text-white text-3xl font-bold relative overflow-hidden">
         <div class="absolute inset-0 bg-gradient-radial animate-gradient"></div>
     </div>
 </template>

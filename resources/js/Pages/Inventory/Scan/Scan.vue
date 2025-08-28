@@ -253,7 +253,7 @@ export default {
                         />
 
                         <!-- Show "Searching" when processing -->
-                        <div v-else-if="model.processing" class="text-center py-3 border border-AB rounded-lg">
+                        <div v-else-if="model.api.processing" class="text-center py-3 border border-AB rounded-lg">
                             Searching...
                         </div>
 

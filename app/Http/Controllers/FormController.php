@@ -7,7 +7,6 @@ use App\Http\Requests\DeleteFormRequest;
 use App\Http\Requests\GetFormsRequest;
 use App\Http\Requests\UpdateFormRequest;
 use App\Models\Form;
-use App\Models\Participant;
 use App\Models\Registration;
 use App\Repositories\FormRepo;
 use Illuminate\Database\Eloquent\Model;

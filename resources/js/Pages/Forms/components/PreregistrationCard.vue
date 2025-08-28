@@ -256,8 +256,8 @@ export default {
                     </transition-container>
                 </p>
             </div>
-            <submit-btn :disabled="model.processing" :processing="model.processing">
-                <span v-if="!model?.processing">Register</span>
+            <submit-btn :disabled="model.api.processing" :processing="model.api.processing">
+                <span v-if="!model.api.processing">Register</span>
                 <span v-else>Registering</span>
             </submit-btn>
         </div>

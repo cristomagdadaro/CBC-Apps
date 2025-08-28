@@ -78,6 +78,50 @@ export default {
                 return this.checkError(error);
             })
         },
+        async exportCSV(data) {
+            let link = document.createElement("a");
+            try {
+                // Filter and map visible columns
+                let columnsTitles = this.model.constructor.visibleColumns().map(column => column.title);
+                let columnKeys = this.model.constructor.visibleColumns().map(column => column.key);
+                // Prepare CSV content
+                let csvContent = "data:text/csv;charset=utf-8,";
+
+                // Add header row
+                csvContent += columnsTitles.join(",") + "\r\n";
+                // Add data rows
+                data.forEach(function(rowArray) {
+                    let row = columnKeys.map(column => {
+                        let value = DtoBaseClass.getNestedValue(rowArray, column);
+                        // Check if the value contains a comma
+                        if (typeof value === 'string' && value.includes(',')) {
+                            // Encapsulate the value in double quotes
+                            return `"${value}"`;
+                        }
+                        return value;
+                    }).join(",");
+                    csvContent += row + "\r\n";
+                });
+
+                // Encode CSV content
+                let encodedUri = encodeURI(csvContent);
+
+                // Create download link
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `${new Date().toISOString().replace(/:/g, "-").replace(/\..+/, '')}.csv`);
+
+                // Append link to body and trigger download
+                document.body.appendChild(link);
+                link.click();
+            } catch (error) {
+                console.log(error);
+            } finally {
+                // Clean up: remove link from body
+                if (link) {
+                    document.body.removeChild(link);
+                }
+            }
+        },
         resetForm(retain: string){
             const temp = this.form[retain];
             this.form.reset();
