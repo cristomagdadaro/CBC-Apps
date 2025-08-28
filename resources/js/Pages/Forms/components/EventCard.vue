@@ -53,7 +53,7 @@ export default {
                 this.$emit("deletedModel", response.data);
             }
         },
-        async handleExport(eventId)
+        async handleExport(eventId, filename)
         {
             this.model = new Participant();
             this.setFormAction('get');
@@ -62,7 +62,7 @@ export default {
             this.form.is_exact = true;
 
             const response = await this.fetchData();
-            await this.exportCSV(response.data);
+            await this.exportCSV(response.data, filename);
             this.model = new Form();
         }
     },
@@ -187,7 +187,7 @@ export default {
                     Registration
                 </button>
 
-                <button @click.prevent="handleExport(formsData.event_id)" class="bg-cyan-200 text-cyan-900 w-fit px-2 py-1 rounded" title="Download form data in csv format">
+                <button @click.prevent="handleExport(formsData.event_id, `${formsData.title} (${formsData.event_id})`)" class="bg-cyan-200 text-cyan-900 w-fit px-2 py-1 rounded" title="Download form data in csv format">
                     Export
                 </button>
 
