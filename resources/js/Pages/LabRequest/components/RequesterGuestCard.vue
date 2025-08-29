@@ -10,12 +10,12 @@ import InputError from "@/Components/InputError.vue";
 import DropdownLink from "@/Components/DropdownLink.vue";
 import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
 import TimeInput from "@/Components/TimeInput.vue";
+import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
+import DtoResponse from "@/Modules/dto/DtoResponse";
 
 export default {
     name: "RequesterGuestCard",
-    components: {
-        TimeInput,
-        TransitionContainer, DropdownLink, InputError, Dropdown, CustomDropdown, TextInput, DateInput },
+    components: {SubmitBtn, TimeInput, TransitionContainer, DropdownLink, InputError, Dropdown, CustomDropdown, TextInput, DateInput },
     mixins: [ApiMixin, FormLocalMixin],
     data() {
         return {
@@ -34,6 +34,17 @@ export default {
           ]
         };
     },
+    methods: {
+        async handleCreate() {
+            const response = await this.submitCreate(null, 'event_id');
+            this.showSuccess = response.status === 201;
+            if (response instanceof DtoResponse) {
+                this.registrationIDHashed = response.data.participant_hash;
+                this.saveLocalHashedIds(response.data);
+                this.$emit('createdModel', response.data);
+            }
+        }
+    },
     beforeMount() {
         this.model = new Requester();
         this.setFormAction('create');
@@ -42,10 +53,10 @@ export default {
 </script>
 
 <template>
-    <div class="border p-2 md:rounded-md flex flex-col gap-2 bg-gray-100 max-w-xl drop-shadow-lg">{{ form }}
+    <form v-if="form" @submit.prevent="handleCreate()" class="px-2 py-4  md:rounded-md flex flex-col gap-2 bg-white max-w-xl drop-shadow-lg">{{ form }}
         <div class="flex flex-col gap-2">
             <h2>
-                <span class="font-bold uppercase">Requester Information: </span>
+                <span class="font-bold uppercase">Requestor Information: </span>
             </h2>
             <TextInput
                 id="name"
@@ -99,28 +110,36 @@ export default {
 
                     <template #content>
                         <div class="w-60">
-                            <DropdownLink as="button" @click.prevent="form.request_type = 'Request for Supply'" @click="form.clearErrors('request_type')">
+                            <DropdownLink as="button" @click.prevent="form.request_type = 'Supplies'" @click="form.clearErrors('request_type')">
                                 <div class="flex items-center gap-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-boxes text-blue-300" viewBox="0 0 16 16">
                                         <path d="M7.752.066a.5.5 0 0 1 .496 0l3.75 2.143a.5.5 0 0 1 .252.434v3.995l3.498 2A.5.5 0 0 1 16 9.07v4.286a.5.5 0 0 1-.252.434l-3.75 2.143a.5.5 0 0 1-.496 0l-3.502-2-3.502 2.001a.5.5 0 0 1-.496 0l-3.75-2.143A.5.5 0 0 1 0 13.357V9.071a.5.5 0 0 1 .252-.434L3.75 6.638V2.643a.5.5 0 0 1 .252-.434zM4.25 7.504 1.508 9.071l2.742 1.567 2.742-1.567zM7.5 9.933l-2.75 1.571v3.134l2.75-1.571zm1 3.134 2.75 1.571v-3.134L8.5 9.933zm.508-3.996 2.742 1.567 2.742-1.567-2.742-1.567zm2.242-2.433V3.504L8.5 5.076V8.21zM7.5 8.21V5.076L4.75 3.504v3.134zM5.258 2.643 8 4.21l2.742-1.567L8 1.076zM15 9.933l-2.75 1.571v3.134L15 13.067zM3.75 14.638v-3.134L1 9.933v3.134z"/>
                                     </svg>
-                                    <span>Request for Supply</span>
+                                    <span>Request for Supplies</span>
                                 </div>
                             </DropdownLink>
-                            <DropdownLink as="button" @click.prevent="form.request_type = 'Request for Equipment'" @click="form.clearErrors('request_type')">
+                            <DropdownLink as="button" @click.prevent="form.request_type = 'Equipments'" @click="form.clearErrors('request_type')">
                                 <div class="flex items-center gap-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pc-display-horizontal text-red-300" viewBox="0 0 16 16">
                                         <path d="M1.5 0A1.5 1.5 0 0 0 0 1.5v7A1.5 1.5 0 0 0 1.5 10H6v1H1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-5v-1h4.5A1.5 1.5 0 0 0 16 8.5v-7A1.5 1.5 0 0 0 14.5 0zm0 1h13a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-7a.5.5 0 0 1 .5-.5M12 12.5a.5.5 0 1 1 1 0 .5.5 0 0 1-1 0m2 0a.5.5 0 1 1 1 0 .5.5 0 0 1-1 0M1.5 12h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M1 14.25a.25.25 0 0 1 .25-.25h5.5a.25.25 0 1 1 0 .5h-5.5a.25.25 0 0 1-.25-.25"/>
                                     </svg>
-                                    <span>Request for Equipment</span>
+                                    <span>Request for Equipments</span>
                                 </div>
                             </DropdownLink>
-                            <DropdownLink as="button" @click.prevent="form.request_type = 'Full Access Request'" @click="form.clearErrors('request_type')">
+                            <DropdownLink as="button" @click.prevent="form.request_type = 'Laboratory Access'" @click="form.clearErrors('request_type')">
                                 <div class="flex items-center gap-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-key-fill text-yellow-300" viewBox="0 0 16 16">
                                         <path d="M3.5 11.5a3.5 3.5 0 1 1 3.163-5H14L15.5 8 14 9.5l-1-1-1 1-1-1-1 1-1-1-1 1H6.663a3.5 3.5 0 0 1-3.163 2M2.5 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
                                     </svg>
-                                    <span>Full Access Request</span>
+                                    <span>Laboratory Access Request</span>
+                                </div>
+                            </DropdownLink>
+                            <DropdownLink as="button" @click.prevent="form.request_type = 'Facility Access'" @click="form.clearErrors('request_type')">
+                                <div class="flex items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-buildings-fill" viewBox="0 0 16 16">
+                                        <path d="M15 .5a.5.5 0 0 0-.724-.447l-8 4A.5.5 0 0 0 6 4.5v3.14L.342 9.526A.5.5 0 0 0 0 10v5.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5V14h1v1.5a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5zM2 11h1v1H2zm2 0h1v1H4zm-1 2v1H2v-1zm1 0h1v1H4zm9-10v1h-1V3zM8 5h1v1H8zm1 2v1H8V7zM8 9h1v1H8zm2 0h1v1h-1zm-1 2v1H8v-1zm1 0h1v1h-1zm3-2v1h-1V9zm-1 2h1v1h-1zm-2-4h1v1h-1zm3 0v1h-1V7zm-2-2v1h-1V5zm1 0h1v1h-1z"/>
+                                    </svg>
+                                    <span>Facility Access Request</span>
                                 </div>
                             </DropdownLink>
                         </div>
@@ -186,6 +205,7 @@ export default {
                       type="checkbox"
                       class="rounded-full"
                       :value="laboratory"
+                      v-if="form.labs_to_use"
                       @change="toggleOption('labs_to_use', laboratory, $event.target.checked)"
                       :checked="form.labs_to_use.includes(laboratory)"
                   >
@@ -193,7 +213,11 @@ export default {
                 </div>
             </div>
         </div>
-    </div>
+        <submit-btn :disabled="model.api.processing" :processing="model.api.processing">
+            <span v-if="!model.api.processing">Register</span>
+            <span v-else>Registering</span>
+        </submit-btn>
+    </form>
 </template>
 
 <style scoped>

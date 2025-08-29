@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('lab_requests', function (Blueprint $table) {
+        Schema::create('request_forms_pivot', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('requester_id')->nullable();
             $table->uuid('form_id')->nullable();
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('lab_requests');
+        Schema::dropIfExists('request_forms_pivot');
     }
 };

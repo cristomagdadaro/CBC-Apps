@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\ItemController;
-use App\Http\Controllers\LabRequestController;
+use App\Http\Controllers\RequestFormPivotController;
 use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\RegistrationController;
@@ -48,8 +48,8 @@ Route::middleware(['api','auth:sanctum','verified'])->group(function () {
             Route::middleware(['check.form.suspended'])->put('/update/{event_id?}', [FormController::class, 'update'])->name('api.form.put');
         });
 
-        Route::prefix('lab-request')->group(function () {
-            Route::post('/create', [LabRequestController::class, 'create'])->name('api.labReq.post');
+        Route::prefix('use-request-form')->group(function () {
+            Route::get('/', [RequestFormPivotController::class, 'index'])->name('api.requestFormPivot.index');
         });
     });
 

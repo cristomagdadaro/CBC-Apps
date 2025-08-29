@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class LabRequestForm extends Model
+class UseRequestForm extends Model
 {
     use HasFactory;
 
-    protected $table = 'lab_request_forms';
+    protected $table = 'use_request_forms';
 
     public $incrementing = false;
 

@@ -2,14 +2,14 @@
 
 namespace Database\Factories;
 
-use App\Models\LabRequestForm;
+use App\Models\UseRequestForm;
 use App\Models\Requester;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\LabRequest>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\RequestFormPivot>
  */
-class LabRequestFactory extends Factory
+class RequestFormPivotFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -19,7 +19,7 @@ class LabRequestFactory extends Factory
     public function definition(): array
     {
         $requester = Requester::all()->random()->id;
-        $form =  LabRequestForm::all()->random()->id;
+        $form =  UseRequestForm::all()->random()->id;
 
         return [
             'id' => $this->faker->uuid(),

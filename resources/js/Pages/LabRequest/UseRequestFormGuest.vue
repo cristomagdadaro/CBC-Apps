@@ -5,22 +5,21 @@ import ApiMixin from "@/Modules/mixins/ApiMixin.js";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin.js";
 import GuestCard from "@/Pages/Forms/components/GuestCard.vue";
 import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
-import LabReqGuestCard from "@/Pages/LabRequest/components/LabReqGuestCard.vue";
+import UseReqGuestCard from "@/Pages/LabRequest/components/UseReqGuestCard.vue";
 
 export default {
-    name: 'LabRequestFormGuest',
+    name: 'UseRequestFormGuest',
     components: {
-        LabReqGuestCard,
+        LabReqGuestCard: UseReqGuestCard,
         TransitionContainer, GuestCard,
         Head
     },
-    mixins: [FormLocalMixin],
     props: {
         requestForm: { type: Object },
         quote: String,
     },
     beforeMount() {
-        //this.model = new LabRequest();
+        //tis.model = new LabRequest();
         //this.setFormAction('create');
         //this.form.event_id = this.eventId;
     },
@@ -37,14 +36,14 @@ export default {
 
     <div class="absolute top-0 left-0 w-full h-full z-[999] flex justify-center">
         <div class="relative sm:flex flex-col gap-5 sm:justify-center sm:items-center min-h-screen">
-            <div class="md:relative flex flex-col lg:gap-5">
+            <div class="md:relative flex flex-col lg:gap-5 w-full">
                 <div class="border select-none p-2 md:rounded-md flex flex-col gap-2 bg-gray-100 max-w-xl w-full drop-shadow-lg">
                     <div class="relative flex flex-row bg-AB text-white p-2 px-4 rounded-md gap-2 shadow py-4">
                         <img src="/imgs/logo.png" alt="logo" class="w-auto h-16" />
                         <div class="flex flex-col justify-center">
                             <label class="leading-none font-semibold text-xl">Laboratory Request Form</label>
                             <p class="text-sm leading-none">
-                                Kindly fill out the form below to request.
+                                Kindly fill out the form below to file a request
                             </p>
                         </div>
                     </div>

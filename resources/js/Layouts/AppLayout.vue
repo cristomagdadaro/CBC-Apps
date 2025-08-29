@@ -34,8 +34,8 @@ const services = [
         label: 'Event and Attendance Form',
         href: 'forms.index',
     },{
-        label: 'Laboratory Use Request',
-        href: 'forms.index',
+        label: 'Access and Use Request Form',
+        href: 'accessUseRequest.index',
     },{
         label: 'Supplies and Equipment Inventory',
         href: 'forms.index',

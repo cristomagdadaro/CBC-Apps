@@ -4,14 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateLabRequest;
 use App\Http\Requests\GetLabRequest;
-use App\Repositories\LabRequestRepo;
+use App\Repositories\RequestFormPivotRepo;
 use Illuminate\Support\Collection;
-use Inertia\Inertia;
 use Illuminate\Database\Eloquent\Model;
 
-class LabRequestController extends BaseController
+class RequestFormPivotController extends BaseController
 {
-    public function __construct(LabRequestRepo $repository)
+    public function __construct(RequestFormPivotRepo $repository)
     {
         $this->service = $repository;
     }

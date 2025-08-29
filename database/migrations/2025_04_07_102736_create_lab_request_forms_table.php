@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('lab_request_forms', function (Blueprint $table) {
+        Schema::create('use_request_forms', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('request_type')->nullable();
             $table->longText('request_details')->nullable();
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('lab_request_forms');
+        Schema::dropIfExists('use_request_forms');
     }
 };

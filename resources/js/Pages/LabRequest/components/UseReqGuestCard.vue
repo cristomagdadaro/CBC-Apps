@@ -7,7 +7,7 @@ import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import RequesterGuestCard from "@/Pages/LabRequest/components/RequesterGuestCard.vue";
 
 export default {
-    name: "LabReqGuestCard",
+    name: "UseReqGuestCard",
     components: {RequesterGuestCard, InputError, InputLabel, TextInput, PreregistrationCard},
     props: {
         data: { type: Object },

@@ -1,0 +1,81 @@
+import DtoRequestFormPivot from "@/Modules/dto/DtoRequestFormPivot";
+
+export default class RequestFormPivot extends DtoRequestFormPivot {
+    constructor(response: DtoRequestFormPivot) {
+        super(response);
+
+        this.api._apiIndex = 'api.requestFormPivot.index';
+        this.api._apiPost = 'api.requestFormPivot.post';
+
+        this.api.appendWith = ['requester', 'request_form'];
+    }
+
+    static getColumns() {
+        return [
+            {
+                title: 'ID',
+                key: 'id',
+                db_key: 'id',
+                align: 'center',
+                sortable: true,
+                visible: false,
+            }, {
+                title: 'Requester',
+                key: 'requester',
+                db_key: 'requester',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            }, {
+                title: 'Form ID',
+                key: 'form_id',
+                db_key: 'form_id',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            }, {
+                title: 'Request Status',
+                key: 'request_status',
+                db_key: 'request_status',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            }, {
+                title: 'Agreed Clause 1',
+                key: 'agreed_clause_1',
+                db_key: 'agreed_clause_1',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            }, {
+                title: 'Agreed Clause 2',
+                key: 'agreed_clause_2',
+                db_key: 'agreed_clause_2',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            }, {
+                title: 'Agreed Clause 3',
+                key: 'agreed_clause_3',
+                db_key: 'agreed_clause_3',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            }, {
+                title: 'Disapproved Remarks',
+                key: 'disapproved_remarks',
+                db_key: 'disapproved_remarks',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            }, {
+                title: 'Approved By',
+                key: 'approved_by',
+                db_key: 'approved_by',
+                align: 'center',
+                sortable: true,
+                visible: true,
+            },
+        ]
+    }
+}

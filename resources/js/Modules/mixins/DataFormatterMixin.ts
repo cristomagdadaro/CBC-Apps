@@ -75,6 +75,20 @@ export default {
             // @ts-ignore
             return `${formattedHours}:${minutes.toString().padStart(2, "0")} ${ampm}`;
         },
+        arrayToString(data: string[]) {
+            if (Array.isArray(data)) {
+                return data.join(", ");
+            }
+            if (typeof data === "string") {
+                try {
+                    const parsed = JSON.parse(data);
+                    return Array.isArray(parsed) ? parsed.join(", ") : data;
+                } catch {
+                    return data; // fallback: return string as-is
+                }
+            }
+            return "";
+        }
     },
     computed: {
         countdownDisplay() {

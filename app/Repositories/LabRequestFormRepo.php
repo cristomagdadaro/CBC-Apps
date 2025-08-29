@@ -2,11 +2,11 @@
 
 namespace App\Repositories;
 
-use App\Models\LabRequestForm;
+use App\Models\UseRequestForm;
 
 class LabRequestFormRepo extends AbstractRepoService
 {
-    public function __construct(LabRequestForm $model)
+    public function __construct(UseRequestForm $model)
     {
         parent::__construct($model);
     }

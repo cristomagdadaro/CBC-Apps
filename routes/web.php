@@ -39,7 +39,7 @@ Route::get('/', function () {
 
 Route::prefix('forms')->group(function () {
     Route::get('/event/{event?}', [FormController::class, 'formGuestView'])->name('forms.guest.index');
-    Route::get('/lab-request/{request?}', [LabRequestFormController::class, 'labReqFormGuestView'])->name('labReq.guest.index');
+    Route::get('/request-to-use/{request?}', [LabRequestFormController::class, 'labReqFormGuestView'])->name('labReq.guest.index');
 });
 
 Route::middleware([
@@ -78,6 +78,12 @@ Route::middleware([
                     'data' => Form::where('event_id', $event_id)->first(),
                 ]);
             })->name('forms.update');
+        });
+
+        Route::prefix('access-use-requests')->group(function () {
+            Route::get('/', function () {
+                return Inertia::render('LabRequest/AccessUseRequestsIndex');
+            })->name('accessUseRequest.index');
         });
 
         Route::prefix('inventory')->group(function () {
