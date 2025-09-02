@@ -54,8 +54,6 @@ export default {
     },
     methods: {
         async searchEvent() {
-            this.eventFormFromApi = null;
-
             this.eventFormFromApi = await this.fetchData();
 
             this.eventId.cell1 = null;
@@ -215,7 +213,7 @@ export default {
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
                 <!-- Show forms when available -->
                 <list-of-forms
-                    v-if="eventFormFromApi && eventFormFromApi.total > 0"
+                    v-if="eventFormFromApi && eventFormFromApi.total > 0 && !model.api.processing"
                     :forms-data="eventFormFromApi.data"
                     @removeModel="eventFormFromApi.data = eventFormFromApi.data.filter(form => form.id !== $event.id)"
                 />

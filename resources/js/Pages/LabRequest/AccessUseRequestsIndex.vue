@@ -133,7 +133,7 @@ export default {
         <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
             <!-- Show forms when available -->
             <list-of-use-requests
-                v-if="eventFormFromApi && eventFormFromApi.total > 0"
+                v-if="eventFormFromApi && eventFormFromApi.total > 0 && !model.api.processing"
                 :forms-data="eventFormFromApi.data"
                 @removeModel="eventFormFromApi.data = eventFormFromApi.data.filter(form => form.id !== $event.id)"
                 @updated="searchEvent"
