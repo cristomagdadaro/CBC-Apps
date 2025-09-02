@@ -48,6 +48,7 @@ export default {
         async submitCreate(toCast: boolean = false, except: string = '') {
             this.form.clearErrors();
             return await this.model.api.postIndex(this.form.data()).then(response => {
+                // reset all fields with exceptions
                 this.resetForm(except);
                 if (toCast) {
                     return new DtoResponse(response).castDataToModel(this.model.constructor);
@@ -181,6 +182,7 @@ export default {
             return dto;
         },
         toggleOption(field: string, value: any, checked: boolean) {
+
             if (Array.isArray(this.form[field])) {
                 const index = this.form[field].indexOf(value);
                 if (checked && index === -1) {

@@ -8,11 +8,6 @@ export default {
     props: {
         formsData: Array,
     },
-    methods: {
-        handleDelete(deletedModel) {
-            this.$emit("removeModel", deletedModel);
-        },
-    },
 }
 </script>
 
@@ -22,7 +17,8 @@ export default {
             v-for="data in formsData"
             :key="data.id"
             :data="data"
-            @deletedModel="handleDelete"
+            @deletedModel="$emit('removeModel', $event)"
+            @updated="$emit('updated', $event)"
         />
     </div>
 </template>

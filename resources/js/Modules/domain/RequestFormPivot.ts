@@ -13,15 +13,25 @@ export default class RequestFormPivot extends DtoRequestFormPivot {
 
     createFields(): object {
         return {
-            requester_id: null,
-            form_id: null,
-            request_status: null,
+            name: null,
+            affiliation: null,
+            email: null,
+            position: null,
+            phone: null,
+
+            request_type: null,
+            request_details: null,
+            request_purpose: null,
+            project_title: null,
+            date_of_use: null,
+            time_of_use: null,
+            labs_to_use: [],
+            equipments_to_use: [],
+            consumables_to_use: [],
+
             agreed_clause_1: null,
             agreed_clause_2: null,
             agreed_clause_3: null,
-            approval_constraint: null,
-            disapproved_remarks: null,
-            approved_by: null,
         }
     }
 

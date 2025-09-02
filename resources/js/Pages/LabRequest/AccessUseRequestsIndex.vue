@@ -34,9 +34,6 @@ export default {
         this.model = new RequestFormPivot();
         this.setFormAction('get');
     },
-    async mounted() {
-        this.eventFormFromApi =  await this.fetchData();
-    },
     methods: {
         async searchEvent() {
             this.eventFormFromApi = await this.fetchData();
@@ -45,16 +42,10 @@ export default {
             this.form.search = filterVal;
             this.form.filter = 'request_status';
             this.form.is_exact = true;
-            this.searchEvent();
+            await this.searchEvent();
         }
     },
     watch: {
-        'form.page': {
-            handler(newVal, oldVal) {
-                this.searchEvent();
-            },
-            deep: true,
-        },
         'form.search': {
             handler(newVal, oldVal) {
                 if (!newVal) {
@@ -98,12 +89,12 @@ export default {
                 <div v-if="eventFormFromApi" class="flex w-full gap-2 items-center">
                     <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
                         <!-- First Button -->
-                        <paginate-btn @click="form.page = 1" :disabled="form.page === 1">
+                        <paginate-btn @click="form.page = 1; searchEvent();" :disabled="form.page === 1">
                             First
                         </paginate-btn>
 
                         <!-- Previous Button -->
-                        <paginate-btn @click="form.page = Math.max(1, form.page - 1)" :disabled="form.page === 1">
+                        <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchEvent();" :disabled="form.page === 1">
                             <template v-slot:icon>
                                 <arrow-left class="h-auto w-6" />
                             </template>
@@ -119,7 +110,7 @@ export default {
 
                         <!-- Next Button -->
                         <paginate-btn
-                            @click="form.page = Math.min(eventFormFromApi?.last_page, form.page + 1)"
+                            @click="form.page = Math.min(eventFormFromApi?.last_page, form.page + 1); searchEvent();"
                             :disabled="form.page === eventFormFromApi?.last_page"
                         >
                             Next
@@ -130,7 +121,7 @@ export default {
 
                         <!-- Last Button -->
                         <paginate-btn
-                            @click="form.page = eventFormFromApi?.last_page"
+                            @click="form.page = eventFormFromApi?.last_page; searchEvent();"
                             :disabled="form.page === eventFormFromApi?.last_page"
                         >
                             Last
@@ -145,6 +136,7 @@ export default {
                 v-if="eventFormFromApi && eventFormFromApi.total > 0"
                 :forms-data="eventFormFromApi.data"
                 @removeModel="eventFormFromApi.data = eventFormFromApi.data.filter(form => form.id !== $event.id)"
+                @updated="searchEvent"
             />
 
             <!-- Show "Searching" when processing -->
@@ -165,12 +157,12 @@ export default {
         <div v-if="eventFormFromApi && eventFormFromApi.data?.length" class="flex w-full gap-2 py-5 items-center">
             <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
                 <!-- First Button -->
-                <paginate-btn @click="form.page = 1" :disabled="form.page === 1">
+                <paginate-btn @click="form.page = 1; searchEvent();" :disabled="form.page === 1">
                     First
                 </paginate-btn>
 
                 <!-- Previous Button -->
-                <paginate-btn @click="form.page = Math.max(1, form.page - 1)" :disabled="form.page === 1">
+                <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchEvent();" :disabled="form.page === 1">
                     <template v-slot:icon>
                         <arrow-left class="h-auto w-6" />
                     </template>
@@ -186,7 +178,7 @@ export default {
 
                 <!-- Next Button -->
                 <paginate-btn
-                    @click="form.page = Math.min(eventFormFromApi?.last_page, form.page + 1)"
+                    @click="form.page = Math.min(eventFormFromApi?.last_page, form.page + 1); searchEvent();"
                     :disabled="form.page === eventFormFromApi?.last_page"
                 >
                     Next
@@ -197,7 +189,7 @@ export default {
 
                 <!-- Last Button -->
                 <paginate-btn
-                    @click="form.page = eventFormFromApi?.last_page"
+                    @click="form.page = eventFormFromApi?.last_page; searchEvent();"
                     :disabled="form.page === eventFormFromApi?.last_page"
                 >
                     Last

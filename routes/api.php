@@ -50,6 +50,7 @@ Route::middleware(['api','auth:sanctum','verified'])->group(function () {
 
         Route::prefix('use-request-form')->group(function () {
             Route::get('/', [RequestFormPivotController::class, 'index'])->name('api.requestFormPivot.index');
+            Route::post('/', [RequestFormPivotController::class, 'create'])->name('api.requestFormPivot.post');
             Route::put('/update/{request_pivot_id?}', [RequestFormPivotController::class, 'update'])->name('api.requestFormPivot.put');
         });
     });

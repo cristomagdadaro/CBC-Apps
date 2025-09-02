@@ -1,8 +1,6 @@
 <script>
 
 import {Head} from "@inertiajs/vue3";
-import ApiMixin from "@/Modules/mixins/ApiMixin.js";
-import FormLocalMixin from "@/Modules/mixins/FormLocalMixin.js";
 import GuestCard from "@/Pages/Forms/components/GuestCard.vue";
 import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
 import UseReqGuestCard from "@/Pages/LabRequest/components/UseReqGuestCard.vue";
@@ -18,16 +16,6 @@ export default {
         requestForm: { type: Object },
         quote: String,
     },
-    beforeMount() {
-        //tis.model = new LabRequest();
-        //this.setFormAction('create');
-        //this.form.event_id = this.eventId;
-    },
-    methods: {
-        submitForm() {
-            this.$inertia.post('/lab-request', this.formData);
-        }
-    }
 }
 </script>
 
@@ -41,7 +29,7 @@ export default {
                     <div class="relative flex flex-row bg-AB text-white p-2 px-4 rounded-md gap-2 shadow py-4">
                         <img src="/imgs/logo.png" alt="logo" class="w-auto h-16" />
                         <div class="flex flex-col justify-center">
-                            <label class="leading-none font-semibold text-xl">Laboratory Request Form</label>
+                            <label class="leading-none font-semibold text-xl">Access and Use Request Form</label>
                             <p class="text-sm leading-none">
                                 Kindly fill out the form below to file a request
                             </p>

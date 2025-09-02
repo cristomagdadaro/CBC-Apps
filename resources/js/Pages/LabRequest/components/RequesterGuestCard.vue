@@ -2,7 +2,6 @@
 import DateInput from "@/Components/DateInput.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
-import Requester from "@/Modules/domain/Requester";
 import TextInput from "@/Components/TextInput.vue";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import Dropdown from "@/Components/Dropdown.vue";
@@ -12,6 +11,7 @@ import TransitionContainer from "@/Components/Transitions/TransitionContrainer.v
 import TimeInput from "@/Components/TimeInput.vue";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import DtoResponse from "@/Modules/dto/DtoResponse";
+import RequestFormPivot from "@/Modules/domain/RequestFormPivot.js";
 
 export default {
     name: "RequesterGuestCard",
@@ -31,77 +31,50 @@ export default {
             "Consumable 2",
             "Consumable 3",
             "Consumable 4",
-          ]
+          ],
+            equipments: [
+            "qPCR",
+            "Microscope",
+            "Oven",
+            "LED Wall",
+          ], hallsandrooms: [
+            "Plenary Hall",
+            "Multi-purpose Hall",
+            "Training Room",
+            "Meeting Room 2nd Floor",
+            "Consultants Room",
+            "Prayer Room"
+          ],
         };
     },
     methods: {
         async handleCreate() {
-            const response = await this.submitCreate(null, 'event_id');
-            this.showSuccess = response.status === 201;
+            this.form.agreed_clause_1 = true;
+            this.form.agreed_clause_2 = true;
+            this.form.agreed_clause_3 = true;
+
+            const response = await this.submitCreate();
             if (response instanceof DtoResponse) {
-                this.registrationIDHashed = response.data.participant_hash;
-                this.saveLocalHashedIds(response.data);
-                this.$emit('createdModel', response.data);
+                console.log(response);
+                this.$emit('createdModel', response);
             }
         }
     },
     beforeMount() {
-        this.model = new Requester();
+        this.model = new RequestFormPivot();
         this.setFormAction('create');
     },
 };
 </script>
 
 <template>
-    <form v-if="form" @submit.prevent="handleCreate()" class="px-2 py-4  md:rounded-md flex flex-col gap-2 bg-white max-w-xl drop-shadow-lg">{{ form }}
-        <div class="flex flex-col gap-2">
-            <h2>
-                <span class="font-bold uppercase">Requestor Information: </span>
-            </h2>
-            <TextInput
-                id="name"
-                v-model="form.name"
-                type="text"
-                :error="form.errors.name"
-                placeholder="Full Name"
-                autocomplete="name"
-                @input="form.clearErrors('name')"
-            />
-            <TextInput
-                id="affiliation"
-                v-model="form.affiliation"
-                type="text"
-                :error="form.errors.affiliation"
-                placeholder="Affiliation/Agency/Office"
-                autocomplete="affiliation"
-                @input="form.clearErrors('affiliation')"
-            />
-            <TextInput
-                id="phone"
-                v-model="form.phone"
-                type="text"
-                :error="form.errors.phone"
-                placeholder="Contact Number"
-                autocomplete="phone"
-                @input="form.clearErrors('phone')"
-            />
-            <TextInput
-                id="email"
-                v-model="form.email"
-                type="email"
-                :error="form.errors.email"
-                placeholder="Email Address"
-                autocomplete="email"
-                @input="form.clearErrors('email')"
-            />
-        </div>
-        <div class="flex flex-col gap-2">
-            <span class="font-bold uppercase">Request Form: </span>
+    <form v-if="form" @submit.prevent="handleCreate()" class="px-2 py-4  md:rounded-md flex flex-col gap-2 bg-white max-w-xl drop-shadow-lg">
+        <div class="flex flex-col gap-2 w-full">
             <div class="w-full relative">
                 <Dropdown align="right" width="60">
                     <template #trigger>
                         <button type="button" :class="{'border-red-500' : form.errors.request_type}" class="inline-flex items-center justify-between px-3 py-3 border shadow-sm text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white w-full dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
-                            {{ form.request_type ?? 'Request Type' }}
+                            {{ form.request_type ?? 'Request For' }}
                             <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
                             </svg>
@@ -149,6 +122,57 @@ export default {
                     <InputError v-show="!!form.errors.request_type" class="absolute -top-1 left-3" :message="form.errors.request_type" />
                 </transition-container>
             </div>
+            <h2>
+                <span class="font-bold uppercase">Requestor Information: </span>
+            </h2>
+            <TextInput
+                id="name"
+                v-model="form.name"
+                type="text"
+                :error="form.errors.name"
+                placeholder="Full Name"
+                autocomplete="name"
+                @input="form.clearErrors('name')"
+            />
+            <TextInput
+                id="name"
+                v-model="form.position"
+                type="text"
+                :error="form.errors.position"
+                placeholder="Position"
+                autocomplete="position"
+                @input="form.clearErrors('position')"
+            />
+            <TextInput
+                id="affiliation"
+                v-model="form.affiliation"
+                type="text"
+                :error="form.errors.affiliation"
+                placeholder="Affiliation/Agency/Office"
+                autocomplete="affiliation"
+                @input="form.clearErrors('affiliation')"
+            />
+            <TextInput
+                id="phone"
+                v-model="form.phone"
+                type="text"
+                :error="form.errors.phone"
+                placeholder="Contact Number"
+                autocomplete="phone"
+                @input="form.clearErrors('phone')"
+            />
+            <TextInput
+                id="email"
+                v-model="form.email"
+                type="email"
+                :error="form.errors.email"
+                placeholder="Email Address"
+                autocomplete="email"
+                @input="form.clearErrors('email')"
+            />
+        </div>
+        <div class="flex flex-col gap-2">
+            <span class="font-bold uppercase">Request Form: </span>
             <TextInput
                 id="request_details"
                 v-model="form.request_details"
@@ -195,21 +219,67 @@ export default {
                 @input="form.clearErrors('time_of_use')"
             />
         </div>
-        <div class="flex flex-col gap-2">
+        <div v-if="form.request_type === 'Supplies'" class="flex flex-col gap-2">
             <h2>
-                <span class="font-bold uppercase">Available Laboratories: </span>
+                <span class="font-bold uppercase">Supplies: </span>
             </h2>
-            <div class="flex justify-evenly">
-                <div v-for="laboratory in laboratories" class="flex items-center gap-1" title="Require guests to pre-register">
+            <div class="grid grid-cols-2 gap-3">
+                <div v-for="item in consumables" class="flex items-center gap-1" title="Require guests to pre-register">
                   <input
                       type="checkbox"
                       class="rounded-full"
-                      :value="laboratory"
-                      v-if="form.labs_to_use"
-                      @change="toggleOption('labs_to_use', laboratory, $event.target.checked)"
-                      :checked="form.labs_to_use.includes(laboratory)"
+                      :value="item"
+                      @change="toggleOption('consumables_to_use', item, $event.target.checked)"
                   >
-                  <label>{{laboratory }}</label>
+                  <label>{{ item }}</label>
+                </div>
+            </div>
+        </div>
+        <div v-else-if="form.request_type === 'Equipments'" class="flex flex-col gap-2">
+            <h2>
+                <span class="font-bold uppercase">Equipments: </span>
+            </h2>
+            <div class="grid grid-cols-2 gap-3">
+                <div v-for="item in equipments" class="flex items-center gap-1" title="Require guests to pre-register">
+                  <input
+                      type="checkbox"
+                      class="rounded-full"
+                      :value="item"
+                      @change="toggleOption('equipments_to_use', item, $event.target.checked)"
+                  >
+                  <label>{{ item }}</label>
+                </div>
+            </div>
+        </div>
+        <div v-else-if="form.request_type === 'Laboratory Access'" class="flex flex-col gap-2">
+            <h2>
+                <span class="font-bold uppercase">Laboratory Facilities: </span>
+            </h2>
+            <div class="grid grid-cols-2 gap-3">
+                <div v-for="item in laboratories" class="flex items-center gap-1" title="Require guests to pre-register">
+                  <input
+                      type="checkbox"
+                      class="rounded-full"
+                      :value="item"
+                      @change="toggleOption('labs_to_use', item, $event.target.checked)"
+                  >
+                  <label>{{ item }}</label>
+                </div>
+            </div>
+        </div>
+        <div v-else-if="form.request_type === 'Facility Access'"  class="flex flex-col gap-2">
+            <h2>
+                <span class="font-bold uppercase">Event Halls and Rooms: </span>
+            </h2>
+            <div class="grid grid-cols-2 gap-3">
+                <div v-for="item in hallsandrooms" class="flex items-center gap-1" title="Require guests to pre-register">
+                  <input
+                      type="checkbox"
+                      class="rounded-full"
+                      :value="item"
+                      @change="toggleOption('labs_to_use', item, $event.target.checked)"
+                  >
+                  <label>{{ item }}</label>
                 </div>
             </div>
         </div>
@@ -218,6 +288,7 @@ export default {
             <span v-else>Registering</span>
         </submit-btn>
     </form>
+
 </template>
 
 <style scoped>

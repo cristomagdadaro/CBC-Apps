@@ -82,7 +82,7 @@ export default {
                             <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/>
                         </svg>
                     </div>
-                    <label>Preregistration</label>
+                    <label>Registration</label>
                 </div>
                 <div v-if="data.has_pretest" class="flex items-center gap-1" title="Require guests to take pre-test">
                     <div v-if="data.has_pretest" class="rounded-full shadow bg-AC text-white">

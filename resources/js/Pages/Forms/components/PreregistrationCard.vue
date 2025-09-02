@@ -93,7 +93,7 @@ export default {
         <div class="pb-3 pt-1">
             <label class="text-red-600 uppercase justify-center flex">{{ form.errors.suspended || form.errors.full || form.errors.expired }}</label>
             <h3 class="text-lg font-semibold leading-tight">
-                Preregistration
+                Registration Form
             </h3>
             <p class="text-xs leading-none">
                 Kindly provide the required and correct details. Fields marked with * are required.

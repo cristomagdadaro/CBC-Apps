@@ -10,6 +10,43 @@ export class RequestForm extends DtoRequestForm {
         this.api.appendWith = ['requester'];
     }
 
+    createFields(): object
+    {
+        return {
+            name: null,
+            affiliation: null,
+            email: null,
+            position: null,
+            phone: null,
+
+            request_type: null,
+            request_details: null,
+            request_purpose: null,
+            project_title: null,
+            date_of_use: null,
+            time_of_use: null,
+            labs_to_use: null,
+            equipments_to_use: null,
+            consumables_to_use: null,
+        }
+    }
+
+    updateFields(data: IRequestForm): object
+    {
+        return {
+            id: data?.id,
+            request_type: data?.request_type,
+            request_details: data?.request_details,
+            request_purpose: data?.request_purpose,
+            project_title: data?.project_title,
+            date_of_use: data?.date_of_use,
+            time_of_use: data?.time_of_use,
+            labs_to_use: data?.labs_to_use,
+            equipments_to_use: data?.equipments_to_use,
+            consumables_to_use: data?.consumables_to_use,
+        }
+    }
+
     static getColumns() {
         return [
             {

@@ -21,6 +21,7 @@ export default {
     methods: {
         async handleUpdateApprovalBtn(status) {
             this.form.request_status = status;
+            this.form.approved_by = this.$page.props.auth.user.name ?? this.form.approved_by;
             const response = await this.submitUpdate();
             if (!(response instanceof DtoError)) {
                 this.form.request_status = response.data.request_status;
@@ -46,6 +47,7 @@ export default {
 
 <template>
     <div class="flex flex-col w-full gap-3">
+        <h3 class="text-left leading-none">To be filled by the Officer In-Charge</h3>
         <div class="flex flex-col w-full">
             <div class="flex flex-col w-full gap-1">
                 <div class="flex flex-col w-full">
@@ -64,13 +66,14 @@ export default {
         </div>
         <div class="flex justify-between">
             <div class="flex text-xs flex-col leading-none text-left">
-                <span v-if="form.approved_by" >Reviewed by: {{ form.approved_by }}</span>
+                <span v-if="form.approved_by && form.request_status === approved" >Approved by: {{ form.approved_by }}</span>
+                <span v-else-if="form.approved_by && form.request_status === rejected" >Rejected by: {{ form.approved_by }}</span>
                 <span>Last updated: {{ formatDate(data.updated_at) }}</span>
             </div>
            <div class="flex">
                <form v-if="!!form"
                      @submit.prevent="handleUpdateApprovalBtn(rejected)"
-                     :class="[ 'flex items-center gap-1 text-gray-900 w-fit px-2 py-1 rounded-l transition', (form.request_status === rejected || model.api.processing) ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-red-400']"
+                     :class="[ 'flex items-center gap-1 text-gray-900 w-fit px-2 py-1 rounded-l transition hover:scale-105', (form.request_status === rejected || model.api.processing) ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-red-400']"
                      title="Disapprove request">
                    <button
                        type="submit"
@@ -85,7 +88,7 @@ export default {
 
                <form v-if="!!form"
                      @submit.prevent="handleUpdateApprovalBtn(approved)"
-                     :class="['flex items-center gap-1 text-gray-900 w-fit px-2 py-1 rounded-r transition',(form.request_status === approved || model.api.processing)? 'bg-gray-300 text-gray-500 cursor-not-allowed': 'bg-green-400']"
+                     :class="['flex items-center gap-1 text-gray-900 w-fit px-2 py-1 rounded-r transition hover:scale-105',(form.request_status === approved || model.api.processing)? 'bg-gray-300 text-gray-500 cursor-not-allowed': 'bg-green-400']"
                      title="Approve request">
                    <button
                        type="submit"

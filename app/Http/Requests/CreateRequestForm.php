@@ -4,14 +4,14 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateRequestFormPivot extends FormRequest
+class CreateRequestForm extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -22,12 +22,6 @@ class CreateRequestFormPivot extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string',
-            'affiliation' => 'required|string',
-            'email' => 'required|string|email',
-            'position' => 'nullable|string',
-            'phone' => 'required|string',
-
             'request_type' => 'nullable|string',
             'request_details' => 'nullable|string',
             'request_purpose' => 'required|string',
@@ -37,13 +31,6 @@ class CreateRequestFormPivot extends FormRequest
             'labs_to_use' => 'nullable|array',
             'equipments_to_use' => 'nullable|array',
             'consumables_to_use' => 'nullable|array',
-
-            'requester_id' => 'sometimes|exists:requesters,id',
-            'form_id' => 'sometimes|exists:use_request_forms,id',
-            'request_status' => 'nullable|in:pending,approved,rejected',
-            'agreed_clause_1' => 'required|boolean',
-            'agreed_clause_2'  => 'required|boolean',
-            'agreed_clause_3' => 'required|boolean',
         ];
     }
 }

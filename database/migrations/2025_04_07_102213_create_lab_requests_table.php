@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('requester_id')->nullable();
             $table->uuid('form_id')->nullable();
-            $table->string('request_status')->nullable(); // Pending, Approved, Rejected
+            $table->string('request_status')->default('pending')->nullable(); // Pending, Approved, Rejected
             $table->boolean('agreed_clause_1')->default(false);
             $table->boolean('agreed_clause_2')->default(false);
             $table->boolean('agreed_clause_3')->default(false);

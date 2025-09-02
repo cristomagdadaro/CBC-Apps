@@ -60,19 +60,13 @@ onMounted(() => {
                     <h3 class="dark:text-white opacity-25 leading-none select-none">Apps & Services</h3>
                     <div class="flex items-center justify-center w-full drop-shadow-md">
                         <Link :href="route('forms.guest.index')" class="dark:text-green-400 hover:text-white p-2 text-AB hover:bg-green-600 duration-200 dark:hover:text-AA md:text-lg text-normal px-4 border-r">
-                            Events
-                        </Link>
-                        <Link href="/" class="dark:text-green-400 hover:text-white text-AB hover:bg-green-600 p-2 duration-200 dark:hover:text-AA md:text-lg text-normal px-4 border-r">
-                            Booking
-                        </Link>
-                        <Link href="/" class="dark:text-green-400 hover:text-white text-AB hover:bg-green-600 p-2 duration-200 dark:hover:text-AA md:text-lg text-normal px-4 border-r">
-                            Games
+                            Event Attendance
                         </Link>
                         <Link :href="route('labReq.guest.index')" class="dark:text-green-400 hover:text-white p-2 text-AB hover:bg-green-600 duration-200 dark:hover:text-AA md:text-lg text-normal px-4 border-r">
-                            Laboratory Request
+                            Access and Use Request Form
                         </Link>
                         <Link :href="route('forms.guest.index')" class="dark:text-green-400 hover:text-white p-2 text-AB hover:bg-green-600 duration-200 dark:hover:text-AA md:text-lg text-normal px-4">
-                            Inventory
+                            Inventory System
                         </Link>
                     </div>
                 </div>

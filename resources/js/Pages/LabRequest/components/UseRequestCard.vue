@@ -35,6 +35,10 @@ export default {
         {
             this.confirmDelete = true;
         },
+        async refreshData(updatedData) {
+            this.closeModal();
+            this.$emit("updated", updatedData);
+        },
         async handleDelete()
         {
             this.toDelete = { event_id : this.formsData.event_id };
@@ -65,12 +69,12 @@ export default {
 </script>
 
 <template>
-    <div v-if="formsData" @click="showModal = true" class="p-2 rounded-md flex flex-col gap-2 max-w-full min-w-[30rem] w-full shadow justify-between bg-gray-100 border overflow-x-auto">
-        <div class="flex flex-row p-2 rounded-md justify-between py-4 gap-1">
+    <div v-if="formsData" class="p-2 rounded-md flex flex-col gap-2 max-w-full min-w-[30rem] w-full shadow justify-between bg-gray-100 border overflow-x-auto">
+        <div @click="showModal = true" class="flex flex-row p-2 rounded-md justify-between py-4 gap-1">
             <div class="flex flex-col">
-                <label class="leading-none font-semibold">{{ formsData.requester.fullName }} {{ showModal }}</label>
+                <label class="leading-none font-semibold">{{ formsData.requester?.fullName ?? 'NULL' }}</label>
                 <p class="text-sm leading-snug break-all">
-                    {{ `${formsData.requester.position} - ${formsData.requester.affiliation}` }}
+                    {{ `${formsData.requester?.position} - ${formsData.requester?.affiliation }` }}
                 </p>
                 <p class="text-sm leading-none break-all">
                     Date Created: {{ formatDate(formsData.created_at) }}
@@ -90,13 +94,13 @@ export default {
                 <div class="sm:flex sm:items-start">
                     <div class="mt-3 text-center sm:text-start w-full">
                         <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 pb-2 uppercase text-center">
-                            Request Form
+                            Access and Use Request Form
                         </h3>
                         <div class="flex flex-row bg-gray-200 p-2 rounded-md justify-between shadow py-4 gap-1l">
                             <div class="flex flex-col">
-                                <label class="leading-none font-semibold">{{ formsData.requester.fullName }}</label>
+                                <label class="leading-none font-semibold">{{ formsData.requester?.fullName }}</label>
                                 <p class="text-sm leading-snug break-all">
-                                    {{ `${formsData.requester.position} - ${formsData.requester.affiliation}` }}
+                                    {{ `${formsData.requester?.position} - ${formsData.requester?.affiliation}` }}
                                 </p>
                                 <p class="text-sm leading-none break-all">
                                     Date Created: {{ formatDate(formsData.created_at) }}
@@ -110,30 +114,31 @@ export default {
                         <div class="mt-4 text-sm text-gray-600 dark:text-gray-400">
                             <div class="flex flex-col leading-tight p-2 h-full">
                                 <div class="grid grid-cols-1">
-                                    <span><b>Details:</b> {{ formsData.requestForm.request_details }}</span>
-                                    <span><b>Purpose:</b> {{ formsData.requestForm.request_purpose }}</span>
-                                    <span><b>Requested Time and Date of Use:</b> {{ formatTime(formsData.requestForm.time_of_use) }} {{ formatDate(formsData.requestForm.date_of_use) }}</span>
+                                    <span><b>Purpose of Request:</b> {{ formsData.requestForm?.request_purpose }}</span>
+                                    <span><b>Project Title:</b> {{ formsData.requestForm?.project_title }}</span>
+                                    <span><b>Requested Time and Date of Use:</b> {{ formatTime(formsData.requestForm?.time_of_use) }} {{ formatDate(formsData.requestForm?.date_of_use) }}</span>
                                     <span><b>Reviewed by:</b> {{ formsData.approved_by }}</span>
+                                    <span><b>Details of Request:</b> {{ formsData.requestForm?.request_details }}</span>
                                 </div>
                                 <span class="text-left font-bold uppercase pt-3">Items Requested</span>
                                 <table>
                                     <tbody>
-                                        <tr v-if="formsData.requestForm.labs_to_use">
+                                        <tr v-if="formsData.requestForm?.labs_to_use">
                                             <th class="py-1 uppercase w-5 px-4 border text-left"><b>Laboratories</b></th>
                                             <td class="border">
-                                                {{ arrayToString(formsData.requestForm.labs_to_use) }}
+                                                {{ arrayToString(formsData.requestForm?.labs_to_use) }}
                                             </td>
                                         </tr>
-                                        <tr v-if="formsData.requestForm.equipments_to_use">
+                                        <tr v-if="formsData.requestForm?.equipments_to_use">
                                             <th class="py-1 uppercase w-5 px-4 border text-left"><b>Equipments</b></th>
                                             <td class="border">
-                                                {{ arrayToString(formsData.requestForm.equipments_to_use) }}
+                                                {{ arrayToString(formsData.requestForm?.equipments_to_use) }}
                                             </td>
                                         </tr>
-                                        <tr v-if="formsData.requestForm.consumables_to_use">
+                                        <tr v-if="formsData.requestForm?.consumables_to_use">
                                             <th class="py-1 uppercase w-5 px-4 border text-left"><b>Consumables</b></th>
                                             <td class="border">
-                                                {{ arrayToString(formsData.requestForm.consumables_to_use) }}
+                                                {{ arrayToString(formsData.requestForm?.consumables_to_use) }}
                                             </td>
                                         </tr>
                                     </tbody>
@@ -144,7 +149,7 @@ export default {
                 </div>
             </div>
             <div class="flex flex-row justify-between px-6 py-4 bg-gray-100 dark:bg-gray-800 text-end items-center">
-               <use-request-approval-btn :data="formsData" />
+               <use-request-approval-btn :data="formsData" @updated="refreshData($event)" />
             </div>
         </Modal>
     </div>

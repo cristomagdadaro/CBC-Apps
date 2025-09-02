@@ -93,12 +93,6 @@ export default {
             },
             deep: true,
         },
-        'form.page': {
-            handler(newVal, oldVal) {
-                this.searchEvent();
-            },
-            deep: true,
-        }
     },
 }
 </script>
@@ -177,12 +171,12 @@ export default {
                     <div v-if="eventFormFromApi" class="flex w-full gap-2 items-center">
                         <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
                             <!-- First Button -->
-                            <paginate-btn @click="form.page = 1" :disabled="form.page === 1">
+                            <paginate-btn @click="form.page = 1; searchEvent();" :disabled="form.page === 1">
                                 First
                             </paginate-btn>
 
                             <!-- Previous Button -->
-                            <paginate-btn @click="form.page = Math.max(1, form.page - 1)" :disabled="form.page === 1">
+                            <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchEvent();" :disabled="form.page === 1">
                                 <template v-slot:icon>
                                     <arrow-left class="h-auto w-6" />
                                 </template>
@@ -198,7 +192,7 @@ export default {
 
                             <!-- Next Button -->
                             <paginate-btn
-                                @click="form.page = Math.min(eventFormFromApi?.last_page, form.page + 1)"
+                                @click="form.page = Math.min(eventFormFromApi?.last_page, form.page + 1); searchEvent();"
                                 :disabled="form.page === eventFormFromApi?.last_page"
                             >
                                 Next
@@ -209,7 +203,7 @@ export default {
 
                             <!-- Last Button -->
                             <paginate-btn
-                                @click="form.page = eventFormFromApi?.last_page"
+                                @click="form.page = eventFormFromApi?.last_page; searchEvent();"
                                 :disabled="form.page === eventFormFromApi?.last_page"
                             >
                                 Last
@@ -245,12 +239,12 @@ export default {
             <div v-if="eventFormFromApi && eventFormFromApi.data?.length" class="flex w-full gap-2 items-center mt-3">
                 <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
                     <!-- First Button -->
-                    <paginate-btn @click="form.page = 1" :disabled="form.page === 1">
+                    <paginate-btn @click="form.page = 1; searchEvent();" :disabled="form.page === 1">
                         First
                     </paginate-btn>
 
                     <!-- Previous Button -->
-                    <paginate-btn @click="form.page = Math.max(1, form.page - 1)" :disabled="form.page === 1">
+                    <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchEvent();" :disabled="form.page === 1">
                         <template v-slot:icon>
                             <arrow-left class="h-auto w-6" />
                         </template>
@@ -266,7 +260,7 @@ export default {
 
                     <!-- Next Button -->
                     <paginate-btn
-                        @click="form.page = Math.min(eventFormFromApi?.last_page, form.page + 1)"
+                        @click="form.page = Math.min(eventFormFromApi?.last_page, form.page + 1); searchEvent();"
                         :disabled="form.page === eventFormFromApi?.last_page"
                     >
                         Next
@@ -277,7 +271,7 @@ export default {
 
                     <!-- Last Button -->
                     <paginate-btn
-                        @click="form.page = eventFormFromApi?.last_page"
+                        @click="form.page = eventFormFromApi?.last_page; searchEvent();"
                         :disabled="form.page === eventFormFromApi?.last_page"
                     >
                         Last
