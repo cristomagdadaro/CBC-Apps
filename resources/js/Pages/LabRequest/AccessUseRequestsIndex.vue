@@ -10,16 +10,24 @@ import ArrowLeft from "@/Components/Icons/ArrowLeft.vue";
 import ArrowRight from "@/Components/Icons/ArrowRight.vue";
 import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import ListOfUseRequests from "@/Pages/LabRequest/components/ListOfUseRequests.vue";
+import FilterIcon from "@/Components/Icons/FilterIcon.vue";
+import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 
 export default {
     name: "AccessUseRequestsIndex",
     components: {
+        CustomDropdown, FilterIcon,
         ListOfUseRequests,
         ArrowRight, ArrowLeft, PaginateBtn, TextInput, SearchBtn, InputError, SearchBy, AppLayout},
     mixins: [ApiMixin],
     data() {
         return {
             eventFormFromApi: null,
+            statusOptions: [
+                {name:'approved', label:'Approved'},
+                {name:'rejected', label:'Rejected'},
+                {name:'pending', label:'Pending'},
+            ]
         }
     },
     beforeMount() {
@@ -33,11 +41,26 @@ export default {
         async searchEvent() {
             this.eventFormFromApi = await this.fetchData();
         },
+        async fetchDataFilterStatus(filterVal) {
+            this.form.search = filterVal;
+            this.form.filter = 'request_status';
+            this.form.is_exact = true;
+            this.searchEvent();
+        }
     },
     watch: {
         'form.page': {
             handler(newVal, oldVal) {
                 this.searchEvent();
+            },
+            deep: true,
+        },
+        'form.search': {
+            handler(newVal, oldVal) {
+                if (!newVal) {
+                    this.form.filter = null;
+                    this.form.is_exact = null;
+                }
             },
             deep: true,
         }
@@ -55,6 +78,16 @@ export default {
         <form v-if="!!form" class="flex gap-2 items-end"  @submit.prevent="searchEvent">
             <div class="grid grid-rows-2 w-full">
                 <div class="w-full flex gap-2 items-end lg:px-0 px-2">
+                    <div class="flex flex-col gap-0.5">
+                        <div class="text-xs text-gray-500 flex items-center justify-between">
+                            <span class="flex gap-0.5 whitespace-nowrap">Filter by Status</span>
+                        </div>
+                        <custom-dropdown :with-all-option="false" :show-clear="true" @selectedChange="fetchDataFilterStatus($event)"  placeholder="Select a Status" :options="statusOptions">
+                            <template #icon>
+                                <filter-icon class="h-4 w-4" />
+                            </template>
+                        </custom-dropdown>
+                    </div>
                     <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
                     <text-input v-if="form.filter !== 'event_id'" placeholder="Search..." v-model="form.search" />
                     <search-btn type="submit" :disabled="model?.processing" class="w-[10rem] text-center">

@@ -51,27 +51,27 @@ onMounted(() => {
                     </span>
                     </div>
 
-                    <p class="mt-4 max-w-2xl mx-auto text-AB leading-none">
+                    <p class="mt-4 max-w-2xl mx-auto text-gray-300 leading-none">
                         Your gateway to DA-Crop Biotechnology Center's proprietary web apps and services.
                     </p>
-                    <blockquote class="mt-2 font-semibold text-AB leading-none">Better Crops, Better Lives</blockquote>
+                    <blockquote class="mt-2 font-semibold text-gray-300 leading-none">Better Crops, Better Lives</blockquote>
                 </div>
                 <div class="flex flex-col items-center justify-center gap-2 text-sm w-full">
                     <h3 class="dark:text-white opacity-25 leading-none select-none">Apps & Services</h3>
                     <div class="flex items-center justify-center w-full drop-shadow-md">
-                        <Link :href="route('forms.guest.index')" class="dark:text-green-400 hover:text-white text-AB hover:bg-green-600 duration-200 dark:hover:text-AA md:text-lg text-normal px-4 border-r">
+                        <Link :href="route('forms.guest.index')" class="dark:text-green-400 hover:text-white p-2 text-AB hover:bg-green-600 duration-200 dark:hover:text-AA md:text-lg text-normal px-4 border-r">
                             Events
                         </Link>
-                        <Link :href="route('forms.guest.index')" class="dark:text-green-400 hover:text-white text-AB hover:bg-green-600 duration-200 dark:hover:text-AA md:text-lg text-normal px-4 border-r">
+                        <Link href="/" class="dark:text-green-400 hover:text-white text-AB hover:bg-green-600 p-2 duration-200 dark:hover:text-AA md:text-lg text-normal px-4 border-r">
                             Booking
                         </Link>
-                        <Link :href="route('forms.guest.index')" class="dark:text-green-400 hover:text-white text-AB hover:bg-green-600 duration-200 dark:hover:text-AA md:text-lg text-normal px-4 border-r">
+                        <Link href="/" class="dark:text-green-400 hover:text-white text-AB hover:bg-green-600 p-2 duration-200 dark:hover:text-AA md:text-lg text-normal px-4 border-r">
                             Games
                         </Link>
-                        <Link :href="route('labReq.guest.index')" class="dark:text-green-400 hover:text-white text-AB hover:bg-green-600 duration-200 dark:hover:text-AA md:text-lg text-normal px-4 border-r">
+                        <Link :href="route('labReq.guest.index')" class="dark:text-green-400 hover:text-white p-2 text-AB hover:bg-green-600 duration-200 dark:hover:text-AA md:text-lg text-normal px-4 border-r">
                             Laboratory Request
                         </Link>
-                        <Link :href="route('forms.guest.index')" class="dark:text-green-400 hover:text-white text-AB hover:bg-green-600 duration-200 dark:hover:text-AA md:text-lg text-normal px-4">
+                        <Link :href="route('forms.guest.index')" class="dark:text-green-400 hover:text-white p-2 text-AB hover:bg-green-600 duration-200 dark:hover:text-AA md:text-lg text-normal px-4">
                             Inventory
                         </Link>
                     </div>

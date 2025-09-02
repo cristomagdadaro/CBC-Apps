@@ -1,7 +1,5 @@
 <script>
 import {Head, Link} from "@inertiajs/vue3";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import TextField from "@/Components/TextField.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
@@ -11,19 +9,22 @@ import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import SpinnerIcon from "@/Components/Icons/SpinnerIcon.vue";
 import NavLink from "@/Components/NavLink.vue";
 import AddIcon from "@/Components/Icons/AddIcon.vue";
-import VueBarcode from 'vue-barcode';
-import JsBarcode from "jsbarcode";
+import QrcodeVue from 'qrcode.vue';
 import { createCanvas } from "canvas";
+import TextInput from "@/Components/TextInput.vue";
+import AppLayout from "@/Layouts/AppLayout.vue";
 
 export default {
     name: "Incoming",
     components: {
+        AppLayout,
+        TextInput,
         AddIcon,
         NavLink,
         SpinnerIcon,
         FilterIcon,
-        VueBarcode,
-        CustomDropdown, Link, LoaderIcon, PrimaryButton, SecondaryButton, TextField, AuthenticatedLayout, Head},
+        QrcodeVue,
+        CustomDropdown, Link, LoaderIcon, PrimaryButton, SecondaryButton, Head},
     data() {
         return {
             api: null,
@@ -208,8 +209,8 @@ export default {
 <template>
     <Head title="Incoming" />
 
-    <AuthenticatedLayout>
-        <template #header>
+    <app-layout>
+        <template v-slot:header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight uppercase">Incoming</h2>
         </template>
         <div class="py-4" v-if="noModelApi">
@@ -255,13 +256,13 @@ export default {
                                     <filter-icon class="h-4 w-4" />
                                 </template>
                             </custom-dropdown>
-                            <text-field required label="Quantity" name="quantity" id="quantity" v-model="form.quantity" :error="errors.quantity" />
-                            <text-field type-input="number" label="Unit Price" name="unit_price" id="unit_price" v-model="form.unit_price" :error="errors.unit_price" />
-                            <text-field required label="Unit" name="unit" id="unit" v-model="form.unit" :error="errors.unit" />
-                            <text-field type-input="number" label="Total Cost" name="total_cost" id="total_cost" v-model="form.total_cost" :error="errors.total_cost" />
-                            <text-field required label="Project Code" name="project_code" id="project_code" v-model="form.project_code" :error="errors.project_code" />
-                            <text-field type-input="date" label="Expiration" name="expiration" id="expiration" v-model="form.expiration" :error="errors.expiration" />
-                            <text-field type-input="longtext" label="Remarks" name="remarks" id="remarks" v-model="form.remarks" :error="errors.remarks" />
+                            <text-input required label="Quantity" name="quantity" id="quantity" v-model="form.quantity" :error="errors.quantity" />
+                            <text-input type-input="number" label="Unit Price" name="unit_price" id="unit_price" v-model="form.unit_price" :error="errors.unit_price" />
+                            <text-input required label="Unit" name="unit" id="unit" v-model="form.unit" :error="errors.unit" />
+                            <text-input type-input="number" label="Total Cost" name="total_cost" id="total_cost" v-model="form.total_cost" :error="errors.total_cost" />
+                            <text-input required label="Project Code" name="project_code" id="project_code" v-model="form.project_code" :error="errors.project_code" />
+                            <text-input type-input="date" label="Expiration" name="expiration" id="expiration" v-model="form.expiration" :error="errors.expiration" />
+                            <text-input type-input="longtext" label="Remarks" name="remarks" id="remarks" v-model="form.remarks" :error="errors.remarks" />
                             <div v-if="svgText" class="flex sm:flex-row flex-col gap-1">
                                 <img id="barcode-image" :src="svgText" alt="SVG Image" />
                                 <button class="p-1 bg-gray-300 rounded" @click.prevent="print">
@@ -289,7 +290,7 @@ export default {
             </div>
             <canvas id="barcodeCanvas" width="256" height="256" />
         </div>
-    </AuthenticatedLayout>
+    </app-layout>
 </template>
 
 <style scoped>

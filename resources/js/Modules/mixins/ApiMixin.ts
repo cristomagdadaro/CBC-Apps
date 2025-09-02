@@ -58,7 +58,7 @@ export default {
             })
         },
         async submitUpdate(toCast: boolean = false, except: string = '') {
-            this.form.clearErrors();
+            this.form.clearErrors(); console.log(this.form.data());
             return await this.model.api.putIndex(this.form.data()).then(response => {
                 this.resetForm(except);
                 if (toCast) {
@@ -140,7 +140,7 @@ export default {
         },
         checkError(error) {
             let dto = null;
-            console.log(error);
+            console.error(error);
             if (error instanceof TypeError)
             {
                 dto = new DtoError({

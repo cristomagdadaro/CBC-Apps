@@ -96,7 +96,7 @@ const services = [
 
                                         <template #content>
                                             <div v-for="child in service.children" :key="child.label" class="w-60">
-                                                <DropdownLink :href="route(child.href)">
+                                                <DropdownLink :href="route(child.href)" :active="route().current(child.href)">
                                                     <div class="flex items-center gap-1">
                                                         <span>{{ child.label }}</span>
                                                     </div>
@@ -197,11 +197,11 @@ const services = [
                                             Manage Account
                                         </div>
 
-                                        <DropdownLink :href="route('profile.show')">
+                                        <DropdownLink :href="route('profile.show')" :active="route().current('profile.show')">
                                             Profile
                                         </DropdownLink>
 
-                                        <DropdownLink v-if="$page.props.jetstream.hasApiFeatures" :href="route('api-tokens.index')">
+                                        <DropdownLink v-if="$page.props.jetstream.hasApiFeatures" :href="route('api-tokens.index')" :active="route().current('api-tokens.index')">
                                             API Tokens
                                         </DropdownLink>
 

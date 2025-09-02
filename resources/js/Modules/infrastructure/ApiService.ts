@@ -122,11 +122,19 @@ export default abstract class ApiService {
 
     public async getIndex(params: any, model?: DtoBaseClass)
     {
+        if (!this._apiIndex){
+            console.error('API for index not found');
+            return null;
+        }
         return await this.get(this._apiIndex, params, model);
     }
 
     public async getApi(params: any, model?: DtoBaseClass)
     {
+        if (!this._apiGet){
+            console.error('API for get not found');
+            return null;
+        }
         return await this.get(this._apiGet, params, model);
     }
 
@@ -164,7 +172,29 @@ export default abstract class ApiService {
 
     async putIndex(params: any)
     {
+        if (!this._apiPut){
+            console.error('API for update not found');
+            return null;
+        }
         return await this.put(this._apiPut, this.getIdentifier(params), params);
+    }
+
+    async postIndex(params: any)
+    {
+        if (!this._apiPost){
+            console.error('API for create not found');
+            return null;
+        }
+        return await this.post(this._apiPost, params);
+    }
+
+    async deleteApiIndex(params: any)
+    {
+        if (!this._apiDelete){
+            console.error('API for delete not found');
+            return null;
+        }
+        return await this.delete(this._apiDelete, this.getIdentifier(params));
     }
 
     private getIdentifier(params: any): string | null {
@@ -184,15 +214,5 @@ export default abstract class ApiService {
         if (!identifier) throw new Error('No valid ID found in parameters.');
 
         return identifier;
-    }
-
-    async postIndex(params: any)
-    {
-        return await this.post(this._apiPost, params);
-    }
-
-    async deleteApiIndex(params: any)
-    {
-        return await this.delete(this._apiDelete, this.getIdentifier(params));
     }
 }

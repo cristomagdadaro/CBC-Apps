@@ -35,7 +35,7 @@ abstract class AbstractRepoService {
         }
     }
 
-   public function update(int $id, array $data): Model
+   public function update(int|string $id, array $data): Model
     {
         try {
             $model = $this->model->findOrFail($id);
@@ -48,7 +48,7 @@ abstract class AbstractRepoService {
         }
     }
 
-     public function delete(int $id): Model
+     public function delete(int|string $id): Model
     {
         try {
             $model = $this->model->findOrFail($id);

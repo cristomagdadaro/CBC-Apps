@@ -6,8 +6,38 @@ export default class RequestFormPivot extends DtoRequestFormPivot {
 
         this.api._apiIndex = 'api.requestFormPivot.index';
         this.api._apiPost = 'api.requestFormPivot.post';
+        this.api._apiPut = 'api.requestFormPivot.put';
 
         this.api.appendWith = ['requester', 'request_form'];
+    }
+
+    createFields(): object {
+        return {
+            requester_id: null,
+            form_id: null,
+            request_status: null,
+            agreed_clause_1: null,
+            agreed_clause_2: null,
+            agreed_clause_3: null,
+            approval_constraint: null,
+            disapproved_remarks: null,
+            approved_by: null,
+        }
+    }
+
+    updateFields(data: IRequestFormPivot): object {
+        return {
+            id: data?.id,
+            requester_id: data?.requester_id,
+            form_id: data?.form_id,
+            request_status: data?.request_status,
+            agreed_clause_1: data?.agreed_clause_1,
+            agreed_clause_2: data?.agreed_clause_2,
+            agreed_clause_3: data?.agreed_clause_3,
+            approval_constraint: data?.approval_constraint,
+            disapproved_remarks: data?.disapproved_remarks,
+            approved_by: data?.approved_by,
+        }
     }
 
     static getColumns() {
@@ -69,7 +99,7 @@ export default class RequestFormPivot extends DtoRequestFormPivot {
                 sortable: true,
                 visible: true,
             }, {
-                title: 'Approved By',
+                title: 'Reviewed By',
                 key: 'approved_by',
                 db_key: 'approved_by',
                 align: 'center',

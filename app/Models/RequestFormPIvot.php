@@ -25,6 +25,7 @@ class RequestFormPivot extends BaseModel
         'agreed_clause_2',
         'agreed_clause_3',
         'disapproved_remarks',
+        'approval_constraint',
         'approved_by',
     ];
 

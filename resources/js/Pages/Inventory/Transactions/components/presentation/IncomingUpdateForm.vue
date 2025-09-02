@@ -2,6 +2,7 @@
 import {Head, Link} from "@inertiajs/vue3";
 import {createCanvas} from "canvas";
 import JsBarcode from "jsbarcode";
+import QrcodeVue from 'qrcode.vue';
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import AddIcon from "@/Components/Icons/AddIcon.vue";
