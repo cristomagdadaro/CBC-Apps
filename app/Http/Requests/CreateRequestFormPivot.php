@@ -41,9 +41,9 @@ class CreateRequestFormPivot extends FormRequest
             'requester_id' => 'sometimes|exists:requesters,id',
             'form_id' => 'sometimes|exists:use_request_forms,id',
             'request_status' => 'nullable|in:pending,approved,rejected',
-            'agreed_clause_1' => 'required|boolean',
-            'agreed_clause_2'  => 'required|boolean',
-            'agreed_clause_3' => 'required|boolean',
+            'agreed_clause_1' => 'accepted',
+            'agreed_clause_2'  => 'accepted',
+            'agreed_clause_3' => 'accepted',
         ];
     }
 }

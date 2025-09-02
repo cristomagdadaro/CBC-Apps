@@ -4,8 +4,10 @@ use App\Enums\Inventory;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LabRequestFormController;
+use App\Http\Controllers\PDFGeneratorController;
 use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\RequesterController;
+use App\Http\Controllers\RequestFormPivotController;
 use App\Http\Controllers\SupplierController;
 use App\Models\Category;
 use App\Models\Form;
@@ -40,6 +42,8 @@ Route::get('/', function () {
 Route::prefix('forms')->group(function () {
     Route::get('/event/{event?}', [FormController::class, 'formGuestView'])->name('forms.guest.index');
     Route::get('/request-to-use/{request?}', [LabRequestFormController::class, 'labReqFormGuestView'])->name('labReq.guest.index');
+    Route::get('/{id}/pdf', [PDFGeneratorController::class, 'downloadPdf'])->name('forms.generate.pdf');
+
 });
 
 Route::middleware([
