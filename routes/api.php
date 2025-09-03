@@ -65,33 +65,33 @@ Route::middleware(['api','auth:sanctum','verified'])->group(function () {
         Route::prefix('transactions')->group(function () {
             Route::get('/', [TransactionController::class, 'index'])->name('api.inventory.transactions.index');
             Route::post('/', [TransactionController::class, 'create'])->name('api.inventory.transactions.store');
-            Route::delete('/{id}', [TransactionController::class, 'destroy'])->name('api.inventory.transactions.destroy');
+            Route::delete('/{id?}', [TransactionController::class, 'destroy'])->name('api.inventory.transactions.destroy');
             Route::delete('/multi/delete', [TransactionController::class, 'multiDestroy'])->name('api.inventory.transactions.multi-destroy');
             Route::put('/{id}', [TransactionController::class, 'update'])->name('api.inventory.transactions.update');
-            Route::get('/generate-barcode/{room}', [TransactionController::class, 'generateUniqueBarcode128ID'])->name('api.inventory.transactions.genbarcode');
+            Route::get('/generate-barcode/{room?}', [TransactionController::class, 'generateUniqueBarcode128ID'])->name('api.inventory.transactions.genbarcode');
             Route::get('/remaining-stocks', [TransactionController::class, 'remainingStocks'])->name('api.inventory.transactions.remaining-stocks');
-            Route::put('/outgoingStore/{id}', [TransactionController::class, 'outgoingStockStore'])->name('api.inventory.transactions.outgoing');
+            Route::put('/outgoingStore/{id?}', [TransactionController::class, 'outgoingStockStore'])->name('api.inventory.transactions.outgoing');
         });
 
         Route::prefix('items')->group(function () {
             Route::get('/', [ItemController::class, 'index'])->name('api.inventory.items.index');
             Route::post('/', [ItemController::class, 'create'])->name('api.inventory.items.store');
-            Route::delete('/{id}', [ItemController::class, 'destroy'])->name('api.inventory.items.destroy');
-            Route::put('/{id}', [ItemController::class, 'update'])->name('api.inventory.items.update');
+            Route::delete('/{id?}', [ItemController::class, 'destroy'])->name('api.inventory.items.destroy');
+            Route::put('/{id?}', [ItemController::class, 'update'])->name('api.inventory.items.update');
         });
 
         Route::prefix('personnels')->group(function () {
             Route::get('/', [PersonnelController::class, 'index'])->name('api.inventory.personnels.index');
             Route::post('/', [PersonnelController::class, 'create'])->name('api.inventory.personnels.store');
-            Route::put('/{id}', [PersonnelController::class, 'update'])->name('api.inventory.personnels.update');
-            Route::delete('/{id}', [PersonnelController::class, 'destroy'])->name('api.inventory.personnels.destroy');
+            Route::put('/{id?}', [PersonnelController::class, 'update'])->name('api.inventory.personnels.update');
+            Route::delete('/{id?}', [PersonnelController::class, 'destroy'])->name('api.inventory.personnels.destroy');
         });
 
         Route::prefix('suppliers')->group(function () {
             Route::get('/', [SupplierController::class, 'index'])->name('api.inventory.suppliers.index');
             Route::post('/', [SupplierController::class, 'create'])->name('api.inventory.suppliers.store');
-            Route::put('/{id}', [SupplierController::class, 'update'])->name('api.inventory.suppliers.update');
-            Route::delete('/{id}', [SupplierController::class, 'destroy'])->name('api.inventory.suppliers.destroy');
+            Route::put('/{id?}', [SupplierController::class, 'update'])->name('api.inventory.suppliers.update');
+            Route::delete('/{id?}', [SupplierController::class, 'destroy'])->name('api.inventory.suppliers.destroy');
         });
 
     });

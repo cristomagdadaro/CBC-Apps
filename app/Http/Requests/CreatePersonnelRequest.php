@@ -31,7 +31,7 @@ class CreatePersonnelRequest extends FormRequest
             'position' => 'required|string',
             'phone' => 'string|nullable',
             'address' => 'string|nullable',
-            'email' => 'email|nullable',
+            'email' => 'required|email',
         ];
     }
 

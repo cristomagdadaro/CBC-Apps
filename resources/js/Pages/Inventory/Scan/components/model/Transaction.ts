@@ -9,7 +9,6 @@ export default class Transaction extends DtoTransaction {
         this.api._apiPut = 'api.inventory.transactions.update';
         this.api._apiDelete = 'api.inventory.transactions.destroy';
 
-
         this.api.appendWith = ['item', 'user','personnel'];
 
         this.showPage = 'transactions.show';

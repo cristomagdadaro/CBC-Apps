@@ -25,8 +25,8 @@ export default abstract class ApiService {
             const response = await this.axiosInstance.get(route(url), {
                 params: {
                     ...params,
-                    ...(model.api.appendedWith && Array.isArray(model.api.appendedWith) ? {with: model.api.appendedWith.toString()} : {}),
-                    ...(model.api.appendedCount && Array.isArray(model.api.appendedCount) ? {count: model.api.appendedCount.toString()} : {})
+                    ...(model?.api.appendedWith && Array.isArray(model?.api.appendedWith) ? {with: model?.api.appendedWith.toString()} : {}),
+                    ...(model?.api.appendedCount && Array.isArray(model?.api.appendedCount) ? {count: model?.api.appendedCount.toString()} : {})
                 }
             }).then((response: AxiosResponse) => {
                 if (model) {
@@ -59,7 +59,7 @@ export default abstract class ApiService {
 
     async put(url: string, id: any, params?: any) {
 
-        this.processing = true;
+        this.processing = true; console.log(params)
         try {
             // @ts-ignore
             const response = await axios.put(`${route(url)}/${id}`, params);
@@ -129,13 +129,9 @@ export default abstract class ApiService {
         return await this.get(this._apiIndex, params, model);
     }
 
-    public async getApi(params: any, model?: DtoBaseClass)
+    public async getApi(url: string, params: any, model?: DtoBaseClass)
     {
-        if (!this._apiGet){
-            console.error('API for get not found');
-            return null;
-        }
-        return await this.get(this._apiGet, params, model);
+        return await this.get(url, params, model);
     }
 
     set apiGet(value: string) {

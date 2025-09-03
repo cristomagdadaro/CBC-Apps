@@ -37,8 +37,10 @@ class TransactionController extends BaseController
      * @param string $room
      * @return string
      */
-    public function generateUniqueBarcode128ID(string $room): string
+    public function generateUniqueBarcode128ID(Request $request, string $room = null): string
     {
+        $room = $room ?? $request->get('room');
+
         return json_encode([
             'data' => [
                 'barcode' => NewBarcode::GenerateBarcode($room),

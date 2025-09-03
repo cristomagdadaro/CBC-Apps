@@ -39,7 +39,7 @@ class CreateTransactionRequest extends FormRequest
         return [
             'item_id' => 'required|exists:items,id',
             'barcode' => 'required|string|unique:transactions,barcode',
-            'transac_type' => 'required|string|in:in,out',
+            'transac_type' => 'required|string|in:incoming,outgoing',
             'quantity' => 'required|numeric|min:1',
             'unit_price' => 'nullable|numeric|min:0',
             'unit' => 'required|string',

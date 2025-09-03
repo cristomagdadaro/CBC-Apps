@@ -25,18 +25,6 @@ export default {
                 <add-icon class="h-5 w-5" />
                 <span>Outgoing</span>
             </nav-link>
-<!--            <button
-                @click="deleteSelected"
-                v-if="selectedItem && selectedItem.length > 1"
-                class="flex items-center bg-red-600 text-white px-2 py-1 rounded hover:shadow-md active:shadow-inner gap-1 text-sm active:scale-95 active:text-gray-300 hover:bg-green-700 hover:text-gray-200">
-                <delete-icon class="h-5 w-5" />
-                <span>
-                                Delete Selected
-                                <span class="text-xs">
-                                    ({{ selectedItem.length }})
-                                </span>
-                            </span>
-            </button>-->
         </div>
     </div>
 </template>

@@ -12,9 +12,13 @@ import TextInput from "@/Components/TextInput.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import AddIcon from "@/Components/Icons/AddIcon.vue";
+import ItemsHeaderActions from "@/Pages/Inventory/Items/components/presentation/ItemsHeaderActions.vue";
+import FileInput from "@/Components/FileInput.vue";
 
 export default defineComponent({
     components: {
+        FileInput,
+        ItemsHeaderActions,
         AddIcon,
         FilterIcon,
         AppLayout,
@@ -53,12 +57,12 @@ export default defineComponent({
 <template>
     <AppLayout title="Update Item Details">
         <template #header>
-            *Todo: Create Item Header Action*
+            <items-header-actions />
         </template>
 
         <form v-if="!!form" @submit.prevent="submitUpdate" class="py-12 max-w-xl mx-auto">
             <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
-                <text-input label="Name" v-model="form.name" :error="form.errors.name" />
+                <text-input required label="Name" v-model="form.name" :error="form.errors.name" />
                 <text-input label="Brand" v-model="form.brand" :error="form.errors.brand" />
                 <div class="flex flex-row gap-2">
                     <custom-dropdown
@@ -78,7 +82,7 @@ export default defineComponent({
                         </template>
                     </custom-dropdown>
                     <div class="flex items-end border-gray-700">
-                        <Link :href="route('suppliers.create')" class="h-fit w-full py-3 shadow flex items-center justify-center bg-white text-gray-600 rounded gap-1 text-sm px-2">
+                        <Link :href="route('suppliers.create')" class="h-fit w-full border py-3 border-gray-700 flex items-center justify-center bg-white text-gray-600 rounded gap-1 text-sm px-2">
                             <add-icon class="h-5 w-5" />
                             <span class="whitespace-nowrap">New Supplier</span>
                         </Link>
@@ -100,7 +104,7 @@ export default defineComponent({
                     </template>
                 </custom-dropdown>
                 <text-input label="Description" v-model="form.description" :error="form.errors.description" />
-                <text-input label="Image" v-model="form.image" type-input="file" :error="form.errors.image" />
+                <file-input label="Image" v-model="form.image" :error="form.errors.image" />
                 <div v-if="form.image" class="w-full select-none shadow bg-white focus:border-indigo-500 focus:ring-indigo-500 rounded-md border p-2 justify-center flex">
                     <img :src="form.image" @click.right.prevent="null" draggable="false" class="max-w-80 w-1/2 bg-transparent" alt="image">
                 </div>

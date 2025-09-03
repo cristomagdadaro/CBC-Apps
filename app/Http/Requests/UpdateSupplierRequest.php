@@ -25,8 +25,8 @@ class UpdateSupplierRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255', 'unique:suppliers,name,'. $this->id],
             'address' => ['nullable', 'string'],
-            'phone' => ['required', 'string', 'max:255', 'unique:suppliers,phone,'. $this->id],
-            'email' => ['required', 'email', 'max:255', 'unique:suppliers,email,'. $this->id],
+            'phone' => ['nullable', 'string', 'max:255', 'unique:suppliers,phone,'. $this->id],
+            'email' => ['nullable', 'email', 'max:255', 'unique:suppliers,email,'. $this->id],
             'description' => ['nullable', 'string'],
         ];
     }

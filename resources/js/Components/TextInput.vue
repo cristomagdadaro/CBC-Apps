@@ -13,6 +13,7 @@ const props = defineProps({
     id: String,
     label: String,
     required: Boolean,
+    typeInput: String,
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -51,7 +52,7 @@ defineExpose({ focus: () => input.value?.focus() });
             class="w-full placeholder:text-gray-300 focus:border-AB focus:ring-AB rounded-md shadow-sm"
             :value="modelValue"
             :placeholder="placeholder"
-            :type="type"
+            :type="typeInput"
             @input="$emit('update:modelValue', $event.target.value)"
         >
     </div>

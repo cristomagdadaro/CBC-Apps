@@ -32,7 +32,7 @@ class PersonnelController extends BaseController
 
     public function update(UpdatePersonnelRequest $request, string $id): Model
     {
-        return parent::_update($request, $id);
+        return parent::_update($id, $request);
     }
 
     public function destroy(DeletePersonnelRequest $request, string $id): Model | JsonResponse

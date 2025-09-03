@@ -3,7 +3,6 @@ import {Head, Link} from "@inertiajs/vue3";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
-import CoreApi from "@/Components/DataTable/infrastracture/CoreApi.js";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import SpinnerIcon from "@/Components/Icons/SpinnerIcon.vue";
@@ -13,10 +12,19 @@ import QrcodeVue from 'qrcode.vue';
 import { createCanvas } from "canvas";
 import TextInput from "@/Components/TextInput.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
+import ApiMixin from "@/Modules/mixins/ApiMixin.js";
+import Transaction from "@/Pages/Inventory/Scan/components/model/Transaction";
+import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
+import JsBarcode from "jsbarcode";
+import DateInput from "@/Components/DateInput.vue";
+import TextArea from "@/Components/TextArea.vue";
 
 export default {
     name: "Incoming",
     components: {
+        TextArea,
+        DateInput,
+        SubmitBtn,
         AppLayout,
         TextInput,
         AddIcon,
@@ -25,25 +33,11 @@ export default {
         FilterIcon,
         QrcodeVue,
         CustomDropdown, Link, LoaderIcon, PrimaryButton, SecondaryButton, Head},
+    mixins: [ApiMixin],
     data() {
         return {
             api: null,
             noModelApi: null,
-            form: {
-                item_id: null,
-                barcode: null,
-                transac_type: 'in',
-                quantity: null,
-                unit_price: null,
-                unit: null,
-                total_cost: null,
-                project_code: null,
-                supplier_id: null,
-                user_id: this.currentUser,
-                expiration: null,
-                remarks: null,
-            },
-            errors: {},
             barcodeCanvas: null,
             svgText: '',
             select_storage: null,
@@ -71,54 +65,15 @@ export default {
         }
     },
     methods: {
-        cancel() {
-            this.form = {
-                item_id: null,
-                barcode: null,
-                transac_type: 'in',
-                quantity: null,
-                unit_price: null,
-                unit: null,
-                total_cost: null,
-                project_code: null,
-                supplier_id: null,
-                user_id: this.currentUser,
-                expiration: null,
-                remarks: null,
-            }
-        },
-        async submit() {
-            const response = await this.api.post(this.form)
-            if (response.status === 201) {
-                this.$inertia.visit(route('transactions.index'));
-            } else if (response.status === 422) {
-                this.errors = response.errors;
-            } else {
-                console.log(response);
-            }
-        },
         async generateBarcode(room) {
             if (!room) {
                 return;
             }
-            this.noModelApi.setBaseUrl(route('api.inventory.transactions.genbarcode', {
-                room: room,
-            }));
 
-            await this.noModelApi.get().then(response => {
+            await this.fetchGetApi('api.inventory.transactions.genbarcode', { room: room }).then(response => {
                 this.form.barcode = response.data.barcode;
                 this.renderBarcode();
-            });
-        },
-        fullName(personnel) {
-            const parts = [];
-
-            if (personnel.fname) parts.push(personnel.fname);
-            if (personnel.mname) parts.push(personnel.mname[0] + '.');
-            if (personnel.lname) parts.push(personnel.lname);
-            if (personnel.suffix) parts.push(personnel.suffix);
-
-            return parts.join(' ');
+            });;
         },
         renderBarcode(){
             const canvas = createCanvas(256, 256);
@@ -140,9 +95,6 @@ export default {
                     label: item.name + ' (' + item.brand + ')',
                 }
             });
-        },
-        currentUser() {
-            return this.$page.props.auth.user.id;
         },
         preGenerateBarcode() {
             return this.$page.props.barcode;
@@ -193,13 +145,12 @@ export default {
         },
     },
     async mounted() {
-        this.api = new CoreApi(route('api.inventory.transactions.store'));
-        this.noModelApi = new CoreApi(route('api.inventory.transactions.genbarcode',{
-            room: '01',
-        }));
+        this.model = new Transaction();
+        this.setFormAction('create');
 
+        this.form.transac_type = 'incoming';
         this.form.barcode = this.preGenerateBarcode;
-        this.form.user_id = this.currentUser;
+        this.form.user_id = this.$page.props.auth.user.id;
 
         await this.generateBarcode();
     },
@@ -207,88 +158,74 @@ export default {
 </script>
 
 <template>
-    <Head title="Incoming" />
-
-    <app-layout>
+    <app-layout title="Incoming Transaction">
         <template v-slot:header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight uppercase">Incoming</h2>
         </template>
-        <div class="py-4" v-if="noModelApi">
-            <div class="flex flex-col gap-5 max-w-7xl mx-auto">
-                <div v-if="api" class="flex flex-col gap-5 w-full max-w-7xl mx-auto bg-gray-200 p-5 rounded shadow">
-                    <form @submit.prevent="submit">
-                        <div class="grid sm:grid-cols-3 grid-cols-1 gap-2 mx-auto w-full">
-                            <div class="flex flex-row gap-2 h-fit">
-                                <custom-dropdown
-                                    required
-                                    searchable
-                                    :with-all-option="false"
-                                    :value="form.item_id"
-                                    :options="items"
-                                    placeholder="Select Item"
-                                    label="Item"
-                                    :error="errors.item_id"
-                                    @selectedChange="form.item_id = $event"
-                                    class="w-3/4"
-                                >
-                                    <template #icon>
-                                        <filter-icon class="h-4 w-4" />
-                                    </template>
-                                </custom-dropdown>
-                                <div class="flex items-end">
-                                    <Link :href="route('items.create')" class="h-fit w-full py-3 shadow flex items-center justify-center bg-white text-gray-600 rounded gap-1 text-sm px-2">
-                                        <add-icon class="h-5 w-5" />
-                                        <span class="whitespace-nowrap">New Item</span>
-                                    </Link>
-                                </div>
-                            </div>
-                            <custom-dropdown
-                                required
-                                :with-all-option="false"
-                                :value="select_storage"
-                                :options="storage_locations"
-                                placeholder="Select Storage"
-                                label="Storage Location"
-                                :error="errors.barcode"
-                                @selectedChange="generateBarcode($event)"
-                            >
-                                <template #icon>
-                                    <filter-icon class="h-4 w-4" />
-                                </template>
-                            </custom-dropdown>
-                            <text-input required label="Quantity" name="quantity" id="quantity" v-model="form.quantity" :error="errors.quantity" />
-                            <text-input type-input="number" label="Unit Price" name="unit_price" id="unit_price" v-model="form.unit_price" :error="errors.unit_price" />
-                            <text-input required label="Unit" name="unit" id="unit" v-model="form.unit" :error="errors.unit" />
-                            <text-input type-input="number" label="Total Cost" name="total_cost" id="total_cost" v-model="form.total_cost" :error="errors.total_cost" />
-                            <text-input required label="Project Code" name="project_code" id="project_code" v-model="form.project_code" :error="errors.project_code" />
-                            <text-input type-input="date" label="Expiration" name="expiration" id="expiration" v-model="form.expiration" :error="errors.expiration" />
-                            <text-input type-input="longtext" label="Remarks" name="remarks" id="remarks" v-model="form.remarks" :error="errors.remarks" />
-                            <div v-if="svgText" class="flex sm:flex-row flex-col gap-1">
-                                <img id="barcode-image" :src="svgText" alt="SVG Image" />
-                                <button class="p-1 bg-gray-300 rounded" @click.prevent="print">
-                                    Print
-                                </button>
-                            </div>
+
+        <div class="py-4" > {{ form }}
+            <form v-if="!!form" @submit.prevent="submitCreate" class="py-12 max-w-5xl mx-auto">
+                <div class="grid sm:grid-cols-3 grid-cols-1 gap-2 mx-auto w-full">
+                    <div class="flex flex-row gap-2 h-fit">
+                        <custom-dropdown
+                            required
+                            searchable
+                            :with-all-option="false"
+                            :value="form.item_id"
+                            :options="items"
+                            placeholder="Select Item"
+                            label="Item"
+                            :error="form.errors.item_id"
+                            @selectedChange="form.item_id = $event"
+                            class="w-3/4"
+                        >
+                            <template #icon>
+                                <filter-icon class="h-4 w-4" />
+                            </template>
+                        </custom-dropdown>
+                        <div class="flex items-end">
+                            <Link :href="route('items.create')" class="h-fit w-full py-3 shadow flex items-center justify-center bg-white text-gray-600 rounded gap-1 text-sm px-2">
+                                <add-icon class="h-5 w-5" />
+                                <span class="whitespace-nowrap">New Item</span>
+                            </Link>
                         </div>
-                        <div class="flex w-full justify-between mt-5">
-                            <secondary-button @click="cancel" class="w-1/4">Clear</secondary-button>
-                            <primary-button type="submit" class="w-1/4 text-center">
-                                <div v-if="api.processing">
-                                    <loader-icon class="w-5 h-5" />
-                                </div>
-                                <span v-else>Save</span>
-                            </primary-button>
-                        </div>
-                    </form>
+                    </div>
+                    <custom-dropdown
+                        required
+                        :with-all-option="false"
+                        :value="select_storage"
+                        :options="storage_locations"
+                        placeholder="Select Storage"
+                        label="Storage Location"
+                        :error="form.errors.barcode"
+                        @selectedChange="generateBarcode($event)"
+                    >
+                        <template #icon>
+                            <filter-icon class="h-4 w-4" />
+                        </template>
+                    </custom-dropdown>
+                    <text-input required type-input="number" label="Quantity" name="quantity" id="quantity" v-model="form.quantity" :error="form.errors.quantity" />
+                    <text-input type-input="number" label="Unit Price" name="unit_price" id="unit_price" v-model="form.unit_price" :error="form.errors.unit_price" />
+                    <text-input required label="Unit" name="unit" id="unit" v-model="form.unit" :error="form.errors.unit" />
+                    <text-input type-input="number" disabled label="Total Cost" name="total_cost" id="total_cost" v-model="form.total_cost" :error="form.errors.total_cost" />
+                    <text-input required label="Project Code" name="project_code" id="project_code" v-model="form.project_code" :error="form.errors.project_code" />
+                    <date-input type-input="date" label="Expiration" name="expiration" id="expiration" v-model="form.expiration" :error="form.errors.expiration" />
+                    <text-area label="Remarks" name="remarks" id="remarks" v-model="form.remarks" :error="form.errors.remarks" />
                 </div>
-                <div v-else>
-                    Can't initialize the form
+                <div class="flex w-full justify-between mt-5">
+                    <secondary-button @click="resetForm" class="w-1/4">Clear</secondary-button>
+                    <submit-btn :disabled="model.api.processing">
+                        <span v-if="model.api.processing">Saving</span>
+                        <span v-else>Save</span>
+                    </submit-btn>
                 </div>
-                <div class="flex flex-row gap-5">
-                    right
-                </div>
+            </form>
+            <div v-if="svgText" class="flex sm:flex-row flex-col gap-1">
+                <img id="barcode-image" :src="svgText" alt="SVG Image" />
+                <button class="p-1 bg-gray-300 rounded" @click.prevent="print">
+                    Print
+                </button>
             </div>
-            <canvas id="barcodeCanvas" width="256" height="256" />
         </div>
     </app-layout>
 </template>

@@ -4,10 +4,12 @@ import DataTable from "@/Components/DataTable/presentation/DataTable.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import SearchComp from "@/Components/Search/SearchComp.vue";
 import Supplier from "@/Pages/Inventory/Supplier/components/model/Supplier";
+import SupplierHeaderActions from "@/Pages/Inventory/Supplier/components/presentation/SupplierHeaderActions.vue";
 
 export default {
     name: "Supplier",
     components: {
+        SupplierHeaderActions,
         SearchComp, AppLayout, DataTable, Head
     },
     computed: {
@@ -26,7 +28,7 @@ export default {
 
     <AppLayout>
         <template #header>
-            List of Suppliers
+            <supplier-header-actions />
         </template>
 
         <div class="py-12">

@@ -32,20 +32,20 @@ export default {
             <personnel-header-actions />
         </template>
 
-        <form v-if="!!form" @submit.prevent="submitCreate" class="py-12 max-w-xl mx-auto">
+        <form v-if="!!form" @submit.prevent="submitCreate" class="py-12 max-w-3xl mx-auto">
             <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
                 <div class="flex sm:flex-row flex-col gap-1">
-                    <text-input placeholder="First Name" v-model="form.fname" :error="form.errors.fname" />
-                    <text-input placeholder="Middle Name" v-model="form.mname" :error="form.errors.mname" />
-                    <text-input placeholder="Last Name" v-model="form.lname" :error="form.errors.lname" />
-                    <text-input placeholder="suffix" v-model="form.suffix" :error="form.errors.suffix" />
+                    <text-input required label="First Name" v-model="form.fname" :error="form.errors.fname" />
+                    <text-input label="Middle Name" v-model="form.mname" :error="form.errors.mname" />
+                    <text-input required label="Last Name" v-model="form.lname" :error="form.errors.lname" />
+                    <text-input label="suffix" v-model="form.suffix" :error="form.errors.suffix" />
                 </div>
                 <div class="flex flex-col gap-2">
-                    <text-input placeholder="Position" v-model="form.position" :error="form.errors.position" />
-                    <text-input placeholder="Phone" v-model="form.phone" :error="form.errors.phone" />
-                    <text-input placeholder="Email" v-model="form.email" :error="form.errors.email" />
+                    <text-input required label="Position" v-model="form.position" :error="form.errors.position" />
+                    <text-input label="Phone" v-model="form.phone" :error="form.errors.phone" />
+                    <text-input required label="Email" v-model="form.email" :error="form.errors.email" />
                 </div>
-                <text-input placeholder="Address" v-model="form.address" :error="form.errors.address" />
+                <text-input label="Address" v-model="form.address" :error="form.errors.address" />
                 <div class="flex gap-1 justify-end">
                     <submit-btn :disabled="model.api.processing">
                         <span v-if="model.api.processing">Saving</span>

@@ -11,10 +11,12 @@ import TextInput from "@/Components/TextInput.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import ResetBtn from "@/Components/Buttons/ResetBtn.vue";
 import TextArea from "@/Components/TextArea.vue";
+import SupplierHeaderActions from "@/Pages/Inventory/Supplier/components/presentation/SupplierHeaderActions.vue";
 
 export default {
     name: "EditSupplierForm",
     components: {
+        SupplierHeaderActions,
         TextArea,
         ResetBtn,
         AppLayout,
@@ -35,12 +37,12 @@ export default {
 <template>
     <AppLayout title="Update Personnel Information">
         <template #header>
-            *Todo: Create Personnel Header Actions Component*
+            <supplier-header-actions />
         </template>
 
         <form v-if="!!form" @submit.prevent="submitUpdate" class="py-12 max-w-xl mx-auto">
             <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
-                <text-input label="Company Name" v-model="form.name" :error="form.errors.name" />
+                <text-input required label="Company Name" v-model="form.name" :error="form.errors.name" />
                 <text-input label="Email" v-model="form.email" :error="form.errors.email" />
                 <text-input label="Phone" v-model="form.phone" :error="form.errors.phone" />
                 <text-input label="Address" v-model="form.address" :error="form.errors.address" />

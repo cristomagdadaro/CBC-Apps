@@ -34,18 +34,18 @@ export default {
             <personnel-header-actions />
         </template>
 
-        <form v-if="!!form" @submit.prevent="submitUpdate" class="py-12 max-w-xl mx-auto">
+        <form v-if="!!form" @submit.prevent="submitUpdate" class="py-12 max-w-3xl mx-auto">
             <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
                 <div class="flex sm:flex-row flex-col gap-1">
-                    <text-input label="First Name" v-model="form.fname" :error="form.errors.fname" />
+                    <text-input required label="First Name" v-model="form.fname" :error="form.errors.fname" />
                     <text-input label="Middle Name" v-model="form.mname" :error="form.errors.mname" />
-                    <text-input label="Last Name" v-model="form.lname" :error="form.errors.lname" />
+                    <text-input required label="Last Name" v-model="form.lname" :error="form.errors.lname" />
                     <text-input label="suffix" v-model="form.suffix" :error="form.errors.suffix" />
                 </div>
                 <div class="flex flex-col gap-2">
-                    <text-input label="Position" v-model="form.position" :error="form.errors.position" />
+                    <text-input required label="Position" v-model="form.position" :error="form.errors.position" />
                     <text-input label="Phone" v-model="form.phone" :error="form.errors.phone" />
-                    <text-input label="Email" v-model="form.email" :error="form.errors.email" />
+                    <text-input required label="Email" v-model="form.email" :error="form.errors.email" />
                 </div>
                 <text-input label="Address" v-model="form.address" :error="form.errors.address" />
                 <div class="flex gap-1 justify-between">

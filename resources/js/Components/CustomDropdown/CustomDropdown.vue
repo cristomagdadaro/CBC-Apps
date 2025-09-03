@@ -1,7 +1,10 @@
 <template>
     <div class="flex flex-col gap-0.5 w-full">
         <div v-if="label" class="text-xs text-gray-500 flex items-center justify-between">
-            <span class="flex gap-0.5 whitespace-nowrap">{{ label }}</span>
+            <span class="flex gap-0.5 whitespace-nowrap">{{ label }}<b v-if="required" class="text-red-500 select-none">*</b></span>
+            <transition-container type="slide-bottom">
+                <InputError v-show="!!error" class="" :message="error" />
+            </transition-container>
         </div>
         <div>
             <div class="w-full focus-within:ring-1 flex gap-1 justify-between border-gray-700 items-center bg-white rounded px-4 py-2 border" @click.prevent="toggle">
@@ -38,9 +41,10 @@ import CaretUp from "@/Components/Icons/CaretUp.vue";
 import DropdownOption from "@/Components/CustomDropdown/Components/DropdownOption.vue";
 import CloseIcon from "@/Components/Icons/CloseIcon.vue";
 import TextField from "@/Components/TextInput.vue";
+import InputError from "@/Components/InputError.vue";
 
 export default {
-    components: {TextField, CloseIcon, DropdownOption, CaretUp, CaretDown, TransitionContainer},
+    components: {InputError, TextField, CloseIcon, DropdownOption, CaretUp, CaretDown, TransitionContainer},
     props: {
         searchable: {
             type: Boolean,
@@ -72,6 +76,11 @@ export default {
             type: Boolean,
             default: true,
         },
+        required: {
+            type: Boolean,
+            default: false,
+        },
+        error: String,
     },
     data(){
         return {

@@ -44,7 +44,7 @@ export default class Item extends DtoItem {
                 db_key: 'id',
                 align: 'center',
                 sortable: true,
-                visible: true,
+                visible: false,
             },
             {
                 title: 'Name',

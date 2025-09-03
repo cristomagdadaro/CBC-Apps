@@ -42,8 +42,8 @@ export default {
         async fetchData() {
             return await this.model.api.getIndex(this.form.data(), this.model);
         },
-        async fetchGetApi() {
-            return await this.model.api.getApi(this.form.data(), this.model);
+        async fetchGetApi(url: string, params?: object, model?: DtoBaseClass) {
+            return await this.model.api.getApi(url,params, model);
         },
         async submitCreate(toCast: boolean = false, except: string = '') {
             this.form.clearErrors();
@@ -59,7 +59,7 @@ export default {
             })
         },
         async submitUpdate(toCast: boolean = false, except: string = '') {
-            this.form.clearErrors(); console.log(this.form.data());
+            this.form.clearErrors();
             return await this.model.api.putIndex(this.form.data()).then(response => {
                 this.resetForm(except);
                 if (toCast) {

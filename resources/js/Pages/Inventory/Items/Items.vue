@@ -4,10 +4,12 @@ import DataTable from "@/Components/DataTable/presentation/DataTable.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import SearchComp from "@/Components/Search/SearchComp.vue";
 import Item from "@/Pages/Inventory/Items/components/model/Item";
+import ItemsHeaderActions from "@/Pages/Inventory/Items/components/presentation/ItemsHeaderActions.vue";
 
 export default {
     name: "Items",
     components: {
+        ItemsHeaderActions,
         AppLayout,
         SearchComp,
         DataTable,
@@ -29,7 +31,7 @@ export default {
 
     <AppLayout>
         <template #header>
-            List of Consumables
+            <items-header-actions />
         </template>
 
         <div class="py-12">
