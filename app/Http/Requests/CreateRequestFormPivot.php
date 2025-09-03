@@ -28,7 +28,7 @@ class CreateRequestFormPivot extends FormRequest
             'position' => 'nullable|string',
             'phone' => 'required|string',
 
-            'request_type' => 'nullable|string',
+            'request_type' => 'required|string',
             'request_details' => 'nullable|string',
             'request_purpose' => 'required|string',
             'project_title' => 'nullable|string',
@@ -44,6 +44,15 @@ class CreateRequestFormPivot extends FormRequest
             'agreed_clause_1' => 'accepted',
             'agreed_clause_2'  => 'accepted',
             'agreed_clause_3' => 'accepted',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'agreed_clause_1' => 'Must be accepted!',
+            'agreed_clause_2'  => 'Must be accepted!',
+            'agreed_clause_3'  => 'Must be accepted!',
         ];
     }
 }

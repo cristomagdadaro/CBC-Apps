@@ -8,9 +8,6 @@ import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 export default {
     name: "GuestCard",
     components: {InputError, InputLabel, TextInput, PreregistrationCard},
-    props: {
-        data: { type: Object },
-    },
     mixins: [DataFormatterMixin],
     mounted() {
         this.startCountdown();
@@ -18,7 +15,6 @@ export default {
     beforeDestroy() {
         clearInterval(this.intervalId);
     }
-
 }
 </script>
 

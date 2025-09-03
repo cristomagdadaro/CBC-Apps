@@ -12,6 +12,7 @@ const props = defineProps({
     classes: String,
     id: String,
     label: String,
+    required: Boolean,
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -34,25 +35,25 @@ defineExpose({ focus: () => input.value?.focus() });
 </script>
 
 <template>
-    <div class="w-full relative " :class="{'border-red-500': error}">
-        <div v-if="label" class="text-xs text-gray-500 flex items-center justify-between">
-            <span class="flex gap-0.5 whitespace-nowrap">{{ label }}</span>
+    <div class="w-full relative" :class="classes">
+        <div v-if="label" class="text-xs text-gray-700 flex items-center justify-between">
+            <span class="flex gap-0.5 whitespace-nowrap">{{ label }} <b v-if="required" class="text-red-500 select-none">*</b></span>
+            <transition-container type="slide-bottom">
+                <InputError v-show="!!error" class="" :message="error" />
+            </transition-container>
         </div>
         <input
             :id="id"
             :name="id"
             ref="input"
-            :class="classes"
+            :class="{'border-red-500': error}"
             :autocomplete="autocomplete"
-            class=" w-full dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-AB dark:focus:border-AB focus:ring-AB dark:focus:ring-AB rounded-md shadow-sm"
+            class="w-full placeholder:text-gray-300 focus:border-AB focus:ring-AB rounded-md shadow-sm"
             :value="modelValue"
             :placeholder="placeholder"
             :type="type"
             @input="$emit('update:modelValue', $event.target.value)"
         >
-        <transition-container type="slide-bottom">
-            <InputError v-show="!!error" class="absolute -top-1 left-3" :message="error" />
-        </transition-container>
     </div>
 </template>
 <style scoped>

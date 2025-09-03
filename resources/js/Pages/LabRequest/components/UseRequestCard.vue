@@ -80,7 +80,7 @@ export default {
                     Date Created: {{ formatDate(formsData.created_at) }}
                 </p>
             </div>
-            <a :href="route('forms.generate.pdf', formsData.id)" class="btn btn-primary">Download PDF</a>
+            <a :href="route('forms.generate.pdf', formsData.id)" target="_blank" class="btn btn-primary">Download PDF</a>
             <div class="flex flex-col items-center justify-center">
                 <label class="text-xl leading-none font-[1000] uppercase" :class="colorStatus(formsData.request_status)">{{ formsData.request_status }}</label>
                 <span class="text-[0.6rem] leading-none select-none">on {{ formatDate(formsData.updated_at) }}</span>
