@@ -12,6 +12,7 @@ class PDFGeneratorController extends Controller
         $form = RequestFormPivot::with(['requester','request_form'])->findOrFail($id);
 
         $pdf = Pdf::loadView('generator/pdf/printable-request-form', compact('form'));
+
         // to download
         //return $pdf->download('RequestForm-'.$form->id.'.pdf');
         // just view rendered pdf

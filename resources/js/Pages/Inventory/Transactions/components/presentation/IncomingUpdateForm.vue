@@ -2,7 +2,6 @@
 import {Head, Link} from "@inertiajs/vue3";
 import {createCanvas} from "canvas";
 import JsBarcode from "jsbarcode";
-import QrcodeVue from 'qrcode.vue';
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import AddIcon from "@/Components/Icons/AddIcon.vue";
@@ -32,7 +31,6 @@ export default {
             noModelApi: null,
             barcodeCanvas: null,
             svgText: '',
-            select_storage: null,
             storage_locations: [
                 {
                     name: '01',
@@ -67,6 +65,9 @@ export default {
         },
         show() {
             return this.$page.props.show;
+        },
+        selectedStorage() {
+            return this.form.barcode.substring(4, 6);
         }
     },
     methods: {
@@ -74,14 +75,11 @@ export default {
             if (!room) {
                 return;
             }
-            this.noModelApi.setBaseUrl(route('api.inventory.transactions.genbarcode', {
-                room: room,
-            }));
 
-            await this.noModelApi.get().then(response => {
+            await this.fetchGetApi('api.inventory.transactions.genbarcode', { room: room }).then(response => {
                 this.form.barcode = response.data.barcode;
                 this.renderBarcode();
-            });
+            });;
         },
         renderBarcode(){
             const canvas = createCanvas(256, 256);
@@ -104,18 +102,13 @@ export default {
         },
     },
     mounted() {
-        /*this.noModelApi = new CoreApi(route('api.inventory.transactions.genbarcode',{
-            room: '01',
-        }));*/
-        this.form = Object.assign({}, this.show);
-        if (this.form.barcode)
-        this.select_storage = this.form.barcode.substring(4, 6);
+        this.form.transac_type = 'incoming';
     },
     mixins: [ApiMixin],
     beforeMount() {
         this.model = new Transaction();
         this.setFormAction('update');
-    },
+    }
 }
 </script>
 
@@ -126,6 +119,10 @@ export default {
         </template>
         <form v-if="!!form" @submit.prevent="submitUpdate" class="py-12 max-w-xl mx-auto">
             <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="flex flex-col">
+                    <h2 class="font-bold uppercase leading-none py-2 mb-1 border-b">Update Incoming Transaction Details</h2>
+                    <p>Please use this form to update details of an incoming transaction.</p>
+                </div>
                 <div class="flex flex-col gap-2 mx-auto w-full">
                     <div class="flex flex-row gap-2 h-fit">
                         <custom-dropdown
@@ -145,7 +142,7 @@ export default {
                             </template>
                         </custom-dropdown>
                         <div class="flex items-end">
-                            <Link :href="route('items.create')" class="h-fit w-full py-3 shadow flex items-center justify-center bg-white text-gray-600 rounded gap-1 text-sm px-2">
+                            <Link :href="route('items.create')" class="h-fit w-full py-2.5 border border-gray-700 flex items-center justify-center bg-white text-gray-600 rounded gap-1 text-sm px-2">
                                 <add-icon class="h-5 w-5" />
                                 <span class="whitespace-nowrap">New Item</span>
                             </Link>
@@ -154,7 +151,7 @@ export default {
                     <custom-dropdown
                         required
                         :with-all-option="false"
-                        :value="select_storage"
+                        :value="selectedStorage"
                         :options="storage_locations"
                         placeholder="Select Storage"
                         label="Storage Location"
@@ -175,6 +172,16 @@ export default {
                     <text-input label="Project Code" v-model="form.project_code" :error="form.errors.project_code" />
                     <text-input type="date" label="Expiration" v-model="form.expiration" :error="form.errors.expiration" />
                     <text-area label="Remarks" v-model="form.remarks" :error="form.errors.remarks" />
+
+                    <div v-if="svgText" class="flex sm:flex-row flex-col gap-1 w-full relative">
+                        <img id="barcode-image" :src="svgText" alt="SVG Image" class="w-full" />
+                        <button class="px-5 py-2 bg-gray-300 hover:scale-105 active:scale-100 rounded h-fit absolute bottom-3 right-4" @click.prevent="print">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-auto h-5" viewBox="0 0 16 16">
+                                <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/>
+                                <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 <div class="flex gap-1 justify-between">
                     <reset-btn @click="resetField($page.props.data)">
@@ -195,14 +202,6 @@ export default {
                 </div>
             </div>
         </form>
-        <div class="flex flex-row gap-5">
-            <div v-if="svgText" class="flex sm:flex-row flex-col gap-1">
-                <img id="barcode-image" :src="svgText" alt="SVG Image" />
-                <button class="p-1 bg-gray-300 rounded" @click.prevent="print">
-                    Print
-                </button>
-            </div>
-        </div>
     </AppLayout>
 
 </template>

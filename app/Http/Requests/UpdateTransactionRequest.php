@@ -25,7 +25,7 @@ class UpdateTransactionRequest extends FormRequest
         return [
             'item_id' => 'required|exists:items,id',
             'barcode' => 'required|string|unique:transactions,id,' . $this->id,
-            'transac_type' => 'required|string|in:in,out',
+            'transac_type' => 'required|string|in:incoming,outgoing',
             'quantity' => 'required|numeric',
             'unit_price' => 'nullable|numeric',
             'unit' => 'required|string',

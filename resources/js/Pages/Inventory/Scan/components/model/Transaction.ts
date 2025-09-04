@@ -144,6 +144,13 @@ export default class Transaction extends DtoTransaction {
                 align: 'center',
                 sortable: true,
                 visible: true,
+            },{
+                title: 'Date and Time',
+                key: 'created_at',
+                db_key: 'created_at',
+                align: 'text-center',
+                sortable: true,
+                visible: true,
             },
         ]
     }

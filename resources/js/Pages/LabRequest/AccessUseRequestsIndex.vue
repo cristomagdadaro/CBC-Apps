@@ -12,10 +12,12 @@ import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import ListOfUseRequests from "@/Pages/LabRequest/components/ListOfUseRequests.vue";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
+import AccessUseHeaderActions from "@/Pages/LabRequest/components/AccessUseHeaderActions.vue";
 
 export default {
     name: "AccessUseRequestsIndex",
     components: {
+        AccessUseHeaderActions,
         CustomDropdown, FilterIcon,
         ListOfUseRequests,
         ArrowRight, ArrowLeft, PaginateBtn, TextInput, SearchBtn, InputError, SearchBy, AppLayout},
@@ -62,7 +64,7 @@ export default {
 <template>
 <app-layout title="Access Use Requests">
     <template #header>
-        Access and Use Request Form
+        <access-use-header-actions />
     </template>
 
     <div class="mx-auto sm:px-6 lg:px-8">

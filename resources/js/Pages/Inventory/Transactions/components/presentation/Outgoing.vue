@@ -1,248 +1,214 @@
 <script>
 import {Head} from "@inertiajs/vue3";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import CoreApi from "@/Components/DataTable/infrastracture/CoreApi.js";
 import AddIcon from "@/Components/Icons/AddIcon.vue";
-import SearchBox from "@/Pages/Scan/components/searchBox.vue";
 import SearchBy from "@/Components/DataTable/presentation/components/SearchBy.vue";
 import Modal from "@/Components/Modal.vue";
-import TextField from "@/Components/TextField.vue";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
-import ErrorResponse from "@/Components/DataTable/domain/ErrorResponse.js";
+import AppLayout from "@/Layouts/AppLayout.vue";
+import Transaction from "@/Pages/Inventory/Scan/components/model/Transaction";
+import ApiMixin from "@/Modules/mixins/ApiMixin";
+import SearchBox from "@/Pages/Inventory/Scan/components/searchBox.vue";
+import TextInput from "@/Components/TextInput.vue";
+import SearchBtn from "@/Components/Buttons/SearchBtn.vue";
+import PaginateBtn from "@/Components/PaginateBtn.vue";
+import ArrowRight from "@/Components/Icons/ArrowRight.vue";
+import ArrowLeft from "@/Components/Icons/ArrowLeft.vue";
+import ListOfForms from "@/Pages/Forms/components/ListOfForms.vue";
+import OutgoingForm from "@/Pages/Inventory/Transactions/components/presentation/OutgoingForm.vue";
+import Personnel from "@/Pages/Inventory/Personnel/components/model/Personnel.js";
+import TransactionHeaderAction
+    from "@/Pages/Inventory/Transactions/components/presentation/TransactionHeaderAction.vue";
 
 export default {
     name: "Outgoing",
-    components: {FilterIcon, CustomDropdown, TextField, Modal, SearchBy, SearchBox, AddIcon, AuthenticatedLayout, Head},
+    components: {
+        TransactionHeaderAction,
+        OutgoingForm,
+        ListOfForms,
+        ArrowLeft,
+        ArrowRight,
+        PaginateBtn,
+        SearchBtn, TextInput, SearchBox, AppLayout, FilterIcon, CustomDropdown, Modal, SearchBy, AddIcon, Head},
+    mixins: [ApiMixin],
     data() {
         return {
             api: null,
-            data: [],
             errors: {},
-            showAction: false,
-            hoverOver: null,
-            params: {
-                search: null,
-                filter: null,
-                is_exact: null,
-                paginate: false
-            },
+            showModel: false,
             selectedItem: null,
-            form: {
-                personnel_id: null,
-                quantity: 0,
-                item_id: null,
-                unit: null,
-            },
+            outgoingFromApi: null,
         }
     },
-    mounted() {
-        this.api = new CoreApi(route('api.inventory.transactions.remaining-stocks'));
-        this.refreshData();
+    beforeMount() {
+        this.model = new Transaction();
+        this.setFormAction('get');
+    },
+    async mounted() {
+       await this.searchEvent();
     },
     computed: {
         personnels() {
             return this.$page.props.personnels.map(personnel => {
                 return {
                     name: personnel.id,
-                    label: this.fullName(personnel),
+                    label: (new Personnel(personnel)).fullName,
                 }
             });
         },
     },
     methods: {
-        clearForm() {
-            this.selectedItem = null;
-            this.errors = {};
-            this.form = {
-                personnel_id: null,
-                quantity: 0,
-                item_id: null,
-                unit: null,
-            };
-        },
         formatNumber(value){
             return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        },
-        showActionToItem(item) {
-            this.hoverOver = item;
         },
         selectItem(item) {
             this.selectedItem = item;
             this.form.item_id = item.item_id;
             this.form.unit = item.unit;
+            this.showModel = true;
         },
-        refreshData(){
-            this.api.setBaseUrl(route('api.inventory.transactions.remaining-stocks', {
-                search: this.params.search,
-                filter: this.params.filter,
-                is_exact: this.params.is_exact,
-                paginate: this.params.paginate
-            }));
-
-            this.api.get().then(response => {
-                this.data = response.data;
-            });
+        async searchEvent() {
+            await this.fetchGetApi('api.inventory.transactions.remaining-stocks').then((response) => {
+                this.outgoingFromApi = response;
+            })
         },
-        fullName(personnel) {
-            const parts = [];
-
-            if (personnel.fname) parts.push(personnel.fname);
-            if (personnel.mname) parts.push(personnel.mname[0] + '.');
-            if (personnel.lname) parts.push(personnel.lname);
-            if (personnel.suffix) parts.push(personnel.suffix);
-
-            return parts.join(' ');
-        },
-        async submit(){
-            this.api.setBaseUrl(route('api.inventory.transactions.outgoing', {
-                id: this.form.item_id,
-            }));
-            const response = await this.api.put({
-                unit: this.selectedItem.unit,
-                item_id: this.form.item_id,
-                transac_type: 'out',
-                personnel_id: this.form.personnel_id,
-                quantity: this.form.quantity,
-                user_id: this.$page.props.auth.user.id,
-                id: this.form.item_id,
-                name: this.selectedItem.name,
-                brand: this.selectedItem.brand,
-            });
-
-            if (response.status === 201) {
-                this.refreshData();
-                this.selectedItem = null;
-                this.form.item_id = null;
-                this.form.personnel_id = null;
-                this.form.quantity = null;
-                this.errors = {};
-            } else if (response instanceof ErrorResponse) {
-                this.errors = response.errors;
-            } else {
-                console.log(response);
-            }
-        }
     }
 }
 </script>
 
 <template>
-    <Head title="Outgoing" />
-
-    <AuthenticatedLayout>
+    <app-layout title="Outgoing Transaction">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight uppercase">Outgoing</h2>
+            <transaction-header-action />
         </template>
         <div class="py-4">
             <div class="flex flex-col justify-between max-w-7xl gap-3 mx-auto">
-                <div class="flex gap-3">
-                    <search-box class="w-full" v-model="params.search" @keydown.enter="refreshData" />
+                <div class="w-full flex gap-2 items-end lg:px-0 px-2">
+                    <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
+                    <text-input placeholder="Search..." v-model="form.search" />
+                    <search-btn @click="searchEvent" :disabled="model?.processing" class="w-[10rem] text-center">
+                        <span v-if="!model?.processing">Search</span>
+                        <span v-else>Searching</span>
+                    </search-btn>
                 </div>
-                <div v-if="data.length" class="sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 flex flex-col sm:gap-1 min-w-fit">
-                    <div v-for="item in data" @click="selectItem(item)" class="flex flex-col bg-white shadow hover:bg-gray-200 hover:border-gray-500 border rounded active:scale-95 duration-75">
-                        <div class="flex select-none justify-between items-center gap-5 py-2 px-4">
-                            <div class="flex flex-col">
+                <div v-if="outgoingFromApi" class="flex flex-col w-full gap-2 items-center">
+                    <div id="dtPaginatorContainer" class="flex hidden gap-1 items-center w-full justify-center">
+                        <!-- First Button -->
+                        <paginate-btn @click="form.page = 1; searchEvent();" :disabled="form.page === 1">
+                            First
+                        </paginate-btn>
+
+                        <!-- Previous Button -->
+                        <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchEvent();" :disabled="form.page === 1">
+                            <template v-slot:icon>
+                                <arrow-left class="h-auto w-6" />
+                            </template>
+                            Prev
+                        </paginate-btn>
+
+                        <!-- Current Page Indicator -->
+                        <div class="text-xs flex flex-col whitespace-nowrap text-center">
+                            <span class="font-medium mx-1" title="current page and total pages">
+                                <span>{{ outgoingFromApi?.current_page }}</span> / <span>{{ outgoingFromApi?.last_page }}</span>
+                            </span>
+                        </div>
+
+                        <!-- Next Button -->
+                        <paginate-btn
+                            @click="form.page = Math.min(outgoingFromApi?.last_page, form.page + 1); searchEvent();"
+                            :disabled="form.page === outgoingFromApi?.last_page"
+                        >
+                            Next
+                            <template v-slot:icon>
+                                <arrow-right class="h-auto w-6" />
+                            </template>
+                        </paginate-btn>
+
+                        <!-- Last Button -->
+                        <paginate-btn
+                            @click="form.page = outgoingFromApi?.last_page; searchEvent();"
+                            :disabled="form.page === outgoingFromApi?.last_page"
+                        >
+                            Last
+                        </paginate-btn>
+                    </div>
+                    <div class="w-full overflow-hidden">
+                        <!-- Show forms when available -->
+                        <div v-if="outgoingFromApi?.data.length" class="sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 flex flex-col sm:gap-1 min-w-fit">
+                            <div v-for="item in outgoingFromApi.data" @click="selectItem(item)" class="flex flex-col bg-white shadow hover:bg-gray-200 hover:border-gray-500 border rounded active:scale-95 duration-75">
+                                <div class="flex select-none justify-between items-center gap-5 py-2 px-4">
+                                    <div class="flex flex-col">
                                 <span class="font-bold text-xs whitespace-nowrap overflow-ellipsis overflow-hidden">
                                     {{ item.name }} ({{ item.unit }})
                                 </span>
-                                <span class="text-xs text-gray-500">{{ item.brand }}</span>
+                                        <span class="text-xs text-gray-500">{{ item.brand }}</span>
+                                    </div>
+                                    <span class="text-right">{{ formatNumber(item.remaining_quantity) }}</span>
+                                </div>
                             </div>
-                            <span class="text-right">{{ formatNumber(item.remaining_quantity) }}</span>
+                        </div>
+                        <!-- Show "Searching" when processing -->
+                        <div v-else-if="model.api.processing" class="text-center py-3 border border-AB rounded-lg">
+                            Searching...
+                        </div>
+
+                        <!-- Show "Form does not exist" when search was performed but no results -->
+                        <div v-else-if="outgoingFromApi && outgoingFromApi.total === 0 && form.search" class="text-center py-3 border border-AB rounded-lg">
+                            Form does not exist. Try using some filters.
+                        </div>
+
+                        <!-- Show "No forms available" when nothing was returned and no search was performed -->
+                        <div v-else class="text-center py-3 border border-AB rounded-lg">
+                            No forms available.
                         </div>
                     </div>
+                    <div id="dtPaginatorContainer" class="hidden flex gap-1 items-center w-full justify-center">
+                        <!-- First Button -->
+                        <paginate-btn @click="form.page = 1; searchEvent();" :disabled="form.page === 1">
+                            First
+                        </paginate-btn>
+
+                        <!-- Previous Button -->
+                        <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchEvent();" :disabled="form.page === 1">
+                            <template v-slot:icon>
+                                <arrow-left class="h-auto w-6" />
+                            </template>
+                            Prev
+                        </paginate-btn>
+
+                        <!-- Current Page Indicator -->
+                        <div class="text-xs flex flex-col whitespace-nowrap text-center">
+                                    <span class="font-medium mx-1" title="current page and total pages">
+                                        <span>{{ outgoingFromApi?.current_page }}</span> / <span>{{ outgoingFromApi?.last_page }}</span>
+                                    </span>
+                        </div>
+
+                        <!-- Next Button -->
+                        <paginate-btn
+                            @click="form.page = Math.min(outgoingFromApi?.last_page, form.page + 1); searchEvent();"
+                            :disabled="form.page === outgoingFromApi?.last_page"
+                        >
+                            Next
+                            <template v-slot:icon>
+                                <arrow-right class="h-auto w-6" />
+                            </template>
+                        </paginate-btn>
+
+                        <!-- Last Button -->
+                        <paginate-btn
+                            @click="form.page = outgoingFromApi?.last_page; searchEvent();"
+                            :disabled="form.page === outgoingFromApi?.last_page"
+                        >
+                            Last
+                        </paginate-btn>
+                    </div>
                 </div>
-                <div v-else class="w-full text-center text-gray-500 select-none">No data found</div>
             </div>
-            <modal :show="!!selectedItem" @close="clearForm">
-                <div class="flex flex-col sm:p-5 p-2 sm:gap-3 gap-1 bg-white shadow rounded">
-                    <div class="flex select-none justify-between items-center gap-5 py-2 px-4 border-b">
-                        <div class="flex flex-col">
-                                <span class="font-bold text-xs whitespace-nowrap overflow-ellipsis overflow-hidden">
-                                    {{ selectedItem.name }} ({{ selectedItem.unit }})
-                                </span>
-                            <span class="text-xs text-gray-500">{{ selectedItem.brand }}</span>
-                        </div>
-                        <div class="flex sm:gap-4 gap-1">
-                            <div class="flex flex-col">
-                                <span class="text-center text-gray-600">
-                                    {{ formatNumber(selectedItem.remaining_quantity) }}
-                                </span>
-                                <span class="text-xs text-gray-400">
-                                    Remaining
-                                </span>
-                            </div>
-                            <div class="flex flex-col">
-                                <span class="text-center text-gray-600">
-                                    {{ formatNumber(selectedItem.total_outgoing) }}
-                                </span>
-                                <span class="text-xs text-gray-400">
-                                    Consumed
-                                </span>
-                            </div>
-                            <div class="flex flex-col">
-                                <span class="text-center text-gray-600">
-                                    {{ (100-((selectedItem.remaining_quantity/selectedItem.total_ingoing) *100)).toFixed(2)  }}%
-                                </span>
-                                <span class="text-xs text-gray-400">
-                                    Utilization
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex flex-col sm:gap-3 gap-1 border sm:p-3 p-1 rounded bg-gray-100">
-                        <h1 class="text-lg font-semibold text-gray-800">Outgoing Form</h1>
-                        <form @submit.prevent="submit" class="flex flex-col gap-3">
-                            <custom-dropdown
-                                required
-                                searchable
-                                :with-all-option="false"
-                                :value="form.personnel_id"
-                                :options="personnels"
-                                placeholder="Select Personnel"
-                                label="Personnel"
-                                :error="errors.personnel_id"
-                                @selectedChange="form.personnel_id = $event"
-                                class="w-full"
-                            >
-                                <template #icon>
-                                    <filter-icon class="h-4 w-4" />
-                                </template>
-                            </custom-dropdown>
-                            <text-field
-                                required
-                                type-input="number"
-                                autocomplete="off"
-                                label="Quantity"
-                                name="quantity"
-                                id="quantity"
-                                class="hidden"
-                                v-model="form.quantity"
-                                :error="errors.quantity"
-                            />
-                            <text-field
-                                required
-                                type-input="number"
-                                autocomplete="off"
-                                label="Quantity"
-                                name="quantity"
-                                id="quantity"
-                                v-model="form.quantity"
-                                :error="errors.quantity"
-                            />
-                            <div class="flex justify-between">
-                                <button @click="clearForm" type="button" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 active:scale-95 duration-75">Cancel</button>
-                                <button @click="submit" type="button" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 active:scale-95 duration-75">
-                                    <span v-if="!api.processing">Submit</span>
-                                    <span v-else>Processing...</span>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+            <modal :show="!!selectedItem && showModel" @close="showModel = false; resetForm">
+                <outgoing-form :data="selectedItem" :personnels="personnels" />
             </modal>
         </div>
-    </AuthenticatedLayout>
+    </app-layout>
 </template>
 
 <style scoped>

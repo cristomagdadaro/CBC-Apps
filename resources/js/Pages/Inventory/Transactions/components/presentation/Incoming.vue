@@ -18,10 +18,15 @@ import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import JsBarcode from "jsbarcode";
 import DateInput from "@/Components/DateInput.vue";
 import TextArea from "@/Components/TextArea.vue";
+import ResetBtn from "@/Components/Buttons/ResetBtn.vue";
+import TransactionHeaderAction
+    from "@/Pages/Inventory/Transactions/components/presentation/TransactionHeaderAction.vue";
 
 export default {
     name: "Incoming",
     components: {
+        TransactionHeaderAction,
+        ResetBtn,
         TextArea,
         DateInput,
         SubmitBtn,
@@ -158,14 +163,18 @@ export default {
 </script>
 
 <template>
-    <app-layout title="Incoming Transaction">
+    <app-layout title="Incoming Transaction Details">
         <template v-slot:header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight uppercase">Incoming</h2>
+            <transaction-header-action />
         </template>
 
-        <div class="py-4" > {{ form }}
-            <form v-if="!!form" @submit.prevent="submitCreate" class="py-12 max-w-5xl mx-auto">
-                <div class="grid sm:grid-cols-3 grid-cols-1 gap-2 mx-auto w-full">
+        <form v-if="!!form" @submit.prevent="submitCreate" class="py-12 max-w-xl mx-auto">
+            <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="flex flex-col gap-2 mx-auto w-full">
+                    <div class="flex flex-col">
+                        <h2 class="font-bold uppercase leading-none py-2 mb-1 border-b">Incoming Transaction Form</h2>
+                        <p>Please use this form to submit details of an incoming transaction.</p>
+                    </div>
                     <div class="flex flex-row gap-2 h-fit">
                         <custom-dropdown
                             required
@@ -184,7 +193,7 @@ export default {
                             </template>
                         </custom-dropdown>
                         <div class="flex items-end">
-                            <Link :href="route('items.create')" class="h-fit w-full py-3 shadow flex items-center justify-center bg-white text-gray-600 rounded gap-1 text-sm px-2">
+                            <Link :href="route('items.create')" class="h-fit w-full py-2.5 border border-gray-700 flex items-center justify-center bg-white text-gray-600 rounded gap-1 text-sm px-2">
                                 <add-icon class="h-5 w-5" />
                                 <span class="whitespace-nowrap">New Item</span>
                             </Link>
@@ -204,29 +213,37 @@ export default {
                             <filter-icon class="h-4 w-4" />
                         </template>
                     </custom-dropdown>
-                    <text-input required type-input="number" label="Quantity" name="quantity" id="quantity" v-model="form.quantity" :error="form.errors.quantity" />
-                    <text-input type-input="number" label="Unit Price" name="unit_price" id="unit_price" v-model="form.unit_price" :error="form.errors.unit_price" />
-                    <text-input required label="Unit" name="unit" id="unit" v-model="form.unit" :error="form.errors.unit" />
-                    <text-input type-input="number" disabled label="Total Cost" name="total_cost" id="total_cost" v-model="form.total_cost" :error="form.errors.total_cost" />
-                    <text-input required label="Project Code" name="project_code" id="project_code" v-model="form.project_code" :error="form.errors.project_code" />
-                    <date-input type-input="date" label="Expiration" name="expiration" id="expiration" v-model="form.expiration" :error="form.errors.expiration" />
-                    <text-area label="Remarks" name="remarks" id="remarks" v-model="form.remarks" :error="form.errors.remarks" />
+                    <div class="grid grid-cols-2 gap-2">
+                        <text-input required type="number" label="Quantity" v-model="form.quantity" :error="form.errors.quantity" />
+                        <text-input type="number" label="Unit Price" v-model="form.unit_price" :error="form.errors.unit_price" />
+                        <text-input required label="Unit" v-model="form.unit" :error="form.errors.unit" />
+                        <text-input type="number" label="Total Cost" v-model="form.total_cost" :error="form.errors.total_cost" />
+                    </div>
+
+                    <text-input required label="Project Code" v-model="form.project_code" :error="form.errors.project_code" />
+                    <date-input type="date" label="Expiration" v-model="form.expiration" :error="form.errors.expiration" />
+                    <text-area label="Remarks" v-model="form.remarks" :error="form.errors.remarks" />
+                    <div v-if="svgText" class="flex sm:flex-row flex-col gap-1 w-full items-center relative">
+                        <img id="barcode-image" :src="svgText" alt="SVG Image" class="w-full" />
+                        <button class="px-5 py-2 bg-gray-300 hover:scale-105 active:scale-100 rounded h-fit absolute bottom-3 right-4" @click.prevent="print">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-auto h-5" viewBox="0 0 16 16">
+                                <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/>
+                                <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-                <div class="flex w-full justify-between mt-5">
-                    <secondary-button @click="resetForm" class="w-1/4">Clear</secondary-button>
+                <div class="flex gap-1 justify-between">
+                    <reset-btn @click="resetField($page.props.data)">
+                        Reset
+                    </reset-btn>
                     <submit-btn :disabled="model.api.processing">
                         <span v-if="model.api.processing">Saving</span>
                         <span v-else>Save</span>
                     </submit-btn>
                 </div>
-            </form>
-            <div v-if="svgText" class="flex sm:flex-row flex-col gap-1">
-                <img id="barcode-image" :src="svgText" alt="SVG Image" />
-                <button class="p-1 bg-gray-300 rounded" @click.prevent="print">
-                    Print
-                </button>
             </div>
-        </div>
+        </form>
     </app-layout>
 </template>
 

@@ -31,17 +31,17 @@ const services = [
         label: 'Dashboard',
         href: 'dashboard',
     },{
-        label: 'Event and Attendance Form',
+        label: 'Events and Attendance',
         href: 'forms.index',
     },{
-        label: 'Access and Use Request Form',
+        label: 'Access and Use Request',
         href: 'accessUseRequest.index',
     },{
-        label: 'Supplies and Equipment Inventory',
+        label: 'Lab & Supplies',
         href: 'forms.index',
         children: [
             {
-                label: 'Scan',
+                label: 'Inventory',
                 href: 'scan.index',
             },{
                 label: 'Transactions',
@@ -86,10 +86,11 @@ const services = [
                                     <!-- Show Dropdown if service has children -->
                                     <Dropdown v-if="service.children" align="right" width="60">
                                         <template #trigger>
-                                            <button type="button" class="inline-flex items-center justify-between px-3 py-3 border shadow-sm text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white w-full dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
-                                                {{ service.label }}
+                                            <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
+                                                 {{ service.label }}
+
                                                 <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                                                 </svg>
                                             </button>
                                         </template>
@@ -250,9 +251,37 @@ const services = [
                 <!-- Responsive Navigation Menu -->
                 <div :class="{'block': showingNavigationDropdown, 'hidden': ! showingNavigationDropdown}" class="sm:hidden">
                     <div class="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                            Dashboard
-                        </ResponsiveNavLink>
+                        <div class="sm:hidden flex flex-col gap-1">
+                            <template v-for="service in services" :key="service.label">
+                                <!-- Show Dropdown if service has children -->
+                                <Dropdown v-if="service.children" align="right" width="60">
+                                    <template #trigger>
+                                        <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-normal leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
+                                            {{ service.label }}
+
+                                            <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                            </svg>
+                                        </button>
+                                    </template>
+
+                                    <template #content>
+                                        <div v-for="child in service.children" :key="child.label" class="w-60">
+                                            <ResponsiveNavLink :href="route(child.href)" :active="route().current(child.href)">
+                                                <div class="flex items-center gap-1">
+                                                    <span>{{ child.label }}</span>
+                                                </div>
+                                            </ResponsiveNavLink>
+                                        </div>
+                                    </template>
+                                </Dropdown>
+
+                                <!-- Show regular NavLink if no children -->
+                                <ResponsiveNavLink v-else :href="route(service.href)" :active="route().current(service.href)">
+                                    {{ service.label }}
+                                </ResponsiveNavLink>
+                            </template>
+                        </div>
                     </div>
 
                     <!-- Responsive Settings Options -->

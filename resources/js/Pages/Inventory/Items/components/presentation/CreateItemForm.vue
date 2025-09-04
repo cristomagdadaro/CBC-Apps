@@ -62,6 +62,10 @@ export default defineComponent({
 
         <form v-if="!!form" @submit.prevent="submitCreate" class="py-12 max-w-xl mx-auto">
             <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="flex flex-col">
+                    <h2 class="font-bold uppercase leading-none py-2 mb-1 border-b">New Consumable Item Form</h2>
+                    <p>Fill out this form to document and track a new consumable item.</p>
+                </div>
                 <text-input required label="Name" v-model="form.name" :error="form.errors.name" />
                 <text-input required label="Brand" v-model="form.brand" :error="form.errors.brand" />
                 <div class="flex flex-row gap-2">
@@ -82,7 +86,7 @@ export default defineComponent({
                         </template>
                     </custom-dropdown>
                     <div class="flex items-end border-gray-700">
-                        <Link :href="route('suppliers.create')" class="h-fit w-full border py-3 border-gray-700 flex items-center justify-center bg-white text-gray-600 rounded gap-1 text-sm px-2">
+                        <Link :href="route('suppliers.create')" class="h-fit w-full py-2.5 border border-gray-700 flex items-center justify-center bg-white text-gray-600 rounded gap-1 text-sm px-2">
                             <add-icon class="h-5 w-5" />
                             <span class="whitespace-nowrap">New Supplier</span>
                         </Link>

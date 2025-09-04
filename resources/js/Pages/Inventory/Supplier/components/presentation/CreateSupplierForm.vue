@@ -44,6 +44,10 @@ export default {
 
         <form v-if="!!form" @submit.prevent="submitCreate" class="py-12 max-w-xl mx-auto">
             <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="flex flex-col">
+                    <h2 class="font-bold uppercase leading-none py-2 mb-1 border-b">Supplier Registration Form</h2>
+                    <p>Use this form to register new suppliers of goods and services.</p>
+                </div>
                 <text-input required label="Company Name" v-model="form.name" :error="form.errors.name" />
                 <text-input label="Email" v-model="form.email" :error="form.errors.email" />
                 <text-input label="Phone" v-model="form.phone" :error="form.errors.phone" />

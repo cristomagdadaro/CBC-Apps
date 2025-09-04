@@ -67,7 +67,7 @@ Route::middleware(['api','auth:sanctum','verified'])->group(function () {
             Route::post('/', [TransactionController::class, 'create'])->name('api.inventory.transactions.store');
             Route::delete('/{id?}', [TransactionController::class, 'destroy'])->name('api.inventory.transactions.destroy');
             Route::delete('/multi/delete', [TransactionController::class, 'multiDestroy'])->name('api.inventory.transactions.multi-destroy');
-            Route::put('/{id}', [TransactionController::class, 'update'])->name('api.inventory.transactions.update');
+            Route::put('/{id?}', [TransactionController::class, 'update'])->name('api.inventory.transactions.update');
             Route::get('/generate-barcode/{room?}', [TransactionController::class, 'generateUniqueBarcode128ID'])->name('api.inventory.transactions.genbarcode');
             Route::get('/remaining-stocks', [TransactionController::class, 'remainingStocks'])->name('api.inventory.transactions.remaining-stocks');
             Route::put('/outgoingStore/{id?}', [TransactionController::class, 'outgoingStockStore'])->name('api.inventory.transactions.outgoing');

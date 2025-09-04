@@ -2,11 +2,11 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Form;
 use App\Models\Transaction;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class CreateTransactionRequest extends FormRequest
 {
@@ -38,9 +38,24 @@ class CreateTransactionRequest extends FormRequest
     {
         return [
             'item_id' => 'required|exists:items,id',
-            'barcode' => 'required|string|unique:transactions,barcode',
-            'transac_type' => 'required|string|in:incoming,outgoing',
-            'quantity' => 'required|numeric|min:1',
+            'barcode' => 'nullable|string|unique:transactions,barcode',
+            'transac_type' => [
+                'required',
+                'string',
+                Rule::in(['incoming', 'outgoing']),
+            ],
+            'quantity' => [
+                'required',
+                'numeric',
+                Rule::when(
+                    fn ($input) => $input->transac_type === 'incoming',
+                    ['min:1']
+                ),
+                Rule::when(
+                    fn ($input) => $input->transac_type === 'outgoing',
+                    ['max:-1']
+                ),
+            ],
             'unit_price' => 'nullable|numeric|min:0',
             'unit' => 'required|string',
             'total_cost' => 'nullable|numeric',

@@ -1,16 +1,18 @@
 <script>
 import {Head} from "@inertiajs/vue3";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import CoreApi from "@/Components/DataTable/infrastracture/CoreApi.js";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
-import TextField from "@/Components/TextField.vue";
-import BaseResponse from "@/Components/DataTable/domain/BaseResponse.js";
-import ErrorResponse from "@/Components/DataTable/domain/ErrorResponse.js";
+import AppLayout from "@/Layouts/AppLayout.vue";
+import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/presentation/TransactionHeaderAction.vue";
+import ApiMixin from "@/Modules/mixins/ApiMixin";
+import Transaction from "@/Pages/Inventory/Scan/components/model/Transaction";
+import TextInput from "@/Components/TextInput.vue";
+import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
+import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
 
 export default {
     name: "OutgoingUpdateForm",
-    components: {TextField, CustomDropdown, FilterIcon, AuthenticatedLayout, Head},
+    components: {CancelBtn, SubmitBtn, TextInput, TransactionHeaderAction, AppLayout, CustomDropdown, FilterIcon, Head},
     props: {
         show: Object,
     },
@@ -59,23 +61,20 @@ export default {
             return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         },
     },
-    mounted() {
-        this.api = new CoreApi(route('api.inventory.transactions.outgoing', this.show.id));
-        if(this.show){
-            this.reset();
-        }
+    mixins: [ApiMixin],
+    beforeMount() {
+        this.model = new Transaction();
+        this.setFormAction('create');
     },
 }
 </script>
 
 <template>
-    <Head title="Outgoing" />
-
-    <AuthenticatedLayout>
+    <app-layout title="Outgoing" >
         <template #header>
-            <h2 class="font-semibold sm:text-xl text-sm text-gray-800 leading-tight uppercase">Outgoing Transaction Update</h2>
+            <transaction-header-action />
         </template>
-        <div class="py-4" v-if="api">
+        <div class="py-4" v-if="!!form">
             <div class="flex flex-col sm:p-5 p-2 sm:gap-3 gap-1 bg-white shadow rounded max-w-xl mx-auto">
                 <div v-if="show" class="flex select-none justify-between items-center gap-5 py-2 px-4 border-b">
                     <div class="flex flex-col">
@@ -129,7 +128,7 @@ export default {
                                 <filter-icon class="h-4 w-4" />
                             </template>
                         </custom-dropdown>
-                        <text-field
+                        <text-input
                             required
                             type-input="number"
                             autocomplete="off"
@@ -140,7 +139,15 @@ export default {
                             v-model="form.quantity"
                             :error="errors.quantity"
                         />
-                        <text-field
+                        <text-input
+                            required
+                            label="Project Code"
+                            name="project_code"
+                            id="project_code"
+                            v-model="form.project_code"
+                            :error="form.errors.project_code"
+                        />
+                        <text-input
                             required
                             type-input="number"
                             autocomplete="off"
@@ -150,18 +157,20 @@ export default {
                             v-model="form.quantity"
                             :error="errors.quantity"
                         />
-                        <div class="flex justify-between">
-                            <button @click="reset" type="button" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 active:scale-95 duration-75">Reset</button>
-                            <button @click="submit" type="button" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 active:scale-95 duration-75">
-                                <span v-if="!api.processing">Submit</span>
-                                <span v-else>Processing...</span>
-                            </button>
+                        <div class="flex gap-1 justify-between">
+                            <cancel-btn @click="resetForm">
+                                Cancel
+                            </cancel-btn>
+                            <submit-btn :disabled="model.api.processing">
+                                <span v-if="model.api.processing">Saving</span>
+                                <span v-else>Save</span>
+                            </submit-btn>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
-    </AuthenticatedLayout>
+    </app-layout>
 
 </template>
 

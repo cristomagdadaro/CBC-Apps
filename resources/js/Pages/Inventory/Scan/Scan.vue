@@ -86,10 +86,10 @@ export default {
             this.selectedDevice = this.devices.find(option => option.deviceId === deviceInfo.deviceId);
         },
         async searchEvent() {
-            this.transactionsFromApi = await this.fetchData();
-
-            this.form.search = null;
-        }
+            await this.fetchGetApi('api.inventory.transactions.remaining-stocks').then((response) => {
+                this.transactionsFromApi = response;
+            })
+        },
     },
     watch: {
         selectedScanner(value) {
