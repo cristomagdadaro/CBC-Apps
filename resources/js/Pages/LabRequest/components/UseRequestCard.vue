@@ -6,10 +6,11 @@ import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import Modal from "@/Components/Modal.vue";
 import UseRequestApprovalBtn from "@/Pages/LabRequest/components/UseRequestApprovalBtn.vue";
 import TextArea from "@/Components/TextArea.vue";
+import DeleteIcon from "@/Components/Icons/DeleteIcon.vue";
 
 export default {
     name: "UseRequestCard",
-    components: {TextArea, UseRequestApprovalBtn, Modal},
+    components: {DeleteIcon, TextArea, UseRequestApprovalBtn, Modal},
     mixins: [ApiMixin, DataFormatterMixin],
     data(){
         return {
@@ -70,8 +71,8 @@ export default {
 
 <template>
     <div v-if="formsData" class="p-2 rounded-md flex flex-col gap-2 max-w-full min-w-[30rem] w-full shadow justify-between bg-gray-100 border overflow-x-auto">
-        <div @click="showModal = true" class="flex flex-row p-2 rounded-md justify-between py-4 gap-1">
-            <div class="flex flex-col">
+        <div @dblclick="showModal = true" class="relative flex flex-row p-2 rounded-md justify-between py-4 gap-1 cursor-pointer hover:bg-gray-300">
+            <div class="flex flex-col w-full">
                 <label class="leading-none font-semibold">{{ formsData.requester?.fullName ?? 'NULL' }}</label>
                 <p class="text-sm leading-snug break-all">
                     {{ `${formsData.requester?.position} - ${formsData.requester?.affiliation }` }}
@@ -80,11 +81,16 @@ export default {
                     Date Created: {{ formatDate(formsData.created_at) }}
                 </p>
             </div>
-            <a :href="route('forms.generate.pdf', formsData.id)" target="_blank" class="btn btn-primary">Download PDF</a>
             <div class="flex flex-col items-center justify-center">
                 <label class="text-xl leading-none font-[1000] uppercase" :class="colorStatus(formsData.request_status)">{{ formsData.request_status }}</label>
                 <span class="text-[0.6rem] leading-none select-none">on {{ formatDate(formsData.updated_at) }}</span>
             </div>
+            <a :href="route('forms.generate.pdf', formsData.id)" target="_blank" class="btn btn-primary ml-5 my-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="duration-100 h-auto w-5 hover:text-green-600 hover:scale-110 active:scale-100" viewBox="0 0 16 16">
+                    <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/>
+                    <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
+                </svg>
+            </a>
         </div>
         <Modal
             :show="showModal"
