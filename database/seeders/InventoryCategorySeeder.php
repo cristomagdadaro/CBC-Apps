@@ -18,6 +18,8 @@ class InventoryCategorySeeder extends Seeder
             ->create();*/
 
         $categories = [
+            ['name' => 'Office Supplies', 'description' => 'Various office supplies'],
+            ['name' => 'Tokens', 'description' => 'Various tokens or promotional materials'],
             ['name' => 'Acids', 'description' => 'Various types of acids including acetic acid, hydrochloric acid, etc.'],
             ['name' => 'Alcohols', 'description' => 'Different alcohols such as ethanol, methanol, isopropanol, etc.'],
             ['name' => 'Amino Acids', 'description' => 'Includes glycine, L-arginine, L-cysteine, etc.'],

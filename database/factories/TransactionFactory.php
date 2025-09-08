@@ -32,52 +32,38 @@ class TransactionFactory extends Factory
      */
     public function definition(): array
     {
+        $transac_type = $this->faker->randomElement([Inventory::INCOMING->value, Inventory::OUTGOING->value]);
         $room = $this->faker->randomElement(['01', '02', '03', '04', '05', '06']);
 
-        $roomExist = NewBarcode::where('room', $room)->first();
-        $transac_type = $this->faker->randomElement([Inventory::INCOMING->value, Inventory::OUTGOING->value]);
-        if($roomExist == null){
-            $newBarcode = 'CBC-'. $room .'-000002';
-            NewBarcode::create([
-                'barcode' => $newBarcode,
-                'room' => $room,
-            ]);
-        } else{
-            $counter = 0;
-            do{
-                switch ($room)
-                {
-                    case '01':
-                        $counter = TransactionFactory::$countID1++;
-                        break;
-                    case '02':
-                        $counter = TransactionFactory::$countID2++;
-                        break;
-                    case '03':
-                        $counter = TransactionFactory::$countID3++;
-                        break;
-                    case '04':
-                        $counter = TransactionFactory::$countID4++;
-                        break;
-                    case '05':
-                        $counter = TransactionFactory::$countID5++;
-                        break;
-                    case '06':
-                        $counter = TransactionFactory::$countID6++;
-                        break;
-                }
-                $newBarcode = 'CBC-'. $room .'-' . str_pad($counter, 6, '0', STR_PAD_LEFT);
-            }
-            while (Transaction::where('barcode', $newBarcode)->exists() || in_array($newBarcode, TransactionFactory::$usedBarcodes, true));
-            $roomExist->update([
-                'barcode' => $newBarcode
-            ]);
+        $latestBarcode = Transaction::where('barcode', 'like', "CBC-$room-%")
+            ->orderByDesc('barcode')
+            ->value('barcode');
+
+        if ($latestBarcode) {
+            $lastNum = (int) substr($latestBarcode, -6);
+            $counter = $lastNum + 1;
+        } else {
+            $counter = 1; // first available after CBC-XX-000001
         }
+
+        do {
+            $newBarcode = 'CBC-' . $room . '-' . str_pad($counter, 6, '0', STR_PAD_LEFT);
+            $counter++;
+        } while (
+            Transaction::where('barcode', $newBarcode)->exists()
+            || in_array($newBarcode, TransactionFactory::$usedBarcodes, true)
+        );
+
+        NewBarcode::updateOrCreate(
+            ['room' => $room],
+            ['barcode' => $newBarcode]
+        );
+
+        TransactionFactory::$usedBarcodes[] = $newBarcode;
 
 
         if ($transac_type === Inventory::INCOMING->value)
             return [
-                'id' => $this->faker->uuid,
                 'item_id' => Item::all()->random()->id,
                 'barcode' => $newBarcode,
                 'transac_type' => Inventory::INCOMING->value,
@@ -96,7 +82,6 @@ class TransactionFactory extends Factory
         if ($existing->count()) {
             $existing = $existing->random();
             return [
-                'id' => $this->faker->uuid,
                 'item_id' => $existing->item_id,
                 'barcode' => $existing->barcode,
                 'transac_type' => Inventory::OUTGOING->value,
@@ -113,7 +98,6 @@ class TransactionFactory extends Factory
         }
 
         return [
-                'id' => $this->faker->uuid,
                 'item_id' => Item::all()->random()->id,
                 'barcode' => null,
                 'transac_type' => Inventory::OUTGOING->value,

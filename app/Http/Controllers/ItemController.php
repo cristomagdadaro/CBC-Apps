@@ -25,7 +25,7 @@ class ItemController extends BaseController
         return parent::_index($request);
     }
 
-    public function store(CreateItemRequest $request) : Model
+    public function create(CreateItemRequest $request) : Model
     {
         return parent::_store($request);
     }

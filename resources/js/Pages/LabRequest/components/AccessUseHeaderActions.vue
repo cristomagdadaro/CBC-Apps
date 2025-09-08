@@ -11,7 +11,7 @@ export default {
 <template>
     <div class="flex justify-between items-center">
         <Link :href="route('suppliers.index')" class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Registered Suppliers
+            Laboratory Use, Equipment, and Supply Requests
         </Link>
         <div class="flex justify-between items-center">
             <a :href="route('labReq.guest.index')" target="_blank">

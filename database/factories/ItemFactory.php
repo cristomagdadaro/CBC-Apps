@@ -20,7 +20,6 @@ class ItemFactory extends Factory
     public function definition(): array
     {
         return [
-            'id' => $this->faker->uuid,
             'name' => $this->faker->word,
             'brand' => $this->faker->company,
             'description' => $this->faker->randomElement([null, $this->faker->text]),

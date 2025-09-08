@@ -126,7 +126,7 @@ export default {
                 />
                 <div class="flex gap-1 justify-between">
                     <cancel-btn @click="resetForm">
-                        Cancel
+                        Reset
                     </cancel-btn>
                     <submit-btn :disabled="model.api.processing">
                         <span v-if="model.api.processing">Saving</span>
