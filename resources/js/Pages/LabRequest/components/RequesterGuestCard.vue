@@ -13,10 +13,13 @@ import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import DtoResponse from "@/Modules/dto/DtoResponse";
 import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
+import TagifyInput from "@/Components/Tagify.vue";
 
 export default {
     name: "RequesterGuestCard",
-    components: {SubmitBtn, TimeInput, TransitionContainer, DropdownLink, InputError, Dropdown, CustomDropdown, TextInput, DateInput },
+    components: {
+        TagifyInput,
+        SubmitBtn, TimeInput, TransitionContainer, DropdownLink, InputError, Dropdown, CustomDropdown, TextInput, DateInput },
     mixins: [ApiMixin, FormLocalMixin, DataFormatterMixin],
     data() {
         return {
@@ -301,7 +304,7 @@ export default {
                 </div>
             </div>
         </div>
-        <div class="flex flex-col gap-3 text-sm leading-tight text-justify">
+            <div class="flex flex-col gap-3 text-sm leading-tight text-justify">
             <h2>
                 <span class="font-bold uppercase">Terms & Conditions: </span>
             </h2>

@@ -50,12 +50,14 @@ export default {
                         </div>
                     </transition-container>
                 </div>
-                <div class="flex gap-5 md:flex-row flex-col">
-                    <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
+
+                <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
+                    <div class="flex gap-5 flex-col">
                         <requester-guest-card :data="requestForm" />
                         <label class="text-[0.6rem] leading-none select-none">Form from URL</label>
-                    </transition-container>
-                </div>
+                    </div>
+                </transition-container>
+
             </div>
         </div>
         <div class="min-h-[135vh] flex items-center justify-center text-white text-3xl font-bold relative overflow-hidden">
