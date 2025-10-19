@@ -14,6 +14,7 @@ import DtoResponse from "@/Modules/dto/DtoResponse";
 import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import TagifyInput from "@/Components/Tagify.vue";
+import Item from "@/Pages/Inventory/Items/components/model/Item";
 
 export default {
     name: "RequesterGuestCard",
@@ -58,7 +59,7 @@ export default {
                 console.log(response);
                 this.$emit('createdModel', response);
             }
-        }
+        },
     },
     beforeMount() {
         this.model = new RequestFormPivot();
@@ -161,28 +162,30 @@ export default {
                 autocomplete="affiliation"
                 @input="form.clearErrors('affiliation')"
             />
-            <TextInput
-                id="phone"
-                v-model="form.phone"
-                required
-                type="text"
-                :error="form.errors.phone"
-                label="Contact Number"
-                placeholder="0900 000 000"
-                autocomplete="phone"
-                @input="form.clearErrors('phone')"
-            />
-            <TextInput
-                id="email"
-                v-model="form.email"
-                required
-                type="email"
-                :error="form.errors.email"
-                label="Email Address"
-                placeholder="sample@email.com"
-                autocomplete="email"
-                @input="form.clearErrors('email')"
-            />
+            <div class="flex items-center gap-2">
+                <TextInput
+                    id="phone"
+                    v-model="form.phone"
+                    required
+                    type="text"
+                    :error="form.errors.phone"
+                    label="Contact Number"
+                    placeholder="0900 000 000"
+                    autocomplete="phone"
+                    @input="form.clearErrors('phone')"
+                />
+                <TextInput
+                    id="email"
+                    v-model="form.email"
+                    required
+                    type="email"
+                    :error="form.errors.email"
+                    label="Email Address"
+                    placeholder="sample@email.com"
+                    autocomplete="email"
+                    @input="form.clearErrors('email')"
+                />
+            </div>
         </div>
         <div class="flex flex-col gap-2">
             <span class="font-bold uppercase">Request Form: </span>
@@ -244,67 +247,36 @@ export default {
             <h2>
                 <span class="font-bold uppercase">Supplies: </span>
             </h2>
-            <div class="grid grid-cols-2 gap-3">
-                <div v-for="item in consumables" class="flex items-center gap-1" title="Require guests to pre-register">
-                  <input
-                      type="checkbox"
-                      class="rounded-full"
-                      :value="item"
-                      @change="toggleOption('consumables_to_use', item, $event.target.checked)"
-                  >
-                  <label>{{ item }}</label>
-                </div>
-            </div>
+            <TagifyInput
+                v-model="form.consumables_to_use"
+                name="consumables_to_use"
+                placeholder="Select available supplies"
+                api-link="api.inventory.items.public"
+            />
         </div>
         <div class="flex flex-col gap-2">
             <h2>
                 <span class="font-bold uppercase">Equipments: </span>
             </h2>
-            <div class="grid grid-cols-2 gap-3">
-                <div v-for="item in equipments" class="flex items-center gap-1" title="Require guests to pre-register">
-                  <input
-                      type="checkbox"
-                      class="rounded-full"
-                      :value="item"
-                      @change="toggleOption('equipments_to_use', item, $event.target.checked)"
-                  >
-                  <label>{{ item }}</label>
-                </div>
-            </div>
+            <TagifyInput
+                v-model="form.equipments_to_use"
+                name="labs_to_use"
+                placeholder="Select available laboratory facilities"
+                api-link="api.inventory.equipments.public"
+            />
         </div>
         <div class="flex flex-col gap-2">
             <h2>
                 <span class="font-bold uppercase">Laboratory Facilities: </span>
             </h2>
-            <div class="grid grid-cols-2 gap-3">
-                <div v-for="item in laboratories" class="flex items-center gap-1" title="Require guests to pre-register">
-                  <input
-                      type="checkbox"
-                      class="rounded-full"
-                      :value="item"
-                      @change="toggleOption('labs_to_use', item, $event.target.checked)"
-                  >
-                  <label>{{ item }}</label>
-                </div>
-            </div>
+            <TagifyInput
+                v-model="form.labs_to_use"
+                name="labs_to_use"
+                placeholder="Select available laboratory facilities"
+                api-link="api.inventory.laboratories.public"
+            />
         </div>
-        <div class="flex flex-col gap-2">
-            <h2>
-                <span class="font-bold uppercase">Event Halls and Rooms: </span>
-            </h2>
-            <div class="grid grid-cols-2 gap-3">
-                <div v-for="item in hallsandrooms" class="flex items-center gap-1" title="Require guests to pre-register">
-                  <input
-                      type="checkbox"
-                      class="rounded-full"
-                      :value="item"
-                      @change="toggleOption('labs_to_use', item, $event.target.checked)"
-                  >
-                  <label>{{ item }}</label>
-                </div>
-            </div>
-        </div>
-            <div class="flex flex-col gap-3 text-sm leading-tight text-justify">
+        <div class="flex flex-col gap-3 text-sm leading-tight text-justify">
             <h2>
                 <span class="font-bold uppercase">Terms & Conditions: </span>
             </h2>

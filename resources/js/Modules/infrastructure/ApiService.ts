@@ -25,8 +25,8 @@ export default abstract class ApiService {
             const response = await this.axiosInstance.get(route(url), {
                 params: {
                     ...params,
-                    ...(model?.api.appendedWith && Array.isArray(model?.api.appendedWith) ? {with: model?.api.appendedWith.toString()} : {}),
-                    ...(model?.api.appendedCount && Array.isArray(model?.api.appendedCount) ? {count: model?.api.appendedCount.toString()} : {})
+                    ...(model?.api?.appendedWith && Array.isArray(model?.api?.appendedWith) ? {with: model?.api?.appendedWith?.toString()} : {}),
+                    ...(model?.api?.appendedCount && Array.isArray(model?.api?.appendedCount) ? {count: model?.api?.appendedCount?.toString()} : {})
                 }
             }).then((response: AxiosResponse) => {
                 if (model) {

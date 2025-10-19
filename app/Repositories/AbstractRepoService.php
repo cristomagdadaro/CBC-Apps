@@ -7,7 +7,9 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Schema;
+use Throwable;
 
+.
 abstract class AbstractRepoService {
 
     public Model $model;
@@ -199,15 +201,21 @@ abstract class AbstractRepoService {
         $perPage = $parameters->get('per_page', 10);
         $page = $parameters->get('page', 1);
 
+        if ($perPage === '*' || $perPage === 'all') {
+            return [ 'data' => $query->get() ];
+        }
+
+
         return $query->paginate($perPage, ['*'], 'page', $page)->withQueryString();
     }
 
     /**
-     * @throws Exception
+     * @throws Throwable
      */
-    public function sendError(Exception $error)
+    public function sendError(Throwable $error)
     {
         Log::error('Error occurred: ' . $error->getMessage(), ['exception' => $error]);
-        throw new Exception($error);
+        // Re-throw the original exception to preserve context and stack trace
+        throw $error;
     }
 }

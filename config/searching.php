@@ -2,7 +2,7 @@
 
 return [
     'page' => 'sometimes|integer|min:1',
-    'per_page' => 'sometimes|integer|min:1',
+    'per_page' => ['sometimes','regex:/(\*|all|[1-9]\d*)/'],
     'sort' => 'sometimes|string',
     'order' => 'sometimes|string|in:asc,desc',
     'search' => 'sometimes',

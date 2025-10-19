@@ -34,6 +34,23 @@ Route::prefix('guest')->group(function () {
         Route::middleware(['check.form.suspended','check.form.expired','check.form.maxslot'])->post('/registration/{event_id?}', [ParticipantController::class, 'post'])->name('api.form.registration.post');
     });
 
+    Route::post('/', [RequestFormPivotController::class, 'create'])->name('api.requestFormPivot.post');
+
+    Route::get('/items/public', [ItemController::class, 'index'])->name('api.inventory.items.public');
+    Route::get('/equipments/public', function () {
+        return [ 'data' => [
+            [ 'name' => 'qPCR'],
+            [ 'name' => 'Microscope'],
+            [ 'name' => 'Implement the full backend'],
+        ] ];
+    })->name('api.inventory.equipments.public');
+    Route::get('/laboratories/public', function () {
+        return [ 'data' => [
+            [ 'name' => 'Molecular Biology Room'],
+            [ 'name' => 'Bioinformatics Room'],
+            [ 'name' => 'Researchers\' Office I' ],
+        ]];
+    })->name('api.inventory.laboratories.public');
 });
 
 
@@ -50,7 +67,6 @@ Route::middleware(['api','auth:sanctum','verified'])->group(function () {
 
         Route::prefix('use-request-form')->group(function () {
             Route::get('/', [RequestFormPivotController::class, 'index'])->name('api.requestFormPivot.index');
-            Route::post('/', [RequestFormPivotController::class, 'create'])->name('api.requestFormPivot.post');
             Route::put('/update/{request_pivot_id?}', [RequestFormPivotController::class, 'update'])->name('api.requestFormPivot.put');
         });
     });

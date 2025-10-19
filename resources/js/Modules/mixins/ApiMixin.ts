@@ -1,5 +1,6 @@
 import {useForm} from "@inertiajs/vue3";
 import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
+import ConcreteApiService from "@/Modules/infrastructure/ConcreteApiService";
 import {AxiosError} from "axios";
 import DtoError from "@/Modules/dto/DtoError";
 import DtoResponse from "@/Modules/dto/DtoResponse";
@@ -43,7 +44,8 @@ export default {
             return await this.model.api.getIndex(this.form.data(), this.model);
         },
         async fetchGetApi(url: string, params?: object, model?: DtoBaseClass) {
-            return await this.model.api.getApi(url,params, model);
+            const api = new ConcreteApiService();
+            return await api.getApi(url, params, model);
         },
         async submitCreate(toCast: boolean = false, except: string = '') {
             this.form.clearErrors();
