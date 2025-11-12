@@ -112,7 +112,7 @@ export default {
         </template>
 
         <div class="sm:py-4 p-0">
-            <div class="flex sm:flex-row flex-col gap-5 max-w-7xl mx-auto border border-gray-400 sm:p-5 p-1 sm:rounded-md">
+            <div class="flex sm:flex-row flex-col gap-5 max-w-[90vw] mx-auto border border-gray-400 sm:p-5 p-1 sm:rounded-md">
                 <div class="flex flex-col gap-2 sm:border-r border-gray-400 sm:pr-5">
                     <div>
                         <label class="text-gray-600 text-center text-sm whitespace-nowrap">Select Scanning Device</label>

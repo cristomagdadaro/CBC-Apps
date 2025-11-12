@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Schema;
 use Throwable;
 
-.
 abstract class AbstractRepoService {
 
     public Model $model;

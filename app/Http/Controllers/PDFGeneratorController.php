@@ -1,23 +1,122 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\RequestFormPivot;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class PDFGeneratorController extends Controller
 {
-
-    public function downloadPdf($id)
+    /**
+     * Stream or download a cached/generated PDF for the given RequestFormPivot.
+     * Accepts an optional 'template' query parameter pointing to a Blade view.
+     * Caches PDFs in public/generated-pdfs/{template-slug}/{id}.pdf and
+     * regenerates when the model is updated (updated_at newer than file mtime).
+     *
+     * Query params:
+     * - template: Blade view path (e.g., generator/pdf/printable-request-form)
+     * - download: 1 to force download; default streams inline
+     */
+    public function downloadPdf(Request $request, $id)
     {
-        $form = RequestFormPivot::with(['requester','request_form'])->findOrFail($id);
+        $template = $request->query('template', 'generator/pdf/printable-request-form');
 
-        $pdf = Pdf::loadView('generator/pdf/printable-request-form', compact('form'));
+        // Validate the view exists; if not, fall back to default
+        if (!View::exists($template)) {
+            $template = 'generator/pdf/printable-request-form';
+        }
 
-        // to download
-        //return $pdf->download('RequestForm-'.$form->id.'.pdf');
-        // just view rendered pdf
-        return $pdf->stream('RequestForm-'.$form->id.'.pdf');
-        // blade format
-        //return view('generator/pdf/printable-request-form', compact('form'));
+        $form = RequestFormPivot::with(['requester', 'request_form'])->findOrFail($id);
+
+        // Prepare cache path based on template and id
+        $templateSlug = Str::slug($template);
+        $cacheDir = public_path("generated-pdfs/{$templateSlug}");
+        if (!File::exists($cacheDir)) {
+            File::makeDirectory($cacheDir, 0775, true);
+        }
+        $cacheFile = $cacheDir . DIRECTORY_SEPARATOR . $id . '.pdf';
+
+        $needsGenerate = true;
+        if (File::exists($cacheFile)) {
+            $fileMTime = File::lastModified($cacheFile);
+
+            // Consider updated_at of pivot and related models
+            $timestamps = [
+                optional($form->updated_at)->getTimestamp() ?? 0,
+                optional(optional($form->requester)->updated_at)->getTimestamp() ?? 0,
+                optional(optional($form->request_form)->updated_at)->getTimestamp() ?? 0,
+            ];
+            $latestDataTs = max($timestamps);
+
+            if ($latestDataTs > $fileMTime) {
+                // Data is newer; delete stale cached PDF
+                File::delete($cacheFile);
+                $needsGenerate = true;
+            } else {
+                $needsGenerate = false;
+            }
+        }
+
+        if ($needsGenerate) {
+            $pdf = Pdf::loadView($template, compact('form'));
+            // Ensure any stale file is removed before writing
+            if (File::exists($cacheFile)) {
+                File::delete($cacheFile);
+            }
+            File::put($cacheFile, $pdf->output());
+        }
+
+        $download = filter_var($request->query('download', false), FILTER_VALIDATE_BOOLEAN);
+        $downloadName = $this->buildDefaultFilename($form) . '.pdf';
+
+        if ($download) {
+            return response()->download($cacheFile, $downloadName, [
+                'Content-Type' => 'application/pdf',
+            ]);
+        }
+
+        // Stream inline; leverage the cached file so it doesn't regenerate
+        return response()->file($cacheFile, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $downloadName . '"',
+        ]);
+    }
+
+    /**
+     * Build default filename using Fullname_Datenow_timestamp convention.
+     */
+    protected function buildDefaultFilename($form): string
+    {
+        $fullName = $this->extractFullName($form);
+        $now = Carbon::now()->format('Ymd_His');
+        // Sanitize filename
+        $safeName = preg_replace('/[^A-Za-z0-9\-_. ]/', '', $fullName);
+        $safeName = trim(preg_replace('/\s+/', ' ', $safeName));
+        $safeName = str_replace(' ', '_', $safeName);
+        return $safeName . '_' . $now;
+    }
+
+    /**
+     * Try to extract a reasonable full name from related requester data.
+     */
+    protected function extractFullName($form): string
+    {
+        $fallback = 'RequestForm-' . ($form->id ?? 'unknown');
+        if (!isset($form->requester)) return $fallback;
+
+        $req = $form->requester;
+        foreach (['full_name', 'fullname', 'name'] as $prop) {
+            if (isset($req->{$prop}) && $req->{$prop}) return (string) $req->{$prop};
+        }
+
+        $first = isset($req->first_name) ? (string) $req->first_name : '';
+        $last = isset($req->last_name) ? (string) $req->last_name : '';
+        $combined = trim($first . ' ' . $last);
+        return $combined !== '' ? $combined : $fallback;
     }
 }

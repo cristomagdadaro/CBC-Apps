@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Models\RequestFormPivot;
+use App\Observers\RequestFormPivotObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        if (!class_exists(RequestFormPivot::class)) {
+            $fallback = app_path('Models/RequestFormPIvot.php');
+            if (is_file($fallback)) {
+                require_once $fallback;
+            }
+        }
+        if (class_exists(RequestFormPivot::class)) {
+            RequestFormPivot::observe(RequestFormPivotObserver::class);
+        }
     }
 }
