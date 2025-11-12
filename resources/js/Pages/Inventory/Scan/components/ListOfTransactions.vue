@@ -1,5 +1,6 @@
 <script>
 import TransactionCard from "@/Pages/Inventory/Scan/components/TransactionCard.vue";
+import { router } from '@inertiajs/vue3'
 
 export default {
     name: "ListOfTransactions",
@@ -32,11 +33,7 @@ export default {
             return 0;
         },
         showItem(id) {
-            this.router.visit(route('items.show', id), {
-                data: {
-                    id: id
-                }
-            });
+            router.visit(route('items.show', id));
         }
     },
 }
@@ -45,7 +42,7 @@ export default {
 <template>
     <div v-if="formsData" class="flex gap-2 w-full">
         <div v-if="!!formsData" class="p-5 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 flex flex-col sm:gap-2 w-full gap-1">
-            <div v-for="item in formsData" class="flex flex-col border p-2 gap-1 rounded shadow w-full"
+            <div v-for="item in formsData" :key="item?.item_id ?? item?.id" class="flex flex-col border p-2 gap-1 rounded shadow w-full"
                  :class="stockLevelBackground(item?.total_ingoing, item?.remaining_quantity)"
             >
                 <div class="flex gap-1 justify-between border-b p-1 select-none cursor-pointer duration-75 rounded hover:bg-gray-200"
