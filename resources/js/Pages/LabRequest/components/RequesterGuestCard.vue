@@ -14,7 +14,6 @@ import DtoResponse from "@/Modules/dto/DtoResponse";
 import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import TagifyInput from "@/Components/Tagify.vue";
-import Item from "@/Pages/Inventory/Items/components/model/Item";
 
 export default {
     name: "RequesterGuestCard",

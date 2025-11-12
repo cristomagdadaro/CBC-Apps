@@ -13,18 +13,23 @@ export default {
             this.$emit("removeModel", deletedModel);
         },
         stockLevelBackground (total, stock) {
-            stock = Number.parseFloat(stock) / Number.parseFloat(total) * 100;
-            //levels 100%, 50%, 25%, 0%, and below 0%
-            if (stock >= 100) {
+            const t = Number.parseFloat(total);
+            const s = Number.parseFloat(stock);
+            let percent = 0;
+            if (!isNaN(t) && t > 0 && !isNaN(s)) {
+                percent = (s / t) * 100;
+            }
+            // Softer palette with better contrast against gray text
+            if (percent >= 100) {
                 return 'bg-white';
-            } else if (stock >= 50) {
-                return 'bg-red-200';
-            } else if (stock >= 25) {
-                return 'bg-red-400';
-            } else if (stock > 0) {
-                return 'bg-red-700';
+            } else if (percent >= 50) {
+                return 'bg-amber-50';
+            } else if (percent >= 25) {
+                return 'bg-amber-100';
+            } else if (percent > 0) {
+                return 'bg-amber-200';
             } else {
-                return 'bg-gray-300';
+                return 'bg-gray-100';
             }
         },
         formatNumber(value) {
@@ -50,20 +55,20 @@ export default {
                      title="Double click to view item details"
                 >
                     <span class="font-bold">{{ item?.name }}</span>
-                    <span class="text-gray-500">({{ item?.unit }} | {{ item?.brand }})</span>
+                    <span class="text-gray-600">({{ item?.unit }} | {{ item?.brand }})</span>
                 </div>
                 <div class="flex justify-between p-1 select-none">
                     <div class="flex flex-col text-center">
-                        <span class="text-md text-gray-700 font-bold text-lg">{{ formatNumber(item?.total_ingoing) }}</span>
-                        <span class="text-xs text-gray-400">Total Stock</span>
+                        <span class="text-md text-gray-800 font-bold text-lg">{{ formatNumber(item?.total_ingoing) }}</span>
+                        <span class="text-xs text-gray-600">Total Stock</span>
                     </div>
                     <div class="flex flex-col text-center">
-                        <span class="text-md text-gray-700 font-bold text-lg">{{ formatNumber(item?.total_outgoing) }}</span>
-                        <span class="text-xs text-gray-400">Total Consumed</span>
+                        <span class="text-md text-gray-800 font-bold text-lg">{{ formatNumber(item?.total_outgoing) }}</span>
+                        <span class="text-xs text-gray-600">Total Consumed</span>
                     </div>
                     <div class="flex flex-col text-center">
-                        <span class="text-md text-gray-700 font-bold text-lg">{{ formatNumber(item?.remaining_quantity) }}</span>
-                        <span class="text-xs text-gray-400">Remaining</span>
+                        <span class="text-md text-gray-800 font-bold text-lg">{{ formatNumber(item?.remaining_quantity) }}</span>
+                        <span class="text-xs text-gray-600">Remaining</span>
                     </div>
                 </div>
             </div>
