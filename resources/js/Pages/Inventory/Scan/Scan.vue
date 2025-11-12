@@ -58,6 +58,10 @@ export default {
                 sort: 'item_id',
                 paginate: true,
             },
+            // Handheld scan buffer and timing
+            scanBuffer: '',
+            lastKeyTime: 0,
+            scanResetThresholdMs: 100, // reset buffer if delay between keys exceeds this
         }
     },
     beforeMount() {
@@ -72,15 +76,50 @@ export default {
     },
     methods: {
         startHandheldScanner() {
-            window.addEventListener('keydown', this.handleScannerInput);
+            this.scanBuffer = '';
+            this.lastKeyTime = 0;
+            window.addEventListener('keydown', this.handleScannerInput, true);
         },
         stopHandheldScanner() {
-            window.removeEventListener('keydown', this.handleScannerInput);
+            window.removeEventListener('keydown', this.handleScannerInput, true);
+            this.scanBuffer = '';
+            this.lastKeyTime = 0;
         },
         handleScannerInput(event) {
-            if (event.key === 'Enter') {
-                this.decode = event.target.value;
+            // Only handle when using handheld mode
+            if (this.selectedScanner !== 'handheld') return;
+
+            const finalizeKeys = ['Enter', 'Tab'];
+
+            if (finalizeKeys.includes(event.key)) {
+                const code = this.scanBuffer.trim();
+                this.scanBuffer = '';
+                this.lastKeyTime = 0;
+                if (code) {
+                    // Set the search term and trigger search
+                    if (this.form) this.form.search = code;
+                    this.searchEvent();
+                }
+                // Prevent default to avoid unintended form submits
+                event.preventDefault();
+                event.stopPropagation();
+                return;
             }
+
+            // Ignore modifier keys and function keys
+            if (event.ctrlKey || event.metaKey || event.altKey) return;
+            if (event.key.length !== 1) return; // not a printable character
+
+            const now = Date.now();
+            const delta = now - (this.lastKeyTime || 0);
+            if (!this.lastKeyTime || delta > this.scanResetThresholdMs) {
+                // Too slow (likely human typing) or first char: start new buffer
+                this.scanBuffer = event.key;
+            } else {
+                // Part of the same fast scan burst
+                this.scanBuffer += event.key;
+            }
+            this.lastKeyTime = now;
         },
         cameraChange(deviceInfo) {
             this.selectedDevice = this.devices.find(option => option.deviceId === deviceInfo.deviceId);
@@ -180,7 +219,7 @@ export default {
                             <span class="text-gray-600 text-center text-sm">QR/Barcode</span>
                         </div>
                         <div class="p-1 drop-shadow-lg bg-white my-2">
-                            <scanner @decoded="form.search = $event"
+                            <scanner @decoded="(code) => { form.search = code; searchEvent(); }"
                                      @error="error = $event"
                                      :selectedDevice="selectedDevice"
                                      @detectedDevices="devices =  $event"
