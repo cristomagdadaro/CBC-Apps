@@ -62,54 +62,75 @@ class TransactionController extends BaseController
 
     public function remainingStocks(Request $request): Collection
     {
-        $search = $request->input('search');
-        $is_exact = $request->input('is_exact', false);
-        $sort = $request->input('sort', 'id');
-        $order = $request->input('order', 'asc');
-        $perPage = $request->input('per_page', 10);
-        $page = $request->input('page', 1);
-        $paginate = $request->input('paginate', true);
+        $search   = $request->input('search');
+        $isExact  = filter_var($request->input('is_exact', false), FILTER_VALIDATE_BOOLEAN);
+        $sort     = $request->input('sort', 'id');
+        $order    = strtolower($request->input('order', 'asc')) === 'desc' ? 'desc' : 'asc';
+        $perPage  = (int) $request->input('per_page', 10);
+        $page     = (int) $request->input('page', 1);
+        $paginate = filter_var($request->input('paginate', true), FILTER_VALIDATE_BOOLEAN);
 
         $orderByRaw = match ($sort) {
-            'name' => 'items.name',
-            'brand' => 'items.brand',
-            'unit' => 'transactions.unit',
-            'total_ingoing' => 'SUM(CASE WHEN transactions.quantity > 0 THEN transactions.quantity ELSE 0 END)',
-            'total_outgoing' => 'SUM(CASE WHEN transactions.quantity < 0 THEN ABS(transactions.quantity) ELSE 0 END)',
-            'remaining_quantity' => 'SUM(transactions.quantity)',
-            default => 'items.id',
+            'name'               => 'items.name',
+            'brand'              => 'items.brand',
+            'unit'               => 'transactions.unit',
+            'barcode'            => 'transactions.barcode',
+            'total_ingoing'      => 'total_ingoing',
+            'total_outgoing'     => 'total_outgoing',
+            'remaining_quantity' => 'remaining_quantity',
+            default              => 'items.id',
         };
 
-        $data = $this->service->model
-            ->selectRaw('items.name, items.brand, transactions.unit, items.id as item_id,
-                     SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,
-                     SUM(CASE WHEN transactions.transac_type = "outgoing" THEN transactions.quantity ELSE 0 END) as total_outgoing,
-                     SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity WHEN transactions.transac_type = "outgoing" THEN -transactions.quantity ELSE 0 END) as remaining_quantity')
+        $query = $this->service->model
+            ->selectRaw(
+                'items.name, items.brand, transactions.unit, items.id as item_id, transactions.barcode,' .
+                ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,' .
+                ' SUM(CASE WHEN transactions.transac_type = "outgoing" THEN transactions.quantity ELSE 0 END) as total_outgoing,' .
+                ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity WHEN transactions.transac_type = "outgoing" THEN -transactions.quantity ELSE 0 END) as remaining_quantity'
+            )
             ->join('items', 'transactions.item_id', '=', 'items.id')
-            ->where(function ($query) use ($search, $is_exact) {
-                if ($is_exact && $search) {
-                    $query->where('items.name', $search)
+            ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode');
+
+        if ($search !== null && $search !== '') {
+            if ($isExact) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('items.name', $search)
                         ->orWhere('items.brand', $search)
                         ->orWhere('transactions.unit', $search)
-                        ->having('total_outgoing', $search)
-                        ->having('total_ingoing', $search)
-                        ->having('remaining_quantity', $search);
-                } else {
-                    $query->where('items.name', 'like', '%' . $search . '%')
-                        ->orWhere('items.brand', 'like', '%' . $search . '%')
-                        ->orWhere('transactions.unit', 'like', '%' . $search . '%')
-                        ->having('total_outgoing', 'like', '%' . $search . '%')
-                        ->having('total_ingoing', 'like', '%' . $search . '%')
-                        ->having('remaining_quantity', 'like', '%' . $search . '%');
+                        ->orWhere('transactions.barcode', $search);
+                });
+
+                if (is_numeric($search)) {
+                    $query->havingRaw(
+                        'total_outgoing = ? OR total_ingoing = ? OR remaining_quantity = ?',
+                        [$search, $search, $search]
+                    );
                 }
-            })
-            ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit')
-            ->orderByRaw($orderByRaw . ' ' . $order);
-        $count = $data->count();
+            } else {
+                $like = '%' . $search . '%';
+
+                $query->where(function ($q) use ($like) {
+                    $q->where('items.name', 'like', $like)
+                        ->orWhere('items.brand', 'like', $like)
+                        ->orWhere('transactions.unit', 'like', $like)
+                        ->orWhere('transactions.barcode', 'like', $like);
+                });
+
+                if (is_numeric($search)) {
+                    $query->orHavingRaw(
+                        'CAST(total_outgoing AS CHAR) LIKE ? OR CAST(total_ingoing AS CHAR) LIKE ? OR CAST(remaining_quantity AS CHAR) LIKE ?',
+                        [$like, $like, $like]
+                    );
+                }
+            }
+        }
+
+        $query->orderByRaw($orderByRaw . ' ' . $order);
+
         if ($paginate) {
-            $data = $data->paginate($perPage, ['*'], 'page', $page);
+            $data = $query->paginate($perPage, ['*'], 'page', $page);
         } else {
-            $data = $data->get();
+            $data = $query->get();
         }
 
         return new Collection($data);

@@ -65,7 +65,6 @@ export default {
             return Transaction
         },
         personnels() {
-            console.log(this.$page.props)
             return this.$page.props.personnels.map(personnel => {
                 return {
                     name: personnel.id,
