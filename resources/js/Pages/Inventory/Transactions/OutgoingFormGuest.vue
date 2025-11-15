@@ -84,10 +84,23 @@ export default {
             this.showModel = true;
         },
         async searchEvent() {
+            this.form.per_page = 100;
             await this.fetchGetApi('api.inventory.transactions.remaining-stocks', this.form.data()).then((response) => {
                 this.outgoingFromApi = response;
             })
         },
+        setFilter(level) {
+            if (this.form.filter_by === level) {
+                this.form.filter = '';
+                this.form.filter_by = '';
+                this.searchEvent();
+                return;
+            }
+
+            this.form.filter = 'quantity';
+            this.form.filter_by = level;
+            this.searchEvent();
+        }
     }
 }
 </script>
@@ -130,55 +143,38 @@ export default {
                             </search-btn>
                         </div>
                         <div v-if="outgoingFromApi" class="flex flex-col w-full gap-2 items-center">
-                            <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
-                                <!-- First Button -->
-                                <paginate-btn @click="form.page = 1; searchEvent();" :disabled="form.page === 1">
-                                    First
+                            <div class="flex gap-1 items-center w-full justify-center">
+                                <paginate-btn @click="setFilter('empty')" :class="form.filter_by === 'empty' ? 'bg-AB text-white' : ''">
+                                    Empty Stock
                                 </paginate-btn>
 
-                                <!-- Previous Button -->
-                                <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchEvent();" :disabled="form.page === 1">
-                                    <template v-slot:icon>
-                                        <arrow-left class="h-auto w-6" />
-                                    </template>
-                                    Prev
+                                <paginate-btn @click="setFilter('low')" :class="form.filter_by === 'low' ? 'bg-AB text-white' : ''">
+                                    Low Stock
                                 </paginate-btn>
 
-                                <!-- Current Page Indicator -->
-                                <div class="text-xs flex flex-col whitespace-nowrap text-center">
-                                <span class="font-medium mx-1" title="current page and total pages">
-                                    <span>{{ outgoingFromApi?.current_page }}</span> / <span>{{ outgoingFromApi?.last_page }}</span>
-                                </span>
-                                </div>
-
-                                <!-- Next Button -->
-                                <paginate-btn
-                                    @click="form.page = Math.min(outgoingFromApi?.last_page, form.page + 1); searchEvent();"
-                                    :disabled="form.page === outgoingFromApi?.last_page"
-                                >
-                                    Next
-                                    <template v-slot:icon>
-                                        <arrow-right class="h-auto w-6" />
-                                    </template>
+                                <paginate-btn @click="setFilter('mid')" :class="form.filter_by === 'mid' ? 'bg-AB text-white' : ''">
+                                    Mid Stock
                                 </paginate-btn>
 
-                                <!-- Last Button -->
-                                <paginate-btn
-                                    @click="form.page = outgoingFromApi?.last_page; searchEvent();"
-                                    :disabled="form.page === outgoingFromApi?.last_page"
-                                >
-                                    Last
+                                <paginate-btn @click="setFilter('high')" :class="form.filter_by === 'high' ? 'bg-AB text-white' : ''">
+                                    High Stock
                                 </paginate-btn>
                             </div>
-                            <div class="w-full overflow-hidden">
+                            <div class="w-full max-h-[60vh] overflow-y-auto">
                                 <!-- Show forms when available -->
                                 <div v-if="outgoingFromApi && Array.isArray(outgoingFromApi.data) && outgoingFromApi.data.length > 0" class="sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 flex flex-col sm:gap-1 min-w-fit">
-                                    <div v-for="item in outgoingFromApi.data" :key="item.item_id || item.id" @click="selectItem(item)" class="flex flex-col bg-white shadow hover:bg-gray-200 hover:border-gray-500 border rounded active:scale-95 duration-75">
+                                    <div
+                                        v-for="(item, index) in outgoingFromApi.data"
+                                        :key="`${item.item_id || item.id}-${item.unit}-${item.barcode || 'nobarcode'}-${index}`"
+                                        @click="selectItem(item)"
+                                        class="flex flex-col bg-white shadow hover:bg-gray-200 hover:border-gray-500 border rounded active:scale-95 duration-75"
+                                    >
                                         <div class="flex select-none justify-between items-center gap-5 py-2 px-4">
                                             <div class="flex flex-col">
                                                 <span class="font-bold text-xs whitespace-nowrap overflow-ellipsis overflow-hidden">
                                                     {{ item.name }} ({{ item.unit }})
                                                 </span>
+                                                <span class="text-xs text-gray-500">{{ item.barcode }}</span>
                                                 <span class="text-xs text-gray-500">{{ item.brand }}</span>
                                             </div>
                                             <span class="text-right">{{ formatNumber(item.remaining_quantity) }}</span>
@@ -200,7 +196,7 @@ export default {
                                     No forms available.
                                 </div>
                             </div>
-                            <div id="dtPaginatorContainer" class="hidden flex gap-1 items-center w-full justify-center">
+                            <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
                                 <!-- First Button -->
                                 <paginate-btn @click="form.page = 1; searchEvent();" :disabled="form.page === 1">
                                     First
