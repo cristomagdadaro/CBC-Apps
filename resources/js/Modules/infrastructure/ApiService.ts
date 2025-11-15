@@ -112,6 +112,7 @@ export default abstract class ApiService {
         return {
             search: null,
             filter: null,
+            filter_by: null,
             is_exact: false,
             page: 1,
             per_page: 10,
