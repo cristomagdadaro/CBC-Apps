@@ -194,7 +194,7 @@ export default abstract class ApiService {
         return await this.delete(this._apiDelete, this.getIdentifier(params));
     }
 
-    private getIdentifier(params: any): string | null {
+    private getIdentifier(params: any): null {
         let identifier: any = null;
 
         // select keys containing id or _id string

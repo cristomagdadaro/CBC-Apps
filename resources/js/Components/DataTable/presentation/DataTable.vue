@@ -23,7 +23,9 @@ import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
 export default {
     name: 'DataTable',
     components: {
-        CancelBtn, ConfirmationModal, DeleteBtn,
+        CancelBtn,
+        ConfirmationModal,
+        DeleteBtn,
         TransitionContainer,
         Checkbox,
         CheckallIcon,
@@ -31,7 +33,17 @@ export default {
         EditIcon,
         DtLinkButton,
         CaretDown,
-        CustomDropdown, LoaderIcon, DtData, DtHead, DtRowBody, DtThead, DtRowHead, DtTbody, DtTheadRow, DtTable},
+        CustomDropdown,
+        LoaderIcon,
+        DtData,
+        DtHead,
+        DtRowBody,
+        DtThead,
+        DtRowHead,
+        DtTbody,
+        DtTheadRow,
+        DtTable,
+    },
     props: {
         apiResponse: {
             type: Object,
@@ -69,27 +81,70 @@ export default {
                 {label: '50', name: '50', selected: false},
                 {label: '100', name: '100', selected: false},
             ],
-        }
+            showConfirmModal: false,
+            rowPendingDelete: null,
+        };
     },
     methods: {
         getNestedValue(obj, path) {
-            return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+            return path.split('.').reduce((acc, part) => (acc && acc[part] !== undefined ? acc[part] : null), obj);
         },
-        confirmAction(data)
-        {
+        confirmAction(data) {
             this.$emit('confirmDelete', data);
+        },
+        openDeleteConfirm(row) {
+            this.rowPendingDelete = row;
+            this.showConfirmModal = true;
+        },
+        performDelete() {
+            const row = this.rowPendingDelete;
+            this.showConfirmModal = false;
+            if (!row) return;
+
+            this.confirmAction(row);
+
+            if (row.api && row.api._apiDelete) {
+                const url = row.api._apiDelete;
+                const identifierId = row?.identifier?.()?.id ?? row.id;
+                if (identifierId) {
+                    row.api.axiosInstance.delete(route(url, identifierId));
+                    this.$emit('deleted', row);
+                }
+            }
+
+            this.rowPendingDelete = null;
         },
         getShowPageRoute(row) {
             const showPage = this.dt?.data?.[0]?.showPage;
-            const id = row.identifier?.()?.id;
+            const id = row?.identifier?.()?.id ?? row.id;
             return showPage && id ? route(showPage, id) : '#';
-        }
+        },
     }
 }
 </script>
 
 <template>
     <div v-if="dt" class="relative w-full overflow-x-auto max-h-screen overflow-hidden overflow-y-auto">
+        <!-- Confirmation Modal -->
+        <confirmation-modal :show="showConfirmModal" @close="showConfirmModal = false">
+            <template #title>
+                Confirm Delete
+            </template>
+
+            <template #content>
+                Are you sure you want to delete this record? This action cannot be undone.
+            </template>
+
+            <template #footer>
+                <cancel-btn class="me-2" @click="showConfirmModal = false">
+                    Cancel
+                </cancel-btn>
+                <delete-btn @click="performDelete">
+                    Delete
+                </delete-btn>
+            </template>
+        </confirmation-modal>
+
         <transition-container type="fade">
             <div v-show="processing" class="absolute w-full h-full">
                 <div class="flex items-center gap-1 justify-center py-5 bg-gray-200 h-full bg-opacity-90">
@@ -98,6 +153,7 @@ export default {
                 </div>
             </div>
         </transition-container>
+
         <dt-table>
             <dt-thead>
                 <dt-row-head class="bg-gray-500 text-white uppercase">
@@ -121,7 +177,7 @@ export default {
                 <dt-row-body
                     v-if="displayedRows && displayedRows.length"
                     v-for="row in displayedRows"
-                    :key="row.id"
+                    :key="row?.identifier?.()?.id ?? row?.id ?? displayedRows.indexOf(row)"
                 >
                     <dt-data class="text-center border-y border-gray-500 lg:p-0 p-1">
                         {{ (dt.from ? dt.from : 1) + displayedRows.indexOf(row) }}
@@ -142,13 +198,13 @@ export default {
                     <dt-data v-if="appendActions" class="border-y border-gray-500">
                         <div class="flex flex-row gap-2 justify-evenly">
                             <dt-link-button
-                                v-if="dt?.data?.[0]?.showPage && row.identifier?.()?.id"
+                                v-if="dt?.data?.[0]?.showPage && row?.identifier?.()?.id"
                                 :href="getShowPageRoute(row)"
                                 class="text-yellow-400"
                             >
                                 <edit-icon class="w-4 h-auto" />
                             </dt-link-button>
-                            <dt-link-button @click="confirmAction(row)" class="text-red-400">
+                            <dt-link-button @click="openDeleteConfirm(row)" class="text-red-400">
                                 <delete-icon class="w-4 h-auto" />
                             </dt-link-button>
                         </div>

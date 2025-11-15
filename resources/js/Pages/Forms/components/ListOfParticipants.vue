@@ -49,12 +49,11 @@ export default {
         this.form.search = this.eventId;
         this.form.is_exact = true;
 
-        this.eventFormFromApi =  await this.fetchData();
+        this.searchEvent();
     },
     methods: {
         async searchEvent() {
             this.eventFormFromApi = null;
-
             this.eventFormFromApi = await this.fetchData();
         },
     }
@@ -62,9 +61,11 @@ export default {
 </script>
 
 <template>
-    <div class="mx-auto sm:px-6 lg:px-8">
-        <data-table :api-response="eventFormFromApi" :model="Participants" />
+    <div>
+        <h2 class="text-2xl font-semibold mb-4">List of Respondents</h2>
+        <p class="mb-6">Total: {{ eventFormFromApi?.data?.length || 0 }}</p>
     </div>
+    <data-table :api-response="eventFormFromApi" :model="Participants" @deleted="searchEvent"/>
 </template>
 
 <style scoped>

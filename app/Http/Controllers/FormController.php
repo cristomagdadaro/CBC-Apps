@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateFormRequest;
 use App\Http\Requests\DeleteFormRequest;
+use App\Http\Requests\DeleteParticipantRequest;
 use App\Http\Requests\GetFormsRequest;
 use App\Http\Requests\UpdateFormRequest;
 use App\Models\Form;
+use App\Models\Participant;
 use App\Models\Registration;
 use App\Repositories\FormRepo;
 use Illuminate\Database\Eloquent\Model;
@@ -38,14 +40,29 @@ class FormController extends BaseController
 
     public function indexParticipants(GetFormsRequest $request, $event_id = null): Collection
     {
-        if (!$event_id)
+        if (!$event_id) {
             $event_id = $request->get('search');
+        }
 
-        if (!$event_id)
+        if (!$event_id) {
             return new Collection([]);
+        }
 
-       $data = Registration::where('event_id', $event_id)->with('participant')->get()->pluck('participant');
-       return new Collection(['data' => $data]);
+        $data = Registration::where('event_id', $event_id)
+            ->with('participant')
+            ->get()
+            ->filter(fn ($registration) => $registration->participant !== null)
+            ->pluck('participant')
+            ->values();
+
+        return new Collection(['data' => $data]);
+    }
+
+    public function deleteParticipants(DeleteParticipantRequest $request, $participant_id): Model
+    {
+        $model = Participant::where('id', $participant_id)->first();
+        $model->delete();
+        return $model;
     }
 
     public function create(CreateFormRequest $request, $event_id = null): Model
