@@ -50,7 +50,6 @@ export default {
         async submitCreate(toCast: boolean = false, except: string = '') {
             this.form.clearErrors();
             return await this.model.api.postIndex(this.form.data()).then(response => {
-                // reset all fields with exceptions
                 this.resetForm(except);
                 if (toCast) {
                     return new DtoResponse(response).castDataToModel(this.model.constructor);

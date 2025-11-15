@@ -132,11 +132,11 @@ export default {
 </script>
 
 <template>
-    <div class="border p-2 md:rounded-md flex flex-col gap-2 bg-white max-w-4xl w-full min-w-3xl drop-shadow-lg">
+    <div class="border p-2 md:rounded-md flex flex-col gap-2 bg-white w-full drop-shadow-lg">
         <div class="px-2 pt-4 overflow-x-auto">
             <ProgressTabs :steps="steps" :current="currentStep" @update:current="handleStepChange" />
         </div>
-        <form v-if="form" @submit.prevent="handleCreate()" class="px-2 py-4  md:rounded-md flex flex-col gap-4 bg-white">
+        <form v-if="form" @submit.prevent="handleCreate()" class="px-2 py-0  md:rounded-md flex flex-col gap-4 bg-white">
             <!-- Step 0: Request Type -->
             <div v-show="currentStep === 0" class="flex flex-col gap-2 w-full">
                 <div class="w-full relative">
@@ -213,7 +213,7 @@ export default {
             <!-- Step 2: Request Form Details -->
             <div v-show="currentStep === 2" class="flex flex-col gap-2">
                 <span class="font-bold uppercase">Request Form: </span>
-                <TextInput id="request_purpose" v-model="form.request_purpose" required type="text" :error="errMsg('request_purpose')" label="Request Purpose" placeholder="Reason or purpose of your request" autocomplete="request_purpose" @input="form.clearErrors('request_purpose')" />
+                <TextInput id="request_purpose" v-model="form.request_purpose" required type="text" :error="errMsg('request_purpose')" label="Purpose of Request" placeholder="Reason or purpose of your request" autocomplete="request_purpose" @input="form.clearErrors('request_purpose')" />
                 <TextInput id="request_details" v-model="form.request_details" type="text" :error="form.errors.request_details" label="Request Details" placeholder="If applicable" autocomplete="request_details" @input="form.clearErrors('request_details')" />
                 <TextInput id="project_title" v-model="form.project_title" type="text" :error="form.errors.project_title" label="Project Title" placeholder="If project related request" autocomplete="project_title" @input="form.clearErrors('project_title')" />
                 <div class="flex gap-2">
@@ -225,15 +225,16 @@ export default {
             <!-- Step 3: Supplies -->
             <div v-show="currentStep === 3" class="flex flex-col gap-2">
                 <h2>
-                    <span class="font-bold uppercase">Supplies: </span>
+                    <span class="font-bold uppercase">Supplies: </span><span class="text-sm">Type to SEARCH and press ENTER select</span>
                 </h2>
+
                 <TagifyInput v-model="form.consumables_to_use" name="consumables_to_use" placeholder="Select available supplies" api-link="api.inventory.items.public" />
             </div>
 
             <!-- Step 4: Equipments -->
             <div v-show="currentStep === 4" class="flex flex-col gap-2">
                 <h2>
-                    <span class="font-bold uppercase">Equipments: </span>
+                    <span class="font-bold uppercase">Equipments: </span><span class="text-sm">Type to SEARCH and press ENTER select</span>
                 </h2>
                 <TagifyInput v-model="form.equipments_to_use" name="labs_to_use" placeholder="Select available laboratory facilities" api-link="api.inventory.equipments.public" />
             </div>
@@ -241,7 +242,7 @@ export default {
             <!-- Step 5: Laboratory Facilities -->
             <div v-show="currentStep === 5" class="flex flex-col gap-2">
                 <h2>
-                    <span class="font-bold uppercase">Laboratory Facilities: </span>
+                    <span class="font-bold uppercase">Laboratory Facilities: </span><span class="text-sm">Type to SEARCH and press ENTER select</span>
                 </h2>
                 <TagifyInput v-model="form.labs_to_use" name="labs_to_use" placeholder="Select available laboratory facilities" api-link="api.inventory.laboratories.public" />
             </div>

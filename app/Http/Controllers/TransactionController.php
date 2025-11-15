@@ -69,6 +69,8 @@ class TransactionController extends BaseController
         $perPage  = (int) $request->input('per_page', 10);
         $page     = (int) $request->input('page', 1);
         $paginate = filter_var($request->input('paginate', true), FILTER_VALIDATE_BOOLEAN);
+        $filter    = $request->input('filter');
+        $filterBy  = $request->input('filter_by');
 
         $orderByRaw = match ($sort) {
             'name'               => 'items.name',
@@ -90,6 +92,30 @@ class TransactionController extends BaseController
             )
             ->join('items', 'transactions.item_id', '=', 'items.id')
             ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode');
+
+        if ($filter === 'quantity' && $filterBy) {
+            $percentageExpr = 'CASE WHEN total_ingoing <> 0 THEN remaining_quantity / total_ingoing ELSE 0 END';
+
+            switch ($filterBy) {
+                case 'empty':
+                    $query->havingRaw("$percentageExpr <= 0");
+                    break;
+                case 'low':
+                    $query->havingRaw("$percentageExpr > 0 AND $percentageExpr <= 0.25");
+                    break;
+                case 'mid':
+                    $query->havingRaw("$percentageExpr > 0.25 AND $percentageExpr <= 0.75");
+                    break;
+                case 'high':
+                    $query->havingRaw("$percentageExpr > 0.75");
+                    break;
+            }
+        } elseif ($filter === 'barcode') {
+            if ($search) {
+                $like = '%' . $search . '%';
+                $query->havingRaw('barcode LIKE ?', [$like]);
+            }
+        }
 
         if ($search !== null && $search !== '') {
             if ($isExact) {

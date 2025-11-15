@@ -50,6 +50,7 @@ export default {
             }
 
             this.submitCreate();
+            this.$emit('submitted');
         }
     },
     mounted() {
@@ -81,7 +82,7 @@ export default {
 
 <template>
     <div class="flex flex-col sm:p-5 p-2 sm:gap-3 gap-1 bg-white shadow rounded">
-        <div class="flex select-none justify-between items-center gap-5 py-2 px-4 border-b">
+        <div  v-if="data" class="flex select-none justify-between items-center gap-5 py-2 px-4 border-b">
             <div class="flex flex-col leading-none">
                 <span class="font-bold text-lg whitespace-nowrap overflow-ellipsis overflow-hidden">
                     {{ data.name }} ({{ data.unit }})
