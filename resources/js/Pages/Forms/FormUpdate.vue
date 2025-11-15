@@ -15,6 +15,7 @@ import Participant from "@/Modules/domain/Participant";
 import ListOfParticipants from "@/Pages/Forms/components/ListOfParticipants.vue";
 import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 import TabNavigation from "@/Components/TabNavigation.vue";
+import RequirementsManager from "@/Components/Forms/RequirementsManager.vue";
 
 export default {
     name: "FormUpdate",
@@ -24,6 +25,7 @@ export default {
         },
     },
     components: {
+        RequirementsManager,
         TabNavigation,
         LoaderIcon,
         ListOfParticipants,
@@ -44,9 +46,18 @@ export default {
             activeTab: "update",
         };
     },
-    beforeMount() {
+    async beforeMount() {
         this.model = new Form();
         this.setFormAction("update");
+        if (!this.form.requirements) {
+            this.form.requirements = this.$page.props?.data?.requirements || [];
+        }
+    },
+    methods: {
+        async submitProxyUpdate() {
+            this.form.requirements = this.form.requirements || [];
+            await this.submitUpdate();
+        },
     },
 };
 </script>
@@ -58,6 +69,7 @@ export default {
         </template>
 
         <div class="mx-auto flex flex-col gap-5 sm:px-6 lg:px-8">
+            {{form}}
             <TabNavigation
                 v-model="activeTab"
                 :tabs="[
@@ -68,7 +80,7 @@ export default {
                 <template #default="{ activeKey }">
                     <!-- Update Form tab -->
                     <div v-if="activeKey === 'update'" class="mt-4">
-                        <form v-if="!!form" @submit.prevent="submitUpdate" class="max-w-3xl min-w-xl w-full mx-auto">
+                        <form v-if="!!form" @submit.prevent="submitProxyUpdate" class="max-w-3xl min-w-xl w-full mx-auto">
                             <div class="w-full flex flex-col gap-6">
                                 <div
                                     class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg"
@@ -190,6 +202,9 @@ export default {
                                                     <label>Posttest</label>
                                                 </div>
                                             </div>
+                                        </div>
+                                        <div class="px-1">
+                                            <requirements-manager v-model="form.requirements" />
                                         </div>
                                         <div class="flex flex-col p-2">
                                             <div class="flex gap-1 justify-between">

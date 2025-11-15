@@ -276,6 +276,11 @@ Route::middleware([
                 }])->name('suppliers.show');
             });
         });
+
+        Route::prefix('event-forms')->group(function () {
+            Route::get('/{event_id}', [FormController::class, 'show'])->name('forms.show');
+            Route::post('/{event_id}/requirements', [FormController::class, 'updateRequirements'])->name('forms.requirements.update');
+        });
     });
 
 });

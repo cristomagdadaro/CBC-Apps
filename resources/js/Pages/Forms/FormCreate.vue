@@ -11,17 +11,28 @@ import TimeInput from "@/Components/TimeInput.vue";
 import Form from "@/Modules/domain/Form";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import GuestCard from "@/Pages/Forms/components/GuestCard.vue";
+import RequirementsManager from "@/Components/Forms/RequirementsManager.vue";
 
 export default {
     name: "FormCreate",
     components: {
+        RequirementsManager,
         GuestCard,
         TimeInput, DateInput, TextArea, TextInput, FormsHeaderActions, Link, AddButton, AppLayout, ListOfForms},
     mixins: [ApiMixin],
     beforeMount() {
         this.model = new Form();
         this.setFormAction('create');
-    }
+        if (!this.form.requirements) {
+            this.form.requirements = [];
+        }
+    },
+    methods: {
+        async submitProxyCreate() {
+            this.form.requirements = this.form.requirements || [];
+            await this.submitCreate();
+        },
+    },
 }
 </script>
 
@@ -33,7 +44,7 @@ export default {
         <div class="flex justify-center gap-5 py-12">
             <div class="flex flex-col w-1/4">
                 <span>Event Form</span>
-                <form v-if="!!form" @submit.prevent="submitCreate">
+                <form v-if="!!form" @submit.prevent="submitProxyCreate">
                     <div class="w-full mx-auto">
                         <div class="bg-white dark:bg-gray-800 overflow-hidden sm:rounded-lg">
                             <div class="border p-2 rounded-md flex flex-col gap-2">
@@ -81,24 +92,8 @@ export default {
                                         <text-input type="number" placeholder="optional" v-model="form.max_slots" class="text-sm" :error="form.errors.max_slots"/>
                                     </div>
                                 </div>
-                                <div class="px-1">
-                                    <label class="font-bold uppercase" title="Additional steps for the form">
-                                        Requirements
-                                    </label>
-                                    <div class="flex justify-evenly">
-                                        <div @click="form.has_preregistration = !form.has_preregistration" class="flex items-center gap-1" title="Require guests to pre-register">
-                                            <input type="checkbox" class="rounded-full" :checked="form.has_preregistration">
-                                            <label>Preregistration</label>
-                                        </div>
-                                        <div @click="form.has_pretest = !form.has_pretest" class="flex items-center gap-1" title="Require guests to take pre-test">
-                                            <input type="checkbox" class="rounded-full" :checked="form.has_pretest">
-                                            <label>Pretest</label>
-                                        </div>
-                                        <div @click="form.has_posttest = !form.has_posttest" class="flex items-center gap-1" title="Require guests to take post-test">
-                                            <input type="checkbox" class="rounded-full" :checked="form.has_posttest">
-                                            <label>Posttest</label>
-                                        </div>
-                                    </div>
+                                <div class="px-1 flex flex-col gap-1">
+                                    <requirements-manager v-model="form.requirements" />
                                 </div>
                                 <div class="flex flex-col p-2">
                                     <div class="flex gap-1 justify-end">
