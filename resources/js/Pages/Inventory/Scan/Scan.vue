@@ -6,7 +6,6 @@ import SearchBox from "@/Pages/Inventory/Scan/components/searchBox.vue";
 import Transaction from "@/Pages/Inventory/Scan/components/model/Transaction";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
-import Scanner from "@/Pages/Inventory/Scan/components/Scanner.vue";
 import Dropdown from "@/Components/Dropdown.vue";
 import DropdownLink from "@/Components/DropdownLink.vue";
 import ScannerHeaderActions from "@/Pages/Inventory/Scan/components/ScannerHeaderActions.vue";
@@ -19,10 +18,12 @@ import ArrowLeft from "@/Components/Icons/ArrowLeft.vue";
 import ArrowRight from "@/Components/Icons/ArrowRight.vue";
 import ListOfForms from "@/Pages/Forms/components/ListOfForms.vue";
 import ListOfTransactions from "@/Pages/Inventory/Scan/components/ListOfTransactions.vue";
+import CameraScanner from "@/Components/CameraScanner.vue";
 
 export default {
     name: "Scan",
     components: {
+        CameraScanner,
         ListOfTransactions,
         ListOfForms,
         ArrowRight, ArrowLeft, PaginateBtn,
@@ -30,7 +31,6 @@ export default {
         SearchBy, TextInput,
         ScannerHeaderActions,
         DropdownLink, Dropdown,
-        Scanner,
         FilterIcon,
         CustomDropdown,
         QrcodeStream,
@@ -47,8 +47,6 @@ export default {
     data() {
         return {
             selectedScanner: "webcam",
-            selectedDevice: null,
-            devices: [],
             error: null,
             transactionsFromApi: [],
             params: {
@@ -121,22 +119,21 @@ export default {
             }
             this.lastKeyTime = now;
         },
-        cameraChange(deviceInfo) {
-            this.selectedDevice = this.devices.find(option => option.deviceId === deviceInfo.deviceId);
-        },
         async searchEvent() {
             await this.fetchGetApi('api.inventory.transactions.remaining-stocks').then((response) => {
                 this.transactionsFromApi = response;
             })
         },
+        onCameraDecoded(code) {
+            if (this.form) this.form.search = code;
+            this.searchEvent();
+        },
     },
     watch: {
         selectedScanner(value) {
             if (value === 'webcam') {
-                this.selectedDevice = this.devices[0];
                 this.stopHandheldScanner();
             } else {
-                this.selectedDevice = null;
                 this.startHandheldScanner();
             }
         },
@@ -189,42 +186,13 @@ export default {
                             </template>
                         </Dropdown>
                     </div>
-                    <div v-if="selectedScanner === 'webcam'"  class="sm:max-w-96 max-w-full">
-                        <div>
-                            <label class="text-gray-600 text-center text-sm whitespace-nowrap">Available Camera Devices</label>
-                            <Dropdown align="right" width="60">
-                                <template #trigger>
-                                    <button type="button" class="inline-flex items-center justify-between px-3 py-3 border shadow-sm text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white w-full dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
-                                        {{ selectedDevice ? selectedDevice.label:'Choose a camera' }}
-                                        <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                                        </svg>
-                                    </button>
-                                </template>
-                                <template #content>
-                                    <div class="w-60">
-                                        <DropdownLink v-for="device in devices" as="button" @click.prevent="cameraChange(device)">
-                                            <div class="flex items-center gap-1">
-                                                <span>{{ device.label }}</span>
-                                            </div>
-                                        </DropdownLink>
-                                    </div>
-                                </template>
-                            </Dropdown>
-                        </div>
 
-
-                        <div v-if="selectedDevice" class="flex justify-between select-none mt-2">
-                            <label class="text-gray-600 text-center text-sm">Scanner View</label>
-                            <span class="text-gray-600 text-center text-sm">QR/Barcode</span>
-                        </div>
-                        <div class="p-1 drop-shadow-lg bg-white my-2">
-                            <scanner @decoded="(code) => { form.search = code; searchEvent(); }"
-                                     @error="error = $event"
-                                     :selectedDevice="selectedDevice"
-                                     @detectedDevices="devices =  $event"
-                            />
-                        </div>
+                    <div v-if="selectedScanner === 'webcam'" class="sm:max-w-96 max-w-full">
+                        <camera-scanner
+                            :enabled="selectedScanner === 'webcam'"
+                            @decoded="onCameraDecoded"
+                            @error="error = $event"
+                        />
                     </div>
                     <div v-else class="items-center">
                         <img class="w-28 mx-auto animate-pulse" src="/misc/img/handheld-scanner.png" alt="Handheld Scanner Icon">
@@ -265,7 +233,7 @@ export default {
                                 <!-- Next Button -->
                                 <paginate-btn
                                     @click="form.page = Math.min(transactionsFromApi?.last_page, form.page + 1)"
-                                    :disabled="form.page === transactionsFromApi?.last_page"
+                                    :disabled="transactionsFromApi?.last_page && form.page === transactionsFromApi.last_page"
                                 >
                                     Next
                                     <template v-slot:icon>
@@ -276,7 +244,7 @@ export default {
                                 <!-- Last Button -->
                                 <paginate-btn
                                     @click="form.page = transactionsFromApi?.last_page"
-                                    :disabled="form.page === transactionsFromApi?.last_page"
+                                    :disabled="transactionsFromApi?.last_page && form.page === transactionsFromApi.last_page"
                                 >
                                     Last
                                 </paginate-btn>
@@ -331,7 +299,7 @@ export default {
                             <!-- Next Button -->
                             <paginate-btn
                                 @click="form.page = Math.min(transactionsFromApi?.last_page, form.page + 1)"
-                                :disabled="form.page === transactionsFromApi?.last_page"
+                                :disabled="transactionsFromApi?.last_page && form.page === transactionsFromApi.last_page"
                             >
                                 Next
                                 <template v-slot:icon>
@@ -342,7 +310,7 @@ export default {
                             <!-- Last Button -->
                             <paginate-btn
                                 @click="form.page = transactionsFromApi?.last_page"
-                                :disabled="form.page === transactionsFromApi?.last_page"
+                                :disabled="transactionsFromApi?.last_page && form.page === transactionsFromApi.last_page"
                             >
                                 Last
                             </paginate-btn>

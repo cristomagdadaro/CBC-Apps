@@ -119,11 +119,11 @@ class TransactionController extends BaseController
     {
         $validated = $request->validated();
 
-        // If no user_id was provided but employee_id was, resolve the user and set user_id
         if (empty($validated['user_id']) && !empty($validated['employee_id'])) {
             $user = User::where('employee_id', $validated['employee_id'])->first();
             if ($user) {
                 $validated['user_id'] = $user->id;
+                $validated['personnel_id'] = $user->id;
             }
         }
 

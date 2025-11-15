@@ -18,10 +18,14 @@ import PaginateBtn from "@/Components/PaginateBtn.vue";
 import OutgoingForm from "@/Pages/Inventory/Transactions/components/presentation/OutgoingForm.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Personnel from "@/Pages/Inventory/Personnel/components/model/Personnel";
+import GuestFormPage from "@/Pages/Shared/GuestFormPage.vue";
+import CameraScanner from "@/Components/CameraScanner.vue";
 
 export default {
     name: "OutgoingFormGuest",
     components: {
+        CameraScanner,
+        GuestFormPage,
         OutgoingForm,
         PaginateBtn,
         SearchBy,
@@ -81,7 +85,7 @@ export default {
             this.showModel = true;
         },
         async searchEvent() {
-            await this.fetchGetApi('api.inventory.transactions.remaining-stocks').then((response) => {
+            await this.fetchGetApi('api.inventory.transactions.remaining-stocks', this.form.data()).then((response) => {
                 this.outgoingFromApi = response;
             })
         },
@@ -92,161 +96,160 @@ export default {
 <template>
     <Head title="Outgoing Form" />
 
-    <div class="min-h-[100vh] relative">
-        <div class="absolute top-0 left-0 w-full h-full z-[999] flex justify-center">
-            <div class="relative sm:flex flex-col gap-5 sm:justify-center sm:items-center min-h-screen">
-                <div class="md:relative flex flex-col lg:gap-5 w-full">
-                    <transition-container :duration="500" type="pop-out">
-                        <div v-show="delayReady"  class="border select-none p-2 md:rounded-md flex flex-col gap-2 bg-gray-100 w-full drop-shadow-lg">
-                            <div class="relative flex flex-row bg-AB text-white p-2 px-4 rounded-md gap-2 shadow py-4">
-                                <img src="/imgs/logo.png" alt="logo" class="w-auto h-16" />
-                                <div class="flex flex-col justify-center">
-                                    <label class="leading-none font-semibold text-xl">Outgoing Inventory Form</label>
-                                    <p class="text-sm leading-none">
-                                        Kindly fill out the form below to record your transaction
-                                    </p>
+    <guest-form-page
+        :title="'Outgoing Inventory Form'"
+        :subtitle="'Kindly fill out the form below to record your transaction'"
+        :delay-ready="delayReady"
+    >
+        <template #top>
+            <transition-container :duration="500" type="pop-out">
+                <div v-show="delayReady"  class="border select-none md:rounded-md flex flex-col gap-2 bg-gray-100 w-full drop-shadow-lg">
+                    <div class="relative flex flex-row bg-AB text-white p-2 px-4 rounded-md gap-2 shadow py-4">
+                        <img src="/imgs/logo.png" alt="logo" class="w-auto h-16" />
+                        <div class="flex flex-col justify-center">
+                            <label class="leading-none font-semibold text-xl">Outgoing Inventory Form</label>
+                            <p class="text-sm leading-none">
+                                Kindly fill out the form below to record your transaction
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </transition-container>
+        </template>
+
+        <div class="flex gap-5 flex-col bg-gray-50 p-3 rounded-md">
+            <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
+                <div class="py-4 flex flex-col md:flex-row gap-3 justify-center">
+                    <camera-scanner @decoded="form.search = $event; searchEvent()" />
+                    <div class="flex flex-col justify-start gap-3 mx-auto w-full">
+                        <div class="w-full flex gap-2 items-end lg:px-0 px-2">
+                            <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
+                            <text-input placeholder="Search..." v-model="form.search" />
+                            <search-btn @click="searchEvent" :disabled="model?.processing" class="w-[10rem] text-center">
+                                <span v-if="!model?.processing">Search</span>
+                                <span v-else>Searching</span>
+                            </search-btn>
+                        </div>
+                        <div v-if="outgoingFromApi" class="flex flex-col w-full gap-2 items-center">
+                            <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
+                                <!-- First Button -->
+                                <paginate-btn @click="form.page = 1; searchEvent();" :disabled="form.page === 1">
+                                    First
+                                </paginate-btn>
+
+                                <!-- Previous Button -->
+                                <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchEvent();" :disabled="form.page === 1">
+                                    <template v-slot:icon>
+                                        <arrow-left class="h-auto w-6" />
+                                    </template>
+                                    Prev
+                                </paginate-btn>
+
+                                <!-- Current Page Indicator -->
+                                <div class="text-xs flex flex-col whitespace-nowrap text-center">
+                                <span class="font-medium mx-1" title="current page and total pages">
+                                    <span>{{ outgoingFromApi?.current_page }}</span> / <span>{{ outgoingFromApi?.last_page }}</span>
+                                </span>
+                                </div>
+
+                                <!-- Next Button -->
+                                <paginate-btn
+                                    @click="form.page = Math.min(outgoingFromApi?.last_page, form.page + 1); searchEvent();"
+                                    :disabled="form.page === outgoingFromApi?.last_page"
+                                >
+                                    Next
+                                    <template v-slot:icon>
+                                        <arrow-right class="h-auto w-6" />
+                                    </template>
+                                </paginate-btn>
+
+                                <!-- Last Button -->
+                                <paginate-btn
+                                    @click="form.page = outgoingFromApi?.last_page; searchEvent();"
+                                    :disabled="form.page === outgoingFromApi?.last_page"
+                                >
+                                    Last
+                                </paginate-btn>
+                            </div>
+                            <div class="w-full overflow-hidden">
+                                <!-- Show forms when available -->
+                                <div v-if="outgoingFromApi && Array.isArray(outgoingFromApi.data) && outgoingFromApi.data.length > 0" class="sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 flex flex-col sm:gap-1 min-w-fit">
+                                    <div v-for="item in outgoingFromApi.data" :key="item.item_id || item.id" @click="selectItem(item)" class="flex flex-col bg-white shadow hover:bg-gray-200 hover:border-gray-500 border rounded active:scale-95 duration-75">
+                                        <div class="flex select-none justify-between items-center gap-5 py-2 px-4">
+                                            <div class="flex flex-col">
+                                                <span class="font-bold text-xs whitespace-nowrap overflow-ellipsis overflow-hidden">
+                                                    {{ item.name }} ({{ item.unit }})
+                                                </span>
+                                                <span class="text-xs text-gray-500">{{ item.brand }}</span>
+                                            </div>
+                                            <span class="text-right">{{ formatNumber(item.remaining_quantity) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Show "Searching" when processing -->
+                                <div v-else-if="model.api.processing" class="text-center py-3 border border-AB rounded-lg">
+                                    Searching...
+                                </div>
+
+                                <!-- Show "Form does not exist" when search was performed but no results -->
+                                <div v-else-if="outgoingFromApi && outgoingFromApi.total === 0 && form.search" class="text-center py-3 border border-AB rounded-lg">
+                                    Item does not exist. Try using some filters.
+                                </div>
+
+                                <!-- Show "No forms available" when nothing was returned and no search was performed -->
+                                <div v-else class="text-center py-3 border border-AB rounded-lg">
+                                    No forms available.
                                 </div>
                             </div>
-                        </div>
-                    </transition-container>
-                </div>
-                <div class="flex gap-5 flex-col bg-gray-50 p-3 rounded-md">
-                    <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
-                        <div class="py-4 ">
-                            <div class="flex flex-col justify-between max-w-[90vw] gap-3 mx-auto">
-                                <div class="w-full flex gap-2 items-end lg:px-0 px-2">
-                                    <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
-                                    <text-input placeholder="Search..." v-model="form.search" />
-                                    <search-btn @click="searchEvent" :disabled="model?.processing" class="w-[10rem] text-center">
-                                        <span v-if="!model?.processing">Search</span>
-                                        <span v-else>Searching</span>
-                                    </search-btn>
-                                </div>
-                                <div v-if="outgoingFromApi" class="flex flex-col w-full gap-2 items-center">
-                                    <div id="dtPaginatorContainer" class="flex hidden gap-1 items-center w-full justify-center">
-                                        <!-- First Button -->
-                                        <paginate-btn @click="form.page = 1; searchEvent();" :disabled="form.page === 1">
-                                            First
-                                        </paginate-btn>
+                            <div id="dtPaginatorContainer" class="hidden flex gap-1 items-center w-full justify-center">
+                                <!-- First Button -->
+                                <paginate-btn @click="form.page = 1; searchEvent();" :disabled="form.page === 1">
+                                    First
+                                </paginate-btn>
 
-                                        <!-- Previous Button -->
-                                        <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchEvent();" :disabled="form.page === 1">
-                                            <template v-slot:icon>
-                                                <arrow-left class="h-auto w-6" />
-                                            </template>
-                                            Prev
-                                        </paginate-btn>
+                                <!-- Previous Button -->
+                                <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchEvent();" :disabled="form.page === 1">
+                                    <template v-slot:icon>
+                                        <arrow-left class="h-auto w-6" />
+                                    </template>
+                                    Prev
+                                </paginate-btn>
 
-                                        <!-- Current Page Indicator -->
-                                        <div class="text-xs flex flex-col whitespace-nowrap text-center">
-                            <span class="font-medium mx-1" title="current page and total pages">
-                                <span>{{ outgoingFromApi?.current_page }}</span> / <span>{{ outgoingFromApi?.last_page }}</span>
-                            </span>
-                                        </div>
-
-                                        <!-- Next Button -->
-                                        <paginate-btn
-                                            @click="form.page = Math.min(outgoingFromApi?.last_page, form.page + 1); searchEvent();"
-                                            :disabled="form.page === outgoingFromApi?.last_page"
-                                        >
-                                            Next
-                                            <template v-slot:icon>
-                                                <arrow-right class="h-auto w-6" />
-                                            </template>
-                                        </paginate-btn>
-
-                                        <!-- Last Button -->
-                                        <paginate-btn
-                                            @click="form.page = outgoingFromApi?.last_page; searchEvent();"
-                                            :disabled="form.page === outgoingFromApi?.last_page"
-                                        >
-                                            Last
-                                        </paginate-btn>
-                                    </div>
-                                    <div class="w-full overflow-hidden">
-                                        <!-- Show forms when available -->
-                                        <div v-if="outgoingFromApi?.data.length" class="sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 flex flex-col sm:gap-1 min-w-fit">
-                                            <div v-for="item in outgoingFromApi.data" @click="selectItem(item)" class="flex flex-col bg-white shadow hover:bg-gray-200 hover:border-gray-500 border rounded active:scale-95 duration-75">
-                                                <div class="flex select-none justify-between items-center gap-5 py-2 px-4">
-                                                    <div class="flex flex-col">
-                                                        <span class="font-bold text-xs whitespace-nowrap overflow-ellipsis overflow-hidden">
-                                                            {{ item.name }} ({{ item.unit }})
-                                                        </span>
-                                                        <span class="text-xs text-gray-500">{{ item.brand }}</span>
-                                                    </div>
-                                                    <span class="text-right">{{ formatNumber(item.remaining_quantity) }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- Show "Searching" when processing -->
-                                        <div v-else-if="model.api.processing" class="text-center py-3 border border-AB rounded-lg">
-                                            Searching...
-                                        </div>
-
-                                        <!-- Show "Form does not exist" when search was performed but no results -->
-                                        <div v-else-if="outgoingFromApi && outgoingFromApi.total === 0 && form.search" class="text-center py-3 border border-AB rounded-lg">
-                                            Form does not exist. Try using some filters.
-                                        </div>
-
-                                        <!-- Show "No forms available" when nothing was returned and no search was performed -->
-                                        <div v-else class="text-center py-3 border border-AB rounded-lg">
-                                            No forms available.
-                                        </div>
-                                    </div>
-                                    <div id="dtPaginatorContainer" class="hidden flex gap-1 items-center w-full justify-center">
-                                        <!-- First Button -->
-                                        <paginate-btn @click="form.page = 1; searchEvent();" :disabled="form.page === 1">
-                                            First
-                                        </paginate-btn>
-
-                                        <!-- Previous Button -->
-                                        <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchEvent();" :disabled="form.page === 1">
-                                            <template v-slot:icon>
-                                                <arrow-left class="h-auto w-6" />
-                                            </template>
-                                            Prev
-                                        </paginate-btn>
-
-                                        <!-- Current Page Indicator -->
-                                        <div class="text-xs flex flex-col whitespace-nowrap text-center">
+                                <!-- Current Page Indicator -->
+                                <div class="text-xs flex flex-col whitespace-nowrap text-center">
                                     <span class="font-medium mx-1" title="current page and total pages">
                                         <span>{{ outgoingFromApi?.current_page }}</span> / <span>{{ outgoingFromApi?.last_page }}</span>
                                     </span>
-                                        </div>
-
-                                        <!-- Next Button -->
-                                        <paginate-btn
-                                            @click="form.page = Math.min(outgoingFromApi?.last_page, form.page + 1); searchEvent();"
-                                            :disabled="form.page === outgoingFromApi?.last_page"
-                                        >
-                                            Next
-                                            <template v-slot:icon>
-                                                <arrow-right class="h-auto w-6" />
-                                            </template>
-                                        </paginate-btn>
-
-                                        <!-- Last Button -->
-                                        <paginate-btn
-                                            @click="form.page = outgoingFromApi?.last_page; searchEvent();"
-                                            :disabled="form.page === outgoingFromApi?.last_page"
-                                        >
-                                            Last
-                                        </paginate-btn>
-                                    </div>
                                 </div>
+
+                                <!-- Next Button -->
+                                <paginate-btn
+                                    @click="form.page = Math.min(outgoingFromApi?.last_page, form.page + 1); searchEvent();"
+                                    :disabled="form.page === outgoingFromApi?.last_page"
+                                >
+                                    Next
+                                    <template v-slot:icon>
+                                        <arrow-right class="h-auto w-6" />
+                                    </template>
+                                </paginate-btn>
+
+                                <!-- Last Button -->
+                                <paginate-btn
+                                    @click="form.page = outgoingFromApi?.last_page; searchEvent();"
+                                    :disabled="form.page === outgoingFromApi?.last_page"
+                                >
+                                    Last
+                                </paginate-btn>
                             </div>
-                            <modal :show="!!selectedItem && showModel" @close="showModel = false; resetForm">
-                                <outgoing-form :data="selectedItem" :personnels="personnels" />
-                            </modal>
                         </div>
-                    </transition-container>
+                    </div>
+                    <modal :show="!!selectedItem && showModel" @close="showModel = false; resetForm">
+                        <outgoing-form :data="selectedItem" :personnels="personnels" />
+                    </modal>
                 </div>
-            </div>
+            </transition-container>
         </div>
-        <div class="min-h-[135vh] flex items-center justify-center text-white text-3xl font-bold relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-radial animate-gradient"></div>
-        </div>
-    </div>
+    </guest-form-page>
 </template>
 <style scoped>
 

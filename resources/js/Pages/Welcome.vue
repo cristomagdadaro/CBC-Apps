@@ -66,7 +66,7 @@ onMounted(() => {
                             Access and Use Request Form
                         </Link>
                         <Link :href="route('inventory.public.outgoing.index')" class="dark:text-green-400 hover:text-white p-2 text-AB hover:bg-green-600 duration-200 dark:hover:text-AA md:text-lg text-normal px-4">
-                            Inventory System
+                            Outgoing Inventory Form
                         </Link>
                     </div>
                 </div>

@@ -6,10 +6,11 @@ import Transaction from "@/Pages/Inventory/Scan/components/model/Transaction";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
+import TextArea from "@/Components/TextArea.vue";
 
 export default {
     name: "OutgoingForm",
-    components: {CancelBtn, SubmitBtn, TextInput, FilterIcon, CustomDropdown},
+    components: {TextArea, CancelBtn, SubmitBtn, TextInput, FilterIcon, CustomDropdown},
     props: {
         personnels: Object,
     },
@@ -146,7 +147,7 @@ export default {
                         <filter-icon class="h-4 w-4" />
                     </template>
                 </custom-dropdown>
-                
+
                 <text-input
                     required
                     type-input="number"
@@ -156,6 +157,17 @@ export default {
                     id="quantity"
                     v-model="form.quantity"
                     :error="form.errors.quantity"
+                />
+
+                <text-area
+                    required
+                    type-input="number"
+                    autocomplete="off"
+                    label="Purpose"
+                    name="purpose"
+                    id="purpose"
+                    v-model="form.remarks"
+                    :error="form.errors.remarks"
                 />
 
                 <div class="flex gap-1 justify-between">
