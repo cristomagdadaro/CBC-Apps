@@ -8,7 +8,6 @@ interface ITransaction extends IBaseClass {
     total_cost: number;
     personnel_id: string;
     employee_id: string;
-    project_code: string;
     user_id: string;
     expiration: string;
     remarks: string;

@@ -32,7 +32,6 @@ class TransactionSeeder extends Seeder
                 'unit_price'=> 45,
                 'unit' => 'roll',
                 'total_cost' => 450,
-                'project_code' => 'RTF-018-375',
                 'expiration' => null,
                 'remarks' => 'PO#2024-08-0296',
             ],
@@ -48,7 +47,6 @@ class TransactionSeeder extends Seeder
                 'unit_price'=> 60,
                 'unit' => 'roll',
                 'total_cost' => 900,
-                'project_code' => 'RTF-018-375',
                 'expiration' => null,
                 'remarks' => 'PO#2024-08-0296',
             ],[
@@ -63,7 +61,6 @@ class TransactionSeeder extends Seeder
                 'unit_price'=> 20,
                 'unit' => 'piece',
                 'total_cost' => 100,
-                'project_code' => 'RTF-018-375',
                 'expiration' => null,
                 'remarks' => 'PO#2024-08-0296',
             ],[
@@ -78,7 +75,6 @@ class TransactionSeeder extends Seeder
                 'unit_price'=> 20,
                 'unit' => 'piece',
                 'total_cost' => 100,
-                'project_code' => 'RTF-018-375',
                 'expiration' => null,
                 'remarks' => 'PO#2024-08-0296',
             ],[
@@ -93,7 +89,6 @@ class TransactionSeeder extends Seeder
                 'unit_price'=> 28.5,
                 'unit' => 'piece',
                 'total_cost' => 570,
-                'project_code' => 'RTF-018-375',
                 'expiration' => null,
                 'remarks' => 'PO#2024-08-0298',
             ],
@@ -114,7 +109,6 @@ class TransactionSeeder extends Seeder
                 'unit_price' => $item['unit_price'],
                 'unit' => $item['unit'],
                 'total_cost' => $item['total_cost'],
-                'project_code' => $item['project_code'],
                 'expiration' => $item['expiration'],
                 'remarks' => $item['remarks'],
             ]);

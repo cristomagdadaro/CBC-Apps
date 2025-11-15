@@ -29,7 +29,6 @@ class NewOutgoingRequest extends FormRequest
                 'max:-1',
             ],
             'unit' => 'required|string',
-            'project_code' => 'required|string|max:255',
             'user_id' => 'nullable|exists:users,id',
             'employee_id' => 'required|string|exists:users,employee_id',
             'expiration' => 'date|nullable',

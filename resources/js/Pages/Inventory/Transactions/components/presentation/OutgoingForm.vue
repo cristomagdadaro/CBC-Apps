@@ -146,15 +146,7 @@ export default {
                         <filter-icon class="h-4 w-4" />
                     </template>
                 </custom-dropdown>
-
-                <text-input
-                    required
-                    label="Project Code"
-                    name="project_code"
-                    id="project_code"
-                    v-model="form.project_code"
-                    :error="form.errors.project_code"
-                />
+                
                 <text-input
                     required
                     type-input="number"

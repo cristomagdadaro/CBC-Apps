@@ -82,9 +82,9 @@ class TransactionController extends BaseController
 
         $data = $this->service->model
             ->selectRaw('items.name, items.brand, transactions.unit, items.id as item_id,
-                     SUM(CASE WHEN transactions.quantity > 0 THEN transactions.quantity ELSE 0 END) as total_ingoing,
-                     SUM(CASE WHEN transactions.quantity < 0 THEN ABS(transactions.quantity) ELSE 0 END) as total_outgoing,
-                     SUM(transactions.quantity) as remaining_quantity')
+                     SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,
+                     SUM(CASE WHEN transactions.transac_type = "outgoing" THEN transactions.quantity ELSE 0 END) as total_outgoing,
+                     SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity WHEN transactions.transac_type = "outgoing" THEN -transactions.quantity ELSE 0 END) as remaining_quantity')
             ->join('items', 'transactions.item_id', '=', 'items.id')
             ->where(function ($query) use ($search, $is_exact) {
                 if ($is_exact && $search) {

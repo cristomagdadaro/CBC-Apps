@@ -220,7 +220,6 @@ export default {
                         <text-input type="number" label="Total Cost" v-model="form.total_cost" :error="form.errors.total_cost" />
                     </div>
 
-                    <text-input required label="Project Code" v-model="form.project_code" :error="form.errors.project_code" />
                     <date-input type="date" label="Expiration" v-model="form.expiration" :error="form.errors.expiration" />
                     <text-area label="Remarks" v-model="form.remarks" :error="form.errors.remarks" />
                     <div v-if="svgText" class="flex sm:flex-row flex-col gap-1 w-full items-center relative">

@@ -59,7 +59,6 @@ class CreateTransactionRequest extends FormRequest
             'unit_price' => 'nullable|numeric|min:0',
             'unit' => 'required|string',
             'total_cost' => 'nullable|numeric',
-            'project_code' => 'required|string|max:255',
             'user_id' => 'required|exists:users,id',
             'expiration' => 'date|nullable',
             'remarks' => 'string|nullable',

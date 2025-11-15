@@ -169,7 +169,6 @@ export default {
                         <text-input type="number" label="Total Cost" v-model="form.total_cost" :error="form.errors.total_cost" />
                     </div>
 
-                    <text-input label="Project Code" v-model="form.project_code" :error="form.errors.project_code" />
                     <text-input type="date" label="Expiration" v-model="form.expiration" :error="form.errors.expiration" />
                     <text-area label="Remarks" v-model="form.remarks" :error="form.errors.remarks" />
 

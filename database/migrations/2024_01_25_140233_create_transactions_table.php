@@ -25,7 +25,6 @@ return new class extends Migration
             $table->decimal('unit_price')->nullable();
             $table->decimal('total_cost')->nullable();
             $table->foreignId('personnel_id')->nullable()->references('id')->on('personnels')->NoactionOnDelete()->CascadeOnUpdate();
-            $table->string('project_code')->nullable();
             $table->foreignId('user_id')->references('id')->on('users')->NoactionOnDelete()->CascadeOnUpdate();
             $table->date('expiration')->nullable();
             $table->longText('remarks')->nullable();
