@@ -1,11 +1,15 @@
 import DtoTransaction from "@/Pages/Inventory/Scan/components/model/DtoTransaction";
+import {usePage} from "@inertiajs/vue3";
 
 export default class Transaction extends DtoTransaction {
        constructor(response: DtoTransaction) {
         super(response);
 
+       const page = usePage();
+
         this.api._apiIndex = 'api.inventory.transactions.index';
-        this.api._apiPost = 'api.inventory.transactions.store';
+        // @ts-ignore
+        this.api._apiPost = (page.props.auth && page.props.auth.user) ? 'api.inventory.transactions.store' : 'api.inventory.transactions.store.public';
         this.api._apiPut = 'api.inventory.transactions.update';
         this.api._apiDelete = 'api.inventory.transactions.destroy';
 
@@ -25,6 +29,7 @@ export default class Transaction extends DtoTransaction {
             unit_price: null,
             total_cost: null,
             personnel_id: null,
+            employee_id: null,
             project_code: null,
             user_id: null,
             expiration: null,
@@ -44,6 +49,7 @@ export default class Transaction extends DtoTransaction {
             unit_price: model.unit_price ?? null,
             total_cost: model.total_cost ?? null,
             personnel_id: model.personnel_id ?? null,
+            employee_id: model.employee_id ?? null,
             project_code: model.project_code ?? null,
             user_id: model.user_id ?? null,
             expiration: model.expiration ?? null,

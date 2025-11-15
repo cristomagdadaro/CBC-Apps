@@ -14,9 +14,22 @@ export default {
         personnels: Object,
     },
     mixins: [ApiMixin],
+    data() {
+        return {
+            employee_id: '',
+        }
+    },
     beforeMount() {
         this.model = new Transaction();
         this.setFormAction('create');
+    },
+    computed: {
+        isAuthenticated() {
+            return (this.$page.props.auth && this.$page.props.auth.user);
+        },
+        isPublic() {
+            return !this.isAuthenticated;
+        },
     },
     methods: {
         formatNumber(value){
@@ -24,7 +37,18 @@ export default {
         },
         proxySubmit() {
             this.form.quantity = this.form.quantity * -1;
-            this.submitCreate()
+
+            if (this.isPublic) {
+                // Public flow: user is not logged in.
+                // We treat employee_id as both the identifier for the user
+                // and implicitly for "personnel", so we don't require personnel_id here.
+                this.form.employee_id = this.employee_id;
+                this.form.user_id = null;
+                // Ensure personnel_id is not accidentally validated in this context
+                this.form.personnel_id = null;
+            }
+
+            this.submitCreate();
         }
     },
     mounted() {
@@ -33,18 +57,21 @@ export default {
         this.form.brand = this.data.brand;
         this.form.unit = this.data.unit;
         this.form.item_id = this.data.item_id;
-        this.form.user_id = this.$page.props.auth.user.id,
+
+        // For logged-in users, set user_id so we know who inserted the record
+        if (this.isAuthenticated) {
+            this.form.user_id = this.$page.props.auth.user.id;
+        }
+
         this.form.transac_type = 'outgoing';
     },
     watch: {
         'form.quantity': {
             handler(newVal) {
-                console.log(newVal > Number(this.data.remaining_quantity));
                 if(newVal > Number(this.data.remaining_quantity))
                     this.form['errors'].quantity = 'Exceeds maximum quantity';
                 else
                     this.form['errors'].quantity = null;
-
             }
         }
     }
@@ -90,7 +117,20 @@ export default {
         <div class="flex flex-col sm:gap-3 gap-1 border sm:p-3 p-1 rounded bg-gray-100">
             <h1 class="text-lg font-semibold text-gray-800">Outgoing Transaction</h1>
             <form @submit.prevent="proxySubmit" class="flex flex-col gap-3">
+                <!-- Public access: ask for Employee ID only -->
+                <text-input
+                    v-if="isPublic"
+                    required
+                    label="Employee ID"
+                    name="employee_id"
+                    id="employee_id"
+                    v-model="employee_id"
+                    :error="form.errors.employee_id"
+                />
+
+                <!-- Logged-in users: allow choosing Personnel (consumer) -->
                 <custom-dropdown
+                    v-if="isAuthenticated"
                     required
                     searchable
                     :with-all-option="false"
@@ -106,6 +146,7 @@ export default {
                         <filter-icon class="h-4 w-4" />
                     </template>
                 </custom-dropdown>
+
                 <text-input
                     required
                     label="Project Code"
@@ -124,6 +165,7 @@ export default {
                     v-model="form.quantity"
                     :error="form.errors.quantity"
                 />
+
                 <div class="flex gap-1 justify-between">
                     <cancel-btn @click="resetForm">
                         Reset

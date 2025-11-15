@@ -118,8 +118,6 @@ class TransactionSeeder extends Seeder
                 'expiration' => $item['expiration'],
                 'remarks' => $item['remarks'],
             ]);
-
-            print_r($temp->toArray());
         }
     }
 }

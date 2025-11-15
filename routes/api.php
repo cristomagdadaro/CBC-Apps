@@ -51,6 +51,8 @@ Route::prefix('guest')->group(function () {
             [ 'name' => 'Researchers\' Office I' ],
         ]];
     })->name('api.inventory.laboratories.public');
+    Route::post('/', [TransactionController::class, 'outgoingStockStore'])->name('api.inventory.transactions.store.public');
+    Route::get('/remaining-stocks', [TransactionController::class, 'remainingStocks'])->name('api.inventory.transactions.remaining-stocks');
 });
 
 
@@ -85,7 +87,6 @@ Route::middleware(['api','auth:sanctum','verified'])->group(function () {
             Route::delete('/multi/delete', [TransactionController::class, 'multiDestroy'])->name('api.inventory.transactions.multi-destroy');
             Route::put('/{id?}', [TransactionController::class, 'update'])->name('api.inventory.transactions.update');
             Route::get('/generate-barcode/{room?}', [TransactionController::class, 'generateUniqueBarcode128ID'])->name('api.inventory.transactions.genbarcode');
-            Route::get('/remaining-stocks', [TransactionController::class, 'remainingStocks'])->name('api.inventory.transactions.remaining-stocks');
             Route::put('/outgoingStore/{id?}', [TransactionController::class, 'outgoingStockStore'])->name('api.inventory.transactions.outgoing');
         });
 

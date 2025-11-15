@@ -15,8 +15,8 @@ class InventorySeeder extends Seeder
     {
         $this->call([
             InventoryCategorySeeder::class,
-            ItemsSeeder::class,
             SupplierSeeder::class,
+            ItemsSeeder::class,
             PersonnelSeeder::class,
             TransactionSeeder::class,
         ]);

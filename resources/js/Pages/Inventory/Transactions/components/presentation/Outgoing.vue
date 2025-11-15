@@ -134,7 +134,7 @@ export default {
                     </div>
                     <div class="w-full overflow-hidden">
                         <!-- Show forms when available -->
-                        <div v-if="outgoingFromApi?.data.length" class="sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 flex flex-col sm:gap-1 min-w-fit">
+                        <div v-if="outgoingFromApi && Array.isArray(outgoingFromApi.data) && outgoingFromApi.data.length > 0" class="sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 flex flex-col sm:gap-1 min-w-fit">
                             <div v-for="item in outgoingFromApi.data" @click="selectItem(item)" class="flex flex-col bg-white shadow hover:bg-gray-200 hover:border-gray-500 border rounded active:scale-95 duration-75">
                                 <div class="flex select-none justify-between items-center gap-5 py-2 px-4">
                                     <div class="flex flex-col">

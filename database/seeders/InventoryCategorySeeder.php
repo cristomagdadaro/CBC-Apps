@@ -13,10 +13,6 @@ class InventoryCategorySeeder extends Seeder
      */
     public function run(): void
     {
-        /*Category::factory()
-            ->count(5)
-            ->create();*/
-
         $categories = [
             ['name' => 'Office Supplies', 'description' => 'Various office supplies'],
             ['name' => 'Tokens', 'description' => 'Various tokens or promotional materials'],

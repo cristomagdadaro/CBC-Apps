@@ -12,6 +12,7 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
     unit_price: number;
     total_cost: number;
     personnel_id: string;
+    employee_id: string;
     project_code: string;
     user_id: string;
     expiration: string;
@@ -32,6 +33,7 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
         this.unit_price = data?.unit_price;
         this.total_cost = data?.total_cost;
         this.personnel_id = data?.personnel_id;
+        this.employee_id = data?.employee_id;
         this.project_code = data?.project_code;
         this.user_id = data?.user_id;
         this.expiration = data?.expiration;

@@ -15,10 +15,6 @@ class ItemsSeeder extends Seeder
      */
     public function run(): void
     {
-        /*\App\Models\Inventory\Item::factory()
-            ->count(20)
-            ->create();*/
-
         $data = [
             [
                 'name' => 'ACETIC ACID, GLACIAL',

@@ -7,6 +7,7 @@ use App\Http\Requests\GetTransactionRequest;
 use App\Http\Requests\NewOutgoingRequest;
 use App\Http\Requests\UpdateTransactionRequest;
 use App\Models\NewBarcode;
+use App\Models\User;
 use App\Repositories\TransactionRepo;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -114,9 +115,18 @@ class TransactionController extends BaseController
         return new Collection($data);
     }
 
-    public function outgoingStockStore(NewOutgoingRequest $request, string $id): JsonResponse
+    public function outgoingStockStore(NewOutgoingRequest $request): Model | JsonResponse
     {
         $validated = $request->validated();
+
+        // If no user_id was provided but employee_id was, resolve the user and set user_id
+        if (empty($validated['user_id']) && !empty($validated['employee_id'])) {
+            $user = User::where('employee_id', $validated['employee_id'])->first();
+            if ($user) {
+                $validated['user_id'] = $user->id;
+            }
+        }
+
         $validated['quantity'] = $validated['quantity'] * -1;
         $validated['id'] = (string) Str::uuid();
         return $this->service->create($validated);
