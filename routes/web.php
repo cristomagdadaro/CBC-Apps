@@ -54,7 +54,67 @@ Route::middleware([
     'verified',
 ])->group(function () {
     Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
+        $now = now();
+
+        $stockBaseQuery = Transaction::selectRaw(
+                'items.id as item_id,' .
+                ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,' .
+                ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity WHEN transactions.transac_type = "outgoing" THEN -transactions.quantity ELSE 0 END) as remaining_quantity'
+            )
+            ->join('items', 'transactions.item_id', '=', 'items.id')
+            ->groupBy('items.id');
+
+        $percentageExpr = 'CASE WHEN total_ingoing <> 0 THEN remaining_quantity / total_ingoing ELSE 0 END';
+
+        $emptyStockCount = (clone $stockBaseQuery)
+            ->havingRaw("$percentageExpr <= 0")
+            ->count();
+
+        $lowStockCount = (clone $stockBaseQuery)
+            ->havingRaw("$percentageExpr > 0 AND $percentageExpr <= 0.25")
+            ->count();
+
+        $midStockCount = (clone $stockBaseQuery)
+            ->havingRaw("$percentageExpr > 0.25 AND $percentageExpr <= 0.75")
+            ->count();
+
+        $highStockCount = (clone $stockBaseQuery)
+            ->havingRaw("$percentageExpr > 0.75")
+            ->count();
+
+        $stats = [
+            'events' => [
+                'total'    => Form::count(),
+                'active'   => Form::where('is_suspended', false)
+                                   ->where('is_expired', false)
+                                   ->count(),
+                'upcoming' => Form::whereDate('date_from', '>=', $now->toDateString())
+                                   ->where('is_expired', false)
+                                   ->count(),
+                'suspended'=> Form::where('is_suspended', true)->count(),
+                'expired'  => Form::where('is_expired', true)->count(),
+            ],
+            'access_requests' => [
+                'total'    => \App\Models\RequestFormPivot::count(),
+                'pending'  => \App\Models\RequestFormPivot::where('request_status', 'pending')->count(),
+                'approved' => \App\Models\RequestFormPivot::where('request_status', 'approved')->count(),
+                'rejected' => \App\Models\RequestFormPivot::where('request_status', 'rejected')->count(),
+            ],
+            'inventory' => [
+                'items'              => Item::count(),
+                'transactions_today' => Transaction::whereDate('created_at', $now->toDateString())->count(),
+                'stock_buckets'      => [
+                    'empty' => $emptyStockCount,
+                    'low'   => $lowStockCount,
+                    'mid'   => $midStockCount,
+                    'high'  => $highStockCount,
+                ],
+            ],
+        ];
+
+        return Inertia::render('Dashboard', [
+            'stats' => $stats,
+        ]);
     })->name('dashboard');
 
     Route::prefix('apps')->group(function () {
