@@ -19,6 +19,12 @@ class TransactionSeeder extends Seeder
      */
     public function run(): void
     {
+        Transaction::factory(100)->create();
+        //$this->customSeeer();
+    }
+
+    private function customSeeer(): void
+    {
         $items = [
             [
                 'name' => 'Double Adhesive Tape',
@@ -27,7 +33,7 @@ class TransactionSeeder extends Seeder
                 'category_id' => Category::where('name', 'Office Supplies')->first()->id,
                 'supplier_id' => Supplier::inRandomOrder()->first()->id,
 
-                'transac_type' => 'incoming',
+                'transac_type' => Inventory::INCOMING->value,
                 'quantity' => 10,
                 'unit_price'=> 45,
                 'unit' => 'roll',
@@ -42,7 +48,7 @@ class TransactionSeeder extends Seeder
                 'category_id' => Category::where('name', 'Office Supplies')->first()->id,
                 'supplier_id' => Supplier::inRandomOrder()->first()->id,
 
-                'transac_type' => 'incoming',
+                'transac_type' => Inventory::INCOMING->value,
                 'quantity' => 15,
                 'unit_price'=> 60,
                 'unit' => 'roll',
@@ -56,7 +62,7 @@ class TransactionSeeder extends Seeder
                 'category_id' => Category::where('name', 'Office Supplies')->first()->id,
                 'supplier_id' => Supplier::inRandomOrder()->first()->id,
 
-                'transac_type' => 'incoming',
+                'transac_type' => Inventory::INCOMING->value,
                 'quantity' => 5,
                 'unit_price'=> 20,
                 'unit' => 'piece',
@@ -70,7 +76,7 @@ class TransactionSeeder extends Seeder
                 'category_id' => Category::where('name', 'Office Supplies')->first()->id,
                 'supplier_id' => Supplier::inRandomOrder()->first()->id,
 
-                'transac_type' => 'incoming',
+                'transac_type' => Inventory::INCOMING->value,
                 'quantity' => 5,
                 'unit_price'=> 20,
                 'unit' => 'piece',
@@ -84,7 +90,7 @@ class TransactionSeeder extends Seeder
                 'category_id' => Category::where('name', 'Office Supplies')->first()->id,
                 'supplier_id' => Supplier::inRandomOrder()->first()->id,
 
-                'transac_type' => 'incoming',
+                'transac_type' => Inventory::INCOMING->value,
                 'quantity' => 20,
                 'unit_price'=> 28.5,
                 'unit' => 'piece',
@@ -96,14 +102,14 @@ class TransactionSeeder extends Seeder
 
         foreach ($items as $item) {
 
-            $temp = Transaction::factory()->create([
+            Transaction::factory()->create([
                 'item_id' => Item::factory()->create([
-                        'name' => $item['name'],
-                        'brand' => $item['brand'],
-                        'description' => $item['description'],
-                        'category_id' => $item['category_id'],
-                        'supplier_id' => $item['supplier_id'],
-                    ])->id,
+                    'name' => $item['name'],
+                    'brand' => $item['brand'],
+                    'description' => $item['description'],
+                    'category_id' => $item['category_id'],
+                    'supplier_id' => $item['supplier_id'],
+                ])->id,
                 'transac_type' => $item['transac_type'],
                 'quantity' => $item['quantity'],
                 'unit_price' => $item['unit_price'],
