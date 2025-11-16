@@ -46,20 +46,28 @@ export default {
                     is_required: true,
                     config: {
                         attendance_type_required: false,
+                        open_from: null,
+                        open_to: null,
                     },
                 },
             ];
         },
         removeRequirement(index) {
-            const copy = [...this.requirements];
+            const copy = this.requirements.slice();
             copy.splice(index, 1);
             this.requirements = copy;
         },
         handleTypeChange(index, value) {
             const copy = [...this.requirements];
+            const prev = copy[index];
             copy[index] = {
-                ...copy[index],
-                form_type: value,
+                ...prev,
+                form_type: value || null,
+                config: {
+                    attendance_type_required: prev.config?.attendance_type_required ?? false,
+                    open_from: prev.config?.open_from ?? null,
+                    open_to: prev.config?.open_to ?? null,
+                },
             };
 
             // If this is a pre-registration/registration type, enable attendance config by default
@@ -89,6 +97,28 @@ export default {
             };
             this.requirements = copy;
         },
+        updateOpenFrom(index, value) {
+            const copy = [...this.requirements];
+            copy[index].config = {
+                ...(copy[index].config || {}),
+                open_from: value || null,
+            };
+            this.requirements = copy;
+        },
+        updateOpenTo(index, value) {
+            const copy = [...this.requirements];
+            copy[index].config = {
+                ...(copy[index].config || {}),
+                open_to: value || null,
+            };
+            this.requirements = copy;
+        },
+        availableFormTypeOptions(currentIndex) {
+            const selectedTypes = this.requirements
+                .map((r, idx) => (typeof currentIndex === 'number' && idx === currentIndex ? null : r.form_type))
+                .filter(Boolean);
+            return this.formTypeOptions.filter(opt => !selectedTypes.includes(opt.value));
+        },
     },
 };
 </script>
@@ -108,58 +138,83 @@ export default {
                 :key="req.id || index"
                 class="flex flex-col gap-1 border border-gray-200 dark:border-gray-700 rounded-md p-2 bg-white dark:bg-gray-900"
             >
-                <div class="flex items-center gap-2">
-                    <select
-                        class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 rounded-md shadow-sm text-xs"
-                        :value="req.form_type"
-                        @change="handleTypeChange(index, $event.target.value)"
-                    >
-                        <option value="" disabled>Select form type...</option>
-                        <option
-                            v-for="opt in formTypeOptions"
-                            :key="opt.value"
-                            :value="opt.value"
-                        >
-                            {{ opt.label }}
-                        </option>
-                    </select>
+                <div class="flex flex-col gap-1">
+                    <div class="grid grid-cols-3 justify-center items-center gap-2">
+                        <div class="flex flex-col gap-2">
+                            <select
+                                class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 rounded-md shadow-sm text-xs"
+                                :value="req.form_type || ''"
+                                @change="handleTypeChange(index, $event.target.value)"
+                            >
+                                <option value="" disabled>Select form type...</option>
+                                <option
+                                    v-for="opt in availableFormTypeOptions(index)"
+                                    :key="opt.value"
+                                    :value="opt.value"
+                                >
+                                    {{ opt.label }}
+                                </option>
+                            </select>
 
-                    <label class="flex items-center gap-1 text-xs">
-                        <input type="checkbox" :checked="req.is_required" @change="toggleRequired(index)" />
-                        <span>Required</span>
-                    </label>
-
-                    <button
-                        type="button"
-                        class="ml-auto text-xs text-red-500 hover:text-red-700"
-                        @click="removeRequirement(index)"
-                    >
-                        Remove
-                    </button>
-                </div>
-
-                <div
-                    v-if="['pre_registration', 'registration'].includes(req.form_type)"
-                    class="flex items-center gap-2 text-xs mt-1"
-                >
-                    <label class="flex items-center gap-1">
-                        <input
-                            type="checkbox"
-                            :checked="req.config?.attendance_type_required"
-                            @change="toggleAttendanceType(index)"
-                        />
-                        <span>Ask for Attendance Type (Online / In-person)</span>
-                    </label>
+                            <label class="flex items-center justify-start gap-1 text-xs px-2">
+                                <input type="checkbox" :checked="req.is_required" @change="toggleRequired(index)" />
+                                <span>Required</span>
+                            </label>
+                        </div>
+                        <!-- Per-requirement open/close datetime config -->
+                        <div class="flex flex-col items-center gap-2 text-[11px] mt-1">
+                            <div class="flex items-center gap-1">
+                                <span class="text-gray-500">Open:</span>
+                                <input
+                                    type="datetime-local"
+                                    class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 rounded-md shadow-sm text-[11px] px-1 py-0.5"
+                                    :value="req.config?.open_from || ''"
+                                    @change="updateOpenFrom(index, $event.target.value)"
+                                />
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <span class="text-gray-500">Close:</span>
+                                <input
+                                    type="datetime-local"
+                                    class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 rounded-md shadow-sm text-[11px] px-1 py-0.5"
+                                    :value="req.config?.open_to || ''"
+                                    @change="updateOpenTo(index, $event.target.value)"
+                                />
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-center gap-1 flex-col">
+                            <button
+                                type="button"
+                                class="text-xs text-red-500 hover:text-red-700"
+                                @click="removeRequirement(index)"
+                            >
+                                Remove
+                            </button>
+                            <div
+                                v-if="['pre_registration', 'registration'].includes(req.form_type)"
+                                class="flex items-center gap-2 text-xs mt-1"
+                            >
+                                <label class="flex items-center gap-1">
+                                    <input
+                                        type="checkbox"
+                                        :checked="req.config?.attendance_type_required"
+                                        @change="toggleAttendanceType(index)"
+                                    />
+                                    <span>Is this a Hybrid Event?</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
         <button
+            v-if="availableFormTypeOptions().length"
             type="button"
             class="mt-1 inline-flex items-center px-2 py-1 text-xs border border-dashed border-gray-400 rounded-md text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800"
             @click="addRequirement"
         >
-            + Add requirement
+            + Add a form
         </button>
     </div>
 </template>

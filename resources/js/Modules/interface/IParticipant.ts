@@ -14,6 +14,7 @@ interface IParticipant extends IBaseClass {
     country_address: string;
     agreed_tc: string;
     event_id?: string;
+    attendance_type?: string;
 
     registrations: Array<IRegistration>
 }

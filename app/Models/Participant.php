@@ -10,8 +10,8 @@ class Participant extends BaseModel
     use HasFactory;
 
     protected $table = 'participants';
-    public $incrementing = false; // Disable auto-incrementing
-    protected $keyType = 'string'; // Set the primary key as a string
+    public $incrementing = false;
+    protected $keyType = 'string';
     protected $fillable = [
         'id',
         'name',
@@ -27,6 +27,7 @@ class Participant extends BaseModel
         'province_address',
         'country_address',
         'agreed_tc',
+        'attendance_type',
     ];
 
     protected $casts = [

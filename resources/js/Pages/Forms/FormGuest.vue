@@ -135,8 +135,8 @@ export default {
     >
         <template #search>
             <form class="flex gap-2 items-center"  @submit.prevent="searchEvent">
-                <div class="flex flex-col">
-                    <div class="grid grid-cols-4 gap-0.5 items-center">
+                <div class="flex flex-col w-full items-center">
+                    <div class="grid grid-cols-4 gap-0.5 w-full items-center">
                         <TextInput
                             id="cell1"
                             ref="cell1"
@@ -202,7 +202,7 @@ export default {
 
         <!-- Middle content: recent QR codes, full QR modal, confirmation modal -->
         <transition-container type="slide-bottom" :duration="1000">
-            <div v-show="delayReady"  v-if="recentQrCodes.length" class="md:absolute md:top-0 md:left-full md:mx-5 p-3  bg-gray-100 md:rounded-md drop-shadow">
+            <div v-show="delayReady"  v-if="recentQrCodes.length" class="md:absolute md:top-5 md:left-full mx-4 lg:mx-5 p-3 bg-gray-100 md:rounded-md drop-shadow rounded-md">
                 <!-- ...existing recent QR code content... -->
                 <h3 class="text-normal whitespace-nowrap text-center drop-shadow md:flex md:flex-col leading-none md:mb-2 mb-1"><span>Recent</span> <span class="md:text-xs">(max 6)</span></h3>
                 <div class="flex md:flex-col flex-row gap-2  bg-gray-100 justify-between">
@@ -288,16 +288,16 @@ export default {
         <!-- Cards row -->
         <div class="flex gap-5 md:flex-row flex-col">
             <transition-container :duration="1000" type="slide-bottom">
-                <div v-show="!!eventFormFromApi?.data?.length" v-if="eventFormFromApi" >
+                <template v-show="!!eventFormFromApi?.data?.length" v-if="eventFormFromApi" >
                     <guest-card :data="eventFormFromApi?.data[0]" @createdModel="lastCreatedForm = $event" />
                     <label class="text-[0.6rem] leading-none select-none">Form from Search</label>
-                </div>
+                </template>
             </transition-container>
             <transition-container :duration="1000" type="slide-bottom">
-                <div v-show="!!eventForm && delayReady" v-if="eventForm">
+                <template v-show="!!eventForm && delayReady" v-if="eventForm">
                     <guest-card :data="eventForm" @createdModel="lastCreatedForm = $event" />
                     <label class="text-[0.6rem] leading-none select-none">Form from URL</label>
-                </div>
+                </template>
             </transition-container>
         </div>
     </guest-form-page>

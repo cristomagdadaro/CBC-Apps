@@ -14,10 +14,11 @@ import ApiMixin from "@/Modules/mixins/ApiMixin";
 import DtoResponse from "@/Modules/dto/DtoResponse";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
+import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 
 export default {
     name: "PreregistrationCard",
-    mixins: [ApiMixin, FormLocalMixin],
+    mixins: [ApiMixin, FormLocalMixin, DataFormatterMixin],
     components: {
         CustomDropdown,
         SubmitBtn,
@@ -169,7 +170,7 @@ export default {
                     @input="form.clearErrors('age')"
                 />
                 <div :class="{'border-red-500' : form.errors.is_ip}" class="w-full relative px-2 py-0.5 flex text-center leading-none lg:flex-row flex-col-reverse items-center lg:gap-2 bg-white rounded-md border border-gray-600 " @click.prevent="form.is_ip = !form.is_ip">
-                    <label class="text-xs">Are you a member indigenous people?</label>
+                    <label class="text-xs">Are you a member of indigenous people?</label>
                     <Checkbox id="is_ip" v-model="form.is_ip" :checked="form.is_ip" autofocus autocomplete="is_ip"/>
                     <transition-container type="slide-bottom">
                         <InputError v-show="!!form.errors.is_ip" class="absolute -top-1 left-3" :message="form.errors.is_ip" />
@@ -251,7 +252,7 @@ export default {
                 />
             </div>
             <div class="flex flex-col gap-2">
-                <custom-dropdown v-if="config.config.attendance_type_required" placeholder="Are you attending Online or In-person?" :required="config.config.attendance_type_required" :withAllOption="false" :options="[{name: 'Online', label: 'Online'}, {name: 'In-person', label: 'In-person'}]" />
+                <custom-dropdown v-if="config.config.attendance_type_required" :value="form.attendance_type" @selectedChange="form.attendance_type = $event"  :error="form.errors.attendance_type" placeholder="Are you attending Online or In-person?" :required="config.config.attendance_type_required" :withAllOption="false" :options="[{name: 'Online', label: 'Online'}, {name: 'In-person', label: 'In-person'}]" />
                 <div class="py-3 flex gap-2">
                     <Checkbox id="agreed_tc" :class="{'border border-red-600' : form.errors.agreed_tc}" v-model="form.agreed_tc" :checked="form.agreed_tc" autocomplete="agreed_tc"/>
                     <p class="text-xs leading-none" @click.prevent="form.agreed_tc = !form.agreed_tc">

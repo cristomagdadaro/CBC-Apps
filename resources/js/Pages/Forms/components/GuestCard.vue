@@ -19,14 +19,31 @@ export default {
     },
     methods: {
         whatForm(formType) {
+            if (this.data.requirements.length <= 0) return null;
             return this.data.requirements.find((requirement) => requirement.form_type === formType) || null;
-        }
+        },
+        isFormOpen(form) {
+            if (!form || !form.config) {
+                return false;
+            }
+            const { open_from, open_to } = form.config;
+            if (!open_from || !open_to) {
+                return false;
+            }
+            const now = new Date();
+            const openFrom = new Date(open_from);
+            const openTo = new Date(open_to);
+            if (isNaN(openFrom.getTime()) || isNaN(openTo.getTime())) {
+                return false;
+            }
+            return now >= openFrom && now <= openTo;
+        },
     }
 }
 </script>
 
 <template>
-    <div v-if="!!data" class="border p-2 md:rounded-md flex flex-col gap-2 bg-gray-100 max-w-xl drop-shadow-lg">
+    <div v-if="!!data" class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100 max-w-xl drop-shadow-lg mx-4 lg:mx-0 my-4 md:mt-0">
         <div class="flex flex-row bg-AB gap-2 text-white p-2 rounded-md justify-between shadow py-4">
             <div class="flex flex-col justify-center drop-shadow">
                 <label class="leading-tight font-semibold text-2xl">{{ data.title }}</label>
@@ -41,8 +58,8 @@ export default {
         </div>
 
         <div class="flex flex-col items-center justify-center p-2 rounded-md select-none drop-shadow">
-            <span v-if="isExpired" class="text-sm uppercase leading-none text-red-600">Form Expired</span>
-            <span v-else class="text-sm uppercase leading-none">Form will close in </span>
+            <span v-if="isExpired" class="text-sm uppercase leading-none text-red-600">Event has ended</span>
+            <span v-else class="text-sm uppercase leading-none">Event starts in </span>
             <label class="leading-none font-bold text-4xl" :class="{'text-red-600' : isExpired}">{{ countdownDisplay }}</label>
         </div>
 
@@ -65,7 +82,7 @@ export default {
                 <span class="font-bold uppercase">Venue: </span>
                 <label class="break-all overflow-ellipsis">{{ data.venue }}</label>
             </div>
-            <p v-if="data.venue"class="text-sm leading-none text-justify break-all">{{ data.details }}</p>
+            <p v-if="data.venue"class="text-justify break-all">{{ data.details }}</p>
         </div>
         <div v-if="data.max_slots" class="px-1 flex gap-2 justify-between">
             <div>
@@ -88,11 +105,44 @@ export default {
         <div v-else-if="data.participants_count >= data.max_slots" class="text-center bg-orange-500 text-white py-5 rounded-b">
             Maximum Number of Registrations Reached!
         </div>
-        <div v-else>
-            <preregistration-card v-if="whatForm('pre_registration')" :event-id="data.event_id" :config="whatForm('pre_registration')" @createdModel="$emit('createdModel', $event)" />
-            <registration-card v-if="whatForm('registration')" :event-id="data.event_id" :config="whatForm('registration')" @createdModel="$emit('createdModel', $event)" />
-            <feedback-card v-if="whatForm('feedback')" :event-id="data.event_id" :config="whatForm('feedback')" @createdModel="$emit('createdModel', $event)" />
+        <div v-else class="flex flex-col gap-1">
+            <!-- Pre-registration -->
+            <preregistration-card
+                v-if="isFormOpen(whatForm('pre_registration'))"
+                :event-id="data.event_id"
+                :config="whatForm('pre_registration')"
+                @createdModel="$emit('createdModel', $event)"
+            />
+            <h3 v-else-if="whatForm('pre_registration') && whatForm('pre_registration').config && isFormOpen(whatForm('pre_registration'))" class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                Pre-registration will open on
+                <b>{{ formatDateTime(whatForm('pre_registration').config.open_from) }}</b>
+            </h3>
+
+            <!-- Registration -->
+            <registration-card
+                v-if="isFormOpen(whatForm('registration'))"
+                :event-id="data.event_id"
+                :config="whatForm('registration')"
+                @createdModel="$emit('createdModel', $event)"
+            />
+            <h3 v-else-if="whatForm('registration') && whatForm('registration').config && isFormOpen(whatForm('registration'))" class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                Registration will open on
+                <b>{{ formatDateTime(whatForm('registration').config.open_from) }}</b>
+            </h3>
+
+            <!-- Feedback / Evaluation -->
+            <feedback-card
+                v-if="isFormOpen(whatForm('feedback'))"
+                :event-id="data.event_id"
+                :config="whatForm('feedback')"
+                @createdModel="$emit('createdModel', $event)"
+            />
+            <h3 v-else-if="whatForm('feedback') && whatForm('feedback').config && isFormOpen(whatForm('feedback'))" class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                Evaluation Form will be open on
+                <b>{{ formatDateTime(whatForm('feedback').config.open_from) }}</b>
+            </h3>
         </div>
+
     </div>
 </template>
 

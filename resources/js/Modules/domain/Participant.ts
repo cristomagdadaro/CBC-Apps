@@ -27,6 +27,7 @@ export default class Participant extends DtoParticipant {
             country_address: null,
             agreed_tc: false,
             event_id: null,
+            attendance_type: null
         }
     }
 
@@ -47,6 +48,7 @@ export default class Participant extends DtoParticipant {
             country_address: data?.country_address,
             agreed_tc: data?.agreed_tc,
             event_id: data?.event_id,
+            attendance_type: data?.attendance_type
         }
     }
 

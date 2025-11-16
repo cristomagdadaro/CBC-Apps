@@ -10,32 +10,47 @@ export default {
     },
     methods: {
         parseDate(dateString:string ) {
-            // Ensure correct parsing of "YYYY-MM-DD" format
-            const [year, month, day] = dateString.split('-').map(Number);
+            if (!dateString) return null;
+            const parts = dateString.split('-');
+            if (parts.length !== 3) return null;
+            const [year, month, day] = parts.map(Number);
+            if (!year || !month || !day) return null;
             return new Date(year, month - 1, day); // Month is zero-based
         },
 
         updateCountdown() {
-            if (!this.data || !this.data.date_to || !this.data.time_to) {
+            // Use event start (date_from/time_from) as the countdown target.
+            // If those are missing, fall back to event end (date_to/time_to).
+            if (!this.data) {
+                this.countdownData = { days: 0, hours: 0, minutes: 0, seconds: 0 };
+                return;
+            }
+
+            const hasStart = this.data.date_from && this.data.time_from;
+            const hasEnd = this.data.date_to && this.data.time_to;
+
+            if (!hasStart && !hasEnd) {
                 this.countdownData = { days: 0, hours: 0, minutes: 0, seconds: 0 };
                 return;
             }
 
             const now = new Date();
-            const targetDate = this.parseDate(this.data.date_to);
+            const baseDateStr = hasStart ? this.data.date_from : this.data.date_to;
+            const baseTimeStr = hasStart ? this.data.time_from : this.data.time_to;
 
+            const targetDate = this.parseDate(baseDateStr);
             if (!targetDate) {
-                console.error("Failed to parse target date.");
+                this.countdownData = { days: 0, hours: 0, minutes: 0, seconds: 0 };
                 return;
             }
 
-            // Extract time from "HH:MM:SS" and set it on the target date
-            const [hours, minutes, seconds] = this.data.time_to.split(':').map(Number);
-            targetDate.setHours(hours, minutes, seconds);
-            // @ts-ignore
-            const timeDifference = targetDate - now;
+            const [hours = 0, minutes = 0, seconds = 0] = String(baseTimeStr).split(':').map(Number);
+            targetDate.setHours(hours, minutes, seconds || 0, 0);
+
+            const timeDifference = targetDate.getTime() - now.getTime();
 
             if (timeDifference <= 0) {
+                // Event already started (or ended if only end date is provided)
                 this.countdownData = { days: 0, hours: 0, minutes: 0, seconds: 0 };
                 clearInterval(this.intervalId);
                 return;
@@ -75,6 +90,56 @@ export default {
             // @ts-ignore
             return `${formattedHours}:${minutes.toString().padStart(2, "0")} ${ampm}`;
         },
+        /**
+         * Format a full datetime into a friendly label.
+         * Accepts either:
+         *  - a combined ISO-like string (e.g. "2025-11-16T10:30:00"), or
+         *  - separate date (YYYY-MM-DD) and time (HH:MM or HH:MM:SS) strings.
+         */
+        formatDateTime(dateInput: string | Date | null, timeInput?: string | null) {
+            if (!dateInput && !timeInput) return "";
+
+            let date: Date;
+
+            if (dateInput instanceof Date) {
+                date = new Date(dateInput.getTime());
+            } else if (dateInput && !timeInput) {
+                // Single string: try native Date parse (for ISO) and fallback to YYYY-MM-DD
+                const parsed = new Date(dateInput);
+                if (!isNaN(parsed.getTime())) {
+                    date = parsed;
+                } else {
+                    // Fallback: assume "YYYY-MM-DD HH:MM[:SS]" or "YYYY-MM-DD"
+                    const [dPart, tPart] = dateInput.split(" ");
+                    const base = this.parseDate(dPart);
+                    if (tPart) {
+                        const [h, m, s = "0"] = tPart.split(":");
+                        base.setHours(Number(h), Number(m), Number(s));
+                    }
+                    date = base;
+                }
+            } else {
+                // Separate date + time strings
+                const base = typeof dateInput === 'string' && dateInput
+                    ? this.parseDate(dateInput)
+                    : new Date();
+                if (timeInput) {
+                    const [h, m, s = "0"] = timeInput.split(":");
+                    base.setHours(Number(h), Number(m), Number(s));
+                }
+                date = base;
+            }
+
+            if (!date || isNaN(date.getTime())) return "";
+
+            return new Intl.DateTimeFormat("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+            }).format(date);
+        },
         arrayToString(data: string[]) {
             if (Array.isArray(data)) {
                 return data.join(", ");
@@ -95,7 +160,18 @@ export default {
             return `${this.countdownData.days}d ${this.countdownData.hours}h ${this.countdownData.minutes}m ${this.countdownData.seconds}s`;
         },
         isExpired() {
-            return !this.countdownData.days && !this.countdownData.hours && !this.countdownData.minutes && !this.countdownData.seconds;
+            // Consider the event expired only if we have an end datetime and it's in the past.
+            if (!this.data || !this.data.date_to || !this.data.time_to) {
+                return false;
+            }
+
+            const endDate = this.parseDate(this.data.date_to);
+            if (!endDate) return false;
+
+            const [hours = 0, minutes = 0, seconds = 0] = String(this.data.time_to).split(':').map(Number);
+            endDate.setHours(hours, minutes, seconds || 0, 0);
+
+            return new Date().getTime() >= endDate.getTime();
         }
     },
 }

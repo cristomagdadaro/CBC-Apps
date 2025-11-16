@@ -15,6 +15,7 @@ export default class DtoParticipant extends DtoBaseClass implements IParticipant
     province_address: string;
     country_address: string;
     agreed_tc: string;
+    attendance_type?: string;
 
     registrations: Array<IRegistration>
 
@@ -34,6 +35,7 @@ export default class DtoParticipant extends DtoBaseClass implements IParticipant
         this.province_address = data?.province_address;
         this.country_address = data?.city_address;
         this.agreed_tc = data?.agreed_tc ? "Yes" : "No";
+        this.attendance_type = data?.attendance_type;
 
         if (data?.registrations) {
             this.registrations = data.registrations.map(i => {

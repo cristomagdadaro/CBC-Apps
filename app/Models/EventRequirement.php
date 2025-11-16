@@ -17,16 +17,12 @@ class EventRequirement extends BaseModel
         'form_type',
         'is_required',
         'config',
-        'open_from',
-        'open_to',
     ];
 
     protected $casts = [
         'id' => 'string',
         'is_required' => 'boolean',
         'config' => 'array',
-        'open_from' => 'datetime',
-        'open_to' => 'datetime',
     ];
 
     public function form()

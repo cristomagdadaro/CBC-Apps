@@ -76,7 +76,7 @@ class FormController extends BaseController
 
     public function update(UpdateFormRequest $request, $event_id = null): Model
     {
-        $model = $this->service->model->where('event_id', $event_id)->first();
+        $model = $this->service->model->where('event_id', $event_id)->with('requirements')->first();
         $model->fill($request->validated());
         $model->save();
 

@@ -63,7 +63,7 @@ export default {
 </script>
 
 <template>
-    <form v-if="form" @submit.prevent="handleCreate()" class="px-1 py-4 select-none relative bg-white px-3 border-t border-gray-800 mt-3" :class="{'border border-red-600 rounded-md': form.hasErrors}">
+    <form v-if="form" @submit.prevent="handleCreate()" class="py-4 select-none relative bg-white px-3 border-t border-gray-800 mt-3" :class="{'border border-red-600 rounded-md': form.hasErrors}">
         <transition-container type="slide-top">
             <div v-show="showSuccess" class="absolute flex top-0 left-0 bg-AC w-full h-full z-50 text-white text-xl font-medium justify-center items-center rounded-b-md shadow">
                 <button @click.prevent="showSuccess = false" class="absolute top-0 right-0 p-2">
@@ -169,7 +169,7 @@ export default {
                     @input="form.clearErrors('age')"
                 />
                 <div :class="{'border-red-500' : form.errors.is_ip}" class="w-full relative px-2 py-0.5 flex text-center leading-none lg:flex-row flex-col-reverse items-center lg:gap-2 bg-white rounded-md border border-gray-600 " @click.prevent="form.is_ip = !form.is_ip">
-                    <label class="text-xs">Are you a member indigenous people?</label>
+                    <label class="text-xs">Are you a member of indigenous people?</label>
                     <Checkbox id="is_ip" v-model="form.is_ip" :checked="form.is_ip" autofocus autocomplete="is_ip"/>
                     <transition-container type="slide-bottom">
                         <InputError v-show="!!form.errors.is_ip" class="absolute -top-1 left-3" :message="form.errors.is_ip" />
