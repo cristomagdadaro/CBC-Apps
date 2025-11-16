@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EventSubformController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\RequestFormPivotController;
@@ -53,6 +54,7 @@ Route::prefix('guest')->group(function () {
     })->name('api.inventory.laboratories.public');
     Route::post('/', [TransactionController::class, 'outgoingStockStore'])->name('api.inventory.transactions.store.public');
     Route::get('/remaining-stocks', [TransactionController::class, 'remainingStocks'])->name('api.inventory.transactions.remaining-stocks');
+    Route::post('/forms/event', [EventSubformController::class, 'create'])->name('api.subform.response.store');
 });
 
 
@@ -66,6 +68,8 @@ Route::middleware(['api','auth:sanctum','verified'])->group(function () {
             Route::post('/create', [FormController::class, 'create'])->name('api.form.post');
             Route::delete('/delete/{event_id?}', [FormController::class, 'delete'])->name('api.form.delete');
             Route::middleware(['check.form.suspended'])->put('/update/{event_id?}', [FormController::class, 'update'])->name('api.form.put');
+
+            Route::get('/{form_parent_id?}', [EventSubformController::class, 'index'])->name('api.subform.response.index');
         });
 
         Route::prefix('use-request-form')->group(function () {

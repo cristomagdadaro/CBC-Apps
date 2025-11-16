@@ -48,7 +48,7 @@ export default {
             return await api.getApi(url, params, model);
         },
         async submitCreate(toCast: boolean = false, except: string = '') {
-            this.form.clearErrors();
+            this.form.clearErrors(); console.log(this.model.api)
             return await this.model.api.postIndex(this.form.data()).then(response => {
                 this.resetForm(except);
                 if (toCast) {

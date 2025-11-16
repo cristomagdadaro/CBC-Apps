@@ -8,7 +8,6 @@ import Checkbox from "@/Components/Checkbox.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
 import QrcodeVue, { QrcodeCanvas, QrcodeSvg } from 'qrcode.vue'
-import Participant from "@/Modules/domain/Participant";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import DtoResponse from "@/Modules/dto/DtoResponse";
@@ -16,6 +15,7 @@ import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import ProgressTabs from "@/Components/ProgressTabs.vue";
 import LikertScale from "@/Components/LikertScale.vue";
+import SubformResponse from "@/Modules/domain/SubformResponse";
 
 export default {
     name: "FeedbackCard",
@@ -82,9 +82,9 @@ export default {
         },
     },
     beforeMount() {
-        this.model = new Participant();
+        this.model = new SubformResponse();
         this.setFormAction('create');
-        this.form.event_id = this.eventId;
+        this.form.form_parent_id = this.eventId;
     },
     watch: {
         'form.agreed_tc': {
@@ -99,6 +99,7 @@ export default {
 
 <template>
     <form v-if="form" @submit.prevent="handleCreate()" class="py-4 select-none relative bg-white px-3 border-t border-gray-800 mt-3" :class="{'border border-red-600 rounded-md': form.hasErrors}">
+        {{form}}
         <transition-container type="slide-top">
             <div v-show="showSuccess" class="absolute flex top-0 left-0 bg-AC w-full h-full z-50 text-white text-xl font-medium justify-center items-center rounded-b-md shadow">
                 <button @click.prevent="showSuccess = false" class="absolute top-0 right-0 p-2">
