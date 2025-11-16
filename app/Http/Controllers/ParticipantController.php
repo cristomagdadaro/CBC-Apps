@@ -22,15 +22,16 @@ class ParticipantController extends BaseController
 
         try {
             $participant = $this->service->create($request->validated());
-
+            $event_id = $request->validated('event_id');
             do {
                 $temp = Str::uuid()->toString();
             } while (Registration::where('id', $temp)->exists());
 
             Registration::factory()->create([
                 'id' => $temp,
-                'event_id' => $request->validated('event_id'),
+                'event_id' => $event_id,
                 'participant_id' => $request->validated('id'),
+                'attendance_type' => $request->validated('attendance_type'),
             ]);
 
             DB::commit();
@@ -38,7 +39,8 @@ class ParticipantController extends BaseController
             return response()->json([
                 'status' => 'success',
                 'participant_hash' => $temp,
-                'event_id' => $request->validated('event_id'),
+                'participant' => $participant,
+                'event_id' => $event_id,
             ], 201);
 
         } catch (\Exception $e) {

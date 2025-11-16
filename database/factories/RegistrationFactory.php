@@ -22,8 +22,7 @@ class RegistrationFactory extends Factory
             'id' => $this->faker->uuid(),
             'event_id' => Form::inRandomOrder()->first()->event_id,
             'participant_id' => Participant::inRandomOrder()->first()->id,
-            'pretest_finished' => false,
-            'posttest_finished' => false,
+            'attendance_type' => $this->faker->randomElement(['Online', 'In-Person']),
         ];
     }
 }

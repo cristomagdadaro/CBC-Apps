@@ -238,6 +238,7 @@ export default {
             <div v-if="showFullQr" @click="closeFullQr" class="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 flex flex-col">
                 <div @click="closeFullQr" class="absolute inset-0 cursor-pointer"></div>
                 <span class="text-white text-sm py-2">Show this to the organizers for scanning. Thank you!</span>
+                <span class="text-white text-sm py-2">{{ fullQrValue }}</span>
                 <div @click="closeFullQr" class="z-50 p-4 bg-white rounded shadow-xl max-w-full max-h-full flex flex-col items-center justify-center">
                     <qrcode-vue
                         :value="fullQrValue"

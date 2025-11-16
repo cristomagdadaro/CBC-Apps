@@ -18,6 +18,7 @@ export default class SubformResponse extends DtoSubformResponse {
     createFields(): object
     {
         return {
+            subform_type: null,
             form_parent_id: null,
             participant_id: null,
             response_data: null,
@@ -27,6 +28,7 @@ export default class SubformResponse extends DtoSubformResponse {
     updateFields(data: ISubformResponse): object
     {
         return {
+            subform_type: data?.subform_type,
             form_parent_id: data?.form_parent_id,
             participant_id: data?.participant_id,
             response_data: data?.response_data,

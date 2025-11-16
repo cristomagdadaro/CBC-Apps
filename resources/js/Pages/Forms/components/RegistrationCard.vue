@@ -251,7 +251,7 @@ export default {
                 />
             </div>
             <div class="flex flex-col gap-2">
-                <custom-dropdown v-if="config.config.attendance_type_required" placeholder="Are you attending Online or In-person?" :required="config.config.attendance_type_required" :withAllOption="false" :options="[{name: 'Online', label: 'Online'}, {name: 'In-person', label: 'In-person'}]" />
+                <custom-dropdown v-if="config.config.attendance_type_required" :value="form.attendance_type" @selectedChange="form.attendance_type = $event"  :error="form.errors.attendance_type" placeholder="Are you attending Online or In-person?" :required="config.config.attendance_type_required" :withAllOption="false" :options="[{name: 'Online', label: 'Online'}, {name: 'In-person', label: 'In-person'}]" />
                 <div class="py-3 flex gap-2">
                     <Checkbox id="agreed_tc" :class="{'border border-red-600' : form.errors.agreed_tc}" v-model="form.agreed_tc" :checked="form.agreed_tc" autocomplete="agreed_tc"/>
                     <p class="text-xs leading-none" @click.prevent="form.agreed_tc = !form.agreed_tc">

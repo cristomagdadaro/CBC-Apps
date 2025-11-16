@@ -15,8 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('event_id')->nullable();
             $table->uuid('participant_id')->nullable();
-            $table->boolean('pretest_finished')->default(false);
-            $table->boolean('posttest_finished')->default(false);
+            $table->string('attendance_type')->nullable();
 
             $table->unique(['event_id', 'participant_id']);
 

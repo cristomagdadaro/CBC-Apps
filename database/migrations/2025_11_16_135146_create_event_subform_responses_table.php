@@ -15,16 +15,19 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('form_parent_id')->index();
             $table->uuid('participant_id')->index();
+            $table->string('subform_type');
             $table->json('response_data');
 
+            $table->unique(['form_parent_id', 'participant_id']);
+
             $table->foreign('form_parent_id')
-                ->references('id')
+                ->references('event_id')
                 ->on('event_requirements')
                 ->cascadeOnDelete();
 
             $table->foreign('participant_id')
                 ->references('id')
-                ->on('participants')
+                ->on('registrations')
                 ->cascadeOnDelete();
 
             $table->timestamps();

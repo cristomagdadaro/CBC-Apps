@@ -16,6 +16,11 @@ export default {
                 this.lastCreatedForm = null;
             }
             return this.storedLocalHashedIds;
+        },
+        participantHashes() {
+            return this.storedLocalHashedIds
+                .filter(item => item.participant_hash)
+                .map(item => item.participant_hash);
         }
     },
     methods: {

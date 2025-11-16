@@ -6,10 +6,11 @@ import InputError from "@/Components/InputError.vue";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import RegistrationCard from "@/Pages/Forms/components/RegistrationCard.vue";
 import FeedbackCard from "@/Pages/Forms/components/FeedbackCard.vue";
+import TabNavigation from "@/Components/TabNavigation.vue";
 
 export default {
     name: "GuestCard",
-    components: {FeedbackCard, RegistrationCard, InputError, InputLabel, TextInput, PreregistrationCard},
+    components: {TabNavigation, FeedbackCard, RegistrationCard, InputError, InputLabel, TextInput, PreregistrationCard},
     mixins: [DataFormatterMixin],
     mounted() {
         this.startCountdown();
@@ -106,40 +107,59 @@ export default {
             Maximum Number of Registrations Reached!
         </div>
         <div v-else class="flex flex-col gap-1">
-            <!-- Pre-registration -->
-            <preregistration-card
-                v-if="isFormOpen(whatForm('pre_registration'))"
-                :event-id="data.event_id"
-                :config="whatForm('pre_registration')"
-                @createdModel="$emit('createdModel', $event)"
-            />
-            <h3 v-else-if="whatForm('pre_registration') && whatForm('pre_registration').config && isFormOpen(whatForm('pre_registration'))" class="bg-AB text-white p-3 rounded-md shadow leading-none">
-                Pre-registration will open on
-                <b>{{ formatDateTime(whatForm('pre_registration').config.open_from) }}</b>
-            </h3>
+            <TabNavigation
+                v-model="activeTab"
+                :tabs="[
+                    isFormOpen(whatForm('pre_registration')) ? { key: 'preregistration', label: 'Pre-Registration' } : null,
+                    isFormOpen(whatForm('registration')) ? { key: 'registration', label: 'Registration' } : null,
+                    isFormOpen(whatForm('feedback')) ? { key: 'feedback', label: 'Feedback' } : null,
+                ].filter(Boolean)"
+            >
+                <template #default="{ activeKey }">
+                    <div v-if="activeKey === 'preregistration'">
+                        <!-- Pre-registration -->
+                        <preregistration-card
+                            v-if="isFormOpen(whatForm('pre_registration'))"
+                            :event-id="data.event_id"
+                            :config="whatForm('pre_registration')"
+                            @createdModel="$emit('createdModel', $event)"
+                        />
+                        <h3 v-else-if="whatForm('pre_registration') && whatForm('pre_registration').config && isFormOpen(whatForm('pre_registration'))" class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                            Pre-registration will open on
+                            <b>{{ formatDateTime(whatForm('pre_registration').config.open_from) }}</b>
+                        </h3>
+                    </div>
 
-            <!-- Registration -->
-            <registration-card
-                v-if="isFormOpen(whatForm('registration'))"
-                :event-id="data.event_id"
-                :config="whatForm('registration')"
-                @createdModel="$emit('createdModel', $event)"
-            />
-            <h3 v-else-if="whatForm('registration') && whatForm('registration').config && isFormOpen(whatForm('registration'))" class="bg-AB text-white p-3 rounded-md shadow leading-none">
-                Registration will open on
-                <b>{{ formatDateTime(whatForm('registration').config.open_from) }}</b>
-            </h3>
-            <!-- Feedback / Evaluation -->
-            <feedback-card
-                v-if="isFormOpen(whatForm('feedback'))"
-                :event-id="data.event_id"
-                :config="whatForm('feedback')"
-                @createdModel="$emit('createdModel', $event)"
-            />
-            <h3 v-else-if="whatForm('feedback') && whatForm('feedback').config && isFormOpen(whatForm('feedback'))" class="bg-AB text-white p-3 rounded-md shadow leading-none">
-                Evaluation Form will be open on
-                <b>{{ formatDateTime(whatForm('feedback').config.open_from) }}</b>
-            </h3>
+                    <div v-if="activeKey === 'registration'">
+                        <!-- Registration -->
+                        <registration-card
+                            v-if="isFormOpen(whatForm('registration'))"
+                            :event-id="data.event_id"
+                            :config="whatForm('registration')"
+                            @createdModel="$emit('createdModel', $event)"
+                        />
+                        <h3 v-else-if="whatForm('registration') && whatForm('registration').config && isFormOpen(whatForm('registration'))" class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                            Registration will open on
+                            <b>{{ formatDateTime(whatForm('registration').config.open_from) }}</b>
+                        </h3>
+                    </div>
+
+                    <div v-if="activeKey === 'feedback'">
+                        <!-- Feedback / Evaluation -->
+                        <feedback-card
+                            v-if="isFormOpen(whatForm('feedback'))"
+                            :event-id="data.event_id"
+                            :config="whatForm('feedback')"
+                            @createdModel="$emit('createdModel', $event)"
+                        />
+                        <h3 v-else-if="whatForm('feedback') && whatForm('feedback').config && isFormOpen(whatForm('feedback'))" class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                            Evaluation Form will be open on
+                            <b>{{ formatDateTime(whatForm('feedback').config.open_from) }}</b>
+                        </h3>
+                    </div>
+                </template>
+            </TabNavigation>
+
         </div>
 
     </div>

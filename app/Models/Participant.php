@@ -27,7 +27,6 @@ class Participant extends BaseModel
         'province_address',
         'country_address',
         'agreed_tc',
-        'attendance_type',
     ];
 
     protected $casts = [

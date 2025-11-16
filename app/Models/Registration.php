@@ -16,8 +16,7 @@ class Registration extends BaseModel
         'id',
         'event_id',
         'participant_id',
-        'pretest_finished',
-        'posttest_finished',
+        'attendance_type',
     ];
 
     protected $casts = [
