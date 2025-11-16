@@ -342,6 +342,15 @@ export default {
                     />
                     <InputError :message="form.errors.other_topics" />
                 </div>
+                <div class="py-3 flex gap-2">
+                    <Checkbox id="agreed_tc" :class="{'border border-red-600' : form.errors.agreed_tc}" v-model="form.agreed_tc" :checked="form.agreed_tc" autocomplete="agreed_tc"/>
+                    <p class="text-xs leading-none" @click.prevent="form.agreed_tc = !form.agreed_tc">
+                        By submitting this form, you consent to the DA-Crop Biotechnology Center collecting and using your data in accordance with our privacy policy.
+                        <transition-container type="slide-bottom">
+                            <InputError v-show="!!form.errors.agreed_tc" class="" :message="form.errors.agreed_tc" />
+                        </transition-container>
+                    </p>
+                </div>
             </div>
 
             <!-- Navigation / Submit -->

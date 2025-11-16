@@ -68,7 +68,7 @@ export default {
                 <label class="font-bold">{{ formatTime(data.time_from) }} {{ formatDate(data.date_from) }}</label>
                 <span class="text-xs">Start</span>
             </div>
-            <div class="flex w-full h-full bg-AB max-w-[2rem]">
+            <div class="flex w-full bg-AB max-w-[2rem]">
                 <label class="m-auto text-white font-bold">TO</label>
             </div>
             <div class="bg-AA text-center py-3 text-white rounded-md flex flex-col leading-none w-full">
@@ -129,7 +129,6 @@ export default {
                 Registration will open on
                 <b>{{ formatDateTime(whatForm('registration').config.open_from) }}</b>
             </h3>
-
             <!-- Feedback / Evaluation -->
             <feedback-card
                 v-if="isFormOpen(whatForm('feedback'))"
