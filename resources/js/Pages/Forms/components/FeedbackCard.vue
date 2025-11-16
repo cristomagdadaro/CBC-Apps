@@ -69,11 +69,19 @@ export default {
     },
     methods: {
         async handleCreate() {
-            const response = await this.submitCreate(null, 'event_id');
-            this.showSuccess = response.status === 201;
-            if (response instanceof DtoResponse) {
-                this.registrationIDHashed = response.data.participant_hash;
-                this.$emit('createdModel', response.data);
+            const retainParent = this.form.form_parent_id;
+            const retainType = this.form.subform_type;
+            try {
+                const response = await this.submitCreate(false, 'form_parent_id');
+                if (response?.status === 201) {
+                    this.showSuccess = true;
+                    this.$emit('createdModel', response.data);
+                }
+            } catch (e) {
+                // handled in mixin
+            } finally {
+                this.form.form_parent_id = retainParent;
+                this.form.subform_type = retainType;
             }
         },
         nextStep() {
@@ -90,7 +98,7 @@ export default {
     beforeMount() {
         this.model = new SubformResponse();
         this.setFormAction('create');
-        this.form['response_data'] = {
+        this.form.response_data = {
             clarity_objective: null,
             time_allotment: null,
             attainment_objective: null,
@@ -103,9 +111,10 @@ export default {
             knowledge_gain: null,
             comments_event_coordination: '',
             other_topics: '',
-        }
-        this.form.subform_type = 'feedback';
+            agreed_tc: false,
+        };
         this.form.form_parent_id = this.eventId;
+        this.form.subform_type = 'feedback';
     },
     watch: {
         'form.agreed_tc': {
@@ -160,118 +169,36 @@ export default {
         <div class="flex flex-col gap-4">
             <!-- STEP 1: Activity Evaluation Likert items -->
             <div v-if="currentStep === 0" class="flex flex-col gap-5">
-                <LikertScale
-                    name="clarity_objective"
-                    label="Clarity of objective"
-                    :required="true"
-                    v-model="form.response_data.clarity_objective"
-                    :error="form.errors.clarity_objective"
-                    @clear-error="form.clearErrors('clarity_objective')"
-                />
-                <LikertScale
-                    name="time_allotment"
-                    label="Time allotment (balance between lecture, discussion, activities and workshops)"
-                    :required="true"
-                    v-model="form.response_data.time_allotment"
-                    :error="form.errors.time_allotment"
-                    @clear-error="form.clearErrors('time_allotment')"
-                />
-                <LikertScale
-                    name="attainment_objective"
-                    label="Attainment of objective"
-                    :required="true"
-                    v-model="form.response_data.attainment_objective"
-                    :error="form.errors.attainment_objective"
-                    @clear-error="form.clearErrors('attainment_objective')"
-                />
-                <LikertScale
-                    name="relevance_usefulness"
-                    label="Relevance and usefulness to your job/function"
-                    :required="true"
-                    v-model="form.response_data.relevance_usefulness"
-                    :error="form.errors.relevance_usefulness"
-                    @clear-error="form.clearErrors('relevance_usefulness')"
-                />
-                <LikertScale
-                    name="overall_quality_content"
-                    label="Overall quality of content"
-                    :required="true"
-                    v-model="form.response_data.overall_quality_content"
-                    :error="form.errors.overall_quality_content"
-                    @clear-error="form.clearErrors('overall_quality_content')"
-                />
-                <LikertScale
-                    name="overall_quality_resource_persons"
-                    label="Overall quality of the Resource Persons"
-                    :required="true"
-                    v-model="form.response_data.overall_quality_resource_persons"
-                    :error="form.errors.overall_quality_resource_persons"
-                    @clear-error="form.clearErrors('overall_quality_resource_persons')"
-                />
-                <LikertScale
-                    name="time_management_organization"
-                    label="Time management and organization"
-                    :required="true"
-                    v-model="form.response_data.time_management_organization"
-                    :error="form.errors.time_management_organization"
-                    @clear-error="form.clearErrors('time_management_organization')"
-                />
-                <LikertScale
-                    name="support_staff"
-                    label="Support staff"
-                    :required="true"
-                    v-model="form.response_data.support_staff"
-                    :error="form.errors.support_staff"
-                    @clear-error="form.clearErrors('support_staff')"
-                />
-                <LikertScale
-                    name="overall_quality_activity_admin"
-                    label="Overall quality of the activity administration"
-                    :required="true"
-                    v-model="form.response_data.overall_quality_activity_admin"
-                    :error="form.errors.overall_quality_activity_admin"
-                    @clear-error="form.clearErrors('overall_quality_activity_admin')"
-                />
+                <LikertScale name="clarity_objective" label="Clarity of objective" :required="true" v-model="form.response_data.clarity_objective" :error="form.errors.clarity_objective" @clear-error="form.clearErrors('clarity_objective')" />
+                <LikertScale name="time_allotment" label="Time allotment (balance between lecture, discussion, activities and workshops)" :required="true" v-model="form.response_data.time_allotment" :error="form.errors.time_allotment" @clear-error="form.clearErrors('time_allotment')" />
+                <LikertScale name="attainment_objective" label="Attainment of objective" :required="true" v-model="form.response_data.attainment_objective" :error="form.errors.attainment_objective" @clear-error="form.clearErrors('attainment_objective')" />
+                <LikertScale name="relevance_usefulness" label="Relevance and usefulness to your job/function" :required="true" v-model="form.response_data.relevance_usefulness" :error="form.errors.relevance_usefulness" @clear-error="form.clearErrors('relevance_usefulness')" />
+                <LikertScale name="overall_quality_content" label="Overall quality of content" :required="true" v-model="form.response_data.overall_quality_content" :error="form.errors.overall_quality_content" @clear-error="form.clearErrors('overall_quality_content')" />
+                <LikertScale name="overall_quality_resource_persons" label="Overall quality of the Resource Persons" :required="true" v-model="form.response_data.overall_quality_resource_persons" :error="form.errors.overall_quality_resource_persons" @clear-error="form.clearErrors('overall_quality_resource_persons')" />
+                <LikertScale name="time_management_organization" label="Time management and organization" :required="true" v-model="form.response_data.time_management_organization" :error="form.errors.time_management_organization" @clear-error="form.clearErrors('time_management_organization')" />
+                <LikertScale name="support_staff" label="Support staff" :required="true" v-model="form.response_data.support_staff" :error="form.errors.support_staff" @clear-error="form.clearErrors('support_staff')" />
+                <LikertScale name="overall_quality_activity_admin" label="Overall quality of the activity administration" :required="true" v-model="form.response_data.overall_quality_activity_admin" :error="form.errors.overall_quality_activity_admin" @clear-error="form.clearErrors('overall_quality_activity_admin')" />
             </div>
 
-            <!-- STEP 2: Knowledge gain likert + comments textareas -->
+            <!-- STEP 2: Knowledge gain & comments -->
             <div v-if="currentStep === 1" class="flex flex-col gap-3">
-                <LikertScale
-                    name="knowledge_gain"
-                    label="How well did the activity help you understand the topics? Rate your knowledge gain from 1 to 5 where 1 is very little knowledge gained and 5 is a significant increase in knowledge"
-                    :required="true"
-                    v-model="form.response_data.knowledge_gain"
-                    :error="form.errors.knowledge_gain"
-                    @clear-error="form.clearErrors('knowledge_gain')"
-                />
+                <LikertScale name="knowledge_gain" label="Knowledge gain (1-5)" :required="true" v-model="form.response_data.knowledge_gain" :error="form.errors.knowledge_gain" @clear-error="form.clearErrors('knowledge_gain')" />
                 <div class="flex flex-col gap-1">
                     <InputLabel for="comments_event_coordination" value="Comments/Suggestions - Event Coordination" />
-                    <textarea
-                        id="comments_event_coordination"
-                        v-model="form.response_data.comments_event_coordination"
-                        class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"
-                        rows="3"
-                        @input="form.clearErrors('comments_event_coordination')"
-                    />
+                    <textarea id="comments_event_coordination" v-model="form.response_data.comments_event_coordination" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm" rows="3" @input="form.clearErrors('comments_event_coordination')" />
                     <InputError :message="form.errors.comments_event_coordination" />
                 </div>
                 <div class="flex flex-col gap-1">
-                    <InputLabel for="other_topics" value="Other topics you wish to be included in the future seminar/symposia/conferences" />
-                    <textarea
-                        id="other_topics"
-                        v-model="form.response_data.other_topics"
-                        class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"
-                        rows="3"
-                        @input="form.clearErrors('other_topics')"
-                    />
+                    <InputLabel for="other_topics" value="Other topics for future activities" />
+                    <textarea id="other_topics" v-model="form.response_data.other_topics" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm" rows="3" @input="form.clearErrors('other_topics')" />
                     <InputError :message="form.errors.other_topics" />
                 </div>
                 <div class="py-3 flex gap-2">
-                    <Checkbox id="agreed_tc" :class="{'border border-red-600' : form.errors.agreed_tc}" v-model="form.agreed_tc" :checked="form.agreed_tc" autocomplete="agreed_tc"/>
-                    <p class="text-xs leading-none" @click.prevent="form.agreed_tc = !form.agreed_tc">
-                        By submitting this form, you consent to the DA-Crop Biotechnology Center collecting and using your data in accordance with our privacy policy.
+                    <Checkbox id="agreed_tc" :class="{'border border-red-600' : form.errors.agreed_tc}" v-model="form.response_data.agreed_tc" :checked="form.response_data.agreed_tc" />
+                    <p class="text-xs leading-none" @click.prevent="form.response_data.agreed_tc = !form.response_data.agreed_tc">
+                        By submitting this form you certify the accuracy of the information and consent to data processing.
                         <transition-container type="slide-bottom">
-                            <InputError v-show="!!form.errors.agreed_tc" class="" :message="form.errors.agreed_tc" />
+                            <InputError v-show="!!form.errors.agreed_tc" :message="form.errors.agreed_tc" />
                         </transition-container>
                     </p>
                 </div>

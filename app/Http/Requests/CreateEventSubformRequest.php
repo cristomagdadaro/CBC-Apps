@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Enums\Subform;
 
 class CreateEventSubformRequest extends FormRequest
 {
@@ -22,20 +23,34 @@ class CreateEventSubformRequest extends FormRequest
      */
     public function rules(): array
     {
-        $subform = $this->subform_type;
-        $formFields = config("subforms.$subform", []);
+        $subform = $this->input('subform_type');
+        $form_parent_id = $this->input('form_parent_id');
+        $participant_id = $this->input('participant_id');
+
+        $formFields = config("subformtypes.$subform", []);
+        if (!is_array($formFields)) {
+            $formFields = [];
+        }
+
+        // Participant rules conditional: feedback can be anonymous
+        $participantRules = [
+            'uuid',
+            'exists:registrations,id',
+            Rule::unique('event_subform_responses')
+                ->where(fn($q) => $q->where('form_parent_id', $form_parent_id)
+                    ->where('subform_type', $subform)),
+        ];
+
+        if ($subform === Subform::FEEDBACK->value) {
+            array_unshift($participantRules, 'nullable');
+        } else {
+            array_unshift($participantRules, 'required');
+        }
 
         $rules = [
-            'subform_type' => ['required', 'string', Rule::in(array_keys(config('subformtypes')))],
+            'subform_type' => ['required', 'string', Rule::in(array_keys(config('subformtypes') ?? []))],
             'form_parent_id' => ['required', 'string', 'exists:event_requirements,event_id'],
-            'participant_id' => [
-                'required',
-                'uuid',
-                'exists:registrations,id',
-                Rule::unique('event_subform_responses')
-                    ->where(fn($q) => $q->where('form_parent_id', $this->form_parent_id)
-                        ->where('subform_type', $subform)),
-            ],
+            'participant_id' => $participantRules,
             'response_data' => ['required', 'array'],
         ];
 

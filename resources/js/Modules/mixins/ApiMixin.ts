@@ -162,7 +162,12 @@ export default {
                 // Validation Errors
                 if (dto.status === 422) {
                     Object.keys(dto.data.errors).forEach(key => {
-                        this.form.setError(key, dto.data.errors[key].join(''))
+                        const message = dto.data.errors[key].join('');
+                        this.form.setError(key, message);
+                        if (key.startsWith('response_data.')) {
+                            const shortKey = key.replace('response_data.', '');
+                            this.form.setError(shortKey, message);
+                        }
                     })
                 }
 
