@@ -14,6 +14,8 @@ return new class extends Migration
             $table->string('form_type');
             $table->boolean('is_required')->default(true);
             $table->json('config')->nullable();
+            $table->dateTime('open_from')->nullable();
+            $table->dateTime('open_to')->nullable();
             $table->timestamps();
 
             $table->foreign('event_id')

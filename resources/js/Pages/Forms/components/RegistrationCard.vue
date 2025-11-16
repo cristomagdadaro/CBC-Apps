@@ -16,7 +16,7 @@ import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 
 export default {
-    name: "PreregistrationCard",
+    name: "RegistrationCard",
     mixins: [ApiMixin, FormLocalMixin],
     components: {
         CustomDropdown,
@@ -85,7 +85,7 @@ export default {
                         />
                     </div>
                     <span class="drop-shadow leading-none font-light">
-                        Pre-registration Successful!
+                        Registration Successful!
                     </span>
                     <span class="drop-shadow leading-none text-sm">
                         Check your email or take a screenshot
@@ -96,7 +96,7 @@ export default {
         <div class="pb-3 pt-1">
             <label class="text-red-600 uppercase justify-center flex">{{ form.errors.suspended || form.errors.full || form.errors.expired }}</label>
             <h3 class="text-lg leading-tight uppercase font-extrabold">
-                Pre-register Now!
+                Register Now!
             </h3>
             <p class="text-xs leading-none">
                 Kindly provide the required and correct details. Fields marked with <span class="text-red-600">*</span> are required.
