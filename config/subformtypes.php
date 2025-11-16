@@ -28,8 +28,8 @@ return [
         'support_staff' => 'required|integer|in:1,2,3,4,5',
         'overall_quality_activity_admin' => 'required|integer|in:1,2,3,4,5',
         'knowledge_gain' => 'required|integer|in:1,2,3,4,5',
-        'comments_event_coordination' => 'required|string',
-        'other_topics' => 'required|string',
+        'comments_event_coordination' => 'nullable|string',
+        'other_topics' => 'nullable|string',
         'agreed_tc' => 'accepted',
     ],
 

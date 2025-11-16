@@ -10,7 +10,6 @@ import TransitionContainer from "@/Components/Transitions/TransitionContrainer.v
 import QrcodeVue, { QrcodeCanvas, QrcodeSvg } from 'qrcode.vue'
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
-import DtoResponse from "@/Modules/dto/DtoResponse";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import ProgressTabs from "@/Components/ProgressTabs.vue";
@@ -117,7 +116,7 @@ export default {
         this.form.subform_type = 'feedback';
     },
     watch: {
-        'form.agreed_tc': {
+        'form.response_data.agreed_tc': {
             immediate: true,
             handler() {
                 this.form?.clearErrors('agreed_tc');
@@ -129,7 +128,7 @@ export default {
 
 <template>
     <form v-if="form" @submit.prevent="handleCreate()" class="py-4 select-none relative bg-white px-3 border-t border-gray-800 mt-3" :class="{'border border-red-600 rounded-md': form.hasErrors}">
-        <custom-dropdown @selectedChange="form.participant_id = $event" :error="form.errors.participant_id" :value="form.participant_id" :options="participantsAsOptions" :withAllOption="false" placeholder="Select a recent registration" label="Answering as" />
+        <custom-dropdown @selectedChange="form.participant_id = $event" :error="form.errors.participant_id" :value="form.participant_id" :options="participantsAsOptions" :withAllOption="false" placeholder="Select a recent registration" label="Answering as" class="mb-4"/>
         <transition-container type="slide-top">
             <div v-show="showSuccess" class="absolute flex top-0 left-0 bg-AC w-full h-full z-50 text-white text-xl font-medium justify-center items-center rounded-b-md shadow">
                 <button @click.prevent="showSuccess = false" class="absolute top-0 right-0 p-2">
