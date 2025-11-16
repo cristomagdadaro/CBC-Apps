@@ -33,7 +33,7 @@ export default {
             await this.submitCreate();
         },
     },
-}
+};
 </script>
 
 <template>
@@ -93,7 +93,7 @@ export default {
                                     </div>
                                 </div>
                                 <div class="px-1 flex flex-col gap-1">
-                                    <requirements-manager v-model="form.requirements" />
+                                    <requirements-manager v-model="form.requirements" :error="form.errors.requirements"/>
                                 </div>
                                 <div class="flex flex-col p-2">
                                     <div class="flex gap-1 justify-end">

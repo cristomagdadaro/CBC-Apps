@@ -11,9 +11,12 @@ import DtoResponse from "@/Modules/dto/DtoResponse";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 import Participant from "@/Modules/domain/Participant";
+import RequirementsManager from "@/Components/Forms/RequirementsManager.vue";
 export default {
     name: "EventCard",
-    components: {LoaderIcon, TransitionContainer, SuspendFormBtn, CancelBtn, DeleteBtn, ConfirmationModal, Modal},
+    components: {
+        RequirementsManager,
+        LoaderIcon, TransitionContainer, SuspendFormBtn, CancelBtn, DeleteBtn, ConfirmationModal, Modal},
     computed: {
         Form() {
             return Form
@@ -118,25 +121,11 @@ export default {
         </div>
         <div v-else class="flex w-full">
             <transition-container type="slide-right" :duration="1000">
-                <div v-show="!formsData.is_suspended" v-if="!formsData.is_suspended" class="relative w-full min-w-full">
-                    <div class="w-full">
-                        <label class="font-bold uppercase" title="Additional steps for the form">
-                            Requirements
-                        </label>
-                        <div class="flex justify-evenly">
-                            <div class="flex items-center gap-1" title="Require guests to pre-register">
-                                <input type="checkbox" class="rounded-full" :checked="formsData.has_preregistration">
-                                <label>Preregistration</label>
-                            </div>
-                            <div class="flex items-center gap-1" title="Require guests to take pre-test">
-                                <input type="checkbox" class="rounded-full" :checked="formsData.has_pretest">
-                                <label>Pretest</label>
-                            </div>
-                            <div class="flex items-center gap-1" title="Require guests to take post-test">
-                                <input type="checkbox" class="rounded-full" :checked="formsData.has_posttest">
-                                <label>Posttest</label>
-                            </div>
-                        </div>
+                <div v-show="formsData.requirements.length" v-if="formsData.requirements.length" class="relative w-full min-w-full gap-2 flex flex-wrap">
+                    <span class="font-bold uppercase">Requirements: </span>
+                    <div v-for="data in formsData.requirements" class="w-fit gap-2 flex items-center uppercase font-bold">
+                        <input type="checkbox" class="rounded-full" :checked="true" disabled>
+                        <label>{{ data.form_type }}</label>
                     </div>
                 </div>
             </transition-container>

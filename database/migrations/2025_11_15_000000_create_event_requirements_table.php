@@ -10,13 +10,9 @@ return new class extends Migration
     {
         Schema::create('event_requirements', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            // Link back to forms via event_id (string code used across the app)
             $table->string('event_id', 4)->index();
-            // Type of requirement: e.g., pre_test, post_test, registration, feedback, custom_*
             $table->string('form_type');
-            // Whether this requirement is mandatory for the event
             $table->boolean('is_required')->default(true);
-            // Optional JSON config for extra settings per requirement
             $table->json('config')->nullable();
             $table->timestamps();
 

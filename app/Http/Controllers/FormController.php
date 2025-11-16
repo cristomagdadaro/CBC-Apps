@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class FormController extends BaseController
@@ -30,7 +31,7 @@ class FormController extends BaseController
     {
         $temp = (new Form)->newQuery();
         return Inertia::render('Forms/FormGuest', [
-            'eventForm' => $temp->where('event_id', $event_id)->withCount('participants')->withCount('participants')->first(),
+            'eventForm' => $temp->where('event_id', $event_id)->withCount('participants')->withCount('participants')->with('requirements')->first(),
             'quote' => Inspiring::quote(),
         ]);
     }
@@ -67,8 +68,9 @@ class FormController extends BaseController
         return $model;
     }
 
-    public function create(CreateFormRequest $request, $event_id = null): Model
+    public function create(CreateFormRequest $request): Model
     {
+
         return parent::_store($request);
     }
 
@@ -78,6 +80,7 @@ class FormController extends BaseController
         $model->fill($request->validated());
         $model->save();
 
+        $this->updateRequirements($request, $event_id);
         return $model;
     }
 
@@ -108,11 +111,11 @@ class FormController extends BaseController
 
         $requirements = $validated['requirements'] ?? [];
 
-        // Replace existing requirements for this event
         EventRequirement::where('event_id', $form->event_id)->delete();
 
         foreach ($requirements as $req) {
             EventRequirement::create([
+                'id' => Str::uuid()->toString(),
                 'event_id' => $form->event_id,
                 'form_type' => $req['form_type'],
                 'is_required' => $req['is_required'] ?? true,

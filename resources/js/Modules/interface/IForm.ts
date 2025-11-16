@@ -9,11 +9,9 @@ interface IForm extends IBaseClass {
     time_from: string;
     time_to: string;
     venue: string;
-    has_pretest: boolean;
-    has_posttest: boolean;
-    has_preregistration: boolean;
     is_suspended: boolean;
     max_slots: number;
+    requirements: Array<string>;
 
     participants_count: number;
 

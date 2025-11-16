@@ -1,13 +1,19 @@
 <script>
 import TextInput from '@/Components/TextInput.vue';
+import InputError from "@/Components/InputError.vue";
+import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
 
 export default {
     name: 'RequirementsManager',
-    components: { TextInput },
+    components: {TransitionContainer, InputError, TextInput },
     props: {
         modelValue: {
             type: Array,
             default: () => [],
+        },
+        error: {
+            type: String,
+            default: null,
         },
     },
     emits: ['update:modelValue'],
@@ -89,8 +95,11 @@ export default {
 
 <template>
     <div class="px-1 flex flex-col gap-2">
-        <label class="font-bold uppercase" title="Configure required forms for this event">
-            Requirements
+        <label class="font-bold uppercase flex items-center" title="Configure required forms for this event">
+            Requirements:
+            <transition-container type="slide-bottom">
+                <InputError v-show="!!error" class="" :message="error" />
+            </transition-container>
         </label>
 
         <div class="space-y-2">

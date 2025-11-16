@@ -26,9 +26,6 @@ class Form extends BaseModel
         'time_from',
         'time_to',
         'venue',
-        'has_pretest',
-        'has_posttest',
-        'has_preregistration',
         'is_suspended',
         'is_expired',
         'max_slots'

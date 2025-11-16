@@ -8,7 +8,7 @@ export default class Form extends DtoForm {
         this.api._apiPost = 'api.form.post';
         this.api._apiPut = 'api.form.put';
         this.api._apiDelete = 'api.form.delete';
-
+        this.api.appendWith = ['requirements'];
         this.api.appendCount = ['participants']
     }
 
@@ -31,10 +31,8 @@ export default class Form extends DtoForm {
             time_from: null,
             time_to: null,
             venue: null,
-            has_pretest: false,
-            has_posttest: false,
-            has_preregistration: false,
             max_slots: null,
+            requirements: null,
         }
     }
 
@@ -50,11 +48,9 @@ export default class Form extends DtoForm {
             time_from: data?.time_from,
             time_to: data?.time_to,
             venue: data?.venue,
-            has_pretest: data?.has_pretest,
-            has_posttest: data?.has_posttest,
-            has_preregistration: data?.has_preregistration,
             is_suspended: data?.is_suspended,
             max_slots: data?.max_slots,
+            requirements: null,
         }
     }
 

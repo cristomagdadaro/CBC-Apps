@@ -69,7 +69,6 @@ export default {
         </template>
 
         <div class="mx-auto flex flex-col gap-5 sm:px-6 lg:px-8">
-            {{form}}
             <TabNavigation
                 v-model="activeTab"
                 :tabs="[
@@ -78,14 +77,10 @@ export default {
                 ]"
             >
                 <template #default="{ activeKey }">
-                    <!-- Update Form tab -->
                     <div v-if="activeKey === 'update'" class="mt-4">
                         <form v-if="!!form" @submit.prevent="submitProxyUpdate" class="max-w-3xl min-w-xl w-full mx-auto">
                             <div class="w-full flex flex-col gap-6">
-                                <div
-                                    class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg"
-                                    :class="{ 'border border-red-600': form.hasErrors }"
-                                >
+                                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg" :class="{ 'border border-red-600': form.hasErrors }">
                                     <div class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100">
                                         <div
                                             class="flex flex-row w-full gap-3 bg-gray-200 p-2 rounded-md justify-between shadow py-4"
@@ -161,50 +156,7 @@ export default {
                                             </div>
                                         </div>
                                         <div class="px-1">
-                                            <label class="font-bold uppercase" title="Additional steps for the form">
-                                                Requirements
-                                            </label>
-                                            <div class="flex justify-evenly">
-                                                <div
-                                                    @click="form.has_preregistration = !form.has_preregistration"
-                                                    class="flex items-center gap-1"
-                                                    title="Require guests to pre-register"
-                                                >
-                                                    <input
-                                                        type="checkbox"
-                                                        class="rounded-full"
-                                                        :checked="form.has_preregistration"
-                                                    />
-                                                    <label>Preregistration</label>
-                                                </div>
-                                                <div
-                                                    @click="form.has_pretest = !form.has_pretest"
-                                                    class="flex items-center gap-1"
-                                                    title="Require guests to take pre-test"
-                                                >
-                                                    <input
-                                                        type="checkbox"
-                                                        class="rounded-full"
-                                                        :checked="form.has_pretest"
-                                                    />
-                                                    <label>Pretest</label>
-                                                </div>
-                                                <div
-                                                    @click="form.has_posttest = !form.has_posttest"
-                                                    class="flex items-center gap-1"
-                                                    title="Require guests to take post-test"
-                                                >
-                                                    <input
-                                                        type="checkbox"
-                                                        class="rounded-full"
-                                                        :checked="form.has_posttest"
-                                                    />
-                                                    <label>Posttest</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="px-1">
-                                            <requirements-manager v-model="form.requirements" />
+                                            <requirements-manager v-model="form.requirements" :error="form.errors.requirements"/>
                                         </div>
                                         <div class="flex flex-col p-2">
                                             <div class="flex gap-1 justify-between">

@@ -22,9 +22,6 @@ return new class extends Migration
             $table->time('time_from')->nullable();
             $table->time('time_to')->nullable();
             $table->string('venue')->nullable();
-            $table->boolean('has_pretest')->default(false);
-            $table->boolean('has_posttest')->default(false);
-            $table->boolean('has_preregistration')->default(false);
             $table->boolean('is_suspended')->default(false);
             $table->boolean( 'is_expired')->default(false);
             $table->integer('max_slots')->default(0);

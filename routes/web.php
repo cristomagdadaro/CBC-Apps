@@ -141,7 +141,7 @@ Route::middleware([
                 }
 
                 return Inertia::render('Forms/FormUpdate', [
-                    'data' => Form::where('event_id', $event_id)->first(),
+                    'data' => Form::where('event_id', $event_id)->with('requirements')->first(),
                 ]);
             })->name('forms.update');
         });
