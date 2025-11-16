@@ -1,6 +1,9 @@
 <script>
+import SocialLinks from "@/Components/SocialLinks.vue";
+
 export default {
     name: 'GuestFormPage',
+    components: {SocialLinks},
     props: {
         /** Main title text in the colored header bar */
         title: {
@@ -47,6 +50,7 @@ export default {
         </div>
     </div>
 
+    <social-links />
     <!-- Background gradient -->
     <div class="min-h-[100vh] max-h-screen flex items-center justify-center text-white text-3xl font-bold relative overflow-hidden">
         <div class="absolute inset-0 bg-gradient-radial animate-gradient"></div>
