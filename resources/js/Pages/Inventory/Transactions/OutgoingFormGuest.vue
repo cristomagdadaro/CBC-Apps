@@ -166,7 +166,7 @@ export default {
                                 </div>
                             </div>
                             <!-- Show forms when available -->
-                            <div v-if="outgoingFromApi && Array.isArray(outgoingFromApi.data) && outgoingFromApi.data.length > 0" class="sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 flex flex-col sm:gap-1 min-w-fit">
+                            <div v-if="outgoingFromApi && Array.isArray(outgoingFromApi.data) && outgoingFromApi.data.length > 0" class="sm:grid sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-3 flex flex-col gap-1 min-w-fit">
                                 <div
                                     v-for="(item, index) in outgoingFromApi.data"
                                     :key="`${item.item_id || item.id}-${item.unit}-${item.barcode || 'nobarcode'}-${index}`"
