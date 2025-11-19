@@ -141,7 +141,7 @@ export default {
         :title="'Outgoing Inventory Form'"
         :subtitle="'Kindly fill out the form below to record your transaction'"
         :delay-ready="delayReady"
-    >{{form}}
+    >
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
             <div class="py-4 flex flex-col md:flex-row gap-3 justify-center bg-gray-50 p-4 rounded-md">
                 <camera-scanner @decoded="searchFromBarcode" />
