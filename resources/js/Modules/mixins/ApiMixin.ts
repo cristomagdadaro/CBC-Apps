@@ -164,6 +164,7 @@ export default {
                     Object.keys(dto.data.errors).forEach(key => {
                         const message = dto.data.errors[key].join('');
                         this.form.setError(key, message);
+                        // @ts-ignore
                         if (key.startsWith('response_data.')) {
                             const shortKey = key.replace('response_data.', '');
                             this.form.setError(shortKey, message);

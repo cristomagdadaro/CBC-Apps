@@ -87,7 +87,7 @@ export default {
             this.showModel = true;
         },
         async searchEvent() {
-            this.form.per_page = 100;
+            this.form.per_page = '*';
             this.processing = true;
             await this.fetchGetApi('api.inventory.transactions.remaining-stocks', this.form.data()).then((response) => {
                 this.outgoingFromApi = response;

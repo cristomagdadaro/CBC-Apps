@@ -37,8 +37,6 @@ export default {
             return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         },
         proxySubmit() {
-            this.form.quantity = this.form.quantity * -1;
-
             if (this.isPublic) {
                 // Public flow: user is not logged in.
                 // We treat employee_id as both the identifier for the user
@@ -88,6 +86,7 @@ export default {
                     {{ data.name }} ({{ data.unit }})
                 </span>
                 <span class="text-sm text-gray-500">{{ data.brand }}</span>
+                <span class="text-xs text-gray-500 leading-none" :class="{'text-red-600' : !data.barcode}">{{ data.barcode || 'Warning! NO BARCODE' }}</span>
             </div>
             <div class="flex sm:gap-4 gap-1">
                 <div class="flex flex-col">

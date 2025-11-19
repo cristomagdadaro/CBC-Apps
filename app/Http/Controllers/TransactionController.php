@@ -66,7 +66,7 @@ class TransactionController extends BaseController
         $isExact  = filter_var($request->input('is_exact', false), FILTER_VALIDATE_BOOLEAN);
         $sort     = $request->input('sort', 'id');
         $order    = strtolower($request->input('order', 'asc')) === 'desc' ? 'desc' : 'asc';
-        $perPage  = (int) $request->input('per_page', 10);
+        $perPage  = $request->input('per_page', '*');
         $page     = (int) $request->input('page', 1);
         $paginate = filter_var($request->input('paginate', true), FILTER_VALIDATE_BOOLEAN);
         $filter    = $request->input('filter');
@@ -153,10 +153,10 @@ class TransactionController extends BaseController
 
         $query->orderByRaw($orderByRaw . ' ' . $order);
 
-        if ($paginate) {
+        if ($paginate && $perPage !== '*') {
             $data = $query->paginate($perPage, ['*'], 'page', $page);
         } else {
-            $data = $query->get();
+            $data = [ 'data' => $query->get() ];
         }
 
         return new Collection($data);

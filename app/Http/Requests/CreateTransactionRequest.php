@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\Inventory;
 use App\Models\Transaction;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -20,6 +21,7 @@ class CreateTransactionRequest extends FormRequest
 
     public function prepareForValidation(): void
     {
+        // --- Existing ID Generation Logic ---
         do {
             $temp = Str::uuid()->toString();
         } while (Transaction::where('id', $temp)->exists());
@@ -27,6 +29,20 @@ class CreateTransactionRequest extends FormRequest
         $this->merge([
             'id' => $temp,
         ]);
+
+        $quantity = $this->input('quantity');
+        $transacType = $this->input('transac_type');
+
+        if (
+            $transacType === Inventory::OUTGOING->value &&
+            is_numeric($quantity) &&
+            $quantity > 0
+        ) {
+
+            $this->merge([
+                'quantity' => $quantity * -1,
+            ]);
+        }
     }
 
     /**
@@ -38,21 +54,31 @@ class CreateTransactionRequest extends FormRequest
     {
         return [
             'item_id' => 'required|exists:items,id',
-            'barcode' => 'nullable|string|unique:transactions,barcode',
+            'barcode' => [
+                'required', 'string',
+                Rule::when(
+                    fn ($input) => $input->transac_type === Inventory::INCOMING->value,
+                    ['unique:transactions,barcode']
+                ),
+                Rule::when(
+                    fn ($input) => $input->transac_type === Inventory::OUTGOING->value,
+                    ['exists:transactions,barcode']
+                ),
+            ],
             'transac_type' => [
                 'required',
                 'string',
-                Rule::in(['incoming', 'outgoing']),
+                Rule::in([Inventory::INCOMING->value, Inventory::OUTGOING->value]),
             ],
             'quantity' => [
                 'required',
                 'numeric',
                 Rule::when(
-                    fn ($input) => $input->transac_type === 'incoming',
+                    fn ($input) => $input->transac_type === Inventory::INCOMING->value,
                     ['min:1']
                 ),
                 Rule::when(
-                    fn ($input) => $input->transac_type === 'outgoing',
+                    fn ($input) => $input->transac_type === Inventory::OUTGOING->value,
                     ['max:-1']
                 ),
             ],
@@ -62,6 +88,7 @@ class CreateTransactionRequest extends FormRequest
             'user_id' => 'required|exists:users,id',
             'expiration' => 'date|nullable',
             'remarks' => 'string|nullable',
+            'personnel_id' => 'required|exists:personnels,id',
         ];
     }
 }

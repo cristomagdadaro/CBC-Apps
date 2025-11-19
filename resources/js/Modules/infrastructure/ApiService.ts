@@ -116,8 +116,8 @@ export default abstract class ApiService {
             is_exact: false,
             page: 1,
             per_page: 10,
-            sort: 'created_at',
-            order: 'desc',
+            /*sort: 'created_at',
+            order: 'desc',*/
         }
     }
 

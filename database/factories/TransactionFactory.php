@@ -16,58 +16,21 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class TransactionFactory extends Factory
 {
-
-    protected static int $countID1 = 2;
-    protected static int $countID2 = 2;
-    protected static int $countID3 = 2;
-    protected static int $countID4 = 2;
-    protected static int $countID5 = 2;
-    protected static int $countID6 = 2;
     protected static array $usedBarcodes = [];
 
-    /**
-     * Define the domain's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $transac_type = $this->faker->randomElement([Inventory::INCOMING->value, Inventory::OUTGOING->value]);
         $room = $this->faker->randomElement(['01', '02', '03', '04', '05', '06']);
 
-        $latestBarcode = Transaction::where('barcode', 'like', "CBC-$room-%")
-            ->orderByDesc('barcode')
-            ->value('barcode');
+        if ($transac_type === Inventory::INCOMING->value) {
+            $newBarcode = self::generateBarcode($room);
 
-        if ($latestBarcode) {
-            $lastNum = (int) substr($latestBarcode, -6);
-            $counter = $lastNum + 1;
-        } else {
-            $counter = 1; // first available after CBC-XX-000001
-        }
-
-        do {
-            $newBarcode = 'CBC-' . $room . '-' . str_pad($counter, 6, '0', STR_PAD_LEFT);
-            $counter++;
-        } while (
-            Transaction::where('barcode', $newBarcode)->exists()
-            || in_array($newBarcode, TransactionFactory::$usedBarcodes, true)
-        );
-
-        NewBarcode::updateOrCreate(
-            ['room' => $room],
-            ['barcode' => $newBarcode]
-        );
-
-        TransactionFactory::$usedBarcodes[] = $newBarcode;
-
-
-        if ($transac_type === Inventory::INCOMING->value)
             return [
                 'item_id' => Item::all()->random()->id,
                 'barcode' => $newBarcode,
                 'transac_type' => Inventory::INCOMING->value,
-                'quantity' => $this->faker->randomNumber(3),
+                'quantity' => $this->faker->numberBetween(1, 1000),
                 'unit_price' => $this->faker->randomNumber(2),
                 'unit' => $this->faker->randomElement(['kg', 'g', 'mg', 'L', 'mL', 'pc']),
                 'total_cost' => $this->faker->randomNumber(2),
@@ -76,38 +39,87 @@ class TransactionFactory extends Factory
                 'expiration' => $this->faker->date(),
                 'remarks' => $this->faker->text,
             ];
-        $existing = Transaction::all();
-
-        if ($existing->count()) {
-            $existing = $existing->random();
-            return [
-                'item_id' => $existing->item_id,
-                'barcode' => $existing->barcode,
-                'transac_type' => Inventory::OUTGOING->value,
-                'quantity' => $this->faker->randomNumber(3) * -1,
-                'unit_price' => $existing->unit_price,
-                'unit' => $existing->unit,
-                'total_cost' => $existing->total_cost,
-                'personnel_id' => Personnel::all()->random()->id,
-                'user_id' => User::all()->random()->id,
-                'expiration' => $existing->expiration,
-                'remarks' => $this->faker->text,
-            ];
         }
 
-        return [
+        $incomingTransaction = Transaction::where('transac_type', Inventory::INCOMING->value)
+            ->inRandomOrder()
+            ->first();
+
+        if (!$incomingTransaction) {
+            return [
                 'item_id' => Item::all()->random()->id,
                 'barcode' => null,
                 'transac_type' => Inventory::OUTGOING->value,
-                'quantity' => $this->faker->randomNumber(3) * -1,
+                'quantity' => $this->faker->numberBetween(-1000, -1),
                 'unit_price' => null,
-                'unit' => null,
+                'unit' => $this->faker->randomElement(['kg', 'g', 'mg', 'L', 'mL', 'pc']),
                 'total_cost' => null,
                 'personnel_id' => Personnel::all()->random()->id,
                 'user_id' => User::all()->random()->id,
-                'expiration' => $this->faker->date(),
-                'remarks' => $this->faker->text,
+                'expiration' => null,
+                'remarks' => 'Factory Fallback: No INCOMING transactions found.',
             ];
+        }
 
+        $availableQuantity = Transaction::where('item_id', $incomingTransaction->item_id)
+            ->sum('quantity');
+
+        if ($availableQuantity <= 0) {
+            $safeQuantity = 0;
+            $remarks = 'Factory: Attempted OUTGOING but stock was 0 or negative.';
+        } else {
+            $safeQuantity = $this->faker->numberBetween(1, $availableQuantity);
+            $remarks = $this->faker->text;
+        }
+
+        return [
+            'item_id' => $incomingTransaction->item_id,
+            'barcode' => $incomingTransaction->barcode,
+            'transac_type' => Inventory::OUTGOING->value,
+            'quantity' => $safeQuantity * -1,
+            'unit_price' => $incomingTransaction->unit_price,
+            'unit' => $incomingTransaction->unit,
+            'total_cost' => $incomingTransaction->total_cost ? ($incomingTransaction->total_cost / abs($incomingTransaction->quantity)) * $safeQuantity * -1 : null,
+            'personnel_id' => Personnel::all()->random()->id,
+            'user_id' => User::all()->random()->id,
+            'expiration' => $incomingTransaction->expiration,
+            'remarks' => $remarks,
+        ];
+    }
+
+    public static function generateBarcode(string $room): string
+    {
+        // Get the last known barcode from the NewBarcode table
+        $lastBarcodeRecord = NewBarcode::where('room', $room)->first();
+        $latestBarcode = $lastBarcodeRecord?->barcode;
+
+        // Determine starting counter
+        if ($latestBarcode) {
+            // Extract the numerical part and increment
+            $lastNum = (int) substr($latestBarcode, -6);
+            $counter = $lastNum + 1;
+        } else {
+            $counter = 1;
+        }
+
+        // Loop until a unique barcode is found
+        do {
+            $newBarcode = 'CBC-' . $room . '-' . str_pad($counter, 6, '0', STR_PAD_LEFT);
+            $counter++;
+        } while (
+            Transaction::where('barcode', $newBarcode)->exists()
+            || in_array($newBarcode, TransactionFactory::$usedBarcodes, true)
+        );
+
+        // Save/update the last generated barcode reference
+        NewBarcode::updateOrCreate(
+            ['room' => $room],
+            ['barcode' => $newBarcode]
+        );
+
+        // Track used barcodes in memory (factory-only behavior)
+        TransactionFactory::$usedBarcodes[] = $newBarcode;
+
+        return $newBarcode;
     }
 }

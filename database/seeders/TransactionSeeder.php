@@ -9,6 +9,7 @@ use App\Models\NewBarcode;
 use App\Models\Personnel;
 use App\Models\Supplier;
 use App\Models\Transaction;
+use Database\Factories\TransactionFactory;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -19,105 +20,91 @@ class TransactionSeeder extends Seeder
      */
     public function run(): void
     {
-        Transaction::factory(100)->create();
-        //$this->customSeeer();
+        //Transaction::factory(100)->create();
+        $this->customSeeder();
     }
 
-    private function customSeeer(): void
+    private function customSeeder(): void
     {
-        $items = [
-            [
-                'name' => 'Double Adhesive Tape',
-                'brand' => 'None',
-                'description' => 'Tape, Double Adhesive Tape with Foam Joy/Alternative',
-                'category_id' => Category::where('name', 'Office Supplies')->first()->id,
-                'supplier_id' => Supplier::inRandomOrder()->first()->id,
-
-                'transac_type' => Inventory::INCOMING->value,
-                'quantity' => 10,
-                'unit_price'=> 45,
-                'unit' => 'roll',
-                'total_cost' => 450,
-                'expiration' => null,
-                'remarks' => 'PO#2024-08-0296',
-            ],
-            [
-                'name' => 'Duck Tape',
-                'brand' => 'Generic',
-                'description' => 'Tape, Duct Tape (Cloth-backed)',
-                'category_id' => Category::where('name', 'Office Supplies')->first()->id,
-                'supplier_id' => Supplier::inRandomOrder()->first()->id,
-
-                'transac_type' => Inventory::INCOMING->value,
-                'quantity' => 15,
-                'unit_price'=> 60,
-                'unit' => 'roll',
-                'total_cost' => 900,
-                'expiration' => null,
-                'remarks' => 'PO#2024-08-0296',
-            ],[
-                'name' => 'Sign Pen Black',
-                'brand' => 'Generic',
-                'description' => 'Sign Pen, Black, Liquid/Gel Ink, 0.5 mm needle tip, Deli/Flex Office,/Alternative',
-                'category_id' => Category::where('name', 'Office Supplies')->first()->id,
-                'supplier_id' => Supplier::inRandomOrder()->first()->id,
-
-                'transac_type' => Inventory::INCOMING->value,
-                'quantity' => 5,
-                'unit_price'=> 20,
-                'unit' => 'piece',
-                'total_cost' => 100,
-                'expiration' => null,
-                'remarks' => 'PO#2024-08-0296',
-            ],[
-                'name' => 'Sign Pen Blue',
-                'brand' => 'Generic',
-                'description' => 'Sign Pen, Blue, Liquid/Gel Ink, 0.5 mm needle tip, Deli/Flex Office,/Alternative',
-                'category_id' => Category::where('name', 'Office Supplies')->first()->id,
-                'supplier_id' => Supplier::inRandomOrder()->first()->id,
-
-                'transac_type' => Inventory::INCOMING->value,
-                'quantity' => 5,
-                'unit_price'=> 20,
-                'unit' => 'piece',
-                'total_cost' => 100,
-                'expiration' => null,
-                'remarks' => 'PO#2024-08-0296',
-            ],[
-                'name' => 'Double Adhesive Tape',
-                'brand' => 'Generic',
-                'description' => 'Double Adhesive Tape without foam. Double sided tape without foam, 24mmx10m',
-                'category_id' => Category::where('name', 'Office Supplies')->first()->id,
-                'supplier_id' => Supplier::inRandomOrder()->first()->id,
-
-                'transac_type' => Inventory::INCOMING->value,
-                'quantity' => 20,
-                'unit_price'=> 28.5,
-                'unit' => 'piece',
-                'total_cost' => 570,
-                'expiration' => null,
-                'remarks' => 'PO#2024-08-0298',
-            ],
+        $data = [
+            ['Adhesive Tape', null, 27, 'piece'],
+            ['Binder Clips', '1"', 3, 'box'],
+            ['Binder Clips', '1 1/4"', 4, 'box'],
+            ['Bond Paper', 'A3', 20, 'ream'],
+            ['Bond Paper', 'A4', 100, 'ream'],
+            ['Bond Paper', 'Legal', 150, 'ream'],
+            ['Brown Envelope', 'A4', 700, 'piece'],
+            ['Brown Envelope', 'Long', 735, 'piece'],
+            ['Brown Expanding Envelope', null, 151, 'piece'],
+            ['Certificate Holder', 'A4', 59, 'piece'],
+            ['Clear Book', 'Blue', 8, 'piece'],
+            ['Clear Book', 'Orange', 8, 'piece'],
+            ['Clear Book', 'Pink', 8, 'piece'],
+            ['Clear Book', 'Red', 8, 'piece'],
+            ['Clear Book', 'Refill', 10, 'piece'],
+            ['Clear Book', 'Yellow', 7, 'piece'],
+            ['Correction Tape', null, 66, 'piece'],
+            ['Double Sided Tape', null, 12, 'piece'],
+            ['Double Sided Tape Foam', null, 7, 'piece'],
+            ['Duct Tape', null, 15, 'piece'],
+            ['Eco Best Tissue Pulls', null, 30, 'pack'],
+            ['Eco Hygine Tissue Rolls', null, 288, 'rolls'],
+            ['Ethyl Alcohol', null, 24, 'bottle'],
+            ['Glassine Bags', null, 51, 'bundle'],
+            ['Glue Stick', null, 60, 'piece'],
+            ['Heavy Duty Stapler', null, 1, 'piece'],
+            ['INK', 'Black', 25, 'bottle'],
+            ['INK', 'Cyan', 35, 'bottle'],
+            ['INK', 'Magenta', 39, 'bottle'],
+            ['INK', 'Yellow', 33, 'bottle'],
+            ['Lab Gown', null, 35, 'piece'],
+            ['Laboratory Manual', null, 155, 'piece'],
+            ['Laminating Film', null, 50, 'ream'],
+            ['Long Arm Stapler', null, 3, 'piece'],
+            ['Lysol', null, 9, 'bottle'],
+            ['Packaging Tape', null, 38, 'piece'],
+            ['Paper Fastener', null, 10, 'box'],
+            ['Plastic Envelope', null, 244, 'piece'],
+            ['Plastic Expanding Envelope', null, 85, 'piece'],
+            ['Plastic Ring Bind', null, 54, 'piece'],
+            ['Regular Stapler', null, 3, 'piece'],
+            ['Rubber Bands', 'Big', 1, 'box'],
+            ['Sanicare Tissue Pulls', null, 40, 'pack'],
+            ['Scotch Tape', null, 22, 'piece'],
+            ['Sharpie Markers', null, 25, 'set'],
+            ['Sign Pen', 'Black', 15, 'box'],
+            ['Sign Pen', 'Blue', 15, 'box'],
+            ['Sprayers', null, 4, 'piece'],
+            ['Stape Wire', '23/13', 21, 'box'],
+            ['Stape Wire', 'No. 35', 87, 'box'],
+            ['Tape Dispenser', null, 2, 'piece'],
         ];
 
-        foreach ($items as $item) {
+        foreach ($data as [$name, $description, $quantity, $unit]) {
 
-            Transaction::factory()->create([
-                'item_id' => Item::factory()->create([
-                    'name' => $item['name'],
-                    'brand' => $item['brand'],
-                    'description' => $item['description'],
-                    'category_id' => $item['category_id'],
-                    'supplier_id' => $item['supplier_id'],
-                ])->id,
-                'transac_type' => $item['transac_type'],
-                'quantity' => $item['quantity'],
-                'unit_price' => $item['unit_price'],
-                'unit' => $item['unit'],
-                'total_cost' => $item['total_cost'],
-                'expiration' => $item['expiration'],
-                'remarks' => $item['remarks'],
+            $item = Item::where('name', $name)
+                ->where('description', $description)
+                ->first();
+
+            if (!$item) {
+                info("ITEM NOT FOUND: {$name} - {$description}");
+                continue;
+            }
+
+            Transaction::create([
+                'user_id' => 1,    // admin user
+                'personnel_id' => Personnel::inRandomOrder()->first()->id,
+                'barcode' => TransactionFactory::generateBarcode(Inventory::BIOINFOROOM->value),
+                'item_id' => $item->id,
+                'transac_type' => Inventory::INCOMING->value,
+                'quantity' => $quantity,
+                'unit_price' => 0,    // unknown price
+                'unit' => $unit,
+                'total_cost' => 0,
+                'expiration' => null,
+                'remarks' => 'Initial Stock',
             ]);
         }
     }
+
 }

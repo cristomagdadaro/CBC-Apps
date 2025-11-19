@@ -68,6 +68,7 @@ export default {
             this.showModel = true;
         },
         async searchEvent() {
+            this.form.per_page = '*';
             await this.fetchGetApi('api.inventory.transactions.remaining-stocks').then((response) => {
                 this.outgoingFromApi = response;
             })
@@ -91,6 +92,7 @@ export default {
                         <span v-else>Searching</span>
                     </search-btn>
                 </div>
+                <h3>There are {{outgoingFromApi?.data?.length || 0}} items registered</h3>
                 <div v-if="outgoingFromApi" class="flex flex-col w-full gap-2 items-center">
                     <div id="dtPaginatorContainer" class="flex hidden gap-1 items-center w-full justify-center">
                         <!-- First Button -->
@@ -138,10 +140,11 @@ export default {
                             <div v-for="item in outgoingFromApi.data" @click="selectItem(item)" class="flex flex-col bg-white shadow hover:bg-gray-200 hover:border-gray-500 border rounded active:scale-95 duration-75">
                                 <div class="flex select-none justify-between items-center gap-5 py-2 px-4">
                                     <div class="flex flex-col">
-                                <span class="font-bold text-xs whitespace-nowrap overflow-ellipsis overflow-hidden">
-                                    {{ item.name }} ({{ item.unit }})
-                                </span>
-                                        <span class="text-xs text-gray-500">{{ item.brand }}</span>
+                                        <span class="font-bold text-xs whitespace-nowrap overflow-ellipsis overflow-hidden">
+                                            {{ item.name }} ({{ item.unit }})
+                                        </span>
+                                        <span class="text-xs text-gray-500 leading-none">{{ item.brand }}</span>
+                                        <span class="text-xs text-gray-500 leading-none" :class="{'text-red-600' : !item.barcode}">{{ item.barcode || 'Warning! NO BARCODE' }}</span>
                                     </div>
                                     <span class="text-right">{{ formatNumber(item.remaining_quantity) }}</span>
                                 </div>

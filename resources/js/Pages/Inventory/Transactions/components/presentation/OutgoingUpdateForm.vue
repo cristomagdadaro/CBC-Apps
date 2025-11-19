@@ -82,6 +82,7 @@ export default {
                             {{ show.name }} ({{ show.unit }})
                         </span>
                         <span class="text-sm text-gray-500">{{ show.brand }}</span>
+                        <span class="text-xs text-gray-500 leading-none" :class="{'text-red-600' : !show.barcode}">{{ show.barcode || 'Warning! NO BARCODE' }}</span>
                     </div>
                     <div class="flex sm:gap-4 gap-1">
                         <div class="flex flex-col">
