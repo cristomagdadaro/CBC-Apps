@@ -129,7 +129,7 @@ export default {
         :delay-ready="delayReady"
     >
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
-            <div class="py-4 flex flex-col md:flex-row gap-3 justify-center bg-gray-50 p-4 rounded-md">
+            <div class=" py-4 flex flex-col md:flex-row gap-3 justify-start sm:justify-center bg-gray-50 p-4 md:rounded-md h-full">
                 <camera-scanner @decoded="searchFromBarcode" />
                 <div class="flex flex-col justify-start gap-3 mx-auto w-full">
                     <div class="w-full flex gap-2 items-end lg:px-0 px-2">
