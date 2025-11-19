@@ -31,7 +31,7 @@ export default {
                 <!-- Header / search / top content -->
                 <slot name="top">
                     <div v-show="delayReady" class="select-none md:p-2 p-0 md:p-4 md:rounded-md flex flex-col gap-2 bg-gray-100 w-full md:drop-shadow-lg mb-0">
-                        <div id="form-public-header" class="relative flex flex-row bg-AB text-white p-2 px-4 md:rounded-md gap-2 shadow py-4">
+                        <div class="relative flex flex-row bg-AB text-white p-2 px-4 md:rounded-md gap-2 shadow py-4">
                             <img src="/imgs/logo.png" alt="logo" class="w-auto h-16" />
                             <div class="flex flex-col justify-center">
                                 <label class="font-semibold text-xl">{{ title }}</label>
