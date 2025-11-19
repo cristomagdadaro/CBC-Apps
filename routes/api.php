@@ -52,7 +52,7 @@ Route::prefix('guest')->group(function () {
             [ 'name' => 'Researchers\' Office I' ],
         ]];
     })->name('api.inventory.laboratories.public');
-    Route::post('/', [TransactionController::class, 'outgoingStockStore'])->name('api.inventory.transactions.store.public');
+    Route::post('/outgoing', [TransactionController::class, 'outgoingStockStore'])->name('api.inventory.transactions.store.public');
     Route::get('/remaining-stocks', [TransactionController::class, 'remainingStocks'])->name('api.inventory.transactions.remaining-stocks');
     Route::post('/forms/event', [EventSubformController::class, 'create'])->name('api.subform.response.store');
 });

@@ -21,15 +21,6 @@ class CreateTransactionRequest extends FormRequest
 
     public function prepareForValidation(): void
     {
-        // --- Existing ID Generation Logic ---
-        do {
-            $temp = Str::uuid()->toString();
-        } while (Transaction::where('id', $temp)->exists());
-
-        $this->merge([
-            'id' => $temp,
-        ]);
-
         $quantity = $this->input('quantity');
         $transacType = $this->input('transac_type');
 
