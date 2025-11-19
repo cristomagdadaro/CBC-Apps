@@ -112,9 +112,23 @@ export default {
             this.selectedItem = null;
             this.resetForm();
         },
-        searchFromBarcode(barcode) {
+        async searchFromBarcode(barcode) {
+            // Prepare an exact search against the barcode column (assumes 'barcode' is a valid filter column)
             this.form.search = barcode;
-            this.searchEvent();
+            this.form.filter = 'barcode';
+            this.form.is_exact = true;
+            // Clear any existing selection while we search
+            this.selectedItem = null;
+            this.showModel = false;
+            await this.searchEvent();
+            // Attempt to auto-select if exactly one exact barcode match returned
+            if (this.outgoingFromApi && Array.isArray(this.outgoingFromApi.data)) {
+                const exactMatches = this.outgoingFromApi.data.filter(item => item.barcode === barcode);
+                if (exactMatches.length === 1) {
+                    this.selectItem(exactMatches[0]);
+                }
+                // If zero or multiple matches, the list remains visible for manual selection
+            }
         }
     }
 }

@@ -143,7 +143,7 @@ export default {
                 type="button"
                 @click="toggleOpen"
                 :aria-expanded="isOpen.toString()"
-                class="px-3 py-2 text-sm rounded-md text-left border border-gray-300 bg-white shadow hover:bg-gray-50 active:scale-[.98] duration-75 flex items-center gap-2 w-full"
+                class="px-3 py-2 text-sm rounded-md text-left border border-gray-700 bg-white hover:bg-gray-50 active:scale-[.98] duration-75 flex items-center gap-2 w-full"
             >
                 <span v-if="!isOpen" class="w-full">Show Scanner</span>
                 <span v-else  class="w-full">Hide Scanner</span>
