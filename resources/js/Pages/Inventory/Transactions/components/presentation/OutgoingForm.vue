@@ -79,17 +79,17 @@ export default {
 </script>
 
 <template>
-    <div class="flex flex-col sm:p-5 p-2 sm:gap-3 gap-1 bg-white shadow rounded">
-        <div  v-if="data" class="flex select-none justify-between items-center gap-5 py-2 px-4 border-b">
+    <div class="flex flex-col sm:p-5 p-3 sm:gap-3 gap-1 bg-white shadow rounded">
+        <div  v-if="data" class="flex select-none justify-between items-center gap-5 py-2 px-1 md:px-4 border-b">
             <div class="flex flex-col leading-none">
-                <span class="font-bold text-lg whitespace-nowrap overflow-ellipsis overflow-hidden">
+                <span class="font-bold text-base md:text-lg whitespace-nowrap overflow-ellipsis overflow-hidden">
                     {{ data.name }} ({{ data.unit }})
                 </span>
                 <span class="text-sm text-gray-500">{{ data.brand }}</span>
                 <span class="text-xs text-gray-500 leading-none" :class="{'text-red-600' : !data.barcode}">{{ data.barcode || 'Warning! NO BARCODE' }}</span>
             </div>
             <div class="flex sm:gap-4 gap-1">
-                <div class="flex flex-col">
+                <div class="flex flex-col leading-none md:leading-relaxed">
                     <span class="text-center text-gray-600">
                         {{ formatNumber(data.remaining_quantity) }}
                     </span>
@@ -97,7 +97,7 @@ export default {
                         Remaining
                     </span>
                 </div>
-                <div class="flex flex-col">
+                <div class="flex flex-col leading-none md:leading-relaxed">
                     <span class="text-center text-gray-600">
                         {{ formatNumber(data.total_outgoing) }}
                     </span>
@@ -105,7 +105,7 @@ export default {
                         Consumed
                     </span>
                 </div>
-                <div class="flex flex-col">
+                <div class="flex flex-col leading-none md:leading-relaxed">
                     <span class="text-center text-gray-600">
                         {{ (100-((data.remaining_quantity/data.total_ingoing) *100)).toFixed(2)  }}%
                     </span>
@@ -115,8 +115,8 @@ export default {
                 </div>
             </div>
         </div>
-        <div class="flex flex-col sm:gap-3 gap-1 border sm:p-3 p-1 rounded bg-gray-100">
-            <h1 class="text-lg font-semibold text-gray-800">Outgoing Transaction</h1>
+        <div class="flex flex-col sm:gap-3 gap-1 sm:p-3 p-1 rounded">
+            <h1 class="text-base md:text-lg font-semibold text-gray-800">Outgoing Transaction</h1>
             <form @submit.prevent="proxySubmit" class="flex flex-col gap-3">
                 <!-- Public access: ask for Employee ID only -->
                 <text-input

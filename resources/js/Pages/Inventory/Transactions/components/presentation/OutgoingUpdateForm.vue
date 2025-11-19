@@ -75,17 +75,17 @@ export default {
             <transaction-header-action />
         </template>
         <div class="py-4" v-if="!!form">
-            <div class="flex flex-col sm:p-5 p-2 sm:gap-3 gap-1 bg-white shadow rounded max-w-xl mx-auto">
-                <div v-if="show" class="flex select-none justify-between items-center gap-5 py-2 px-4 border-b">
+            <div class="flex flex-col sm:p-5 p-3 sm:gap-3 gap-1 bg-white shadow rounded max-w-xl mx-auto">
+                <div v-if="show" class="flex select-none justify-between items-center gap-5 py-2 px-1 md:px-4 border-b">
                     <div class="flex flex-col">
-                        <span class="font-bold text-lg whitespace-nowrap overflow-ellipsis overflow-hidden">
+                        <span class="font-bold text-base md:text-lg whitespace-nowrap overflow-ellipsis overflow-hidden">
                             {{ show.name }} ({{ show.unit }})
                         </span>
                         <span class="text-sm text-gray-500">{{ show.brand }}</span>
                         <span class="text-xs text-gray-500 leading-none" :class="{'text-red-600' : !show.barcode}">{{ show.barcode || 'Warning! NO BARCODE' }}</span>
                     </div>
                     <div class="flex sm:gap-4 gap-1">
-                        <div class="flex flex-col">
+                        <div class="flex flex-col leading-none md:leading-relaxed">
                                 <span class="text-center text-gray-600">
                                     {{ formatNumber(show.remaining_quantity) }}
                                 </span>
@@ -93,7 +93,7 @@ export default {
                                     Remaining
                                 </span>
                         </div>
-                        <div class="flex flex-col">
+                        <div class="flex flex-col leading-none md:leading-relaxed">
                                 <span class="text-center text-gray-600">
                                     {{ formatNumber(show.total_outgoing) }}
                                 </span>
@@ -101,7 +101,7 @@ export default {
                                     Consumed
                                 </span>
                         </div>
-                        <div class="flex flex-col">
+                        <div class="flex flex-col leading-none md:leading-relaxed">
                                 <span class="text-center text-gray-600">
                                     {{ (100-((show.remaining_quantity/show.total_ingoing) *100)).toFixed(2)  }}%
                                 </span>
@@ -111,7 +111,7 @@ export default {
                         </div>
                     </div>
                 </div>
-                <div class="flex flex-col sm:gap-3 gap-1 border sm:p-3 p-1 rounded bg-gray-100">
+                <div class="flex flex-col sm:gap-3 gap-1 sm:p-3 p-1 rounded">
                     <form @submit.prevent="submit" class="flex flex-col gap-3">
                         <custom-dropdown
                             required
