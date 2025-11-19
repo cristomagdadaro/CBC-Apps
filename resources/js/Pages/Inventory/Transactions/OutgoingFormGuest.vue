@@ -141,14 +141,14 @@ export default {
         :title="'Outgoing Inventory Form'"
         :subtitle="'Kindly fill out the form below to record your transaction'"
         :delay-ready="delayReady"
-    >
+    >{{form}}
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
             <div class="py-4 flex flex-col md:flex-row gap-3 justify-center bg-gray-50 p-4 rounded-md">
                 <camera-scanner @decoded="searchFromBarcode" />
                 <div class="flex flex-col justify-start gap-3 mx-auto w-full">
                     <div class="w-full flex gap-2 items-end lg:px-0 px-2">
                         <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
-                        <text-input placeholder="Search..." v-model="form.search" />
+                        <text-input placeholder="Search..." v-model="form.search" @update:model-value="form.filter = null; form.is_exact = false;" />
                         <search-btn @click="searchEvent" :disabled="model?.processing" class="w-[10rem] text-center">
                             <span v-if="!model?.processing">Search</span>
                             <span v-else>Searching</span>
