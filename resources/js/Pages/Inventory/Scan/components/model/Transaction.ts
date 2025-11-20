@@ -37,7 +37,7 @@ export default class Transaction extends DtoTransaction {
     }
 
     updateFields(model: ITransaction): object
-    {
+    {console.log(model);
         return {
             id: model.id ?? null,
             barcode: model.barcode ?? null,
@@ -55,7 +55,11 @@ export default class Transaction extends DtoTransaction {
         };
     }
 
-    static getColumns() {
+    get dataColor( ){
+           return `${this.transac_type && this.transac_type === 'incoming' ? 'text-green-600' : 'text-red-600'} text-center uppercase`;
+    }
+
+    static getColumns(data: DtoTransaction = null): any {
         return [
             {
                 title: 'ID',
@@ -82,21 +86,21 @@ export default class Transaction extends DtoTransaction {
                 title: 'Type',
                 key: 'transac_type',
                 db_key: 'transac_type',
-                align: 'center',
+                align: 'dataColor',
                 sortable: true,
                 visible: true,
             },{
                 title: 'Quantity',
                 key: 'quantity',
                 db_key: 'quantity',
-                align: 'center',
+                align: 'text-center',
                 sortable: true,
                 visible: true,
             },{
                 title: 'Unit',
                 key: 'unit',
                 db_key: 'unit',
-                align: 'center',
+                align: 'text-center',
                 sortable: true,
                 visible: true,
             },{
@@ -119,7 +123,7 @@ export default class Transaction extends DtoTransaction {
                 db_key: 'expiration',
                 align: 'center',
                 sortable: true,
-                visible: true,
+                visible: false,
             },{
                 title: 'Remarks',
                 key: 'remarks',

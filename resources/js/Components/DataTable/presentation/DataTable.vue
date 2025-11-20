@@ -188,7 +188,7 @@ export default {
                     >
                             <dt-data
                                 v-if="head.visible"
-                                :class="head.align"
+                                :class="getNestedValue(row, head.align)"
                                 class="border border-gray-500 px-2"
                                 :title="getNestedValue(row, head.key)"
                             >

@@ -87,8 +87,9 @@ class TransactionController extends BaseController
             ->selectRaw(
                 'items.name, items.brand, transactions.unit, items.id as item_id, transactions.barcode,' .
                 ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,' .
-                ' SUM(CASE WHEN transactions.transac_type = "outgoing" THEN transactions.quantity ELSE 0 END) as total_outgoing,' .
-                ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity WHEN transactions.transac_type = "outgoing" THEN -transactions.quantity ELSE 0 END) as remaining_quantity'
+                ' SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END) as total_outgoing,' .
+                ' (SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) - ' .
+                '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity'
             )
             ->join('items', 'transactions.item_id', '=', 'items.id')
             ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode');
@@ -174,7 +175,6 @@ class TransactionController extends BaseController
             }
         }
 
-        $validated['quantity'] = $validated['quantity'] * -1;
         $validated['id'] = (string) Str::uuid();
         return $this->service->create($validated);
     }

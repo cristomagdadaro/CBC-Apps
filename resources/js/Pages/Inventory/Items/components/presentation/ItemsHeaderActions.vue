@@ -12,7 +12,7 @@ export default {
 <template>
     <div class="flex justify-between items-center">
         <Link :href="route('items.index')" class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            List of Consumables
+            List of Items
         </Link>
         <div class="flex justify-between items-center">
             <Link :href="route('items.create')">

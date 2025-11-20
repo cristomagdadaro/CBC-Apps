@@ -196,7 +196,8 @@ Route::middleware([
                 Route::get('/incoming', function () {
                     return Inertia::render('Inventory/Transactions/components/presentation/Incoming', [
                         'fromUrl' => route('transactions.index'),
-                        'items' => Item::withTrashed()->get(),
+                        'items' => Item::get(),
+                        'storage_locations' => config('system.storage_locations')
                     ]);
                 })->name('transactions.incoming');
 
@@ -216,16 +217,19 @@ Route::middleware([
                             'data' => $transaction,
                             'items' => Item::withTrashed()->get(),
                             'fromUrl' => route('transactions.index'),
+                            'storage_locations' => config('system.storage_locations')
                         ]);
                     } else {
                         return Inertia::render('Inventory/Transactions/components/presentation/OutgoingUpdateForm', [
-                            'show' =>  Transaction::selectRaw('transactions.id, personnel_id, quantity, items.name, items.brand, transactions.unit, transac_type, items.id as item_id,
-                     SUM(CASE WHEN transactions.quantity > 0 THEN transactions.quantity ELSE 0 END) as total_ingoing,
-                     SUM(CASE WHEN transactions.quantity < 0 THEN ABS(transactions.quantity) ELSE 0 END) as total_outgoing,
-                     SUM(transactions.quantity) as remaining_quantity')
-                                ->where('transactions.id', request()->route('id'))
+                            'data' =>  Transaction::select('*')->where('transactions.id', request()->route('id'))->first(),
+                            'summary' =>  Transaction::selectRaw('items.name, items.brand, transactions.unit, items.id as item_id, transactions.barcode,' .
+                                ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,' .
+                                ' SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END) as total_outgoing,' .
+                                ' (SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) - ' .
+                                '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity'
+                            )
                                 ->join('items', 'transactions.item_id', '=', 'items.id')
-                                ->groupBy('transactions.id', 'items.id', 'transac_type', 'items.name', 'items.brand', 'transactions.unit')
+                                ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode')
                                 ->first(),
                             'fromUrl' => route('transactions.index'),
                             'personnels' => Personnel::all(),

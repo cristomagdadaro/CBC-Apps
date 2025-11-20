@@ -46,27 +46,6 @@ export default {
             barcodeCanvas: null,
             svgText: '',
             select_storage: null,
-            storage_locations: [
-                {
-                    name: '01',
-                    label: 'Central Bodega',
-                },{
-                    name: '02',
-                    label: 'Storage Room Chemicals',
-                },{
-                    name: '03',
-                    label: 'Consumables in Box',
-                },{
-                    name: '04',
-                    label: 'Consumables',
-                },{
-                    name: '05',
-                    label: 'Chemicals in MGL',
-                },{
-                    name: '06',
-                    label: 'Chemicals in GTL',
-                },
-            ]
         }
     },
     methods: {
@@ -93,11 +72,23 @@ export default {
         }
     },
     computed: {
+        storage_locations() {
+            if (!this.$page.props?.storage_locations)
+                return [];
+            return this.$page.props.storage_locations.map(location => {
+                return {
+                    name: location.name,
+                    label: location.label,
+                }
+            });
+        },
         items() {
             return this.$page.props.items.map(item => {
+                const supplement = item.brand || item.description;
+
                 return {
                     name: item.id,
-                    label: item.name + ' (' + item.brand + ')',
+                    label: item.name + (supplement ? ' (' + supplement + ')' : ''),
                 }
             });
         },

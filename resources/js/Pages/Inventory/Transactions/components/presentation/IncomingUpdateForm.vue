@@ -31,30 +31,17 @@ export default {
             noModelApi: null,
             barcodeCanvas: null,
             svgText: '',
-            storage_locations: [
-                {
-                    name: '01',
-                    label: 'Central Bodega',
-                },{
-                    name: '02',
-                    label: 'Storage Room Chemicals',
-                },{
-                    name: '03',
-                    label: 'Consumables in Box',
-                },{
-                    name: '04',
-                    label: 'Consumables',
-                },{
-                    name: '05',
-                    label: 'Chemicals in MGL',
-                },{
-                    name: '06',
-                    label: 'Chemicals in GTL',
-                },
-            ]
         }
     },
     computed: {
+        storage_locations() {
+            return this.$page.props.storage_locations.map(location => {
+                return {
+                    name: location.name,
+                    label: location.label,
+                }
+            });
+        },
         items() {
             return this.$page.props.items.map(item => {
                 return {

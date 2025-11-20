@@ -7,6 +7,8 @@ import ApiMixin from "@/Modules/mixins/ApiMixin";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
 import TextArea from "@/Components/TextArea.vue";
+import DtoResponse from "@/Modules/dto/DtoResponse";
+import DtoError from "@/Modules/dto/DtoError.js";
 
 export default {
     name: "OutgoingForm",
@@ -36,19 +38,18 @@ export default {
         formatNumber(value){
             return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         },
-        proxySubmit() {
+        async proxySubmit() {
             if (this.isPublic) {
-                // Public flow: user is not logged in.
-                // We treat employee_id as both the identifier for the user
-                // and implicitly for "personnel", so we don't require personnel_id here.
                 this.form.employee_id = this.employee_id;
                 this.form.user_id = null;
-                // Ensure personnel_id is not accidentally validated in this context
                 this.form.personnel_id = null;
             }
 
-            this.submitCreate();
-            this.$emit('submitted');
+            const temp = await this.submitCreate();
+            if (temp instanceof DtoResponse)
+              this.$emit('submitted');
+            if (temp instanceof DtoError)
+              this.$emit('error');
         }
     },
     mounted() {
@@ -68,7 +69,7 @@ export default {
     watch: {
         'form.quantity': {
             handler(newVal) {
-                if(newVal > Number(this.data.remaining_quantity))
+                if(newVal > Number(this.data?.remaining_quantity))
                     this.form['errors'].quantity = 'Exceeds maximum quantity';
                 else
                     this.form['errors'].quantity = null;

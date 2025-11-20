@@ -48,7 +48,7 @@ export default {
             return await api.getApi(url, params, model);
         },
         async submitCreate(toCast: boolean = false, except: string = '') {
-            this.form.clearErrors(); console.log(this.model.api)
+            this.form.clearErrors();
             return await this.model.api.postIndex(this.form.data()).then(response => {
                 this.resetForm(except);
                 if (toCast) {
@@ -164,7 +164,6 @@ export default {
                     Object.keys(dto.data.errors).forEach(key => {
                         const message = dto.data.errors[key].join('');
                         this.form.setError(key, message);
-                        // @ts-ignore
                         if (key.startsWith('response_data.')) {
                             const shortKey = key.replace('response_data.', '');
                             this.form.setError(shortKey, message);
