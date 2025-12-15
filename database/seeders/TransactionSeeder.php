@@ -105,7 +105,7 @@ class TransactionSeeder extends Seeder
 
             Transaction::create([
                 'user_id' => 1,    // admin user
-                'personnel_id' => Personnel::inRandomOrder()->first()->id,
+                'personnel_id' => 1, // initial stock by admin
                 'barcode' => TransactionFactory::generateBarcode(Inventory::BIOINFOROOM->value),
                 'item_id' => $item->id,
                 'transac_type' => Inventory::INCOMING->value,
