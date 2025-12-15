@@ -23,4 +23,9 @@ class Category extends BaseModel
     {
         return $date->format('g:i a M j, Y');
     }
+
+    public function items()
+    {
+        return $this->hasMany(Item::class, 'category_id', 'id');
+    }
 }

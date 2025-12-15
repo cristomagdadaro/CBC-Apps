@@ -373,6 +373,77 @@ class ItemsSeeder extends Seeder
                 'category_id' => Category::where('name', 'Office Supplies')->first()->id, // Office Supplies
                 'supplier_id' => Supplier::where('name', 'Unknown')->first()->id,
             ],
+
+            // Tokens
+
+            [
+               'name' => 'Tshirt',
+               'brand' => null,
+               'description' => 'M',
+               'category_id' => Category::where('name', 'Tokens')->first()->id, // Office Supplies
+               'supplier_id' => Supplier::where('name', 'Unknown')->first()->id,
+           ],
+           [
+               'name' => 'Tshirt',
+               'brand' => null,
+               'description' => 'L',
+               'category_id' => Category::where('name', 'Tokens')->first()->id, // Office Supplies
+               'supplier_id' => Supplier::where('name', 'Unknown')->first()->id,
+           ],[
+               'name' => 'Tshirt',
+               'brand' => null,
+               'description' => 'XL',
+               'category_id' => Category::where('name', 'Tokens')->first()->id, // Office Supplies
+               'supplier_id' => Supplier::where('name', 'Unknown')->first()->id,
+           ],
+           [
+               'name' => 'Tshirt',
+               'brand' => null,
+               'description' => '2XL',
+               'category_id' => Category::where('name', 'Tokens')->first()->id, // Office Supplies
+               'supplier_id' => Supplier::where('name', 'Unknown')->first()->id,
+           ],
+           [
+               'name' => 'Tshirt',
+               'brand' => null,
+               'description' => '3XL',
+               'category_id' => Category::where('name', 'Tokens')->first()->id, // Office Supplies
+               'supplier_id' => Supplier::where('name', 'Unknown')->first()->id,
+           ],
+           [
+               'name' => 'Tote Bags',
+               'brand' => null,
+               'description' => null,
+               'category_id' => Category::where('name', 'Tokens')->first()->id, // Office Supplies
+               'supplier_id' => Supplier::where('name', 'Unknown')->first()->id,
+           ],
+           [
+               'name' => 'Arm Sleeves',
+               'brand' => null,
+               'description' => null,
+               'category_id' => Category::where('name', 'Tokens')->first()->id, // Office Supplies
+               'supplier_id' => Supplier::where('name', 'Unknown')->first()->id,
+           ],[
+               'name' => 'Brown rice',
+               'brand' => null,
+               'description' => null,
+               'category_id' => Category::where('name', 'Tokens')->first()->id, // Office Supplies
+               'supplier_id' => Supplier::where('name', 'Unknown')->first()->id,
+           ],
+           [
+               'name' => 'Rice wine w/ bag',
+               'brand' => null,
+               'description' => null,
+               'category_id' => Category::where('name', 'Tokens')->first()->id, // Office Supplies
+               'supplier_id' => Supplier::where('name', 'Unknown')->first()->id,
+           ],
+           [
+               'name' => 'Flash Drive',
+               'brand' => 'Sandisk',
+               'description' => '32GB',
+               'category_id' => Category::where('name', 'ICT Supplies')->first()->id, // Office Supplies
+               'supplier_id' => Supplier::where('name', 'Unknown')->first()->id,
+           ],
         ];
 
         foreach ($data as $item) {

@@ -21,10 +21,12 @@ import Personnel from "@/Pages/Inventory/Personnel/components/model/Personnel";
 import GuestFormPage from "@/Pages/Shared/GuestFormPage.vue";
 import CameraScanner from "@/Components/CameraScanner.vue";
 import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
+import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 
 export default {
     name: "OutgoingFormGuest",
     components: {
+        CustomDropdown,
         LoaderIcon,
         CameraScanner,
         GuestFormPage,
@@ -38,6 +40,16 @@ export default {
         SearchBtn,
         RequesterGuestCard, TransitionContainer, TransactionHeaderAction, AppLayout, SearchComp, Head},
     mixins: [ApiMixin],
+    props: {
+        categories: {
+            type: Array,
+            required: true
+        },
+        stockLevel: {
+            type: Array,
+            required: true
+        }
+    },
     data() {
         return {
             api: null,
@@ -94,16 +106,16 @@ export default {
             })
             this.processing = false;
         },
-        setFilter(level) {
-            if (this.form.filter_by === level) {
+        setFilter(filter, filter_by) {
+            if (this.form.filter_by === filter_by) {
                 this.form.filter = '';
                 this.form.filter_by = '';
                 this.searchEvent();
                 return;
             }
 
-            this.form.filter = 'quantity';
-            this.form.filter_by = level;
+            this.form.filter = filter;
+            this.form.filter_by = filter_by;
             this.searchEvent();
         },
         async closeForm() {
@@ -156,21 +168,8 @@ export default {
                     </div>
                     <div v-if="outgoingFromApi" class="flex flex-col w-full gap-2 items-center">
                         <div class="flex gap-1 items-center w-full justify-center">
-                            <paginate-btn @click="setFilter('empty')" :class="form.filter_by === 'empty' ? 'bg-AB text-white' : ''">
-                                Empty Stock
-                            </paginate-btn>
-
-                            <paginate-btn @click="setFilter('low')" :class="form.filter_by === 'low' ? 'bg-AB text-white' : ''">
-                                Low Stock
-                            </paginate-btn>
-
-                            <paginate-btn @click="setFilter('mid')" :class="form.filter_by === 'mid' ? 'bg-AB text-white' : ''">
-                                Mid Stock
-                            </paginate-btn>
-
-                            <paginate-btn @click="setFilter('high')" :class="form.filter_by === 'high' ? 'bg-AB text-white' : ''">
-                                High Stock
-                            </paginate-btn>
+                            <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
+                            <custom-dropdown :with-all-option="false" placeholder="Category" label="Filter by Category" @selectedChange="setFilter('category', $event)" :options="categories" />
                         </div>
                         <div class="w-full max-h-[60vh] overflow-y-auto">
                             <div v-show="processing" class="text-center py-3 border border-AB rounded-lg w-full h-full z-50">

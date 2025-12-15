@@ -94,7 +94,9 @@ class TransactionController extends BaseController
             ->join('items', 'transactions.item_id', '=', 'items.id')
             ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode');
 
-        if ($filter === 'quantity' && $filterBy) {
+        if ($filter === 'category' && $filterBy) {
+            $query->where('items.category_id', $filterBy);
+        } elseif ($filter === 'quantity' && $filterBy) {
             $percentageExpr = 'CASE WHEN total_ingoing <> 0 THEN remaining_quantity / total_ingoing ELSE 0 END';
 
             switch ($filterBy) {
@@ -157,7 +159,7 @@ class TransactionController extends BaseController
         if ($paginate && $perPage !== '*') {
             $data = $query->paginate($perPage, ['*'], 'page', $page);
         } else {
-            $data = [ 'data' => $query->get() ];
+            $data = ['data' => $query->get()];
         }
 
         return new Collection($data);

@@ -78,6 +78,18 @@ class TransactionSeeder extends Seeder
             ['Stape Wire', '23/13', 21, 'box'],
             ['Stape Wire', 'No. 35', 87, 'box'],
             ['Tape Dispenser', null, 2, 'piece'],
+
+            // Tokens
+            ['Tshirt', 'M', 58, 'piece'],
+            ['Tshirt', 'L', 85, 'piece'],
+            ['Tshirt', 'XL', 100, 'piece'],
+            ['Tshirt', '2XL', 50, 'piece'],
+            ['Tshirt', '3XL', 50, 'piece'],
+            ['Tote Bags', null, 181, 'piece'],
+            ['Arm Sleeves', null, 568, 'pair'],
+            ['Brown rice', null, 5, 'pack'],
+            ['Rice wine w/ bag', null, 2, 'set'],
+            ['Flash Drive', '32GB', 129, 'piece'],
         ];
 
         foreach ($data as [$name, $description, $quantity, $unit]) {

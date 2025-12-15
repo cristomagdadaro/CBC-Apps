@@ -123,7 +123,7 @@ export default {
                 <text-input
                     v-if="isPublic"
                     required
-                    label="Employee ID"
+                    label="PhilRice ID"
                     name="employee_id"
                     id="employee_id"
                     v-model="employee_id"
