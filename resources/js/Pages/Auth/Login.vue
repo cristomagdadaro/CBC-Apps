@@ -58,7 +58,7 @@ const submit = () => {
                     <TextInput
                         id="email"
                         v-model="form.email"
-                        type="email"
+                        type-input="email"
                         class="mt-1 block w-full"
                         required
                         autofocus
@@ -72,7 +72,7 @@ const submit = () => {
                     <TextInput
                         id="password"
                         v-model="form.password"
-                        type="password"
+                        type-input="password"
                         class="mt-1 block w-full"
                         required
                         autocomplete="current-password"
