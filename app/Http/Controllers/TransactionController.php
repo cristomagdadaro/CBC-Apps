@@ -85,7 +85,7 @@ class TransactionController extends BaseController
 
         $query = $this->service->model
             ->selectRaw(
-                'items.name, items.brand, transactions.unit, items.id as item_id, transactions.barcode,' .
+                'items.name, items.description, items.brand, transactions.unit, items.id as item_id, transactions.barcode,' .
                 ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,' .
                 ' SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END) as total_outgoing,' .
                 ' (SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) - ' .

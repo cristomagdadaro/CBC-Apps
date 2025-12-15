@@ -189,7 +189,7 @@ export default {
                                     <div class="flex select-none justify-between items-center gap-5 py-2 px-4">
                                         <div class="flex flex-col">
                                                 <span class="font-bold text-xs whitespace-nowrap overflow-ellipsis overflow-hidden">
-                                                    {{ item.name }} ({{ item.unit }})
+                                                    {{ item.name }} {{ item.description ? `(${item.description})` : '' }}
                                                 </span>
                                             <span class="text-xs text-gray-500">{{ item.barcode }}</span>
                                             <span class="text-xs text-gray-500">{{ item.brand }}</span>

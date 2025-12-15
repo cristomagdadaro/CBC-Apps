@@ -84,7 +84,7 @@ export default {
         <div  v-if="data" class="flex select-none justify-between items-center gap-5 py-2 px-1 md:px-4 border-b">
             <div class="flex flex-col leading-none">
                 <span class="font-bold text-base md:text-lg whitespace-nowrap overflow-ellipsis overflow-hidden">
-                    {{ data.name }} ({{ data.unit }})
+                    {{ data.name }} ({{ data.description }})
                 </span>
                 <span class="text-sm text-gray-500">{{ data.brand }}</span>
                 <span class="text-xs text-gray-500 leading-none" :class="{'text-red-600' : !data.barcode}">{{ data.barcode || 'Warning! NO BARCODE' }}</span>
