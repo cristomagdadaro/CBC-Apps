@@ -24,6 +24,17 @@ class PersonnelSeeder extends Seeder
 
         $personnels = [
             [
+                'lname' => 'Administrator',
+                'fname' => 'DA-CBC',
+                'mname' => null,
+                'suffix' => null,
+                'position' => 'Administrator',
+                'phone' => null,
+                'address' => null,
+                'email' => null,
+                'employee_id' => '00-0000',
+            ],
+            [
                 'lname' => 'ACHUELA',
                 'fname' => 'Amabel',
                 'mname' => null,
