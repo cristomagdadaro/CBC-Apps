@@ -29,4 +29,8 @@ export default class DtoItem extends DtoBaseClass implements IItem {
         if (data?.category)
             this.category = new DtoCategory(data.category);
     }
+
+    get fullName(): string {
+        return `${this.name} ` + (this.description ? `(${this.description})` : '');
+    }
 }
