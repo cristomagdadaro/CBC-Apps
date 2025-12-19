@@ -12,8 +12,27 @@ export default {
     name: "GuestCard",
     components: {TabNavigation, FeedbackCard, RegistrationCard, InputError, InputLabel, TextInput, PreregistrationCard},
     mixins: [DataFormatterMixin],
+    data() {
+        return {
+            // v-model on <TabNavigation> expects a reactive property.
+            // Define it so template render won't warn about undefined property.
+            activeTab: null,
+            // referenced in beforeDestroy when clearing the interval
+            intervalId: null,
+        };
+    },
     mounted() {
         this.startCountdown();
+        // Set default active tab to first available open form to avoid null in TabNavigation
+        if (this.activeTab === null) {
+            if (this.isFormOpen(this.whatForm('pre_registration'))) {
+                this.activeTab = 'preregistration';
+            } else if (this.isFormOpen(this.whatForm('registration'))) {
+                this.activeTab = 'registration';
+            } else if (this.isFormOpen(this.whatForm('feedback'))) {
+                this.activeTab = 'feedback';
+            }
+        }
     },
     beforeDestroy() {
         clearInterval(this.intervalId);
@@ -83,7 +102,7 @@ export default {
                 <span class="font-bold uppercase">Venue: </span>
                 <label class="break-all overflow-ellipsis">{{ data.venue }}</label>
             </div>
-            <p v-if="data.venue"class="text-justify break-all">{{ data.details }}</p>
+            <p v-if="data.venue" class="text-justify break-all">{{ data.details }}</p>
         </div>
         <div v-if="data.max_slots" class="px-1 flex gap-2 justify-between">
             <div>
