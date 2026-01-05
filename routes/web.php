@@ -198,7 +198,7 @@ Route::middleware([
                         'fromUrl' => route('transactions.index'),
                         'items' => Item::get(),
                         'storage_locations' => config('system.storage_locations'),
-                        'personnels' => Personnel::selectRaw('id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
+                        'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                     ]);
                 })->name('transactions.incoming');
 

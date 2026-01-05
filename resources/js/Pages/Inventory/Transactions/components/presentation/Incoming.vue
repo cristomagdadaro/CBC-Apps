@@ -69,7 +69,11 @@ export default {
                 height: 60,
             });
             this.svgText = canvas.toDataURL();
-        }
+        },
+        personnelChange(value) {
+            console.log(value);
+            this.form.personnel_id = value;
+        },
     },
     computed: {
         storage_locations() {
@@ -99,16 +103,18 @@ export default {
                 return [];
             return this.$page.props.personnels.map(personnel => {
                 const fullName = [
-                    personnel.id,
-                    ' - ',
+                    personnel.lname,
+                    ', ',
                     personnel.fname,
                     personnel.mname,
-                    personnel.lname,
-                    personnel.suffix
+                    personnel.suffix,
+                    ' (',
+                    personnel.employee_id,
+                    ')'
                 ].filter(Boolean).join(' ');
 
                 return {
-                    value: personnel.id,
+                    name: personnel.id,
                     label: fullName,
                 };
             });
@@ -186,7 +192,7 @@ export default {
                     <div class="flex flex-col">
                         <h2 class="font-bold uppercase leading-none py-2 mb-1 border-b">Incoming Transaction Form</h2>
                         <p>Please use this form to submit details of an incoming transaction.</p>
-                    </div>{{ form }}
+                    </div>
                     <div class="flex flex-row gap-2 h-fit">
                         <custom-dropdown
                             required
@@ -215,12 +221,12 @@ export default {
                         required
                         searchable
                         :with-all-option="false"
-                        :value="form.employee_id"
+                        :value="form.personnel_id"
                         :options="personnels"
                         placeholder="Select Personnel"
                         label="Accountable Personnel"
-                        :error="form.errors.employee_id"
-                        @selectedChange="form.employee_id = $event"
+                        :error="form.errors.personnel_id"
+                        @selectedChange="personnelChange($event)"
                     >
                         <template #icon>
                             <filter-icon class="h-4 w-4" />
