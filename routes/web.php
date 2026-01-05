@@ -197,7 +197,8 @@ Route::middleware([
                     return Inertia::render('Inventory/Transactions/components/presentation/Incoming', [
                         'fromUrl' => route('transactions.index'),
                         'items' => Item::get(),
-                        'storage_locations' => config('system.storage_locations')
+                        'storage_locations' => config('system.storage_locations'),
+                        'personnels' => Personnel::selectRaw('id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                     ]);
                 })->name('transactions.incoming');
 

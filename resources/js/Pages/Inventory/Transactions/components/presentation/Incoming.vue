@@ -83,6 +83,8 @@ export default {
             });
         },
         items() {
+            if (!this.$page.props?.items)
+                return [];
             return this.$page.props.items.map(item => {
                 const supplement = item.brand || item.description;
 
@@ -90,6 +92,25 @@ export default {
                     name: item.id,
                     label: item.name + (supplement ? ' (' + supplement + ')' : ''),
                 }
+            });
+        },
+        personnels() {
+            if (!this.$page.props?.personnels)
+                return [];
+            return this.$page.props.personnels.map(personnel => {
+                const fullName = [
+                    personnel.id,
+                    ' - ',
+                    personnel.fname,
+                    personnel.mname,
+                    personnel.lname,
+                    personnel.suffix
+                ].filter(Boolean).join(' ');
+
+                return {
+                    value: personnel.id,
+                    label: fullName,
+                };
             });
         },
         preGenerateBarcode() {
@@ -165,7 +186,7 @@ export default {
                     <div class="flex flex-col">
                         <h2 class="font-bold uppercase leading-none py-2 mb-1 border-b">Incoming Transaction Form</h2>
                         <p>Please use this form to submit details of an incoming transaction.</p>
-                    </div>
+                    </div>{{ form }}
                     <div class="flex flex-row gap-2 h-fit">
                         <custom-dropdown
                             required
@@ -190,6 +211,21 @@ export default {
                             </Link>
                         </div>
                     </div>
+                    <custom-dropdown
+                        required
+                        searchable
+                        :with-all-option="false"
+                        :value="form.employee_id"
+                        :options="personnels"
+                        placeholder="Select Personnel"
+                        label="Accountable Personnel"
+                        :error="form.errors.employee_id"
+                        @selectedChange="form.employee_id = $event"
+                    >
+                        <template #icon>
+                            <filter-icon class="h-4 w-4" />
+                        </template>
+                    </custom-dropdown>
                     <custom-dropdown
                         required
                         :with-all-option="false"
