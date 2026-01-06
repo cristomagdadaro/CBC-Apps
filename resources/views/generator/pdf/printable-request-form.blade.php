@@ -109,7 +109,7 @@
                 <tr><td colspan="1"><b>Details</b></td><td colspan="3">{{ $rf->request_details }}</td></tr>
                 <tr><td colspan="1"><b>Purpose</b></td><td colspan="3">{{ $rf->request_purpose }}</td></tr>
                 <tr><td colspan="1"><b>Project</b></td><td colspan="3">{{ $rf->project_title }}</td></tr>
-                <tr><td colspan="1"><b>Date/Time</b></td><td colspan="3">{{ $rf->date_of_use }} {{ $rf->time_of_use }}</td></tr>
+                <tr><td colspan="1"><b>Date/Time</b></td><td colspan="1">{{ $rf->date_of_use }} {{ $rf->time_of_use }}</td><td colspan="1"><b>Expected Return</b></td><td colspan="1">{{ $rf->date_of_use }} {{ $rf->time_of_use }}</td></tr>
                 <tr><td colspan="1"><b>Laboratory</b></td><td colspan="3">{{ $labs }}</td></tr>
                 <tr><td colspan="1"><b>Equipment</b></td><td colspan="3">{{ $equipments }}</td></tr>
                 <tr><td colspan="1"><b>Supplies</b></td><td colspan="3">{{ $supplies }}</td></tr>
