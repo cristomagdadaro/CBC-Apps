@@ -23,9 +23,9 @@
     $dateGenerated = now();
     $requestId     = $form->id;
 
-    $labs       = implode(', ', json_decode($rf->labs_to_use ?? '[]', true));
-    $equipments = implode(', ', json_decode($rf->equipments_to_use ?? '[]', true));
-    $supplies   = implode(', ', json_decode($rf->consumables_to_use ?? '[]', true));
+    $labs       = implode(', ', normalizeList($rf->labs_to_use));
+    $equipments = implode(', ', normalizeList($rf->equipments_to_use));
+    $supplies   = implode(', ', normalizeList($rf->consumables_to_use));
 
     $requesterName = strtoupper($requester->name ?? '');
     $approverName  = strtoupper($form->approved_by ?? '');
@@ -43,6 +43,19 @@
         'da'      => '/imgs/da_bpo.png',
         'bp'      => '/imgs/bagong_pilipinas.png',
     ]; */
+
+    function normalizeList($value) {
+        if (is_array($value)) {
+            return $value;
+        }
+
+        if (is_string($value) && trim($value) !== '') {
+            $decoded = json_decode($value, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return [];
+    }
 @endphp
 
 

@@ -24,9 +24,9 @@ class UseRequestFormFactory extends Factory
             'project_title' => $this->faker->sentence(),
             'date_of_use' => $this->faker->date(),
             'time_of_use' => $this->faker->time(),
-            'labs_to_use' => json_encode([$this->faker->word(), $this->faker->word()]),
-            'equipments_to_use' => json_encode([$this->faker->word(), $this->faker->word()]),
-            'consumables_to_use' => json_encode([$this->faker->word(), $this->faker->word()]),
+            'labs_to_use' => [$this->faker->word(), $this->faker->word()],
+            'equipments_to_use' => [$this->faker->word(), $this->faker->word()],
+            'consumables_to_use' => [$this->faker->word(), $this->faker->word()],
         ];
     }
 }
