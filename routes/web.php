@@ -14,6 +14,7 @@ use App\Models\Category;
 use App\Models\Form;
 use App\Models\Item;
 use App\Models\Personnel;
+use App\Models\Registration;
 use App\Models\Supplier;
 use App\Models\Transaction;
 use Illuminate\Foundation\Application;
@@ -149,6 +150,7 @@ Route::middleware([
 
                 return Inertia::render('Forms/FormUpdate', [
                     'data' => Form::where('event_id', $event_id)->with('requirements')->first(),
+                    'responsesCount' => $event_id ? Registration::where('event_id', $event_id)->count() ?? 0 : 0,
                 ]);
             })->name('forms.update');
         });

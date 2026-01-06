@@ -67,13 +67,12 @@ export default {
         <template #header>
             <forms-header-actions />
         </template>
-
         <div class="mx-auto flex flex-col gap-5 sm:px-6 lg:px-8">
             <TabNavigation
                 v-model="activeTab"
                 :tabs="[
                     { key: 'update', label: 'Update Form' },
-                    { key: 'participants', label: 'Responses' },
+                    { key: 'participants', label: `Responses ${ $page.props.responsesCount }` },
                 ]"
             >
                 <template #default="{ activeKey }">

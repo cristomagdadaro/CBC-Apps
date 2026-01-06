@@ -251,9 +251,9 @@ export default {
 
                     <!-- Current Page Indicator -->
                     <div class="text-xs flex flex-col whitespace-nowrap text-center">
-                                    <span class="font-medium mx-1" title="current page and total pages">
-                                        <span>{{ eventFormFromApi?.current_page }}</span> / <span>{{ eventFormFromApi?.last_page }}</span>
-                                    </span>
+                        <span class="font-medium mx-1" title="current page and total pages">
+                            <span>{{ eventFormFromApi?.current_page }}</span> / <span>{{ eventFormFromApi?.last_page }}</span>
+                        </span>
                     </div>
 
                     <!-- Next Button -->
