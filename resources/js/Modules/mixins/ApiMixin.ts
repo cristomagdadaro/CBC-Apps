@@ -140,6 +140,9 @@ export default {
             this.form.clearErrors();
             this.form[retain] = temp;
         },
+        formatNumber(value){
+            return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        },
         checkError(error) {
             let dto = null;
             console.error(error);

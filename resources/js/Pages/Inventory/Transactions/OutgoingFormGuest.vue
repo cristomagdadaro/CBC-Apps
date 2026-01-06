@@ -89,9 +89,6 @@ export default {
         },
     },
     methods: {
-        formatNumber(value){
-            return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        },
         selectItem(item) {
             this.selectedItem = item;
             this.form.item_id = item.item_id;

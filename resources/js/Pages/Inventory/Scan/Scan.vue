@@ -19,6 +19,7 @@ import ArrowRight from "@/Components/Icons/ArrowRight.vue";
 import ListOfForms from "@/Pages/Forms/components/ListOfForms.vue";
 import ListOfTransactions from "@/Pages/Inventory/Scan/components/ListOfTransactions.vue";
 import CameraScanner from "@/Components/CameraScanner.vue";
+import TransactionCard from "@/Pages/Inventory/Scan/components/TransactionCard.vue";
 
 export default {
     name: "Scan",
@@ -36,6 +37,7 @@ export default {
         QrcodeStream,
         SearchBox,
         Head,
+        TransactionCard,
         AppLayout
     },
     computed: {
@@ -120,9 +122,12 @@ export default {
             this.lastKeyTime = now;
         },
         async searchEvent() {
-            await this.fetchGetApi('api.inventory.transactions.remaining-stocks').then((response) => {
+            this.form.per_page = '*';
+            this.processing = true;
+            await this.fetchGetApi('api.inventory.transactions.remaining-stocks', this.form.data()).then((response) => {
                 this.transactionsFromApi = response;
             })
+            this.processing = false;
         },
         onCameraDecoded(code) {
             if (this.form) this.form.search = code;
@@ -251,13 +256,16 @@ export default {
                             </div>
                         </div>
                     </form>
-                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+                    <div class="bg-gray-100 dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
                         <!-- Show forms when available -->
-                        <list-of-transactions
-                            v-if="transactionsFromApi && transactionsFromApi.total > 0"
-                            :forms-data="transactionsFromApi.data"
-                            @removeModel="transactionsFromApi.data = transactionsFromApi.data.filter(form => form.id !== $event.id)"
-                        />
+                        <div v-if="transactionsFromApi && transactionsFromApi?.data?.length > 0" class="sm:grid sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-3 flex flex-col gap-1 min-w-fit">
+                            <transaction-card 
+                                v-for="data in transactionsFromApi.data"
+                                :key="data.id"
+                                :data="data"
+                                @deletedModel="transactionsFromApi.data = transactionsFromApi.data.filter(form => form.id !== $event.id)"
+                                />
+                        </div>
 
                         <!-- Show "Searching" when processing -->
                         <div v-else-if="model.api.processing" class="text-center py-3 border border-AB rounded-lg">

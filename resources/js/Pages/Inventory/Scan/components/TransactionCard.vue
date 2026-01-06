@@ -13,29 +13,15 @@ export default {
 </script>
 
 <template>
-    <div class="flex flex-col gap-2 border p-3 rounded-md h-fit" :class="data.transac_type === 'incoming' ? 'bg-green-300':'bg-red-300'">
-        <div class="flex justify-between">
-            <div class="flex flex-col leading-none gap-0.5">
-                <span class="font-bold text-xl">{{ data.item.name }}</span>
-                <div>
-                    <span class="text-sm border-r border-gray-800 mr-1 pr-1">{{ data.item.brand }}</span>
-                    <span class="text-sm">{{ data.barcode }}</span>
-                </div>
-            </div>
-            <div class="flex flex-col leading-tight text-right">
-                <span class="font-bold text-xl">{{ data.quantity }}{{data.unit}}</span>
-                <span class="text-sm uppercase">{{ data.transac_type }}</span>
-            </div>
+    <div class="bg-white flex select-none justify-between items-center gap-5 py-2 px-4">
+        <div class="flex flex-col">
+                <span class="font-bold text-xs whitespace-nowrap overflow-ellipsis overflow-hidden">
+                    {{ data.name }} {{ data.description ? `(${data.description})` : '' }}
+                </span>
+            <span class="text-xs text-gray-500">{{ data.barcode }}</span>
+            <span class="text-xs text-gray-500">{{ data.brand }}</span>
         </div>
-        <div class="flex justify-between border-t border-gray-800 pt-1 ">
-            <div class="flex flex-col leading-none">
-
-            </div>
-            <div class="flex flex-col leading-none text-right">
-                <span class="text-sm font-bold">{{ data.created_at }}</span>
-                <span class="text-xs">Transaction Date</span>
-            </div>
-        </div>
+        <span class="text-right">{{ formatNumber(data.remaining_quantity) }}</span>
     </div>
 </template>
 
