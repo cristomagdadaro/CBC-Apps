@@ -157,7 +157,7 @@ export default {
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
             <div class="py-4 flex flex-col md:flex-row gap-3 justify-center bg-gray-50 p-4 rounded-md">
                 <camera-scanner @decoded="searchFromBarcode" />
-                <div class="flex flex-col justify-start gap-3 mx-auto w-full">
+                <div class="flex flex-col justify-start gap-3 mx-auto md:w-full lg:w-[60vw]">
                     <div class="w-full flex gap-2 items-end lg:px-0 px-2">
                         <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
                         <text-input placeholder="Search..." v-model="form.search" @update:model-value="form.filter = null; form.is_exact = false;" />

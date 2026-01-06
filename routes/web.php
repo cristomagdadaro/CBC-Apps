@@ -218,7 +218,8 @@ Route::middleware([
                             'data' => $transaction,
                             'items' => Item::withTrashed()->get(),
                             'fromUrl' => route('transactions.index'),
-                            'storage_locations' => config('system.storage_locations')
+                            'storage_locations' => config('system.storage_locations'),
+                            'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                         ]);
                     } else {
                         return Inertia::render('Inventory/Transactions/components/presentation/OutgoingUpdateForm', [

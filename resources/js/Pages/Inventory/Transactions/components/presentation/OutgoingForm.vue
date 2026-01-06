@@ -47,9 +47,9 @@ export default {
 
             const temp = await this.submitCreate();
             if (temp instanceof DtoResponse)
-              this.$emit('submitted');
+                this.$emit('submitted');
             if (temp instanceof DtoError)
-              this.$emit('error');
+                this.$emit('error');
         }
     },
     mounted() {
@@ -88,7 +88,7 @@ export default {
                 </span>
                 <span class="text-sm text-gray-500">{{ data.brand }}</span>
                 <span class="text-xs text-gray-500 leading-none" :class="{'text-red-600' : !data.barcode}">{{ data.barcode || 'Warning! NO BARCODE' }}</span>
-            </div>
+            </div> 
             <div class="flex sm:gap-4 gap-1">
                 <div class="flex flex-col leading-none md:leading-relaxed">
                     <span class="text-center text-gray-600">

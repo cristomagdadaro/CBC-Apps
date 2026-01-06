@@ -70,11 +70,12 @@ export default {
     beforeMount() {
         this.model = new Transaction();
         this.setFormAction('update');
-
+    },
+    mounted() {
         if (!this.form.user_id) {
             this.form.user_id = this.$page.props.auth.user.id;
         }
-    },
+    }
 }
 </script>
 

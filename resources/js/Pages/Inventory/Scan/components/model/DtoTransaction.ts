@@ -46,4 +46,8 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
         if (data?.personnel)
             this.personnel = new DtoPersonnel(data.personnel)
     }
+
+    get quantityWithUnit(): string {
+        return `${this.quantity} ${this.unit}`;
+    }
 }

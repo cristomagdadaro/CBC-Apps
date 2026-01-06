@@ -50,6 +50,9 @@ export default {
         this.model = new this.propModel();
         this.setFormAction(this.action);
     },
+    mounted() {
+        this.searchEvent();
+    },
     computed: {
         columns() {
             return this.propModel.getColumns()

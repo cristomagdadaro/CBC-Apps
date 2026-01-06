@@ -35,6 +35,8 @@ export default {
     },
     computed: {
         storage_locations() {
+            if (!this.$page.props?.storage_locations)
+                return [];
             return this.$page.props.storage_locations.map(location => {
                 return {
                     name: location.name,
@@ -43,11 +45,36 @@ export default {
             });
         },
         items() {
+            if (!this.$page.props?.items)
+                return [];
             return this.$page.props.items.map(item => {
+                const supplement = item.brand || item.description;
+
                 return {
                     name: item.id,
-                    label: item.name + ' (' + item.brand + ')',
+                    label: item.name + (supplement ? ' (' + supplement + ')' : ''),
                 }
+            });
+        },
+        personnels() {
+            if (!this.$page.props?.personnels)
+                return [];
+            return this.$page.props.personnels.map(personnel => {
+                const fullName = [
+                    personnel.lname,
+                    ', ',
+                    personnel.fname,
+                    personnel.mname,
+                    personnel.suffix,
+                    ' (',
+                    personnel.employee_id,
+                    ')'
+                ].filter(Boolean).join(' ');
+
+                return {
+                    name: personnel.id,
+                    label: fullName,
+                };
             });
         },
         show() {
@@ -102,7 +129,9 @@ export default {
 <template>
     <AppLayout title="Update Transaction Details">
         <template #header>
-            <h2 class="font-semibold sm:text-xl text-sm text-gray-800 leading-tight uppercase">Incoming Transaction Update</h2>
+            <Link :href="route('transactions.index')" class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                Incoming Transaction Update
+            </Link>
         </template>
         <form v-if="!!form" @submit.prevent="submitUpdate" class="py-12 max-w-xl mx-auto">
             <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
@@ -135,6 +164,21 @@ export default {
                             </Link>
                         </div>
                     </div>
+                    <custom-dropdown
+                        required
+                        searchable
+                        :with-all-option="false"
+                        :value="form.personnel_id"
+                        :options="personnels"
+                        placeholder="Select Personnel"
+                        label="Accountable Personnel"
+                        :error="form.errors.personnel_id"
+                        @selectedChange="form.personnel_id = $event"
+                    >
+                        <template #icon>
+                            <filter-icon class="h-4 w-4" />
+                        </template>
+                    </custom-dropdown>
                     <custom-dropdown
                         required
                         :with-all-option="false"

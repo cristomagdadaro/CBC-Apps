@@ -15,7 +15,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ["Roboto", "Open Sans", "Segoe UI", ...defaultTheme.fontFamily.sans],
                 montserrat: ['Montserrat', 'sans-serif'],
             },
             fontSize: {

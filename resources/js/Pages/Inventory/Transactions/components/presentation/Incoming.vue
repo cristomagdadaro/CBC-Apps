@@ -70,10 +70,6 @@ export default {
             });
             this.svgText = canvas.toDataURL();
         },
-        personnelChange(value) {
-            console.log(value);
-            this.form.personnel_id = value;
-        },
     },
     computed: {
         storage_locations() {
@@ -226,7 +222,7 @@ export default {
                         placeholder="Select Personnel"
                         label="Accountable Personnel"
                         :error="form.errors.personnel_id"
-                        @selectedChange="personnelChange($event)"
+                        @selectedChange="form.personnel_id = $event"
                     >
                         <template #icon>
                             <filter-icon class="h-4 w-4" />
