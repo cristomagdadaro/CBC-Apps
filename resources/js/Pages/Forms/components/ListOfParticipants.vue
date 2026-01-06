@@ -65,7 +65,7 @@ export default {
         <h2 class="text-2xl font-semibold mb-4">List of Respondents</h2>
         <p class="mb-6">Total: {{ eventFormFromApi?.data?.length || 0 }}</p>
     </div>
-    <data-table :api-response="eventFormFromApi" :model="Participants" @deleted="searchEvent"/>
+    <data-table :api-response="eventFormFromApi" :model="Participants" @deleted="searchEvent" enableExport/>
 </template>
 
 <style scoped>

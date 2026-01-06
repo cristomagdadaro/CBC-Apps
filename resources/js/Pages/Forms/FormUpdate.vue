@@ -128,7 +128,6 @@ export default {
                                                 <text-input
                                                     placeholder="Venue"
                                                     v-model="form.venue"
-                                                    class="text-sm"
                                                     :error="form.errors.venue"
                                                 />
                                             </div>
@@ -148,7 +147,6 @@ export default {
                                                         type="number"
                                                         placeholder="optional"
                                                         v-model="form.max_slots"
-                                                        class="text-sm"
                                                         :error="form.errors.max_slots"
                                                     />
                                                 </div>

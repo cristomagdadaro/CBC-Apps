@@ -58,6 +58,10 @@ export default {
         },
         model: {
             type: Function,
+        },
+        enableExport: {
+            type: Boolean,
+            default: false
         }
     },
     computed: {
@@ -114,6 +118,28 @@ export default {
 
             this.rowPendingDelete = null;
         },
+        exportToCSV() {
+            if (!this.displayedRows || !this.displayedHeaders) return;
+
+            const headers = this.displayedHeaders.filter(h => h.visible).map(h => h.title);
+            const rows = this.displayedRows.map(row =>
+                this.displayedHeaders.filter(h => h.visible).map(h => this.getNestedValue(row, h.key) || '')
+            );
+
+            const csvContent = [headers, ...rows].map(row =>
+                row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
+            ).join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'datatable-export.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        },
         getShowPageRoute(row) {
             const showPage = this.dt?.data?.[0]?.showPage;
             const id = row?.identifier?.()?.id ?? row.id;
@@ -144,6 +170,17 @@ export default {
                 </delete-btn>
             </template>
         </confirmation-modal>
+
+        <!-- Export Controls -->
+        <div class="mb-4 flex items-center gap-4">
+            <button
+                v-if="enableExport"
+                @click="exportToCSV"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors"
+            >
+                Export to CSV
+            </button>
+        </div>
 
         <transition-container type="fade">
             <div v-show="processing" class="absolute w-full h-full">

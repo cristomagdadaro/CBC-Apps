@@ -171,7 +171,7 @@
             <div style="width: 250px; text-align: center">
                 {{ strtoupper($form->approved_by ?? '') }}
                 <p style="font-style: italic; border-top: 1px solid #000000; padding-top: 5px; width: 250px;">
-                    Laboratory Manager/Approving Officer
+                    Approving Officer
                 </p>
             </div>
             <br>
@@ -191,6 +191,7 @@
                             Biotech for Better Crop for Better Lives
                         </h3>
                         <div style="font-size: 10px !important;">Email: cropbiotechcenter@gmail.com</div>
+                        <div style="font-size: 10px !important;">Website: dacbc.philrice.gov.ph</div>
                         <div style="font-size: 10px !important;">Social Media: www.facebook.com/DACropBiotechCenter</div>
                     </td>
 
