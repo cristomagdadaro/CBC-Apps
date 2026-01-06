@@ -31,7 +31,7 @@ class RequestFormPivotFactory extends Factory
             'agreed_clause_3' => $this->faker->boolean(),
             'approval_constraint' => $this->faker->sentence(),
             'disapproved_remarks' => $this->faker->sentence(),
-            'approved_by' => $this->faker->name(),
+            'approved_by' => config('system.approving_officers'),
         ];
     }
 }

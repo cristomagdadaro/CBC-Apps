@@ -3,6 +3,8 @@
 use App\Enums\Inventory;
 
 return [
+    'approving_officers' => 'CRISTO REY C. MAGDADARO',
+    'center_chief' => 'ROEL R. SURALTA',
     'transaction_type' => [
         Inventory::INCOMING->value,
         Inventory::OUTGOING->value,

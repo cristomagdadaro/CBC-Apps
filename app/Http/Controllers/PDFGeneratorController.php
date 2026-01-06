@@ -30,7 +30,7 @@ class PDFGeneratorController extends Controller
         if (!View::exists($template)) {
             $template = 'generator/pdf/printable-request-form';
         }
-
+        
         $form = RequestFormPivot::with(['requester', 'request_form'])->findOrFail($id);
 
         // Prepare cache path based on template and id

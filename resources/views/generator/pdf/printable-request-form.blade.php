@@ -1,145 +1,105 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <title>Request Form</title>
-        <style>
-            body {
-                font-family: DejaVu Sans, sans-serif;
-                font-size: 12px;
-            }
+<head>
+    <meta charset="utf-8">
+    <title>Request Form</title>
+    <style>
+        body { font-family: Cambria, sans-serif; font-size: 8px; }
+        .header { text-align: center; font-weight: bold; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        td, th { border: 1px solid #000; padding: 3px; vertical-align: top; }
+        .section-title { font-weight: bold; background: #f2f2f2; }
+        @page { size: A4 landscape; margin: 1mm; }
+    </style>
+</head>
 
-            .header {
-                text-align: center;
-                font-weight: bold;
-                margin-bottom: 10px;
-            }
+<body>
 
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 10px;
-            }
+@php
+    $requester   = $form->requester;
+    $rf          = $form->request_form;
 
-            td, th {
-                border: 1px solid #000;
-                padding: 6px;
-                vertical-align: top;
-            }
+    $dateRequested = $form->created_at->format('F d, Y');
+    $dateGenerated = now();
+    $requestId     = $form->id;
 
-            .section-title {
-                font-weight: bold;
-                background: #f2f2f2;
-            }
+    $labs       = implode(', ', json_decode($rf->labs_to_use ?? '[]', true));
+    $equipments = implode(', ', json_decode($rf->equipments_to_use ?? '[]', true));
+    $supplies   = implode(', ', json_decode($rf->consumables_to_use ?? '[]', true));
 
-            .checkbox {
-                display: inline-block;
-                width: 12px;
-                height: 12px;
-                border: 1px solid #000;
-                margin-right: 5px;
-            }
+    $requesterName = strtoupper($requester->name ?? '');
+    $approverName  = strtoupper($form->approved_by ?? '');
 
-            @page {
-                margin: 0mm;
-            }
+    $logos = [
+        'cbc'     => public_path('imgs/logo-black.png'),
+        'overlay' => public_path('imgs/Overlay.png'),
+        'da'      => public_path('imgs/da_bpo.png'),
+        'bp'      => public_path('imgs/bagong_pilipinas.png'),
+    ];
 
-            body {
-                font-family: Cambria, sans-serif;
-            }
-        </style>
-    </head>
-    <body>
-        <div style="position: relative">
-            <table style="width: 100%; border-collapse: collapse; border: none !important; padding: 15px 20px; font-family: 'Times New Roman'">
-                <tr style="border: none !important;">
-                    <!-- Left Logo -->
-                    <td style="width: 30px; vertical-align: middle; text-align: left; border: none !important;">
-                        <img src="{{ public_path('imgs/logo-black.png') }}" style="height: 60px;">
+  /*   $logos = [
+        'cbc'     => '/imgs/logo-black.png',
+        'overlay' => '/imgs/Overlay.png',
+        'da'      => '/imgs/da_bpo.png',
+        'bp'      => '/imgs/bagong_pilipinas.png',
+    ]; */
+@endphp
+
+
+<table style="border:none;border-collapse:collapse;">
+    <tr>
+        @foreach(['REQUESTOR\'S COPY','OFFICER\'S COPY'] as $copy)
+
+        <td style="width:48%;padding:3mm;box-sizing:border-box;border:none;border-collapse:collapse;">
+            <div style="position:relative">
+            <table style="border:none; width:100%; font-family:'Times New Roman'; border-collapse:collapse;">
+                <tr style="border:none">
+                    <!-- Logo -->
+                    <td style="border:none; width:30px; vertical-align:middle;">
+                        <img src="{{ $logos['cbc'] }}" style="height:40px;">
                     </td>
 
-                    <!-- Center Text -->
-                    <td style="width: 100%; vertical-align: middle; text-align: left; line-height: 1; border: none !important;">
-                        <div style="font-size: 12px; margin: 0; font-weight: normal;">
+                    <!-- Text block -->
+                    <td style="border:none; vertical-align:middle; padding-left:6px;">
+                        <div style="font-size:8px; line-height:10px;">
                             Department of Agriculture
                         </div>
-                        <div style="font-size: 16px; margin: 0; font-weight: bold; color: #4CAF50;">
+
+                        <div style="font-size:10px; font-weight:bold; color:#4CAF50; line-height:12px;">
                             CROP BIOTECHNOLOGY CENTER
                         </div>
-                        <div style="font-size: 10px; margin: 0; font-weight: normal;">
-                            DA-PhilRice Compound, Maligaya, Science City of Muñoz, 3119 Nueva Ecija
+
+                        <div style="font-size:6px; line-height:8px;">
+                            DA-PhilRice Compound, Muñoz, Nueva Ecija
                         </div>
                     </td>
+
                 </tr>
             </table>
-            <!-- Right Overlay -->
-            <img src="{{ public_path('imgs/Overlay.png') }}" style="height: 160px; position: absolute; right: 0; top: 0;">
-        </div>
 
-        <div style="position: absolute; top: 100px; left: 50%; transform: translateX(-50%); width: 80%; font-family: 'Times New Roman'">
-            <div class="header">
-                <h3>LABORATORY USE, EQUIPMENT, AND SUPPLY REQUEST FORM</h3>
+                <img src="{{ $logos['overlay'] }}" style="height:90px;position:absolute;right:0;top:0;z-index:-1">
             </div>
-            <table>
-                <tr>
-                    <td style="font-weight: bold">Date of Request:</td>
-                    <td>{{ $form->created_at->format('F d, Y') }}</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: bold">Requestor's Name:</td>
-                    <td>{{ $form->requester->name }}</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: bold">Position:</td>
-                    <td>{{ $form->requester->position }}</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: bold">Affiliation/Department:</td>
-                    <td>{{ $form->requester->affiliation }}</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: bold">Contact Number:</td>
-                    <td>{{ $form->requester->phone }}</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: bold">Email Address:</td>
-                    <td>{{ $form->requester->email }}</td>
-                </tr>
-                <tr class="section-title">
-                    <td colspan="2">Details of Request</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: bold">Request Type:</td>
-                    <td>{{ $form->request_form->request_type }}</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: bold">Details of Request:</td>
-                    <td>{{ $form->request_form->request_details }}</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: bold">Purpose of Request:</td>
-                    <td>{{ $form->request_form->request_purpose }}</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: bold">Project Title:</td>
-                    <td>{{ $form->request_form->project_title }}</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: bold">Date and Time of Use:</td>
-                    <td>{{ $form->request_form->date_of_use }} {{ $form->request_form->time_of_use }}</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: bold">Laboratory to be Used:</td>
-                    <td>{{ implode(', ', json_decode($form->request_form->labs_to_use ?? '[]', true)) }}</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: bold">Equipment Needed:</td>
-                    <td>{{ implode(', ', json_decode($form->request_form->equipments_to_use ?? '[]', true)) }}</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: bold">Supplies Needed:</td>
-                    <td>{{ implode(', ', json_decode($form->request_form->consumables_to_use ?? '[]', true)) }}</td>
-                </tr>
+
+            <div class="header">
+                <h3 style="font-size:10px">LABORATORY USE, EQUIPMENT, AND SUPPLY REQUEST FORM</h3>
+                <div>{{ $copy }}</div>
+            </div>
+
+            <table style="border: none; border-collapse: collapse;">
+                <tr><td><b>Date of Request</b></td><td>{{ $dateRequested }}</td><td><b>Affiliation</b></td><td>{{ $requester->affiliation }}</td></tr>
+                <tr><td><b>Requestor</b></td><td>{{ $requester->name }}</td><td><b>Contact</b></td><td>{{ $requester->phone }}</td></tr>
+                <tr><td><b>Position</b></td><td>{{ $requester->position }}</td><td><b>Email</b></td><td>{{ $requester->email }}</td></tr>
+
+                <tr class="section-title"><td colspan="4">Request Details</td></tr>
+
+                <tr><td colspan="1"><b>Type</b></td><td colspan="3">{{ $rf->request_type }}</td></tr>
+                <tr><td colspan="1"><b>Details</b></td><td colspan="3">{{ $rf->request_details }}</td></tr>
+                <tr><td colspan="1"><b>Purpose</b></td><td colspan="3">{{ $rf->request_purpose }}</td></tr>
+                <tr><td colspan="1"><b>Project</b></td><td colspan="3">{{ $rf->project_title }}</td></tr>
+                <tr><td colspan="1"><b>Date/Time</b></td><td colspan="3">{{ $rf->date_of_use }} {{ $rf->time_of_use }}</td></tr>
+                <tr><td colspan="1"><b>Laboratory</b></td><td colspan="3">{{ $labs }}</td></tr>
+                <tr><td colspan="1"><b>Equipment</b></td><td colspan="3">{{ $equipments }}</td></tr>
+                <tr><td colspan="1"><b>Supplies</b></td><td colspan="3">{{ $supplies }}</td></tr>
             </table>
 
             <p><b>Liability Clause:</b></p>
@@ -149,64 +109,91 @@
                 </li>
                 <li>I agree to assume full responsibility for any damage or loss of the equipment while it is in my possession.</li>
                 <li>I agree that the Center shall not be held liable for the quality, accuracy, reliability, or completeness of any
-                    data generated by the Requestor using the lab’s facilities, equipment, or resources. The Requestor assumes full
+                    data generated by the Requestor using the lab's facilities, equipment, or resources. The Requestor assumes full
                     responsibility for the design, execution, and interpretation of the experiments and the data derived therefrom.
-                    The Center makes no warranties, express or implied, regarding the outcomes of the Requestor’s research
+                    The Center makes no warranties, express or implied, regarding the outcomes of the Requestor's research
                     activities.
                 </li>
             </ul>
 
             <br>
 
-            <div style="width: 250px; text-align: center">
-                {{ strtoupper($form->requester->name ?? '') }}
-                <p style="font-style: italic; border-top: 1px solid #000000; padding-top: 5px; width: 250px;">
-                    Name and Signature of the Requestor
-                </p>
-            </div>
+        <table style="width: 100%; border: none; border-collapse: collapse; margin-top: 20px;">
+            <tr>
+                <td style="width: 50%; padding-bottom: 40px; text-align: left; border: none;">
+                    <div style="width: 200px; display: inline-block; text-align: center;">
+                        <div style="font-weight: bold; padding-bottom: 2px; text-transform: uppercase;">
+                            {{ $requesterName }}
+                        </div>
+                        <div style="border-top: 1px solid #000; font-style: italic; padding-top: 3px;">
+                            Name and Signature of the Requestor
+                        </div>
+                    </div>
+                </td>
+                <td style="width: 50%; padding-bottom: 40px; text-align: right; border: none;">
+                    <div style="width: 200px; display: inline-block; text-align: center;">
+                        <div style="font-weight: bold; padding-bottom: 2px; text-transform: uppercase;">
+                            {{ $approverName }}
+                        </div>
+                        <div style="border-top: 1px solid #000; font-style: italic; padding-top: 3px;">
+                            Approving Officer
+                        </div>
+                    </div>
+                </td>
+            </tr>
 
-            <br>
-            <br>
+            <tr>
+                <td colspan="2" style="text-align: left; border: none;">
+                    <div style="width: 200px; text-align: left; margin-bottom: 5px;">
+                        Noted By:
+                    </div>
+                    <div style="width: 200px; display: inline-block; text-align: center;">
+                        <div style="font-weight: bold; padding-bottom: 2px; text-transform: uppercase;">
+                            {{ config('system.center_chief') }}
+                        </div>
+                        <div style="border-top: 1px solid #000; font-style: italic; padding-top: 3px;">
+                            Center Chief
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
 
-            <div style="width: 250px; text-align: center">
-                {{ strtoupper($form->approved_by ?? '') }}
-                <p style="font-style: italic; border-top: 1px solid #000000; padding-top: 5px; width: 250px;">
-                    Approving Officer
-                </p>
-            </div>
             <br>
             <p @if($form->approval_constraint) @endif><b>Approval Remarks:</b> {{ $form->approval_constraint }}</p>
             <p @if($form->disapproved_remarks) @endif><b>Disapproval Remarks:</b> {{ $form->disapproved_remarks }}</p>
 
-        </div>
-        <footer style="position: fixed; bottom: 0; left: 0; right: 0; width: 100%;">
-            <div style="text-align: center; font-size: 10px !important; opacity: 50%">
-                SYSTEM GENERATED
-            </div>
-            <table style="width: 100%; border: none; border-collapse: collapse;">
-                <tr style="height: 60px;">
-                    <!-- Left side -->
-                    <td style="text-align: left; border: none; padding-left: 20px; vertical-align: top;">
-                        <h3 style="font-size: 12px !important; margin: 0; font-weight: bold; color: #4CAF50; font-family: 'Times New Roman'">
-                            Biotech for Better Crop for Better Lives
-                        </h3>
-                        <div style="font-size: 10px !important;">Email: cropbiotechcenter@gmail.com</div>
-                        <div style="font-size: 10px !important;">Website: dacbc.philrice.gov.ph</div>
-                        <div style="font-size: 10px !important;">Social Media: www.facebook.com/DACropBiotechCenter</div>
-                    </td>
+            <footer style="margin-top: 5mm; position: absolute; bottom: 0; width: 48%;">
+                <table style="width: 100%; border: none; border-collapse: collapse;">
+                    <tr style="height: 30px;">
+                        <!-- Left side -->
+                        <td style="text-align: left; border: none; vertical-align: top; padding: 0;">
+                            <h3 style="font-size: 8px !important; margin: 0; font-weight: bold; color: #4CAF50; font-family: 'Times New Roman'">
+                                Biotech for Better Crop for Better Lives
+                            </h3>
+                            <div style="font-size: 6px !important;">Email: cropbiotechcenter@gmail.com</div>
+                            <div style="font-size: 6px !important;">Website: dacbc.philrice.gov.ph</div>
+                            <div style="font-size: 6px !important;">Social Media: www.facebook.com/DACropBiotechCenter</div>
+                        </td>
 
-                    <td style="border: none; font-size: 10px !important; text-align: left; vertical-align: top;">
-                        <div>Date Generated: {{ now() }}</div>
-                        <div>Request ID: {{ $form->id  }}</div>
-                    </td>
+                        <td style="border: none; font-size: 6px !important; text-align: left; vertical-align: top;">
+                            <div>SYSTEM GENERATED</div>
+                            <div>Date Generated: {{ now() }}</div>
+                            <div>Request ID: {{ $form->id  }}</div>
+                        </td>
 
-                    <!-- Right side -->
-                    <td style="text-align: right; vertical-align: bottom; border: none; padding-right: 20px;">
-                        <img src="{{ '/public/imgs/da_bpo.png' }}" style="width: 50px; height: auto;">
-                        <img src="{{ '/public/imgs/bagong_pilipinas.png' }}" style="width: 50px; height: auto;">
-                    </td>
-                </tr>
-            </table>
-        </footer>
-    </body>
+                        <!-- Right side -->
+                        <td style="text-align: right; vertical-align: bottom; border: none; padding-right: 20px;">
+                            <img src="{{  $logos['da'] }}" style="width: 30px; height: auto;">
+                            <img src="{{  $logos['bp'] }}" style="width: 30px; height: auto;">
+                        </td>
+                    </tr>
+                </table>
+            </footer>
+
+        </td>
+    @endforeach
+    </tr>
+</table>
+</body>
 </html>

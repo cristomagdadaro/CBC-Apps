@@ -20,6 +20,7 @@ use App\Models\Transaction;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Svg\Tag\Rect;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,7 +47,7 @@ Route::prefix('forms')->group(function () {
     Route::get('/request-to-use/{request?}', [LabRequestFormController::class, 'labReqFormGuestView'])->name('labReq.guest.index');
     Route::get('/inventory/outgoing', [InventoryFormController::class, 'outgoingForm'])->name('inventory.public.outgoing.index');
     Route::get('/{id}/pdf', [PDFGeneratorController::class, 'downloadPdf'])->name('forms.generate.pdf');
-
+    //Route::get('/{id}/pdf', function(){return view('generator.pdf.printable-request-form', ['form' => \App\Models\RequestFormPivot::with(['requester', 'request_form'])->findOrFail(request()->route('id'))]);})->name('forms.generate.pdf');
 });
 
 Route::middleware([
