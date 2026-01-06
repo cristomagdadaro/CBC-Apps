@@ -7,7 +7,7 @@ import SearchBtn from "@/Components/Buttons/SearchBtn.vue";
 import TextInput from "@/Components/TextInput.vue";
 import ArrowRight from "@/Components/Icons/ArrowRight.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
-import SearchBox from "@/Pages/Inventory/Scan/components/searchBox.vue";
+import SearchBox from "@/Components/Search/SearchBox.vue";
 import {defineAsyncComponent} from "vue";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
@@ -65,6 +65,7 @@ export default {
                 {name:25, label:'25'},
                 {name:50, label:'50'},
                 {name:100, label:'100'},
+                {name:'*', label:'All'},
             ]
         }
     },

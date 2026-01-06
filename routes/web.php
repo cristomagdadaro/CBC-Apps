@@ -153,14 +153,6 @@ Route::middleware([
         });
 
         Route::prefix('inventory')->group(function () {
-            Route::prefix('scan')->group(function () {
-                Route::get('/', function () {
-                    return Inertia::render('Inventory/Scan/Scan', [
-                        'fromUrl' => url()->previous(),
-                    ]);
-                })->name('scan.index');
-            });
-
             Route::prefix('items')->group(function () {
                 Route::get('/', function () {
                     return Inertia::render('Inventory/Items/Items', [

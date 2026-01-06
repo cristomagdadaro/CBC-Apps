@@ -40,10 +40,7 @@ const services = [
         label: 'Lab & Supplies',
         href: 'forms.index',
         children: [
-            {
-                label: 'Inventory',
-                href: 'scan.index',
-            },{
+           {
                 label: 'Transactions',
                 href: 'transactions.index'
             },{

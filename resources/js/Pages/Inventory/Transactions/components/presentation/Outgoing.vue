@@ -8,7 +8,7 @@ import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import Transaction from "@/Pages/Inventory/Scan/components/model/Transaction";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
-import SearchBox from "@/Pages/Inventory/Scan/components/searchBox.vue";
+import SearchBox from "@/Components/Search/SearchBox.vue";
 import TextInput from "@/Components/TextInput.vue";
 import SearchBtn from "@/Components/Buttons/SearchBtn.vue";
 import PaginateBtn from "@/Components/PaginateBtn.vue";
