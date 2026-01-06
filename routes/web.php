@@ -112,8 +112,15 @@ Route::middleware([
             ],
         ];
 
+        // 10 recent transactions
+        $recentTransactions = Transaction::with('item', 'personnel')
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
         return Inertia::render('Dashboard', [
             'stats' => $stats,
+            'recentTransactions' => $recentTransactions,
         ]);
     })->name('dashboard');
 

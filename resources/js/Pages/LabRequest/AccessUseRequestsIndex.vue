@@ -36,6 +36,9 @@ export default {
         this.model = new RequestFormPivot();
         this.setFormAction('get');
     },
+    mounted() {
+        this.searchEvent();
+    },
     methods: {
         async searchEvent() {
             this.eventFormFromApi = await this.fetchData();
@@ -132,7 +135,7 @@ export default {
                 </div>
             </div>
         </form>
-        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+        <div class="bg-white dark:bg-gray-800 overflow-hidden sm:rounded-lg">
             <!-- Show forms when available -->
             <list-of-use-requests
                 v-if="eventFormFromApi && eventFormFromApi.total > 0 && !model.api.processing"

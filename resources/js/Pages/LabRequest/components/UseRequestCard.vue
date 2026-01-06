@@ -70,8 +70,8 @@ export default {
 </script>
 
 <template>
-    <div v-if="formsData" class="p-2 rounded-md flex flex-col gap-2 max-w-full min-w-[30rem] w-full shadow justify-between bg-gray-100 border overflow-x-auto">
-        <div @dblclick="showModal = true" class="relative flex flex-row p-2 rounded-md justify-between py-4 gap-1 cursor-pointer hover:bg-gray-300">
+    <div v-if="formsData" class="p-2 rounded-md flex flex-col gap-2 max-w-full min-w-[30rem] w-full shadow justify-between bg-gray-100 hover:bg-gray-300 border overflow-x-auto">
+        <div @dblclick="showModal = true" class="relative flex flex-row p-2 rounded-md justify-between py-4 gap-1 cursor-pointer">
             <div class="flex flex-col w-full">
                 <label class="leading-none font-semibold">{{ formsData.requester?.fullName ?? 'NULL' }}</label>
                 <p class="text-sm leading-snug break-all">

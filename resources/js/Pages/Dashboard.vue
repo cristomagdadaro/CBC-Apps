@@ -400,21 +400,29 @@ watch(
                     </div>
                 </div>
 
-                <!-- Lab & supplies quick links -->
+                <!-- Transactions Recent Ativities -->
                 <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
-                    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Lab &amp; Supplies</h3>
-                    <div class="grid gap-3 md:grid-cols-4 text-sm">
-                        <Link :href="route('items.index')" class="text-blue-600 dark:text-blue-400 hover:underline">
-                            Items
-                        </Link>
+                    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Recent Transactions</h3>
+                    <div class="flex flex-col text-sm gap-1">
+                        <div v-for="transaction in $page.props.recentTransactions" :key="transaction.id" class="py-2 rounded-md px-2" :class="transaction.transac_type === 'incoming' ? 'bg-green-200':'bg-red-200'">
+                            <p>
+                                <span class="font-medium">{{ transaction.item.name }}</span>
+                                <span>{{ transaction.type }}</span>
+                                &mdash;
+                                <span class="font-medium">{{ transaction.quantity }}</span>
+                                {{ transaction.unit }}
+                            </p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                By
+                                <span class="font-medium">
+                                    {{ transaction.personnel ? transaction.personnel.fname + ' ' + transaction.personnel.lname : 'Unknown' }}
+                                </span>
+                                on
+                                <span>{{ new Date(transaction.created_at).toLocaleString() }}</span>
+                            </p>
+                        </div>
                         <Link :href="route('transactions.index')" class="text-blue-600 dark:text-blue-400 hover:underline">
-                            Transactions
-                        </Link>
-                        <Link :href="route('suppliers.index')" class="text-blue-600 dark:text-blue-400 hover:underline">
-                            Suppliers
-                        </Link>
-                        <Link :href="route('personnels.index')" class="text-blue-600 dark:text-blue-400 hover:underline">
-                            Personnels
+                            View all transactions
                         </Link>
                     </div>
                 </div>
