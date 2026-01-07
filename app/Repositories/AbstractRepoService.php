@@ -35,7 +35,7 @@ abstract class AbstractRepoService {
         }
     }
 
-   public function update(int|string $id, array $data): Model
+    public function update(int|string $id, array $data): Model
     {
         try {
             $model = $this->model->findOrFail($id);
@@ -48,7 +48,7 @@ abstract class AbstractRepoService {
         }
     }
 
-     public function delete(int|string $id): Model
+    public function delete(int|string $id): Model
     {
         try {
             $model = $this->model->findOrFail($id);
@@ -74,6 +74,7 @@ abstract class AbstractRepoService {
     {
         $builder = $this->model->newQuery();
         $this->applyAppends($builder, $parameters);
+        $this->applyParentFilter($builder, $parameters);
         $this->applySearchFilters($builder, $parameters);
         $this->applyGroupBy($builder, $parameters);
         $this->applySorting($builder, $parameters);
@@ -94,6 +95,16 @@ abstract class AbstractRepoService {
 
         // Apply search on the main model
         $this->applySearch($query, $searchTerm, $filter, $isExact);
+    }
+
+    public function applyParentFilter(Builder &$query, Collection $parameters): void
+    {
+        $filterByParentColumn = $parameters->get('filter_by_parent_column');
+        $filterByParentId = $parameters->get('filter_by_parent_id');
+
+        if (!empty($filterByParentColumn) && !empty($filterByParentId)) {
+            $query = $query->where($filterByParentColumn, $filterByParentId);
+        }
     }
 
     protected function applySearch(Builder $query, string $search, ?string $filter, bool $is_exact): void

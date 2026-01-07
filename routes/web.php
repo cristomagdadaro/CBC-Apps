@@ -203,7 +203,7 @@ Route::middleware([
                 Route::get('/outgoing', function () {
                     return Inertia::render('Inventory/Transactions/components/presentation/Outgoing', [
                         'fromUrl' => url()->previous(),
-                        'personnels' => Personnel::all(),
+                        'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                         'stockLevel' => config('system.stock_levels'),
                         'categories' => Category::select('id as name', 'name as label')
                 ->has('items')
