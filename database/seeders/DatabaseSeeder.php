@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
          //\App\Models\User::factory(10)->create();
 
          \App\Models\User::factory()->create([
-             'name' => 'DA-CBC Administration',
+             'name' => 'DA-CBC Administrator',
              'email' => 'dacropbiotechcenter@gmail.com',
          ]);
 

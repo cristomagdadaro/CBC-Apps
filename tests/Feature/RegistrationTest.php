@@ -41,7 +41,7 @@ class RegistrationTest extends TestCase
         }
 
         $response = $this->post('/register', [
-            'name' => 'DA-CBC Administration',
+            'name' => 'DA-CBC Administrator',
             'email' => 'dacropbiotechcenter@gmail.com',
             'password' => 'password',
             'password_confirmation' => 'password',

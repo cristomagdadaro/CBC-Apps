@@ -37,10 +37,10 @@ const services = [
         label: 'Access and Use Request',
         href: 'accessUseRequest.index',
     },{
-        label: 'Lab & Supplies',
+        label: 'Inventory Management',
         href: 'forms.index',
         children: [
-           {
+        {
                 label: 'Transactions',
                 href: 'transactions.index'
             },{
