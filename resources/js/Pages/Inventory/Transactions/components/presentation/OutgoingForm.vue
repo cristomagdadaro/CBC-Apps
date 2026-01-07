@@ -94,16 +94,16 @@ export default {
 <template>
     <div class="flex md:flex-row flex-col sm:p-5 p-3 sm:gap-3">
         <div class="flex flex-col gap-1 bg-white rounded">
-            <div  v-if="data" class="flex select-none justify-between items-center gap-5 py-2 px-1 md:px-4 border-b">
-                <div class="flex flex-col leading-none">
+            <div  v-if="data" class="flex md:flex-row flex-col select-none justify-between items-center gap-5 py-2 px-1 md:px-4 border-b">
+                <div class="flex flex-col leading-none w-full">
                     <span class="font-bold text-base md:text-lg whitespace-nowrap overflow-ellipsis overflow-hidden">
                         {{ data.name }} {{ data.description ? `(${data.description})` : '' }}
                     </span>
                     <span class="text-sm text-gray-500">{{ data.brand }}</span>
                     <span class="text-xs text-gray-500 leading-none" :class="{'text-red-600' : !data.barcode}">{{ data.barcode || 'Warning! NO BARCODE' }}</span>
                 </div>
-                <div class="flex sm:gap-4 gap-1">
-                    <div class="flex flex-col leadin g-none md:leading-relaxed">
+                <div class="flex sm:gap-4 gap-1 md:w-fit w-full justify-evenly">
+                    <div class="flex flex-col leading-none md:leading-relaxed">
                         <span class="text-center text-gray-600">
                             {{ formatNumber(data.remaining_quantity) }}
                         </span>
