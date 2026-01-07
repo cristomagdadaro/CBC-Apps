@@ -55,7 +55,7 @@ export default {
         },
         getRecentTransactions() {
             this.processing = true;
-            this.fetchGetApi('api.inventory.transactions.index', {'sort': 'created_at', 'order': 'desc', 'filter': 'id', 'filter_by_parent_column': 'item_id', 'filter_by_parent_id': this.data.item_id, 'per_page': 5})
+            this.fetchGetApi('api.inventory.transactions.index.public', {'sort': 'created_at', 'order': 'desc', 'filter': 'id', 'filter_by_parent_column': 'item_id', 'filter_by_parent_id': this.data.item_id, 'per_page': 5})
                 .then((response) => {
                     this.recentTransactions = response.data;
                 });
