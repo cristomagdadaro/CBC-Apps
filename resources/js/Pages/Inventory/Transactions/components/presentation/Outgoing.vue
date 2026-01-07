@@ -31,6 +31,16 @@ export default {
         PaginateBtn,
         SearchBtn, TextInput, SearchBox, AppLayout, FilterIcon, CustomDropdown, Modal, SearchBy, AddIcon, Head},
     mixins: [ApiMixin],
+    props: {
+        categories: {
+            type: Array,
+            required: true
+        },
+        stockLevel: {
+            type: Array,
+            required: true
+        }
+    },
     data() {
         return {
             api: null,
@@ -69,9 +79,23 @@ export default {
         },
         async searchEvent() {
             this.form.per_page = '*';
-            await this.fetchGetApi('api.inventory.transactions.remaining-stocks').then((response) => {
+            this.processing = true;
+            await this.fetchGetApi('api.inventory.transactions.remaining-stocks', this.form.data()).then((response) => {
                 this.outgoingFromApi = response;
             })
+            this.processing = false;
+        },
+        setFilter(filter, filter_by) {
+            if (this.form.filter_by === filter_by) {
+                this.form.filter = '';
+                this.form.filter_by = '';
+                this.searchEvent();
+                return;
+            }
+
+            this.form.filter = filter;
+            this.form.filter_by = filter_by;
+            this.searchEvent();
         },
     }
 }
@@ -91,6 +115,10 @@ export default {
                         <span v-if="!model?.processing">Search</span>
                         <span v-else>Searching</span>
                     </search-btn>
+                </div>
+                <div class="flex gap-1 items-center w-full justify-center">
+                    <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
+                    <custom-dropdown :with-all-option="false" placeholder="Category" label="Filter by Category" @selectedChange="setFilter('category', $event)" :options="categories" />
                 </div>
                 <h3>There are {{outgoingFromApi?.data?.length || 0}} items registered</h3>
                 <div v-if="outgoingFromApi" class="flex flex-col w-full gap-2 items-center">
@@ -181,9 +209,9 @@ export default {
 
                         <!-- Current Page Indicator -->
                         <div class="text-xs flex flex-col whitespace-nowrap text-center">
-                                    <span class="font-medium mx-1" title="current page and total pages">
-                                        <span>{{ outgoingFromApi?.current_page }}</span> / <span>{{ outgoingFromApi?.last_page }}</span>
-                                    </span>
+                            <span class="font-medium mx-1" title="current page and total pages">
+                                <span>{{ outgoingFromApi?.current_page }}</span> / <span>{{ outgoingFromApi?.last_page }}</span>
+                            </span>
                         </div>
 
                         <!-- Next Button -->

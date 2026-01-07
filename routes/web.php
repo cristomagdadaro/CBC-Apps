@@ -204,6 +204,10 @@ Route::middleware([
                     return Inertia::render('Inventory/Transactions/components/presentation/Outgoing', [
                         'fromUrl' => url()->previous(),
                         'personnels' => Personnel::all(),
+                        'stockLevel' => config('system.stock_levels'),
+                        'categories' => Category::select('id as name', 'name as label')
+                ->has('items')
+                ->get(),
                     ]);
                 })->name('transactions.outgoing');
 

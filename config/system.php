@@ -9,6 +9,12 @@ return [
         Inventory::INCOMING->value,
         Inventory::OUTGOING->value,
     ],
+    'stock_levels' => [
+        [ 'name' => 'empty', 'label' => 'Empty Stock (0%)' ],
+        [ 'name' => 'low', 'label' => 'Low Stock (25%)' ],
+        [ 'name' => 'mid', 'label' => 'Mid Stock (75%)' ],
+        [ 'name' => 'high', 'label' => 'High Stock (100%)' ],
+    ],
     'storage_locations' => [
         [
             'name' => Inventory::ROI->value,
