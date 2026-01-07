@@ -45,6 +45,18 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
 
         if (data?.personnel)
             this.personnel = new DtoPersonnel(data.personnel)
+
+        // sorted by created_at desc
+        this.api.setSearchFields({
+            search: null,
+            filter: null,
+            filter_by: null,
+            is_exact: false,
+            page: 1,
+            per_page: 10,
+            sort: 'created_at',
+            order: 'desc'
+        });
     }
 
     get quantityWithUnit(): string {

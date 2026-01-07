@@ -87,12 +87,8 @@ Route::middleware([
         $stats = [
             'events' => [
                 'total'    => Form::count(),
-                'active'   => Form::where('is_suspended', false)
-                                   ->where('is_expired', false)
-                                   ->count(),
-                'upcoming' => Form::whereDate('date_from', '>=', $now->toDateString())
-                                   ->where('is_expired', false)
-                                   ->count(),
+                'active'   => Form::where('is_suspended', false)->where('is_expired', false)->count(),
+                'upcoming' => Form::whereDate('date_from', '>=', $now->toDateString())->where('is_expired', false)->count(),
                 'suspended'=> Form::where('is_suspended', true)->count(),
                 'expired'  => Form::where('is_expired', true)->count(),
             ],

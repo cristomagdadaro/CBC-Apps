@@ -14,8 +14,20 @@ export default abstract class ApiService {
     public _appendedWith?: string[];
     public _appendedCount?: string[];
 
+    private _SearchFields: object = {};
+
     protected constructor() {
         this.axiosInstance = axios.create({});
+
+        // default search fields
+        this._SearchFields = {
+            search: null,
+            filter: null,
+            filter_by: null,
+            is_exact: false,
+            page: 1,
+            per_page: 10
+        };
     }
 
     async get(url: string, params?: any, model?: DtoBaseClass) {
@@ -109,16 +121,12 @@ export default abstract class ApiService {
 
     getSearchFields(): object
     {
-        return {
-            search: null,
-            filter: null,
-            filter_by: null,
-            is_exact: false,
-            page: 1,
-            per_page: 10,
-            /*sort: 'created_at',
-            order: 'desc',*/
-        }
+        return this._SearchFields
+    }
+
+    setSearchFields(fields: object)
+    {
+        this._SearchFields = fields;
     }
 
     public async getIndex(params: any, model?: DtoBaseClass)

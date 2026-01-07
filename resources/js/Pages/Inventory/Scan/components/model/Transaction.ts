@@ -2,10 +2,10 @@ import DtoTransaction from "@/Pages/Inventory/Scan/components/model/DtoTransacti
 import {usePage} from "@inertiajs/vue3";
 
 export default class Transaction extends DtoTransaction {
-       constructor(response: DtoTransaction) {
-        super(response);
+    constructor(response: DtoTransaction) {
+    super(response);
 
-       const page = usePage();
+    const page = usePage();
 
         this.api._apiIndex = 'api.inventory.transactions.index';
         // @ts-ignore
@@ -56,7 +56,7 @@ export default class Transaction extends DtoTransaction {
     }
 
     get dataColor( ){
-           return `${this.transac_type && this.transac_type === 'incoming' ? 'text-green-600' : 'text-red-600'} text-center uppercase`;
+        return `${this.transac_type && this.transac_type === 'incoming' ? 'text-green-600' : 'text-red-600'} text-center uppercase`;
     }
 
     static getColumns(data: DtoTransaction = null): any {
