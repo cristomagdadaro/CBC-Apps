@@ -53,7 +53,7 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
             filter_by: null,
             is_exact: false,
             page: 1,
-            per_page: 10,
+            per_page: 25,
             sort: 'created_at',
             order: 'desc'
         });

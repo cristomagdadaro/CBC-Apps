@@ -404,7 +404,7 @@ watch(
                 <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
                     <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Recent Transactions</h3>
                     <div class="flex flex-col text-sm gap-1">
-                        <div v-for="transaction in $page.props.recentTransactions" :key="transaction.id" class="py-2 rounded-md px-2" :class="transaction.transac_type === 'incoming' ? 'bg-green-200':'bg-red-200'">
+                        <Link v-for="transaction in $page.props.recentTransactions" :key="transaction.id" :href="route('transactions.show', transaction.id)" class="py-2 rounded-md px-2 hover:opacity-75 duration-200" :class="transaction.transac_type === 'incoming' ? 'bg-green-200':'bg-red-200'">
                             <p>
                                 <span class="font-medium">{{ transaction.item.name }}</span>
                                 <span>{{ transaction.type }}</span>
@@ -420,7 +420,7 @@ watch(
                                 on
                                 <span>{{ new Date(transaction.created_at).toLocaleString() }}</span>
                             </p>
-                        </div>
+                        </Link>
                         <Link :href="route('transactions.index')" class="text-blue-600 dark:text-blue-400 hover:underline">
                             View all transactions
                         </Link>
