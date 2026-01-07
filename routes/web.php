@@ -210,7 +210,7 @@ Route::middleware([
                 Route::get('/{id}', function () {
                     $transaction = Transaction::find(request()->route('id'));
                     if (!$transaction) return redirect()->route('transactions.index');
-
+                    
                     if($transaction->transac_type === Inventory::INCOMING->value){
                         return Inertia::render('Inventory/Transactions/components/presentation/IncomingUpdateForm', [
                             'data' => $transaction,
@@ -222,17 +222,33 @@ Route::middleware([
                     } else {
                         return Inertia::render('Inventory/Transactions/components/presentation/OutgoingUpdateForm', [
                             'data' =>  Transaction::select('*')->where('transactions.id', request()->route('id'))->first(),
-                            'summary' =>  Transaction::selectRaw('items.name, items.brand, transactions.unit, items.id as item_id, transactions.barcode,' .
-                                ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,' .
-                                ' SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END) as total_outgoing,' .
-                                ' (SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) - ' .
-                                '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity'
-                            )
+                            'summary' =>  Transaction::selectRaw('
+                                        items.id as item_id,
+                                        items.name,
+                                        items.brand,
+                                        items.description,
+                                        transactions.unit,
+                                        transactions.barcode,
+
+                                        SUM(CASE WHEN transactions.transac_type = "incoming"
+                                            THEN transactions.quantity ELSE 0 END) AS total_ingoing,
+
+                                        SUM(CASE WHEN transactions.transac_type = "outgoing"
+                                            THEN ABS(transactions.quantity) ELSE 0 END) AS total_outgoing,
+
+                                        (
+                                            SUM(CASE WHEN transactions.transac_type = "incoming"
+                                                THEN transactions.quantity ELSE 0 END)
+                                            -
+                                            SUM(CASE WHEN transactions.transac_type = "outgoing"
+                                                THEN ABS(transactions.quantity) ELSE 0 END)
+                                        ) AS remaining_quantity')
                                 ->join('items', 'transactions.item_id', '=', 'items.id')
+                                ->where('transactions.item_id', $transaction->item_id)
                                 ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode')
                                 ->first(),
                             'fromUrl' => route('transactions.index'),
-                            'personnels' => Personnel::all(),
+                            'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                         ]);
                     }
                 })->name('transactions.show');
