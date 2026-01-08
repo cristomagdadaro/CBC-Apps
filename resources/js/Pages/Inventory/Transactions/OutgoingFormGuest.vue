@@ -152,7 +152,7 @@ export default {
         :delay-ready="delayReady"
     >
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
-            <div class="py-4 flex flex-col md:flex-row gap-3 justify-center bg-gray-50 p-4 rounded-md">
+            <div class="py-4 flex flex-col md:flex-row gap-3 bg-gray-50 p-4 md:rounded-md w-full md:w-fit h-full md:h-fit">
                 <div class="flex flex-col justify-start gap-2 md:mx-auto md:w-full lg:w-[60vw]">
                     <div class="w-full flex gap-2 items-center lg:px-0">
                         <text-input placeholder="Search..." v-model="form.search" @update:model-value="form.filter = null; form.is_exact = false;" />
@@ -162,11 +162,11 @@ export default {
                         </search-btn>
                     </div>
                     <div v-if="outgoingFromApi" class="flex flex-col w-full gap-2 items-center">
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-1 items-start w-full justify-center">
+                        <div class="grid grid-cols-3 md:grid-cols-4 gap-1 items-start w-full justify-center">
                             <custom-dropdown :with-all-option="false" placeholder="Category" label="Filter by Category" @selectedChange="setFilter('category', $event)" :options="categories" />
                             <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
                             <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
-                            <camera-scanner @decoded="searchFromBarcode" />
+                            <camera-scanner class="col-span-3 md:col-span-1" @decoded="searchFromBarcode" />
                         </div>
                         <div class="w-full max-h-[60vh] overflow-y-auto">
                             <div v-show="processing" class="text-center py-3 border border-AB rounded-lg w-full h-full z-50">
@@ -211,7 +211,7 @@ export default {
                             </div>
 
                         </div>
-                        <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
+                        <div id="dtPaginatorContainer" class="flex hidden gap-1 items-center w-full justify-center">
                             <!-- First Button -->
                             <paginate-btn @click="form.page = 1; searchEvent();" :disabled="form.page === 1">
                                 First
