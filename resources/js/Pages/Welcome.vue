@@ -2,7 +2,6 @@
 import { Head, Link } from '@inertiajs/vue3';
 import particleMixin from "@/Modules/mixins/ParticleMixin.js";
 import {onMounted} from "vue";
-import BaseBtn from "@/Components/Buttons/BaseBtn.vue";
 import SocialLinks from "@/Components/SocialLinks.vue";
 
 defineProps({
@@ -36,9 +35,11 @@ onMounted(() => {
             <div class="flex flex-col gap-5 px-5">
                 <div class="text-center text-gray-700 dark:text-gray-300">
                     <div class="relative w-fit mx-auto">
-                        <h1 class="lg:text-6xl md:text-4xl text-3xl font-bold leading-none text-AB dark:text-green-400 font-[Montserrat] drop-shadow-md whitespace-nowrap">
-                            {{ $appName }}
-                        </h1>
+                        <div class="flex items-center gap-1">
+                            <h1 class="lg:text-6xl md:text-4xl text-3xl font-bold leading-none text-AB dark:text-green-400 font-[Montserrat] drop-shadow-md whitespace-nowrap">
+                                {{ $appName }}
+                            </h1>
+                        </div>
                         <span class="absolute bottom-0 -right-5 text-[0.60rem] text-AB">
                         v1.12
                     </span>

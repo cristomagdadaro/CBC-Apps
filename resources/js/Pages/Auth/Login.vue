@@ -7,6 +7,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import SocialLinks from "@/Components/SocialLinks.vue";
 
 defineProps({
     canResetPassword: Boolean,
@@ -99,4 +100,5 @@ const submit = () => {
             </form>
         </AuthenticationCard>
     </div>
+    <social-links />
 </template>
