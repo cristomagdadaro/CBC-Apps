@@ -30,7 +30,7 @@ export default {
             <div class="md:relative flex flex-col md:gap-5 w-full" :class="{ 'justify-center': !!$slots.search }">
                 <!-- Header / search / top content -->
                 <slot name="top">
-                    <div v-show="delayReady" class="select-none p-0 md:rounded-md flex flex-col gap-2 bg-gray-100 w-full md:drop-shadow-lg mb-0">
+                    <div v-show="delayReady" class="select-none p-0 md:rounded-md flex flex-col gap-2 w-full md:drop-shadow-lg mb-0">
                         <div class="relative flex flex-row bg-AB text-white p-2 px-4 md:rounded-md gap-2 shadow py-4">
                             <Link href="/">
                                 <img src="/imgs/logo.png" alt="logo" class="w-16 h-16" />

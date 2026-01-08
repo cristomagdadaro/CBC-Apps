@@ -134,7 +134,7 @@ export default {
         :delay-ready="delayReady"
     >
         <template #search>
-            <form class="flex gap-2 items-center pr-2"  @submit.prevent="searchEvent">
+            <form v-if="!eventForm" class="flex gap-2 items-center pr-2 bg-gray-100 md:rounded-md"  @submit.prevent="searchEvent">
                 <div class="flex flex-col w-full items-center">
                     <div class="grid grid-cols-4 gap-0.5 w-full items-center pb-2 pl-2">
                         <TextInput
@@ -202,7 +202,7 @@ export default {
 
         <!-- Middle content: recent QR codes, full QR modal, confirmation modal -->
         <transition-container type="slide-bottom" :duration="1000">
-            <div v-show="delayReady"  v-if="recentQrCodes.length" class="md:absolute md:top-5 md:left-full mx-4 lg:mx-5 p-3 bg-gray-100 md:rounded-md drop-shadow rounded-md">
+            <div v-show="delayReady"  v-if="recentQrCodes.length" class="md:absolute md:top-5 mt-3 md:left-full mx-4 lg:mx-5 p-3 bg-gray-100 md:rounded-md drop-shadow rounded-md">
                 <!-- ...existing recent QR code content... -->
                 <h3 class="text-normal whitespace-nowrap text-center drop-shadow md:flex md:flex-col leading-none md:mb-2 mb-1"><span>Recent</span> <span class="md:text-xs">(max 6)</span></h3>
                 <div class="flex md:flex-col flex-row gap-2  bg-gray-100 justify-between">
