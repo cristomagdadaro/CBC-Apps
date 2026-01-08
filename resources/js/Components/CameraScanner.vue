@@ -7,12 +7,10 @@ export default {
     name: 'CameraScanner',
     components: {FilterIcon, CustomDropdown, QrcodeStream },
     props: {
-        /** Enable or disable all scanning */
         enabled: {
             type: Boolean,
             default: true,
         },
-        /** Override which barcode formats are enabled */
         formats: {
             type: Object,
             default: () => ({
@@ -23,17 +21,14 @@ export default {
                 upc_a: true, upc_e: true, linear_codes: true, matrix_codes: true,
             }),
         },
-        /** Optional custom audio URL for beep sound when a code is detected */
         beepUrl: {
             type: String,
             default: '/misc/audio/beep3-98810.mp3',
         },
-        /** Optional label to show above the device selector */
         label: {
             type: String,
             default: 'Available Camera Devices',
         },
-        /** Whether the scanner section should default open on small screens */
         defaultOpenSmall: {
             type: Boolean,
             default: false,
@@ -57,7 +52,7 @@ export default {
         selectedBarcodeFormats() { return Object.keys(this.formats).filter(f => this.formats[f]); },
         hasDevice() { return !!this.selectedDeviceId; },
         selectedDevice() { return this.devices.find(d => d.deviceId === this.selectedDeviceId) || null; },
-        showScannerArea() { return this.isMdUp || this.isOpen; }
+        showScannerArea() { return this.isOpen; }
     },
     methods: {
         stopMediaTracks() { if (this.stream) { this.stream.getTracks().forEach(t => t.stop()); this.stream = null; } },
@@ -92,7 +87,7 @@ export default {
         },
         onError(error) { this.error = error; },
         async setupMediaSource() {
-            if (!this.enabled || (!this.isMdUp && !this.isOpen)) return; // only open when visible
+            if (!this.enabled || !this.isOpen) return; // only open when visible
             try {
                 if (!navigator?.mediaDevices) { this.error = 'Media devices unavailable'; return; }
                 let permissionObj; // permissions API may not exist in all browsers
@@ -112,15 +107,13 @@ export default {
         handleResize() {
             const wasMdUp = this.isMdUp;
             this.isMdUp = typeof window !== 'undefined' ? window.innerWidth >= 768 : false;
-            if (this.isMdUp) { this.isOpen = true; if (!this.stream) this.setupMediaSource(); }
-            else if (wasMdUp && !this.defaultOpenSmall) { this.isOpen = false; this.stopMediaTracks(); }
         },
-        toggleOpen() { if (!this.isMdUp) { this.isOpen = !this.isOpen; if (this.isOpen && !this.stream) this.setupMediaSource(); else if (!this.isOpen) this.stopMediaTracks(); } },
+        toggleOpen() { this.isOpen = !this.isOpen; if (this.isOpen && !this.stream) this.setupMediaSource(); else if (!this.isOpen) this.stopMediaTracks(); },
     },
     mounted() {
         this.beep = new Audio(this.beepUrl); this.beep.load();
         if (typeof window !== 'undefined') { this.handleResize(); window.addEventListener('resize', this.handleResize); }
-        if (!this.isMdUp) this.isOpen = this.defaultOpenSmall;
+        this.isOpen = this.defaultOpenSmall;
         this.setupMediaSource();
     },
     unmounted() {
@@ -129,31 +122,29 @@ export default {
     },
     watch: {
         error(val) { if (val) this.$emit('error', val); },
-        enabled(val) { if (val) this.setupMediaSource(); else this.stopMediaTracks(); },
-        isOpen(val) { if (!this.isMdUp) { if (val && !this.stream) this.setupMediaSource(); else if (!val) this.stopMediaTracks(); } },
+        enabled(val) { if (val && this.isOpen) this.setupMediaSource(); else if (!val) this.stopMediaTracks(); },
+        isOpen(val) { if (val && !this.stream) this.setupMediaSource(); else if (!val) this.stopMediaTracks(); },
     },
 };
 </script>
 
 <template>
     <div class="flex flex-col gap-2 w-full max-w-xl">
-        <!-- Small screen toggle button -->
-        <div class="flex md:hidden">
-            <button
-                type="button"
-                @click="toggleOpen"
-                :aria-expanded="isOpen.toString()"
-                class="px-3 py-2 text-sm rounded-md text-left border border-gray-700 bg-white hover:bg-gray-50 active:scale-[.98] duration-75 flex items-center gap-2 w-full"
-            >
-                <span v-if="!isOpen" class="w-full">Show Scanner</span>
-                <span v-else  class="w-full">Hide Scanner</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" :d="isOpen ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
-                </svg>
+        <div class="flex flex-col gap-0.5 w-full">
+            <div class="text-xs text-gray-600 flex items-center justify-between">
+                <span class="flex gap-0.5 whitespace-nowrap"> Search by Scanner </span>
+            </div>
+            <button type="button" @click="toggleOpen" :aria-checked="isOpen.toString()" role="switch" class="w-full flex items-center justify-between px-3 py-2 border border-gray-700 rounded-md bg-white hover:bg-gray-50 active:scale-[.98] duration-75">
+                <span class="text-sm whitespace-nowrap">
+                    {{ isOpen ? 'Scanner On' : 'Scanner Off' }}
+                </span>
+                <span class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200" :class="isOpen ? 'bg-green-600' : 'bg-gray-300'">
+                    <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200" :class="isOpen ? 'translate-x-6' : 'translate-x-1'"></span>
+                </span>
             </button>
         </div>
 
-        <!-- Scanner content -->
+
         <transition name="fade" mode="out-in">
             <div v-show="showScannerArea" class="flex flex-col gap-2 w-full">
                 <div v-if="devices.length" class="flex flex-col gap-1">
