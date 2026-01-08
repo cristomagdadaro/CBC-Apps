@@ -1,4 +1,6 @@
 <script>
+import { Link } from '@inertiajs/vue3';
+
 export default {
     name: 'SocialLinks',
     data() {
@@ -19,6 +21,32 @@ export default {
     <div class="fixed bottom-4 right-4 z-[1000] flex flex-col items-end gap-2">
         <!-- Desktop / md+ view: show all icons -->
         <div class="hidden md:flex items-center gap-2 bg-white/90 dark:bg-gray-900/90 border border-gray-200 dark:border-gray-700 rounded-full px-3 py-2 shadow-lg">
+            <Link
+                :href="route('login')"
+                rel="noopener noreferrer"
+                class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 inline-flex"
+                title="Login"
+            >
+                <i class="bi bi-globe text-xl text-AB">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-left" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M10 3.5a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 1 1 0v2A1.5 1.5 0 0 1 9.5 14h-8A1.5 1.5 0 0 1 0 12.5v-9A1.5 1.5 0 0 1 1.5 2h8A1.5 1.5 0 0 1 11 3.5v2a.5.5 0 0 1-1 0z"/>
+                        <path fill-rule="evenodd" d="M4.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H14.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708z"/>
+                    </svg>
+                </i>
+            </Link>
+            <Link
+                v-if="canRegister" 
+                :href="route('register')"
+                rel="noopener noreferrer"
+                class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 inline-flex"
+                title="Register"
+            >
+                <i class="bi bi-globe text-xl text-AB">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-r-circle" viewBox="0 0 16 16">
+                        <path d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.5 4.002h3.11c1.71 0 2.741.973 2.741 2.46 0 1.138-.667 1.94-1.495 2.24L11.5 12H9.98L8.52 8.924H6.836V12H5.5zm1.335 1.09v2.777h1.549c.995 0 1.573-.463 1.573-1.36 0-.913-.596-1.417-1.537-1.417z"/>
+                    </svg>
+                </i>
+            </Link>
             <a
                 href="https://dacbc.philrice.gov.ph/"
                 target="_blank"
@@ -116,6 +144,24 @@ export default {
                     v-if="open"
                     class="flex flex-col bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden min-w-[220px]"
                 >
+                    <Link
+                        :href="route('login')"
+                        rel="noopener noreferrer"
+                        class="flex items-center gap-2 px-3 py-2 text-xs hover:bg-gray-100 dark:hover:bg-gray-800"
+                        title="Login"
+                    >
+                    <i class="bi bi-globe text-base text-AB"></i>
+                        Login
+                    </Link>
+                    <Link
+                        v-if="canRegister" :href="route('register')" 
+                        rel="noopener noreferrer"
+                        class="flex items-center gap-2 px-3 py-2 text-xs hover:bg-gray-100 dark:hover:bg-gray-800"
+                        title="Register"
+                    >
+                    <i class="bi bi-globe text-base text-AB"></i>
+                        Register
+                    </Link>
                     <button
                         type="button"
                         class="flex items-center justify-between px-3 py-2 text-xs font-semibold bg-AB text-white"
