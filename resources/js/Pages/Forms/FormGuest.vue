@@ -134,9 +134,9 @@ export default {
         :delay-ready="delayReady"
     >
         <template #search>
-            <form class="flex gap-2 items-center"  @submit.prevent="searchEvent">
+            <form class="flex gap-2 items-center pr-2"  @submit.prevent="searchEvent">
                 <div class="flex flex-col w-full items-center">
-                    <div class="grid grid-cols-4 gap-0.5 w-full items-center">
+                    <div class="grid grid-cols-4 gap-0.5 w-full items-center pb-2 pl-2">
                         <TextInput
                             id="cell1"
                             ref="cell1"
@@ -193,9 +193,9 @@ export default {
                     </div>
                     <InputError class="mt-2" :message="form.errors.event" />
                 </div>
-                <search-btn type="submit" :disabled="model?.processing" class="w-[10rem] text-center">
-                    <span v-if="!model?.processing">Search</span>
-                    <span v-else>Searching</span>
+                <search-btn type="submit" :disabled="model?.processing" class="text-center">
+                    <span v-if="!model?.processing" class="md:block hidden">Search</span>
+                    <span v-else class="md:block hidden">Searching</span>
                 </search-btn>
             </form>
         </template>

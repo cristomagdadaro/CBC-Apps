@@ -33,11 +33,11 @@ export default {
                     <div v-show="delayReady" class="select-none p-0 md:rounded-md flex flex-col gap-2 bg-gray-100 w-full md:drop-shadow-lg mb-0">
                         <div class="relative flex flex-row bg-AB text-white p-2 px-4 md:rounded-md gap-2 shadow py-4">
                             <Link href="/">
-                                <img src="/imgs/logo.png" alt="logo" class="w-auto h-16" />
+                                <img src="/imgs/logo.png" alt="logo" class="w-16 h-16" />
                             </Link>
                             <div class="flex flex-col justify-center">
-                                <label class="font-semibold text-xl">{{ title }}</label>
-                                <p v-if="subtitle" class="text-sm">
+                                <label class="font-semibold text-base md:text-xl">{{ title }}</label>
+                                <p v-if="subtitle" class="text-sm leading-tight">
                                     {{ subtitle }}
                                 </p>
                             </div>
