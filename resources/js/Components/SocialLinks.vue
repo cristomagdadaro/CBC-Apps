@@ -3,6 +3,12 @@ import { Link } from '@inertiajs/vue3';
 
 export default {
     name: 'SocialLinks',
+    props: {
+        canLogin: Boolean,
+        canRegister: Boolean,
+        laravelVersion: String,
+        phpVersion: String,
+    },
     data() {
         return {
             open: false,
@@ -35,7 +41,7 @@ export default {
                 </i>
             </Link>
             <Link
-                v-if="canRegister" 
+                v-if="!!canRegister" 
                 :href="route('register')"
                 rel="noopener noreferrer"
                 class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 inline-flex"
@@ -154,7 +160,7 @@ export default {
                         Login
                     </Link>
                     <Link
-                        v-if="canRegister" :href="route('register')" 
+                        v-if="!!canRegister" :href="route('register')" 
                         rel="noopener noreferrer"
                         class="flex items-center gap-2 px-3 py-2 text-xs hover:bg-gray-100 dark:hover:bg-gray-800"
                         title="Register"

@@ -131,8 +131,7 @@ export default {
     <guest-form-page
         :title="'Event Forms'"
         :subtitle="'For the event id, kindly check the invitation or ask the organizers.'"
-        :delay-ready="delayReady"
-    >
+        :delay-ready="delayReady">
         <template #search>
             <form v-if="!eventForm" class="flex gap-2 items-center pr-2 bg-gray-100 md:rounded-md"  @submit.prevent="searchEvent">
                 <div class="flex flex-col w-full items-center">
@@ -289,17 +288,29 @@ export default {
         <!-- Cards row -->
         <div class="flex gap-5 md:flex-row flex-col">
             <transition-container :duration="1000" type="slide-bottom">
-                <template v-show="!!eventFormFromApi?.data?.length" v-if="eventFormFromApi" >
-                    <guest-card :data="eventFormFromApi?.data[0]" @createdModel="lastCreatedForm = $event" />
-                    <label class="text-[0.6rem] leading-none select-none">Form from Search</label>
-                </template>
+                <div v-if="eventFormFromApi?.data?.length">
+                    <guest-card
+                        :data="eventFormFromApi.data[0]"
+                        @createdModel="lastCreatedForm = $event"
+                    />
+                    <label class="text-[0.6rem] leading-none select-none">
+                        Form from Search
+                    </label>
+                </div>
             </transition-container>
+
             <transition-container :duration="1000" type="slide-bottom">
-                <template v-show="!!eventForm && delayReady" v-if="eventForm">
-                    <guest-card :data="eventForm" @createdModel="lastCreatedForm = $event" />
-                    <label class="text-[0.6rem] leading-none select-none">Form from URL</label>
-                </template>
+                <div v-if="eventForm && delayReady">
+                    <guest-card
+                        :data="eventForm"
+                        @createdModel="lastCreatedForm = $event"
+                    />
+                    <label class="text-[0.6rem] leading-none select-none">
+                        Form from URL
+                    </label>
+                </div>
             </transition-container>
         </div>
+
     </guest-form-page>
 </template>

@@ -33,11 +33,17 @@ class CreateEventSubformRequest extends FormRequest
         $rules = [
             'subform_type' => ['required', 'string', Rule::in(array_keys(config('subformtypes') ?? []))],
             'form_parent_id' => ['required', 'string', 'exists:event_requirements,event_id'],
-            'participant_id' => ['required', 'uuid', 'exists:registrations,id',
+            'participant_id' => [
+                'required_unless:subform_type,preregistration,registration',
+                'nullable',
+                'uuid',
+                'exists:registrations,id',
                 Rule::unique('event_subform_responses')
-                ->where(fn($q) =>
-                $q->where('form_parent_id', $this->form_parent_id)
-                    ->where('subform_type', $subform)),],
+                    ->where(fn ($q) =>
+                        $q->where('form_parent_id', $this->form_parent_id)
+                        ->where('subform_type', $this->subform_type)
+                    ),
+            ],
             'response_data' => ['required', 'array'],
         ];
 

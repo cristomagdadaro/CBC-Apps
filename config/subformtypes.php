@@ -6,14 +6,37 @@ return [
     // Preregistration form fields
     Subform::PREREGISTRATION->value => [
         'name' => 'required|string',
+        'email' => 'required|email',
+        'phone' => 'required|string',
+        'sex' => 'nullable|string|in:Male,Female,Prefer not to say',
         'age' => 'required|integer',
-        'address' => 'nullable|string',
+        'organization' => 'required|string',
+        'designation' => 'required|string',
+        'is_ip' => 'boolean',
+        'is_pwd' => 'boolean',
+        'city_address' => 'nullable|string',
+        'province_address' => 'nullable|string',
+        'country_address' => 'nullable|string',
+        'attendance_type' => 'required|string|in:Online,In-person',
+        'agreed_tc' => 'accepted',
     ],
 
     // Registration form fields
     Subform::REGISTRATION->value => [
-        'organization' => 'string',
-        'position' => 'string',
+        'name' => 'required|string',
+        'email' => 'required|email',
+        'phone' => 'required|string',
+        'sex' => 'nullable|string|in:Male,Female,Prefer not to say',
+        'age' => 'required|integer',
+        'organization' => 'required|string',
+        'designation' => 'required|string',
+        'is_ip' => 'boolean',
+        'is_pwd' => 'boolean',
+        'city_address' => 'nullable|string',
+        'province_address' => 'nullable|string',
+        'country_address' => 'nullable|string',
+        'attendance_type' => 'required|string|in:Online,In-person',
+        'agreed_tc' => 'accepted',
     ],
 
     // Feedback form fields (expanded to include participant info & agreement)

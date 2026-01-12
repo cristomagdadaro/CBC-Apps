@@ -30,7 +30,7 @@ class ParticipantController extends BaseController
             Registration::factory()->create([
                 'id' => $temp,
                 'event_id' => $event_id,
-                'participant_id' => $request->validated('id'),
+                'participant_id' => $request->validated('id') ?? $participant->id,
                 'attendance_type' => $request->validated('attendance_type'),
             ]);
 

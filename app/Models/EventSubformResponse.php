@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class EventSubformResponse extends Model
 {
@@ -30,8 +32,20 @@ class EventSubformResponse extends Model
         return $this->belongsTo(EventRequirement::class, 'form_parent_id', 'id');
     }
 
-    public function participant()
+    public function registration(): BelongsTo
     {
-        return $this->belongsTo(Participant::class, 'participant_id', 'id');
+        return $this->belongsTo(Registration::class, 'participant_id', 'id');
+    }
+
+    public function participant(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Participant::class,
+            Registration::class,
+            'id', // Registration table primary key
+            'id', // Participant table primary key
+            'participant_id', // Foreign key on subform responses pointing to registrations.id
+            'participant_id' // Foreign key on registrations pointing to participants.id
+        );
     }
 }
