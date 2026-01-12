@@ -20,7 +20,7 @@ export default {
     computed: {
         requirements: {
             get() {
-                return this.modelValue;
+                return Array.isArray(this.modelValue) ? this.modelValue : [];
             },
             set(val) {
                 this.$emit('update:modelValue', val);
@@ -114,9 +114,7 @@ export default {
             this.requirements = copy;
         },
         availableFormTypeOptions(currentIndex) {
-            const selectedTypes = this.requirements
-                .map((r, idx) => (typeof currentIndex === 'number' && idx === currentIndex ? null : r.form_type))
-                .filter(Boolean);
+            const selectedTypes = this.requirements.map((r, idx) => (typeof currentIndex === 'number' && idx === currentIndex ? null : r.form_type)).filter(Boolean);
             return this.formTypeOptions.filter(opt => !selectedTypes.includes(opt.value));
         },
     },

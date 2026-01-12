@@ -49,14 +49,18 @@ export default {
     async beforeMount() {
         this.model = new Form();
         this.setFormAction("update");
-        if (!this.form.requirements) {
-            this.form.requirements = this.$page.props?.data?.requirements || [];
-        }
+        this.setRequirements();
     },
     methods: {
         async submitProxyUpdate() {
             this.form.requirements = this.form.requirements || [];
             await this.submitUpdate();
+            this.setRequirements();
+        },
+        setRequirements() {
+            if (!this.form.requirements) {
+                this.form.requirements = this.$page.props?.data?.requirements || [];
+            }
         },
     },
 };
@@ -154,7 +158,7 @@ export default {
                                         </div>
                                         <div class="px-1">
                                             <requirements-manager v-model="form.requirements" :error="form.errors.requirements"/>
-                                        </div>
+                                        </div> 
                                         <div class="flex flex-col p-2">
                                             <div class="flex gap-1 justify-between">
                                                 <suspend-form-btn :data="form" />

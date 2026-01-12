@@ -52,6 +52,7 @@ class CreateFormRequest extends FormRequest
             'venue' => ['nullable', 'string'],
             'is_suspended' => 'nullable|boolean',
             'max_slots' => 'nullable|integer',
+            'requirements' => 'nullable|array|min:1',
         ];
     }
 
