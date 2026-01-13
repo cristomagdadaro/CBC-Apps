@@ -20,6 +20,7 @@ class Personnel extends BaseModel
         'phone',
         'address',
         'email',
+        'employee_id',
     ];
 
     protected array $searchable  = [
@@ -31,6 +32,7 @@ class Personnel extends BaseModel
         'phone',
         'address',
         'email',
+        'employee_id',
     ];
 
     protected function serializeDate(DateTimeInterface $date): string

@@ -15,6 +15,7 @@ import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import TagifyInput from "@/Components/Tagify.vue";
 import ProgressTabs from "@/Components/ProgressTabs.vue";
+import Personnel from "@/Pages/Inventory/Personnel/components/model/Personnel";
 
 export default {
     name: "RequesterGuestCard",
@@ -27,6 +28,8 @@ export default {
     data() {
         return {
             model: null,
+            employee_id: '',
+            searchLoading: false,
             laboratories: [
                 "Laboratory 1",
                 "Laboratory 2",
@@ -73,6 +76,48 @@ export default {
             if (response instanceof DtoResponse) {
                 console.log(response);
                 this.$emit('createdModel', response);
+            }
+        },
+        async searchPersonnel() {
+            this.clientErrors = { ...this.clientErrors, employee_id: null };
+
+            if (!this.employee_id) {
+                this.clientErrors.employee_id = 'PhilRice ID is required';
+                return;
+            }
+
+            this.searchLoading = true;
+            try {
+                const response = await this.fetchGetApi('api.inventory.personnels.index.guest', {
+                    filter: 'employee_id',
+                    search: this.employee_id,
+                    is_exact: true,
+                }, Personnel);
+
+                const payload = response?.data ?? response ?? [];
+                const record = Array.isArray(payload?.data ?? payload)
+                    ? (payload.data ?? payload)[0]
+                    : (payload.data ?? payload);
+
+                if (!record) {
+                    this.clientErrors.employee_id = 'No personnel found for this ID';
+                    return;
+                }
+
+                const fullName = record.fullName;
+
+                this.form.name = fullName || this.form.name;
+                this.form.position = record.position ?? this.form.position;
+                this.form.phone = record.phone ?? this.form.phone;
+                this.form.email = record.email ?? this.form.email;
+                this.form.affiliation = "Philippine Rice Research Institute";
+                delete this.clientErrors.employee_id;
+                this.form.clearErrors('employee_id');
+            } catch (error) {
+                console.error(error);
+                this.clientErrors.employee_id = 'Lookup failed. Please try again.';
+            } finally {
+                this.searchLoading = false;
             }
         },
         validateStep(index) {
@@ -201,8 +246,19 @@ export default {
                 <h2>
                     <span class="font-bold uppercase">Requestor Information: </span>
                 </h2>
+        
+                <div class="flex items-end gap-2">
+                    <TextInput id="employee_id" v-model="employee_id" type="text" :error="errMsg('employee_id')" label="PhilRice ID" placeholder="**-****" name="employee_id" autocomplete="employee_id" @input="form.clearErrors('employee_id')"/>
+                    <button type="button" class="px-3 py-2 rounded bg-gray-800 text-white text-sm hover:bg-gray-900 disabled:opacity-50" :disabled="searchLoading" @click="searchPersonnel">
+                        <span v-if="!searchLoading">Search</span>
+                        <span v-else>Searching…</span>
+                    </button>
+                </div>
+                
+                <br class="border" />
+                
                 <TextInput id="name" v-model="form.name" required type="text" :error="errMsg('name')" label="Full Name" placeholder="Juan Dela Cruz" autocomplete="name" @input="form.clearErrors('name')" />
-                <TextInput id="name" v-model="form.position" type="text" :error="form.errors.position" label="Position" placeholder="SRS I, Student" autocomplete="position" @input="form.clearErrors('position')" />
+                <TextInput id="position" v-model="form.position" type="text" :error="form.errors.position" label="Position" placeholder="SRS I, Student" autocomplete="position" @input="form.clearErrors('position')" />
                 <TextInput id="affiliation" v-model="form.affiliation" required type="text" :error="errMsg('affiliation')" label="Affiliation/Agency/Office" placeholder="Office Name" autocomplete="affiliation" @input="form.clearErrors('affiliation')" />
                 <div class="flex items-center gap-2">
                     <TextInput id="phone" v-model="form.phone" required type="text" :error="errMsg('phone')" label="Contact Number" placeholder="0900 000 000" autocomplete="phone" @input="form.clearErrors('phone')" />

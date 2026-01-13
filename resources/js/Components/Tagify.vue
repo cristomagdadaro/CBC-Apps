@@ -63,7 +63,6 @@ export default {
                 per_page: '*',
             }
             this.apiData = await this.fetchGetApi(this.apiLink, params).then((response) => {
-                console.log(response)
                 return response.data.map((item) => {
                     return {
                         value: item.name,

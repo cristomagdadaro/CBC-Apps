@@ -30,7 +30,7 @@ export default abstract class ApiService {
         };
     }
 
-    async get(url: string, params?: any, model?: DtoBaseClass) {
+    async get(url: string, params?: any, model?: new (data: any) => any) {
         this.processing = true;
         try {
             // @ts-ignore
@@ -98,11 +98,18 @@ export default abstract class ApiService {
         }
     }
 
-    castToModel(response: any, model: DtoBaseClass) {
-        if (!response || !model) return [];
+    castToModel(response: any, Model: new (data: any) => any) {
+        if (!response || !Model) return [];
 
-        // @ts-ignore
-        return response.map((item: any) => (item ? new model.constructor(item) : null));
+        const toInstance = (item: any) => (item ? new Model(item) : null);
+
+        if (Array.isArray(response)) return response.map(toInstance);
+
+        if (response && typeof response === 'object' && Array.isArray(response.data)) {
+            return response.data.map(toInstance);
+        }
+
+        return toInstance(response);
     }
 
     static createFields(): object

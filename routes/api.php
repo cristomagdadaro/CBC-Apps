@@ -36,7 +36,8 @@ Route::prefix('guest')->group(function () {
     });
 
     Route::post('/', [RequestFormPivotController::class, 'create'])->name('api.requestFormPivot.post');
-
+    
+    Route::get('/personnel/public', [PersonnelController::class, 'index'])->name('api.inventory.personnels.index.guest');
     Route::get('/items/public', [ItemController::class, 'index'])->name('api.inventory.items.public');
     Route::get('/equipments/public', function () {
         return [ 'data' => [
