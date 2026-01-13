@@ -33,7 +33,8 @@ class UpdateTransactionRequest extends FormRequest
             'user_id' => 'required|exists:users,id',
             'expiration' => 'date|nullable',
             'remarks' => 'string|nullable',
-            'personnel_id' => 'required|exists:personnels,id'
+            'project_code' => 'required|string',
+            'personnel_id' => 'nullable|exists:personnels,id'
         ];
     }
 }

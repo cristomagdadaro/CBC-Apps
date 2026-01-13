@@ -11,6 +11,7 @@ interface ITransaction extends IBaseClass {
     user_id: string;
     expiration: string;
     remarks: string;
+    project_code: string;
 
     item: IItem;
     user: IUser;

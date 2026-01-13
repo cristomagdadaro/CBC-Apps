@@ -188,6 +188,7 @@ Route::middleware([
                 Route::get('/', function () {
                     return Inertia::render('Inventory/Transactions/Transactions', [
                         'fromUrl' => route('dashboard'),
+                        'categories' => Category::select('id as name', 'name as label')->has('items')->get(),
                     ]);
                 })->name('transactions.index');
 

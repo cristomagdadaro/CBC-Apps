@@ -33,6 +33,7 @@ export default class Transaction extends DtoTransaction {
             user_id: null,
             expiration: null,
             remarks: null,
+            project_code: null,
         };
     }
 
@@ -52,6 +53,7 @@ export default class Transaction extends DtoTransaction {
             user_id: model.user_id ?? null,
             expiration: model.expiration ?? null,
             remarks: model.remarks ?? null,
+            project_code: model.project_code ?? null,
         };
     }
 
@@ -137,9 +139,16 @@ export default class Transaction extends DtoTransaction {
                 db_key: 'personnel_id',
                 align: 'dataColor',
                 sortable: true,
+                visible: false,
+            },{
+                title: 'Project Code',
+                key: 'project_code',
+                db_key: 'project_code',
+                align: 'dataColor',
+                sortable: true,
                 visible: true,
             },{
-                title: 'Date and Time',
+                title: 'Date Created',
                 key: 'created_at',
                 db_key: 'created_at',
                 align: 'dataColor',

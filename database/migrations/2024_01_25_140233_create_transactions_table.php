@@ -28,6 +28,7 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->references('id')->on('users')->NoactionOnDelete()->CascadeOnUpdate();
             $table->date('expiration')->nullable();
             $table->longText('remarks')->nullable();
+            $table->string('project_code')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

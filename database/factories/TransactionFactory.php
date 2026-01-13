@@ -84,6 +84,7 @@ class TransactionFactory extends Factory
             'user_id' => User::all()->random()->id,
             'expiration' => $incomingTransaction->expiration,
             'remarks' => $remarks,
+            'project_code' => $this->faker->bothify('PC-#####'),
         ];
     }
 

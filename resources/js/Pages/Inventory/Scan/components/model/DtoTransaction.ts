@@ -16,6 +16,7 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
     user_id: string;
     expiration: string;
     remarks: string;
+    project_code: string;
 
     item: IItem;
     user: IUser;
@@ -36,6 +37,7 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
         this.user_id = data?.user_id;
         this.expiration = data?.expiration;
         this.remarks = data?.remarks;
+        this.project_code = data?.project_code;
 
         if (data?.item)
             this.item = new DtoItem(data?.item);

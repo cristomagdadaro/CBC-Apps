@@ -213,8 +213,8 @@ export default {
                             </Link>
                         </div>
                     </div>
+                    <text-input type="text" label="Project Code" required v-model="form.project_code" :error="form.errors.project_code" />
                     <custom-dropdown
-                        required
                         searchable
                         :with-all-option="false"
                         :value="form.personnel_id"
@@ -250,7 +250,7 @@ export default {
                     </div>
 
                     <date-input type="date" label="Expiration" v-model="form.expiration" :error="form.errors.expiration" />
-                    <text-area label="Remarks" v-model="form.remarks" :error="form.errors.remarks" />
+                    <text-area label="PR Details/Remarks" v-model="form.remarks" :error="form.errors.remarks" />
                     <div v-if="svgText" class="flex sm:flex-row flex-col gap-1 w-full items-center relative">
                         <img id="barcode-image" :src="svgText" alt="SVG Image" class="w-full" />
                         <button class="px-5 py-2 bg-gray-300 hover:scale-105 active:scale-100 rounded h-fit absolute bottom-3 right-4" @click.prevent="print">

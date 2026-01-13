@@ -16,12 +16,12 @@ import ResetBtn from "@/Components/Buttons/ResetBtn.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin.js";
 import Transaction from "@/Pages/Inventory/Scan/components/model/Transaction";
 import TextArea from "@/Components/TextArea.vue";
-
+import DateInput from "@/Components/DateInput.vue";
 export default {
     name: "IngoingUpdateForm",
     components: {
         TextArea,
-        ResetBtn, AppLayout, TextInput, SubmitBtn, PersonnelHeaderActions,
+        ResetBtn, AppLayout, TextInput, SubmitBtn, PersonnelHeaderActions, DateInput,
         LoaderIcon,
         PrimaryButton,
         SecondaryButton,Link, AddIcon, FilterIcon, CustomDropdown, Head},
@@ -164,8 +164,8 @@ export default {
                             </Link>
                         </div>
                     </div>
+                    <text-input type="text" label="Project Code" required v-model="form.project_code" :error="form.errors.project_code" />
                     <custom-dropdown
-                        required
                         searchable
                         :with-all-option="false"
                         :value="form.personnel_id"
@@ -200,8 +200,8 @@ export default {
                         <text-input type="number" label="Total Cost" v-model="form.total_cost" :error="form.errors.total_cost" />
                     </div>
 
-                    <text-input type="date" label="Expiration" v-model="form.expiration" :error="form.errors.expiration" />
-                    <text-area label="Remarks" v-model="form.remarks" :error="form.errors.remarks" />
+                    <date-input type="date" label="Expiration" v-model="form.expiration" :error="form.errors.expiration" />
+                    <text-area label="PR Details/Remarks" v-model="form.remarks" :error="form.errors.remarks" />
 
                     <div v-if="svgText" class="flex sm:flex-row flex-col gap-1 w-full relative">
                         <img id="barcode-image" :src="svgText" alt="SVG Image" class="w-full" />

@@ -5,7 +5,7 @@ export default {
     name: "searchBox",
     components: {CloseIcon},
     props: {
-        modelValue: String
+        modelValue: String|Number,
     },
     methods: {
         clearSearch(){
@@ -30,12 +30,12 @@ export default {
                 <close-icon class="w-7 h-auto text-gray-600 mr-3 hover:bg-gray-100 rounded hover:scale-110 duration-100 active:scale-100" @click="$emit('update:modelValue', '')" />
             </div>
             <input class="rounded-md drop-shadow border focus:outline-none focus:ring-0 w-full overflow-hidden overflow-ellipsis"
-                   type="text"
-                   name="search"
-                   id="searchbox"
-                   autocomplete="off"
-                   :value="modelValue"
-                   @keyup="updateSearch($event)">
+                type="text"
+                name="search"
+                id="searchbox"
+                autocomplete="off"
+                :value="modelValue"
+                @keyup="updateSearch($event)">
         </div>
     </div>
 </template>

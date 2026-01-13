@@ -30,6 +30,7 @@ class Transaction extends BaseModel
         'user_id',
         'expiration',
         'remarks',
+        'project_code',
     ];
 
     protected array $searchable = [
@@ -45,6 +46,7 @@ class Transaction extends BaseModel
         'user_id',
         'expiration',
         'remarks',
+        'project_code',
     ];
 
     protected function serializeDate(DateTimeInterface $date): string

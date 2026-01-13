@@ -70,7 +70,12 @@ export default {
         }
     },
     methods: {
-        async searchEvent() {
+        async searchEvent(params = {}) {
+            // merge params into form
+            Object.keys(params).forEach(key => {
+                this.form[key] = params[key];
+            });
+            
             this.apiResponse = await this.fetchData();
             this.$emit("searchedData", this.apiResponse);
         },
@@ -175,6 +180,7 @@ export default {
                :apiResponse="apiResponse"
                :processing="model.api.processing"
                :model="propModel"
+               @searchEvent="searchEvent"
                @confirmDelete="confirmDelete = true; toDelete = $event"
                class="my-2"
     />
