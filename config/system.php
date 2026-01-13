@@ -15,6 +15,50 @@ return [
         [ 'name' => 'mid', 'label' => 'Mid Stock (75%)' ],
         [ 'name' => 'high', 'label' => 'High Stock (100%)' ],
     ],
+    'laboratories' => [
+        [
+            'name' => Inventory::BIOINFOROOM->value,
+            'label' =>  "Bioinformatics Room",
+        ],
+        [
+            'name' => Inventory::MOLECULARGENETICSROOM->value,
+            'label' => "Molecular Genetics Room",
+        ],
+        [
+            'name' => Inventory::GENETICTRANSROOM->value,
+            'label' => "Genome Enineering Laboratory",
+        ],
+        [
+            'name' => Inventory::TISSUECULTUREROOM->value,
+            'label' => "Tissue Culture Room",
+        ],
+        [
+            'name' => Inventory::SYSTEMBIOLOGYROOM->value,
+            'label' => "Systems Biology Room",
+        ],
+        [
+            'name' => Inventory::MICROBIALBIOTECHROOM->value,
+            'label' => "Microbial Biotechnology Room",
+        ],
+        [
+            'name' => Inventory::MOLECULARDIAGNOSTICSROOM->value,
+            'label' => "Molecular Diagnostics Room",
+        ],
+    ],
+    'evemt_halls' => [
+        [
+            'name' => Inventory::PLENARY->value,
+            'label' => "Plenary Hall",
+        ],
+        [
+            'name' => Inventory::TRAININGROOM->value,
+            'label' => "Training Room",
+        ],
+        [
+            'name' => Inventory::MPH->value,
+            'label' => "Multi-Purpose Hall",
+        ],
+    ],
     'storage_locations' => [
         [
             'name' => Inventory::ROI->value,
@@ -34,7 +78,7 @@ return [
         ],
         [
             'name' => Inventory::GENETICTRANSROOM->value,
-            'label' => "Genetic Transformation Room",
+            'label' => "Genome Enineering Laboratory",
         ],
         [
             'name' => Inventory::TISSUECULTUREROOM->value,
@@ -51,6 +95,30 @@ return [
         [
             'name' => Inventory::MOLECULARDIAGNOSTICSROOM->value,
             'label' => "Molecular Diagnostics Room",
+        ],
+        [
+            'name' => Inventory::CENTRALBODEGA->value,
+            'label' => "Central Bodega",
+        ],
+        [
+            'name' => Inventory::BODEGAONE->value,
+            'label' => "Bodega 1",
+        ],
+        [
+            'name' => Inventory::BODEGATWO->value,
+            'label' => "Bodega 2",
+        ],
+        [
+            'name' => Inventory::PLENARY->value,
+            'label' => "Plenary Hall",
+        ],
+        [
+            'name' => Inventory::TRAININGROOM->value,
+            'label' => "Training Room",
+        ],
+        [
+            'name' => Inventory::MPH->value,
+            'label' => "Multi-Purpose Hall",
         ],
     ]
 ];

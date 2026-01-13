@@ -28,7 +28,8 @@ class CreateRequestFormPivot extends FormRequest
             'position' => 'nullable|string',
             'phone' => 'required|string',
 
-            'request_type' => 'required|string',
+            'request_type' => 'required|array|min:1',
+            'request_type.*' => 'string|in:Supplies,Equipments,Laboratory Access',
             'request_details' => 'nullable|string',
             'request_purpose' => 'required|string',
             'project_title' => 'nullable|string',

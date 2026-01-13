@@ -30,6 +30,7 @@ class UseRequestForm extends Model
 
     protected $casts = [
         'id' => 'string',
+        'request_type'     => 'array',
         'labs_to_use'       => 'array',
         'equipments_to_use' => 'array',
         'consumables_to_use'=> 'array',

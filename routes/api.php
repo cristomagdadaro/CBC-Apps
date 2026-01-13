@@ -12,6 +12,7 @@ use App\Http\Controllers\TransactionController;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Models\Item;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,20 +39,14 @@ Route::prefix('guest')->group(function () {
     Route::post('/', [RequestFormPivotController::class, 'create'])->name('api.requestFormPivot.post');
     
     Route::get('/personnel/public', [PersonnelController::class, 'index'])->name('api.inventory.personnels.index.guest');
-    Route::get('/items/public', [ItemController::class, 'index'])->name('api.inventory.items.public');
+    Route::get('/items/public', function () {
+        return ['data' => Item::selectRaw("CONCAT(name, IF(description IS NOT NULL AND description != '', CONCAT(' (', description, ')'), '')) AS label, id AS name")->where('category_id', 6)->get()];
+    })->name('api.inventory.items.public');
     Route::get('/equipments/public', function () {
-        return [ 'data' => [
-            [ 'name' => 'qPCR'],
-            [ 'name' => 'Microscope'],
-            [ 'name' => 'Implement the full backend'],
-        ] ];
+        return [ 'data' => Item::select('name as label', 'id as name')->where('category_id', '7')->get()];
     })->name('api.inventory.equipments.public');
     Route::get('/laboratories/public', function () {
-        return [ 'data' => [
-            [ 'name' => 'Molecular Biology Room'],
-            [ 'name' => 'Bioinformatics Room'],
-            [ 'name' => 'Researchers\' Office I' ],
-        ]];
+        return [ 'data' => config('system.laboratories')];
     })->name('api.inventory.laboratories.public');
     Route::get('/transactions-public', [TransactionController::class, 'index'])->name('api.inventory.transactions.index.public');
     Route::post('/outgoing', [TransactionController::class, 'outgoingStockStore'])->name('api.inventory.transactions.store.public');

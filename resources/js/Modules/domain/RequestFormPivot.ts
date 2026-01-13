@@ -19,7 +19,7 @@ export default class RequestFormPivot extends DtoRequestFormPivot {
             position: null,
             phone: null,
 
-            request_type: null,
+            request_type: [],
             request_details: null,
             request_purpose: null,
             project_title: null,

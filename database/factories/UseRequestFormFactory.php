@@ -16,9 +16,11 @@ class UseRequestFormFactory extends Factory
      */
     public function definition(): array
     {
+        $types = ['Supplies', 'Equipments', 'Laboratory Access'];
+
         return [
             'id' => $this->faker->uuid(),
-            'request_type' => $this->faker->randomElement(['Supply', 'Equipment', 'Full Access']),
+            'request_type' => $this->faker->randomElements($types, rand(1, 2)),
             'request_details' => $this->faker->sentence(),
             'request_purpose' => $this->faker->sentence(),
             'project_title' => $this->faker->sentence(),

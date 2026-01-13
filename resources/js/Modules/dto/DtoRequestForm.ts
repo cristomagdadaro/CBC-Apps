@@ -2,7 +2,7 @@ import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
 import DtoRequester from "@/Modules/dto/DtoRequester";
 
 export default class DtoRequestForm extends DtoBaseClass implements IRequestForm {
-    request_type: string;
+    request_type: Array<string> | string;
     request_details: string;
     request_purpose: string;
     project_title: string;
@@ -17,7 +17,7 @@ export default class DtoRequestForm extends DtoBaseClass implements IRequestForm
     constructor(data: any) {
         super(data);
 
-        this.request_type = data?.request_type;
+        this.request_type = data?.request_type ?? [];
         this.request_details = data?.request_details;
         this.request_purpose = data?.request_purpose;
         this.project_title = data?.project_title;

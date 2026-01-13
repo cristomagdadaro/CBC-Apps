@@ -30,15 +30,19 @@ class CreateLabRequest extends FormRequest
             'phone' => ['required', 'string', 'max:255'],
 
             //lab request form
-            'request_type' => ['required', 'string', 'max:255'],
+            'request_type' => ['required', 'array', 'min:1'],
+            'request_type.*' => ['string', 'max:255'],
             'request_details' => ['required', 'string', 'max:255'],
             'request_purpose' => ['required', 'string', 'max:255'],
             'project_title' => ['required', 'string', 'max:255'],
             'date_of_use' => ['required', 'date'],
             'time_of_use' => ['required', 'string', 'max:255'],
-            'labs_to_use' => ['required', 'string', 'max:255'],
-            'equipments_to_use' => ['required', 'string', 'max:255'],
-            'consumables_to_use' => ['required', 'string', 'max:255'],
+            'labs_to_use' => ['required', 'array', 'min:1'],
+            'labs_to_use.*' => ['string', 'max:255'],
+            'equipments_to_use' => ['required', 'array', 'min:1'],
+            'equipments_to_use.*' => ['string', 'max:255'],
+            'consumables_to_use' => ['required', 'array', 'min:1'],
+            'consumables_to_use.*' => ['string', 'max:255'],
 
             //lab request
             'request_status' => ['required', 'string', 'max:255'],

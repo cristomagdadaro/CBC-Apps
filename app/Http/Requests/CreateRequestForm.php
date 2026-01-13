@@ -22,7 +22,8 @@ class CreateRequestForm extends FormRequest
     public function rules(): array
     {
         return [
-            'request_type' => 'nullable|string',
+            'request_type' => 'nullable|array',
+            'request_type.*' => 'string|in:Supplies,Equipments,Laboratory Access',
             'request_details' => 'nullable|string',
             'request_purpose' => 'required|string',
             'project_title' => 'nullable|string',

@@ -18,11 +18,20 @@ export default {
         classes: String,
         name: String,
         apiLink: String,
+        whitelist: {
+            type: Array,
+            default: () => [],
+        },
+        enforceWhitelist: {
+            type: Boolean,
+            default: false,
+        },
     },
     async mounted() {
         this.tagify = new Tagify(this.$refs.input, {
-            whitelist: [],
-            dropdown: { enabled: 0 },
+            whitelist: this.whitelist,
+            enforceWhitelist: this.enforceWhitelist,
+            dropdown: { enabled: this.whitelist?.length ? 1 : 0 },
         })
 
         // initial value
@@ -37,6 +46,7 @@ export default {
         })
 
         await this.fetchData();
+        this.mergeData();
     },
     watch: {
         modelValue(newVal) {
@@ -45,6 +55,14 @@ export default {
             if (newVal && newVal.length) {
                 this.tagify.addTags(newVal)
             }
+        },
+        whitelist(newVal) {
+            if (!this.tagify) return;
+            const merged = this.normalizeWhitelist(newVal || []);
+            this.tagify.settings.whitelist = merged;
+            this.tagify.settings.dropdown.enabled = merged.length ? 1 : 0;
+            if (this.enforceWhitelist) this.tagify.settings.enforceWhitelist = true;
+            this.apiData = merged;
         }
     },
     data() {
@@ -62,14 +80,50 @@ export default {
                 filter: 'name',
                 per_page: '*',
             }
-            this.apiData = await this.fetchGetApi(this.apiLink, params).then((response) => {
+            const fetched = await this.fetchGetApi(this.apiLink, params).then((response) => {
                 return response.data.map((item) => {
                     return {
-                        value: item.name,
-                        label: item.name,
+                        value: item.label,
+                        label: item.label,
                     }
                 });
             });
+
+            this.mergeData(fetched);
+        },
+        mergeData(fetched = []) {
+            const propList = this.normalizeWhitelist(this.whitelist || []);
+            const fetchedList = this.normalizeWhitelist(fetched);
+
+            const mergedMap = new Map();
+            [...propList, ...fetchedList].forEach(item => {
+                if (item?.value && !mergedMap.has(item.value)) {
+                    mergedMap.set(item.value, item);
+                }
+            });
+
+            const mergedWhitelist = Array.from(mergedMap.values());
+
+            this.tagify.settings.whitelist = mergedWhitelist;
+            this.tagify.settings.dropdown.enabled = mergedWhitelist.length ? 1 : 0;
+            if (this.enforceWhitelist) this.tagify.settings.enforceWhitelist = true;
+
+            this.apiData = mergedWhitelist;
+        },
+        normalizeWhitelist(list) {
+            return (list || [])
+                .map(item => {
+                    if (typeof item === 'string') {
+                        return { value: item, label: item };
+                    }
+                    if (typeof item === 'object' && item !== null) {
+                        const value = item.value ?? item.name ?? item.label;
+                        const label = item.label ?? value;
+                        return value ? { value, label } : null;
+                    }
+                    return null;
+                })
+                .filter(Boolean);
         },
         handleSearch(query) {
             console.log(query);

@@ -41,8 +41,13 @@ class RequestFormPivotController extends BaseController
             ? Requester::findOrFail($data['requester_id'])
             : Requester::create($requesterData);
 
+        $requestTypes = $data['request_type'];
+        if (!is_array($requestTypes)) {
+            $requestTypes = array_filter([$requestTypes]);
+        }
+
         $formData = [
-            'request_type' => $data['request_type'],
+            'request_type' => array_values(array_unique($requestTypes)),
             'request_details' => $data['request_details'] ?? null,
             'request_purpose' => $data['request_purpose'],
             'project_title' => $data['project_title'] ?? null,
