@@ -18,6 +18,7 @@ export default {
     methods: {
         async handleUpdateSuspended() {
             this.form.is_suspended = !this.form.is_suspended;
+            this.form.requirements = [];
             const response = await this.submitUpdate();
             if(!(response instanceof DtoError)) {
                 this.form.is_suspended = response.data.is_suspended;
@@ -34,9 +35,9 @@ export default {
     <div class="flex">
         <!-- Close Form -->
         <form v-if="!!form"
-              @submit.prevent="handleUpdateSuspended"
-              :class="[ 'flex items-center gap-1 text-yellow-900 w-fit px-2 py-1 rounded-l transition', (form.is_suspended || model.api.processing) ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-yellow-400']"
-              title="Temporarily stop accepting responses">
+            @submit.prevent="handleUpdateSuspended"
+            :class="[ 'flex items-center gap-1 text-yellow-900 w-fit px-2 py-1 rounded-l transition', (form.is_suspended || model.api.processing) ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-yellow-400']"
+            title="Temporarily stop accepting responses">
             <button
                 type="submit"
                 :disabled="form.is_suspended || model.api.processing"
@@ -49,9 +50,9 @@ export default {
 
         <!-- Open Form -->
         <form v-if="!!form"
-              @submit.prevent="handleUpdateSuspended"
-              :class="['flex items-center gap-1 text-green-900 w-fit px-2 py-1 rounded-r transition',(!form.is_suspended || model.api.processing)? 'bg-gray-300 text-gray-500 cursor-not-allowed': 'bg-green-400']"
-              title="Reopen to accept responses">
+            @submit.prevent="handleUpdateSuspended"
+            :class="['flex items-center gap-1 text-green-900 w-fit px-2 py-1 rounded-r transition',(!form.is_suspended || model.api.processing)? 'bg-gray-300 text-gray-500 cursor-not-allowed': 'bg-green-400']"
+            title="Reopen to accept responses">
             <button
                 type="submit"
                 :disabled="!form.is_suspended || model.api.processing"

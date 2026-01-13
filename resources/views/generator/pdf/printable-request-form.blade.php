@@ -23,6 +23,7 @@
     $dateGenerated = now();
     $requestId     = $form->id;
 
+    $requesttype = implode(', ', normalizeList($rf->request_type));
     $labs       = implode(', ', normalizeList($rf->labs_to_use));
     $equipments = implode(', ', normalizeList($rf->equipments_to_use));
     $supplies   = implode(', ', normalizeList($rf->consumables_to_use));
@@ -37,7 +38,7 @@
         'bp'      => public_path('imgs/bagong_pilipinas.png'),
     ];
 
-  /*   $logos = [
+/*   $logos = [
         'cbc'     => '/imgs/logo-black.png',
         'overlay' => '/imgs/Overlay.png',
         'da'      => '/imgs/da_bpo.png',
@@ -105,7 +106,7 @@
 
                 <tr class="section-title"><td colspan="4">Request Details</td></tr>
 
-                <tr><td colspan="1"><b>Type</b></td><td colspan="3">{{ $rf->request_type }}</td></tr>
+                <tr><td colspan="1"><b>Type</b></td><td colspan="3">{{ $requesttype }}</td></tr>
                 <tr><td colspan="1"><b>Details</b></td><td colspan="3">{{ $rf->request_details }}</td></tr>
                 <tr><td colspan="1"><b>Purpose</b></td><td colspan="3">{{ $rf->request_purpose }}</td></tr>
                 <tr><td colspan="1"><b>Project</b></td><td colspan="3">{{ $rf->project_title }}</td></tr>

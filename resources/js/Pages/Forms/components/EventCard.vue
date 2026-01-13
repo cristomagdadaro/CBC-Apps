@@ -46,7 +46,7 @@ export default {
         {
             this.confirmDelete = true;
         },
-       async handleDelete()
+        async handleDelete()
         {
             this.toDelete = { event_id : this.formsData.event_id };
             const response = await this.submitDelete();
@@ -123,7 +123,7 @@ export default {
             <transition-container type="slide-right" :duration="1000">
                 <div v-show="formsData.requirements.length" v-if="formsData.requirements.length" class="relative w-full min-w-full gap-2 flex flex-wrap">
                     <span class="font-bold uppercase">Requirements: </span>
-                    <div v-for="data in formsData.requirements" class="w-fit gap-2 flex items-center uppercase font-bold">
+                    <div v-for="data in formsData.requirements" v-bind:key="data.id" class="w-fit gap-2 flex items-center uppercase font-bold">
                         <input type="checkbox" class="rounded-full" :checked="true" disabled>
                         <label>{{ data.form_type }}</label>
                     </div>

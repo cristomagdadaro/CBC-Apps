@@ -36,5 +36,16 @@ export default class DtoRequestFormPivot extends DtoBaseClass implements IReques
         if (data?.request_form) {
             this.requestForm = new DtoRequestForm(data.request_form);
         }
+
+        this.api.setSearchFields({
+            search: null,
+            filter: null,
+            filter_by: null,
+            is_exact: false,
+            page: 1,
+            per_page: 10,
+            sort: 'created_at',
+            order: 'desc'
+        });
     }
 }

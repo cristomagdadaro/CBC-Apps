@@ -101,7 +101,7 @@ export default abstract class ApiService {
     castToModel(response: any, Model: new (data: any) => any) {
         if (!response || !Model) return [];
 
-        const toInstance = (item: any) => (item ? new Model(item) : null);
+        const toInstance = (item: any) => (item ? new Model.constructor(item) : null);
 
         if (Array.isArray(response)) return response.map(toInstance);
 

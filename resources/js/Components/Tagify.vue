@@ -4,6 +4,7 @@ import '@yaireo/tagify/dist/tagify.css';
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Dropdown from "@/Components/Dropdown.vue";
 import DropdownLink from "@/Components/DropdownLink.vue";
+import { toRaw } from 'vue';
 
 export default {
     name: "TagifyInput",
@@ -31,7 +32,7 @@ export default {
         this.tagify = new Tagify(this.$refs.input, {
             whitelist: this.whitelist,
             enforceWhitelist: this.enforceWhitelist,
-            dropdown: { enabled: this.whitelist?.length ? 1 : 0 },
+            dropdown: { enabled: 1 },
         })
 
         // initial value
@@ -45,8 +46,8 @@ export default {
             this.$emit('update:modelValue', value)
         })
 
-        await this.fetchData();
-        this.mergeData();
+        const fetched = await this.fetchData();
+        this.mergeData(fetched);
     },
     watch: {
         modelValue(newVal) {
@@ -74,7 +75,7 @@ export default {
     methods: {
         async fetchData() {
             if (!this.apiLink)
-                return;
+                return [];
 
             const params = {
                 filter: 'name',
@@ -89,20 +90,20 @@ export default {
                 });
             });
 
-            this.mergeData(fetched);
+            return fetched;
         },
         mergeData(fetched = []) {
             const propList = this.normalizeWhitelist(this.whitelist || []);
             const fetchedList = this.normalizeWhitelist(fetched);
 
-            const mergedMap = new Map();
+            const mergedObj = {};
             [...propList, ...fetchedList].forEach(item => {
-                if (item?.value && !mergedMap.has(item.value)) {
-                    mergedMap.set(item.value, item);
+                if (item?.value && !mergedObj[item.value]) {
+                    mergedObj[item.value] = item;
                 }
             });
 
-            const mergedWhitelist = Array.from(mergedMap.values());
+            const mergedWhitelist = Object.values(mergedObj);
 
             this.tagify.settings.whitelist = mergedWhitelist;
             this.tagify.settings.dropdown.enabled = mergedWhitelist.length ? 1 : 0;
@@ -110,6 +111,7 @@ export default {
 
             this.apiData = mergedWhitelist;
         },
+
         normalizeWhitelist(list) {
             return (list || [])
                 .map(item => {
