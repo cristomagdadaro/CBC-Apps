@@ -8,6 +8,7 @@ use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\SuppEquipReportController;
 use App\Http\Controllers\TransactionController;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -90,6 +91,14 @@ Route::middleware(['api','auth:sanctum','verified'])->group(function () {
             Route::put('/{id?}', [TransactionController::class, 'update'])->name('api.inventory.transactions.update');
             Route::get('/generate-barcode/{room?}', [TransactionController::class, 'generateUniqueBarcode128ID'])->name('api.inventory.transactions.genbarcode');
             Route::put('/outgoingStore/{id?}', [TransactionController::class, 'outgoingStockStore'])->name('api.inventory.transactions.outgoing');
+        });
+
+        Route::prefix('supp-equip-reports')->group(function () {
+            Route::get('/', [SuppEquipReportController::class, 'index'])->name('api.inventory.supp_equip_reports.index');
+            Route::get('/templates', [SuppEquipReportController::class, 'templates'])->name('api.inventory.supp_equip_reports.templates');
+            Route::post('/', [SuppEquipReportController::class, 'store'])->name('api.inventory.supp_equip_reports.store');
+            Route::put('/{id?}', [SuppEquipReportController::class, 'update'])->name('api.inventory.supp_equip_reports.update');
+            Route::delete('/{id?}', [SuppEquipReportController::class, 'destroy'])->name('api.inventory.supp_equip_reports.destroy');
         });
 
         Route::prefix('items')->group(function () {

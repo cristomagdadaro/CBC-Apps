@@ -152,6 +152,14 @@ Route::middleware([
             })->name('forms.update');
         });
 
+        Route::prefix('supply-equipment-reports')->group(function () {
+            Route::get('/', function () {
+                return Inertia::render('Inventory/SuppEquipReports/SuppEquipReportsIndex', [
+                    'reportTemplates' => config('suppequipreportforms'),
+                ]);
+            })->name('suppEquipReports.index');
+        });
+
         Route::prefix('access-use-requests')->group(function () {
             Route::get('/', function () {
                 return Inertia::render('LabRequest/AccessUseRequestsIndex');

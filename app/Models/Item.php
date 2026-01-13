@@ -63,4 +63,9 @@ class Item extends BaseModel
     {
         return $this->belongsTo(Supplier::class, 'supplier_id', 'id');
     }
+
+    public function reports(): HasMany
+    {
+        return $this->hasMany(SuppEquipReport::class, 'item_id', 'id');
+    }
 }

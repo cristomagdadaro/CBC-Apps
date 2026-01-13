@@ -40,7 +40,7 @@ const services = [
         label: 'Inventory Management',
         href: 'forms.index',
         children: [
-        {
+            {
                 label: 'Transactions',
                 href: 'transactions.index'
             },{
@@ -54,6 +54,9 @@ const services = [
                 href: 'personnels.index'
             }
         ]
+    },{
+        label: 'Supplies and Equipment Reports',
+        href: 'suppEquipReports.index',
     },
 ]
 </script>

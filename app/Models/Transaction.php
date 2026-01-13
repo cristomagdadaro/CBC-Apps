@@ -6,6 +6,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Transaction extends BaseModel
@@ -67,5 +68,10 @@ class Transaction extends BaseModel
     public function personnel()
     {
         return$this->belongsTo(Personnel::class, 'personnel_id', 'id');
+    }
+
+    public function reports(): HasMany
+    {
+        return $this->hasMany(SuppEquipReport::class, 'transaction_id', 'id');
     }
 }

@@ -167,10 +167,12 @@ export default {
                     Object.keys(dto.data.errors).forEach(key => {
                         const message = dto.data.errors[key].join('');
                         this.form.setError(key, message);
-                        if (key.startsWith('response_data.')) {
-                            const shortKey = key.replace('response_data.', '');
-                            this.form.setError(shortKey, message);
-                        }
+                        ['response_data.', 'report_data.'].forEach(prefix => {
+                            if (key.startsWith(prefix)) {
+                                const shortKey = key.replace(prefix, '');
+                                this.form.setError(shortKey, message);
+                            }
+                        });
                     })
                 }
 
