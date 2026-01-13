@@ -16,6 +16,7 @@ import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import TagifyInput from "@/Components/Tagify.vue";
 import ProgressTabs from "@/Components/ProgressTabs.vue";
 import Personnel from "@/Pages/Inventory/Personnel/components/model/Personnel";
+import SuccessModal from "@/Components/SuccessModal.vue";
 
 export default {
     name: "RequesterGuestCard",
@@ -23,6 +24,7 @@ export default {
         TagifyInput,
         SubmitBtn, TimeInput, TransitionContainer, DropdownLink, InputError, Dropdown, CustomDropdown, TextInput, DateInput,
         ProgressTabs,
+        SuccessModal,
     },
     mixins: [ApiMixin, FormLocalMixin, DataFormatterMixin],
     data() {
@@ -56,25 +58,26 @@ export default {
                 "Consultants Room",
                 "Prayer Room"
             ],
-            // Progress tabs
             steps: [
-                'Request Type',
-                'Requestor Info',
-                'Request Details',
-                'Supplies',
-                'Equipments',
-                'Laboratory Facilities',
-                'Terms & Conditions',
+                { key: 'request_type', label: 'Request Type' },
+                { key: 'requestor', label: 'Requestor Info' },
+                { key: 'details', label: 'Request Details' },
+                { key: 'supplies', label: 'Supplies' },
+                { key: 'equipments', label: 'Equipments' },
+                { key: 'labs', label: 'Laboratory Facilities' },
+                { key: 'terms', label: 'Terms & Conditions' },
             ],
             currentStep: 0,
             clientErrors: {},
+            showSuccessModal: false,
+            successMessage: 'Your request has been submitted successfully.',
         };
     },
     methods: {
         async handleCreate() {
             const response = await this.submitCreate();
             if (response instanceof DtoResponse) {
-                console.log(response);
+                this.showSuccessModal = true;
                 this.$emit('createdModel', response);
             }
         },
@@ -126,18 +129,19 @@ export default {
             const required = (field, label) => {
                 if (!f[field]) this.clientErrors[field] = `${label} is required`;
             };
-            if (index === 0) {
+            const stepKey = this.filteredSteps[index]?.key;
+            if (stepKey === 'request_type') {
                 required('request_type', 'Request type');
-            } else if (index === 1) {
+            } else if (stepKey === 'requestor') {
                 required('name', 'Full name');
                 required('affiliation', 'Affiliation');
                 required('phone', 'Contact number');
                 required('email', 'Email');
-            } else if (index === 2) {
+            } else if (stepKey === 'details') {
                 required('request_purpose', 'Request purpose');
                 required('date_of_use', 'Date of use');
                 required('time_of_use', 'Time of use');
-            } else if (index === 6) {
+            } else if (stepKey === 'terms') {
                 if (!f.agreed_clause_1) this.clientErrors['agreed_clause_1'] = 'You must agree to this clause';
                 if (!f.agreed_clause_2) this.clientErrors['agreed_clause_2'] = 'You must agree to this clause';
                 if (!f.agreed_clause_3) this.clientErrors['agreed_clause_3'] = 'You must agree to this clause';
@@ -146,13 +150,14 @@ export default {
         },
         nextStep() {
             if (this.validateStep(this.currentStep)) {
-                this.currentStep = Math.min(this.currentStep + 1, this.steps.length - 1);
+                this.currentStep = Math.min(this.currentStep + 1, this.filteredSteps.length - 1);
             }
         },
         prevStep() {
             this.currentStep = Math.max(this.currentStep - 1, 0);
         },
         handleStepChange(target) {
+            if (target < 0 || target >= this.filteredSteps.length) return;
             if (target <= this.currentStep) {
                 this.currentStep = target;
                 return;
@@ -169,6 +174,32 @@ export default {
             return this.clientErrors[field] || this.form?.errors?.[field] || '';
         },
     },
+    computed: {
+        filteredSteps() {
+            const type = this.form?.request_type;
+            return this.steps.filter(step => {
+                if (['request_type', 'requestor', 'details', 'terms'].includes(step.key)) return true;
+                if (step.key === 'supplies') return type === 'Supplies';
+                if (step.key === 'equipments') return type === 'Equipments';
+                if (step.key === 'labs') return type === 'Laboratory Access' || type === 'Event Halls Access';
+                return false;
+            });
+        },
+        stepLabels() {
+            return this.filteredSteps.map(s => s.label);
+        },
+        currentStepKey() {
+            return this.filteredSteps[this.currentStep]?.key;
+        }
+    },
+    watch: {
+        'form.request_type'() {
+            if (this.currentStep >= this.filteredSteps.length) {
+                this.currentStep = this.filteredSteps.length - 1;
+            }
+            if (this.currentStep < 0) this.currentStep = 0;
+        }
+    },
     beforeMount() {
         this.model = new RequestFormPivot();
         this.setFormAction('create');
@@ -178,12 +209,18 @@ export default {
 
 <template>
     <div class="border p-2 md:rounded-md flex flex-col gap-2 bg-white w-full drop-shadow-lg">
+        <SuccessModal
+            :show="showSuccessModal"
+            title="Request submitted"
+            :message="successMessage"
+            @close="showSuccessModal = false"
+        />
         <div class="px-2 pt-4 overflow-x-auto">
-            <ProgressTabs :steps="steps" :current="currentStep" @update:current="handleStepChange" />
+            <ProgressTabs :steps="stepLabels" :current="currentStep" @update:current="handleStepChange" />
         </div>
         <form v-if="form" @submit.prevent="handleCreate()" class="px-2 py-0  md:rounded-md flex flex-col gap-4 bg-white">
             <!-- Step 0: Request Type -->
-            <div v-show="currentStep === 0" class="flex flex-col gap-2 w-full">
+            <div v-show="currentStepKey === 'request_type'" class="flex flex-col gap-2 w-full">
                 <div class="w-full relative">
                     <h2 class="flex justify-between items-center">
                         <span class="font-bold uppercase">Request Type:<b class="text-red-500 select-none">*</b></span>
@@ -207,16 +244,16 @@ export default {
                                     <div class="flex items-center gap-1">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-boxes text-blue-300" viewBox="0 0 16 16">
                                             <path d="M7.752.066a.5.5 0 0 1 .496 0l3.75 2.143a.5.5 0 0 1 .252.434v3.995l3.498 2A.5.5 0 0 1 16 9.07v4.286a.5.5 0 0 1-.252.434l-3.75 2.143a.5.5 0 0 1-.496 0l-3.502-2-3.502 2.001a.5.5 0 0 1-.496 0l-3.75-2.143A.5.5 0 0 1 0 13.357V9.071a.5.5 0 0 1 .252-.434L3.75 6.638V2.643a.5.5 0 0 1 .252-.434zM4.25 7.504 1.508 9.071l2.742 1.567 2.742-1.567zM7.5 9.933l-2.75 1.571v3.134l2.75-1.571zm1 3.134 2.75 1.571v-3.134L8.5 9.933zm.508-3.996 2.742 1.567 2.742-1.567-2.742-1.567zm2.242-2.433V3.504L8.5 5.076V8.21zM7.5 8.21V5.076L4.75 3.504v3.134zM5.258 2.643 8 4.21l2.742-1.567L8 1.076zM15 9.933l-2.75 1.571v3.134L15 13.067zM3.75 14.638v-3.134L1 9.933v3.134z"/>
-                                    </svg>
-                                    <span>Request for Supplies</span>
+                                        </svg>
+                                    <span class="leading-none">Request for Supplies</span>
                                     </div>
                                 </DropdownLink>
                                 <DropdownLink as="button" @click.prevent="form.request_type = 'Equipments'" @click="form.clearErrors('request_type')">
                                     <div class="flex items-center gap-1">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pc-display-horizontal text-red-300" viewBox="0 0 16 16">
                                             <path d="M1.5 0A1.5 1.5 0 0 0 0 1.5v7A1.5 1.5 0 0 0 1.5 10H6v1H1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-5v-1h4.5A1.5 1.5 0 0 0 16 8.5v-7A1.5 1.5 0 0 0 14.5 0zm0 1h13a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-7a.5.5 0 0 1 .5-.5M12 12.5a.5.5 0 1 1 1 0 .5.5 0 0 1-1 0m2 0a.5.5 0 1 1 1 0 .5.5 0 0 1-1 0M1.5 12h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M1 14.25a.25.25 0 0 1 .25-.25h5.5a.25.25 0 1 1 0 .5h-5.5a.25.25 0 0 1-.25-.25"/>
-                                    </svg>
-                                    <span>Request for Equipments</span>
+                                        </svg>
+                                    <span class="leading-none">Request for Equipments</span>
                                     </div>
                                 </DropdownLink>
                                 <DropdownLink as="button" @click.prevent="form.request_type = 'Laboratory Access'" @click="form.clearErrors('request_type')">
@@ -224,7 +261,7 @@ export default {
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-key-fill text-yellow-300" viewBox="0 0 16 16">
                                             <path d="M3.5 11.5a3.5 3.5 0 1 1 3.163-5H14L15.5 8 14 9.5l-1-1-1 1-1-1-1 1-1-1-1 1H6.663a3.5 3.5 0 0 1-3.163 2M2.5 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
                                         </svg>
-                                        <span>Laboratory Access Request</span>
+                                        <span class="leading-none">Laboratory Access Request</span>
                                     </div>
                                 </DropdownLink>
                                 <DropdownLink as="button" @click.prevent="form.request_type = 'Event Halls Access'" @click="form.clearErrors('request_type')">
@@ -232,7 +269,7 @@ export default {
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-buildings-fill" viewBox="0 0 16 16">
                                             <path d="M15 .5a.5.5 0 0 0-.724-.447l-8 4A.5.5 0 0 0 6 4.5v3.14L.342 9.526A.5.5 0 0 0 0 10v5.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5V14h1v1.5a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5zM2 11h1v1H2zm2 0h1v1H4zm-1 2v1H2v-1zm1 0h1v1H4zm9-10v1h-1V3zM8 5h1v1H8zm1 2v1H8V7zM8 9h1v1H8zm2 0h1v1h-1zm-1 2v1H8v-1zm1 0h1v1h-1zm3-2v1h-1V9zm-1 2h1v1h-1zm-2-4h1v1h-1zm3 0v1h-1V7zm-2-2v1h-1V5zm1 0h1v1h-1z"/>
                                         </svg>
-                                        <span>Event Halls Access Request</span>
+                                        <span class="leading-none">Event Halls Access Request</span>
                                     </div>
                                 </DropdownLink>
                             </div>
@@ -242,7 +279,7 @@ export default {
             </div>
 
             <!-- Step 1: Requestor Information -->
-            <div v-show="currentStep === 1" class="flex flex-col gap-2">
+            <div v-show="currentStepKey === 'requestor'" class="flex flex-col gap-2">
                 <h2>
                     <span class="font-bold uppercase">Requestor Information: </span>
                 </h2>
@@ -267,11 +304,11 @@ export default {
             </div>
 
             <!-- Step 2: Request Form Details -->
-            <div v-show="currentStep === 2" class="flex flex-col gap-2">
+            <div v-show="currentStepKey === 'details'" class="flex flex-col gap-2">
                 <span class="font-bold uppercase">Request Form: </span>
                 <TextInput id="request_purpose" v-model="form.request_purpose" required type="text" :error="errMsg('request_purpose')" label="Purpose of Request" placeholder="Reason or purpose of your request" autocomplete="request_purpose" @input="form.clearErrors('request_purpose')" />
-                <TextInput id="request_details" v-model="form.request_details" type="text" :error="form.errors.request_details" label="Request Details" placeholder="If applicable" autocomplete="request_details" @input="form.clearErrors('request_details')" />
-                <TextInput id="project_title" v-model="form.project_title" type="text" :error="form.errors.project_title" label="Project Title" placeholder="If project related request" autocomplete="project_title" @input="form.clearErrors('project_title')" />
+                <TextInput id="request_details" v-model="form.request_details" type="text" :error="form.errors.request_details" label="Special Request or Instructions" placeholder="If applicable" autocomplete="request_details" @input="form.clearErrors('request_details')" />
+                <TextInput id="project_title" v-model="form.project_title" type="text" :error="form.errors.project_title" label="Project Title" placeholder="Research or Thesis Title" autocomplete="project_title" @input="form.clearErrors('project_title')" />
                 <div class="flex gap-2">
                     <DateInput id="date_of_use" v-model="form.date_of_use" required type="text" :error="errMsg('date_of_use')" label="Date of Use" autocomplete="date_of_use" @input="form.clearErrors('date_of_use')" />
                     <TimeInput id="time_of_use" v-model="form.time_of_use" required type="text" :error="errMsg('time_of_use')" label="Time of Use" autocomplete="time_of_use" @input="form.clearErrors('time_of_use')" />
@@ -279,24 +316,23 @@ export default {
             </div>
 
             <!-- Step 3: Supplies -->
-            <div v-show="currentStep === 3" class="flex flex-col gap-2">
+            <div v-show="currentStepKey === 'supplies'" class="flex flex-col gap-2">
                 <h2>
                     <span class="font-bold uppercase">Supplies: </span><span class="text-sm">Type to SEARCH and press ENTER select</span>
                 </h2>
-
                 <TagifyInput v-model="form.consumables_to_use" name="consumables_to_use" placeholder="Select available supplies" api-link="api.inventory.items.public" />
             </div>
 
             <!-- Step 4: Equipments -->
-            <div v-show="currentStep === 4" class="flex flex-col gap-2">
+            <div v-show="currentStepKey === 'equipments'" class="flex flex-col gap-2">
                 <h2>
                     <span class="font-bold uppercase">Equipments: </span><span class="text-sm">Type to SEARCH and press ENTER select</span>
                 </h2>
-                <TagifyInput v-model="form.equipments_to_use" name="labs_to_use" placeholder="Select available laboratory facilities" api-link="api.inventory.equipments.public" />
+                <TagifyInput v-model="form.equipments_to_use" name="equipments_to_use" placeholder="Select available laboratory facilities" api-link="api.inventory.equipments.public" />
             </div>
 
             <!-- Step 5: Laboratory Facilities -->
-            <div v-show="currentStep === 5" class="flex flex-col gap-2">
+            <div v-show="currentStepKey === 'labs'" class="flex flex-col gap-2">
                 <h2>
                     <span class="font-bold uppercase">Laboratory Facilities: </span><span class="text-sm">Type to SEARCH and press ENTER select</span>
                 </h2>
@@ -304,7 +340,7 @@ export default {
             </div>
 
             <!-- Step 6: Terms & Conditions -->
-            <div v-show="currentStep === 6" class="flex flex-col gap-3 text-sm leading-tight text-justify">
+            <div v-show="currentStepKey === 'terms'" class="flex flex-col gap-3 text-sm leading-tight text-justify">
                 <h2>
                     <span class="font-bold uppercase">Terms & Conditions: </span>
                 </h2>
@@ -332,7 +368,7 @@ export default {
             <div class="flex items-center justify-between pt-2">
                 <button type="button" class="px-3 py-2 rounded border text-sm text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" :disabled="currentStep === 0" @click="prevStep">Back</button>
                 <div class="flex items-center gap-2">
-                    <button v-if="currentStep < steps.length - 1" type="button" class="px-3 py-2 rounded bg-blue-600 text-white text-sm hover:bg-blue-700" @click="nextStep">Next</button>
+                    <button v-if="currentStep < filteredSteps.length - 1" type="button" class="px-3 py-2 rounded bg-blue-600 text-white text-sm hover:bg-blue-700" @click="nextStep">Next</button>
                     <submit-btn v-else :disabled="model.api.processing" :processing="model.api.processing">
                         <span v-if="!model.api.processing">Register</span>
                         <span v-else>Registering</span>
