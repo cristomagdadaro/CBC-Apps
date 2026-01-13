@@ -22,6 +22,7 @@ import GuestFormPage from "@/Pages/Shared/GuestFormPage.vue";
 import CameraScanner from "@/Components/CameraScanner.vue";
 import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
+import SuccessModal from "@/Components/SuccessModal.vue";
 
 export default {
     name: "OutgoingFormGuest",
@@ -38,6 +39,7 @@ export default {
         ArrowLeft,
         ArrowRight,
         SearchBtn,
+        SuccessModal,
         RequesterGuestCard, TransitionContainer, TransactionHeaderAction, AppLayout, SearchComp, Head},
     mixins: [ApiMixin],
     props: {
@@ -59,6 +61,8 @@ export default {
             outgoingFromApi: null,
             delayReady: false,
             processing: false,
+            showSuccessModal: false,
+            successMessage: 'Your transaction has been recorded.',
         }
     },
     beforeMount() {
@@ -117,6 +121,7 @@ export default {
         },
         async closeForm() {
             await this.searchEvent();
+            this.showSuccessModal = true;
             this.showModel = false;
             this.selectedItem = null;
             this.resetForm();
@@ -145,6 +150,12 @@ export default {
 
 <template>
     <Head title="Outgoing Form" />
+    <SuccessModal
+        :show="showSuccessModal"
+        title="Transaction Recorded"
+        :message="successMessage"
+        @close="showSuccessModal = false"
+    />
 
     <guest-form-page
         :title="'Outgoing Inventory Form'"
