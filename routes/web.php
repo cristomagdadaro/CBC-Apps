@@ -229,7 +229,11 @@ Route::middleware([
                     if (!$transaction) return redirect()->route('transactions.index');
 
                     $attachedReports = $transaction->reports()
-                        ->with(['user:id,name'])
+                        ->with([
+                            'user:id,name',
+                            'item:id,name,brand',
+                            'transaction:id,barcode',
+                        ])
                         ->orderByDesc('reported_at')
                         ->orderByDesc('created_at')
                         ->get();
