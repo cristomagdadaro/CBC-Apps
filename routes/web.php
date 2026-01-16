@@ -154,10 +154,14 @@ Route::middleware([
 
         Route::prefix('supply-equipment-reports')->group(function () {
             Route::get('/', function () {
-                return Inertia::render('Inventory/SuppEquipReports/SuppEquipReportsIndex', [
+                return Inertia::render('Inventory/SuppEquipReports/SuppEquipReportsIndex');
+            })->name('suppEquipReports.index');
+
+            Route::get('/create', function () {
+                return Inertia::render('Inventory/SuppEquipReports/SuppEquipReportsCreate', [
                     'reportTemplates' => config('suppequipreportforms'),
                 ]);
-            })->name('suppEquipReports.index');
+            })->name('suppEquipReports.create');
         });
 
         Route::prefix('access-use-requests')->group(function () {

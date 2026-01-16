@@ -26,7 +26,7 @@ export default {
         :api-response="apiResponse"
         :processing="processing"
         :model="model"
-        :append-actions="false"
-        :enable-export="true"
+        :append-actions="true"
+        :enable-export="false"
     />
 </template>
