@@ -17,14 +17,22 @@ import ApiMixin from "@/Modules/mixins/ApiMixin.js";
 import Transaction from "@/Pages/Inventory/Scan/components/model/Transaction";
 import TextArea from "@/Components/TextArea.vue";
 import DateInput from "@/Components/DateInput.vue";
+import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/presentation/TransactionReportAccordion.vue";
 export default {
     name: "IngoingUpdateForm",
     components: {
         TextArea,
+        TransactionReportAccordion,
         ResetBtn, AppLayout, TextInput, SubmitBtn, PersonnelHeaderActions, DateInput,
         LoaderIcon,
         PrimaryButton,
         SecondaryButton,Link, AddIcon, FilterIcon, CustomDropdown, Head},
+    props: {
+        attachedReports: {
+            type: Array,
+            default: () => [],
+        },
+    },
     data() {
         return {
             api: null,
@@ -82,6 +90,10 @@ export default {
         },
         selectedStorage() {
             return this.form.barcode.substring(4, 6);
+        },
+        attachedReportsList() {
+            const reports = this.attachedReports ?? this.$page?.props?.attachedReports;
+            return Array.isArray(reports) ? reports : [];
         }
     },
     methods: {
@@ -139,6 +151,10 @@ export default {
                     <h2 class="font-bold uppercase leading-none py-2 mb-1 border-b">Update Incoming Transaction Details</h2>
                     <p>Please use this form to update details of an incoming transaction.</p>
                 </div>
+                <transaction-report-accordion
+                    class="w-full"
+                    :reports="attachedReportsList"
+                />
                 <div class="flex flex-col gap-2 mx-auto w-full">
                     <div class="flex flex-row gap-2 h-fit">
                         <custom-dropdown

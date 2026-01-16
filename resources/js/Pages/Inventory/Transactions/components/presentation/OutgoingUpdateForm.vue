@@ -12,15 +12,21 @@ import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
 import BaseResponse from "@/Components/DataTable/domain/BaseResponse";
 import ErrorResponse from "@/Components/DataTable/domain/ErrorResponse";
 import TextArea from "@/Components/TextArea.vue";
+import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/presentation/TransactionReportAccordion.vue";
 
 export default {
     name: "OutgoingUpdateForm",
     components: {
         TextArea,
+        TransactionReportAccordion,
         CancelBtn, SubmitBtn, TextInput, TransactionHeaderAction, AppLayout, CustomDropdown, FilterIcon, Head},
     props: {
         data: Object,
-        summary: Object
+        summary: Object,
+        attachedReports: {
+            type: Array,
+            default: () => [],
+        }
     },
     data() {
         return {
@@ -43,6 +49,9 @@ export default {
                     label: this.fullName(personnel),
                 }
             });
+        },
+        reportsList() {
+            return Array.isArray(this.attachedReports) ? this.attachedReports : [];
         },
     },
     methods: {
@@ -122,6 +131,10 @@ export default {
                     </div>
                 </div>
                 <div class="flex flex-col sm:gap-3 gap-1 sm:p-3 p-1 rounded">
+                    <transaction-report-accordion
+                        class="w-full mb-3"
+                        :reports="reportsList"
+                    />
                     <form @submit.prevent="submit" class="flex flex-col gap-3">
                         <custom-dropdown
                             required

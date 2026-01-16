@@ -227,6 +227,12 @@ Route::middleware([
                 Route::get('/{id}', function () {
                     $transaction = Transaction::find(request()->route('id'));
                     if (!$transaction) return redirect()->route('transactions.index');
+
+                    $attachedReports = $transaction->reports()
+                        ->with(['user:id,name'])
+                        ->orderByDesc('reported_at')
+                        ->orderByDesc('created_at')
+                        ->get();
                     
                     if($transaction->transac_type === Inventory::INCOMING->value){
                         return Inertia::render('Inventory/Transactions/components/presentation/IncomingUpdateForm', [
@@ -235,6 +241,7 @@ Route::middleware([
                             'fromUrl' => route('transactions.index'),
                             'storage_locations' => config('system.storage_locations'),
                             'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
+                            'attachedReports' => $attachedReports,
                         ]);
                     } else {
                         return Inertia::render('Inventory/Transactions/components/presentation/OutgoingUpdateForm', [
@@ -266,6 +273,7 @@ Route::middleware([
                                 ->first(),
                             'fromUrl' => route('transactions.index'),
                             'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
+                            'attachedReports' => $attachedReports,
                         ]);
                     }
                 })->name('transactions.show');
