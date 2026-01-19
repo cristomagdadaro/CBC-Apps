@@ -24,7 +24,7 @@ Scope: Backend (Laravel) + Frontend (Vue/Inertia)
 **Why this violates:** Repository-based modeling expects controllers to delegate data access to repositories/services.
 **Needed action:** Move data access to dedicated repository/service methods and call them from the controller.
 
-### BE-02: Direct model factories and DB transaction in controller
+### BE-02: Direct model factories and DB transaction in controller - ok na
 **Location:** app/Http/Controllers/EventSubformController.php
 **Observation:** Creates `Participant` and `Registration` via factories inside controller with `DB::transaction()`.
 **Why this violates:** Business workflow in controller bypasses repository/service orchestration.
