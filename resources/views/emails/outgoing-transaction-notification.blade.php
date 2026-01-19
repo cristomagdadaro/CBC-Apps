@@ -60,7 +60,7 @@
                     </tr>
                     <tr>
                         <td style="padding:16px 24px; border-top:1px solid #eef2f7; font-size:12px; color:#94a3b8;">
-                            This is an automated notification from CrAPPs Center.
+                            This is an automated notification from {{ env('APP_NAME') }}.
                         </td>
                     </tr>
                 </table>
