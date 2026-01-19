@@ -60,7 +60,7 @@ Scope: Backend (Laravel) + Frontend (Vue/Inertia)
 **Why this violates:** Repository/service should handle data enrichment and domain rules.
 **Needed action:** Move enrichment to report service or repository method.
 
-### BE-08: Complex query and filtering built in controller
+### BE-08: Complex query and filtering built in controller - ok na
 **Location:** app/Http/Controllers/TransactionController.php
 **Observation:** Builds a multi-join, aggregate query with filter logic inside controller (`remainingStocks`).
 **Why this violates:** Query building should live in repository/service/pipeline for reuse and maintainability.
