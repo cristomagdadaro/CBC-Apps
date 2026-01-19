@@ -72,17 +72,6 @@ class TransactionController extends BaseController
 
     public function outgoingStockStore(NewOutgoingRequest $request): Model | JsonResponse
     {
-        $validated = $request->validated();
-
-        if (empty($validated['user_id']) && !empty($validated['employee_id'])) {
-            $user = User::where('employee_id', $validated['employee_id'])->first();
-            if ($user) {
-                $validated['user_id'] = $user->id;
-                $validated['personnel_id'] = $user->id;
-            }
-        }
-
-        $validated['id'] = (string) Str::uuid();
-        return $this->service->create($validated);
+        return $this->repo()->createOutgoingWithPipeline($request->validated());
     }
 }

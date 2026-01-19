@@ -6,6 +6,10 @@ use App\Models\Requester;
 use App\Models\RequestFormPivot;
 use App\Models\UseRequestForm;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pipeline\Pipeline;
+use Illuminate\Support\Facades\DB;
+use App\Pipelines\RequestApproval\PrepareApprovalPayload;
+use App\Pipelines\RequestApproval\PersistApproval;
 
 class RequestFormPivotRepo extends AbstractRepoService
 {
@@ -86,5 +90,25 @@ class RequestFormPivotRepo extends AbstractRepoService
             ->findOrFail($id);
 
         return $record;
+    }
+
+    public function updateApprovalWithPipeline(string $id, array $validated): Model
+    {
+        return DB::transaction(function () use ($id, $validated) {
+            $model = $this->model->findOrFail($id);
+
+            $context = app(Pipeline::class)
+                ->send([
+                    'model' => $model,
+                    'validated' => $validated,
+                ])
+                ->through([
+                    PrepareApprovalPayload::class,
+                    PersistApproval::class,
+                ])
+                ->thenReturn();
+
+            return $context['model'];
+        });
     }
 }

@@ -4,6 +4,11 @@ namespace App\Repositories;
 
 use App\Models\Transaction;
 use Illuminate\Support\Collection;
+use Illuminate\Pipeline\Pipeline;
+use App\Pipelines\InventoryTransaction\ResolveUserByEmployeeId;
+use App\Pipelines\InventoryTransaction\AssignTransactionUuid;
+use App\Pipelines\InventoryTransaction\PersistTransaction;
+use Illuminate\Database\Eloquent\Model;
 
 class TransactionRepo extends AbstractRepoService
 {
@@ -117,5 +122,23 @@ class TransactionRepo extends AbstractRepoService
         }
 
         return new Collection($data);
+    }
+
+    public function createOutgoingWithPipeline(array $validated): Model
+    {
+        $context = app(Pipeline::class)
+            ->send([
+                'repo' => $this,
+                'payload' => $validated,
+                'model' => null,
+            ])
+            ->through([
+                ResolveUserByEmployeeId::class,
+                AssignTransactionUuid::class,
+                PersistTransaction::class,
+            ])
+            ->thenReturn();
+
+        return $context['model'];
     }
 }

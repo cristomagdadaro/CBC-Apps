@@ -34,6 +34,6 @@ class RequestFormPivotController extends BaseController
 
     public function update(UpdateRequestFormPivot $request, $request_pivot_id = null): Model
     {
-        return parent::_update($request_pivot_id, $request);
+        return $this->repo()->updateApprovalWithPipeline($request_pivot_id, $request->validated());
     }
 }
