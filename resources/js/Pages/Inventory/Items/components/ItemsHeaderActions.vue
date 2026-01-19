@@ -15,6 +15,9 @@ export default {
             List of Items
         </Link>
         <div class="flex justify-between items-center">
+            <Link :href="route('inventory.barcodes.print')" class="mr-2 text-sm font-medium text-blue-600 hover:text-blue-800">
+                Print Barcodes
+            </Link>
             <Link :href="route('items.create')">
                 <add-button  title="Register a new Consumable" />
             </Link>

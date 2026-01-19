@@ -55,11 +55,11 @@ export default abstract class ApiService {
         }
     }
 
-    async post(url: string, params?: any) {
+    async post(url: string, params?: any, config?: any) {
         this.processing = true;
         try { console.log(params)
             // @ts-ignore
-            const response = await this.axiosInstance.post(route(url), params);
+            const response = await this.axiosInstance.post(route(url), params, config);
             this.processing = false;
             console.log(response.data);
             return response;

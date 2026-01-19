@@ -47,6 +47,10 @@ export default {
             const api = new ConcreteApiService();
             return await api.getApi(url, params, model);
         },
+        async fetchPostApi(url: string, params?: object, config?: object) {
+            const api = new ConcreteApiService();
+            return await api.post(url, params, config);
+        },
         async submitCreate(toCast: boolean = false, except: string = '') {
             this.form.clearErrors();
             return await this.model.api.postIndex(this.form.data()).then(response => {

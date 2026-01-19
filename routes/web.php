@@ -196,6 +196,15 @@ Route::middleware([
                 }])->name('items.show');
             });
 
+            Route::get('/barcodes/print', function () {
+                return Inertia::render('Inventory/Barcodes/BarcodePrint', [
+                    'fromUrl' => route('items.index'),
+                ]);
+            })->name('inventory.barcodes.print');
+
+            Route::post('/barcodes/pdf', [PDFGeneratorController::class, 'downloadBarcodePdf'])
+                ->name('inventory.barcodes.pdf');
+
             Route::prefix('transactions')->group(function () {
                 Route::get('/', function () {
                     return Inertia::render('Inventory/Transactions/Transactions', [
@@ -205,7 +214,7 @@ Route::middleware([
                 })->name('transactions.index');
 
                 Route::get('/incoming', function () {
-                    return Inertia::render('Inventory/Transactions/components/presentation/Incoming', [
+                    return Inertia::render('Inventory/Transactions/components/Incoming', [
                         'fromUrl' => route('transactions.index'),
                         'items' => Item::get(),
                         'storage_locations' => config('system.storage_locations'),

@@ -43,6 +43,9 @@ const services = [
             {
                 label: 'Transactions',
                 href: 'transactions.index'
+            }, {
+                label: 'Barcode Printing',
+                href: 'inventory.barcodes.print'
             },{
                 label: 'Items',
                 href: 'items.index',

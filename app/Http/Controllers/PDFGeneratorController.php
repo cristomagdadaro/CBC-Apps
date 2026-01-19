@@ -108,6 +108,31 @@ class PDFGeneratorController extends Controller
     }
 
     /**
+     * Generate a PDF of barcode labels (5cm x 3cm per page) from provided SVGs.
+     * Expects a JSON payload with a labels array.
+     */
+    public function downloadBarcodePdf(Request $request)
+    {
+        $validated = $request->validate([
+            'labels' => ['required', 'array', 'min:1'],
+            'labels.*.name' => ['required', 'string'],
+            'labels.*.brand' => ['nullable', 'string'],
+            'labels.*.barcode' => ['required', 'string'],
+            'labels.*.svg' => ['required', 'string'],
+        ]);
+
+        $labels = $validated['labels'];
+
+        $pdf = Pdf::loadView('generator/pdf/barcode-labels', compact('labels'));
+        // 5cm x 3cm label size in points
+        $pdf->setPaper([0, 0, 141.73, 85.04], 'portrait');
+
+        $downloadName = 'barcodes_' . Carbon::now()->format('Ymd_His') . '.pdf';
+
+        return $pdf->download($downloadName);
+    }
+
+    /**
      * Build default filename using Fullname_Datenow_timestamp convention.
      */
     protected function buildDefaultFilename($form): string
