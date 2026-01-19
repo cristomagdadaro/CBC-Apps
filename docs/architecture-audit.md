@@ -48,7 +48,7 @@ Scope: Backend (Laravel) + Frontend (Vue/Inertia)
 **Why this violates:** Data access should be in repository/services for standardization.
 **Needed action:** Move query logic to repository/service methods and inject into controller.
 
-### BE-06: Direct model query in view controller
+### BE-06: Direct model query in view controller - ok na
 **Location:** app/Http/Controllers/LabRequestFormController.php
 **Observation:** Uses `RequestFormPivot` directly to fetch guest view data.
 **Why this violates:** Repository pattern expects data access to pass through repositories.

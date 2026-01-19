@@ -63,4 +63,17 @@ class RequestFormPivotRepo extends AbstractRepoService
 
         return RequestFormPivot::create($pivotData);
     }
+
+    public function getGuestFormById(?string $requestId): ?RequestFormPivot
+    {
+        if (!$requestId) {
+            return null;
+        }
+
+        return $this->model
+            ->newQuery()
+            ->where('id', $requestId)
+            ->with(['requester','request_form'])
+            ->first();
+    }
 }
