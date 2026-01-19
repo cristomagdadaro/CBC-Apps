@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Models\RequestFormPivot;
+use App\Models\Transaction;
 use App\Observers\RequestFormPivotObserver;
+use App\Observers\TransactionObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,5 +32,6 @@ class AppServiceProvider extends ServiceProvider
         if (class_exists(RequestFormPivot::class)) {
             RequestFormPivot::observe(RequestFormPivotObserver::class);
         }
+        Transaction::observe(TransactionObserver::class);
     }
 }
