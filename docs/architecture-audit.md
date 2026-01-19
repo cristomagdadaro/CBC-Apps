@@ -54,7 +54,7 @@ Scope: Backend (Laravel) + Frontend (Vue/Inertia)
 **Why this violates:** Repository pattern expects data access to pass through repositories.
 **Needed action:** Add repository method to fetch pivot with relations and use it here.
 
-### BE-07: Direct query for transaction enrichment
+### BE-07: Direct query for transaction enrichment - ok na
 **Location:** app/Http/Controllers/SuppEquipReportController.php
 **Observation:** Fetches `Transaction::with('item')` directly in controller when building payload.
 **Why this violates:** Repository/service should handle data enrichment and domain rules.
