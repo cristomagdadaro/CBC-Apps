@@ -1,4 +1,4 @@
-import DtoSupplier from "@/Pages/Inventory/Supplier/components/model/DtoSupplier";
+import DtoSupplier from "@/Modules/dto/DtoSupplier";
 
 export default class Supplier extends DtoSupplier {
     constructor(response: DtoSupplier) {

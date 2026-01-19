@@ -1,4 +1,4 @@
-import DtoPersonnel from "@/Pages/Inventory/Personnel/components/model/DtoPersonnel";
+import DtoPersonnel from "@/Modules/dto/DtoPersonnel";
 
 export default class Personnel extends DtoPersonnel {
     constructor(response: DtoPersonnel) {

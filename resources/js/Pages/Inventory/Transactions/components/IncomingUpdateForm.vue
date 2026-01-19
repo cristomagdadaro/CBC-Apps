@@ -14,10 +14,10 @@ import TextInput from "@/Components/TextInput.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import ResetBtn from "@/Components/Buttons/ResetBtn.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin.js";
-import Transaction from "@/Pages/Inventory/Scan/components/model/Transaction";
+import Transaction from "@/Modules/domain/Transaction";
 import TextArea from "@/Components/TextArea.vue";
 import DateInput from "@/Components/DateInput.vue";
-import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/presentation/TransactionReportAccordion.vue";
+import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/TransactionReportAccordion.vue";
 export default {
     name: "IngoingUpdateForm",
     components: {

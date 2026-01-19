@@ -1,6 +1,6 @@
 import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
-import DtoItem from "@/Pages/Inventory/Items/components/model/DtoItem";
-import DtoPersonnel from "@/Pages/Inventory/Personnel/components/model/DtoPersonnel";
+import DtoItem from "@/Modules/dto/DtoItem";
+import DtoPersonnel from "@/Modules/dto/DtoPersonnel";
 import DtoUser from "@/Modules/dto/DtoUser";
 
 export default class DtoTransaction extends DtoBaseClass implements ITransaction{

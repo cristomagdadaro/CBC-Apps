@@ -3,16 +3,16 @@ import {Head} from "@inertiajs/vue3";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
-import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/presentation/TransactionHeaderAction.vue";
+import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
-import Transaction from "@/Pages/Inventory/Scan/components/model/Transaction";
+import Transaction from "@/Modules/domain/Transaction";
 import TextInput from "@/Components/TextInput.vue";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
 import BaseResponse from "@/Modules/DataTable/domain/BaseResponse";
 import ErrorResponse from "@/Modules/DataTable/domain/ErrorResponse";
 import TextArea from "@/Components/TextArea.vue";
-import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/presentation/TransactionReportAccordion.vue";
+import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/TransactionReportAccordion.vue";
 
 export default {
     name: "OutgoingUpdateForm",

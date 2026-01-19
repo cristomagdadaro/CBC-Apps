@@ -1,8 +1,8 @@
 <script>
 import { Head } from "@inertiajs/vue3";
 import AppLayout from "@/Layouts/AppLayout.vue";
-import SuppEquipHeaderActions from "./components/presentation/SuppEquipHeaderActions.vue";
-import SuppEquipReportForm from "@/Pages/Inventory/SuppEquipReports/components/presentation/SuppEquipReportForm.vue";
+import SuppEquipHeaderActions from "./components/SuppEquipHeaderActions.vue";
+import SuppEquipReportForm from "@/Pages/Inventory/SuppEquipReports/components/SuppEquipReportForm.vue";
 
 export default {
     name: "SuppEquipReportsCreate",

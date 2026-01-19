@@ -15,10 +15,10 @@ import PaginateBtn from "@/Components/PaginateBtn.vue";
 import ArrowRight from "@/Components/Icons/ArrowRight.vue";
 import ArrowLeft from "@/Components/Icons/ArrowLeft.vue";
 import ListOfForms from "@/Pages/Forms/components/ListOfForms.vue";
-import OutgoingForm from "@/Pages/Inventory/Transactions/OutgoingForm.vue";
+import OutgoingForm from "@/Pages/Inventory/Transactions/components/OutgoingForm.vue";
 import Personnel from "@/Modules/domain/Personnel.js";
 import TransactionHeaderAction
-    from "@/Pages/Inventory/Transactions/TransactionHeaderAction.vue";
+    from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
 
 export default {
     name: "Outgoing",

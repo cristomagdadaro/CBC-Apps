@@ -15,7 +15,7 @@ import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import TagifyInput from "@/Components/Tagify.vue";
 import ProgressTabs from "@/Components/ProgressTabs.vue";
-import Personnel from "@/Pages/Inventory/Personnel/components/model/Personnel";
+import Personnel from "@/Modules/domain/Personnel";
 import SuccessModal from "@/Components/SuccessModal.vue";
 
 export default {

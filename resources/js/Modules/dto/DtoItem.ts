@@ -1,6 +1,6 @@
 import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
-import DtoSupplier from "@/Pages/Inventory/Supplier/components/model/DtoSupplier";
-import DtoCategory from "@/Pages/Inventory/Items/components/model/DtoCatergory";
+import DtoSupplier from "@/Modules/dto/DtoSupplier";
+import DtoCategory from "@/Modules/interface/DtoCatergory";
 
 export default class DtoItem extends DtoBaseClass implements IItem {
     name: string;

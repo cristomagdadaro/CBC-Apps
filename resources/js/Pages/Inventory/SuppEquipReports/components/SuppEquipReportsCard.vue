@@ -1,5 +1,5 @@
 <script>
-import SuppEquipReportsTable from "@/Pages/Inventory/SuppEquipReports/components/presentation/SuppEquipReportsTable.vue";
+import SuppEquipReportsTable from "@/Pages/Inventory/SuppEquipReports/components/SuppEquipReportsTable.vue";
 
 export default {
     name: "SuppEquipReportsCard",

@@ -1,4 +1,4 @@
-import DtoItem from "@/Pages/Inventory/Items/components/model/DtoItem";
+import DtoItem from "@/Modules/dto/DtoItem";
 
 export default class Item extends DtoItem {
     constructor(response: DtoItem) {

@@ -4,14 +4,14 @@ import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import {Head} from "@inertiajs/vue3";
 import ApiMixin from "@/Modules/mixins/ApiMixin.js";
-import Supplier from "@/Pages/Inventory/Supplier/components/model/Supplier";
+import Supplier from "@/Modules/domain/Supplier";
 import PersonnelHeaderActions from "@/Pages/Inventory/Personnel/components/presentation/PersonnelHeaderActions.vue";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import TextInput from "@/Components/TextInput.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import ResetBtn from "@/Components/Buttons/ResetBtn.vue";
 import TextArea from "@/Components/TextArea.vue";
-import SupplierHeaderActions from "@/Pages/Inventory/Supplier/components/presentation/SupplierHeaderActions.vue";
+import SupplierHeaderActions from "@/Pages/Inventory/Supplier/components/SupplierHeaderActions.vue";
 
 export default {
     name: "EditSupplierForm",

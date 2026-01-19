@@ -1,4 +1,4 @@
-import DtoSuppEquipReport from "@/Pages/Inventory/SuppEquipReports/components/model/DtoSuppEquipReport";
+import DtoSuppEquipReport from "@/Modules/dto/DtoSuppEquipReport";
 
 export default class SuppEquipReport extends DtoSuppEquipReport {
     constructor(response: DtoSuppEquipReport = {} as DtoSuppEquipReport) {

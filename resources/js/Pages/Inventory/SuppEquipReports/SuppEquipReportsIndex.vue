@@ -3,9 +3,9 @@ import {Head} from "@inertiajs/vue3";
 import {markRaw} from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import SearchComp from "@/Components/Search/SearchComp.vue";
-import SuppEquipReport from "@/Pages/Inventory/SuppEquipReports/components/model/SuppEquipReport";
-import SuppEquipReportsCard from "@/Pages/Inventory/SuppEquipReports/components/presentation/SuppEquipReportsCard.vue";
-import SuppEquipHeaderActions from "./components/presentation/SuppEquipHeaderActions.vue";
+import SuppEquipReport from "@/Modules/domain/SuppEquipReport";
+import SuppEquipReportsCard from "@/Pages/Inventory/SuppEquipReports/components/SuppEquipReportsCard.vue";
+import SuppEquipHeaderActions from "./components/SuppEquipHeaderActions.vue";
 
 export default {
     name: "SuppEquipReportsIndex",

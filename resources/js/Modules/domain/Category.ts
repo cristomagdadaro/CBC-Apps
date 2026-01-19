@@ -1,4 +1,4 @@
-import DtoCategory from "@/Pages/Inventory/Items/components/model/DtoCatergory";
+import DtoCategory from "@/Modules/interface/DtoCatergory";
 
 export default class Category extends DtoCategory {
     constructor(response: DtoCategory) {

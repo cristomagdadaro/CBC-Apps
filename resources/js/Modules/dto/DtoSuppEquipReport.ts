@@ -1,6 +1,6 @@
 import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
-import DtoTransaction from "@/Pages/Inventory/Scan/components/model/DtoTransaction";
-import DtoItem from "@/Pages/Inventory/Items/components/model/DtoItem";
+import DtoTransaction from "@/Modules/dto/DtoTransaction";
+import DtoItem from "@/Modules/dto/DtoItem";
 import DtoUser from "@/Modules/dto/DtoUser";
 
 export default class DtoSuppEquipReport extends DtoBaseClass implements ISuppEquipReport {

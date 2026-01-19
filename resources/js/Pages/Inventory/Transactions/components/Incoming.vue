@@ -13,14 +13,14 @@ import { createCanvas } from "canvas";
 import TextInput from "@/Components/TextInput.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin.js";
-import Transaction from "@/Pages/Inventory/Scan/components/model/Transaction";
+import Transaction from "@/Modules/domain/Transaction";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import JsBarcode from "jsbarcode";
 import DateInput from "@/Components/DateInput.vue";
 import TextArea from "@/Components/TextArea.vue";
 import ResetBtn from "@/Components/Buttons/ResetBtn.vue";
 import TransactionHeaderAction
-    from "@/Pages/Inventory/Transactions/components/presentation/TransactionHeaderAction.vue";
+    from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
 
 export default {
     name: "Incoming",

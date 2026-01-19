@@ -1,4 +1,4 @@
-import DtoTransaction from "@/Pages/Inventory/Scan/components/model/DtoTransaction";
+import DtoTransaction from "@/Modules/dto/DtoTransaction";
 import {usePage} from "@inertiajs/vue3";
 
 export default class Transaction extends DtoTransaction {

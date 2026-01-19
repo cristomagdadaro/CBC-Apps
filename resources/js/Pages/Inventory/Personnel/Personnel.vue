@@ -3,7 +3,7 @@ import {Head} from "@inertiajs/vue3";
 import DataTable from "@/Modules/DataTable/presentation/DataTable.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import SearchComp from "@/Components/Search/SearchComp.vue";
-import Personnel from "@/Pages/Inventory/Personnel/components/model/Personnel";
+import Personnel from "@/Modules/domain/Personnel";
 import PersonnelHeaderActions from "@/Pages/Inventory/Personnel/components/presentation/PersonnelHeaderActions.vue";
 
 export default {

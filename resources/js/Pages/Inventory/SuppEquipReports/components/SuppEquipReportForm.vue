@@ -1,7 +1,7 @@
 <script>
 import ApiMixin from "@/Modules/mixins/ApiMixin";
-import SuppEquipReport from "@/Pages/Inventory/SuppEquipReports/components/model/SuppEquipReport";
-import Transaction from "@/Pages/Inventory/Scan/components/model/Transaction";
+import SuppEquipReport from "@/Modules/domain/SuppEquipReport";
+import Transaction from "@/Modules/domain/Transaction";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import TextInput from "@/Components/TextInput.vue";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
