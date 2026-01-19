@@ -42,7 +42,7 @@ Scope: Backend (Laravel) + Frontend (Vue/Inertia)
 **Why this violates:** Repository pattern expects creation and orchestration to be within repositories/services.
 **Needed action:** Introduce a request-form service to encapsulate the create flow and reuse in controller.
 
-### BE-05: Direct model queries for view data
+### BE-05: Direct model queries for view data - ok na
 **Location:** app/Http/Controllers/InventoryFormController.php
 **Observation:** Uses `Category::select(...)` and `Personnel::all()` directly for Inertia view.
 **Why this violates:** Data access should be in repository/services for standardization.

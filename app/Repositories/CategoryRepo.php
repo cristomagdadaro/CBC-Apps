@@ -10,4 +10,13 @@ class CategoryRepo extends AbstractRepoService
     {
         parent::__construct($model);
     }
+
+    public function getInventoryFormCategories()
+    {
+        return $this->model
+            ->newQuery()
+            ->select('id as name', 'name as label')
+            ->has('items')
+            ->get();
+    }
 }

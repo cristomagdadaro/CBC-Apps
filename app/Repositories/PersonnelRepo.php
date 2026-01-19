@@ -10,4 +10,9 @@ class PersonnelRepo extends AbstractRepoService
     {
         parent::__construct($model);
     }
+
+    public function getAllForInventoryForm()
+    {
+        return $this->model->newQuery()->get();
+    }
 }
