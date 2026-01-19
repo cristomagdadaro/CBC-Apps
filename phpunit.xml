@@ -20,6 +20,9 @@
         <testsuite name="LabEquipment">
             <directory>tests/Feature/LabEquipment</directory>
         </testsuite>
+        <testsuite name="SuppEquipReports">
+            <directory>tests/Feature/SuppEquipReports</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>
