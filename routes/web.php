@@ -179,7 +179,7 @@ Route::middleware([
                 })->name('items.index');
 
                 Route::get('/create', function () {
-                    return Inertia::render('Inventory/Items/components/presentation/CreateItemForm', [
+                    return Inertia::render('Inventory/Items/components/CreateItemForm', [
                         'fromUrl' => url()->previous(),
                         'suppliers' => Supplier::withTrashed()->get(),
                         'categories' => Category::all(),
@@ -187,7 +187,7 @@ Route::middleware([
                 })->name('items.create');
 
                 Route::get('/{id}', [ItemController::class, function () {
-                    return Inertia::render('Inventory/Items/components/presentation/EditItemForm', [
+                    return Inertia::render('Inventory/Items/components/EditItemForm', [
                         'data' => Item::find(request()->route('id')),
                         'suppliers' => Supplier::withTrashed()->get(),
                         'categories' => Category::all(),
@@ -223,7 +223,7 @@ Route::middleware([
                 })->name('transactions.incoming');
 
                 Route::get('/outgoing', function () {
-                    return Inertia::render('Inventory/Transactions/components/presentation/Outgoing', [
+                    return Inertia::render('Inventory/Transactions/components/Outgoing', [
                         'fromUrl' => url()->previous(),
                         'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                         'stockLevel' => config('system.stock_levels'),
@@ -248,7 +248,7 @@ Route::middleware([
                         ->get();
                     
                     if($transaction->transac_type === Inventory::INCOMING->value){
-                        return Inertia::render('Inventory/Transactions/components/presentation/IncomingUpdateForm', [
+                        return Inertia::render('Inventory/Transactions/components/IncomingUpdateForm', [
                             'data' => $transaction,
                             'items' => Item::withTrashed()->get(),
                             'fromUrl' => route('transactions.index'),
@@ -257,7 +257,7 @@ Route::middleware([
                             'attachedReports' => $attachedReports,
                         ]);
                     } else {
-                        return Inertia::render('Inventory/Transactions/components/presentation/OutgoingUpdateForm', [
+                        return Inertia::render('Inventory/Transactions/components/OutgoingUpdateForm', [
                             'data' =>  Transaction::select('*')->where('transactions.id', request()->route('id'))->first(),
                             'summary' =>  Transaction::selectRaw('
                                         items.id as item_id,
@@ -300,13 +300,13 @@ Route::middleware([
                 })->name('personnels.index');
 
                 Route::get('/create', function () {
-                    return Inertia::render('Inventory/Personnel/components/presentation/CreatePersonnelForm', [
+                    return Inertia::render('Inventory/Personnel/components/CreatePersonnelForm', [
                         'fromUrl' => route('personnels.index'),
                     ]);
                 })->name('personnels.create');
 
                 Route::get('/{id}', [PersonnelController::class, function () {
-                    return Inertia::render('Inventory/Personnel/components/presentation/EditPersonnelForm', [
+                    return Inertia::render('Inventory/Personnel/components/EditPersonnelForm', [
                         'data' => Personnel::find(request()->route('id')),
                         'fromUrl' => route('personnels.index'),
                     ]);
@@ -321,13 +321,13 @@ Route::middleware([
                 })->name('suppliers.index');
 
                 Route::get('/create', function () {
-                    return Inertia::render('Inventory/Supplier/components/presentation/CreateSupplierForm', [
+                    return Inertia::render('Inventory/Supplier/components/CreateSupplierForm', [
                         'fromUrl' =>  url()->previous(),
                     ]);
                 })->name('suppliers.create');
 
                 Route::get('/{id}', [SupplierController::class, function () {
-                    return Inertia::render('Inventory/Supplier/components/presentation/EditSupplierForm', [
+                    return Inertia::render('Inventory/Supplier/components/EditSupplierForm', [
                         'data' => Supplier::find(request()->route('id')),
                         'fromUrl' => url()->previous(),
                     ]);
