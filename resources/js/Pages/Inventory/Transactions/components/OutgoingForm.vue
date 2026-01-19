@@ -40,6 +40,17 @@ export default {
         formatNumber(value){
             return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         },
+        formatDate(value) {
+            if (!value) return 'N/A';
+            const normalized = typeof value === 'string' && !value.includes('T')
+                ? value.replace(' ', 'T')
+                : value;
+            const date = new Date(normalized);
+            if (Number.isNaN(date.getTime())) {
+                return value;
+            }
+            return date.toLocaleString();
+        },
         async proxySubmit() {
             if (this.isPublic) {
                 this.form.employee_id = this.employee_id;
@@ -214,7 +225,7 @@ export default {
                     <p>
                         {{ transaction.personnel ? transaction.personnel.fname + ' ' + transaction.personnel.lname : 'Unknown' }}
                     </p>
-                    <p>{{ new Date(transaction.created_at).toLocaleString() }}</p>
+                    <p>{{ formatDate(transaction.created_at) }}</p>
                 </div>
             </div>
         </div>
