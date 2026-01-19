@@ -40,6 +40,10 @@
                                     <td style="padding:8px 0; font-weight:600; color:#111827;">{{ $transaction->quantity }} {{ $transaction->unit ?? '' }}</td>
                                 </tr>
                                 <tr>
+                                    <td style="padding:8px 0; color:#64748b;">Remaining Quantity</td>
+                                    <td style="padding:8px 0; font-weight:600; color:#111827;">{{ $remainingQuantity }} {{ $transaction->unit ?? '' }}</td>
+                                </tr>
+                                <tr>
                                     <td style="padding:8px 0; color:#64748b;">Requested By</td>
                                     <td style="padding:8px 0; font-weight:600; color:#111827;">{{ trim(($transaction->personnel?->fname ?? '') . ' ' . ($transaction->personnel?->lname ?? '')) ?: 'N/A' }}</td>
                                 </tr>
