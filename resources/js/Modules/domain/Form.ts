@@ -46,6 +46,7 @@ export default class Form extends DtoForm {
     updateFields(data: IForm): object
     {
         return {
+            id: data?.id,
             event_id: data?.event_id,
             title: data?.title,
             description: data?.description,

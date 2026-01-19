@@ -33,6 +33,7 @@ export default class SubformResponse extends DtoSubformResponse {
     updateFields(data: ISubformResponse): object
     {
         return {
+            id: data?.id,
             subform_type: data?.subform_type,
             form_parent_id: data?.form_parent_id,
             participant_id: data?.participant_id,

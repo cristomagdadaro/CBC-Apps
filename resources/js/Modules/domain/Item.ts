@@ -27,6 +27,7 @@ export default class Item extends DtoItem {
 
     updateFields(data: IItem): object {
         return {
+            id: data?.id,
             name: data?.name,
             brand: data?.brand,
             description: data?.description,

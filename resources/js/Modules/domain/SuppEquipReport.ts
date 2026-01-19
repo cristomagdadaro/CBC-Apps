@@ -24,6 +24,7 @@ export default class SuppEquipReport extends DtoSuppEquipReport {
 
     updateFields(data: ISuppEquipReport): object {
         return {
+            id: data?.id,
             transaction_id: data?.transaction_id,
             report_type: data?.report_type,
             report_data: data?.report_data,
