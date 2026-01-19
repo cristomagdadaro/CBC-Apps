@@ -1,7 +1,7 @@
 <script>
 import {Head} from "@inertiajs/vue3";
 import AddIcon from "@/Components/Icons/AddIcon.vue";
-import SearchBy from "@/Components/DataTable/presentation/components/SearchBy.vue";
+import SearchBy from "@/Modules/DataTable/presentation/components/SearchBy.vue";
 import Modal from "@/Components/Modal.vue";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";

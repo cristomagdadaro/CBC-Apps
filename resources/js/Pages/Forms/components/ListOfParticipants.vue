@@ -1,6 +1,6 @@
 <script>
 import SearchComp from "@/Components/Search/SearchComp.vue";
-import DataTable from "@/Components/DataTable/presentation/DataTable.vue";
+import DataTable from "@/Modules/DataTable/presentation/DataTable.vue";
 import Participant from "@/Modules/domain/Participant";
 import SearchBy from "@/Components/SearchBy.vue";
 import InputError from "@/Components/InputError.vue";

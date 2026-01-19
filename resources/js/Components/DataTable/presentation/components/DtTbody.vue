@@ -1,11 +1,6 @@
 <script>
-export default {
-    name: "DtTbody"
-}
-</script>
+// Deprecated: use Modules/DataTable/presentation/components/DtTbody.vue
+import DtTbody from "@/Modules/DataTable/presentation/components/DtTbody.vue";
 
-<template>
-    <tbody>
-        <slot />
-    </tbody>
-</template>
+export default DtTbody;
+</script>

@@ -1,28 +1,6 @@
 <script>
-import { Link } from '@inertiajs/vue3';
+// Deprecated: use Modules/DataTable/presentation/components/DtLinkButton.vue
+import DtLinkButton from "@/Modules/DataTable/presentation/components/DtLinkButton.vue";
 
-export default {
-    name: "DtLinkButton",
-    components: {Link},
-    props: {
-        href: {
-            type: String,
-            required: false,
-            default: '#'
-        },
-    }
-}
+export default DtLinkButton;
 </script>
-
-<template>
-    <Link v-if="href !== '#'" :href="href" class="text-blue-500 hover:text-blue-700 flex gap-1 items-center justify-center w-fit">
-        <slot />
-    </Link>
-    <button v-else class="text-blue-500 hover:text-blue-700 flex gap-1 items-center justify-center w-fit">
-        <slot />
-    </button>
-</template>
-
-<style scoped>
-
-</style>

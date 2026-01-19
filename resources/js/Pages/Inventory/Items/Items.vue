@@ -1,6 +1,6 @@
 <script>
 import {Head} from "@inertiajs/vue3";
-import DataTable from "@/Components/DataTable/presentation/DataTable.vue";
+import DataTable from "@/Modules/DataTable/presentation/DataTable.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import SearchComp from "@/Components/Search/SearchComp.vue";
 import Item from "@/Pages/Inventory/Items/components/model/Item";

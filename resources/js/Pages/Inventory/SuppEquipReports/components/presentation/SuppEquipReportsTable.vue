@@ -1,5 +1,5 @@
 <script>
-import DataTable from "@/Components/DataTable/presentation/DataTable.vue";
+import DataTable from "@/Modules/DataTable/presentation/DataTable.vue";
 
 export default {
     name: 'SuppEquipReportsTable',

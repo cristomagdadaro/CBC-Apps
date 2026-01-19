@@ -5,7 +5,7 @@ import AppLayout from "@/Layouts/AppLayout.vue";
 import TransactionHeaderAction
     from "@/Pages/Inventory/Transactions/components/presentation/TransactionHeaderAction.vue";
 import Transaction from "@/Pages/Inventory/Scan/components/model/Transaction";
-import DataTable from "@/Components/DataTable/presentation/DataTable.vue";
+import DataTable from "@/Modules/DataTable/presentation/DataTable.vue";
 import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
 import RequesterGuestCard from "@/Pages/LabRequest/components/RequesterGuestCard.vue";
 import SearchBtn from "@/Components/Buttons/SearchBtn.vue";
@@ -13,7 +13,7 @@ import ArrowRight from "@/Components/Icons/ArrowRight.vue";
 import ArrowLeft from "@/Components/Icons/ArrowLeft.vue";
 import TextInput from "@/Components/TextInput.vue";
 import Modal from "@/Components/Modal.vue";
-import SearchBy from "@/Components/DataTable/presentation/components/SearchBy.vue";
+import SearchBy from "@/Modules/DataTable/presentation/components/SearchBy.vue";
 import PaginateBtn from "@/Components/PaginateBtn.vue";
 import OutgoingForm from "@/Pages/Inventory/Transactions/components/presentation/OutgoingForm.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";

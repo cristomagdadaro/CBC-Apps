@@ -1,11 +1,6 @@
 <script>
-export default {
-    name: "DtData"
-}
-</script>
+// Deprecated: use Modules/DataTable/presentation/components/DtData.vue
+import DtData from "@/Modules/DataTable/presentation/components/DtData.vue";
 
-<template>
-    <td class="lg:whitespace-nowrap max-w-32 overflow-ellipsis overflow-hidden py-1 lg:py-2">
-        <slot />
-    </td>
-</template>
+export default DtData;
+</script>

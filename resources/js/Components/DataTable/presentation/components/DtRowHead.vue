@@ -1,11 +1,6 @@
 <script>
-export default {
-    name: "DtRowHead"
-}
-</script>
+// Deprecated: use Modules/DataTable/presentation/components/DtRowHead.vue
+import DtRowHead from "@/Modules/DataTable/presentation/components/DtRowHead.vue";
 
-<template>
-    <tr>
-        <slot />
-    </tr>
-</template>
+export default DtRowHead;
+</script>

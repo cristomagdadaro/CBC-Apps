@@ -9,8 +9,8 @@ import Transaction from "@/Pages/Inventory/Scan/components/model/Transaction";
 import TextInput from "@/Components/TextInput.vue";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
-import BaseResponse from "@/Components/DataTable/domain/BaseResponse";
-import ErrorResponse from "@/Components/DataTable/domain/ErrorResponse";
+import BaseResponse from "@/Modules/DataTable/domain/BaseResponse";
+import ErrorResponse from "@/Modules/DataTable/domain/ErrorResponse";
 import TextArea from "@/Components/TextArea.vue";
 import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/presentation/TransactionReportAccordion.vue";
 

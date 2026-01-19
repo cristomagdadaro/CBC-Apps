@@ -1,11 +1,6 @@
 <script>
-export default {
-    name: "DtTable"
-}
-</script>
+// Deprecated: use Modules/DataTable/presentation/components/DtTable.vue
+import DtTable from "@/Modules/DataTable/presentation/components/DtTable.vue";
 
-<template>
-    <table class="w-full">
-        <slot />
-    </table>
-</template>
+export default DtTable;
+</script>

@@ -1,12 +1,7 @@
 <script>
-export default {
-    name: "DtThead"
-}
-</script>
+// Deprecated: use Modules/DataTable/presentation/components/DtThead.vue
+import DtThead from "@/Modules/DataTable/presentation/components/DtThead.vue";
 
-<template>
-    <thead class="select-none">
-        <slot />
-    </thead>
-</template>
+export default DtThead;
+</script>
 
