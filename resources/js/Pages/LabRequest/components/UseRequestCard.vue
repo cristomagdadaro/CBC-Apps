@@ -61,22 +61,27 @@ export default {
 
                 if (response?.data?.ready) {
                     this.printProgress = 100;
-                    setTimeout(() => {
-                        const targetUrl = response.data.download_url ?? response.data.url;
-                        const win = window.open(targetUrl, '_blank');
-                        if (!win) {
-                            const link = document.createElement('a');
-                            link.href = targetUrl;
-                            link.target = '_blank';
-                            link.rel = 'noopener noreferrer';
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                        }
-                        this.isPrinting = false;
-                        this.showPrintModal = false;
-                        this.printProgress = 0;
-                    }, 400);
+                    const targetUrl = response.data.download_url ?? response.data.url;
+
+                    const pdfResponse = await axios.get(targetUrl, { responseType: 'blob' });
+                    const blob = new Blob([pdfResponse.data], { type: 'application/pdf' });
+                    const url = window.URL.createObjectURL(blob);
+
+                    const disposition = pdfResponse.headers?.['content-disposition'] ?? '';
+                    const match = disposition.match(/filename="?([^";]+)"?/i);
+                    const filename = match?.[1] ?? 'request-form.pdf';
+
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+
+                    this.isPrinting = false;
+                    this.showPrintModal = false;
+                    this.printProgress = 0;
                 } else {
                     this.printError = 'PDF is not ready yet.';
                 }
@@ -138,21 +143,21 @@ export default {
                     Date Created: {{ formatDate(formsData.created_at) }}
                 </p>
             </div>
-            <div class="flex flex-col items-center justify-center">
-                <label class="text-xl leading-none font-[1000] uppercase" :class="colorStatus(formsData.request_status)">{{ formsData.request_status }}</label>
-                <span class="text-[0.6rem] leading-none select-none">on {{ formatDate(formsData.updated_at) }}</span>
-            </div>
             <button
                 v-if="formsData.request_status !== 'pending'"
                 type="button"
                 @click.prevent="handlePrint"
-                class="btn btn-primary ml-5 my-auto"
+                class="btn btn-primary mx-5 my-auto"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="duration-100 h-auto w-5 hover:text-green-600 hover:scale-110 active:scale-100" viewBox="0 0 16 16">
                     <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/>
                     <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
                 </svg>
             </button>
+            <div class="flex flex-col items-center justify-center">
+                <label class="text-xl leading-none font-[1000] uppercase" :class="colorStatus(formsData.request_status)">{{ formsData.request_status }}</label>
+                <span class="text-[0.6rem] leading-none select-none">on {{ formatDate(formsData.updated_at) }}</span>
+            </div>
         </div>
         <Modal
             :show="showPrintModal"
