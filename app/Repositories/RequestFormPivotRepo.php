@@ -76,4 +76,15 @@ class RequestFormPivotRepo extends AbstractRepoService
             ->with(['requester','request_form'])
             ->first();
     }
+
+    public function getForPdf(string $id): RequestFormPivot
+    {
+        /** @var RequestFormPivot $record */
+        $record = $this->model
+            ->newQuery()
+            ->with(['requester', 'request_form'])
+            ->findOrFail($id);
+
+        return $record;
+    }
 }

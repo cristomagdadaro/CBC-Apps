@@ -66,7 +66,7 @@ Scope: Backend (Laravel) + Frontend (Vue/Inertia)
 **Why this violates:** Query building should live in repository/service/pipeline for reuse and maintainability.
 **Needed action:** Move query construction to repository or query object; use pipeline stages for filters.
 
-### BE-09: Direct model usage in PDF generator
+### BE-09: Direct model usage in PDF generator - ok na
 **Location:** app/Http/Controllers/PDFGeneratorController.php
 **Observation:** `RequestFormPivot` is accessed directly in controller.
 **Why this violates:** Repository pattern expects all data access in services/repositories.

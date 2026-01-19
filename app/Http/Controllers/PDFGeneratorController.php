@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\RequestFormPivot;
+use App\Repositories\RequestFormPivotRepo;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -12,6 +12,12 @@ use Carbon\Carbon;
 
 class PDFGeneratorController extends Controller
 {
+    protected RequestFormPivotRepo $requestFormPivotRepo;
+
+    public function __construct(RequestFormPivotRepo $requestFormPivotRepo)
+    {
+        $this->requestFormPivotRepo = $requestFormPivotRepo;
+    }
     /**
      * Stream or download a cached/generated PDF for the given RequestFormPivot.
      * Accepts an optional 'template' query parameter pointing to a Blade view.
@@ -31,7 +37,7 @@ class PDFGeneratorController extends Controller
             $template = 'generator/pdf/printable-request-form';
         }
         
-        $form = RequestFormPivot::with(['requester', 'request_form'])->findOrFail($id);
+        $form = $this->requestFormPivotRepo->getForPdf($id);
 
         // Prepare cache path based on template and id
         $templateSlug = Str::slug($template);
