@@ -82,13 +82,13 @@ Scope: Backend (Laravel) + Frontend (Vue/Inertia)
 
 ## Frontend Findings
 
-### FE-01: DDD layering split between Modules and Components
+### FE-01: DDD layering split between Modules and Components - ok na
 **Location:** resources/js/Modules/* and resources/js/Components/*
 **Observation:** Domain and infrastructure layers exist in Modules, but DataTable domain/infrastructure lives under Components.
 **Why this violates:** DDD should centralize bounded contexts consistently (e.g., Modules/*) to avoid fragmented layers.
 **Needed action:** Consolidate domain/infrastructure under Modules for consistent bounded-context architecture.
 
-### FE-02: Cross-domain coupling in infrastructure
+### FE-02: Cross-domain coupling in infrastructure - ok na
 **Location:** resources/js/Components/DataTable/infrastracture/CoreApi.js
 **Observation:** DataTable infrastructure imports Notification domain service from Components.
 **Why this violates:** Infrastructure should depend on application/domain boundaries via contracts, not direct cross-domain services.

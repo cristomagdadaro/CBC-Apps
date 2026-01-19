@@ -2,7 +2,7 @@ import axios from "axios";
 import BaseResponse from "@/Modules/DataTable/domain/BaseResponse";
 import BaseModel from "@/Modules/DataTable/domain/BaseModel.js";
 import ErrorResponse from "@/Modules/DataTable/domain/ErrorResponse.js";
-import NotificationService from "@/Components/Notification/domain/NotificationService.js";
+import NotificationService from "@/Modules/shared/infrastructure/NotificationService.js";
 
 /** Application's Core JS Library to handle API request*/
 export default class CoreApi{
