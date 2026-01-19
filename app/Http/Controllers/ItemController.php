@@ -32,7 +32,7 @@ class ItemController extends BaseController
 
     public function update(UpdateItemRequest $request, string $id): Model
     {
-        return parent::_update($request, $id);
+        return parent::_update($id, $request);
     }
 
     public function destroy(DeleteItemRequest $request, string $id): Model

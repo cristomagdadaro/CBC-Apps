@@ -1,0 +1,52 @@
+<?php
+
+namespace Tests\Feature\LabEquipment;
+
+use App\Models\RequestFormPivot;
+use App\Models\Requester;
+use App\Models\UseRequestForm;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
+use Tests\TestCase;
+
+class LabEquipmentRequestApprovalApiTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_authenticated_user_can_update_request_approval(): void
+    {
+        Sanctum::actingAs(User::factory()->create());
+
+        $requester = Requester::factory()->create();
+        $form = UseRequestForm::factory()->create();
+
+        $pivot = RequestFormPivot::factory()->create([
+            'requester_id' => $requester->id,
+            'form_id' => $form->id,
+            'request_status' => 'pending',
+        ]);
+
+        $payload = [
+            'requester_id' => $requester->id,
+            'form_id' => $form->id,
+            'request_status' => 'approved',
+            'agreed_clause_1' => true,
+            'agreed_clause_2' => true,
+            'agreed_clause_3' => true,
+            'approved_by' => 'System Admin',
+            'approval_constraint' => 'Valid for 7 days',
+            'disapproved_remarks' => null,
+        ];
+
+        $response = $this->putJson(route('api.requestFormPivot.put', ['request_pivot_id' => $pivot->id]), $payload);
+
+        $response->assertOk();
+
+        $this->assertDatabaseHas('request_forms_pivot', [
+            'id' => $pivot->id,
+            'request_status' => 'approved',
+            'approved_by' => 'System Admin',
+        ]);
+    }
+}
