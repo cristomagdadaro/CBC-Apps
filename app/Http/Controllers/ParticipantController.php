@@ -3,11 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateParticipantRequest;
-use App\Models\Registration;
 use App\Repositories\ParticipantRepo;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
 
 class ParticipantController extends BaseController
 {
@@ -16,36 +13,24 @@ class ParticipantController extends BaseController
         $this->service = $repository;
     }
 
+    protected function repo(): ParticipantRepo
+    {
+        return $this->service;
+    }
+
     public function post(CreateParticipantRequest $request, $event_id = null): JsonResponse
     {
-        DB::beginTransaction();
-
         try {
-            $participant = $this->service->create($request->validated());
-            $event_id = $request->validated('event_id');
-            do {
-                $temp = Str::uuid()->toString();
-            } while (Registration::where('id', $temp)->exists());
-
-            Registration::factory()->create([
-                'id' => $temp,
-                'event_id' => $event_id,
-                'participant_id' => $request->validated('id') ?? $participant->id,
-                'attendance_type' => $request->validated('attendance_type'),
-            ]);
-
-            DB::commit();
+            $result = $this->repo()->createWithRegistration($request->validated());
 
             return response()->json([
                 'status' => 'success',
-                'participant_hash' => $temp,
-                'participant' => $participant,
-                'event_id' => $event_id,
+                'participant_hash' => $result['participant_hash'],
+                'participant' => $result['participant'],
+                'event_id' => $result['event_id'],
             ], 201);
 
         } catch (\Exception $e) {
-            DB::rollBack();
-
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to register participant',

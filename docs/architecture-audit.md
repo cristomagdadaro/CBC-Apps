@@ -30,7 +30,7 @@ Scope: Backend (Laravel) + Frontend (Vue/Inertia)
 **Why this violates:** Business workflow in controller bypasses repository/service orchestration.
 **Needed action:** Extract workflow to a service or pipeline stage(s) invoked by repository or application service.
 
-### BE-03: Mixed repository and direct model usage in controller
+### BE-03: Mixed repository and direct model usage in controller - ok na
 **Location:** app/Http/Controllers/ParticipantController.php
 **Observation:** Uses repository for participant creation, but manually creates `Registration` with direct `Registration::factory()` and in-controller transaction handling.
 **Why this violates:** Repository pattern should encapsulate related persistence in a single service layer.
