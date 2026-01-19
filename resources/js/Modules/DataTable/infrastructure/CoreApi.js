@@ -133,6 +133,9 @@ export default class CoreApi{
      * @param {Object} model - domain to be cast to
      */
     castToModel(data, model) {
+        if (!Array.isArray(data)) {
+            return data ? [new model(data)] : [];
+        }
         return data.map(item => new model(item));
     }
 

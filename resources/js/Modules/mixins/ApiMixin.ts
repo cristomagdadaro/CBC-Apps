@@ -134,13 +134,19 @@ export default {
 
             return null;
         },
-        resetForm(retain: string){
-            const temp = this.form[retain];
+        resetForm(retain: string | null = null){
+            let temp = null;
+            if (retain && this.form && Object.prototype.hasOwnProperty.call(this.form, retain)) {
+                temp = this.form[retain];
+            }
             this.form.reset();
             this.form.clearErrors();
-            this.form[retain] = temp;
+            if (retain && temp !== null) {
+                this.form[retain] = temp;
+            }
         },
         formatNumber(value){
+            if (value === null || value === undefined) return '';
             return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         },
         checkError(error) {

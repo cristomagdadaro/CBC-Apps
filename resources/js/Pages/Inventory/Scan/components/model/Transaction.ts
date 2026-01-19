@@ -2,16 +2,24 @@ import DtoTransaction from "@/Pages/Inventory/Scan/components/model/DtoTransacti
 import {usePage} from "@inertiajs/vue3";
 
 export default class Transaction extends DtoTransaction {
+    static endpoints = {
+        index: 'api.inventory.transactions.index',
+        postAuth: 'api.inventory.transactions.store',
+        postGuest: 'api.inventory.transactions.store.public',
+        put: 'api.inventory.transactions.update',
+        delete: 'api.inventory.transactions.destroy',
+    };
+
     constructor(response: DtoTransaction) {
     super(response);
 
     const page = usePage();
 
-        this.api._apiIndex = 'api.inventory.transactions.index';
+        this.api._apiIndex = Transaction.endpoints.index;
         // @ts-ignore
-        this.api._apiPost = (page.props.auth && page.props.auth.user) ? 'api.inventory.transactions.store' : 'api.inventory.transactions.store.public';
-        this.api._apiPut = 'api.inventory.transactions.update';
-        this.api._apiDelete = 'api.inventory.transactions.destroy';
+        this.api._apiPost = (page.props.auth && page.props.auth.user) ? Transaction.endpoints.postAuth : Transaction.endpoints.postGuest;
+        this.api._apiPut = Transaction.endpoints.put;
+        this.api._apiDelete = Transaction.endpoints.delete;
 
         this.api.appendWith = ['item', 'user','personnel'];
 
@@ -38,7 +46,7 @@ export default class Transaction extends DtoTransaction {
     }
 
     updateFields(model: ITransaction): object
-    {console.log(model);
+    {
         return {
             id: model.id ?? null,
             barcode: model.barcode ?? null,

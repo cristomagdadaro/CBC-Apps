@@ -1,13 +1,20 @@
 import DtoForm from "@/Modules/dto/DtoForm";
 
 export default class Form extends DtoForm {
+    static endpoints = {
+        index: 'api.form.guest.index',
+        post: 'api.form.post',
+        put: 'api.form.put',
+        delete: 'api.form.delete',
+    };
+
     constructor(response: DtoForm) {
         super(response);
 
-        this.api._apiIndex = 'api.form.guest.index';
-        this.api._apiPost = 'api.form.post';
-        this.api._apiPut = 'api.form.put';
-        this.api._apiDelete = 'api.form.delete';
+        this.api._apiIndex = Form.endpoints.index;
+        this.api._apiPost = Form.endpoints.post;
+        this.api._apiPut = Form.endpoints.put;
+        this.api._apiDelete = Form.endpoints.delete;
         this.api.appendWith = ['requirements'];
         this.api.appendCount = ['participants']
     }

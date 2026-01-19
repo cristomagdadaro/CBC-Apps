@@ -13,21 +13,21 @@ export default class DtoRequestFormPivot extends DtoBaseClass implements IReques
     disapproved_remarks: string;
     approved_by: string;
 
-    requester: IRequester;
-    requestForm: IRequestForm;
+    requester?: IRequester;
+    requestForm?: IRequestForm;
 
     constructor(data: any) {
         super(data);
 
-        this.requester_id = data?.requester_id;
-        this.form_id = data?.form_id;
-        this.request_status = data?.request_status;
-        this.agreed_clause_1 = data?.agreed_clause_1;
-        this.agreed_clause_2 = data?.agreed_clause_2;
-        this.agreed_clause_3 = data?.agreed_clause_3;
-        this.approval_constraint = data?.approval_constraint;
-        this.disapproved_remarks = data?.disapproved_remarks;
-        this.approved_by = data?.approved_by;
+        this.requester_id = data?.requester_id ?? '';
+        this.form_id = data?.form_id ?? '';
+        this.request_status = data?.request_status ?? 'pending';
+        this.agreed_clause_1 = data?.agreed_clause_1 !== undefined ? String(data.agreed_clause_1) : 'false';
+        this.agreed_clause_2 = data?.agreed_clause_2 !== undefined ? String(data.agreed_clause_2) : 'false';
+        this.agreed_clause_3 = data?.agreed_clause_3 !== undefined ? String(data.agreed_clause_3) : 'false';
+        this.approval_constraint = data?.approval_constraint ?? '';
+        this.disapproved_remarks = data?.disapproved_remarks ?? '';
+        this.approved_by = data?.approved_by ?? '';
 
         if (data?.requester) {
             this.requester = new DtoRequester(data.requester);

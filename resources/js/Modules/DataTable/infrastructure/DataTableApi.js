@@ -1,7 +1,6 @@
 import CoreApi from "@/Modules/DataTable/infrastructure/CoreApi.js";
 import BaseResponse from "@/Modules/DataTable/domain/BaseResponse.js";
 import BaseModel from "@/Modules/DataTable/domain/BaseModel.js";
-import {ref} from "vue";
 import BaseRequest from "@/Modules/DataTable/domain/BaseRequest.js";
 import {ValidationErrorResponse} from "@/Modules/core/infrastructure/ValidationErrorResponse.js";
 
@@ -10,15 +9,15 @@ export default class DataTableApi{
         /** Core api service instance */
         this.api = new CoreApi(baseUrl);
         /** Model of the data table */
-        this.model = ref(model);
+        this.model = model;
         /** Server raw response*/
-        this.response = ref(new BaseResponse());
+        this.response = new BaseResponse();
         /** Flag to close all modals*/
-        this.closeAllModal = ref(false);
+        this.closeAllModal = false;
         /** Errors container*/
-        this.errorBag = ref([]);
+        this.errorBag = [];
         /** Selected Rows*/
-        this.selected = ref([]);
+        this.selected = [];
 
         // retrieve params from local storage, if not found, create a new instance of BaseRequest
         // so that when the page is refreshed, the datatable will remember the last state
@@ -52,14 +51,14 @@ export default class DataTableApi{
 
     /** Move to the next page*/
     async nextPage() {
-        if(this.response['meta']['current_page'] + 1 <= this.response['meta']['last_page'])
-            this.request.updateParam('page', this.response['meta']['current_page'] + 1);
+        if(this.response.meta?.current_page + 1 <= this.response.meta?.last_page)
+            this.request.updateParam('page', this.response.meta.current_page + 1);
         await this.refresh();
     }
 
     /** Move to the previous page*/
     async prevPage() {
-        this.request.updateParam('page', this.response['meta']['current_page'] - 1);
+        this.request.updateParam('page', this.response.meta?.current_page - 1);
         await this.refresh();
     }
 
@@ -71,7 +70,7 @@ export default class DataTableApi{
 
     /** Move to the last page*/
     async lastPage() {
-        this.request.updateParam('page', this.response['meta']['last_page']);
+        this.request.updateParam('page', this.response.meta?.last_page);
         await this.refresh();
     }
 
@@ -116,9 +115,9 @@ export default class DataTableApi{
      */
     async perPageFunc(params){
         this.request.updateParam('per_page', params.per_page)
-        if (this.response['meta']['last_page'] === this.response['meta']['current_page'])
+        if (this.response.meta?.last_page === this.response.meta?.current_page)
             // if the current page is the last page, set the page to the last page
-            this.request.updateParam('page', this.response['meta']['last_page']);
+            this.request.updateParam('page', this.response.meta?.last_page);
         await this.refresh();
     }
 
@@ -153,7 +152,8 @@ export default class DataTableApi{
 
     /** Select all items */
     selectAll() {
-        this.selected.value = [...new Set([...this.selected, ...this.response['data'].map(item => item.id)])];
+        const rows = this.response.data ?? [];
+        this.selected = [...new Set([...this.selected, ...rows.map(item => item.id)])];
     }
 
     /** Deselect all items */
@@ -186,7 +186,7 @@ export default class DataTableApi{
 
         this.processing = false;
         await this.refresh();
-        this.errorBag.value = [];
+        this.errorBag = [];
     }
 
     /**
@@ -204,7 +204,7 @@ export default class DataTableApi{
 
         this.processing = false;
         await this.refresh();
-        this.errorBag.value = [];
+        this.errorBag = [];
     }
 
     /**
@@ -222,6 +222,6 @@ export default class DataTableApi{
         this.selected = [];
         this.processing = false;
         await this.refresh();
-        this.errorBag.value = [];
+        this.errorBag = [];
     }
 }

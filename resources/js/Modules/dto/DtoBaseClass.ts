@@ -58,6 +58,7 @@ export default class DtoBaseClass implements IBaseClass {
     }
 
     static getNestedValue(obj, path) {
+        if (!obj || !path) return undefined;
         return path.split('.').reduce((acc, part) => acc && acc[part], obj);
     }
 

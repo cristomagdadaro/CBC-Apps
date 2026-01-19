@@ -17,30 +17,28 @@ export default class DtoParticipant extends DtoBaseClass implements IParticipant
     agreed_tc: string;
     attendance_type?: string;
 
-    registrations: Array<IRegistration>
+    registrations: IRegistration[];
 
     constructor(data: any) {
         super(data);
 
-        this.name = data?.name;
-        this.email = data?.email;
-        this.phone = data?.phone;
-        this.sex = data?.sex;
-        this.age = data?.age;
-        this.organization = data?.organization;
-        this.designation = data?.designation;
+        this.name = data?.name ?? '';
+        this.email = data?.email ?? '';
+        this.phone = data?.phone ?? '';
+        this.sex = data?.sex ?? '';
+        this.age = data?.age ?? 0;
+        this.organization = data?.organization ?? '';
+        this.designation = data?.designation ?? '';
         this.is_ip = data?.is_ip ? "Yes" : "No";
         this.is_pwd = data?.is_pwd ? "Yes" : "No";
-        this.city_address = data?.city_address;
-        this.province_address = data?.province_address;
-        this.country_address = data?.city_address;
+        this.city_address = data?.city_address ?? '';
+        this.province_address = data?.province_address ?? '';
+        this.country_address = data?.country_address ?? '';
         this.agreed_tc = data?.agreed_tc ? "Yes" : "No";
         this.attendance_type = data?.attendance_type;
 
-        if (data?.registrations) {
-            this.registrations = data.registrations.map(i => {
-                return new DtoRegistration(i);
-            })
-        }
+        this.registrations = Array.isArray(data?.registrations)
+            ? data.registrations.map(i => new DtoRegistration(i))
+            : [];
     }
 }

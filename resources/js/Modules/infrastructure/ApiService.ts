@@ -30,7 +30,7 @@ export default abstract class ApiService {
         };
     }
 
-    async get(url: string, params?: any, model?: new (data: any) => any) {
+    async get(url: string, params?: any, model?: DtoBaseClass) {
         this.processing = true;
         try {
             // @ts-ignore
@@ -98,10 +98,16 @@ export default abstract class ApiService {
         }
     }
 
-    castToModel(response: any, Model: new (data: any) => any) {
-        if (!response || !Model) return [];
+    castToModel(response: any, modelOrCtor: any) {
+        if (!response || !modelOrCtor) return [];
 
-        const toInstance = (item: any) => (item ? new Model.constructor(item) : null);
+        const Ctor = typeof modelOrCtor === 'function'
+            ? modelOrCtor
+            : modelOrCtor?.constructor;
+
+        if (!Ctor) return [];
+
+        const toInstance = (item: any) => (item ? new Ctor(item) : null);
 
         if (Array.isArray(response)) return response.map(toInstance);
 

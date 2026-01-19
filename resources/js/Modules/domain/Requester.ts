@@ -1,15 +1,22 @@
 import DtoRequester from "@/Modules/dto/DtoRequester";
 
 export default class Requester extends DtoRequester {
+    static endpoints = {
+        index: 'api.requester.guest.index',
+        post: 'api.requester.post',
+        put: 'api.requester.put',
+        delete: 'api.requester.delete',
+    };
+
     static model = DtoRequester;
 
     constructor(response: DtoRequester) {
         super(response);
 
-        this.api._apiIndex = 'api.requester.guest.index';
-        this.api._apiPost = 'api.requester.post';
-        this.api._apiPut = 'api.requester.put';
-        this.api._apiDelete = 'api.requester.delete';
+        this.api._apiIndex = Requester.endpoints.index;
+        this.api._apiPost = Requester.endpoints.post;
+        this.api._apiPut = Requester.endpoints.put;
+        this.api._apiDelete = Requester.endpoints.delete;
     }
 
     createFields(): object

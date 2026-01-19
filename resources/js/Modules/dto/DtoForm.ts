@@ -12,29 +12,31 @@ export default class DtoForm extends DtoBaseClass implements IForm{
     venue: string;
     is_suspended: boolean;
     max_slots: number;
-    requirements: Array<string>;
+    requirements: string[];
 
     participants_count: number;
 
-    registrations: Array<IRegistration>
-    participants: Array<IParticipant>
+    registrations: IRegistration[];
+    participants: IParticipant[];
 
     constructor(data: IForm) {
         super(data);
 
-        this.event_id = data?.event_id;
-        this.title = data?.title;
-        this.description = data?.description;
-        this.details = data?.details;
-        this.date_from = data?.date_from;
-        this.date_to = data?.date_to;
-        this.time_from = data?.time_from;
-        this.time_to = data?.time_to;
-        this.venue = data?.venue;
-        this.is_suspended = data?.is_suspended;
-        this.max_slots = data?.max_slots;
-        this.requirements = data?.requirements;
+        this.event_id = data?.event_id ?? '';
+        this.title = data?.title ?? '';
+        this.description = data?.description ?? '';
+        this.details = data?.details ?? '';
+        this.date_from = data?.date_from ?? '';
+        this.date_to = data?.date_to ?? '';
+        this.time_from = data?.time_from ?? '';
+        this.time_to = data?.time_to ?? '';
+        this.venue = data?.venue ?? '';
+        this.is_suspended = data?.is_suspended ?? false;
+        this.max_slots = data?.max_slots ?? 0;
+        this.requirements = Array.isArray(data?.requirements) ? data.requirements : [];
 
-        this.participants_count = data?.participants_count;
+        this.participants_count = data?.participants_count ?? 0;
+        this.registrations = [];
+        this.participants = [];
     }
 }

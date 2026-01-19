@@ -1,11 +1,16 @@
 import DtoRequestForm from "@/Modules/dto/DtoRequestForm";
 
 export class RequestForm extends DtoRequestForm {
+    static endpoints = {
+        index: 'api.requestForm.index',
+        post: 'api.requestForm.post',
+    };
+
     constructor(response: DtoRequestForm) {
         super(response);
 
-        this.api._apiIndex = 'api.requestForm.index';
-        this.api._apiPost = 'api.requestForm.post';
+        this.api._apiIndex = RequestForm.endpoints.index;
+        this.api._apiPost = RequestForm.endpoints.post;
 
         this.api.appendWith = ['requester'];
     }

@@ -1,11 +1,17 @@
 import DtoParticipant from "@/Modules/dto/DtoParticipant";
 
 export default class Participant extends DtoParticipant {
+    static endpoints = {
+        index: 'api.form.participants.index',
+        post: 'api.form.registration.post',
+        delete: 'api.form.participants.delete',
+    };
+
     constructor(response: DtoParticipant) {
         super(response);
-        this.api._apiIndex = 'api.form.participants.index';
-        this.api._apiDelete = 'api.form.participants.delete';
-        this.api._apiPost = 'api.form.registration.post';
+        this.api._apiIndex = Participant.endpoints.index;
+        this.api._apiDelete = Participant.endpoints.delete;
+        this.api._apiPost = Participant.endpoints.post;
 
         this.api.appendWith = ['registrations'];
     }

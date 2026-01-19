@@ -1,11 +1,16 @@
 import DtoSubformResponse from "@/Modules/dto/DtoSubformResponse";
 
 export default class SubformResponse extends DtoSubformResponse {
+    static endpoints = {
+        index: 'api.subform.response.index',
+        post: 'api.subform.response.store',
+    };
+
     constructor(response: DtoSubformResponse) {
         super(response);
 
-        this.api._apiIndex = 'api.subform.response.index';
-        this.api._apiPost = 'api.subform.response.store';
+        this.api._apiIndex = SubformResponse.endpoints.index;
+        this.api._apiPost = SubformResponse.endpoints.post;
     }
 
     deleteField(model): object
@@ -47,36 +52,36 @@ export default class SubformResponse extends DtoSubformResponse {
                 visible: false,
             },
             {
-                title: 'Event ID',
-                key: 'event_id',
-                db_key: 'event_id',
+                title: 'Form Parent ID',
+                key: 'form_parent_id',
+                db_key: 'form_parent_id',
                 align: 'center',
                 sortable: true,
                 visible: true,
             },
             {
-                title: 'Title',
-                key: 'title',
-                db_key: 'title',
+                title: 'Participant ID',
+                key: 'participant_id',
+                db_key: 'participant_id',
                 align: 'center',
                 sortable: true,
                 visible: true,
             },
             {
-                title: 'Description',
-                key: 'description',
-                db_key: 'description',
+                title: 'Subform Type',
+                key: 'subform_type',
+                db_key: 'subform_type',
                 align: 'center',
                 sortable: true,
                 visible: true,
             },
             {
-                title: 'Details',
-                key: 'details',
-                db_key: 'details',
+                title: 'Response Data',
+                key: 'response_data',
+                db_key: 'response_data',
                 align: 'center',
                 sortable: true,
-                visible: true,
+                visible: false,
             },
         ]
     }

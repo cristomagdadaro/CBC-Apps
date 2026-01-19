@@ -1,23 +1,23 @@
 export default class DtoError extends Error implements IError{
     status: number;
     message: string;
-    data: Array<String>;
+    data: any;
     title: string;
 
     constructor(error?: Partial<{
         data: {
             message: string;
-            errors: Array<string>;
+            errors: string[];
         },
         status: number,
         title: string,
         message: string,
     }>) {
-        super(error.data);
-        this.status = error.status;
-        this.title = error.title;
-        this.message = error.message;
-        this.data = error.data;
+        super(error?.message ?? '');
+        this.status = error?.status ?? 0;
+        this.title = error?.title ?? 'Error';
+        this.message = error?.message ?? '';
+        this.data = error?.data ?? null;
 
         return this;
     }

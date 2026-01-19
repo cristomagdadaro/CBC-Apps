@@ -1,12 +1,18 @@
 import DtoRequestFormPivot from "@/Modules/dto/DtoRequestFormPivot";
 
 export default class RequestFormPivot extends DtoRequestFormPivot {
+    static endpoints = {
+        index: 'api.requestFormPivot.index',
+        post: 'api.requestFormPivot.post',
+        put: 'api.requestFormPivot.put',
+    };
+
     constructor(response: DtoRequestFormPivot) {
         super(response);
 
-        this.api._apiIndex = 'api.requestFormPivot.index';
-        this.api._apiPost = 'api.requestFormPivot.post';
-        this.api._apiPut = 'api.requestFormPivot.put';
+        this.api._apiIndex = RequestFormPivot.endpoints.index;
+        this.api._apiPost = RequestFormPivot.endpoints.post;
+        this.api._apiPut = RequestFormPivot.endpoints.put;
 
         this.api.appendWith = ['requester', 'request_form'];
     }
@@ -29,9 +35,9 @@ export default class RequestFormPivot extends DtoRequestFormPivot {
             equipments_to_use: [],
             consumables_to_use: [],
 
-            agreed_clause_1: null,
-            agreed_clause_2: null,
-            agreed_clause_3: null,
+            agreed_clause_1: false,
+            agreed_clause_2: false,
+            agreed_clause_3: false,
         }
     }
 
@@ -61,7 +67,7 @@ export default class RequestFormPivot extends DtoRequestFormPivot {
                 visible: false,
             }, {
                 title: 'Requester',
-                key: 'requester',
+                key: 'requester.fullName',
                 db_key: 'requester',
                 align: 'center',
                 sortable: true,

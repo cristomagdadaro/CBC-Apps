@@ -12,15 +12,13 @@ export default class BaseModel {
     }
 
     static getColumns() {
-        return [
-            Object.keys(this.toObject(new this())).map((key) => {
-                return {
-                    title: key,
-                    key: key,
-                    align: 'left',
-                    sortable: true,
-                };
-            })
-        ];
+        return Object.keys(this.toObject(new this())).map((key) => {
+            return {
+                title: key,
+                key: key,
+                align: 'left',
+                sortable: true,
+            };
+        });
     }
 }
