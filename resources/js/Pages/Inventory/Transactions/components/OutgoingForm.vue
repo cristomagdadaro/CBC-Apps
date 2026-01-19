@@ -105,7 +105,7 @@ export default {
 <template>
     <div class="grid sm:grid-cols-3 grid-cols-1 sm:p-5 p-3 sm:gap-3">
         <div class="flex flex-col col-span-2 gap-1 bg-white rounded">
-            <div  v-if="data" class="flex md:flex-row flex-col select-none justify-between items-center gap-5 py-2 px-1 md:px-4 border-b">
+            <div  v-if="data" class="flex flex-col select-none justify-between items-center gap-5 py-2 px-1 md:px-4 border-b">
                 <div class="flex flex-col leading-none w-full">
                     <span class="font-bold text-base md:text-lg whitespace-nowrap overflow-ellipsis overflow-hidden">
                         {{ data.name }} {{ data.description ? `(${data.description})` : '' }}
@@ -113,7 +113,7 @@ export default {
                     <span class="text-sm text-gray-500">{{ data.brand }}</span>
                     <span class="text-xs text-gray-500 leading-none" :class="{'text-red-600' : !data.barcode}">{{ data.barcode || 'Warning! NO BARCODE' }}</span>
                 </div>
-                <div class="flex sm:gap-4 gap-1 md:w-fit w-full justify-evenly">
+                <div class="flex sm:gap-4 gap-1 w-full justify-evenly">
                     <div class="flex flex-col leading-none md:leading-relaxed">
                         <span class="text-center text-gray-600">
                             {{ formatNumber(data.remaining_quantity) }}
@@ -216,16 +216,22 @@ export default {
                     Loading ...
                     </p>
                 </div>
-                <div v-else v-for="transaction in recentTransactions" :key="transaction.id" class="py-2 rounded-md px-2 duration-200 leading-tight" :class="transaction.transac_type === 'incoming' ? 'bg-green-200':'bg-red-200'">
-                    <b>
-                        <span v-if="transaction.transac_type === 'incoming'">{{ transaction.quantity }}</span>
-                        <span v-else>-{{ transaction.quantity }}</span>
-                        {{ transaction.unit }}
-                    </b>
-                    <p>
-                        {{ transaction.personnel ? transaction.personnel.fname + ' ' + transaction.personnel.lname : 'Unknown' }}
-                    </p>
-                    <p>{{ formatDate(transaction.created_at) }}</p>
+                <div v-else v-for="transaction in recentTransactions" :key="transaction.id" class="py-2 rounded-md px-2 duration-200 flex flex-col gap-1" :class="transaction.transac_type === 'incoming' ? 'bg-green-200':'bg-red-200'">
+                    <div class="flex justify-between items-center leading-tight">
+                        <div>   
+                            <p>{{ transaction.personnel ? transaction.personnel.fname + ' ' + transaction.personnel.lname : 'Unknown' }}</p>
+                            <p>{{ formatDate(transaction.created_at) }}</p>
+                        </div>
+
+                        <b class="text-center leading-none">
+                            <span v-if="transaction.transac_type === 'incoming'">{{ transaction.quantity }}</span>
+                            <span v-else>-{{ transaction.quantity }}</span>
+                            {{ transaction.unit }}
+                        </b>
+                    </div>
+                    <div v-if="transaction.remarks" class="border-t pt-1 border-gray-800 leading-none">
+                        <span>{{ transaction.remarks }}</span>
+                    </div>
                 </div>
             </div>
         </div>
