@@ -48,15 +48,7 @@
                                     <td style="padding:8px 0; font-weight:600; color:#111827;">{{ trim(($transaction->personnel?->fname ?? '') . ' ' . ($transaction->personnel?->lname ?? '')) ?: 'N/A' }}</td>
                                 </tr>
                                 <tr>
-                                    <td style="padding:8px 0; color:#64748b;">Recorded By</td>
-                                    <td style="padding:8px 0; font-weight:600; color:#111827;">{{ $transaction->user?->name ?? 'N/A' }}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:8px 0; color:#64748b;">Project Code</td>
-                                    <td style="padding:8px 0; font-weight:600; color:#111827;">{{ $transaction->project_code ?? 'N/A' }}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:8px 0; color:#64748b;">Remarks</td>
+                                    <td style="padding:8px 0; color:#64748b;">Purpose</td>
                                     <td style="padding:8px 0; font-weight:600; color:#111827;">{{ $transaction->remarks ?? 'N/A' }}</td>
                                 </tr>
                                 <tr>
