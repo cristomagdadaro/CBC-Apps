@@ -3,7 +3,7 @@ import {Head} from "@inertiajs/vue3";
 import SearchComp from "@/Components/Search/SearchComp.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import TransactionHeaderAction
-    from "@/Pages/Inventory/Transactions/TransactionHeaderAction.vue";
+    from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
 import Transaction from "@/Modules/domain/Transaction";
 import DataTable from "@/Modules/DataTable/presentation/DataTable.vue";
 import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
@@ -15,7 +15,7 @@ import TextInput from "@/Components/TextInput.vue";
 import Modal from "@/Components/Modal.vue";
 import SearchBy from "@/Modules/DataTable/presentation/components/SearchBy.vue";
 import PaginateBtn from "@/Components/PaginateBtn.vue";
-import OutgoingForm from "@/Pages/Inventory/Transactions/OutgoingForm.vue";
+import OutgoingForm from "@/Pages/Inventory/Transactions/components/OutgoingForm.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Personnel from "@/Modules/domain/Personnel";
 import GuestFormPage from "@/Pages/Shared/GuestFormPage.vue";

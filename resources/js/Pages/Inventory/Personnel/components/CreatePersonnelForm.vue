@@ -8,7 +8,7 @@ import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Personnel from "@/Modules/domain/Personnel";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import FormsHeaderActions from "@/Pages/Forms/components/FormsHeaderActions.vue";
-import PersonnelHeaderActions from "@/Pages/Inventory/Personnel/components/presentation/PersonnelHeaderActions.vue";
+import PersonnelHeaderActions from "@/Pages/Inventory/Personnel/components/PersonnelHeaderActions.vue";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 
 export default {

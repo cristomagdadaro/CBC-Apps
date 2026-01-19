@@ -4,7 +4,7 @@ import DataTable from "@/Modules/DataTable/presentation/DataTable.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import SearchComp from "@/Components/Search/SearchComp.vue";
 import Personnel from "@/Modules/domain/Personnel";
-import PersonnelHeaderActions from "@/Pages/Inventory/Personnel/components/presentation/PersonnelHeaderActions.vue";
+import PersonnelHeaderActions from "@/Pages/Inventory/Personnel/components/PersonnelHeaderActions.vue";
 
 export default {
     name: "Personnel",

@@ -1,5 +1,5 @@
 <script>
-import PersonnelCard from "@/Pages/Inventory/Personnel/components/presentation/PersonnelCard.vue";
+import PersonnelCard from "@/Pages/Inventory/Personnel/components/PersonnelCard.vue";
 
 export default {
     name: "PersonnelList",

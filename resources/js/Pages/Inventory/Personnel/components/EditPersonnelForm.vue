@@ -4,7 +4,7 @@ import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Personnel from "@/Modules/domain/Personnel";
 import FormsHeaderActions from "@/Pages/Forms/components/FormsHeaderActions.vue";
-import PersonnelHeaderActions from "@/Pages/Inventory/Personnel/components/presentation/PersonnelHeaderActions.vue";
+import PersonnelHeaderActions from "@/Pages/Inventory/Personnel/components/PersonnelHeaderActions.vue";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import ResetBtn from "@/Components/Buttons/ResetBtn.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
