@@ -36,7 +36,7 @@ Scope: Backend (Laravel) + Frontend (Vue/Inertia)
 **Why this violates:** Repository pattern should encapsulate related persistence in a single service layer.
 **Needed action:** Move registration creation and transaction handling to a service or repository method.
 
-### BE-04: Direct model create/find in controller
+### BE-04: Direct model create/find in controller - ok na
 **Location:** app/Http/Controllers/RequestFormPivotController.php
 **Observation:** Uses `Requester`, `UseRequestForm`, `RequestFormPivot` directly instead of repository/service.
 **Why this violates:** Repository pattern expects creation and orchestration to be within repositories/services.
