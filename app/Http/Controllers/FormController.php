@@ -7,20 +7,20 @@ use App\Http\Requests\DeleteFormRequest;
 use App\Http\Requests\DeleteParticipantRequest;
 use App\Http\Requests\GetFormsRequest;
 use App\Http\Requests\UpdateFormRequest;
-use App\Models\EventRequirement;
-use App\Models\Form;
-use App\Models\Participant;
-use App\Models\Registration;
 use App\Repositories\FormRepo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class FormController extends BaseController
 {
+
+    protected function repo(): FormRepo
+    {
+        return $this->service;
+    }
 
     public function __construct(FormRepo $repository)
     {
@@ -29,9 +29,8 @@ class FormController extends BaseController
 
     public function formGuestView(GetFormsRequest $request, $event_id = null)
     {
-        $temp = (new Form)->newQuery();
         return Inertia::render('Forms/FormGuest', [
-            'eventForm' => $temp->where('event_id', $event_id)->withCount('participants')->withCount('participants')->with('requirements')->first(),
+            'eventForm' => $this->repo()->getGuestFormByEventId($event_id),
             'quote' => Inspiring::quote(),
         ]);
     }
@@ -51,21 +50,14 @@ class FormController extends BaseController
             return new Collection([]);
         }
 
-        $data = Registration::where('event_id', $event_id)
-            ->with('participant')
-            ->get()
-            ->filter(fn ($registration) => $registration->participant !== null)
-            ->pluck('participant')
-            ->values();
+        $data = $this->repo()->getParticipantsByEventId($event_id);
 
         return new Collection(['data' => $data]);
     }
 
     public function deleteParticipants(DeleteParticipantRequest $request, $participant_id): Model
     {
-        $model = Participant::where('id', $participant_id)->first();
-        $model->delete();
-        return $model;
+        return $this->repo()->deleteParticipantById($participant_id);
     }
 
     public function create(CreateFormRequest $request): Model
@@ -76,32 +68,25 @@ class FormController extends BaseController
 
     public function update(UpdateFormRequest $request, $event_id = null): Model
     {
-        $model = $this->service->model->where('event_id', $event_id)->with('requirements')->first();
-        $model->fill($request->validated());
-        $model->save();
-
+        $model = $this->repo()->updateByEventId($event_id, $request->validated());
         $this->updateRequirements($request, $event_id);
         return $model;
     }
 
     public function delete(DeleteFormRequest $request, $event_id = null): Model
     {
-        $model = $this->service->model->where('event_id', $request->validated('event_id'))->first();
-        $model->delete();
-        return $model;
+        return $this->repo()->deleteByEventId($request->validated('event_id'));
     }
 
     public function show(GetFormsRequest $request, $event_id = null): Collection
     {
-        $form = Form::where('event_id', $event_id)->with('requirements')->first();
+        $form = $this->repo()->getByEventIdWithRequirements($event_id);
 
         return new Collection($form ? $form->toArray() : []);
     }
 
     public function updateRequirements(Request $request, $event_id)
     {
-        $form = Form::where('event_id', $event_id)->firstOrFail();
-
         $validated = $request->validate([
             'requirements' => ['array'],
             'requirements.*.form_type' => ['required', 'string'],
@@ -111,21 +96,9 @@ class FormController extends BaseController
 
         $requirements = $validated['requirements'] ?? [];
 
-        EventRequirement::where('event_id', $form->event_id)->delete();
-
-        foreach ($requirements as $req) {
-            EventRequirement::create([
-                'id' => Str::uuid()->toString(),
-                'event_id' => $form->event_id,
-                'form_type' => $req['form_type'],
-                'is_required' => $req['is_required'] ?? true,
-                'config' => $req['config'] ?? [],
-            ]);
-        }
-
         return response()->json([
             'message' => 'Requirements updated successfully.',
-            'requirements' => $form->requirements()->get(),
+            'requirements' => $this->repo()->updateRequirements($event_id, $requirements),
         ]);
     }
 }

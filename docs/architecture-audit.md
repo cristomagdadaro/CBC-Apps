@@ -18,7 +18,7 @@ Scope: Backend (Laravel) + Frontend (Vue/Inertia)
 
 ## Backend Findings
 
-### BE-01: Direct Eloquent usage in controller (bypassing repositories)
+### BE-01: Direct Eloquent usage in controller (bypassing repositories) - ok na
 **Location:** app/Http/Controllers/FormController.php
 **Observation:** Uses `Form`, `Registration`, `Participant`, `EventRequirement` directly for queries, deletes, and create operations.
 **Why this violates:** Repository-based modeling expects controllers to delegate data access to repositories/services.
