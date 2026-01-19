@@ -31,6 +31,8 @@ class PDFGeneratorController extends Controller
     public function downloadPdf(Request $request, $id)
     {
         $template = $request->query('template', 'generator/pdf/printable-request-form');
+        $prefetch = filter_var($request->query('prefetch', false), FILTER_VALIDATE_BOOLEAN);
+        $forceRefresh = filter_var($request->query('force_refresh', false), FILTER_VALIDATE_BOOLEAN);
 
         // Validate the view exists; if not, fall back to default
         if (!View::exists($template)) {
@@ -47,6 +49,10 @@ class PDFGeneratorController extends Controller
         }
         $cacheFile = $cacheDir . DIRECTORY_SEPARATOR . $id . '.pdf';
 
+        if ($forceRefresh && File::exists($cacheFile)) {
+            File::delete($cacheFile);
+        }
+
         $needsGenerate = true;
         if (File::exists($cacheFile)) {
             $fileMTime = File::lastModified($cacheFile);
@@ -59,7 +65,7 @@ class PDFGeneratorController extends Controller
             ];
             $latestDataTs = max($timestamps);
 
-            if ($latestDataTs > $fileMTime) {
+            if ($latestDataTs >= $fileMTime) {
                 // Data is newer; delete stale cached PDF
                 File::delete($cacheFile);
                 $needsGenerate = true;
@@ -75,6 +81,13 @@ class PDFGeneratorController extends Controller
                 File::delete($cacheFile);
             }
             File::put($cacheFile, $pdf->output());
+        }
+
+        if ($prefetch) {
+            return response()->json([
+                'ready' => true,
+                'url' => route('forms.generate.pdf', ['id' => $id, 'template' => $template]),
+            ]);
         }
 
         $download = filter_var($request->query('download', false), FILTER_VALIDATE_BOOLEAN);

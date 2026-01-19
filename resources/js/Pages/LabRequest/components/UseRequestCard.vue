@@ -1,4 +1,5 @@
 <script>
+import axios from "axios";
 import ApiMixin from "@/Modules/mixins/ApiMixin.js";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin.js";
 import DtoResponse from "@/Modules/dto/DtoResponse";
@@ -18,6 +19,10 @@ export default {
             updatedData: null,
             errors: null,
             showModal: false,
+            showPrintModal: false,
+            printProgress: 0,
+            isPrinting: false,
+            printError: null,
         }
     },
     computed: {
@@ -32,6 +37,48 @@ export default {
         }
     },
     methods: {
+        async handlePrint()
+        {
+            if (!this.formsData?.id || this.isPrinting) return;
+
+            this.printError = null;
+            this.printProgress = 0;
+            this.isPrinting = true;
+            this.showPrintModal = true;
+
+            const baseUrl = route('forms.generate.pdf', this.formsData.id);
+            const prefetchUrl = `${baseUrl}?prefetch=1&force_refresh=1`;
+
+            let progressTimer = null;
+            try {
+                progressTimer = setInterval(() => {
+                    if (this.printProgress < 90) {
+                        this.printProgress += 5;
+                    }
+                }, 300);
+
+                const response = await axios.get(prefetchUrl);
+
+                if (response?.data?.ready) {
+                    this.printProgress = 100;
+                    setTimeout(() => {
+                        window.open(response.data.url, '_blank');
+                        this.isPrinting = false;
+                        this.showPrintModal = false;
+                        this.printProgress = 0;
+                    }, 400);
+                } else {
+                    this.printError = 'PDF is not ready yet.';
+                }
+            } catch (error) {
+                this.printError = 'Failed to render PDF. Please try again.';
+            } finally {
+                if (progressTimer) clearInterval(progressTimer);
+                if (this.printProgress < 100) {
+                    this.isPrinting = false;
+                }
+            }
+        },
         confirmAction()
         {
             this.confirmDelete = true;
@@ -85,13 +132,43 @@ export default {
                 <label class="text-xl leading-none font-[1000] uppercase" :class="colorStatus(formsData.request_status)">{{ formsData.request_status }}</label>
                 <span class="text-[0.6rem] leading-none select-none">on {{ formatDate(formsData.updated_at) }}</span>
             </div>
-            <a :href="route('forms.generate.pdf', formsData.id)" target="_blank" class="btn btn-primary ml-5 my-auto">
+            <button
+                v-if="formsData.request_status !== 'pending'"
+                type="button"
+                @click.prevent="handlePrint"
+                class="btn btn-primary ml-5 my-auto"
+            >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="duration-100 h-auto w-5 hover:text-green-600 hover:scale-110 active:scale-100" viewBox="0 0 16 16">
                     <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/>
                     <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
                 </svg>
-            </a>
+            </button>
         </div>
+        <Modal
+            :show="showPrintModal"
+            :closeable="!isPrinting"
+            @close="showPrintModal = false"
+        >
+            <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="text-center w-full">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 pb-2">
+                        Rendering PDF
+                    </h3>
+                    <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                        <div
+                            class="h-full bg-green-500 transition-all duration-300"
+                            :style="{ width: `${printProgress}%` }"
+                        ></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">
+                        {{ printProgress }}%
+                    </p>
+                    <p v-if="printError" class="text-xs text-red-500 mt-2">
+                        {{ printError }}
+                    </p>
+                </div>
+            </div>
+        </Modal>
         <Modal
             :show="showModal"
             :closeable="true"
