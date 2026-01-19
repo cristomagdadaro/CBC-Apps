@@ -62,7 +62,17 @@ export default {
                 if (response?.data?.ready) {
                     this.printProgress = 100;
                     setTimeout(() => {
-                        window.open(response.data.url, '_blank');
+                        const targetUrl = response.data.download_url ?? response.data.url;
+                        const win = window.open(targetUrl, '_blank');
+                        if (!win) {
+                            const link = document.createElement('a');
+                            link.href = targetUrl;
+                            link.target = '_blank';
+                            link.rel = 'noopener noreferrer';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        }
                         this.isPrinting = false;
                         this.showPrintModal = false;
                         this.printProgress = 0;

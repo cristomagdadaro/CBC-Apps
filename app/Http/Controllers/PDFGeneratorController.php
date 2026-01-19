@@ -87,6 +87,7 @@ class PDFGeneratorController extends Controller
             return response()->json([
                 'ready' => true,
                 'url' => route('forms.generate.pdf', ['id' => $id, 'template' => $template]),
+                'download_url' => route('forms.generate.pdf', ['id' => $id, 'template' => $template, 'download' => 1]),
             ]);
         }
 
