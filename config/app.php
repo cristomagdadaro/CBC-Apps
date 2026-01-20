@@ -20,6 +20,11 @@ return [
 
     'version' => env('APP_VERSION', '1.12.0'),
 
+    'versioning' => [
+        'major' => (int) env('APP_VERSION_MAJOR', 1),
+        'fallback_commit_count' => (int) env('APP_VERSION_COMMIT_COUNT', 0),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

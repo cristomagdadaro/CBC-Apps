@@ -8,6 +8,7 @@ use App\Models\Transaction;
 use App\Observers\RequestFormPivotObserver;
 use App\Observers\TransactionObserver;
 use Inertia\Inertia;
+use Symfony\Component\Process\Process;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Inertia::share('appVersion', config('app.version'));
+        Inertia::share('appVersion', $this->buildAppVersion());
 
         if (!class_exists(RequestFormPivot::class)) {
             $fallback = app_path('Models/RequestFormPIvot.php');
@@ -36,5 +37,50 @@ class AppServiceProvider extends ServiceProvider
             RequestFormPivot::observe(RequestFormPivotObserver::class);
         }
         Transaction::observe(TransactionObserver::class);
+    }
+
+    protected function buildAppVersion(): string
+    {
+        $commitCount = $this->resolveCommitCount();
+
+        if ($commitCount === null) {
+            return config('app.version', 'v1.0.0');
+        }
+
+        $major = (int) config('app.versioning.major', 1);
+        $mid = intdiv($commitCount, 100);
+        $minor = $commitCount % 100;
+
+        return sprintf('V%d.%d.%02d', $major, $mid, $minor);
+    }
+
+    protected function resolveCommitCount(): ?int
+    {
+        static $count;
+
+        if ($count !== null) {
+            return $count;
+        }
+
+        if (!is_dir(base_path('.git'))) {
+            $count = (int) config('app.versioning.fallback_commit_count', 0);
+            return $count;
+        }
+
+        try {
+            $process = Process::fromShellCommandline('git rev-list --count HEAD', base_path());
+            $process->run();
+
+            if ($process->isSuccessful()) {
+                $count = (int) trim($process->getOutput());
+                return $count;
+            }
+        } catch (\Throwable) {
+            // Swallow and use fallback
+        }
+
+        $count = (int) config('app.versioning.fallback_commit_count', 0);
+
+        return $count;
     }
 }
