@@ -41,8 +41,8 @@ onMounted(() => {
                             </h1>
                         </div>
                         <span class="absolute bottom-0 -right-5 text-[0.60rem] text-AB">
-                        v1.12
-                    </span>
+                            v{{ $page.props.appVersion }}
+                        </span>
                     </div>
 
                     <p class="mt-4 max-w-2xl mx-auto text-gray-300 leading-none">

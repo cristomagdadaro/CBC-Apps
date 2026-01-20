@@ -7,6 +7,7 @@ use App\Models\RequestFormPivot;
 use App\Models\Transaction;
 use App\Observers\RequestFormPivotObserver;
 use App\Observers\TransactionObserver;
+use Inertia\Inertia;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Inertia::share('appVersion', config('app.version'));
+
         if (!class_exists(RequestFormPivot::class)) {
             $fallback = app_path('Models/RequestFormPIvot.php');
             if (is_file($fallback)) {
