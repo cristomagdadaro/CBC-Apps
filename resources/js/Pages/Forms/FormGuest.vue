@@ -27,6 +27,10 @@ export default {
     props: {
         eventForm: { type: Object },
         quote: String,
+        todayEvents: {
+            type: Array,
+            default: () => [],
+        },
     },
     data() {
         return {
@@ -46,19 +50,33 @@ export default {
             showConfirmationModel: false,
             showFullQr: false,
             fullQrValue: '',
+            showTodayPanel: false,
+            showMobileTodayPanel: false,
+            isSearching: false,
         }
     },
     methods: {
-        async searchEvent() {
+        async searchEvent(resetInputs = true) {
             if (!this.form.search || this.form.search.length < 4) return;
-            this.eventFormFromApi = null;
-            this.eventFormFromApi = await this.model.api.getIndex(this.form.data(), this.model);
 
-            this.eventId.cell1 = null;
-            this.eventId.cell2 = null;
-            this.eventId.cell3 = null;
-            this.eventId.cell4 = null;
-            this.$refs.cell1.focus();
+            this.isSearching = true;
+            this.eventFormFromApi = null;
+
+            try {
+                this.eventFormFromApi = await this.model.api.getIndex(this.form.data(), this.model);
+            } catch (error) {
+                console.error('Failed to fetch event form:', error);
+            } finally {
+                if (resetInputs) {
+                    this.eventId.cell1 = null;
+                    this.eventId.cell2 = null;
+                    this.eventId.cell3 = null;
+                    this.eventId.cell4 = null;
+                    this.$refs.cell1?.focus();
+                }
+
+                this.isSearching = false;
+            }
         },
         getLastDigit(value) {
             return /^[0-9]$/.test(value) ? value : '';
@@ -95,6 +113,78 @@ export default {
             this.showFullQr = false;
             this.fullQrValue = '';
         },
+        async applyTodayEvent(eventId) {
+            if (!eventId) return;
+            this.populateEventId(eventId);
+            this.eventFormFromApi = null;
+            await this.$nextTick();
+            await this.searchEvent(false);
+            if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                this.closeMobileTodayPanel();
+            }
+        },
+        populateEventId(value) {
+            const digitsOnly = (value ?? '')
+                .toString()
+                .replace(/\D/g, '')
+                .slice(0, 4);
+
+            const cells = ['cell1', 'cell2', 'cell3', 'cell4'];
+            cells.forEach((cell, index) => {
+                this.eventId[cell] = digitsOnly[index] ?? '';
+            });
+
+            this.form.search = digitsOnly || null;
+        },
+        syncTodayPanelVisibility() {
+            if (typeof window === 'undefined') return;
+            const isDesktop = window.innerWidth >= 768;
+            this.showTodayPanel = isDesktop;
+            if (isDesktop) {
+                this.showMobileTodayPanel = false;
+            }
+        },
+        toggleMobileTodayPanel() {
+            this.showMobileTodayPanel = !this.showMobileTodayPanel;
+        },
+        closeMobileTodayPanel() {
+            this.showMobileTodayPanel = false;
+        },
+        formatEventDates(event) {
+            if (!event?.date_from || !event?.date_to) {
+                return 'Date TBD';
+            }
+
+            const from = new Date(event.date_from);
+            const to = new Date(event.date_to);
+            const formatter = new Intl.DateTimeFormat('en-US', {
+                month: 'short',
+                day: 'numeric',
+            });
+
+            const sameDay = from.toDateString() === to.toDateString();
+            return sameDay
+                ? formatter.format(from)
+                : `${formatter.format(from)} – ${formatter.format(to)}`;
+        },
+        formatEventTimes(event) {
+            if (!event?.time_from || !event?.time_to) {
+                return 'Time TBD';
+            }
+
+            try {
+                const formatter = new Intl.DateTimeFormat('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                });
+                const base = '1970-01-01T';
+                const from = new Date(`${base}${event.time_from}`);
+                const to = new Date(`${base}${event.time_to}`);
+                return `${formatter.format(from)} – ${formatter.format(to)}`;
+            } catch (e) {
+                return `${event.time_from} – ${event.time_to}`;
+            }
+        },
     },
     watch: {
         eventId: {
@@ -121,12 +211,104 @@ export default {
         setTimeout(() => {
             this.delayReady = true;
         }, 200);
+        this.populateEventId(this.form?.search);
+        if (typeof window !== 'undefined') {
+            this.syncTodayPanelVisibility();
+            window.addEventListener('resize', this.syncTodayPanelVisibility);
+        }
+    },
+    beforeUnmount() {
+        if (typeof window !== 'undefined') {
+            window.removeEventListener('resize', this.syncTodayPanelVisibility);
+        }
     }
 }
 </script>
 
 <template>
     <Head title="Event Form" />
+
+    <div
+        v-if="showTodayPanel && todayEvents && todayEvents.length"
+        class="hidden md:block fixed left-4 top-1/2 -translate-y-1/2 z-[1000] pointer-events-auto"
+    >
+        <div class="bg-white/95 text-gray-800 shadow-2xl rounded-2xl border border-AB/30 w-64 max-h-[80vh] flex flex-col backdrop-blur">
+            <div class="px-4 py-3 border-b border-gray-100">
+                <p class="text-lg font-bold uppercase text-gray-500">Today's Events</p>
+                <p class="text-xs text-gray-400">{{ todayEvents.length }} ongoing</p>
+            </div>
+            <div class="overflow-y-auto scroll-m-0 divide-y divide-gray-100">
+                <button
+                    v-for="event in todayEvents"
+                    :key="event.event_id"
+                    type="button"
+                    @click="applyTodayEvent(event.event_id)"
+                    class="w-full text-left px-4 py-3 hover:bg-AB/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-AB/40"
+                >
+                    <p class="font-semibold text-sm text-AB leading-tight">{{ event.title || 'Untitled Event' }}</p>
+                    <p class="text-[0.65rem] text-gray-500 tracking-[0.2em] uppercase">{{ event.event_id }}</p>
+                    <p class="text-xs text-gray-600 mt-1">{{ formatEventDates(event) }}</p>
+                    <p class="text-[0.65rem] text-gray-500">
+                        {{ formatEventTimes(event) }}
+                    </p>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <button
+        v-if="todayEvents && todayEvents.length"
+        type="button"
+        class="md:hidden fixed left-4 bottom-4 z-50 bg-AB text-white px-4 py-3 rounded-full shadow-lg shadow-AB/40 flex items-center gap-2 text-sm"
+        @click="toggleMobileTodayPanel"
+    >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar2-event" viewBox="0 0 16 16">
+            <path d="M11 7.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z"/>
+            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1.5A1.5 1.5 0 0 1 16 2.5V14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2.5A1.5 1.5 0 0 1 1.5 1H3V.5a.5.5 0 0 1 .5-.5M15 4H1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1z"/>
+        </svg>
+        Today's Events
+    </button>
+
+    <transition name="fade">
+        <div
+            v-if="showMobileTodayPanel"
+            class="md:hidden fixed inset-0 z-40 bg-black/60 flex"
+        >
+            <div class="bg-white text-gray-800 rounded-3xl shadow-2xl w-11/12 max-w-md m-auto p-5 flex flex-col max-h-[85vh]">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.4em] text-gray-400">Today's Events</p>
+                        <p class="text-lg font-semibold text-AB">{{ todayEvents.length }} scheduled</p>
+                    </div>
+                    <button type="button" class="text-gray-500 hover:text-gray-700" @click="closeMobileTodayPanel">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="overflow-y-auto divide-y divide-gray-100 -mx-5 px-5 flex-1">
+                    <button
+                        v-for="event in todayEvents"
+                        :key="`mobile-${event.event_id}`"
+                        type="button"
+                        class="w-full text-left py-3 hover:bg-AB/5"
+                        @click="applyTodayEvent(event.event_id)"
+                    >
+                        <p class="font-semibold text-base text-AB leading-snug">{{ event.title || 'Untitled Event' }}</p>
+                        <p class="text-xs text-gray-500 tracking-[0.3em] uppercase">{{ event.event_id }}</p>
+                        <p class="text-sm text-gray-600 mt-1">{{ formatEventDates(event) }}</p>
+                        <p class="text-xs text-gray-500">
+                            {{ formatEventTimes(event) }}
+                            <span v-if="event.venue"> • {{ event.venue }}</span>
+                        </p>
+                    </button>
+                </div>
+                <button type="button" class="mt-4 w-full py-2 rounded-xl border border-gray-200 text-sm" @click="closeMobileTodayPanel">
+                    Close
+                </button>
+            </div>
+        </div>
+    </transition>
 
     <guest-form-page
         :title="'Event Forms'"
@@ -192,8 +374,8 @@ export default {
                     </div>
                     <InputError class="mt-2" :message="form.errors.event" />
                 </div>
-                <search-btn type="submit" :disabled="model?.processing" class="text-center">
-                    <span v-if="!model?.processing" class="md:block hidden">Search</span>
+                <search-btn type="submit" :disabled="isSearching" class="text-center">
+                    <span v-if="!isSearching" class="md:block hidden">Search</span>
                     <span v-else class="md:block hidden">Searching</span>
                 </search-btn>
             </form>
@@ -267,7 +449,7 @@ export default {
         </confirmation-modal>
 
         <!-- Bottom descriptive / feedback text -->
-        <template v-if="!model?.processing">
+        <template v-if="!isSearching">
             <div v-if="!form.search && !eventForm && !eventFormFromApi?.data?.length">
                 <blockquote v-html="formattedQuote" class="mt-3"></blockquote>
             </div>
@@ -278,16 +460,24 @@ export default {
                 Form not found. Try a different event id or ask the organizer.
             </div>
         </template>
-        <div v-else class="flex items-center justify-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search animate-ping" viewBox="0 0 16 16">
-                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-            </svg>
-            <span class="animate-pulse">Searching</span>
+        
+        <transition name="fade">
+        <div
+            v-if="isSearching"
+            class="fixed inset-0 z-40 flex items-center justify-center pointer-events-none"
+        >
+            <div class="bg-white/90 text-AB px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="animate-spin" viewBox="0 0 16 16">
+                    <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 1 1 .908-.417 6 6 0 1 1-5.454-3.485.5.5 0 0 1 0 1Z" />
+                </svg>
+                <div class="text-sm font-semibold tracking-wide">Fetching event details…</div>
+            </div>
         </div>
+    </transition>
 
         <!-- Cards row -->
         <div class="flex gap-5 md:flex-row flex-col">
-            <transition-container :duration="1000" type="slide-bottom">
+            <transition-container :duration="300" type="pop-in">
                 <div v-if="eventFormFromApi?.data?.length">
                     <guest-card
                         :data="eventFormFromApi.data[0]"
@@ -299,7 +489,7 @@ export default {
                 </div>
             </transition-container>
 
-            <transition-container :duration="1000" type="slide-bottom">
+            <transition-container :duration="300" type="pop-in">
                 <div v-if="eventForm && delayReady">
                     <guest-card
                         :data="eventForm"

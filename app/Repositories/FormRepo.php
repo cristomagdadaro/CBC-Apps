@@ -6,6 +6,7 @@ use App\Models\EventRequirement;
 use App\Models\Form;
 use App\Models\Participant;
 use App\Models\Registration;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -102,5 +103,37 @@ class FormRepo extends AbstractRepoService
         }
 
         return $form->requirements()->get();
+    }
+
+    public function getTodayEvents(): Collection
+    {
+        $startOfDay = Carbon::now()->startOfDay();
+        $endOfDay = Carbon::now()->endOfDay();
+
+        return $this->model
+            ->newQuery()
+            ->select([
+                'event_id',
+                'title',
+                'venue',
+                'date_from',
+                'date_to',
+                'time_from',
+                'time_to',
+            ])
+            ->where('is_suspended', false)
+            ->where(function ($query) use ($startOfDay, $endOfDay) {
+                $query
+                    ->whereBetween('date_from', [$startOfDay, $endOfDay])
+                    ->orWhereBetween('date_to', [$startOfDay, $endOfDay])
+                    ->orWhere(function ($subQuery) use ($startOfDay, $endOfDay) {
+                        $subQuery
+                            ->where('date_from', '<=', $startOfDay)
+                            ->where('date_to', '>=', $endOfDay);
+                    });
+            })
+            ->orderBy('date_from')
+            ->orderBy('time_from')
+            ->get();
     }
 }

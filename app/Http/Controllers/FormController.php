@@ -32,6 +32,7 @@ class FormController extends BaseController
         return Inertia::render('Forms/FormGuest', [
             'eventForm' => $this->repo()->getGuestFormByEventId($event_id),
             'quote' => Inspiring::quote(),
+            'todayEvents' => $this->repo()->getTodayEvents(),
         ]);
     }
 
