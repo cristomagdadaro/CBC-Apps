@@ -9,6 +9,7 @@ use App\Pipelines\InventoryTransaction\ResolveUserByEmployeeId;
 use App\Pipelines\InventoryTransaction\AssignTransactionUuid;
 use App\Pipelines\InventoryTransaction\PersistTransaction;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class TransactionRepo extends AbstractRepoService
 {
@@ -122,6 +123,18 @@ class TransactionRepo extends AbstractRepoService
         }
 
         return new Collection($data);
+    }
+
+    public function applySorting(Builder &$query, Collection $parameters): void
+    {
+        $sortColumn = $parameters->get('sort');
+
+        if (!$sortColumn) {
+            $query->orderBy('transactions.created_at', 'desc');
+            return;
+        }
+
+        parent::applySorting($query, $parameters);
     }
 
     public function createOutgoingWithPipeline(array $validated): Model

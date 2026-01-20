@@ -68,6 +68,7 @@ export default {
     beforeMount() {
         this.model = new Transaction();
         this.setFormAction('get');
+        this.applyNameSort();
     },
     async mounted() {
         await this.searchEvent();
@@ -125,6 +126,7 @@ export default {
             this.showModel = false;
             this.selectedItem = null;
             this.resetForm();
+            this.applyNameSort();
         },
         async searchFromBarcode(barcode) {
             // Prepare an exact search against the barcode column (assumes 'barcode' is a valid filter column)
@@ -143,6 +145,11 @@ export default {
                 }
                 // If zero or multiple matches, the list remains visible for manual selection
             }
+        },
+        applyNameSort() {
+            if (!this.form) return;
+            this.form.sort = 'name';
+            this.form.order = 'asc';
         }
     }
 }
