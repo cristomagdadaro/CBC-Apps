@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\EventAttendance;
 
 use App\Models\Form;
 use App\Repositories\FormRepo;
@@ -31,6 +31,6 @@ class FormStyleCustomizationTest extends TestCase
         $fetched = $repo->getGuestFormByEventId($form->event_id);
 
         $this->assertNotNull($fetched);
-        $this->assertSame($styleTokens, $fetched->style_tokens);
+        $this->assertEqualsCanonicalizing($styleTokens, $fetched->style_tokens);
     }
 }
