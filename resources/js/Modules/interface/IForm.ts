@@ -1,3 +1,18 @@
+type FormStyleMode = 'color' | 'image' | null;
+
+interface IFormStyleToken {
+    mode: FormStyleMode;
+    value: string | null;
+}
+
+interface IFormStyleTokens {
+    'form-background': IFormStyleToken;
+    'form-header-box': IFormStyleToken;
+    'form-time-from': IFormStyleToken;
+    'form-time-to': IFormStyleToken;
+    'form-time-between': IFormStyleToken;
+}
+
 interface IForm extends IBaseClass {
     id: string;
     event_id: string;
@@ -12,6 +27,7 @@ interface IForm extends IBaseClass {
     is_suspended: boolean;
     max_slots: number;
     requirements: Array<string>;
+    style_tokens: IFormStyleTokens;
 
     participants_count: number;
 

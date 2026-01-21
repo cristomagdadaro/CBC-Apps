@@ -28,13 +28,15 @@ class Form extends BaseModel
         'venue',
         'is_suspended',
         'is_expired',
-        'max_slots'
+        'max_slots',
+        'style_tokens',
     ];
 
     protected $casts = [
         'id' => 'string',
         'date_from' => 'datetime',
         'date_to' => 'datetime',
+        'style_tokens' => 'array',
     ];
 
     protected $hidden = [

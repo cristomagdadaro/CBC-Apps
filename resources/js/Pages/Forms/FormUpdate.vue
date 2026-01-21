@@ -16,6 +16,7 @@ import ListOfParticipants from "@/Pages/Forms/components/ListOfParticipants.vue"
 import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 import TabNavigation from "@/Components/TabNavigation.vue";
 import RequirementsManager from "@/Components/Forms/RequirementsManager.vue";
+import FormStyleDesigner from "@/Pages/Forms/components/FormStyleDesigner.vue";
 
 export default {
     name: "FormUpdate",
@@ -23,8 +24,17 @@ export default {
         Participant() {
             return Participant;
         },
+        styleTokensError() {
+            if (!this.form?.errors) {
+                return null;
+            }
+
+            const entry = Object.entries(this.form.errors).find(([key]) => key.startsWith('style_tokens'));
+            return entry ? entry[1] : null;
+        },
     },
     components: {
+        FormStyleDesigner,
         RequirementsManager,
         TabNavigation,
         LoaderIcon,
@@ -159,6 +169,9 @@ export default {
                                         <div class="px-1">
                                             <requirements-manager v-model="form.requirements" :error="form.errors.requirements"/>
                                         </div> 
+                                        <div class="px-1">
+                                            <form-style-designer v-model="form.style_tokens" :error="styleTokensError" />
+                                        </div>
                                         <div class="flex flex-col p-2">
                                             <div class="flex gap-1 justify-between">
                                                 <suspend-form-btn :data="form" />

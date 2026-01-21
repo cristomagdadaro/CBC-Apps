@@ -1,4 +1,5 @@
 import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
+import { FormAppearanceTokens, mergeFormStyleTokens } from "@/Modules/shared/formStyleTokens";
 
 export default class DtoForm extends DtoBaseClass implements IForm{
     event_id: string;
@@ -13,6 +14,7 @@ export default class DtoForm extends DtoBaseClass implements IForm{
     is_suspended: boolean;
     max_slots: number;
     requirements: string[];
+    style_tokens: FormAppearanceTokens;
 
     participants_count: number;
 
@@ -34,6 +36,7 @@ export default class DtoForm extends DtoBaseClass implements IForm{
         this.is_suspended = data?.is_suspended ?? false;
         this.max_slots = data?.max_slots ?? 0;
         this.requirements = Array.isArray(data?.requirements) ? data.requirements : [];
+        this.style_tokens = mergeFormStyleTokens(data?.style_tokens);
 
         this.participants_count = data?.participants_count ?? 0;
         this.registrations = [];

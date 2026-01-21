@@ -11,7 +11,7 @@ const resolveAppEnv = () => {
     if (typeof window !== 'undefined' && window.__APP_ENV__) {
         return window.__APP_ENV__;
     }
-
+    // @ts-ignore
     return import.meta.env.VITE_APP_ENV || import.meta.env.MODE || 'production';
 };
 

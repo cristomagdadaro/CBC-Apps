@@ -12,10 +12,12 @@ import Form from "@/Modules/domain/Form";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import GuestCard from "@/Pages/Forms/components/GuestCard.vue";
 import RequirementsManager from "@/Components/Forms/RequirementsManager.vue";
+import FormStyleDesigner from "@/Pages/Forms/components/FormStyleDesigner.vue";
 
 export default {
     name: "FormCreate",
     components: {
+        FormStyleDesigner,
         RequirementsManager,
         GuestCard,
         TimeInput, DateInput, TextArea, TextInput, FormsHeaderActions, Link, AddButton, AppLayout, ListOfForms},
@@ -25,6 +27,15 @@ export default {
         this.setFormAction('create');
         if (!this.form.requirements) {
             this.form.requirements = [];
+        }
+    },
+    computed: {
+        styleTokensError() {
+            if (!this.form?.errors) {
+                return null;
+            }
+            const entry = Object.entries(this.form.errors).find(([key]) => key.startsWith('style_tokens'));
+            return entry ? entry[1] : null;
         }
     },
     methods: {
@@ -94,6 +105,9 @@ export default {
                                 </div>
                                 <div class="px-1 flex flex-col gap-1">
                                     <requirements-manager v-model="form.requirements" :error="form.errors.requirements"/>
+                                </div>
+                                <div class="px-1 flex flex-col gap-1">
+                                    <form-style-designer v-model="form.style_tokens" :error="styleTokensError" />
                                 </div>
                                 <div class="flex flex-col p-2">
                                     <div class="flex gap-1 justify-end">

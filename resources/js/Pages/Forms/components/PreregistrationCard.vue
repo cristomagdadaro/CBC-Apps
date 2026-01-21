@@ -113,7 +113,6 @@ export default {
                 </div>
             </div>
         </transition-container>
-        {{ form }}
         <div class="pb-3 pt-1">
             <label class="text-red-600 uppercase justify-center flex">{{ form.errors.suspended || form.errors.full || form.errors.expired }}</label>
             <h3 class="text-lg leading-tight uppercase font-extrabold">

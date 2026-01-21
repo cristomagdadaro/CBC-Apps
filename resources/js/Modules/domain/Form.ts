@@ -1,4 +1,5 @@
 import DtoForm from "@/Modules/dto/DtoForm";
+import { createEmptyFormStyleTokens, mergeFormStyleTokens } from "@/Modules/shared/formStyleTokens";
 
 export default class Form extends DtoForm {
     static endpoints = {
@@ -40,6 +41,7 @@ export default class Form extends DtoForm {
             venue: null,
             max_slots: null,
             requirements: null,
+            style_tokens: createEmptyFormStyleTokens(),
         }
     }
 
@@ -59,6 +61,7 @@ export default class Form extends DtoForm {
             is_suspended: data?.is_suspended,
             max_slots: data?.max_slots,
             requirements: null,
+            style_tokens: mergeFormStyleTokens(data?.style_tokens),
         }
     }
 

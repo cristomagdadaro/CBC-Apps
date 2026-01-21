@@ -2,12 +2,15 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\InteractsWithFormStyles;
 use App\Models\Form;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 
 class CreateFormRequest extends FormRequest
 {
+    use InteractsWithFormStyles;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -29,6 +32,7 @@ class CreateFormRequest extends FormRequest
         $this->merge([
             'id' => $temp,
             'event_id' => $event,
+            'style_tokens' => $this->normalizeStyleTokens($this->input('style_tokens')),
         ]);
     }
 
@@ -39,7 +43,7 @@ class CreateFormRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'id' => ['required'],
             'event_id' => ['required', 'string', 'min:4', 'max:4'],
             'title' => ['required', 'string', 'min:10', 'max:510', 'unique:forms,title'],
@@ -54,6 +58,8 @@ class CreateFormRequest extends FormRequest
             'max_slots' => 'nullable|integer',
             'requirements' => 'nullable|array',
         ];
+
+        return array_merge($rules, $this->styleTokenRules());
     }
 
     public function messages(): array

@@ -7,11 +7,18 @@ import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import RegistrationCard from "@/Pages/Forms/components/RegistrationCard.vue";
 import FeedbackCard from "@/Pages/Forms/components/FeedbackCard.vue";
 import TabNavigation from "@/Components/TabNavigation.vue";
+import { mergeFormStyleTokens } from "@/Modules/shared/formStyleTokens";
 
 export default {
     name: "GuestCard",
     components: {TabNavigation, FeedbackCard, RegistrationCard, InputError, InputLabel, TextInput, PreregistrationCard},
     mixins: [DataFormatterMixin],
+    props: {
+        data: {
+            type: Object,
+            default: null,
+        },
+    },
     data() {
         return {
             // v-model on <TabNavigation> expects a reactive property.
@@ -20,6 +27,11 @@ export default {
             // referenced in beforeDestroy when clearing the interval
             intervalId: null,
         };
+    },
+    computed: {
+        resolvedStyleTokens() {
+            return mergeFormStyleTokens(this.data?.style_tokens);
+        },
     },
     mounted() {
         this.startCountdown();
@@ -39,7 +51,7 @@ export default {
     },
     methods: {
         whatForm(formType) {
-            if (this.data.requirements.length <= 0) return null;
+            if (!this.data || !Array.isArray(this.data.requirements) || this.data.requirements.length <= 0) return null;
             return this.data.requirements.find((requirement) => requirement.form_type === formType) || null;
         },
         isFormOpen(form) {
@@ -58,13 +70,36 @@ export default {
             }
             return now >= openFrom && now <= openTo;
         },
+        styleFor(key) {
+            const token = this.resolvedStyleTokens?.[key];
+            if (!token || !token.value) {
+                return {};
+            }
+
+            if (token.mode === 'image') {
+                return {
+                    backgroundImage: `url(${token.value})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                };
+            }
+
+            if (token.mode === 'color') {
+                return {
+                    backgroundColor: token.value,
+                };
+            }
+
+            return {};
+        },
     }
 }
 </script>
 
 <template>
-    <div v-if="!!data" class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100 max-w-xl drop-shadow-lg mx-4 lg:mx-0 my-4 md:mt-0">
-        <div class="flex flex-row bg-AB gap-2 text-white p-2 rounded-md justify-between shadow py-4">
+    <div v-if="!!data" id="form-background" class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100 max-w-xl drop-shadow-lg mx-4 lg:mx-0 my-4 md:mt-0" :style="styleFor('form-background')">
+        <div id="form-header-box" class="flex flex-row bg-AB gap-2 text-white p-2 rounded-md justify-between shadow py-4" :style="styleFor('form-header-box')">
             <div class="flex flex-col justify-center drop-shadow">
                 <label class="leading-tight font-semibold text-2xl">{{ data.title }}</label>
                 <p class="text-xs leading-snug break-all">
@@ -84,14 +119,14 @@ export default {
         </div>
 
         <div class="flex relative items-center drop-shadow">
-            <div class="bg-AA text-center py-3 text-white rounded-md flex flex-col leading-none w-full">
+            <div id="form-time-from" class="bg-AA text-center py-3 text-white rounded-md flex flex-col leading-none w-full" :style="styleFor('form-time-from')">
                 <label class="font-bold">{{ formatTime(data.time_from) }} {{ formatDate(data.date_from) }}</label>
                 <span class="text-xs">Start</span>
             </div>
-            <div class="flex w-full bg-AB max-w-[2rem]">
+            <div id="form-time-between" class="flex w-full bg-AB max-w-[2rem]" :style="styleFor('form-time-between')">
                 <label class="m-auto text-white font-bold">TO</label>
             </div>
-            <div class="bg-AA text-center py-3 text-white rounded-md flex flex-col leading-none w-full">
+            <div id="form-time-to"  class="bg-AA text-center py-3 text-white rounded-md flex flex-col leading-none w-full" :style="styleFor('form-time-to')">
                 <label class="font-bold">{{ formatTime(data.time_to) }} {{ formatDate(data.date_to) }}</label>
                 <span class="text-xs">End</span>
             </div>
