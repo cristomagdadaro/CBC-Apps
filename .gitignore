@@ -19,3 +19,4 @@ yarn-error.log
 *.deployment
 .env
 /public/generated-pdfs
+public/build/manifest.json

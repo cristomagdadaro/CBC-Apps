@@ -1,6 +1,30 @@
 import axios, {AxiosResponse} from "axios";
 import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
 
+declare global {
+    interface Window {
+        __APP_ENV__?: string;
+    }
+}
+
+const resolveAppEnv = () => {
+    if (typeof window !== 'undefined' && window.__APP_ENV__) {
+        return window.__APP_ENV__;
+    }
+
+    return import.meta.env.VITE_APP_ENV || import.meta.env.MODE || 'production';
+};
+
+const APP_ENV = resolveAppEnv().toLowerCase();
+const SHOULD_LOG_RESPONSES = ['local', 'development'].includes(APP_ENV);
+
+const logDebug = (...args: unknown[]) => {
+    if (SHOULD_LOG_RESPONSES) { 
+        // eslint-disable-next-line no-console
+        console.log(...args);
+    }
+};
+
 export default abstract class ApiService {
     public axiosInstance: any;
     public processing: boolean = false;
@@ -47,7 +71,7 @@ export default abstract class ApiService {
                 return response;
             });
             this.processing = false;
-            console.log(response.data);
+            logDebug(response.data);
             return response.data;
         } catch (error) {
             this.processing = false;
@@ -57,11 +81,11 @@ export default abstract class ApiService {
 
     async post(url: string, params?: any, config?: any) {
         this.processing = true;
-        try { console.log(params)
+        try {
             // @ts-ignore
             const response = await this.axiosInstance.post(route(url), params, config);
             this.processing = false;
-            console.log(response.data);
+            logDebug(response.data);
             return response;
         } catch (error) {
             this.processing = false;
@@ -71,12 +95,12 @@ export default abstract class ApiService {
 
     async put(url: string, id: any, params?: any) {
 
-        this.processing = true; console.log(params)
+        this.processing = true;
         try {
             // @ts-ignore
             const response = await axios.put(`${route(url)}/${id}`, params);
             this.processing = false;
-            console.log(response.data);
+            logDebug(response.data);
             return response;
         } catch (error) {
             this.processing = false;
@@ -90,7 +114,7 @@ export default abstract class ApiService {
             // @ts-ignore
             const response = await axios.delete(route(url, id), id);
             this.processing = false;
-            console.log(response.data);
+            logDebug(response.data);
             return response;
         } catch (error) {
             this.processing = false;

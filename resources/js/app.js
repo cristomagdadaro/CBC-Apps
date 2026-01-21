@@ -24,6 +24,11 @@ createInertiaApp({
         vueApp.config.globalProperties.$appName = import.meta.env.VITE_APP_NAME;
         vueApp.config.globalProperties.$companyName = import.meta.env.VITE_COMPANY_NAME;
         vueApp.config.globalProperties.$companyNameShort = import.meta.env.VITE_COMPANY_NAME_SHORT;
+        vueApp.config.globalProperties.$appEnv = import.meta.env.VITE_APP_ENV;
+
+        if (typeof window !== 'undefined') {
+            window.__APP_ENV__ = import.meta.env.VITE_APP_ENV || import.meta.env.MODE || 'production';
+        }
 
         return vueApp
             .use(plugin)
