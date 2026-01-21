@@ -188,14 +188,14 @@ export default {
                     autocomplete="age"
                     @input="form.clearErrors('age')"
                 />
-                <div :class="{'border-red-500' : form.errors.is_ip}" class="w-full relative px-2 py-0.5 flex text-center leading-none lg:flex-row flex-col-reverse items-center lg:gap-2 bg-white rounded-md border border-gray-600 " @click.prevent="form.is_ip = !form.is_ip">
+                <div :class="{'border-red-500' : form.errors.is_ip}" class="w-full relative px-2 py-0.5 flex text-center leading-none lg:flex-row flex-col-reverse items-center lg:gap-2 bg-white rounded-md border border-gray-600 " @click.prevent="form.response_data.is_ip = !form.response_data.is_ip">
                     <label class="text-xs">Are you a member of indigenous people?</label>
                     <Checkbox id="is_ip" v-model="form.response_data.is_ip" :checked="form.response_data.is_ip" autofocus autocomplete="is_ip"/>
                     <transition-container type="slide-bottom">
                         <InputError v-show="!!form.errors.is_ip" class="absolute -top-1 left-3" :message="form.errors.is_ip" />
                     </transition-container>
                 </div>
-                <div :class="{'border-red-500' : form.errors.is_pwd}" class="w-full relative px-2 py-0.5 flex text-center leading-none lg:flex-row flex-col-reverse items-center lg:gap-2 bg-white rounded-md border border-gray-600 " @click.prevent="form.is_pwd = !form.is_pwd">
+                <div :class="{'border-red-500' : form.errors.is_pwd}" class="w-full relative px-2 py-0.5 flex text-center leading-none lg:flex-row flex-col-reverse items-center lg:gap-2 bg-white rounded-md border border-gray-600 " @click.prevent="form.response_data.is_pwd = !form.response_data.is_pwd">
                     <label class="text-xs">Are you a person with disability?</label>
                     <Checkbox id="is_pwd" v-model="form.response_data.is_pwd" :checked="form.response_data.is_pwd" autofocus autocomplete="is_pwd"/>
                     <transition-container type="slide-bottom">
