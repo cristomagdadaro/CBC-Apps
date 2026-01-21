@@ -19,17 +19,25 @@ export default {
         return {
             fields: FORM_STYLE_FIELDS,
             localTokens: mergeFormStyleTokens(this.modelValue),
+            syncingFromParent: false,
         };
     },
     watch: {
         modelValue: {
             handler(value) {
+                this.syncingFromParent = true;
                 this.localTokens = mergeFormStyleTokens(value);
+                this.$nextTick(() => {
+                    this.syncingFromParent = false;
+                });
             },
             deep: true,
         },
         localTokens: {
             handler(value) {
+                if (this.syncingFromParent) {
+                    return;
+                }
                 this.$emit('update:modelValue', value);
             },
             deep: true,
