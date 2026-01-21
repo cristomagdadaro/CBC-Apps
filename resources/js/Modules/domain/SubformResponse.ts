@@ -58,7 +58,7 @@ export default class SubformResponse extends DtoSubformResponse {
                 db_key: 'form_parent_id',
                 align: 'center',
                 sortable: true,
-                visible: true,
+                visible: false,
             },
             {
                 title: 'Participant ID',
@@ -66,7 +66,7 @@ export default class SubformResponse extends DtoSubformResponse {
                 db_key: 'participant_id',
                 align: 'center',
                 sortable: true,
-                visible: true,
+                visible: false,
             },
             {
                 title: 'Subform Type',
@@ -77,12 +77,28 @@ export default class SubformResponse extends DtoSubformResponse {
                 visible: true,
             },
             {
-                title: 'Response Data',
-                key: 'response_data',
-                db_key: 'response_data',
+                title: 'Respondent',
+                key: 'respondent_name',
+                db_key: 'respondent_name',
+                align: 'text-left',
+                sortable: false,
+                visible: true,
+            },
+            {
+                title: 'Response Snapshot',
+                key: 'response_preview',
+                db_key: 'response_preview',
+                align: 'text-left',
+                sortable: false,
+                visible: true,
+            },
+            {
+                title: 'Submitted On',
+                key: 'created_at',
+                db_key: 'created_at',
                 align: 'center',
                 sortable: true,
-                visible: false,
+                visible: true,
             },
         ]
     }

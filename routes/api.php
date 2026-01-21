@@ -67,7 +67,7 @@ Route::middleware(['api','auth:sanctum','verified'])->group(function () {
             Route::delete('/delete/{event_id?}', [FormController::class, 'delete'])->name('api.form.delete');
             Route::middleware(['check.form.suspended'])->put('/update/{event_id?}', [FormController::class, 'update'])->name('api.form.put');
 
-            Route::get('/{form_parent_id?}', [EventSubformController::class, 'index'])->name('api.subform.response.index');
+            Route::get('/responses', [EventSubformController::class, 'index'])->name('api.subform.response.index');
         });
 
         Route::prefix('use-request-form')->group(function () {

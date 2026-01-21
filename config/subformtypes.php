@@ -17,7 +17,7 @@ return [
         'city_address' => 'nullable|string',
         'province_address' => 'nullable|string',
         'country_address' => 'nullable|string',
-        'attendance_type' => 'required|string|in:Online,In-person',
+        'attendance_type' => 'nullable|string|in:Online,In-person',
         'agreed_tc' => 'accepted',
     ],
 
@@ -35,7 +35,7 @@ return [
         'city_address' => 'nullable|string',
         'province_address' => 'nullable|string',
         'country_address' => 'nullable|string',
-        'attendance_type' => 'required|string|in:Online,In-person',
+        'attendance_type' => 'nullable|string|in:Online,In-person',
         'agreed_tc' => 'accepted',
     ],
 
@@ -53,7 +53,7 @@ return [
         'city_address' => 'nullable|string',
         'province_address' => 'nullable|string',
         'country_address' => 'nullable|string',
-        'attendance_type' => 'required|string|in:Online,In-person',
+        'attendance_type' => 'nullable|string|in:Online,In-person',
         'join_quiz_bee' => 'boolean',
         'agreed_tc' => 'accepted',
     ],
