@@ -14,7 +14,7 @@ class CreateParticipantIfNeeded
     {
         $validated = $context['validated'];
 
-        if (in_array($validated['subform_type'], [Subform::PREREGISTRATION->value, Subform::REGISTRATION->value], true)) {
+        if (in_array($validated['subform_type'], [Subform::PREREGISTRATION->value, Subform::PREREGISTRATION_BIOTECH->value, Subform::REGISTRATION->value], true)) {
             $participantPayload = Arr::only($validated['response_data'], (new Participant())->getFillable());
             $participant = Participant::factory()->create($participantPayload);
 

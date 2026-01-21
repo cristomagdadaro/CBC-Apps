@@ -34,7 +34,7 @@ class CreateEventSubformRequest extends FormRequest
             'subform_type' => ['required', 'string', Rule::in(array_keys(config('subformtypes') ?? []))],
             'form_parent_id' => ['required', 'string', 'exists:event_requirements,event_id'],
             'participant_id' => [
-                'required_unless:subform_type,preregistration,registration',
+                'required_unless:subform_type,preregistration,registration,preregistration_biotech',
                 'nullable',
                 'uuid',
                 'exists:registrations,id',

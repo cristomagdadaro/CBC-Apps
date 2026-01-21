@@ -39,6 +39,25 @@ return [
         'agreed_tc' => 'accepted',
     ],
 
+    // Preregistration + Quiz Bee form fields
+    Subform::PREREGISTRATION_BIOTECH->value => [
+        'name' => 'required|string',
+        'email' => 'required|email',
+        'phone' => 'required|string',
+        'sex' => 'nullable|string|in:Male,Female,Prefer not to say',
+        'age' => 'required|integer',
+        'organization' => 'required|string',
+        'designation' => 'required|string',
+        'is_ip' => 'boolean',
+        'is_pwd' => 'boolean',
+        'city_address' => 'nullable|string',
+        'province_address' => 'nullable|string',
+        'country_address' => 'nullable|string',
+        'attendance_type' => 'required|string|in:Online,In-person',
+        'join_quiz_bee' => 'boolean',
+        'agreed_tc' => 'accepted',
+    ],
+
     // Feedback form fields (expanded to include participant info & agreement)
     Subform::FEEDBACK->value => [
         'clarity_objective' => 'required|integer|in:1,2,3,4,5',

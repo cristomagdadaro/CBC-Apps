@@ -39,6 +39,7 @@ export default {
         formList() {
             const labelMap = {
                 pre_registration: 'Pre-registration',
+                pre_registration_biotech: 'Pre-registration + Quiz Bee',
                 registration: 'Registration',
                 pre_test: 'Pre-test',
                 post_test: 'Post-test',

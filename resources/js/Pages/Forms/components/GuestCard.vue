@@ -1,5 +1,6 @@
 <script>
 import PreregistrationCard from "@/Pages/Forms/components/PreregistrationCard.vue";
+import PreregistrationQuizBeeCard from "@/Pages/Forms/components/PreregistrationQuizBeeCard.vue";
 import TextInput from "@/Components/TextInput.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import InputError from "@/Components/InputError.vue";
@@ -11,7 +12,7 @@ import { mergeFormStyleTokens } from "@/Modules/shared/formStyleTokens";
 
 export default {
     name: "GuestCard",
-    components: {TabNavigation, FeedbackCard, RegistrationCard, InputError, InputLabel, TextInput, PreregistrationCard},
+    components: {TabNavigation, FeedbackCard, RegistrationCard, InputError, InputLabel, TextInput, PreregistrationCard, PreregistrationQuizBeeCard},
     mixins: [DataFormatterMixin],
     props: {
         data: {
@@ -39,6 +40,8 @@ export default {
         if (this.activeTab === null) {
             if (this.isFormOpen(this.whatForm('pre_registration'))) {
                 this.activeTab = 'preregistration';
+            } else if (this.isFormOpen(this.whatForm('pre_registration_biotech'))) {
+                this.activeTab = 'preregistration_quiz';
             } else if (this.isFormOpen(this.whatForm('registration'))) {
                 this.activeTab = 'registration';
             } else if (this.isFormOpen(this.whatForm('feedback'))) {
@@ -165,6 +168,7 @@ export default {
                 v-model="activeTab"
                 :tabs="[
                     isFormOpen(whatForm('pre_registration')) ? { key: 'preregistration', label: 'Pre-Registration' } : null,
+                    isFormOpen(whatForm('pre_registration_biotech')) ? { key: 'preregistration_quiz', label: 'Pre-Registration + Quiz Bee' } : null,
                     isFormOpen(whatForm('registration')) ? { key: 'registration', label: 'Registration' } : null,
                     isFormOpen(whatForm('feedback')) ? { key: 'feedback', label: 'Feedback' } : null,
                 ].filter(Boolean)"
@@ -181,6 +185,19 @@ export default {
                         <h3 v-else-if="whatForm('pre_registration') && whatForm('pre_registration').config && isFormOpen(whatForm('pre_registration'))" class="bg-AB text-white p-3 rounded-md shadow leading-none">
                             Pre-registration will open on
                             <b>{{ formatDateTime(whatForm('pre_registration').config.open_from) }}</b>
+                        </h3>
+                    </div>
+
+                    <div v-if="activeKey === 'preregistration_quiz'">
+                        <preregistration-quiz-bee-card
+                            v-if="isFormOpen(whatForm('pre_registration_biotech'))"
+                            :event-id="data.event_id"
+                            :config="whatForm('pre_registration_biotech')"
+                            @createdModel="$emit('createdModel', $event)"
+                        />
+                        <h3 v-else-if="whatForm('pre_registration_biotech') && whatForm('pre_registration_biotech').config && isFormOpen(whatForm('pre_registration_biotech'))" class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                            Quiz Bee Pre-registration will open on
+                            <b>{{ formatDateTime(whatForm('pre_registration_biotech').config.open_from) }}</b>
                         </h3>
                     </div>
 
