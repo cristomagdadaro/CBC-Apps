@@ -147,14 +147,14 @@ export default class Transaction extends DtoTransaction {
                 db_key: 'personnel_id',
                 align: 'dataColor',
                 sortable: true,
-                visible: false,
+                visible: true,
             },{
                 title: 'Project Code',
                 key: 'project_code',
                 db_key: 'project_code',
                 align: 'dataColor',
                 sortable: true,
-                visible: true,
+                visible: false,
             },{
                 title: 'Date Created',
                 key: 'created_at',
