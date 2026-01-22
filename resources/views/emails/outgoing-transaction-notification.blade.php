@@ -20,8 +20,8 @@
                         <td style="padding:20px 24px;">
                             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; font-size:14px;">
                                 <tr>
-                                    <td style="padding:8px 0; color:#64748b; width:180px;">Transaction ID</td>
-                                    <td style="padding:8px 0; font-weight:600; color:#111827;">{{ $transaction->id }}</td>
+                                    <td style="padding:8px 0; color:#64748b;">Requested By</td>
+                                    <td style="padding:8px 0; font-weight:600; color:#111827;">{{ trim(($transaction->personnel?->fname ?? '') . ' ' . ($transaction->personnel?->lname ?? '')) ?: 'N/A' }}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding:8px 0; color:#64748b;">Item</td>
@@ -30,6 +30,10 @@
                                 <tr>
                                     <td style="padding:8px 0; color:#64748b;">Brand</td>
                                     <td style="padding:8px 0; font-weight:600; color:#111827;">{{ $transaction->item?->brand ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:8px 0; color:#64748b;">Description</td>
+                                    <td style="padding:8px 0; font-weight:600; color:#111827;">{{ $transaction->item?->description ?? 'N/A' }}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding:8px 0; color:#64748b;">Barcode</td>
@@ -44,16 +48,16 @@
                                     <td style="padding:8px 0; font-weight:600; color:#111827;">{{ $remainingQuantity }} {{ $transaction->unit ?? '' }}</td>
                                 </tr>
                                 <tr>
-                                    <td style="padding:8px 0; color:#64748b;">Requested By</td>
-                                    <td style="padding:8px 0; font-weight:600; color:#111827;">{{ trim(($transaction->personnel?->fname ?? '') . ' ' . ($transaction->personnel?->lname ?? '')) ?: 'N/A' }}</td>
-                                </tr>
-                                <tr>
                                     <td style="padding:8px 0; color:#64748b;">Purpose</td>
                                     <td style="padding:8px 0; font-weight:600; color:#111827;">{{ $transaction->remarks ?? 'N/A' }}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding:8px 0; color:#64748b;">Recorded At</td>
                                     <td style="padding:8px 0; font-weight:600; color:#111827;">{{ optional($transaction->created_at)->format('Y-m-d H:i:s') }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:8px 0; color:#64748b; width:180px;">Transaction ID</td>
+                                    <td style="padding:8px 0; font-weight:600; color:#111827;">{{ $transaction->id }}</td>
                                 </tr>
                             </table>
                         </td>
