@@ -23,6 +23,7 @@ class EventRequirementFactory extends Factory
             'id' => (string) Str::uuid(),
             'event_id' => $eventId ?? str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT),
             'form_type' => $this->faker->randomElement([
+                Subform::PREREGISTRATION_BIOTECH->value,
                 Subform::PREREGISTRATION->value,
                 Subform::REGISTRATION->value,
                 Subform::PRETEST->value,

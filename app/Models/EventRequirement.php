@@ -10,7 +10,9 @@ class EventRequirement extends BaseModel
     use HasFactory;
 
     protected $table = 'event_requirements';
-
+    public $incrementing = false;
+    protected $keyType = 'string';
+    
     protected $fillable = [
         'id',
         'event_id',

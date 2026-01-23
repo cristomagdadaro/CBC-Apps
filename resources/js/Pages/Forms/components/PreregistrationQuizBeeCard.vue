@@ -51,6 +51,7 @@ export default {
                 this.registrationIDHashed = response.data.participant_hash;
                 this.saveLocalHashedIds(response.data);
                 this.$emit('createdModel', response.data);
+                this.resetForm();
             }
         }
     },

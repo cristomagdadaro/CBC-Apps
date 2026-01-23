@@ -55,8 +55,8 @@ Route::prefix('guest')->group(function () {
     Route::post('/forms/event', [EventSubformController::class, 'create'])->name('api.subform.response.store');
 });
 
-
-Route::middleware(['api','auth:sanctum','verified'])->group(function () {
+/* 'auth:sanctum', */
+Route::middleware(['api','verified'])->group(function () {
     Route::prefix('forms')->group(function () {
         Route::prefix('event')->group(function () {
             Route::get('/', [FormController::class, 'index'])->name('api.form.index');

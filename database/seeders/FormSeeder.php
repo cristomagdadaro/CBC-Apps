@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\Subform;
+use App\Models\EventRequirement;
 use App\Models\EventSubformResponse;
 use App\Models\Form;
 use App\Models\Participant;
@@ -18,7 +19,7 @@ class FormSeeder extends Seeder
      */
     public function run(): void
     {
-        Form::factory()->count(25)->create()->each(function (Form $form) {
+        Form::factory(1)->create()->each(function (Form $form) {
             $participantCount = random_int($form->max_slots/2, $form->max_slots); // Generate between 1 and 10 participants per form
 
             Participant::factory()->count($participantCount)->create()->each(function (Participant $participant) use ($form) {
@@ -43,12 +44,39 @@ class FormSeeder extends Seeder
                     'agreed_tc',
                 ]);
 
+                $subform_type = fake()->randomElement([
+                    Subform::PREREGISTRATION->value,
+                    Subform::REGISTRATION->value,
+                    Subform::PRETEST->value,
+                    Subform::POSTTEST->value,
+                    Subform::FEEDBACK->value,
+                ]);
+
                 $responseData['attendance_type'] = $registration->attendance_type;
 
-                EventSubformResponse::create([
-                    'form_parent_id' => $form->event_id,
+                $requestment = EventRequirement::firstOrCreate(
+                    [
+                        'id' => (string) fake()->uuid(),
+                        'event_id' => $form->event_id,
+                        'form_type' => $subform_type,
+                    ],
+                    [
+                        'is_required' => 1,
+                        'config' => [
+                            'open_from' => now(),
+                            'open_to' => now()->addDays(2),
+                        ],
+                    ]
+                );
+
+                if (!$requestment->id) {
+                    dd("Requestment ID is missing!", $requestment->toArray());
+                }
+
+                EventSubformResponse::factory()->create([
+                    'form_parent_id' => $requestment->id,
                     'participant_id' => $registration->id,
-                    'subform_type' => Subform::PREREGISTRATION->value,
+                    'subform_type' => $subform_type,
                     'response_data' => $responseData,
                 ]);
             });

@@ -16,7 +16,7 @@ class EventSubformResponse extends Model
 
     protected $fillable = [
         'id',
-        'form_parent_id', //event_requirements -> event_id
+        'form_parent_id', //event_requirements -> id
         'participant_id', //registrations -> id
         'subform_type',  // preregistration, feedback, etc.
         'response_data', // JSON or text data

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->unique(['form_parent_id', 'participant_id']);
 
             $table->foreign('form_parent_id')
-                ->references('event_id')
+                ->references('id')
                 ->on('event_requirements')
                 ->cascadeOnDelete();
 
