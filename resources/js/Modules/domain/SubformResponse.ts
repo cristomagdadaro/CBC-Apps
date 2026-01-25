@@ -8,7 +8,6 @@ export default class SubformResponse extends DtoSubformResponse {
 
     constructor(response: DtoSubformResponse) {
         super(response);
-        console.log(response);
         
         this.api._apiIndex = SubformResponse.endpoints.index;
         this.api._apiPost = SubformResponse.endpoints.post;

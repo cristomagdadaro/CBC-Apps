@@ -18,19 +18,8 @@ export default {
     name: "PreregistrationQuizBeeCard",
     mixins: [ApiMixin, FormLocalMixin, DataFormatterMixin],
     components: {
-        CustomDropdown,
-        SubmitBtn,
-        TransitionContainer,
-        Checkbox,
-        Dropdown,
-        DropdownLink,
-        InputError,
-        TextInput,
-        QrcodeVue,
-        QrcodeCanvas,
-        QrcodeSvg,
-    },
-    props: {
+        CustomDropdown,SubmitBtn,TransitionContainer, Checkbox, Dropdown, DropdownLink, InputError, TextInput, QrcodeVue, QrcodeCanvas, QrcodeSvg},
+    props:{
         eventId: [String, Number],
         config: Object,
     },
@@ -51,7 +40,6 @@ export default {
                 this.registrationIDHashed = response.data.participant_hash;
                 this.saveLocalHashedIds(response.data);
                 this.$emit('createdModel', response.data);
-                this.resetForm();
             }
         }
     },

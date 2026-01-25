@@ -1,14 +1,11 @@
 <script>
 import TextInput from "@/Components/TextInput.vue";
-import InputLabel from "@/Components/InputLabel.vue";
 import InputError from "@/Components/InputError.vue";
 import DropdownLink from "@/Components/DropdownLink.vue";
 import Dropdown from "@/Components/Dropdown.vue";
 import Checkbox from "@/Components/Checkbox.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
 import QrcodeVue, { QrcodeCanvas, QrcodeSvg } from 'qrcode.vue'
-import Participant from "@/Modules/domain/Participant";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import DtoResponse from "@/Modules/dto/DtoResponse";
@@ -21,9 +18,7 @@ export default {
     name: "PreregistrationCard",
     mixins: [ApiMixin, FormLocalMixin, DataFormatterMixin],
     components: {
-        CustomDropdown,
-        SubmitBtn,
-        TransitionContainer, PrimaryButton, Checkbox, Dropdown, DropdownLink, InputError, InputLabel, TextInput, QrcodeVue, QrcodeCanvas, QrcodeSvg},
+        CustomDropdown,SubmitBtn,TransitionContainer, Checkbox, Dropdown, DropdownLink, InputError, TextInput, QrcodeVue, QrcodeCanvas, QrcodeSvg},
     props: {
         eventId: [String, Number],
         config: Object,
