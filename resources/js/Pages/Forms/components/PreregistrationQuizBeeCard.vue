@@ -45,7 +45,7 @@ export default {
     },
     methods: {
         async handleCreate() {
-            const response = await this.submitCreate(null, 'event_id');
+            const response = await this.submitCreate(null, 'response_data');
             this.showSuccess = response.status === 201;
             if (response instanceof DtoResponse) {
                 this.registrationIDHashed = response.data.participant_hash;
