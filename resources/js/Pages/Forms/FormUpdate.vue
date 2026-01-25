@@ -17,6 +17,7 @@ import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 import TabNavigation from "@/Components/TabNavigation.vue";
 import RequirementsManager from "@/Components/Forms/RequirementsManager.vue";
 import FormStyleDesigner from "@/Pages/Forms/components/FormStyleDesigner.vue";
+import SubformResponse from "@/Modules/domain/SubformResponse";
 
 export default {
     name: "FormUpdate",
@@ -57,7 +58,7 @@ export default {
         };
     },
     async beforeMount() {
-        this.model = new Form();
+        this.model = new SubformResponse();
         this.setFormAction("update");
         this.setRequirements();
     },
@@ -81,7 +82,7 @@ export default {
         <template #header>
             <forms-header-actions />
         </template>
-        <div class="mx-auto flex flex-col gap-5 sm:px-6 lg:px-8">
+        <div class="mx-auto flex flex-col gap-5 sm:px-6 lg:px-8"> {{ $page.props.subformRequirements }}
             <TabNavigation
                 v-model="activeTab"
                 :tabs="[
@@ -193,7 +194,7 @@ export default {
 
                     <!-- Participants tab -->
                     <div v-else-if="activeKey === 'participants'" class="mt-4">
-                        <list-of-participants :event-id="data?.event_id" />
+                        <list-of-participants :event-id="data?.event_id" :form-parent-id="data?.id" :form-requirements="$page.props.subformRequirements" />
                     </div>
                 </template>
             </TabNavigation>

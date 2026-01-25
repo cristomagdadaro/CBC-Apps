@@ -23,6 +23,18 @@ class EventSubformController extends BaseController
         return parent::_index($request);
     }
 
+    public function indexResponses(GetEventSubformRequest $request)
+    {
+        $validated = $request->validated();
+
+        $data = $this->repo()->getResponsesByEventId($validated['event_id']);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $data,
+        ], 200);
+    }
+
     public function create(CreateEventSubformRequest $request)
     {
         $validated = $request->validated();

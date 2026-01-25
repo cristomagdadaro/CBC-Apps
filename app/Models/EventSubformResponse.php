@@ -32,20 +32,21 @@ class EventSubformResponse extends Model
         return $this->belongsTo(EventRequirement::class, 'form_parent_id', 'id');
     }
 
-    public function registration(): BelongsTo
+    public function registration()
     {
-        return $this->belongsTo(Registration::class, 'participant_id', 'id');
+        return $this->belongsTo(Registration::class, 'participant_id');
     }
 
-    public function participant(): HasOneThrough
+
+    public function participant()
     {
         return $this->hasOneThrough(
             Participant::class,
             Registration::class,
-            'id', // Registration table primary key
-            'id', // Participant table primary key
-            'participant_id', // Foreign key on subform responses pointing to registrations.id
-            'participant_id' // Foreign key on registrations pointing to participants.id
+            'id',              // registrations.id
+            'id',              // participants.id
+            'participant_id', // event_subform_responses.participant_id
+            'participant_id'  // registrations.participant_id
         );
     }
 }

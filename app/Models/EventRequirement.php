@@ -49,4 +49,39 @@ class EventRequirement extends BaseModel
 
         return true;
     }
+
+    public function subformResponses()
+    {
+        return $this->hasMany(EventSubformResponse::class, 'form_parent_id', 'id');
+    }
+
+    public function registrations()
+    {
+        return $this->hasManyThrough(
+            Registration::class,
+            EventSubformResponse::class,
+            'form_parent_id', // event_subform_responses.form_parent_id
+            'id',              // registrations.id
+            'id',              // event_requirements.id
+            'participant_id'   // event_subform_responses.participant_id
+        );
+    }
+
+    public function responses()
+    {
+        return $this->hasMany(EventSubformResponse::class, 'form_parent_id', 'id')->with('participant');
+    }
+
+    // get all participants who submitted responses for this requirement
+    public function participants()
+    {
+        return $this->hasManyThrough(
+            Participant::class,
+            EventSubformResponse::class,
+            'form_parent_id', // event_subform_responses.form_parent_id
+            'id',              // participants.id
+            'id',              // event_requirements.id
+            'participant_id'   // event_subform_responses.participant_id
+        );
+    }
 }

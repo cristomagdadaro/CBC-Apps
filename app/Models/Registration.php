@@ -28,8 +28,8 @@ class Registration extends BaseModel
         return $this->belongsTo(Form::class, 'event_id', 'event_id');
     }
 
-    public function participant():BelongsTo
+    public function participant()
     {
-        return $this->belongsTo(Participant::class, 'participant_id', 'id');
+        return $this->belongsTo(Participant::class);
     }
 }

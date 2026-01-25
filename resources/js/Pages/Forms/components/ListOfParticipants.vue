@@ -23,7 +23,14 @@ export default {
     props: {
         eventId: {
             type: String,
-        }
+        },
+        formParentId: {
+            type: String,
+        },
+        formRequirementsOption: {
+            type: Array,
+            default: () => [],
+        },
     },
     mixins: [ApiMixin],
     computed: {
@@ -72,8 +79,9 @@ export default {
         this.model = new SubformResponse();
         const baseSearchFields = {
             ...this.model.api.getSearchFields(),
-            filter_by_parent_column: null,
-            filter_by_parent_id: null,
+            filter_by_parent_column: 'form_parent_id',
+            filter_by_parent_id: this.formParentId,
+            per_page: '*',
         };
         this.model.api.setSearchFields(baseSearchFields);
         this.setFormAction('get');
@@ -88,25 +96,17 @@ export default {
                 this.eventFormFromApi = null;
                 return;
             }
-
-            this.form.filter_by_parent_column = 'form_parent_id';
-            this.form.filter_by_parent_id = this.eventId;
-            this.form.per_page = 'all';
-
-            if (this.selectedFormType) {
-                this.form.filter = 'subform_type';
-                this.form.search = this.selectedFormType;
-                this.form.is_exact = true;
-            } else {
-                this.form.filter = null;
-                this.form.search = null;
-            }
-
+            console.log(this.model.api.getSearchFields());
             this.eventFormFromApi = await this.fetchData();
             this.decorateResponseRows();
         },
         async attachedFormChange(selected) {
-            this.selectedFormType = selected;
+            const baseSearchFields = {
+                ...this.model.api.getSearchFields(),
+                filter_by_parent_id: selected,
+                per_page: '*',
+            };
+            this.model.api.setSearchFields(baseSearchFields);
             await this.searchEvent();
         },
         decorateResponseRows() {
@@ -178,12 +178,12 @@ export default {
                         <div class="text-xs text-gray-500 flex items-center justify-between">
                             <span class="flex gap-0.5 whitespace-nowrap">Filter by Form</span>
                         </div>
-                        <custom-dropdown :with-all-option="false" :show-clear="true" @selectedChange="attachedFormChange($event)"  placeholder="Select a Form" :options="formList">
+                        <custom-dropdown :with-all-option="false" :show-clear="true" @selectedChange="attachedFormChange($event)"  placeholder="Select a Form" :options="formRequirementsOption">
                             <template #icon>
                                 <filter-icon class="h-4 w-4" />
                             </template>
                         </custom-dropdown>
-                    </div>
+                    </div>{{ model.api.getSearchFields() }}
                     <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
                     <text-input v-if="form.filter !== 'event_id'" placeholder="Search..." v-model="form.search" />
                     <search-btn type="submit" :disabled="model?.processing" class="w-[10rem] text-center">

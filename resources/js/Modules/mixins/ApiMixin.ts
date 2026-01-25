@@ -35,6 +35,9 @@ export default {
                 case "get":
                     this.form = useForm(this.model.api.getSearchFields());
                     break;
+                case "show":
+                    this.form = useForm(this.model.updateFields(this.data));
+                    break;
                 case "summary":
                     this.form = useForm(this.model.api.getSearchFields());
                     break;
