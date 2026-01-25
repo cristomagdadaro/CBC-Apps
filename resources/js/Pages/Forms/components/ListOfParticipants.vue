@@ -170,7 +170,7 @@ export default {
 </script>
 
 <template>
-    <div class="sm:px-6 lg:px-8">
+    <div class="sm:px-6 lg:px-8">{{ model.api.getSearchFields() }}
         <form v-if="!!form" class="flex gap-2 items-end"  @submit.prevent="searchEvent">
             <div class="grid grid-rows-2 w-full">
                 <div class="w-full flex gap-2 items-end lg:px-0 px-2">
@@ -183,7 +183,7 @@ export default {
                                 <filter-icon class="h-4 w-4" />
                             </template>
                         </custom-dropdown>
-                    </div>{{ model.api.getSearchFields() }}
+                    </div>
                     <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
                     <text-input v-if="form.filter !== 'event_id'" placeholder="Search..." v-model="form.search" />
                     <search-btn type="submit" :disabled="model?.processing" class="w-[10rem] text-center">
@@ -234,7 +234,7 @@ export default {
                     </div>
                 </div>
             </div>
-        </form>
+        </form>}
         <div class="bg-white dark:bg-gray-800 overflow-hidden sm:rounded-lg">
             <data-table
                 v-if="eventFormFromApi && eventFormFromApi.total > 0 && !model.api.processing"

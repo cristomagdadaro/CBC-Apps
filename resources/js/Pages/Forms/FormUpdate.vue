@@ -58,7 +58,7 @@ export default {
         };
     },
     async beforeMount() {
-        this.model = new SubformResponse();
+        this.model = new Form();
         this.setFormAction("update");
         this.setRequirements();
     },
@@ -82,7 +82,7 @@ export default {
         <template #header>
             <forms-header-actions />
         </template>
-        <div class="mx-auto flex flex-col gap-5 sm:px-6 lg:px-8"> {{ $page.props.subformRequirements }}
+        <div class="mx-auto flex flex-col gap-5 sm:px-6 lg:px-8">
             <TabNavigation
                 v-model="activeTab"
                 :tabs="[

@@ -57,6 +57,10 @@ export default {
             if (!this.data || !Array.isArray(this.data.requirements) || this.data.requirements.length <= 0) return null;
             return this.data.requirements.find((requirement) => requirement.form_type === formType) || null;
         },
+        getRequirementFormId(formType) {
+            const form = this.whatForm(formType);
+            return form ? form.id : null;
+        },
         isFormOpen(form) {
             if (!form || !form.config) {
                 return false;
@@ -178,7 +182,7 @@ export default {
                         <!-- Pre-registration -->
                         <preregistration-card
                             v-if="isFormOpen(whatForm('pre_registration'))"
-                            :event-id="data.event_id"
+                            :event-id="getRequirementFormId('pre_registration')"
                             :config="whatForm('pre_registration')"
                             @createdModel="$emit('createdModel', $event)"
                         />
@@ -191,7 +195,7 @@ export default {
                     <div v-if="activeKey === 'preregistration_quiz'">
                         <preregistration-quiz-bee-card
                             v-if="isFormOpen(whatForm('pre_registration_biotech'))"
-                            :event-id="data.event_id"
+                            :event-id="getRequirementFormId('pre_registration_biotech')"
                             :config="whatForm('pre_registration_biotech')"
                             @createdModel="$emit('createdModel', $event)"
                         />
@@ -205,7 +209,7 @@ export default {
                         <!-- Registration -->
                         <registration-card
                             v-if="isFormOpen(whatForm('registration'))"
-                            :event-id="data.event_id"
+                            :event-id="getRequirementFormId('registration')"
                             :config="whatForm('registration')"
                             @createdModel="$emit('createdModel', $event)"
                         />
@@ -219,7 +223,7 @@ export default {
                         <!-- Feedback / Evaluation -->
                         <feedback-card
                             v-if="isFormOpen(whatForm('feedback'))"
-                            :event-id="data.event_id"
+                            :event-id="getRequirementFormId('feedback')"
                             :config="whatForm('feedback')"
                             @createdModel="$emit('createdModel', $event)"
                         />
