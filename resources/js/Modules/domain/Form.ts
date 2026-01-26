@@ -11,7 +11,7 @@ export default class Form extends DtoForm {
 
     constructor(response: DtoForm) {
         super(response);
-        console.log(response?.responses_count);
+        
         this.api._apiIndex = Form.endpoints.index;
         this.api._apiPost = Form.endpoints.post;
         this.api._apiPut = Form.endpoints.put;
@@ -40,7 +40,7 @@ export default class Form extends DtoForm {
             time_to: null,
             venue: null,
             max_slots: null,
-            requirements: null,
+            requirements: [],
             style_tokens: createEmptyFormStyleTokens(),
         }
     }
@@ -59,7 +59,7 @@ export default class Form extends DtoForm {
             venue: data?.venue,
             is_suspended: data?.is_suspended,
             max_slots: data?.max_slots,
-            requirements: null,
+            requirements: data?.requirements || [],
             style_tokens: mergeFormStyleTokens(data?.style_tokens),
         }
     }

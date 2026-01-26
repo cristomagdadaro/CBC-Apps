@@ -42,7 +42,7 @@ export default {
             this.requirements = [
                 ...this.requirements,
                 {
-                    id: crypto.randomUUID(),
+                    //id: crypto.randomUUID(),
                     form_type: null,
                     is_required: true,
                     config: {

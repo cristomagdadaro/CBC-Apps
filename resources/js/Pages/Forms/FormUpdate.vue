@@ -64,7 +64,7 @@ export default {
     },
     methods: {
         async submitProxyUpdate() {
-            this.form.requirements = this.form.requirements || [];
+            console.log(this.form.data());
             await this.submitUpdate();
             this.setRequirements();
         },
@@ -82,7 +82,7 @@ export default {
         <template #header>
             <forms-header-actions />
         </template>
-        <div class="mx-auto flex flex-col gap-5 sm:px-6 lg:px-8"> {{ $page.props.sql }}
+        <div class="mx-auto flex flex-col gap-5 sm:px-6 lg:px-8">
             <TabNavigation
                 v-model="activeTab"
                 :tabs="[

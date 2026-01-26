@@ -57,7 +57,7 @@ Route::prefix('guest')->group(function () {
 });
 
 /* 'auth:sanctum', */
-Route::middleware(['api','verified'])->group(function () {
+Route::middleware(['api', 'auth:sanctum'])->group(function () {
     Route::prefix('forms')->group(function () {
         Route::prefix('event')->group(function () {
             Route::get('/', [FormController::class, 'index'])->name('api.form.index');

@@ -86,7 +86,7 @@ class Form extends BaseModel
     }
     public function requirements(): HasMany
     {
-        return $this->hasMany(EventRequirement::class, 'event_id', 'id');
+        return $this->hasMany(EventRequirement::class, 'event_id', 'event_id');
     }
 
     public function isSuspended(): bool

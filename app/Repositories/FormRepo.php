@@ -90,16 +90,17 @@ class FormRepo extends AbstractRepoService
             ->where('event_id', $eventId)
             ->firstOrFail();
 
-        EventRequirement::where('event_id', $form->event_id)->delete();
-
         foreach ($requirements as $req) {
-            EventRequirement::create([
-                'id' => Str::uuid()->toString(),
-                'event_id' => $form->event_id,
-                'form_type' => $req['form_type'],
-                'is_required' => $req['is_required'] ?? true,
-                'config' => $req['config'] ?? [],
-            ]);
+            EventRequirement::updateOrCreate(
+                [
+                    'event_id' => $form->event_id,
+                    'form_type' => $req['form_type'], // use form_type as unique key
+                ],
+                [
+                    'is_required' => $req['is_required'] ?? true,
+                    'config' => $req['config'] ?? [],
+                ]
+            );
         }
 
         return $form->requirements()->get();

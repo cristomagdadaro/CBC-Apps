@@ -1,52 +1,18 @@
 <script>
-import TextInput from "@/Components/TextInput.vue";
-import InputLabel from "@/Components/InputLabel.vue";
-import InputError from "@/Components/InputError.vue";
-import DropdownLink from "@/Components/DropdownLink.vue";
-import Dropdown from "@/Components/Dropdown.vue";
-import Checkbox from "@/Components/Checkbox.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
-import QrcodeVue, { QrcodeCanvas, QrcodeSvg } from 'qrcode.vue'
-import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
-import ApiMixin from "@/Modules/mixins/ApiMixin";
-import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
-import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
+import SubformMixin from "@/Modules/mixins/SubformMixin";
+import SubformResponse from "@/Modules/domain/SubformResponse";
 import ProgressTabs from "@/Components/ProgressTabs.vue";
 import LikertScale from "@/Components/LikertScale.vue";
-import SubformResponse from "@/Modules/domain/SubformResponse";
 
 export default {
     name: "FeedbackCard",
-    mixins: [ApiMixin, FormLocalMixin],
+    mixins: [SubformMixin],
     components: {
-        CustomDropdown,
-        SubmitBtn,
-        TransitionContainer,
-        PrimaryButton,
-        Checkbox,
-        Dropdown,
-        DropdownLink,
-        InputError,
-        InputLabel,
-        TextInput,
-        QrcodeVue,
-        QrcodeCanvas,
-        QrcodeSvg,
         ProgressTabs,
         LikertScale,
     },
-    props: {
-        eventId: [String, Number],
-        config: Object,
-    },
     data() {
         return {
-            model: null,
-            showSuccess: false,
-            registrationIDHashed: null,
-            value: 'https://example.com',
-            size: 200,
             currentStep: 0,
         }
     },

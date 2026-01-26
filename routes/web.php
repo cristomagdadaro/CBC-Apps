@@ -55,7 +55,6 @@ Route::prefix('forms')->group(function () {
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
-    'verified',
 ])->group(function () {
     Route::get('/dashboard', function () {
         $now = now();
@@ -149,7 +148,7 @@ Route::middleware([
 
                 return Inertia::render('Forms/FormUpdate', [
                     'data' => Form::where('event_id', $event_id)->with('requirements')->first(),
-                    'responsesCount' => $event_id ? EventSubformResponse::join( 'event_requirements', 'event_subform_responses.form_parent_id', '=', 'event_requirements.id' )->where('event_requirements.event_id', $event_id)->count() : 0,
+                    'responsesCount' => $event_id ? EventRequirement::join('event_subform_responses', 'form_parent_id', '=', 'event_requirements.id')->where('event_requirements.event_id', $event_id)->count() : 0,
                     'subformRequirements' => EventRequirement::select(['id as name', 'form_type as label'])->where('event_id', $event_id)->get(),
                 ]);
             })->name('forms.update');

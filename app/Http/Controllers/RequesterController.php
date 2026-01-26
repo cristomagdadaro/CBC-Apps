@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateRequester;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
+use App\Repositories\RequesterRepo;
 
 class RequesterController extends BaseController
 {

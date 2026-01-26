@@ -186,7 +186,7 @@ export default {
                             :config="whatForm('pre_registration')"
                             @createdModel="$emit('createdModel', $event)"
                         />
-                        <h3 v-else-if="whatForm('pre_registration') && whatForm('pre_registration').config && isFormOpen(whatForm('pre_registration'))" class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                        <h3 v-else-if="whatForm('pre_registration') && whatForm('pre_registration').config" class="bg-AB text-white p-3 rounded-md shadow leading-none">
                             Pre-registration will open on
                             <b>{{ formatDateTime(whatForm('pre_registration').config.open_from) }}</b>
                         </h3>
@@ -199,7 +199,7 @@ export default {
                             :config="whatForm('pre_registration_biotech')"
                             @createdModel="$emit('createdModel', $event)"
                         />
-                        <h3 v-else-if="whatForm('pre_registration_biotech') && whatForm('pre_registration_biotech').config && isFormOpen(whatForm('pre_registration_biotech'))" class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                        <h3 v-else-if="whatForm('pre_registration_biotech') && whatForm('pre_registration_biotech').config" class="bg-AB text-white p-3 rounded-md shadow leading-none">
                             Quiz Bee Pre-registration will open on
                             <b>{{ formatDateTime(whatForm('pre_registration_biotech').config.open_from) }}</b>
                         </h3>
@@ -213,7 +213,7 @@ export default {
                             :config="whatForm('registration')"
                             @createdModel="$emit('createdModel', $event)"
                         />
-                        <h3 v-else-if="whatForm('registration') && whatForm('registration').config && isFormOpen(whatForm('registration'))" class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                        <h3 v-else-if="whatForm('registration') && whatForm('registration').config" class="bg-AB text-white p-3 rounded-md shadow leading-none">
                             Registration will open on
                             <b>{{ formatDateTime(whatForm('registration').config.open_from) }}</b>
                         </h3>
@@ -227,7 +227,7 @@ export default {
                             :config="whatForm('feedback')"
                             @createdModel="$emit('createdModel', $event)"
                         />
-                        <h3 v-else-if="whatForm('feedback') && whatForm('feedback').config && isFormOpen(whatForm('feedback'))" class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                        <h3 v-else-if="whatForm('feedback') && whatForm('feedback').config" class="bg-AB text-white p-3 rounded-md shadow leading-none">
                             Evaluation Form will be open on
                             <b>{{ formatDateTime(whatForm('feedback').config.open_from) }}</b>
                         </h3>

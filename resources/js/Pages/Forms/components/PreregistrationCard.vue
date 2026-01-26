@@ -1,76 +1,14 @@
 <script>
-import TextInput from "@/Components/TextInput.vue";
-import InputError from "@/Components/InputError.vue";
-import DropdownLink from "@/Components/DropdownLink.vue";
-import Dropdown from "@/Components/Dropdown.vue";
-import Checkbox from "@/Components/Checkbox.vue";
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
-import QrcodeVue, { QrcodeCanvas, QrcodeSvg } from 'qrcode.vue'
-import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
-import ApiMixin from "@/Modules/mixins/ApiMixin";
-import DtoResponse from "@/Modules/dto/DtoResponse";
-import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
-import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
-import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
+import SubformMixin from "@/Modules/mixins/SubformMixin";
 import SubformResponse from "@/Modules/domain/SubformResponse";
 
 export default {
     name: "PreregistrationCard",
-    mixins: [ApiMixin, FormLocalMixin, DataFormatterMixin],
-    components: {
-        CustomDropdown,SubmitBtn,TransitionContainer, Checkbox, Dropdown, DropdownLink, InputError, TextInput, QrcodeVue, QrcodeCanvas, QrcodeSvg},
-    props: {
-        eventId: [String, Number],
-        config: Object,
-    },
-    data() {
-        return {
-            model: null,
-            showSuccess: false,
-            registrationIDHashed: null,
-            value: 'https://example.com',
-            size: 200,
-        }
-    },
-    methods: {
-        async handleCreate() {
-            const response = await this.submitCreate(null, 'response_data');
-            this.showSuccess = response.status === 201;
-            if (response instanceof DtoResponse) {
-                this.registrationIDHashed = response.data.participant_hash;
-                this.saveLocalHashedIds(response.data);
-                this.$emit('createdModel', response.data);
-            }
-        }
-    },
-    watch: {
-        'form.agreed_tc': {
-            immediate: true,
-            handler() {
-                this.form?.clearErrors('agreed_tc');
-            }
-        }
-    },
+    mixins: [SubformMixin],
     beforeMount() {
         this.model = new SubformResponse();
         this.setFormAction('create');
-        this.form.response_data =  {
-            name: null,
-            email: null,
-            phone: null,
-            sex: null,
-            age: null,
-            organization: null,
-            designation: null,
-            is_ip: false,
-            is_pwd: false,
-            city_address: null,
-            province_address: null,
-            country_address: null,
-            event_id: this.eventId,
-            attendance_type: null,
-            agreed_tc: false,
-        };
+        this.form.response_data.event_id = this.eventId;
         this.form.form_parent_id = this.eventId;
         this.form.subform_type = 'preregistration';
     },
@@ -112,7 +50,7 @@ export default {
             <label class="text-red-600 uppercase justify-center flex">{{ form.errors.suspended || form.errors.full || form.errors.expired }}</label>
             <h3 class="text-lg leading-tight uppercase font-extrabold">
                 Pre-register Now!
-            </h3>
+            </h3> 
             <p class="text-xs leading-none">
                 Kindly provide the required and correct details. Fields marked with <span class="text-red-600">*</span> are required.
             </p>
@@ -266,7 +204,13 @@ export default {
                 />
             </div>
             <div class="flex flex-col gap-2">
-                <custom-dropdown v-if="config.config.attendance_type_required" :value="form.response_data.attendance_type" @selectedChange="form.response_data.attendance_type = $event"  :error="form.errors.attendance_type" placeholder="Are you attending Online or In-person?" :required="config.config.attendance_type_required" :withAllOption="false" :options="[{name: 'Online', label: 'Online'}, {name: 'In-person', label: 'In-person'}]" />
+                <custom-dropdown v-if="config.config.attendance_type_required" :value="form.response_data.attendance_type" @selectedChange="form.response_data.attendance_type = $event"  :error="form.errors.attendance_type" placeholder="Are you attending Online or In-person?" :required="config.config.attendance_type_required" :withAllOption="false" :options="[{name: 'Online', label: 'Online'}, {name: 'In-person', label: 'In-person'}]">
+                    <template #icon>
+                        <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                        </svg>
+                    </template>
+                </custom-dropdown>
                 <div class="py-3 flex gap-2">
                     <Checkbox id="agreed_tc" :class="{'border border-red-600' : form.errors.agreed_tc}" v-model="form.response_data.agreed_tc" :checked="form.response_data.agreed_tc" autocomplete="agreed_tc"/>
                     <p class="text-xs leading-none" @click.prevent="form.response_data.agreed_tc = !form.response_data.agreed_tc">

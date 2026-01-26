@@ -9,7 +9,6 @@ use App\Http\Requests\UpdateSupplierRequest;
 use App\Repositories\SupplierRepo;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 
 class SupplierController extends BaseController

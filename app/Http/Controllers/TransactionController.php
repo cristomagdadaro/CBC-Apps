@@ -7,14 +7,12 @@ use App\Http\Requests\GetTransactionRequest;
 use App\Http\Requests\NewOutgoingRequest;
 use App\Http\Requests\UpdateTransactionRequest;
 use App\Models\NewBarcode;
-use App\Models\User;
 use App\Repositories\TransactionRepo;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 
 class TransactionController extends BaseController
 {
