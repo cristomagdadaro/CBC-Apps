@@ -1,3 +1,4 @@
+
 type FormStyleMode = 'color' | 'image' | null;
 
 interface IFormStyleToken {
@@ -13,7 +14,7 @@ interface IFormStyleTokens {
     'form-time-between': IFormStyleToken;
 }
 
-interface IForm extends IBaseClass {
+export default interface IForm extends IBaseClass {
     id: string;
     event_id: string;
     title: string;
@@ -26,11 +27,11 @@ interface IForm extends IBaseClass {
     venue: string;
     is_suspended: boolean;
     max_slots: number;
-    requirements: Array<string>;
+    requirements: Array<ISubformRequirement>;
     style_tokens: IFormStyleTokens;
 
     participants_count: number;
 
-    registrations: Array<IRegistration>
-    participants: Array<IParticipant>
+    registrations: Array<IRegistration>;
+    participants: Array<IParticipant>;
 }

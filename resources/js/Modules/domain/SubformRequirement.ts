@@ -1,56 +1,15 @@
-import DtoSubformResponse from "@/Modules/dto/DtoSubformResponse";
-import DtoBaseClass from "../dto/DtoBaseClass";
+import DtoSubformRequirement from "@/Modules/dto/DtoSubformRequirement";
 
-export default class SubformResponse extends DtoSubformResponse {
+export default class SubformRequirement extends DtoSubformRequirement {
     static endpoints = {
-        index: 'api.subform.response.index',
-        post: 'api.subform.response.store',
+        index: 'api.subform.requirement.index',
     };
 
-    constructor(response: DtoSubformResponse) {
+    constructor(response: DtoSubformRequirement) {
         super(response);
         
-        this.api._apiIndex = SubformResponse.endpoints.index;
-        this.api._apiPost = SubformResponse.endpoints.post;
-    }
-
-    identifier(model: DtoBaseClass): object {
-        if (model)
-            return {
-                id: model?.id
-            };
-
-        return {
-            id: this?.id,
-        }
-    }
-
-    deleteField(model): object
-    {
-        return {
-            id: model?.id,
-        };
-    }
-
-    createFields(): object
-    {
-        return {
-            subform_type: null,
-            form_parent_id: null,
-            participant_id: null,
-            response_data: {},
-        }
-    }
-
-    updateFields(data: ISubformResponse): object
-    {
-        return {
-            id: data?.id,
-            subform_type: data?.subform_type,
-            form_parent_id: data?.form_parent_id,
-            participant_id: data?.participant_id,
-            response_data: data?.response_data,
-        }
+        this.api._apiIndex = SubformRequirement.endpoints.index;
+        this.api.appendWith = ['responses']
     }
 
     static getColumns()
@@ -82,8 +41,8 @@ export default class SubformResponse extends DtoSubformResponse {
             },
             {
                 title: 'Subform Type',
-                key: 'subform_type',
-                db_key: 'subform_type',
+                key: 'form_type',
+                db_key: 'form_type',
                 align: 'center',
                 sortable: true,
                 visible: true,

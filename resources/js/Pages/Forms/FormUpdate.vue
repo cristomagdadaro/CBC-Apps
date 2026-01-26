@@ -194,7 +194,7 @@ export default {
 
                     <!-- Participants tab -->
                     <div v-else-if="activeKey === 'participants'" class="mt-4">
-                        <list-of-participants :event-id="data?.event_id" :form-parent-id="data?.id" />
+                        <list-of-participants :event-id="data?.event_id" :form-parent-id="data?.id" :form-class="data" />
                     </div>
                 </template>
             </TabNavigation>

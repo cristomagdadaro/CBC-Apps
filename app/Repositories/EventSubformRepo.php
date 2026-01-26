@@ -39,11 +39,9 @@ class EventSubformRepo extends AbstractRepoService
         });
     }
 
-    public function getResponsesByEventId(string $formParentId)
+    public function getResponsesByEventId(string $event_id)
     {
         // Retrieve all subform responses linked to registrations of the specified event
-        return $this->model::whereHas('registration', function ($query) use ($formParentId) {
-            $query->where('form_parent_id', $formParentId);
-        })->with(['participant', 'registration'])->get();
+        return $this->model->all();
     }
 }

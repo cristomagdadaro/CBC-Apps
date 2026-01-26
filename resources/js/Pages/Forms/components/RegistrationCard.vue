@@ -7,7 +7,7 @@ export default {
     mixins: [SubformMixin],
     beforeMount() {
         this.model = new SubformResponse();
-        this.setFormAction('create');
+        this.setFormAction('create').response_data = SubformResponse.getSubformFields('registration');
         this.form.response_data.event_id = this.eventId;
         this.form.form_parent_id = this.eventId;
         this.form.subform_type = 'registration';
@@ -50,7 +50,7 @@ export default {
             <label class="text-red-600 uppercase justify-center flex">{{ form.errors.suspended || form.errors.full || form.errors.expired }}</label>
             <h3 class="text-lg leading-tight uppercase font-extrabold">
                 Register Now!
-            </h3>
+            </h3> {{  }}
             <p class="text-xs leading-none">
                 Kindly provide the required and correct details. Fields marked with <span class="text-red-600">*</span> are required.
             </p>

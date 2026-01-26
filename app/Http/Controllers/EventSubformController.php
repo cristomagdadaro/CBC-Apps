@@ -27,7 +27,7 @@ class EventSubformController extends BaseController
     {
         $validated = $request->validated();
 
-        $data = $this->repo()->getResponsesByEventId($validated['filter_by_parent_id']);
+        $data = $this->repo()->getResponsesByEventId($event_id);
 
         return response()->json([
             'status' => 'success',

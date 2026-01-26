@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EventRequirementController;
 use App\Http\Controllers\EventSubformController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\ItemController;
@@ -66,8 +67,9 @@ Route::middleware(['api', 'auth:sanctum'])->group(function () {
             Route::get('/{event_id?}', [FormController::class, 'show'])->name('api.form.show');
             Route::post('/create', [FormController::class, 'create'])->name('api.form.post');
             Route::delete('/delete/{event_id?}', [FormController::class, 'delete'])->name('api.form.delete');
-            Route::middleware(['check.form.suspended'])->put('/update/{event_id?}', [FormController::class, 'update'])->name('api.form.put');
-            Route::get('/responses/{event_id?}', [EventSubformController::class, 'indexResponses'])->name('api.subform.response.index');
+            Route::middleware(['check.form.suspended'])->put('/update/{event_id?}', action: [FormController::class, 'update'])->name('api.form.put');
+            Route::get('/responses/{event_id?}', [EventSubformController::class, 'index'])->name('api.subform.response.index');
+            Route::get('/requirements/{event_id?}', [EventRequirementController::class, 'index'])->name('api.subform.requirement.index');
         });
 
         Route::prefix('use-request-form')->group(function () {

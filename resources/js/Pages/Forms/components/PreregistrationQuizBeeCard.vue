@@ -7,7 +7,7 @@ export default {
     mixins: [SubformMixin],
     beforeMount() {
         this.model = new SubformResponse();
-        this.setFormAction('create');
+        this.setFormAction('create').response_data = SubformResponse.getSubformFields('preregistration_biotech');
         this.form.response_data.event_id = this.eventId;
         this.form.form_parent_id = this.eventId;
         this.form.subform_type = 'preregistration_biotech';

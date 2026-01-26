@@ -62,22 +62,8 @@ export default {
     },
     beforeMount() {
         this.model = new SubformResponse();
-        this.setFormAction('create');
-        this.form.response_data = {
-            clarity_objective: null,
-            time_allotment: null,
-            attainment_objective: null,
-            relevance_usefulness: null,
-            overall_quality_content: null,
-            overall_quality_resource_persons: null,
-            time_management_organization: null,
-            support_staff: null,
-            overall_quality_activity_admin: null,
-            knowledge_gain: null,
-            comments_event_coordination: '',
-            other_topics: '',
-            agreed_tc: false,
-        };
+        this.setFormAction('create').response_data = SubformResponse.getSubformFields('feedback');
+        this.form.response_data.event_id = this.eventId;
         this.form.form_parent_id = this.eventId;
         this.form.subform_type = 'feedback';
     },

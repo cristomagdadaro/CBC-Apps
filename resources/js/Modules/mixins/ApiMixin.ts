@@ -17,7 +17,8 @@ export default {
             model: DtoBaseClass,
             form: null,
             toDelete: null,
-            confirmDelete: false
+            confirmDelete: false,
+            processing: false,
         }
     },
     methods: {
@@ -42,19 +43,32 @@ export default {
                     this.form = useForm(this.model.api.getSearchFields());
                     break;
             }
+
+
+            return this.form;
         },
         async fetchData() {
-            return await this.model.api.getIndex(this.form.data(), this.model);
+            this.processing = true;
+            return await this.model.api.getIndex(this.form.data(), this.model).finally(() => {
+                this.processing = false;
+            });
         },
         async fetchGetApi(url: string, params?: object, model?: DtoBaseClass) {
+            this.processing = true;
             const api = new ConcreteApiService();
-            return await api.getApi(url, params, model);
+            return await api.getApi(url, params, model).finally(() => {
+                this.processing = false;
+            });
         },
         async fetchPostApi(url: string, params?: object, config?: object) {
+            this.processing = true;
             const api = new ConcreteApiService();
-            return await api.post(url, params, config);
+            return await api.post(url, params, config).finally(() => {
+                this.processing = false;
+            });
         },
         async submitCreate(toCast: boolean = false, except: string = '') {
+            this.processing = true;
             this.form.clearErrors();
             return await this.model.api.postIndex(this.form.data()).then(response => {
                 this.resetForm(except);
@@ -64,9 +78,12 @@ export default {
                 return new DtoResponse(response);
             }).catch(error => {
                 return this.checkError(error);
-            })
+            }).finally(() => {
+                this.processing = false;
+            });
         },
         async submitUpdate(toCast: boolean = false, except: string = '') {
+            this.processing = true;
             this.form.clearErrors();
             return await this.model.api.putIndex(this.form.data()).then(response => {
                 this.resetForm(except);
@@ -76,16 +93,21 @@ export default {
                 return new DtoResponse(response);
             }).catch(error => {
                 return this.checkError(error);
-            })
+            }).finally(() => {
+                this.processing = false;
+            });
         },
         async submitDelete() {
+            this.processing = true;
             this.setFormAction('delete');
             return await this.model.api.deleteApiIndex(this.form.data()).then(response => {
                 this.resetForm();
                 return new DtoResponse(response);
             }).catch(error => {
                 return this.checkError(error);
-            })
+            }).finally(() => {
+                this.processing = false;
+            });
         },
         async exportCSV(data: Array<any>, filename: string = null) {
             let link = document.createElement("a");

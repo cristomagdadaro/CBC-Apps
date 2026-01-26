@@ -14,6 +14,7 @@ import ApiMixin from "@/Modules/mixins/ApiMixin.js";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import ListOfForms from "@/Pages/Forms/components/ListOfForms.vue";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
+import SubformRequirement from "@/Modules/domain/SubformRequirement";
 
 export default {
     name: "ListOfParticipants",
@@ -27,6 +28,10 @@ export default {
         formParentId: {
             type: String,
         },
+        formClass: {
+            type: [Function, Object],
+            default: () => {}
+        }
     },
     mixins: [ApiMixin],
     computed: {
@@ -67,6 +72,9 @@ export default {
         formRequirementsOption() {
             return this.$page.props?.subformRequirements ?? [];
         },
+        ParentForm() {
+            return new Form(this.formClass) || Form;
+        }
     },
     data() {
         return {
@@ -76,14 +84,8 @@ export default {
     },
     beforeMount() {
         this.model = new SubformResponse();
-        const baseSearchFields = {
-            ...this.model.api.getSearchFields(),
-            filter_by_parent_column: 'form_parent_id',
-            filter_by_parent_id: this.formRequirementsOption[0]?.name ?? null,
-            per_page: '*',
-        };
-        this.model.api.setSearchFields(baseSearchFields);
         this.setFormAction('get');
+        console.log(this.ParentForm);
     },
     async mounted() {
         this.selectedFormType = this.formList?.[0]?.name ?? null;
@@ -95,7 +97,9 @@ export default {
                 this.eventFormFromApi = null;
                 return;
             }
-            this.eventFormFromApi = await this.fetchData();
+            await this.fetchGetApi('api.subform.response.index', { filter_by_parent_id: this.eventId, filter_by_parent_column: 'event_id'}, SubformResponse).then((response) => {
+                this.eventFormFromApi = response;
+            });
             this.decorateResponseRows();
         },
         async attachedFormChange(selected) {

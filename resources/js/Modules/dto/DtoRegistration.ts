@@ -13,7 +13,7 @@ export default class DtoRegistration extends DtoBaseClass implements IRegistrati
     participant: IParticipant;
 
     table: string;
-    constructor(data: any) {
+    constructor(data: IRegistration) {
         super(data);
 
         this.id = data.id;
