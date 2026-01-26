@@ -12,6 +12,7 @@ use App\Http\Controllers\RequestFormPivotController;
 use App\Http\Controllers\SupplierController;
 use App\Models\Category;
 use App\Models\EventRequirement;
+use App\Models\EventSubformResponse;
 use App\Models\Form;
 use App\Models\Item;
 use App\Models\Personnel;
@@ -148,7 +149,7 @@ Route::middleware([
 
                 return Inertia::render('Forms/FormUpdate', [
                     'data' => Form::where('event_id', $event_id)->with('requirements')->first(),
-                    'responsesCount' => $event_id ? EventRequirement::where('event_id', $event_id)->with('responses')->count() ?? 0 : 0,
+                    'responsesCount' => $event_id ? EventSubformResponse::join( 'event_requirements', 'event_subform_responses.form_parent_id', '=', 'event_requirements.id' )->where('event_requirements.event_id', $event_id)->count() : 0,
                     'subformRequirements' => EventRequirement::select(['id as name', 'form_type as label'])->where('event_id', $event_id)->get(),
                 ]);
             })->name('forms.update');

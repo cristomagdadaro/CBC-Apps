@@ -27,10 +27,6 @@ export default {
         formParentId: {
             type: String,
         },
-        formRequirementsOption: {
-            type: Array,
-            default: () => [],
-        },
     },
     mixins: [ApiMixin],
     computed: {
@@ -68,6 +64,9 @@ export default {
                 selected: index === 0,
             }));
         },
+        formRequirementsOption() {
+            return this.$page.props?.subformRequirements ?? [];
+        },
     },
     data() {
         return {
@@ -80,7 +79,7 @@ export default {
         const baseSearchFields = {
             ...this.model.api.getSearchFields(),
             filter_by_parent_column: 'form_parent_id',
-            filter_by_parent_id: this.formParentId,
+            filter_by_parent_id: this.formRequirementsOption[0]?.name ?? null,
             per_page: '*',
         };
         this.model.api.setSearchFields(baseSearchFields);
@@ -96,17 +95,16 @@ export default {
                 this.eventFormFromApi = null;
                 return;
             }
-            console.log(this.model.api.getSearchFields());
             this.eventFormFromApi = await this.fetchData();
             this.decorateResponseRows();
         },
         async attachedFormChange(selected) {
-            const baseSearchFields = {
-                ...this.model.api.getSearchFields(),
-                filter_by_parent_id: selected,
-                per_page: '*',
-            };
-            this.model.api.setSearchFields(baseSearchFields);
+            if (!this.form) {
+                console.warn('Form not initialized yet');
+                return;
+            }
+            this.form.filter_by_parent_id = selected;
+            console.log(this.form.data());
             await this.searchEvent();
         },
         decorateResponseRows() {
@@ -170,7 +168,7 @@ export default {
 </script>
 
 <template>
-    <div class="sm:px-6 lg:px-8">{{ model.api.getSearchFields() }}
+    <div class="sm:px-6 lg:px-8">{{ model.api.getSearchFields() }} 
         <form v-if="!!form" class="flex gap-2 items-end"  @submit.prevent="searchEvent">
             <div class="grid grid-rows-2 w-full">
                 <div class="w-full flex gap-2 items-end lg:px-0 px-2">
@@ -178,7 +176,7 @@ export default {
                         <div class="text-xs text-gray-500 flex items-center justify-between">
                             <span class="flex gap-0.5 whitespace-nowrap">Filter by Form</span>
                         </div>
-                        <custom-dropdown :with-all-option="false" :show-clear="true" @selectedChange="attachedFormChange($event)"  placeholder="Select a Form" :options="formRequirementsOption">
+                        <custom-dropdown :with-all-option="false" :show-clear="true" :value="form.form_parent_id" @selectedChange="attachedFormChange($event)"  placeholder="Select a Form" :options="formRequirementsOption">
                             <template #icon>
                                 <filter-icon class="h-4 w-4" />
                             </template>
@@ -234,7 +232,7 @@ export default {
                     </div>
                 </div>
             </div>
-        </form>}
+        </form>
         <div class="bg-white dark:bg-gray-800 overflow-hidden sm:rounded-lg">
             <data-table
                 v-if="eventFormFromApi && eventFormFromApi.total > 0 && !model.api.processing"

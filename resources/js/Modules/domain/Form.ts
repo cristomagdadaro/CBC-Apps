@@ -11,13 +11,13 @@ export default class Form extends DtoForm {
 
     constructor(response: DtoForm) {
         super(response);
-
+        console.log(response?.responses_count);
         this.api._apiIndex = Form.endpoints.index;
         this.api._apiPost = Form.endpoints.post;
         this.api._apiPut = Form.endpoints.put;
         this.api._apiDelete = Form.endpoints.delete;
         this.api.appendWith = ['requirements'];
-        this.api.appendCount = ['participants']
+        this.api.appendCount = ['participants','responses'];
     }
 
     deleteField(model): object

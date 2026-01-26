@@ -72,6 +72,7 @@ export default abstract class ApiService {
                         : {})
                 }
             }).then((response: AxiosResponse) => {
+                console.log(response);
                 if (model) {
                     response.data.data = this.castToModel(response.data.data, model);
                 }

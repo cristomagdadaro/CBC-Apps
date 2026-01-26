@@ -73,9 +73,20 @@ class Form extends BaseModel
         );
     }
 
+    public function responses(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            EventSubformResponse::class,
+            EventRequirement::class,
+            'event_id',
+            'form_parent_id',
+            'id',
+            'id'
+        );
+    }
     public function requirements(): HasMany
     {
-        return $this->hasMany(EventRequirement::class, 'event_id', 'event_id');
+        return $this->hasMany(EventRequirement::class, 'event_id', 'id');
     }
 
     public function isSuspended(): bool

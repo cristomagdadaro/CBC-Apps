@@ -82,7 +82,7 @@ export default {
         <template #header>
             <forms-header-actions />
         </template>
-        <div class="mx-auto flex flex-col gap-5 sm:px-6 lg:px-8">
+        <div class="mx-auto flex flex-col gap-5 sm:px-6 lg:px-8"> {{ $page.props.sql }}
             <TabNavigation
                 v-model="activeTab"
                 :tabs="[
@@ -194,7 +194,7 @@ export default {
 
                     <!-- Participants tab -->
                     <div v-else-if="activeKey === 'participants'" class="mt-4">
-                        <list-of-participants :event-id="data?.event_id" :form-parent-id="data?.id" :form-requirements="$page.props.subformRequirements" />
+                        <list-of-participants :event-id="data?.event_id" :form-parent-id="data?.id" />
                     </div>
                 </template>
             </TabNavigation>
