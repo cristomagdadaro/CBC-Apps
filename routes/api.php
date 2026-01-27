@@ -58,7 +58,7 @@ Route::prefix('guest')->group(function () {
 });
 
 /* 'auth:sanctum', */
-Route::middleware(['api', 'auth:sanctum'])->group(function () {
+Route::middleware(env('APP_ENV') === 'production' ? ['api', 'auth:sanctum'] : ['api'])->group(function () {
     Route::prefix('forms')->group(function () {
         Route::prefix('event')->group(function () {
             Route::get('/', [FormController::class, 'index'])->name('api.form.index');
