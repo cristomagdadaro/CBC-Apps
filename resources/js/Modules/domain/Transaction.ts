@@ -1,4 +1,5 @@
 import DtoTransaction from "@/Modules/dto/DtoTransaction";
+import Show from "@/Pages/Profile/Show.vue";
 import {usePage} from "@inertiajs/vue3";
 
 export default class Transaction extends DtoTransaction {
@@ -8,12 +9,13 @@ export default class Transaction extends DtoTransaction {
         postGuest: 'api.inventory.transactions.store.public',
         put: 'api.inventory.transactions.update',
         delete: 'api.inventory.transactions.destroy',
+        show: 'transactions.show',
     };
 
     constructor(response: DtoTransaction) {
-    super(response);
+        super(response);
 
-    const page = usePage();
+        const page = usePage();
 
         this.api._apiIndex = Transaction.endpoints.index;
         // @ts-ignore
@@ -23,7 +25,7 @@ export default class Transaction extends DtoTransaction {
 
         this.api.appendWith = ['item', 'user','personnel'];
 
-        this.showPage = 'transactions.show';
+        this.showPage = Transaction.endpoints.show;
     }
 
     createFields(): object

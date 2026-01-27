@@ -66,10 +66,10 @@ class Form extends BaseModel
         return $this->hasManyThrough(
             Participant::class,
             Registration::class,
-            'event_id', // Foreign key on registrations table
-            'id', // Foreign key on participants table
-            'event_id', // Local key on forms table
-            'participant_id' // Local key on registrations table
+            'event_id',
+            'id',
+            'event_id',
+            'participant_id'
         );
     }
 

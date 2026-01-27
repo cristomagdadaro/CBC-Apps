@@ -36,7 +36,7 @@ class FormController extends BaseController
         ]);
     }
 
-    public function index(GetFormsRequest $request, $event_id = null): Collection
+    public function index(GetFormsRequest $request): Collection
     {
         return parent::_index($request);
     }
