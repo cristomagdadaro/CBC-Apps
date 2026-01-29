@@ -77,7 +77,7 @@ export default class Item extends DtoItem {
                 db_key: 'description',
                 align: 'center',
                 sortable: true,
-                visible: false,
+                visible: true,
             },
             {
                 title: 'Category',
