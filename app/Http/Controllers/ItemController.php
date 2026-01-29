@@ -39,4 +39,26 @@ class ItemController extends BaseController
     {
         return parent::_destroy($request->validated('id'));
     }
+
+    public function indexOptions(GetItemRequest $request): JsonResponse
+    {
+        $data = $this->service->search(new Collection($request->validated()));
+
+        $data->getCollection()->transform(function ($item) {
+            return [
+                'value' => $item->id,
+                'label' => $item->name . (
+                    ($item->description || $item->brand)
+                        ? ' (' . trim(
+                            ($item->description ?? '') .
+                            ($item->description && $item->brand ? ', ' : '') .
+                            ($item->brand ?? '')
+                        ) . ')'
+                        : ''
+                ),
+            ];
+        });
+
+        return response()->json($data);
+    }
 }

@@ -181,7 +181,7 @@ Route::middleware([
                 })->name('items.index');
 
                 Route::get('/create', function () {
-                    return Inertia::render('Inventory/Items/components/CreateItemForm', [
+                    return Inertia::render('Inventory/Items/components/CreateItem', [
                         'fromUrl' => url()->previous(),
                         'suppliers' => Supplier::withTrashed()->get(),
                         'categories' => Category::all(),
@@ -219,6 +219,8 @@ Route::middleware([
                     return Inertia::render('Inventory/Transactions/components/Incoming', [
                         'fromUrl' => route('transactions.index'),
                         'items' => Item::get(),
+                        'suppliers' => Supplier::withTrashed()->get(),
+                        'categories' => Category::all(),
                         'storage_locations' => config('system.storage_locations'),
                         'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                     ]);

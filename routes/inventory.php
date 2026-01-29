@@ -32,6 +32,7 @@ Route::prefix('inventory')->group(function () {
 
     Route::prefix('items')->group(function () {
         Route::get('/', [ItemController::class, 'index'])->name('api.inventory.items.index');
+        Route::get('/options', [ItemController::class, 'indexOptions'])->name('api.inventory.items.options');
         Route::post('/', [ItemController::class, 'create'])->name('api.inventory.items.store');
         Route::delete('/{id?}', [ItemController::class, 'destroy'])->name('api.inventory.items.destroy');
         Route::put('/{id?}', [ItemController::class, 'update'])->name('api.inventory.items.update');
