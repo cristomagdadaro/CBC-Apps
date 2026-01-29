@@ -22,7 +22,13 @@ class PersonnelController extends BaseController
 
     public function index(GetPersonnelRequest $request)
     {
-        return parent::_index($request);
+        //return parent::_index($request);
+        $response = $this->service->search(new Collection($request->validated()));
+        // except user with id 1
+        $filtered = $response->filter(function ($item) {
+            return $item->id !== 1;
+        });
+        return new Collection($response);
     }
 
     public function create(CreatePersonnelRequest $request): Model

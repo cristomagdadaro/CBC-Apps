@@ -37,6 +37,6 @@ class ItemController extends BaseController
 
     public function destroy(DeleteItemRequest $request, string $id): Model
     {
-        return parent::_destroy($id);
+        return parent::_destroy($request->validated('id'));
     }
 }

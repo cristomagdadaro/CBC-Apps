@@ -31,7 +31,7 @@ abstract class AbstractRepoService {
 
             return $model;
         } catch (Exception $error) {
-            return $this->sendError($error);
+            $this->sendError($error);
         }
     }
 
@@ -44,7 +44,7 @@ abstract class AbstractRepoService {
 
             return $model;
         } catch (Exception $error) {
-            return $this->sendError($error);
+            $this->sendError($error);
         }
     }
 
@@ -55,8 +55,8 @@ abstract class AbstractRepoService {
 
             $model->delete();
             return $model;
-        } catch (\Exception $e) {
-            return $this->sendError($e);
+        } catch (Exception $e) {
+            $this->sendError($e);
         }
     }
 
@@ -189,7 +189,7 @@ abstract class AbstractRepoService {
 
             if (str_contains($selectedColumns, $sortColumn)) {
                 // If sort column exists in the query, use it
-                $sortColumn = $sortColumn;
+                $sortColumn = $selectedColumns;
             } elseif (Schema::hasColumn($query->getModel()->getTable(), 'id')) {
                 // Default to table ID if it exists
                 $sortColumn = $table.'.id';
@@ -222,7 +222,7 @@ abstract class AbstractRepoService {
     /**
      * @throws Throwable
      */
-    public function sendError(Throwable $error)
+    public function sendError(Throwable $error): never
     {
         Log::error('Error occurred: ' . $error->getMessage(), ['exception' => $error]);
         // Re-throw the original exception to preserve context and stack trace

@@ -57,7 +57,7 @@ export default abstract class ApiService {
     async get(url: string, params?: any, model?: DtoBaseClass) {
         this.processing = true;
         try { 
-            console.log(model.identifier);
+            
             const id = model ? model.apiGet : null;
             //@ts-ignore
             const routeUrl = id ? route(url, id) : route(url);
