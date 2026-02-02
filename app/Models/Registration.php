@@ -18,10 +18,14 @@ class Registration extends BaseModel
         'event_id',
         'participant_id',
         'attendance_type',
+        'checked_in_at',
+        'checked_in_by',
+        'checkin_source',
     ];
 
     protected $casts = [
         'id' => 'string',
+        'checked_in_at' => 'datetime',
     ];
 
     public function form():BelongsTo

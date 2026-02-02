@@ -4,6 +4,7 @@ use App\Http\Controllers\EventRequirementController;
 use App\Http\Controllers\EventCertificateController;
 use App\Http\Controllers\EventSubformController;
 use App\Http\Controllers\FormController;
+use App\Http\Controllers\FormScanController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\RequestFormPivotController;
 use App\Http\Controllers\ParticipantController;
@@ -74,6 +75,7 @@ Route::middleware(env('APP_ENV') === 'production' ? ['api', 'auth:sanctum'] : ['
             Route::get('/requirements/{event_id?}', [EventRequirementController::class, 'index'])->name('api.subform.requirement.index');
             Route::post('/certificates/{event_id}/template', [EventCertificateController::class, 'uploadTemplate'])->name('api.event.certificates.template.upload');
             Route::post('/certificates/{event_id}/generate', [EventCertificateController::class, 'generate'])->name('api.event.certificates.generate');
+            Route::post('/{event_id}/scan', [FormScanController::class, 'scan'])->name('api.form.scan');
         });
 
         Route::prefix('use-request-form')->group(function () {
