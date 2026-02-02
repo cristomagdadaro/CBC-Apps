@@ -4,12 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\EventCertificateTemplate;
 use App\Models\EventSubformResponse;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Symfony\Component\Process\Process;
 use ZipArchive;
 
 class EventCertificateController extends Controller
@@ -17,7 +16,7 @@ class EventCertificateController extends Controller
     public function uploadTemplate(Request $request, string $event_id): JsonResponse
     {
         $validated = $request->validate([
-            'template' => ['required', 'file', 'mimes:html,htm', 'max:5120'],
+            'template' => ['required', 'file', 'mimes:pptx', 'max:10240'],
         ]);
 
         $file = $validated['template'];
@@ -41,8 +40,12 @@ class EventCertificateController extends Controller
 
     public function generate(Request $request, string $event_id)
     {
+        $request->validate([
+            'format' => ['nullable', 'string', 'in:pptx,pdf,png,jpg'],
+        ]);
+
         $template = EventCertificateTemplate::where('event_id', $event_id)->firstOrFail();
-        $templateHtml = Storage::get($template->template_path);
+        $templatePath = Storage::path($template->template_path);
 
         $responses = EventSubformResponse::query()
             ->join('event_requirements', 'event_subform_responses.form_parent_id', '=', 'event_requirements.id')
@@ -57,37 +60,57 @@ class EventCertificateController extends Controller
             ], 422);
         }
 
-        $outputDir = public_path("generated-pdfs/certificates/{$event_id}");
-        if (!File::exists($outputDir)) {
-            File::makeDirectory($outputDir, 0755, true);
+        $format = $request->input('format', 'pdf');
+        $timestamp = now()->format('YmdHis');
+        $tempDir = storage_path("app/certificates/tmp/{$event_id}/{$timestamp}");
+        $outputDir = storage_path("app/certificates/output/{$event_id}/{$timestamp}");
+        File::makeDirectory($tempDir, 0755, true, true);
+        File::makeDirectory($outputDir, 0755, true, true);
+
+        $csvPath = $tempDir . DIRECTORY_SEPARATOR . 'responses.csv';
+        $this->writeResponsesCsv($csvPath, $responses, $event_id);
+
+        $python = config('services.certificate_generator.python', 'python');
+        $scriptPath = base_path('python/Certificate-Generator/certificate_generator.py');
+
+        $process = new Process([
+            $python,
+            $scriptPath,
+            '--template', $templatePath,
+            '--data', $csvPath,
+            '--outdir', $outputDir,
+            '--format', $format,
+        ]);
+
+        $process->setTimeout(120);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            File::deleteDirectory($tempDir);
+            File::deleteDirectory($outputDir);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Certificate generation failed.',
+                'details' => $process->getErrorOutput() ?: $process->getOutput(),
+            ], 500);
         }
 
-        $pdfPaths = [];
-        foreach ($responses as $response) {
-            $responseData = $response->response_data ?? [];
-            $name = $this->extractRespondentName($responseData);
-
-            $html = $this->mergeTemplate($templateHtml, $response, $name, $event_id, $responseData);
-            $pdf = Pdf::loadHTML($html);
-
-            $safeName = Str::slug($name ?: 'respondent');
-            $filename = $safeName . '-' . $response->id . '.pdf';
-            $filePath = $outputDir . DIRECTORY_SEPARATOR . $filename;
-            $pdf->save($filePath);
-            $pdfPaths[] = $filePath;
-        }
-
-        $zipPath = $outputDir . DIRECTORY_SEPARATOR . 'certificates.zip';
+        $zipPath = $tempDir . DIRECTORY_SEPARATOR . "certificates-{$event_id}.zip";
         $zip = new ZipArchive();
         $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
-        foreach ($pdfPaths as $path) {
-            $zip->addFile($path, basename($path));
+        foreach (File::allFiles($outputDir) as $file) {
+            if ($file->getFilename() === basename($zipPath)) {
+                continue;
+            }
+            $zip->addFile($file->getRealPath(), $file->getFilename());
         }
 
         $zip->close();
+        File::deleteDirectory($outputDir);
 
-        return response()->download($zipPath);
+        return response()->download($zipPath)->deleteFileAfterSend(true);
     }
 
     private function extractRespondentName(array $responseData): string
@@ -100,21 +123,55 @@ class EventCertificateController extends Controller
             ?? 'Participant';
     }
 
-    private function mergeTemplate(string $template, EventSubformResponse $response, string $name, string $eventId, array $responseData): string
+    private function writeResponsesCsv(string $path, $responses, string $eventId): void
     {
-        $replacements = [
-            '{{ name }}' => $name,
-            '{{name}}' => $name,
-            '{{ event_id }}' => $eventId,
-            '{{event_id}}' => $eventId,
-            '{{ email }}' => $responseData['email'] ?? '',
-            '{{email}}' => $responseData['email'] ?? '',
-            '{{ date }}' => now()->format('F j, Y'),
-            '{{date}}' => now()->format('F j, Y'),
-            '{{ form_type }}' => $response->subform_type ?? '',
-            '{{form_type}}' => $response->subform_type ?? '',
+        $handle = fopen($path, 'w');
+
+        $extraKeys = collect($responses)
+            ->flatMap(function ($response) {
+                $data = $response->response_data ?? [];
+                return array_keys($data);
+            })
+            ->unique()
+            ->values()
+            ->all();
+
+        $baseHeaders = [
+            'name',
+            'email',
+            'event_id',
+            'form_type',
+            'date',
         ];
 
-        return str_replace(array_keys($replacements), array_values($replacements), $template);
+        $headers = array_values(array_unique(array_merge($baseHeaders, $extraKeys)));
+
+        fputcsv($handle, $headers);
+
+        foreach ($responses as $response) {
+            $responseData = $response->response_data ?? [];
+            $name = $this->extractRespondentName($responseData);
+
+            $row = [
+                'name' => $name,
+                'email' => $responseData['email'] ?? '',
+                'event_id' => $eventId,
+                'form_type' => $response->subform_type ?? '',
+                'date' => now()->format('F j, Y'),
+            ];
+
+            foreach ($extraKeys as $key) {
+                $row[$key] = $responseData[$key] ?? '';
+            }
+
+            $orderedRow = [];
+            foreach ($headers as $header) {
+                $orderedRow[] = $row[$header] ?? '';
+            }
+
+            fputcsv($handle, $orderedRow);
+        }
+
+        fclose($handle);
     }
 }

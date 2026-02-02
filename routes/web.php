@@ -164,6 +164,20 @@ Route::middleware([
                     'requirements_total' => $requirements->count(),
                 ];
 
+                $eventResponsesByType = EventSubformResponse::query()
+                    ->join('event_requirements', 'event_subform_responses.form_parent_id', '=', 'event_requirements.id')
+                    ->where('event_requirements.event_id', $event_id)
+                    ->select([
+                        'event_subform_responses.id',
+                        'event_subform_responses.subform_type',
+                        'event_subform_responses.response_data',
+                        'event_subform_responses.created_at',
+                    ])
+                    ->orderByDesc('event_subform_responses.created_at')
+                    ->get()
+                    ->groupBy('subform_type')
+                    ->map(fn ($items) => $items->values());
+
                 return Inertia::render('Forms/FormUpdate', [
                     'data' => Form::where('event_id', $event_id)
                         ->with(['requirements' => function ($query) {
@@ -173,6 +187,7 @@ Route::middleware([
                     'responsesCount' => $formRepo->getResponsesCountByEventId($event_id),
                     'subformRequirements' => EventRequirement::select(['id as name', 'form_type as label'])->where('event_id', $event_id)->get(),
                     'eventStats' => $eventStats,
+                    'eventResponsesByType' => $eventResponsesByType,
                     'certificateTemplate' => EventCertificateTemplate::where('event_id', $event_id)->first(),
                 ]);
             })->name('forms.update');

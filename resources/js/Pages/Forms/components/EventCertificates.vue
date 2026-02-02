@@ -19,6 +19,7 @@ const generating = ref(false);
 const message = ref('');
 const errorMessage = ref('');
 const uploadedTemplateName = ref('');
+const outputFormat = ref('pdf');
 
 const templateName = computed(() => uploadedTemplateName.value || props.template?.template_name || 'No template uploaded');
 
@@ -67,7 +68,9 @@ const generateCertificates = async () => {
     message.value = '';
 
     try {
-        const response = await axios.post(route('api.event.certificates.generate', props.eventId), {}, {
+        const response = await axios.post(route('api.event.certificates.generate', props.eventId), {
+            format: outputFormat.value,
+        }, {
             responseType: 'blob',
         });
 
@@ -95,7 +98,7 @@ const generateCertificates = async () => {
         <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
             <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">eCertificate Template</h3>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Upload an HTML template containing placeholders like {{ name }}, {{ event_id }}, {{ email }}, {{ date }}, {{ form_type }}.
+                Upload a PPTX template containing placeholders like &lt;&lt;name&gt;&gt;, &lt;&lt;event_id&gt;&gt;, &lt;&lt;email&gt;&gt;, &lt;&lt;date&gt;&gt;, &lt;&lt;form_type&gt;&gt;.
             </p>
 
             <div class="mt-4 flex flex-col gap-3">
@@ -103,7 +106,7 @@ const generateCertificates = async () => {
                     Current template: <span class="font-semibold">{{ templateName }}</span>
                 </div>
 
-                <input type="file" accept=".html,.htm" @change="onFileChange" />
+                <input type="file" accept=".pptx" @change="onFileChange" />
 
                 <button
                     class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-fit"
@@ -121,6 +124,16 @@ const generateCertificates = async () => {
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Generates a ZIP file containing certificates for all respondents of this event.
             </p>
+
+            <div class="flex flex-col gap-2">
+                <label class="text-xs text-gray-500 dark:text-gray-400">Output format</label>
+                <select v-model="outputFormat" class="border border-gray-300 rounded px-3 py-2 w-fit">
+                    <option value="pdf">PDF</option>
+                    <option value="png">PNG</option>
+                    <option value="jpg">JPG</option>
+                    <option value="pptx">PPTX</option>
+                </select>
+            </div>
 
             <button
                 class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded"

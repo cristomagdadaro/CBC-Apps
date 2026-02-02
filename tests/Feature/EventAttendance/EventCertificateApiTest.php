@@ -22,7 +22,11 @@ class EventCertificateApiTest extends TestCase
         $form = Form::factory()->create();
         Sanctum::actingAs(User::factory()->create());
 
-        $file = UploadedFile::fake()->create('template.html', 10, 'text/html');
+        $file = UploadedFile::fake()->create(
+            'template.pptx',
+            10,
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+        );
 
         $response = $this->postJson(route('api.event.certificates.template.upload', $form->event_id), [
             'template' => $file,
@@ -44,14 +48,14 @@ class EventCertificateApiTest extends TestCase
         $form = Form::factory()->create();
         Sanctum::actingAs(User::factory()->create());
 
-        $templatePath = "certificates/templates/{$form->event_id}/template.html";
-        Storage::put($templatePath, '<html><body>{{ name }}</body></html>');
+        $templatePath = "certificates/templates/{$form->event_id}/template.pptx";
+        Storage::put($templatePath, 'pptx-binary');
 
         EventCertificateTemplate::create([
             'event_id' => $form->event_id,
             'template_path' => $templatePath,
-            'template_name' => 'template.html',
-            'template_mime' => 'text/html',
+            'template_name' => 'template.pptx',
+            'template_mime' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         ]);
 
         $response = $this->postJson(route('api.event.certificates.generate', $form->event_id));

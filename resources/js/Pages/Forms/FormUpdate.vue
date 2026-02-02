@@ -193,7 +193,10 @@ export default {
                     </div>
 
                     <div v-else-if="activeKey === 'dashboard'" class="mt-4">
-                        <form-update-dashboard :stats="$page.props.eventStats" />
+                        <form-update-dashboard
+                            :stats="$page.props.eventStats"
+                            :responses-by-type="$page.props.eventResponsesByType"
+                        />
                     </div>
 
                     <div v-else-if="activeKey === 'certificates'" class="mt-4">
