@@ -87,7 +87,7 @@ const responseDataGroups = computed(() => {
             form_type: key,
             label: labelMap[key] || key,
             items: itemsArray,
-            dataColumns: Array.from(uniqueKeys).sort(), // Dynamic columns from response_data
+            dataColumns: Array.from(uniqueKeys).sort(),
         };
     });
 });
@@ -309,7 +309,6 @@ watch(
                         <thead class="text-xs uppercase text-gray-500 dark:text-gray-400 border-b">
                             <tr>
                                 <th class="px-4 py-2">Submitted On</th>
-                                <th class="px-4 py-2">Respondent</th>
                                 <th
                                     v-for="col in group.dataColumns"
                                     :key="col"
@@ -322,9 +321,6 @@ watch(
                         <tbody>
                             <tr v-for="item in group.items" :key="item.id" class="border-b">
                                 <td class="px-4 py-2 text-gray-700 dark:text-gray-200">{{ formatDateTime(item.created_at) }}</td>
-                                <td class="px-4 py-2 text-gray-700 dark:text-gray-200">
-                                    {{ item.response_data?.name || item.response_data?.full_name || item.response_data?.email || 'N/A' }}
-                                </td>
                                 <td
                                     v-for="col in group.dataColumns"
                                     :key="col"

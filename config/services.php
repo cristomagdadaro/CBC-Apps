@@ -31,4 +31,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'certificate_generator' => [
+        'python' => env('CERTIFICATE_GENERATOR_PYTHON'),
+    ],
+
 ];

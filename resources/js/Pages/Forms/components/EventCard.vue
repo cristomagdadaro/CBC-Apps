@@ -13,66 +13,167 @@ import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 import Participant from "@/Modules/domain/Participant";
 import RequirementsManager from "@/Components/Forms/RequirementsManager.vue";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal.vue";
+
 export default {
     name: "EventCard",
+
     components: {
         DeleteConfirmationModal,
         RequirementsManager,
-        LoaderIcon, TransitionContainer, SuspendFormBtn, CancelBtn, DeleteBtn, ConfirmationModal, Modal},
-    computed: {
-        Form() {
-            return Form
-        },
-        formsData(){
-            if (this.updatedData && this.updatedData instanceof DtoResponse){
-                return this.updatedData.data;
-            }
-            return this.data;
-        }
+        LoaderIcon,
+        TransitionContainer,
+        SuspendFormBtn,
+        CancelBtn,
+        DeleteBtn,
+        ConfirmationModal,
+        Modal,
     },
+
     mixins: [ApiMixin, DataFormatterMixin],
-    beforeMount() {
-        this.model = new Form();
-        //start timer to determine if timestamp has expired
-        this.startCountdown();
-    },
-    data(){
+
+    data() {
         return {
             confirmDelete: false,
             updatedData: null,
             errors: null,
-        }
+        };
+    },
+
+    computed: {
+        Form() {
+            return Form;
+        },
+        formsData() {
+            if (this.updatedData instanceof DtoResponse) {
+                return this.updatedData.data;
+            }
+            return this.data ?? null;
+        },
+        formTypeLabels() {
+            return {
+                pre_registration: "Pre-registration",
+                pre_registration_biotech: "Pre-registration + Quiz Bee",
+                registration: "Registration",
+                pre_test: "Pre-test",
+                post_test: "Post-test",
+                feedback: "Feedback",
+            };
+        },
+        requirementByType() {
+            if (!Array.isArray(this.formsData?.requirements)) {
+                return {};
+            }
+
+            return this.formsData.requirements.reduce((acc, req) => {
+                acc[req.form_type] = req;
+                return acc;
+            }, {});
+        },
+        responseCountByType() {
+            const result = {
+                registration: 0,
+                feedback: 0,
+                preregistration: 0,
+                pretest: 0,
+                posttest: 0,
+            };
+
+            if (!Array.isArray(this.formsData?.requirements)) {
+                return result;
+            }
+
+            this.formsData.requirements.forEach(req => {
+                if (!req?.form_type) return;
+
+                switch (req.form_type) {
+                    case "registration":
+                        result.registration = req.responses_count ?? 0;
+                        break;
+                    case "feedback":
+                        result.feedback = req.responses_count ?? 0;
+                        break;
+                    case "preregistration":
+                        result.preregistration = req.responses_count ?? 0;
+                        break;
+                    case "pre_test":
+                        result.pretest = req.responses_count ?? 0;
+                        break;
+                    case "post_test":
+                        result.posttest = req.responses_count ?? 0;
+                        break;
+                }
+            });
+
+            return result;
+        },
+        responsesByType() {
+            if (!this.formsData?.responses_by_type) {
+                return [];
+            }
+
+            return Object.entries(this.formsData.responses_by_type).map(
+                ([key, count]) => ({
+                    form_type: key,
+                    label: this.formTypeLabels[key] || key.replace(/_/g, " "),
+                    count: count ?? 0,
+                })
+            );
+        },
+        visibleResponseTypes() {
+            return [
+                { key: 'registration', label: 'Registrations' },
+                { key: 'feedback', label: 'Feedback' },
+                { key: 'preregistration', label: 'Pre-registration' },
+                { key: 'pretest', label: 'Pre-test' },
+                { key: 'posttest', label: 'Post-test' },
+            ].filter(item => this.responseCountByType[item.key] > 0);
+        },
+        hasRightBorder() {
+            return (index) => index < this.visibleResponseTypes.length - 1;
+        },
+    },
+    beforeMount() {
+        this.model = new Form();
+        this.startCountdown();
     },
     methods: {
-        confirmAction()
-        {
+        safeFormatDate(value) {
+            return value ? this.formatDate(value) : "-";
+        },
+        safeFormatTime(value) {
+            return value ? this.formatTime(value) : "-";
+        },
+        confirmAction() {
             this.confirmDelete = true;
         },
-        async handleDelete()
-        {
-            this.toDelete = { event_id : this.formsData.event_id };
+        async handleDelete() {
+            this.toDelete = { event_id: this.formsData?.event_id };
             const response = await this.submitDelete();
-            if (response instanceof DtoResponse)
-            {
+
+            if (response instanceof DtoResponse) {
                 this.confirmDelete = false;
                 this.$emit("deletedModel", response.data);
             }
         },
-        async handleExport(eventId, filename)
-        {
+        async handleExport(eventId, filename) {
+            if (!eventId) return;
+
             this.model = new Participant();
-            this.setFormAction('get');
-            this.form.filter = 'event_id';
+            this.setFormAction("get");
+
+            this.form.filter = "event_id";
             this.form.search = eventId;
             this.form.is_exact = true;
 
             const response = await this.fetchData();
             await this.exportCSV(response.data, filename);
+
             this.model = new Form();
-        }
+        },
     },
-}
+};
 </script>
+
 
 <template>
     <div v-if="formsData" class="p-2 rounded-md flex flex-col gap-2 lg:max-w-2xl max-w-full min-w-[30rem] w-full justify-between bg-gray-100 border overflow-x-auto">
@@ -141,34 +242,80 @@ export default {
             </transition-container>
         </div>
         <div class="flex flex-col border-t p-2 bg-gray-200 rounded-md">
-            <span class="font-bold uppercase text-center">Statistics</span>
-            <div class="flex gap-1 justify-center">
-                <div :class="{'text-red-600':  data.max_slots > 0 && data.participants_count >= data.max_slots}" class="flex flex-col items-center border-r-2 border-gray-900 text-green-900 w-fit px-2 py-1">
-                    <label class="text-xl leading-none font-[1000]">{{ formsData.max_slots > 0 ? formsData.max_slots : 'No' }}</label>
-                    <span class="text-[0.6rem] leading-none select-none">Limit</span>
-                </div>
+    <span class="font-bold uppercase text-center">Statistics</span>
 
-                <div :class="{'text-red-600': formsData.max_slots > 0 && formsData.responses_count >= formsData.max_slots}" class="flex flex-col items-center border-r-2 border-gray-900 text-green-900 w-fit px-2 py-1">
-                    <label class="text-xl leading-none font-[1000]">{{ formsData.responses_count ?? 0 }}</label>
-                    <span class="text-[0.6rem] leading-none select-none">Responses</span>
-                </div>
+    <div class="flex gap-1 justify-center flex-wrap">
+        <template v-for="(item, index) in visibleResponseTypes" :key="item.key">
+            <div
+                v-if="item.key === 'registration'"
+                :class="[
+                    'flex flex-col items-center text-green-900 w-fit px-2 py-1',
+                    hasRightBorder(index) ? 'border-r-2 border-gray-900' : '',
+                    requirementByType.registration?.max_slots > 0 && responseCountByType.registration >= requirementByType.registration.max_slots ? 'text-red-600' : ''
+                ]"
+            >
+                <label class="text-xl font-[1000]">{{ responseCountByType.registration }}</label>
+                <span class="text-[0.6rem] select-none">Registrations</span>
+            </div>
+            <div
+                v-else-if="item.key === 'feedback'"
+                :class="[
+                    'flex flex-col items-center text-green-900 w-fit px-2 py-1',
+                    hasRightBorder(index) ? 'border-r-2 border-gray-900' : ''
+                ]"
+            >
+                <label class="text-xl font-[1000]">{{ responseCountByType.feedback }}</label>
+                <span class="text-[0.6rem] select-none">Feedback</span>
+            </div>
+            <div
+                v-else-if="item.key === 'preregistration'"
+                :class="[
+                    'flex flex-col items-center text-green-900 w-fit px-2 py-1',
+                    hasRightBorder(index) ? 'border-r-2 border-gray-900' : ''
+                ]"
+            >
+                <label class="text-xl font-[1000]">{{ responseCountByType.preregistration }}</label>
+                <span class="text-[0.6rem] select-none">Pre-registration</span>
+            </div>
+            <div
+                v-else-if="item.key === 'pretest'"
+                :class="[
+                    'flex flex-col items-center text-green-900 w-fit px-2 py-1',
+                    hasRightBorder(index) ? 'border-r-2 border-gray-900' : ''
+                ]"
+            >
+                <label class="text-xl font-[1000]">{{ responseCountByType.pretest }}</label>
+                <span class="text-[0.6rem] select-none">Pre-test</span>
+            </div>
+            <div
+                v-else-if="item.key === 'posttest'"
+                class="flex flex-col items-center text-green-900 w-fit px-2 py-1"
+            >
+                <label class="text-xl font-[1000]">{{ responseCountByType.posttest }}</label>
+                <span class="text-[0.6rem] select-none">Post-test</span>
+            </div>
+        </template>
+    </div>
+    <div v-if="responsesByType?.length" class="mt-3 pt-3 border-t">
+        <div class="text-xs font-bold uppercase text-center mb-2">
+            Responses by Form Type
+        </div>
 
-                <div :class="{'text-red-600': data.max_slots > 0 &&data.participants_count >= data.max_slots}" class="flex flex-col items-center border-r-2 border-gray-900 text-green-900 w-fit px-2 py-1">
-                    <label class="text-xl leading-none font-[1000]">{{ formsData.participants_count ?? 0 }}</label>
-                    <span class="text-[0.6rem] leading-none select-none">Registered Participants</span>
-                </div>
-
-                <div class="flex flex-col items-center border-r-2 border-gray-900 text-green-900 w-fit px-2 py-1">
-                    <label class="text-xl leading-none font-[1000]">{{ formsData.pretests_count ?? 0 }}</label>
-                    <span class="text-[0.6rem] leading-none select-none">Pretest Responses</span>
-                </div>
-
-                <div class="flex flex-col items-center text-green-900 w-fit px-2 py-1">
-                    <label class="text-xl leading-none font-[1000]">{{ formsData.posttests_count ?? 0 }}</label>
-                    <span class="text-[0.6rem] leading-none select-none">Posttest Responses</span>
-                </div>
+        <div class="flex flex-wrap gap-2 justify-center">
+            <div
+                v-for="item in responsesByType"
+                :key="item.form_type"
+                class="flex flex-col items-center bg-white rounded px-2 py-1 border border-gray-300"
+            >
+                <label class="text-sm font-bold">{{ item.count }}</label>
+                <span class="text-[0.6rem] text-center">
+                    {{ item.label }}
+                </span>
             </div>
         </div>
+    </div>
+</div>
+
         <div class="flex flex-col p-2">
             <div class="flex gap-1 justify-center">
                 <a :href="route('forms.guest.index')+'/'+formsData.event_id" target="_blank" class="bg-green-200 text-green-900 w-fit px-2 py-1 rounded" title="Preview form">

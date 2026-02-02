@@ -35,8 +35,8 @@ export default {
         },
         currentRequirement() {
             const map = {
-                preregistration: 'pre_registration',
-                preregistration_quiz: 'pre_registration_biotech',
+                preregistration: 'preregistration',
+                preregistration_quiz: 'preregistration_biotech',
                 registration: 'registration',
                 feedback: 'feedback',
             };
@@ -65,9 +65,9 @@ export default {
         this.startCountdown();
         // Set default active tab to first available open form to avoid null in TabNavigation
         if (this.activeTab === null) {
-            if (this.isFormOpen(this.whatForm('pre_registration'))) {
+            if (this.isFormOpen(this.whatForm('preregistration'))) {
                 this.activeTab = 'preregistration';
-            } else if (this.isFormOpen(this.whatForm('pre_registration_biotech'))) {
+            } else if (this.isFormOpen(this.whatForm('preregistration_biotech'))) {
                 this.activeTab = 'preregistration_quiz';
             } else if (this.isFormOpen(this.whatForm('registration'))) {
                 this.activeTab = 'registration';
@@ -189,7 +189,7 @@ export default {
             </div>
             <div>
                 <span class="font-bold uppercase">Slots Available: </span>
-                <span v-if="isFormFull(activeTab === 'preregistration' ? 'pre_registration' : activeTab === 'preregistration_quiz' ? 'pre_registration_biotech' : activeTab === 'registration' ? 'registration' : 'feedback')" class="text-red-600">FULL</span>
+                <span v-if="isFormFull(activeTab === 'preregistration' ? 'preregistration' : activeTab === 'preregistration_quiz' ? 'preregistration_biotech' : activeTab === 'registration' ? 'registration' : 'feedback')" class="text-red-600">FULL</span>
                 <label v-else>{{ slotsAvailable }}</label>
             </div>
         </div>
@@ -205,8 +205,8 @@ export default {
             <TabNavigation
                 v-model="activeTab"
                 :tabs="[
-                    isFormOpen(whatForm('pre_registration')) ? { key: 'preregistration', label: 'Pre-Registration' } : null,
-                    isFormOpen(whatForm('pre_registration_biotech')) ? { key: 'preregistration_quiz', label: 'Pre-Registration + Quiz Bee' } : null,
+                    isFormOpen(whatForm('preregistration')) ? { key: 'preregistration', label: 'Pre-Registration' } : null,
+                    isFormOpen(whatForm('preregistration_biotech')) ? { key: 'preregistration_quiz', label: 'Pre-Registration + Quiz Bee' } : null,
                     isFormOpen(whatForm('registration')) ? { key: 'registration', label: 'Registration' } : null,
                     isFormOpen(whatForm('feedback')) ? { key: 'feedback', label: 'Feedback' } : null,
                 ].filter(Boolean)"
@@ -215,32 +215,32 @@ export default {
                     <div v-if="activeKey === 'preregistration'">
                         <!-- Pre-registration -->
                         <preregistration-card
-                            v-if="isFormOpen(whatForm('pre_registration')) && !isFormFull('pre_registration')"
-                            :event-id="getRequirementFormId('pre_registration')"
-                            :config="whatForm('pre_registration')"
+                            v-if="isFormOpen(whatForm('preregistration')) && !isFormFull('preregistration')"
+                            :event-id="getRequirementFormId('preregistration')"
+                            :config="whatForm('preregistration')"
                             @createdModel="$emit('createdModel', $event)"
                         />
-                        <h3 v-else-if="whatForm('pre_registration') && whatForm('pre_registration').config && !isFormFull('pre_registration')" class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                        <h3 v-else-if="whatForm('preregistration') && whatForm('preregistration').config && !isFormFull('preregistration')" class="bg-AB text-white p-3 rounded-md shadow leading-none">
                             Pre-registration will open on
-                            <b>{{ formatDateTime(whatForm('pre_registration').config.open_from) }}</b>
+                            <b>{{ formatDateTime(whatForm('preregistration').config.open_from) }}</b>
                         </h3>
-                        <div v-else-if="isFormFull('pre_registration')" class="text-center bg-orange-500 text-white py-5 rounded-b">
+                        <div v-else-if="isFormFull('preregistration')" class="text-center bg-orange-500 text-white py-5 rounded-b">
                             Maximum Number of Pre-Registrations Reached!
                         </div>
                     </div>
 
                     <div v-if="activeKey === 'preregistration_quiz'">
                         <preregistration-quiz-bee-card
-                            v-if="isFormOpen(whatForm('pre_registration_biotech')) && !isFormFull('pre_registration_biotech')"
-                            :event-id="getRequirementFormId('pre_registration_biotech')"
-                            :config="whatForm('pre_registration_biotech')"
+                            v-if="isFormOpen(whatForm('preregistration_biotech')) && !isFormFull('preregistration_biotech')"
+                            :event-id="getRequirementFormId('preregistration_biotech')"
+                            :config="whatForm('preregistration_biotech')"
                             @createdModel="$emit('createdModel', $event)"
                         />
-                        <h3 v-else-if="whatForm('pre_registration_biotech') && whatForm('pre_registration_biotech').config && !isFormFull('pre_registration_biotech')" class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                        <h3 v-else-if="whatForm('preregistration_biotech') && whatForm('preregistration_biotech').config && !isFormFull('preregistration_biotech')" class="bg-AB text-white p-3 rounded-md shadow leading-none">
                             Quiz Bee Pre-registration will open on
-                            <b>{{ formatDateTime(whatForm('pre_registration_biotech').config.open_from) }}</b>
+                            <b>{{ formatDateTime(whatForm('preregistration_biotech').config.open_from) }}</b>
                         </h3>
-                        <div v-else-if="isFormFull('pre_registration_biotech')" class="text-center bg-orange-500 text-white py-5 rounded-b">
+                        <div v-else-if="isFormFull('preregistration_biotech')" class="text-center bg-orange-500 text-white py-5 rounded-b">
                             Maximum Number of Quiz Bee Pre-Registrations Reached!
                         </div>
                     </div>

@@ -1,95 +1,124 @@
-<script setup>
-import { ref, computed } from 'vue';
-import axios from 'axios';
+<script>
+import ApiMixin from '@/Modules/mixins/ApiMixin';
 
-const props = defineProps({
-    eventId: {
-        type: String,
-        default: null,
+export default {
+    mixins: [ApiMixin],
+    props: {
+        eventId: {
+            type: String,
+            default: null,
+        },
+        template: {
+            type: Object,
+            default: null,
+        },
     },
-    template: {
-        type: Object,
-        default: null,
+    data() {
+        return {
+            fileRef: null,
+            uploading: false,
+            generating: false,
+            message: '',
+            errorMessage: '',
+            uploadedTemplateName: '',
+            outputFormat: 'pdf',
+        };
     },
-});
+    computed: {
+        templateName() {
+            return this.uploadedTemplateName || this.template?.template_name || 'No template uploaded';
+        },
+    },
+    methods: {
+        async resolveErrorMessage(error) {
+            const fallback = 'Failed to generate certificates.';
 
-const fileRef = ref(null);
-const uploading = ref(false);
-const generating = ref(false);
-const message = ref('');
-const errorMessage = ref('');
-const uploadedTemplateName = ref('');
-const outputFormat = ref('pdf');
+            if (!error?.response) {
+                return error?.message || fallback;
+            }
 
-const templateName = computed(() => uploadedTemplateName.value || props.template?.template_name || 'No template uploaded');
+            const data = error.response.data;
+            if (data instanceof Blob) {
+                try {
+                    const text = await data.text();
+                    const parsed = JSON.parse(text);
+                    return parsed?.message || fallback;
+                } catch {
+                    return fallback;
+                }
+            }
 
-const onFileChange = (event) => {
-    errorMessage.value = '';
-    message.value = '';
-    fileRef.value = event.target.files?.[0] || null;
-};
+            return data?.message || fallback;
+        },
+        onFileChange(event) {
+            this.errorMessage = '';
+            this.message = '';
+            this.fileRef = event.target.files?.[0] || null;
+        },
+        async uploadTemplate() {
+            if (!this.eventId || !this.fileRef) {
+                this.errorMessage = 'Please select a template file.';
+                return;
+            }
 
-const uploadTemplate = async () => {
-    if (!props.eventId || !fileRef.value) {
-        errorMessage.value = 'Please select a template file.';
-        return;
-    }
+            this.uploading = true;
+            this.errorMessage = '';
+            this.message = '';
 
-    uploading.value = true;
-    errorMessage.value = '';
-    message.value = '';
+            try {
+                const formData = new FormData();
+                formData.append('template', this.fileRef);
 
-    try {
-        const formData = new FormData();
-        formData.append('template', fileRef.value);
+                await this.fetchPostApi('api.event.certificates.template.upload', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                    routeParams: this.eventId,
+                });
 
-        await axios.post(route('api.event.certificates.template.upload', props.eventId), formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-        });
+                this.message = 'Template uploaded successfully.';
+                this.uploadedTemplateName = this.fileRef?.name || '';
+                this.fileRef = null;
+            } catch (error) {
+                this.errorMessage = error?.response?.data?.message || 'Failed to upload template.';
+            } finally {
+                this.uploading = false;
+            }
+        },
+        async generateCertificates() {
+            if (!this.eventId) {
+                this.errorMessage = 'Event ID is missing.';
+                return;
+            }
 
-        message.value = 'Template uploaded successfully.';
-        uploadedTemplateName.value = fileRef.value?.name || '';
-        fileRef.value = null;
-    } catch (error) {
-        errorMessage.value = error?.response?.data?.message || 'Failed to upload template.';
-    } finally {
-        uploading.value = false;
-    }
-};
+            this.generating = true;
+            this.errorMessage = '';
+            this.message = '';
 
-const generateCertificates = async () => {
-    if (!props.eventId) {
-        errorMessage.value = 'Event ID is missing.';
-        return;
-    }
+            try {
+                const response = await this.fetchPostApi('api.event.certificates.generate', {
+                    format: this.outputFormat,
+                }, {
+                    responseType: 'blob',
+                    routeParams: this.eventId,
+                });
 
-    generating.value = true;
-    errorMessage.value = '';
-    message.value = '';
+                const blob = new Blob([response.data], { type: 'application/zip' });
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `certificates-${this.eventId}.zip`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
 
-    try {
-        const response = await axios.post(route('api.event.certificates.generate', props.eventId), {
-            format: outputFormat.value,
-        }, {
-            responseType: 'blob',
-        });
-
-        const blob = new Blob([response.data], { type: 'application/zip' });
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `certificates-${props.eventId}.zip`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-
-        message.value = 'Certificates generated successfully.';
-    } catch (error) {
-        errorMessage.value = error?.response?.data?.message || 'Failed to generate certificates.';
-    } finally {
-        generating.value = false;
-    }
+                this.message = 'Certificates generated successfully.';
+            } catch (error) {
+                this.errorMessage = await this.resolveErrorMessage(error);
+            } finally {
+                this.generating = false;
+            }
+        },
+    },
 };
 </script>
 

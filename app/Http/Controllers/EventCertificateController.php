@@ -70,20 +70,50 @@ class EventCertificateController extends Controller
         $csvPath = $tempDir . DIRECTORY_SEPARATOR . 'responses.csv';
         $this->writeResponsesCsv($csvPath, $responses, $event_id);
 
-        $python = config('services.certificate_generator.python', 'python');
+        $python = config('services.certificate_generator.python');
+        if (!$python) {
+            $python = PHP_OS_FAMILY === 'Windows' ? 'py' : 'python3';
+        }
         $scriptPath = base_path('python/Certificate-Generator/certificate_generator.py');
 
-        $process = new Process([
-            $python,
-            $scriptPath,
-            '--template', $templatePath,
-            '--data', $csvPath,
-            '--outdir', $outputDir,
-            '--format', $format,
-        ]);
+        if (!File::exists($templatePath)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Certificate template file is missing.',
+                'details' => $templatePath,
+            ], 500);
+        }
 
-        $process->setTimeout(120);
-        $process->run();
+        if (!File::exists($scriptPath)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Certificate generator script not found.',
+                'details' => $scriptPath,
+            ], 500);
+        }
+
+        try {
+            $process = new Process([
+                $python,
+                $scriptPath,
+                '--template', $templatePath,
+                '--data', $csvPath,
+                '--outdir', $outputDir,
+                '--format', $format,
+            ]);
+
+            $process->setTimeout(120);
+            $process->run();
+        } catch (\Throwable $e) {
+            File::deleteDirectory($tempDir);
+            File::deleteDirectory($outputDir);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unable to execute certificate generator.',
+                'details' => $e->getMessage(),
+            ], 500);
+        }
 
         if (!$process->isSuccessful()) {
             File::deleteDirectory($tempDir);

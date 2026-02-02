@@ -28,11 +28,11 @@ export default {
         },
         formTypeOptions() {
             return [
-                { value: 'pre_registration', label: 'Pre-registration' },
-                { value: 'pre_registration_biotech', label: 'Pre-registration + Quiz Bee' },
+                { value: 'preregistration', label: 'Pre-registration' },
+                { value: 'preregistration_biotech', label: 'Pre-registration + Quiz Bee' },
                 { value: 'registration', label: 'Registration / Attendance' },
-                { value: 'pre_test', label: 'Pre-test' },
-                { value: 'post_test', label: 'Post-test' },
+                { value: 'pretest', label: 'Pre-test' },
+                { value: 'posttest', label: 'Post-test' },
                 { value: 'feedback', label: 'Feedback / Evaluation' },
             ];
         },
@@ -73,7 +73,7 @@ export default {
             };
 
             // If this is a pre-registration/registration type, enable attendance config by default
-            if (['pre_registration', 'pre_registration_biotech', 'registration'].includes(value)) {
+            if (['preregistration', 'preregistration_biotech', 'registration'].includes(value)) {
                 copy[index].config = {
                     ...copy[index].config,
                     attendance_type_required: true,
@@ -194,7 +194,7 @@ export default {
                             </div>
         
                             <div
-                                v-if="['pre_registration', 'pre_registration_biotech', 'registration'].includes(req.form_type)"
+                                v-if="['preregistration', 'preregistration_biotech', 'registration'].includes(req.form_type)"
                                 class="flex items-center gap-2 text-xs mt-1"
                             >
                                 <label class="flex items-center gap-1">
