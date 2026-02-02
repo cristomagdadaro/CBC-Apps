@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\GetRequest;
+use App\Http\Requests\Generic\GetRequest;
 use App\Http\Requests\CreateRequest;
 use App\Http\Requests\UpdateRequest;
 use App\Http\Requests\DeleteRequest;

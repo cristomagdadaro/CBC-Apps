@@ -10,6 +10,7 @@ use App\Repositories\PersonnelRepo;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 class PersonnelController extends BaseController
@@ -22,13 +23,28 @@ class PersonnelController extends BaseController
 
     public function index(GetPersonnelRequest $request)
     {
-        //return parent::_index($request);
         $response = $this->service->search(new Collection($request->validated()));
-        // except user with id 1
-        $filtered = $response->filter(function ($item) {
+
+        $filterOutAdmin = function ($item) {
             return $item->id !== 1;
-        });
-        return new Collection($response);
+        };
+
+        if ($response instanceof LengthAwarePaginator) {
+            $filtered = $response->getCollection()->filter($filterOutAdmin)->values();
+            $response->setCollection($filtered);
+            return $response;
+        }
+
+        if (is_array($response) && array_key_exists('data', $response)) {
+            $response['data'] = collect($response['data'])->filter($filterOutAdmin)->values();
+            return $response;
+        }
+
+        if ($response instanceof Collection) {
+            return $response->filter($filterOutAdmin)->values();
+        }
+
+        return $response;
     }
 
     public function create(CreatePersonnelRequest $request): Model
