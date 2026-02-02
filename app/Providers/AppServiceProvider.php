@@ -37,6 +37,9 @@ class AppServiceProvider extends ServiceProvider
             RequestFormPivot::observe(RequestFormPivotObserver::class);
         }
         Transaction::observe(TransactionObserver::class);
+
+        // Audit logging for models with Auditable trait is automatically registered
+        // via the bootAuditable() method in the Auditable trait
     }
 
     protected function buildAppVersion(): string

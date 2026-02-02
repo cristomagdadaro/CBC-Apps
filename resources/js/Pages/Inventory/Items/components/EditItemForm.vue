@@ -14,9 +14,11 @@ import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import AddIcon from "@/Components/Icons/AddIcon.vue";
 import ItemsHeaderActions from "@/Pages/Inventory/Items/components/ItemsHeaderActions.vue";
 import FileInput from "@/Components/FileInput.vue";
+import AuditInfoCard from "@/Components/AuditInfoCard.vue";
 
 export default defineComponent({
     components: {
+        AuditInfoCard,
         FileInput,
         ItemsHeaderActions,
         AddIcon,
@@ -121,14 +123,11 @@ export default defineComponent({
                         <span v-else>Update</span>
                     </submit-btn>
                 </div>
-                <div class="flex flex-col w-full text-xs text-gray-400 border-t border-gray-500 pt-1">
-                        <span>
-                            Date Created: {{  $page.props.data.created_at }}
-                        </span>
-                    <span>
-                            Last Updated: {{  $page.props.data.updated_at }}
-                        </span>
-                </div>
+                <audit-info-card
+                    :audit-logs="$page.props.auditLogs"
+                    :created-at="$page.props.data.created_at"
+                    :updated-at="$page.props.data.updated_at"
+                />
             </div>
         </form>
     </AppLayout>

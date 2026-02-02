@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use App\Traits\Auditable;
 
 class Form extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, Auditable;
 
     protected $table = 'forms';
     public $incrementing = false; // Disable auto-incrementing

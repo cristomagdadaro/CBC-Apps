@@ -51,4 +51,17 @@ abstract class BaseController extends Controller
             'data' => $deletedItems
         ]);
     }
+
+    /**
+     * Load audit logs for a model instance.
+     * Used to display audit information in edit/update pages.
+     */
+    protected function loadAuditLogs(Model $model)
+    {
+        if (method_exists($model, 'auditLogs')) {
+            return $model->auditLogs()->latest('created_at')->get();
+        }
+        return [];
+    }
 }
+

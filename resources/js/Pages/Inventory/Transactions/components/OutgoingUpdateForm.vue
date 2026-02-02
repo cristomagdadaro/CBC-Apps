@@ -13,10 +13,12 @@ import BaseResponse from "@/Modules/DataTable/domain/BaseResponse";
 import ErrorResponse from "@/Modules/DataTable/domain/ErrorResponse";
 import TextArea from "@/Components/TextArea.vue";
 import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/TransactionReportAccordion.vue";
+import AuditInfoCard from "@/Components/AuditInfoCard.vue";
 
 export default {
     name: "OutgoingUpdateForm",
     components: {
+        AuditInfoCard,
         TextArea,
         TransactionReportAccordion,
         CancelBtn, SubmitBtn, TextInput, TransactionHeaderAction, AppLayout, CustomDropdown, FilterIcon, Head},
@@ -193,6 +195,11 @@ export default {
                                 <span v-else>Save</span>
                             </submit-btn>
                         </div>
+                        <audit-info-card
+                            :audit-logs="$page.props.auditLogs"
+                            :created-at="data.created_at"
+                            :updated-at="data.updated_at"
+                        />
                     </form>
                 </div>
             </div>

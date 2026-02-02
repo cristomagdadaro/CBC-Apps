@@ -9,10 +9,12 @@ import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import ResetBtn from "@/Components/Buttons/ResetBtn.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import TextInput from "@/Components/TextInput.vue";
+import AuditInfoCard from "@/Components/AuditInfoCard.vue";
 
 export default {
     name: "EditPersonnelForm",
     components: {
+        AuditInfoCard,
         TextInput,
         AppLayout,
         ResetBtn,
@@ -61,14 +63,11 @@ export default {
                         <span v-else>Update</span>
                     </submit-btn>
                 </div>
-                <div class="flex flex-col w-full text-xs text-gray-400 border-t border-gray-500 pt-1">
-                        <span>
-                            Date Created: {{  $page.props.data.created_at }}
-                        </span>
-                    <span>
-                            Last Updated: {{  $page.props.data.updated_at }}
-                        </span>
-                </div>
+                <audit-info-card
+                    :audit-logs="$page.props.auditLogs"
+                    :created-at="$page.props.data.created_at"
+                    :updated-at="$page.props.data.updated_at"
+                />
             </div>
         </form>
     </AppLayout>
