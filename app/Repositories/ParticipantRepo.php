@@ -26,8 +26,8 @@ class ParticipantRepo extends AbstractRepoService
 
             Registration::factory()->create([
                 'id' => $temp,
-                'event_id' => $eventId,
-                'participant_id' => $validated['id'] ?? $participant->id,
+                'event_subform_id' => $eventId,
+                'participant_id' => $participant ? $participant->id : null,
                 'attendance_type' => $validated['attendance_type'] ?? null,
             ]);
 

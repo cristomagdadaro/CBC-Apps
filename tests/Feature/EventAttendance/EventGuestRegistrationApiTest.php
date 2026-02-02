@@ -46,7 +46,7 @@ class EventGuestRegistrationApiTest extends TestCase
         ];
 
         $response = $this->postJson(route('api.form.registration.post', ['event_id' => $form->event_id]), $payload);
-
+        dd($response->getContent());
         $response->assertStatus(201)
             ->assertJsonStructure(['status', 'participant_hash', 'participant', 'event_id']);
 

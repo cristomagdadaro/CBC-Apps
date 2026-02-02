@@ -27,7 +27,7 @@ class ParticipantController extends BaseController
                 'status' => 'success',
                 'participant_hash' => $result['participant_hash'],
                 'participant' => $result['participant'],
-                'event_id' => $result['event_id'],
+                'event_subform_id' => $result['event_subform_id'],
             ], 201);
 
         } catch (\Exception $e) {

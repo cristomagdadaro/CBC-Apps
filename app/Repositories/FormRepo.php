@@ -117,18 +117,37 @@ class FormRepo extends AbstractRepoService
             ->where('event_id', $eventId)
             ->firstOrFail();
 
+        $incomingFormTypes = collect($requirements)
+            ->pluck('form_type')
+            ->filter()
+            ->values()
+            ->all();
+
+        if (!empty($incomingFormTypes)) {
+            EventSubform::where('event_id', $form->event_id)
+                ->whereNotIn('form_type', $incomingFormTypes)
+                ->delete();
+        } else {
+            EventSubform::where('event_id', $form->event_id)->delete();
+        }
+
         foreach ($requirements as $req) {
-            EventSubform::updateOrCreate(
-                [
-                    'event_id' => $form->event_id,
-                    'form_type' => $req['form_type'], // use form_type as unique key
-                ],
-                [
-                    'is_required' => $req['is_required'] ?? true,
-                    'max_slots' => array_key_exists('max_slots', $req) ? $req['max_slots'] : null,
-                    'config' => $req['config'] ?? [],
-                ]
-            );
+            $subform = EventSubform::withTrashed()->firstOrNew([
+                'event_id' => $form->event_id,
+                'form_type' => $req['form_type'], // use form_type as unique key
+            ]);
+
+            if ($subform->trashed()) {
+                $subform->restore();
+            }
+
+            $subform->fill([
+                'is_required' => $req['is_required'] ?? true,
+                'max_slots' => array_key_exists('max_slots', $req) ? $req['max_slots'] : null,
+                'config' => $req['config'] ?? [],
+            ]);
+
+            $subform->save();
         }
 
         return $form->requirements()->get();

@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class EventSubform extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected static function boot()
     {

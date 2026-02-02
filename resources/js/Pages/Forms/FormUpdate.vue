@@ -98,6 +98,7 @@ export default {
             >
                 <template #default="{ activeKey }">
                     <div v-if="activeKey === 'update'" class="mt-4">
+                        {{ form }}
                         <form v-if="!!form" @submit.prevent="submitProxyUpdate" class="max-w-3xl min-w-xl w-full mx-auto">
                             <div class="w-full flex flex-col gap-6">
                                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg" :class="{ 'border border-red-600': form.hasErrors }">
