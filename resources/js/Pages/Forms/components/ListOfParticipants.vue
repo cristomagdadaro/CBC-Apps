@@ -85,7 +85,9 @@ export default {
     beforeMount() {
         this.model = new SubformResponse();
         this.setFormAction('get');
-        console.log(this.ParentForm);
+        // Set initial filter_by_parent_id and filter_by_parent_column for event filtering
+        this.form.filter_by_parent_id = this.eventId;
+        this.form.filter_by_parent_column = 'event_id';
     },
     async mounted() {
         this.selectedFormType = this.formList?.[0]?.name ?? null;
@@ -97,7 +99,15 @@ export default {
                 this.eventFormFromApi = null;
                 return;
             }
-            await this.fetchGetApi('api.subform.response.index', { filter_by_parent_id: this.eventId, filter_by_parent_column: 'event_id'}, SubformResponse).then((response) => {
+
+            // Build search params - filter by event_id through the repository
+            const searchParams = {
+                ...this.form.data(),
+                filter_by_parent_id: this.form.form_parent_id || this.eventId,
+                filter_by_parent_column: this.form.form_parent_id ? 'form_parent_id' : 'event_id',
+            };
+
+            await this.fetchGetApi('api.subform.response.index', searchParams, SubformResponse).then((response) => {
                 this.eventFormFromApi = response;
             });
             this.decorateResponseRows();
@@ -107,8 +117,8 @@ export default {
                 console.warn('Form not initialized yet');
                 return;
             }
-            this.form.filter_by_parent_id = selected;
-            console.log(this.form.data());
+            // When a specific form type (requirement) is selected, filter by its ID directly
+            this.form.form_parent_id = selected || null;
             await this.searchEvent();
         },
         decorateResponseRows() {

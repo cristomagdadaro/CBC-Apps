@@ -153,7 +153,7 @@ export default {
             </div>
             <div>
                 <span class="font-bold uppercase">Slots Available: </span>
-                <span v-if="data.participants_count >= data.max_slots" class="text-red-600">FULL</span> <label v-else >{{ data.max_slots-data.participants_count}}</label>
+                <span v-if="data.responses_count >= data.max_slots" class="text-red-600">FULL</span> <label v-else >{{ data.max_slots-data.responses_count}}</label>
             </div>
         </div>
         <div v-show="data.is_suspended" v-if="data.is_suspended" class="flex flex-col border-t p-2 bg-yellow-300 w-full min-w-full rounded-md min-h-[3rem]">

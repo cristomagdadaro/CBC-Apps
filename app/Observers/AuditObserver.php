@@ -37,6 +37,7 @@ class AuditObserver
     public function deleted(Model $model): void
     {
         // Soft deletes - store the complete model data
+        \Illuminate\Support\Facades\Log::info('AuditObserver: deleted event triggered for ' . get_class($model) . ' with ID: ' . $model->getKey());
         $this->createAuditLog($model, 'deleted', $model->getOriginal(), null);
     }
 
@@ -46,6 +47,7 @@ class AuditObserver
     public function forceDeleted(Model $model): void
     {
         // Hard deletes - store the complete model data
+        \Illuminate\Support\Facades\Log::info('AuditObserver: forceDeleted event triggered for ' . get_class($model) . ' with ID: ' . $model->getKey());
         $this->createAuditLog($model, 'force_deleted', $model->getOriginal(), null);
     }
 
@@ -59,7 +61,9 @@ class AuditObserver
         ?array $newValues
     ): void {
         try {
-            AuditLog::create([
+            \Illuminate\Support\Facades\Log::info('AuditObserver: Creating audit log for ' . $action . ' action');
+            
+            $auditData = [
                 'user_id' => Auth::id(),
                 'model_type' => get_class($model),
                 'model_id' => $model->getKey(),
@@ -69,10 +73,16 @@ class AuditObserver
                 'ip_address' => Request::ip(),
                 'user_agent' => Request::userAgent(),
                 'description' => null,
-            ]);
+            ];
+            
+            \Illuminate\Support\Facades\Log::info('Audit data to insert: ' . json_encode($auditData));
+            
+            AuditLog::create($auditData);
+            
+            \Illuminate\Support\Facades\Log::info('Audit log created successfully');
         } catch (\Exception $e) {
             // Log audit failure but don't interrupt the main operation
-            \Illuminate\Support\Facades\Log::warning('Failed to create audit log: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning('Failed to create audit log: ' . $e->getMessage(), ['exception' => $e]);
         }
     }
 

@@ -24,12 +24,35 @@ class FormRepo extends AbstractRepoService
             return null;
         }
 
-        return $this->model
+        $form = $this->model
             ->newQuery()
             ->where('event_id', $eventId)
             ->withCount('participants')
             ->with('requirements')
             ->first();
+
+            
+        if ($form) {
+            $form->responses_count = $this->getResponsesCountByEventId($eventId);
+        }
+
+        return $form;
+    }
+
+    /**
+     * Get the total number of responses for a given event ID.
+     * @param mixed $eventId
+     * @return int
+     */
+    public function getResponsesCountByEventId(?string $eventId): int
+    {
+        if (!$eventId) {
+            return 0;
+        }
+
+        return EventRequirement::join('event_subform_responses', 'form_parent_id', '=', 'event_requirements.id')
+            ->where('event_requirements.event_id', $eventId)
+            ->count();
     }
 
     public function getParticipantsByEventId(string $eventId): Collection

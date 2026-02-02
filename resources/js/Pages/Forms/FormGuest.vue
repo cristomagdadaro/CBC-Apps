@@ -78,6 +78,25 @@ export default {
                 this.isSearching = false;
             }
         },
+        /**
+         * Called when a registration is successfully created.
+         * Updates the local participant count to reflect the new registration.
+         */
+        handleCreatedModel(createdData) {
+            this.lastCreatedForm = createdData;
+
+            // Update participants_count in eventFormFromApi (searched form)
+            if (this.eventFormFromApi?.data?.[0]) {
+                const current = this.eventFormFromApi.data[0].participants_count ?? 0;
+                this.eventFormFromApi.data[0].participants_count = current + 1;
+            }
+
+            // Update participants_count in eventForm (URL-based form prop)
+            if (this.eventForm) {
+                const current = this.eventForm.participants_count ?? 0;
+                this.eventForm.participants_count = current + 1;
+            }
+        },
         getLastDigit(value) {
             return /^[0-9]$/.test(value) ? value : '';
         },
@@ -481,7 +500,7 @@ export default {
                 <div v-if="eventFormFromApi?.data?.length">
                     <guest-card
                         :data="eventFormFromApi.data[0]"
-                        @createdModel="lastCreatedForm = $event"
+                        @createdModel="handleCreatedModel($event)"
                     />
                     <label class="text-[0.6rem] leading-none select-none">
                         Form from Search
@@ -493,7 +512,7 @@ export default {
                 <div v-if="eventForm && delayReady">
                     <guest-card
                         :data="eventForm"
-                        @createdModel="lastCreatedForm = $event"
+                        @createdModel="handleCreatedModel($event)"
                     />
                     <label class="text-[0.6rem] leading-none select-none">
                         Form from URL
@@ -501,6 +520,5 @@ export default {
                 </div>
             </transition-container>
         </div>
-
     </guest-form-page>
 </template>

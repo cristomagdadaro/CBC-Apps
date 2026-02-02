@@ -146,9 +146,11 @@ Route::middleware([
                     $event_id = request()->query('event_id');
                 }
 
+                $formRepo = new \App\Repositories\FormRepo(new Form());
+
                 return Inertia::render('Forms/FormUpdate', [
                     'data' => Form::where('event_id', $event_id)->with('requirements')->first(),
-                    'responsesCount' => $event_id ? EventRequirement::join('event_subform_responses', 'form_parent_id', '=', 'event_requirements.id')->where('event_requirements.event_id', $event_id)->count() : 0,
+                    'responsesCount' => $formRepo->getResponsesCountByEventId($event_id),
                     'subformRequirements' => EventRequirement::select(['id as name', 'form_type as label'])->where('event_id', $event_id)->get(),
                 ]);
             })->name('forms.update');

@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
-class EventSubformResponse extends Model
+class EventSubformResponse extends BaseModel
 {
     use HasFactory, HasUuids;
 
@@ -25,6 +24,16 @@ class EventSubformResponse extends Model
     protected $casts = [
         'id' => 'string',
         'response_data' => 'array',
+    ];
+
+    /**
+     * Searchable columns for the abstract repository search.
+     */
+    protected array $searchable = [
+        'id',
+        'form_parent_id',
+        'participant_id',
+        'subform_type',
     ];
 
     public function formParent()
