@@ -111,8 +111,8 @@ class EventFormRequirementsApiTest extends TestCase
         $requirementsResponse->assertOk()
             ->assertJsonStructure(['message', 'requirements']);
 
-        $this->assertDatabaseCount('event_requirements', 5);
-        $this->assertDatabaseHas('event_requirements', [
+        $this->assertDatabaseCount('event_subforms', 5);
+        $this->assertDatabaseHas('event_subforms', [
             'event_id' => $eventId,
             'form_type' => Subform::PREREGISTRATION->value,
         ]);

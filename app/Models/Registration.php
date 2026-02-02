@@ -15,7 +15,7 @@ class Registration extends BaseModel
     protected $keyType = 'string'; // Set the primary key as a string
     protected $fillable = [
         'id',
-        'event_id',
+        'event_subform_id',
         'participant_id',
         'attendance_type',
         'checked_in_at',
@@ -30,7 +30,7 @@ class Registration extends BaseModel
 
     public function form():BelongsTo
     {
-        return $this->belongsTo(Form::class, 'event_id', 'event_id');
+        return $this->belongsTo(Form::class, 'event_subform_id', 'event_id');
     }
 
     public function participant()

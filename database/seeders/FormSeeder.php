@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\Subform;
-use App\Models\EventRequirement;
+use App\Models\EventSubform;
 use App\Models\EventSubformResponse;
 use App\Models\Form;
 use App\Models\Participant;
@@ -41,7 +41,7 @@ class FormSeeder extends Seeder
 
             $createdRequirements = [];
             foreach ($requirements as $requirementData) {
-                $requirement = EventRequirement::firstOrCreate(
+                $requirement = EventSubform::firstOrCreate(
                     [
                         'event_id' => $form->event_id,
                         'form_type' => $requirementData['form_type'],
@@ -64,7 +64,7 @@ class FormSeeder extends Seeder
             Participant::factory()->count($totalParticipants)->create()->each(function (Participant $participant) use ($form, $createdRequirements) {
                 $registration = Registration::factory()->create([
                     'participant_id' => $participant->id,
-                    'event_id' => $form->event_id,
+                    'event_subform_id' => $form->event_id,
                 ]);
 
                 $responseData = Arr::only($participant->toArray(), [

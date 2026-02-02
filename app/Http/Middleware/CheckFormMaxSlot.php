@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\EventRequirement;
+use App\Models\EventSubform;
 use App\Models\EventSubformResponse;
 use App\Models\Form;
 use App\Models\Registration;
@@ -33,7 +33,7 @@ class CheckFormMaxSlot
 
         // If form_parent_id is provided, resolve it to the event_id (subform response endpoint)
         if ($formParentId && !$eventId) {
-            $requirement = EventRequirement::find($formParentId);
+            $requirement = EventSubform::find($formParentId);
             $formId = $requirement?->event_id;
             $isSubformResponse = true;
         }
@@ -53,7 +53,7 @@ class CheckFormMaxSlot
         }
 
         if (!$isSubformResponse && !$requirement) {
-            $requirement = EventRequirement::where('event_id', $formId)
+            $requirement = EventSubform::where('event_id', $formId)
                 ->where('form_type', 'registration')
                 ->first();
         }

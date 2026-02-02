@@ -30,7 +30,7 @@ class CheckFormExpiration
 
         // If form_parent_id is provided, resolve it to the event_id
         if ($formParentId && !$eventId) {
-            $requirement = \App\Models\EventRequirement::find($formParentId);
+            $requirement = \App\Models\EventSubform::find($formParentId);
             $formId = $requirement?->event_id;
         }
 

@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Models\EventRequirement;
+use App\Models\EventSubform;
 use App\Models\Form;
 use App\Models\Participant;
 use App\Models\Registration;
@@ -52,8 +52,8 @@ class FormRepo extends AbstractRepoService
             return 0;
         }
 
-        return EventRequirement::join('event_subform_responses', 'form_parent_id', '=', 'event_requirements.id')
-            ->where('event_requirements.event_id', $eventId)
+        return EventSubform::join('event_subform_responses', 'form_parent_id', '=', 'event_subforms.id')
+            ->where('event_subforms.event_id', $eventId)
             ->count();
     }
 
@@ -118,7 +118,7 @@ class FormRepo extends AbstractRepoService
             ->firstOrFail();
 
         foreach ($requirements as $req) {
-            EventRequirement::updateOrCreate(
+            EventSubform::updateOrCreate(
                 [
                     'event_id' => $form->event_id,
                     'form_type' => $req['form_type'], // use form_type as unique key

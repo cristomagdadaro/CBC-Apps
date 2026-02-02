@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\FormScanRequest;
-use App\Models\EventRequirement;
+use App\Models\EventSubform;
 use App\Models\EventScanLog;
 use App\Models\EventSubformResponse;
 use App\Models\Registration;
@@ -268,7 +268,7 @@ class FormScanController extends Controller
             ];
         }
 
-        $requirement = EventRequirement::where('event_id', $eventId)
+        $requirement = EventSubform::where('event_id', $eventId)
             ->where('form_type', 'registration')
             ->first();
 
@@ -307,7 +307,7 @@ class FormScanController extends Controller
             ];
         }
 
-        $required = EventRequirement::where('event_id', $eventId)
+        $required = EventSubform::where('event_id', $eventId)
             ->where('is_required', true)
             ->whereNotIn('form_type', ['registration'])
             ->get(['id', 'form_type']);

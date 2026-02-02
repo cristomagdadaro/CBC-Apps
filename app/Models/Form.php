@@ -78,7 +78,7 @@ class Form extends BaseModel
         return $this->hasManyThrough(
             Participant::class,
             Registration::class,
-            'event_id',
+            'event_subform_id',
             'id',
             'event_id',
             'participant_id'
@@ -89,7 +89,7 @@ class Form extends BaseModel
     {
         return $this->hasManyThrough(
             EventSubformResponse::class,
-            EventRequirement::class,
+            EventSubform::class,
             'event_id',
             'form_parent_id',
             'id',
@@ -98,7 +98,7 @@ class Form extends BaseModel
     }
     public function requirements(): HasMany
     {
-        return $this->hasMany(EventRequirement::class, 'event_id', 'event_id')
+        return $this->hasMany(EventSubform::class, 'event_id', 'event_id')
             ->withCount('responses');
     }
 

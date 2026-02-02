@@ -11,7 +11,7 @@ use App\Http\Controllers\RequesterController;
 use App\Http\Controllers\RequestFormPivotController;
 use App\Http\Controllers\SupplierController;
 use App\Models\Category;
-use App\Models\EventRequirement;
+use App\Models\EventSubform;
 use App\Models\EventSubformResponse;
 use App\Models\EventCertificateTemplate;
 use App\Models\Form;
@@ -151,7 +151,7 @@ Route::middleware([
 
                 $formRepo = new \App\Repositories\FormRepo(new Form());
 
-                $requirements = EventRequirement::where('event_id', $event_id)
+                $requirements = EventSubform::where('event_id', $event_id)
                     ->withCount('responses')
                     ->get();
 
@@ -167,8 +167,8 @@ Route::middleware([
                 ];
 
                 $eventResponsesByType = EventSubformResponse::query()
-                    ->join('event_requirements', 'event_subform_responses.form_parent_id', '=', 'event_requirements.id')
-                    ->where('event_requirements.event_id', $event_id)
+                    ->join('event_subforms', 'event_subform_responses.form_parent_id', '=', 'event_subforms.id')
+                    ->where('event_subforms.event_id', $event_id)
                     ->select([
                         'event_subform_responses.id',
                         'event_subform_responses.subform_type',
@@ -187,7 +187,7 @@ Route::middleware([
                         }])
                         ->first(),
                     'responsesCount' => $formRepo->getResponsesCountByEventId($event_id),
-                    'subformRequirements' => EventRequirement::select(['id as name', 'form_type as label'])->where('event_id', $event_id)->get(),
+                    'subformRequirements' => EventSubform::select(['id as name', 'form_type as label'])->where('event_id', $event_id)->get(),
                     'eventStats' => $eventStats,
                     'eventResponsesByType' => $eventResponsesByType,
                     'certificateTemplate' => EventCertificateTemplate::where('event_id', $event_id)->first(),

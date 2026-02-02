@@ -3,17 +3,17 @@
 namespace Database\Factories;
 
 use App\Enums\Subform;
-use App\Models\EventRequirement;
+use App\Models\EventSubform;
 use App\Models\Form;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends Factory<EventRequirement>
+ * @extends Factory<EventSubform>
  */
-class EventRequirementFactory extends Factory
+class EventSubformFactory extends Factory
 {
-    protected $model = EventRequirement::class;
+    protected $model = EventSubform::class;
 
     public function definition(): array
     {

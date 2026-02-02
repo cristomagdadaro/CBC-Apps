@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('event_requirements', function (Blueprint $table) {
+        Schema::table('event_subforms', function (Blueprint $table) {
             $table->integer('max_slots')->nullable()->after('is_required');
         });
 
@@ -22,7 +22,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('event_requirements', function (Blueprint $table) {
+        Schema::table('event_subforms', function (Blueprint $table) {
             $table->dropColumn('max_slots');
         });
     }

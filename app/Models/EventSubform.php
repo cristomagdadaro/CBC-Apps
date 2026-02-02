@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
-class EventRequirement extends BaseModel
+class EventSubform extends BaseModel
 {
     use HasFactory;
 
@@ -21,7 +21,7 @@ class EventRequirement extends BaseModel
         });
     }
 
-    protected $table = 'event_requirements';
+    protected $table = 'event_subforms';
     public $incrementing = false;
     protected $keyType = 'string';
     
@@ -83,7 +83,7 @@ class EventRequirement extends BaseModel
             EventSubformResponse::class,
             'form_parent_id', // event_subform_responses.form_parent_id
             'id',              // registrations.id
-            'id',              // event_requirements.id
+            'id',              // event_subforms.id
             'participant_id'   // event_subform_responses.participant_id
         );
     }
@@ -101,7 +101,7 @@ class EventRequirement extends BaseModel
             EventSubformResponse::class,
             'form_parent_id', // event_subform_responses.form_parent_id
             'id',              // participants.id
-            'id',              // event_requirements.id
+            'id',              // event_subforms.id
             'participant_id'   // event_subform_responses.participant_id
         );
     }

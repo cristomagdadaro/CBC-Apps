@@ -48,8 +48,8 @@ class EventCertificateController extends Controller
         $templatePath = Storage::path($template->template_path);
 
         $responses = EventSubformResponse::query()
-            ->join('event_requirements', 'event_subform_responses.form_parent_id', '=', 'event_requirements.id')
-            ->where('event_requirements.event_id', $event_id)
+            ->join('event_subforms', 'event_subform_responses.form_parent_id', '=', 'event_subforms.id')
+            ->where('event_subforms.event_id', $event_id)
             ->select('event_subform_responses.*')
             ->get();
 

@@ -22,7 +22,7 @@ return new class extends Migration
 
             $table->foreign('form_parent_id')
                 ->references('id')
-                ->on('event_requirements')
+                ->on('event_subforms')
                 ->cascadeOnDelete();
 
             $table->foreign('participant_id')

@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('event_requirements', function (Blueprint $table) {
+        Schema::create('event_subforms', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('event_id', 4)->index();
             $table->string('form_type');
@@ -27,6 +27,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('event_requirements');
+        Schema::dropIfExists('event_subforms');
     }
 };

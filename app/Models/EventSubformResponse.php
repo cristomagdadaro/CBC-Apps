@@ -28,7 +28,7 @@ class EventSubformResponse extends Model
 
     protected $fillable = [
         'id',
-        'form_parent_id', //event_requirements -> id
+        'form_parent_id', //event_subforms -> id
         'participant_id', //registrations -> id
         'subform_type',  // preregistration, feedback, etc.
         'response_data', // JSON or text data
@@ -41,7 +41,7 @@ class EventSubformResponse extends Model
 
     public function formParent()
     {
-        return $this->belongsTo(EventRequirement::class, 'form_parent_id', 'id');
+        return $this->belongsTo(EventSubform::class, 'form_parent_id', 'id');
     }
 
     public function registration()

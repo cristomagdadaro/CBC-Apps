@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Enums\Subform;
-use App\Models\EventRequirement;
+use App\Models\EventSubform;
 use App\Models\Registration;
 
 /**
@@ -20,7 +20,7 @@ class EventSubformResponseFactory extends Factory
     public function definition(): array
     {
         return [
-        'form_parent_id' => EventRequirement::query()->inRandomOrder()->value('id'),
+        'form_parent_id' => EventSubform::query()->inRandomOrder()->value('id'),
         'participant_id' => Registration::query()->inRandomOrder()->value('id'),
         'subform_type' => $this->faker->randomElement([
                 Subform::PREREGISTRATION_BIOTECH->value,

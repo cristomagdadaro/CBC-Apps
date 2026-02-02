@@ -3,7 +3,7 @@
 namespace Tests\Feature\EventAttendance;
 
 use App\Models\Form;
-use App\Models\EventRequirement;
+use App\Models\EventSubform;
 use App\Models\EventSubformResponse;
 use App\Models\Registration;
 use App\Models\Participant;
@@ -66,12 +66,12 @@ class EventGuestRegistrationApiTest extends TestCase
         $formA = Form::factory()->create();
         $formB = Form::factory()->create();
 
-        $requirementA = EventRequirement::factory()->create([
+        $requirementA = EventSubform::factory()->create([
             'event_id' => $formA->event_id,
             'form_type' => 'registration',
         ]);
 
-        $requirementB = EventRequirement::factory()->create([
+        $requirementB = EventSubform::factory()->create([
             'event_id' => $formB->event_id,
             'form_type' => 'registration',
         ]);
@@ -118,7 +118,7 @@ class EventGuestRegistrationApiTest extends TestCase
     public function test_subform_response_can_be_deleted(): void
     {
         $form = Form::factory()->create();
-        $requirement = EventRequirement::factory()->create([
+        $requirement = EventSubform::factory()->create([
             'event_id' => $form->event_id,
             'form_type' => 'registration',
         ]);
@@ -156,7 +156,7 @@ class EventGuestRegistrationApiTest extends TestCase
             'time_to' => '17:00:00',
         ]);
 
-        $requirement = EventRequirement::factory()->create([
+        $requirement = EventSubform::factory()->create([
             'event_id' => $form->event_id,
             'form_type' => 'registration',
             'config' => ['open_from' => now()->subHour(), 'open_to' => now()->addDay()],
@@ -190,7 +190,7 @@ class EventGuestRegistrationApiTest extends TestCase
         // Create a form with 3 subform requirements and responses
         $form = Form::factory()->create();
         $requirements = collect(config('subformtypes'))->keys()->map(function ($type) use ($form) {
-            return EventRequirement::factory()->create([
+            return EventSubform::factory()->create([
                 'event_id' => $form->event_id,
                 'form_type' => $type,
             ]);
@@ -301,7 +301,7 @@ class EventGuestRegistrationApiTest extends TestCase
             'time_to' => '17:00:00',
         ]);
 
-        EventRequirement::factory()->create([
+        EventSubform::factory()->create([
             'event_id' => $form->event_id,
             'form_type' => 'registration',
             'max_slots' => 2,
@@ -388,7 +388,7 @@ class EventGuestRegistrationApiTest extends TestCase
         ]);
 
         // Create a subform requirement
-        $requirement = EventRequirement::factory()->create([
+        $requirement = EventSubform::factory()->create([
             'event_id' => $form->event_id,
             'form_type' => 'registration',
             'max_slots' => 2,
@@ -396,8 +396,8 @@ class EventGuestRegistrationApiTest extends TestCase
         ]);
 
         // Verify requirement was created
-        $requirementCheck = EventRequirement::find($requirement->id);
-        $this->assertNotNull($requirementCheck, 'EventRequirement should be created');
+        $requirementCheck = EventSubform::find($requirement->id);
+        $this->assertNotNull($requirementCheck, 'EventSubform should be created');
         $this->assertEquals($form->event_id, $requirementCheck->event_id);
 
         // Register 2 participants to reach max_slots

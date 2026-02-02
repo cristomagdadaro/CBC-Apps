@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use App\Enums\Subform;
 
-class CreateEventSubformRequest extends FormRequest
+class CreateEventSubformResponseRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -38,7 +38,7 @@ class CreateEventSubformRequest extends FormRequest
         
         $rules = [
             'subform_type' => ['required', 'string', Rule::in(array_keys(config('subformtypes') ?? []))],
-            'form_parent_id' => ['required', 'string', 'exists:event_requirements,id'],
+            'form_parent_id' => ['required', 'string', 'exists:event_subforms,id'],
             'participant_id' => [
                 'required_unless:subform_type,'.implode(',', $participantExempt),
                 'nullable',

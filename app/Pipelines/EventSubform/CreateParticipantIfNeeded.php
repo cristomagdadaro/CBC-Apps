@@ -3,7 +3,7 @@
 namespace App\Pipelines\EventSubform;
 
 use App\Enums\Subform;
-use App\Models\EventRequirement;
+use App\Models\EventSubform;
 use App\Models\Participant;
 use App\Models\Registration;
 use Closure;
@@ -19,11 +19,11 @@ class CreateParticipantIfNeeded
             $participantPayload = Arr::only($validated['response_data'], (new Participant())->getFillable());
             $participant = Participant::factory()->create($participantPayload);
 
-            $requirement = EventRequirement::select('id')->find($validated['form_parent_id']);
-            $eventId = $requirement?->id ?? $validated['form_parent_id'];
+            $requirement = EventSubform::select('id')->find($validated['form_parent_id']);
+            $event_subform_id = $requirement?->id ?? $validated['form_parent_id'];
 
             $registration = Registration::factory()->create([
-                'event_id' => $eventId,
+                'event_subform_id' => $event_subform_id,
                 'participant_id' => $participant->id,
                 'attendance_type' => Arr::get($validated['response_data'], 'attendance_type'),
             ]);
