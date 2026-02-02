@@ -6,6 +6,7 @@ return [
     'approving_officers' => 'CRISTO REY C. MAGDADARO',
     'center_chief' => 'ROEL R. SURALTA',
     'outgoing_transaction_notification_email' => env('OUTGOING_TRANSACTION_NOTIFICATION_EMAIL'),
+    'event_response_notification_email' => env('EVENT_RESPONSE_NOTIFICATION_EMAIL'),
     'transaction_type' => [
         Inventory::INCOMING->value,
         Inventory::OUTGOING->value,

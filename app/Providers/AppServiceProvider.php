@@ -9,6 +9,8 @@ use App\Observers\RequestFormPivotObserver;
 use App\Observers\TransactionObserver;
 use Inertia\Inertia;
 use Symfony\Component\Process\Process;
+use App\Models\EventSubformResponse;
+use App\Observers\EventSubformResponseObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,6 +39,7 @@ class AppServiceProvider extends ServiceProvider
             RequestFormPivot::observe(RequestFormPivotObserver::class);
         }
         Transaction::observe(TransactionObserver::class);
+        EventSubformResponse::observe(EventSubformResponseObserver::class);
 
         // Audit logging for models with Auditable trait is automatically registered
         // via the bootAuditable() method in the Auditable trait
