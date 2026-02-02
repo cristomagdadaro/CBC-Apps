@@ -19,8 +19,8 @@ class CreateParticipantIfNeeded
             $participantPayload = Arr::only($validated['response_data'], (new Participant())->getFillable());
             $participant = Participant::factory()->create($participantPayload);
 
-            $requirement = EventRequirement::select('event_id')->find($validated['form_parent_id']);
-            $eventId = $requirement?->event_id ?? $validated['form_parent_id'];
+            $requirement = EventRequirement::select('id')->find($validated['form_parent_id']);
+            $eventId = $requirement?->id ?? $validated['form_parent_id'];
 
             $registration = Registration::factory()->create([
                 'event_id' => $eventId,
