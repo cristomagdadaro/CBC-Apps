@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateEventSubformRequest;
 use App\Http\Requests\GetEventSubformRequest;
+use App\Models\Form;
 use App\Repositories\EventSubformRepo;
 
 class EventSubformController extends BaseController

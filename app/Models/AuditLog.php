@@ -2,11 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class AuditLog extends BaseModel
 {
+    use HasUuids;
+
+    protected $keyType = 'string';
+
     protected $fillable = [
         'user_id',
         'model_type',
@@ -22,6 +27,7 @@ class AuditLog extends BaseModel
     protected $casts = [
         'old_values' => 'array',
         'new_values' => 'array',
+        'id' => 'string',
     ];
 
     /**

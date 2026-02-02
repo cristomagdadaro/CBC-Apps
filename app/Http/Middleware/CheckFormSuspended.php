@@ -17,10 +17,19 @@ class CheckFormSuspended
             return $next($request);
         }
 
-        $formId = $request->input('event_id'); // Assuming the form ID is in the route
+        $eventId = $request->input('event_id'); // Assuming the form ID is in the request body
+        if (!$eventId) {
+            $eventId = $request->route('event_id'); // Or in the route
+        }
 
-        if (!$formId)
-            $formId = $request->route('event_id');
+        $formParentId = $request->input('form_parent_id');
+        $formId = $eventId;
+
+        // If form_parent_id is provided, resolve it to the event_id
+        if ($formParentId && !$eventId) {
+            $requirement = \App\Models\EventRequirement::find($formParentId);
+            $formId = $requirement?->event_id;
+        }
 
         if (!$formId) {
             return response()->json(['errors' => [

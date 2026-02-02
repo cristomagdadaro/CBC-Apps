@@ -54,7 +54,7 @@ Route::prefix('guest')->group(function () {
     Route::get('/transactions-public', [TransactionController::class, 'index'])->name('api.inventory.transactions.index.public');
     Route::post('/outgoing', [TransactionController::class, 'outgoingStockStore'])->name('api.inventory.transactions.store.public');
     Route::get('/remaining-stocks', [TransactionController::class, 'remainingStocks'])->name('api.inventory.transactions.remaining-stocks');
-    Route::post('/forms/event', [EventSubformController::class, 'create'])->name('api.subform.response.store');
+    Route::middleware(['check.form.suspended','check.form.expired','check.form.maxslot'])->post('/forms/event', [EventSubformController::class, 'create'])->name('api.subform.response.store');
 });
 
 /* 'auth:sanctum', */

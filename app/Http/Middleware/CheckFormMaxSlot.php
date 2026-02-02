@@ -16,11 +16,23 @@ class CheckFormMaxSlot
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (auth()->check()) {
+        // Skip validation only for admin users (not all authenticated users)
+        if (auth()->check() && auth()->user()?->is_admin && env('APP_ENV') !== 'testing') {
             return $next($request);
         }
 
-        $formId = $request->input('event_id') ?? $request->route('event_id');
+        $eventId = $request->input('event_id') ?? $request->route('event_id');
+        $formParentId = $request->input('form_parent_id');
+
+        $formId = $eventId;
+        $isSubformResponse = false;
+
+        // If form_parent_id is provided, resolve it to the event_id (subform response endpoint)
+        if ($formParentId && !$eventId) {
+            $requirement = \App\Models\EventRequirement::find($formParentId);
+            $formId = $requirement?->event_id;
+            $isSubformResponse = true;
+        }
 
         if (!$formId) {
             return response()->json(['errors' => [
@@ -41,10 +53,22 @@ class CheckFormMaxSlot
             return $next($request);
         }
 
-        if ($form->isFull()) {
-            return response()->json(['errors' => [
-                'full' => ['This form exceeds the maximum number of slots.']
-            ]], 403);
+        // For subform responses, check the response count
+        // For registrations, check the participant count
+        if ($isSubformResponse) {
+            $currentCount = \App\Models\EventSubformResponse::where('form_parent_id', $formParentId)->count();
+            if ($currentCount >= $form->max_slots) {
+                return response()->json(['errors' => [
+                    'full' => ['This form has reached the maximum number of participants.']
+                ]], 403);
+            }
+        } else {
+            // Registration endpoint - check participants_count
+            if ($form->isFull()) {
+                return response()->json(['errors' => [
+                    'full' => ['This form has reached the maximum number of participants.']
+                ]], 403);
+            }
         }
 
         return $next($request);
