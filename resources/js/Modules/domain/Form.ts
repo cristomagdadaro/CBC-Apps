@@ -39,7 +39,6 @@ export default class Form extends DtoForm {
             time_from: null,
             time_to: null,
             venue: null,
-            max_slots: null,
             requirements: [],
             style_tokens: createEmptyFormStyleTokens(),
         }
@@ -58,7 +57,6 @@ export default class Form extends DtoForm {
             time_to: data?.time_to,
             venue: data?.venue,
             is_suspended: data?.is_suspended,
-            max_slots: data?.max_slots,
             requirements: data?.requirements || [],
             style_tokens: mergeFormStyleTokens(data?.style_tokens),
         }

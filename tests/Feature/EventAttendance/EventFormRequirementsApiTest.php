@@ -62,6 +62,7 @@ class EventFormRequirementsApiTest extends TestCase
                 [
                     'form_type' => Subform::PREREGISTRATION->value,
                     'is_required' => true,
+                    'max_slots' => 50,
                     'config' => [
                         'open_from' => now()->subDay()->toDateTimeString(),
                         'open_to' => now()->addDay()->toDateTimeString(),
@@ -71,6 +72,7 @@ class EventFormRequirementsApiTest extends TestCase
                 [
                     'form_type' => Subform::REGISTRATION->value,
                     'is_required' => true,
+                    'max_slots' => 100,
                     'config' => [
                         'open_from' => now()->subDay()->toDateTimeString(),
                         'open_to' => now()->addDay()->toDateTimeString(),

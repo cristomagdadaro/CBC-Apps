@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('forms', function (Blueprint $table) {
-            $table->json('style_tokens')->nullable()->after('max_slots');
+            $table->json('style_tokens')->nullable()->after('is_expired');
         });
     }
 

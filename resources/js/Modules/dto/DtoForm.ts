@@ -16,7 +16,6 @@ export default class DtoForm extends DtoBaseClass implements IForm{
     time_to: string;
     venue: string;
     is_suspended: boolean;
-    max_slots: number;
     requirements: Array<SubformRequirement>;
     style_tokens: FormAppearanceTokens;
 
@@ -38,7 +37,6 @@ export default class DtoForm extends DtoBaseClass implements IForm{
         this.time_to = data?.time_to ?? '';
         this.venue = data?.venue ?? '';
         this.is_suspended = data?.is_suspended ?? false;
-        this.max_slots = data?.max_slots ?? 0;
 
         this.style_tokens = mergeFormStyleTokens(data?.style_tokens);
         this.participants_count = data?.participants_count ?? 0;

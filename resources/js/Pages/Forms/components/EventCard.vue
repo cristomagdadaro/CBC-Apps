@@ -148,7 +148,7 @@ export default {
                     <span class="text-[0.6rem] leading-none select-none">Limit</span>
                 </div>
 
-                <div :class="{'text-red-600': data.max_slots > 0 &&data.responses_count >= data.responses_count}" class="flex flex-col items-center border-r-2 border-gray-900 text-green-900 w-fit px-2 py-1">
+                <div :class="{'text-red-600': formsData.max_slots > 0 && formsData.responses_count >= formsData.max_slots}" class="flex flex-col items-center border-r-2 border-gray-900 text-green-900 w-fit px-2 py-1">
                     <label class="text-xl leading-none font-[1000]">{{ formsData.responses_count ?? 0 }}</label>
                     <span class="text-[0.6rem] leading-none select-none">Responses</span>
                 </div>

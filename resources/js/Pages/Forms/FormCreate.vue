@@ -98,12 +98,6 @@ export default {
                                     </div>
                                 </div>
                                 <div class="px-1 flex flex-col gap-1">
-                                    <div>
-                                        <span class="font-bold uppercase">Max. no. of participants: </span>
-                                        <text-input type="number" placeholder="optional" v-model="form.max_slots" class="text-sm" :error="form.errors.max_slots"/>
-                                    </div>
-                                </div>
-                                <div class="px-1 flex flex-col gap-1">
                                     <requirements-manager v-model="form.requirements" :error="form.errors.requirements"/>
                                 </div>
                                 <div class="px-1 flex flex-col gap-1">

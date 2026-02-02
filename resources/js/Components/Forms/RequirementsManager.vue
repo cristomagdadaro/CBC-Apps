@@ -45,6 +45,7 @@ export default {
                     //id: crypto.randomUUID(),
                     form_type: null,
                     is_required: true,
+                    max_slots: null,
                     config: {
                         attendance_type_required: false,
                         open_from: null,
@@ -154,11 +155,16 @@ export default {
                                     {{ opt.label }}
                                 </option>
                             </select>
-
-                            <label class="flex items-center justify-start gap-1 text-xs px-2">
-                                <input type="checkbox" :checked="req.is_required" @change="toggleRequired(index)" />
-                                <span>Required</span>
-                            </label>
+                            <div class="flex flex-col gap-1">
+                                <label class="text-[11px] text-gray-500">Max Slots (optional)</label>
+                                <text-input
+                                    type="number"
+                                    min="0"
+                                    placeholder="No limit"
+                                    v-model="requirements[index].max_slots"
+                                    class="text-xs"
+                                />
+                            </div>
                         </div>
                         <!-- Per-requirement open/close datetime config -->
                         <div class="flex flex-col items-center gap-2 text-[11px] mt-1">
@@ -181,14 +187,12 @@ export default {
                                 />
                             </div>
                         </div>
-                        <div class="flex items-center justify-center gap-1 flex-col">
-                            <button
-                                type="button"
-                                class="text-xs text-red-500 hover:text-red-700"
-                                @click="removeRequirement(index)"
-                            >
-                                Remove
-                            </button>
+                        <div class="flex items-end justify-center gap-1 flex-col">
+                            <div class="flex items-center gap-1 text-xs">
+                                <input type="checkbox" :checked="req.is_required" @change="toggleRequired(index)" />
+                                <span>Required</span>
+                            </div>
+        
                             <div
                                 v-if="['pre_registration', 'pre_registration_biotech', 'registration'].includes(req.form_type)"
                                 class="flex items-center gap-2 text-xs mt-1"
@@ -202,6 +206,14 @@ export default {
                                     <span>Is this a Hybrid Event?</span>
                                 </label>
                             </div>
+
+                            <button
+                                type="button"
+                                class="text-xs text-red-500 hover:text-red-700"
+                                @click="removeRequirement(index)"
+                            >
+                                Remove
+                            </button>
                         </div>
                     </div>
                 </div>

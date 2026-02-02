@@ -149,7 +149,11 @@ Route::middleware([
                 $formRepo = new \App\Repositories\FormRepo(new Form());
 
                 return Inertia::render('Forms/FormUpdate', [
-                    'data' => Form::where('event_id', $event_id)->with('requirements')->first(),
+                    'data' => Form::where('event_id', $event_id)
+                        ->with(['requirements' => function ($query) {
+                            $query->withCount('responses');
+                        }])
+                        ->first(),
                     'responsesCount' => $formRepo->getResponsesCountByEventId($event_id),
                     'subformRequirements' => EventRequirement::select(['id as name', 'form_type as label'])->where('event_id', $event_id)->get(),
                 ]);

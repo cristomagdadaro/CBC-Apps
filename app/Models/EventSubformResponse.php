@@ -4,12 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Support\Str;
 
-class EventSubformResponse extends BaseModel
+class EventSubformResponse extends Model
 {
     use HasFactory, HasUuids;
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($model) {
+            if (empty($model->id)) {
+                $model->id = (string) Str::uuid();
+            }
+        });
+    }
 
     protected $table = 'event_subform_responses';
 
@@ -24,16 +37,6 @@ class EventSubformResponse extends BaseModel
     protected $casts = [
         'id' => 'string',
         'response_data' => 'array',
-    ];
-
-    /**
-     * Searchable columns for the abstract repository search.
-     */
-    protected array $searchable = [
-        'id',
-        'form_parent_id',
-        'participant_id',
-        'subform_type',
     ];
 
     public function formParent()

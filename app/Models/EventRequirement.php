@@ -3,11 +3,23 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class EventRequirement extends BaseModel
 {
     use HasFactory;
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($model) {
+            if (empty($model->id)) {
+                $model->id = (string) Str::uuid();
+            }
+        });
+    }
 
     protected $table = 'event_requirements';
     public $incrementing = false;
@@ -18,13 +30,22 @@ class EventRequirement extends BaseModel
         'event_id',
         'form_type',
         'is_required',
+        'max_slots',
         'config',
     ];
 
     protected $casts = [
         'id' => 'string',
         'is_required' => 'boolean',
+        'max_slots' => 'integer',
         'config' => 'array',
+    ];
+
+    protected array $searchable = [
+        'event_id',
+        'form_type',
+        'max_slots',
+        'config'
     ];
 
     public function form()

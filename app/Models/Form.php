@@ -8,10 +8,22 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Traits\Auditable;
+use Illuminate\Support\Str;
 
 class Form extends BaseModel
 {
     use HasFactory, Auditable;
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($model) {
+            if (empty($model->id)) {
+                $model->id = (string) Str::uuid();
+            }
+        });
+    }
 
     protected $table = 'forms';
     public $incrementing = false; // Disable auto-incrementing
@@ -29,7 +41,6 @@ class Form extends BaseModel
         'venue',
         'is_suspended',
         'is_expired',
-        'max_slots',
         'style_tokens',
     ];
 
@@ -87,7 +98,8 @@ class Form extends BaseModel
     }
     public function requirements(): HasMany
     {
-        return $this->hasMany(EventRequirement::class, 'event_id', 'event_id');
+        return $this->hasMany(EventRequirement::class, 'event_id', 'event_id')
+            ->withCount('responses');
     }
 
     public function isSuspended(): bool

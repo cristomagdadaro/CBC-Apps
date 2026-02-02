@@ -55,7 +55,6 @@ class CreateFormRequest extends FormRequest
             'time_to' => ['required', 'date_format:H:i:s'],
             'venue' => ['nullable', 'string'],
             'is_suspended' => 'nullable|boolean',
-            'max_slots' => 'nullable|integer',
             'requirements' => 'nullable|array',
         ];
 

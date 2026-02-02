@@ -62,6 +62,47 @@ class EventGuestRegistrationApiTest extends TestCase
         ]);
     }
 
+    public function test_subform_registration_sets_registration_event_id(): void
+    {
+        $form = Form::factory()->create([
+            'is_suspended' => false,
+            'is_expired' => false,
+            'max_slots' => 0,
+            'date_from' => now()->addDay()->format('Y-m-d'),
+            'date_to' => now()->addDays(2)->format('Y-m-d'),
+            'time_from' => '09:00:00',
+            'time_to' => '17:00:00',
+        ]);
+
+        $requirement = EventRequirement::factory()->create([
+            'event_id' => $form->event_id,
+            'form_type' => 'registration',
+            'config' => ['open_from' => now()->subHour(), 'open_to' => now()->addDay()],
+        ]);
+
+        $response = $this->postJson(route('api.subform.response.store'), [
+            'form_parent_id' => $requirement->id,
+            'subform_type' => 'registration',
+            'response_data' => [
+                'name' => 'Guest 1',
+                'email' => 'guest1@example.com',
+                'phone' => '09170000001',
+                'sex' => 'Male',
+                'age' => 30,
+                'organization' => 'DA-CBC',
+                'designation' => 'Analyst',
+                'attendance_type' => 'In-person',
+                'agreed_tc' => true,
+            ],
+        ]);
+
+        $response->assertStatus(201);
+
+        $this->assertDatabaseHas('registrations', [
+            'event_id' => $form->event_id,
+        ]);
+    }
+
     public function test_admin_view_an_event_subform_responses(): void
     {
         // Create a form with 3 subform requirements and responses
@@ -166,15 +207,21 @@ class EventGuestRegistrationApiTest extends TestCase
 
     public function test_guest_registration_respects_max_slots_limit(): void
     {
-        // Create a form with max_slots = 2
+        // Create a form and a registration requirement with max_slots = 2
         $form = Form::factory()->create([
             'is_suspended' => false,
             'is_expired' => false,
-            'max_slots' => 2,
+            'max_slots' => 0,
             'date_from' => now()->addDay()->format('Y-m-d'),
             'date_to' => now()->addDays(2)->format('Y-m-d'),
             'time_from' => '09:00:00',
             'time_to' => '17:00:00',
+        ]);
+
+        EventRequirement::factory()->create([
+            'event_id' => $form->event_id,
+            'form_type' => 'registration',
+            'max_slots' => 2,
         ]);
 
         // First registration - should succeed
@@ -247,11 +294,11 @@ class EventGuestRegistrationApiTest extends TestCase
 
     public function test_subform_response_respects_max_slots_limit(): void
     {
-        // Create a form with max_slots = 2
+        // Create a form and a requirement with max_slots = 2
         $form = Form::factory()->create([
             'is_suspended' => false,
             'is_expired' => false,
-            'max_slots' => 2,
+            'max_slots' => 0,
             'date_from' => now()->addDay()->format('Y-m-d'),
             'date_to' => now()->addDays(2)->format('Y-m-d'),
             'time_from' => '09:00:00',
@@ -262,6 +309,7 @@ class EventGuestRegistrationApiTest extends TestCase
         $requirement = EventRequirement::factory()->create([
             'event_id' => $form->event_id,
             'form_type' => 'registration',
+            'max_slots' => 2,
             'config' => ['open_from' => now()->subHour(), 'open_to' => now()->addDay()],
         ]);
 

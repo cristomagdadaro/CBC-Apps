@@ -57,7 +57,6 @@ class FormFactory extends Factory
             'venue' => $this->faker->address(),
             'is_suspended' => $this->faker->boolean(),
             'is_expired' => $this->faker->boolean(),
-            'max_slots' => $this->faker->numberBetween(0, 50), // Random slots between 10 and 200
             'style_tokens' => null,
         ];
     }

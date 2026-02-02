@@ -8,8 +8,8 @@ export default {
     beforeMount() {
         this.model = new SubformResponse();
         this.setFormAction('create').response_data = SubformResponse.getSubformFields('registration');
-        this.form.response_data.event_id = this.eventId;
         this.form.form_parent_id = this.eventId;
+        this.form.response_data.event_id = this.config?.event_id ?? this.eventId;
         this.form.subform_type = 'registration';
     },
 }

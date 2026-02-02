@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateEventSubformRequest;
 use App\Http\Requests\GetEventSubformRequest;
-use App\Models\Form;
+use App\Models\EventRequirement;
 use App\Repositories\EventSubformRepo;
 
 class EventSubformController extends BaseController
@@ -41,13 +41,16 @@ class EventSubformController extends BaseController
     {
         $validated = $request->validated();
 
+        $requirement = EventRequirement::select(['id', 'event_id'])->find($validated['form_parent_id']);
+
         $result = $this->repo()->createWithOptionalParticipant($validated);
 
         return response()->json([
             'status' => 'success',
             'participant_hash' => $result['registration']?->id,
             'participant' => $result['participant'],
-            'event_id' => $validated['form_parent_id'],
+            'event_id' => $requirement?->event_id ?? $validated['form_parent_id'],
+            'requirement_id' => $validated['form_parent_id'],
             'data' => $result['subformResponse'],
         ], 201);
     }

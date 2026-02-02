@@ -155,17 +155,6 @@ export default {
                                                     :error="form.errors.details"
                                                 />
                                             </div>
-                                            <div class="px-1 flex flex-col gap-1">
-                                                <div>
-                                                    <span class="font-bold uppercase">Max. no. of participants: </span>
-                                                    <text-input
-                                                        type="number"
-                                                        placeholder="optional"
-                                                        v-model="form.max_slots"
-                                                        :error="form.errors.max_slots"
-                                                    />
-                                                </div>
-                                            </div>
                                         </div>
                                         <div class="px-1">
                                             <requirements-manager v-model="form.requirements" :error="form.errors.requirements"/>

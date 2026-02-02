@@ -31,6 +31,7 @@ class EventRequirementFactory extends Factory
                 Subform::FEEDBACK->value,
             ]),
             'is_required' => true,
+            'max_slots' => $this->faker->numberBetween(0, 50),
             'config' => [
                 'open_from' => now()->subDay()->toDateTimeString(),
                 'open_to' => now()->addDay()->toDateTimeString(),

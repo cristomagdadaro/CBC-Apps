@@ -85,29 +85,29 @@ export default {
     beforeMount() {
         this.model = new SubformResponse();
         this.setFormAction('get');
-        // Set initial filter_by_parent_id and filter_by_parent_column for event filtering
-        this.form.filter_by_parent_id = this.eventId;
-        this.form.filter_by_parent_column = 'event_id';
+        console.log(this.ParentForm);
     },
     async mounted() {
+        const defaultParent = this.formRequirementsOption?.[0]?.name ?? null;
+        if (defaultParent && !this.form.form_parent_id) {
+            this.form.form_parent_id = defaultParent;
+        }
         this.selectedFormType = this.formList?.[0]?.name ?? null;
         await this.searchEvent();
     },
     methods: {
         async searchEvent() {
-            if (!this.eventId) {
+            const parentId = this.form?.form_parent_id || this.formParentId || null;
+            if (!parentId) {
                 this.eventFormFromApi = null;
                 return;
             }
-
-            // Build search params - filter by event_id through the repository
-            const searchParams = {
+            const params = {
                 ...this.form.data(),
-                filter_by_parent_id: this.form.form_parent_id || this.eventId,
-                filter_by_parent_column: this.form.form_parent_id ? 'form_parent_id' : 'event_id',
+                filter_by_parent_id: parentId,
+                filter_by_parent_column: 'form_parent_id',
             };
-
-            await this.fetchGetApi('api.subform.response.index', searchParams, SubformResponse).then((response) => {
+            await this.fetchGetApi('api.subform.response.index', params, SubformResponse).then((response) => {
                 this.eventFormFromApi = response;
             });
             this.decorateResponseRows();
@@ -117,8 +117,7 @@ export default {
                 console.warn('Form not initialized yet');
                 return;
             }
-            // When a specific form type (requirement) is selected, filter by its ID directly
-            this.form.form_parent_id = selected || null;
+            this.form.form_parent_id = selected;
             await this.searchEvent();
         },
         decorateResponseRows() {

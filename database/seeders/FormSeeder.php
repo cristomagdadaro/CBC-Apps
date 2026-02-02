@@ -20,9 +20,48 @@ class FormSeeder extends Seeder
     public function run(): void
     {
         Form::factory(1)->create()->each(function (Form $form) {
-            $participantCount = random_int($form->max_slots/2, $form->max_slots); // Generate between 1 and 10 participants per form
+            // Create EventRequirements with per-requirement max_slots
+            $requirements = [
+                [
+                    'form_type' => Subform::PREREGISTRATION->value,
+                    'is_required' => true,
+                    'max_slots' => 50,
+                ],
+                [
+                    'form_type' => Subform::REGISTRATION->value,
+                    'is_required' => true,
+                    'max_slots' => 30,
+                ],
+                [
+                    'form_type' => Subform::FEEDBACK->value,
+                    'is_required' => false,
+                    'max_slots' => 25,
+                ],
+            ];
 
-            Participant::factory()->count($participantCount)->create()->each(function (Participant $participant) use ($form) {
+            $createdRequirements = [];
+            foreach ($requirements as $requirementData) {
+                $requirement = EventRequirement::firstOrCreate(
+                    [
+                        'event_id' => $form->event_id,
+                        'form_type' => $requirementData['form_type'],
+                    ],
+                    [
+                        'id' => (string) fake()->uuid(),
+                        'is_required' => $requirementData['is_required'],
+                        'max_slots' => $requirementData['max_slots'],
+                        'config' => [
+                            'open_from' => now(),
+                            'open_to' => now()->addDays(7),
+                        ],
+                    ]
+                );
+                $createdRequirements[] = $requirement;
+            }
+
+            // Generate participants respecting per-requirement max_slots
+            $totalParticipants = random_int(10, 20);
+            Participant::factory()->count($totalParticipants)->create()->each(function (Participant $participant) use ($form, $createdRequirements) {
                 $registration = Registration::factory()->create([
                     'participant_id' => $participant->id,
                     'event_id' => $form->event_id,
@@ -44,41 +83,20 @@ class FormSeeder extends Seeder
                     'agreed_tc',
                 ]);
 
-                $subform_type = fake()->randomElement([
-                    Subform::PREREGISTRATION->value,
-                    Subform::REGISTRATION->value,
-                    Subform::PRETEST->value,
-                    Subform::POSTTEST->value,
-                    Subform::FEEDBACK->value,
-                ]);
-
                 $responseData['attendance_type'] = $registration->attendance_type;
 
-                $requestment = EventRequirement::firstOrCreate(
-                    [
-                        'id' => (string) fake()->uuid(),
-                        'event_id' => $form->event_id,
-                        'form_type' => $subform_type,
-                    ],
-                    [
-                        'is_required' => 1,
-                        'config' => [
-                            'open_from' => now(),
-                            'open_to' => now()->addDays(2),
-                        ],
-                    ]
-                );
-
-                if (!$requestment->id) {
-                    dd("Requestment ID is missing!", $requestment->toArray());
+                // Create responses for random requirements
+                foreach ($createdRequirements as $requirement) {
+                    // Randomly decide whether to create a response for this requirement
+                    if (fake()->boolean(75)) { // 75% chance to create response
+                        EventSubformResponse::factory()->create([
+                            'form_parent_id' => $requirement->id,
+                            'participant_id' => $registration->id,
+                            'subform_type' => $requirement->form_type,
+                            'response_data' => $responseData,
+                        ]);
+                    }
                 }
-
-                EventSubformResponse::factory()->create([
-                    'form_parent_id' => $requestment->id,
-                    'participant_id' => $registration->id,
-                    'subform_type' => $subform_type,
-                    'response_data' => $responseData,
-                ]);
             });
         });
     }

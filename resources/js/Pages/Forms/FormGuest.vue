@@ -78,24 +78,16 @@ export default {
                 this.isSearching = false;
             }
         },
-        /**
-         * Called when a registration is successfully created.
-         * Updates the local participant count to reflect the new registration.
-         */
-        handleCreatedModel(createdData) {
-            this.lastCreatedForm = createdData;
+        async handleCreatedModel(payload) {
+            this.lastCreatedForm = payload;
 
-            // Update participants_count in eventFormFromApi (searched form)
-            if (this.eventFormFromApi?.data?.[0]) {
-                const current = this.eventFormFromApi.data[0].participants_count ?? 0;
-                this.eventFormFromApi.data[0].participants_count = current + 1;
+            const eventId = this.eventForm?.event_id ?? this.form?.search;
+            if (!eventId) {
+                return;
             }
 
-            // Update participants_count in eventForm (URL-based form prop)
-            if (this.eventForm) {
-                const current = this.eventForm.participants_count ?? 0;
-                this.eventForm.participants_count = current + 1;
-            }
+            this.form.search = eventId;
+            await this.searchEvent(false);
         },
         getLastDigit(value) {
             return /^[0-9]$/.test(value) ? value : '';
@@ -224,6 +216,14 @@ export default {
         innerSize() {
             const isLandscape = window.innerWidth > window.innerHeight;
             return isLandscape ? window.innerHeight : window.innerWidth;
+        },
+        resolvedEventForm() {
+            const fromApi = this.eventFormFromApi?.data?.[0] || null;
+            if (fromApi && this.eventForm?.event_id && fromApi.event_id === this.eventForm.event_id) {
+                return fromApi;
+            }
+
+            return this.eventForm;
         }
     },
     mounted() {
@@ -500,7 +500,7 @@ export default {
                 <div v-if="eventFormFromApi?.data?.length">
                     <guest-card
                         :data="eventFormFromApi.data[0]"
-                        @createdModel="handleCreatedModel($event)"
+                        @createdModel="handleCreatedModel"
                     />
                     <label class="text-[0.6rem] leading-none select-none">
                         Form from Search
@@ -509,10 +509,10 @@ export default {
             </transition-container>
 
             <transition-container :duration="300" type="pop-in">
-                <div v-if="eventForm && delayReady">
+                <div v-if="resolvedEventForm && delayReady">
                     <guest-card
-                        :data="eventForm"
-                        @createdModel="handleCreatedModel($event)"
+                        :data="resolvedEventForm"
+                        @createdModel="handleCreatedModel"
                     />
                     <label class="text-[0.6rem] leading-none select-none">
                         Form from URL
@@ -520,5 +520,6 @@ export default {
                 </div>
             </transition-container>
         </div>
+
     </guest-form-page>
 </template>

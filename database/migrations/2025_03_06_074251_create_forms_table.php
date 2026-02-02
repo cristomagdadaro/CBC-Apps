@@ -24,7 +24,6 @@ return new class extends Migration
             $table->string('venue')->nullable();
             $table->boolean('is_suspended')->default(false);
             $table->boolean( 'is_expired')->default(false);
-            $table->integer('max_slots')->default(0);
 
             $table->timestamps();
             $table->softDeletes();

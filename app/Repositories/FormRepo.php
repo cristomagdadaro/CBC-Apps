@@ -28,7 +28,9 @@ class FormRepo extends AbstractRepoService
             ->newQuery()
             ->where('event_id', $eventId)
             ->withCount('participants')
-            ->with('requirements')
+            ->with(['requirements' => function ($query) {
+                $query->withCount('responses');
+            }])
             ->first();
 
             
@@ -77,7 +79,9 @@ class FormRepo extends AbstractRepoService
         return $this->model
             ->newQuery()
             ->where('event_id', $eventId)
-            ->with('requirements')
+            ->with(['requirements' => function ($query) {
+                $query->withCount('responses');
+            }])
             ->first();
     }
 
@@ -121,6 +125,7 @@ class FormRepo extends AbstractRepoService
                 ],
                 [
                     'is_required' => $req['is_required'] ?? true,
+                    'max_slots' => array_key_exists('max_slots', $req) ? $req['max_slots'] : null,
                     'config' => $req['config'] ?? [],
                 ]
             );

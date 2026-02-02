@@ -26,7 +26,6 @@ export default interface IForm extends IBaseClass {
     time_to: string;
     venue: string;
     is_suspended: boolean;
-    max_slots: number;
     requirements: Array<ISubformRequirement>;
     style_tokens: IFormStyleTokens;
 
