@@ -6,6 +6,9 @@ use App\Http\Requests\CreateEventSubformRequest;
 use App\Http\Requests\GetEventSubformRequest;
 use App\Models\EventRequirement;
 use App\Repositories\EventSubformRepo;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class EventSubformController extends BaseController
 {
@@ -19,9 +22,13 @@ class EventSubformController extends BaseController
         return $this->service;
     }
 
-    public function index(GetEventSubformRequest $request)
+    public function index(GetEventSubformRequest $request, string $event_id = null): JsonResponse
     {
-        return parent::_index($request);
+        $validated = new Collection($request->validated());
+        $resolvedEventId = $event_id ?? $request->input('event_id');
+        $data = $this->repo()->searchResponses($validated, $resolvedEventId);
+
+        return response()->json($data, 200);
     }
 
     public function indexResponses(GetEventSubformRequest $request, string $event_id = null)
@@ -53,6 +60,16 @@ class EventSubformController extends BaseController
             'requirement_id' => $validated['form_parent_id'],
             'data' => $result['subformResponse'],
         ], 201);
+    }
+
+    public function delete(Request $request, string $response_id): JsonResponse
+    {
+        $deleted = $this->repo()->delete($response_id);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $deleted,
+        ], 200);
     }
 
 

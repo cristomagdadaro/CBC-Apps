@@ -7,6 +7,7 @@ use App\Pipelines\EventSubform\CreateParticipantIfNeeded;
 use App\Pipelines\EventSubform\CreateSubformResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pipeline\Pipeline;
+use Illuminate\Support\Collection;
 
 class EventSubformRepo extends AbstractRepoService
 {
@@ -47,5 +48,25 @@ class EventSubformRepo extends AbstractRepoService
             ->where('event_requirements.event_id', $event_id)
             ->select('event_subform_responses.*')
             ->get();
+    }
+
+    public function searchResponses(Collection $parameters, ?string $event_id = null)
+    {
+        $builder = $this->model
+            ->newQuery()
+            ->join('event_requirements', 'event_subform_responses.form_parent_id', '=', 'event_requirements.id')
+            ->select('event_subform_responses.*');
+
+        if ($event_id) {
+            $builder->where('event_requirements.event_id', $event_id);
+        }
+
+        $this->applyAppends($builder, $parameters);
+        $this->applyParentFilter($builder, $parameters);
+        $this->applySearchFilters($builder, $parameters);
+        $this->applyGroupBy($builder, $parameters);
+        $this->applySorting($builder, $parameters);
+
+        return $this->applyPagination($builder, $parameters);
     }
 }

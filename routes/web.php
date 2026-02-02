@@ -13,6 +13,7 @@ use App\Http\Controllers\SupplierController;
 use App\Models\Category;
 use App\Models\EventRequirement;
 use App\Models\EventSubformResponse;
+use App\Models\EventCertificateTemplate;
 use App\Models\Form;
 use App\Models\Item;
 use App\Models\Personnel;
@@ -148,6 +149,21 @@ Route::middleware([
 
                 $formRepo = new \App\Repositories\FormRepo(new Form());
 
+                $requirements = EventRequirement::where('event_id', $event_id)
+                    ->withCount('responses')
+                    ->get();
+
+                $responsesByType = $requirements
+                    ->mapWithKeys(fn ($requirement) => [$requirement->form_type => $requirement->responses_count]);
+
+                $eventStats = [
+                    'responses_total' => $requirements->sum('responses_count'),
+                    'responses_by_type' => $responsesByType,
+                    'registrations_total' => Registration::where('event_id', $event_id)->count(),
+                    'participants_total' => Registration::where('event_id', $event_id)->distinct('participant_id')->count('participant_id'),
+                    'requirements_total' => $requirements->count(),
+                ];
+
                 return Inertia::render('Forms/FormUpdate', [
                     'data' => Form::where('event_id', $event_id)
                         ->with(['requirements' => function ($query) {
@@ -156,6 +172,8 @@ Route::middleware([
                         ->first(),
                     'responsesCount' => $formRepo->getResponsesCountByEventId($event_id),
                     'subformRequirements' => EventRequirement::select(['id as name', 'form_type as label'])->where('event_id', $event_id)->get(),
+                    'eventStats' => $eventStats,
+                    'certificateTemplate' => EventCertificateTemplate::where('event_id', $event_id)->first(),
                 ]);
             })->name('forms.update');
         });

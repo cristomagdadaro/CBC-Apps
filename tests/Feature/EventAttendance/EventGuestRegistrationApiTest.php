@@ -21,7 +21,6 @@ class EventGuestRegistrationApiTest extends TestCase
         $form = Form::factory()->create([
             'is_suspended' => false,
             'is_expired' => false,
-            'max_slots' => 100,
             'date_from' => now()->addDay()->format('Y-m-d'),
             'date_to' => now()->addDays(2)->format('Y-m-d'),
             'time_from' => '09:00:00',
@@ -62,12 +61,95 @@ class EventGuestRegistrationApiTest extends TestCase
         ]);
     }
 
+    public function test_subform_response_index_filters_by_event_id(): void
+    {
+        $formA = Form::factory()->create();
+        $formB = Form::factory()->create();
+
+        $requirementA = EventRequirement::factory()->create([
+            'event_id' => $formA->event_id,
+            'form_type' => 'registration',
+        ]);
+
+        $requirementB = EventRequirement::factory()->create([
+            'event_id' => $formB->event_id,
+            'form_type' => 'registration',
+        ]);
+
+        $participantA = Participant::factory()->create();
+        $registrationA = Registration::factory()->create([
+            'event_id' => $formA->event_id,
+            'participant_id' => $participantA->id,
+        ]);
+
+        $participantB = Participant::factory()->create();
+        $registrationB = Registration::factory()->create([
+            'event_id' => $formB->event_id,
+            'participant_id' => $participantB->id,
+        ]);
+
+        EventSubformResponse::factory()->create([
+            'form_parent_id' => $requirementA->id,
+            'participant_id' => $registrationA->id,
+            'subform_type' => 'registration',
+        ]);
+
+        EventSubformResponse::factory()->create([
+            'form_parent_id' => $requirementB->id,
+            'participant_id' => $registrationB->id,
+            'subform_type' => 'registration',
+        ]);
+
+        Sanctum::actingAs(User::factory()->create());
+
+        $response = $this->getJson(route('api.subform.response.index', [
+            'event_id' => $formA->event_id,
+            'filter_by_parent_column' => 'form_parent_id',
+            'filter_by_parent_id' => $requirementA->id,
+        ]));
+
+        $response->assertOk();
+
+        $responseData = collect($response->json('data'));
+        $this->assertCount(1, $responseData);
+        $this->assertEquals($requirementA->id, $responseData->first()['form_parent_id']);
+    }
+
+    public function test_subform_response_can_be_deleted(): void
+    {
+        $form = Form::factory()->create();
+        $requirement = EventRequirement::factory()->create([
+            'event_id' => $form->event_id,
+            'form_type' => 'registration',
+        ]);
+
+        $participant = Participant::factory()->create();
+        $registration = Registration::factory()->create([
+            'event_id' => $form->event_id,
+            'participant_id' => $participant->id,
+        ]);
+
+        $responseModel = EventSubformResponse::factory()->create([
+            'form_parent_id' => $requirement->id,
+            'participant_id' => $registration->id,
+            'subform_type' => 'registration',
+        ]);
+
+        Sanctum::actingAs(User::factory()->create());
+
+        $response = $this->deleteJson(route('api.subform.response.delete', $responseModel->id));
+        $response->assertOk();
+
+        $this->assertDatabaseMissing('event_subform_responses', [
+            'id' => $responseModel->id,
+        ]);
+    }
+
     public function test_subform_registration_sets_registration_event_id(): void
     {
         $form = Form::factory()->create([
             'is_suspended' => false,
             'is_expired' => false,
-            'max_slots' => 0,
             'date_from' => now()->addDay()->format('Y-m-d'),
             'date_to' => now()->addDays(2)->format('Y-m-d'),
             'time_from' => '09:00:00',
@@ -155,11 +237,11 @@ class EventGuestRegistrationApiTest extends TestCase
         $response = $this->getJson(route('api.subform.response.index', [
             'is_exact' => 'false',
             'page' => 1,
-            'per_page' => '*',
+            'per_page' => 10,
+            'event_id' => $form->event_id,
             'filter_by_parent_column' => 'form_parent_id',
             'filter_by_parent_id' => $requirements->first()->id,
         ]));
-        $response->dump();
         $response->assertOk();
 
         /*
@@ -169,7 +251,9 @@ class EventGuestRegistrationApiTest extends TestCase
         */
         $response->assertJsonStructure([
             'data',
-            'meta',
+            'current_page',
+            'last_page',
+            'total',
         ]);
 
         /*
@@ -211,7 +295,6 @@ class EventGuestRegistrationApiTest extends TestCase
         $form = Form::factory()->create([
             'is_suspended' => false,
             'is_expired' => false,
-            'max_slots' => 0,
             'date_from' => now()->addDay()->format('Y-m-d'),
             'date_to' => now()->addDays(2)->format('Y-m-d'),
             'time_from' => '09:00:00',
@@ -298,7 +381,6 @@ class EventGuestRegistrationApiTest extends TestCase
         $form = Form::factory()->create([
             'is_suspended' => false,
             'is_expired' => false,
-            'max_slots' => 0,
             'date_from' => now()->addDay()->format('Y-m-d'),
             'date_to' => now()->addDays(2)->format('Y-m-d'),
             'time_from' => '09:00:00',

@@ -18,6 +18,8 @@ import TabNavigation from "@/Components/TabNavigation.vue";
 import RequirementsManager from "@/Components/Forms/RequirementsManager.vue";
 import FormStyleDesigner from "@/Pages/Forms/components/FormStyleDesigner.vue";
 import SubformResponse from "@/Modules/domain/SubformResponse";
+import FormUpdateDashboard from "@/Pages/Forms/components/FormUpdateDashboard.vue";
+import EventCertificates from "@/Pages/Forms/components/EventCertificates.vue";
 
 export default {
     name: "FormUpdate",
@@ -36,6 +38,8 @@ export default {
     },
     components: {
         FormStyleDesigner,
+        FormUpdateDashboard,
+        EventCertificates,
         RequirementsManager,
         TabNavigation,
         LoaderIcon,
@@ -88,6 +92,8 @@ export default {
                 :tabs="[
                     { key: 'update', label: 'Update Form' },
                     { key: 'participants', label: `Responses ${ $page.props.responsesCount }` },
+                    { key: 'dashboard', label: 'Dashboard' },
+                    { key: 'certificates', label: 'eCertificates' },
                 ]"
             >
                 <template #default="{ activeKey }">
@@ -184,6 +190,14 @@ export default {
                     <!-- Participants tab -->
                     <div v-else-if="activeKey === 'participants'" class="mt-4">
                         <list-of-participants :event-id="data?.event_id" :form-parent-id="data?.id" :form-class="data" />
+                    </div>
+
+                    <div v-else-if="activeKey === 'dashboard'" class="mt-4">
+                        <form-update-dashboard :stats="$page.props.eventStats" />
+                    </div>
+
+                    <div v-else-if="activeKey === 'certificates'" class="mt-4">
+                        <event-certificates :event-id="data?.event_id" :template="$page.props.certificateTemplate" />
                     </div>
                 </template>
             </TabNavigation>

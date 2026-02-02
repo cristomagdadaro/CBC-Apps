@@ -5,6 +5,7 @@ export default class SubformResponse extends DtoSubformResponse {
     static endpoints = {
         index: 'api.subform.response.index',
         post: 'api.subform.response.store',
+        delete: 'api.subform.response.delete',
     };
 
     constructor(response: DtoSubformResponse) {
@@ -12,6 +13,7 @@ export default class SubformResponse extends DtoSubformResponse {
         
         this.api._apiIndex = SubformResponse.endpoints.index;
         this.api._apiPost = SubformResponse.endpoints.post;
+        this.api._apiDelete = SubformResponse.endpoints.delete;
     }
 
     identifier(model: DtoBaseClass): object {

@@ -104,6 +104,7 @@ export default {
             }
             const params = {
                 ...this.form.data(),
+                event_id: this.eventId ?? this.$page.props?.data?.event_id ?? null,
                 filter_by_parent_id: parentId,
                 filter_by_parent_column: 'form_parent_id',
             };
@@ -175,6 +176,13 @@ export default {
             }
 
             return value ?? '';
+        },
+        async deleteRecord(row) {
+            if (!row?.id) {
+                return;
+            }
+            await this.model.api.deleteApiIndex({ id: row.id });
+            await this.searchEvent();
         },
     }
 }
@@ -252,8 +260,9 @@ export default {
                 :api-response="eventFormFromApi"
                 :model="ResponseModel"
                 :processing="model?.api?.processing"
-                :append-actions="false"
+                :append-actions="true"
                 enableExport
+                @delete-record="deleteRecord"
             />
             
             <div v-else-if="model.api.processing" class="text-center py-3 border border-AB rounded-lg">
