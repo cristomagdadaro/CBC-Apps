@@ -131,7 +131,6 @@ export default {
                 <InputError v-show="!!error" class="" :message="error" />
             </transition-container>
         </label>
-
         <div class="space-y-2">
             <div
                 v-for="(req, index) in requirements"

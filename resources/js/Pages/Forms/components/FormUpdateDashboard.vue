@@ -36,9 +36,14 @@ const props = defineProps({
 
 const responseChartCanvas = ref(null);
 const totalsChartCanvas = ref(null);
+const expandedGroups = ref({});
 
 let responseChartInstance = null;
 let totalsChartInstance = null;
+
+const toggleGroup = (formType) => {
+    expandedGroups.value[formType] = !expandedGroups.value[formType];
+};
 
 const labelMap = {
     pre_registration: 'Pre-registration',
@@ -285,26 +290,42 @@ watch(
                 :key="group.form_type"
                 class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4"
             >
-            <div class="flex w-full justify-between items-center">
-                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    <span class="uppercase">{{ group.label }}</span>
-                </h3>
-                <div class="flex items-center gap-4">
-                    <div class="text-sm text-gray-700 dark:text-gray-200">
-                        <span class="font-semibold">{{ group.items.length }}</span> response<span v-if="group.items.length > 1">s</span>
+                <div :id="group.form_type" class="flex w-full justify-between items-center cursor-pointer" @click="toggleGroup(group.form_type)">
+                    <div class="flex items-center gap-3 flex-1">
+                        <svg
+                            :class="['w-5 h-5 text-gray-500 transition-transform', { 'rotate-180': expandedGroups[group.form_type] }]"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                        </svg>
+                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                            <span class="uppercase">{{ group.label }}</span>
+                        </h3>
+                        <div class="text-sm text-gray-700 dark:text-gray-200">
+                            <span class="font-semibold">{{ group.items.length }}</span> response<span v-if="group.items.length > 1">s</span>
+                        </div>
                     </div>
                     <button
-                        @click="exportToCSV(group)"
-                        class="inline-flex items-center gap-2 px-3 py-1 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors"
+                        @click.stop="expandedGroups[group.form_type] = expandedGroups[group.form_type]"
+                        class="sr-only"
                     >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        Export CSV
+                        Toggle
                     </button>
                 </div>
-            </div>
-                <div class="mt-4 overflow-x-auto">
+                <div v-show="expandedGroups[group.form_type]" class="mt-4 overflow-x-auto">
+                    <div class="flex justify-end mb-3">
+                        <button
+                            @click="exportToCSV(group)"
+                            class="inline-flex items-center gap-2 px-3 py-1 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Export CSV
+                        </button>
+                    </div>
                     <table class="min-w-full text-sm text-left">
                         <thead class="text-xs uppercase text-gray-500 dark:text-gray-400 border-b">
                             <tr>
@@ -336,7 +357,7 @@ watch(
                             </tr>
                         </tbody>
                     </table>
-                </div>
+            </div>
             </div>
         </div>
     </div>
