@@ -52,8 +52,13 @@ abstract class AbstractRepoService {
     {
         try {
             $model = $this->model->findOrFail($id);
-
+            
+            $deletedData = $model->getAttributes();
+            
             $model->delete();
+            
+            $model->setRawAttributes($deletedData);
+            
             return $model;
         } catch (Exception $e) {
             $this->sendError($e);

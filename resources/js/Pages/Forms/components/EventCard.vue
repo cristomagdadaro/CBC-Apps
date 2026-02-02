@@ -12,9 +12,11 @@ import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 import Participant from "@/Modules/domain/Participant";
 import RequirementsManager from "@/Components/Forms/RequirementsManager.vue";
+import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal.vue";
 export default {
     name: "EventCard",
     components: {
+        DeleteConfirmationModal,
         RequirementsManager,
         LoaderIcon, TransitionContainer, SuspendFormBtn, CancelBtn, DeleteBtn, ConfirmationModal, Modal},
     computed: {
@@ -193,31 +195,15 @@ export default {
             </div>
             <label class="text-xs text-center text-red-600">{{errors?.toObject()?.message}}</label>
         </div>
-        <confirmation-modal :show="confirmDelete" @close="confirmDelete = false">
-            <template v-slot:title>
-                Are you sure you want to delete this form?
-            </template>
-
-            <template v-slot:content>
-                This will permanently delete <b>{{ formsData.title }}</b> form.
-            </template>
-
-            <template v-slot:footer>
-               <div class="flex justify-between w-full">
-                   <delete-btn @close="confirmDelete = false" @click="handleDelete" :class="{'animate-pulse':model.api.processing}" >
-                       <div class="flex gap-1 items-center">
-                           <loader-icon v-if="model.api.processing" />
-                           <span v-if="!model.api.processing">Confirm</span>
-                           <span v-else>Deleting</span>
-                       </div>
-                   </delete-btn>
-                   <label v-if="form" class="text-red-600 text-sm">{{ form.errors.event_id}}</label>
-                   <cancel-btn @click="confirmDelete = false">
-                       Cancel
-                   </cancel-btn>
-               </div>
-            </template>
-        </confirmation-modal>
+        <delete-confirmation-modal
+            :show="confirmDelete"
+            :is-processing="model.api.processing"
+            title="Confirm Delete Form"
+            :message="`This will permanently delete the form. This action cannot be undone.`"
+            :item-name="formsData.title"
+            @confirm="handleDelete"
+            @close="confirmDelete = false"
+        />
     </div>
 </template>
 

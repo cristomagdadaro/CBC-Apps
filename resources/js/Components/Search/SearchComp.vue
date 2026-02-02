@@ -15,10 +15,12 @@ import DeleteBtn from "@/Components/Buttons/DeleteBtn.vue";
 import ConfirmationModal from "@/Components/ConfirmationModal.vue";
 import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
 import DtoResponse from "@/Modules/dto/DtoResponse.js";
+import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal.vue";
 
 export default {
     name: "SearchComp",
     components: {
+        DeleteConfirmationModal,
         CancelBtn, ConfirmationModal, DeleteBtn,
         CustomDropdown,
         FilterIcon,
@@ -44,6 +46,8 @@ export default {
     data() {
         return {
             apiResponse: null,
+            confirmDelete: false,
+            toDelete: null,
         }
     },
     beforeMount() {
@@ -86,7 +90,15 @@ export default {
             {
                 this.confirmDelete = false;
                 this.$emit("deletedModel", response.data);
+                // Auto-refresh data after successful delete
+                await this.searchEvent();
             }
+        },
+        async handleDataTableDelete(row)
+        {
+            // Set the row to delete and trigger delete confirmation from DataTable
+            this.toDelete = row;
+            await this.handleDelete();
         }
     }
 }
@@ -102,10 +114,10 @@ export default {
                             <label class="text-gray-600 text-xs">Per Page</label>
                         </div>
                         <custom-dropdown :show-clear="false"
-                                         :value="form.per_page"
-                                         :options="perPageOptions"
-                                         :withAllOption="false"
-                                         @selectedChange="form.per_page=$event; searchEvent();"
+                            :value="form.per_page"
+                            :options="perPageOptions"
+                            :withAllOption="false"
+                            @selectedChange="form.per_page=$event; searchEvent();"
                         >
                             <template #icon>
                                 <filter-icon class="h-4 w-4" />
@@ -176,82 +188,27 @@ export default {
         </div>
     </form>
     <component v-if="cardSlot"
-               :is="cardSlot"
-               :apiResponse="apiResponse"
-               :processing="model.api.processing"
-               :model="propModel"
-               @searchEvent="searchEvent"
-               @confirmDelete="confirmDelete = true; toDelete = $event"
-               class="my-2"
+        :is="cardSlot"
+        :apiResponse="apiResponse"
+        :processing="model.api.processing"
+        :model="propModel"
+        @searchEvent="searchEvent"
+        @confirmDelete="confirmDelete = true; toDelete = $event"
+        @delete-record="handleDataTableDelete"
+        class="my-2"
     />
     <div v-if="apiResponse" class="flex w-full gap-2 items-center">
-        <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
-            <!-- First Button -->
-            <paginate-btn @click="form.page = 1; searchEvent()" :disabled="form.page === 1">
-                First
-            </paginate-btn>
-
-            <!-- Previous Button -->
-            <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchEvent()" :disabled="form.page === 1">
-                <template v-slot:icon>
-                    <arrow-left class="h-auto w-6" />
-                </template>
-                Prev
-            </paginate-btn>
-
-            <!-- Current Page Indicator -->
-            <div class="text-xs flex flex-col whitespace-nowrap text-center">
-                <span class="font-medium mx-1" title="current page and total pages">
-                    <span>{{ apiResponse?.current_page }}</span> / <span>{{ apiResponse?.last_page }}</span>
-                </span>
-            </div>
-
-            <!-- Next Button -->
-            <paginate-btn
-                @click="form.page = Math.min(apiResponse?.last_page, form.page + 1); searchEvent()"
-                :disabled="form.page === apiResponse?.last_page"
-            >
-                Next
-                <template v-slot:icon>
-                    <arrow-right class="h-auto w-6" />
-                </template>
-            </paginate-btn>
-
-            <!-- Last Button -->
-            <paginate-btn
-                @click="form.page = apiResponse?.last_page; searchEvent()"
-                :disabled="form.page === apiResponse?.last_page"
-            >
-                Last
-            </paginate-btn>
-        </div>
+        <delete-confirmation-modal
+            v-if="confirmDelete"
+            :show="confirmDelete"
+            :is-processing="model.api.processing"
+            title="Confirm Delete"
+            :message="`Are you sure you want to delete this record? This action cannot be undone.`"
+            :item-name="toDelete?.fullName ? `${toDelete.fullName} (${toDelete.id})` : ''"
+            @confirm="handleDelete"
+            @close="confirmDelete = false"
+        />
     </div>
-    <confirmation-modal :show="confirmDelete" @close="confirmDelete = false">
-        <template v-slot:title>
-            Are you sure you want to remove this data?
-        </template>
-
-        <template v-slot:content>
-            This will permanently delete <b>{{ toDelete.fullName }} ({{ toDelete.id }})</b> from the database.
-        </template>
-
-        <template v-slot:footer>
-            <div class="flex justify-between w-full">
-                <delete-btn @close="confirmDelete = false" @click="handleDelete" :class="{'animate-pulse':model.api.processing}">
-                    <span v-if="!model.api.processing">
-                        Confirm
-                    </span>
-                    <span v-else>
-                        Deleting
-                    </span>
-                </delete-btn>
-                <label v-if="form" class="text-red-600 text-sm">{{ form.errors.event_id}}</label>
-                <cancel-btn @click="confirmDelete = false">
-                    Cancel
-                </cancel-btn>
-            </div>
-        </template>
-    </confirmation-modal>
 </template>
 
 <style scoped>

@@ -19,10 +19,12 @@ import TransitionContainer from "@/Components/Transitions/TransitionContrainer.v
 import DeleteBtn from "@/Components/Buttons/DeleteBtn.vue";
 import ConfirmationModal from "@/Components/ConfirmationModal.vue";
 import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
+import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal.vue";
 
 export default {
     name: 'DataTable',
     components: {
+        DeleteConfirmationModal,
         CancelBtn,
         ConfirmationModal,
         DeleteBtn,
@@ -105,17 +107,8 @@ export default {
             this.showConfirmModal = false;
             if (!row) return;
 
-            this.confirmAction(row);
-
-            if (row.api && row.api._apiDelete) {
-                const url = row.api._apiDelete;
-                const identifierId = row?.identifier?.()?.id ?? row.id;
-                if (identifierId) {
-                    row.api.axiosInstance.delete(route(url, identifierId));
-                    this.$emit('deleted', row);
-                }
-            }
-
+            // Emit delete event to parent (SearchComp) to handle delete and refresh
+            this.$emit('delete-record', row);
             this.rowPendingDelete = null;
         },
         exportToCSV() {
@@ -152,24 +145,15 @@ export default {
 <template>
     <div v-if="dt" class="relative w-full overflow-x-auto max-h-screen overflow-hidden overflow-y-auto">
         <!-- Confirmation Modal -->
-        <confirmation-modal :show="showConfirmModal" @close="showConfirmModal = false">
-            <template #title>
-                Confirm Delete
-            </template>
-
-            <template #content>
-                Are you sure you want to delete this record? This action cannot be undone.
-            </template>
-
-            <template #footer>
-                <cancel-btn class="me-2" @click="showConfirmModal = false">
-                    Cancel
-                </cancel-btn>
-                <delete-btn @click="performDelete">
-                    Delete
-                </delete-btn>
-            </template>
-        </confirmation-modal>
+        <delete-confirmation-modal
+            :show="showConfirmModal"
+            :is-processing="false"
+            title="Confirm Delete"
+            message="Are you sure you want to delete this record? This action cannot be undone."
+            :item-name="rowPendingDelete?.fullName || rowPendingDelete?.name || ''"
+            @confirm="performDelete"
+            @close="showConfirmModal = false"
+        />
 
         <!-- Export Controls -->
         <div class="mb-4 flex items-center gap-4">
