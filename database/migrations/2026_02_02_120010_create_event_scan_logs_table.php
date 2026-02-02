@@ -14,10 +14,10 @@ return new class extends Migration
         if (!Schema::hasTable('event_scan_logs')) {
             Schema::create('event_scan_logs', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('event_id')->index();
+            $table->string('event_id', 36)->index();
             $table->uuid('registration_id')->nullable()->index();
-            $table->string('scan_type')->index();
-            $table->string('status')->index();
+            $table->string('scan_type', 36)->index();
+            $table->string('status', 36)->index();
             $table->foreignId('scanned_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('scanned_at')->index();
             $table->string('payload_hash')->index();

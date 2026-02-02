@@ -13,6 +13,7 @@ import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 import Participant from "@/Modules/domain/Participant";
 import RequirementsManager from "@/Components/Forms/RequirementsManager.vue";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal.vue";
+import ScanBtn from "@/Components/Buttons/ScanBtn.vue";
 
 export default {
     name: "EventCard",
@@ -25,6 +26,7 @@ export default {
         SuspendFormBtn,
         CancelBtn,
         DeleteBtn,
+        ScanBtn,
         ConfirmationModal,
         Modal,
     },
@@ -333,12 +335,16 @@ export default {
 
         <div class="flex flex-col p-2">
             <div class="flex gap-1 justify-center">
-                <a :href="route('forms.guest.index')+'/'+formsData.event_id" target="_blank" class="bg-green-200 text-green-900 w-fit px-2 py-1 rounded" title="Preview form">
+                <a :href="route('forms.guest.index', formsData.event_id)" target="_blank" class="bg-green-200 text-green-900 w-fit px-2 py-1 rounded" title="Preview form">
                     Visit
                 </a>
 
-                <Link :href="route('forms.update')+'/'+formsData.event_id" class="bg-blue-200 text-blue-900 w-fit px-2 py-1 rounded" title="Modify details in the form">
-                    Modify
+                <Link :href="route('forms.scan', formsData.event_id)" class="bg-AA text-blue-900 w-fit px-2 py-1 rounded" title="Modify details in the form">
+                    Scan
+                </Link>
+
+                <Link :href="route('forms.update', formsData.event_id)" class="bg-blue-200 text-blue-900 w-fit px-2 py-1 rounded" title="Modify details in the form">
+                    Manage
                 </Link>
 
                 <button class="hidden bg-blue-600 text-blue-100 w-fit px-2 py-1 rounded" title="Manually register poarticipants">

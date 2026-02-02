@@ -1,118 +1,126 @@
-<script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+<script>
 import axios from "axios";
 import CameraScanner from "@/Components/CameraScanner.vue";
 import FormsHeaderActions from "@/Pages/Forms/components/FormsHeaderActions.vue";
 // @ts-ignore
 import AppLayout from "@/Layouts/AppLayout.vue";
 
-const eventId = ref("");
-const scanType = ref("checkin");
-const terminalId = ref("");
-const isProcessing = ref(false);
-const lastScan = ref<any>(null);
-const recentScans = ref<any[]>([]);
-
-const status = ref("idle");
-const statusMessage = ref("Ready to scan");
-const statusDetail = ref("");
-
-const statusClass = computed(() => {
-    switch (status.value) {
-        case "success":
-            return "bg-emerald-100 text-emerald-800 border-emerald-300";
-        case "already_scanned":
-            return "bg-yellow-100 text-yellow-800 border-yellow-300";
-        case "invalid":
-        case "wrong_event":
-        case "full":
-        case "ineligible":
-            return "bg-rose-100 text-rose-800 border-rose-300";
-        default:
-            return "bg-slate-100 text-slate-700 border-slate-200";
-    }
-});
-
-const scanTypeLabel = computed(() => {
-    return scanType.value.charAt(0).toUpperCase() + scanType.value.slice(1);
-});
-
-const setStatus = (nextStatus: string, message: string, detail = "") => {
-    status.value = nextStatus;
-    statusMessage.value = message;
-    statusDetail.value = detail;
-    playTone(nextStatus);
-};
-
-const handleDecode = async (text: string) => {
-    if (!eventId.value) {
-        setStatus("invalid", "Select event first", "Event ID is required.");
-        return;
-    }
-
-    isProcessing.value = true;
-
-    try {
-        const response = await axios.post(`/api/forms/event/${eventId.value}/scan`, {
-            payload: text,
-            scan_type: scanType.value,
-            terminal_id: terminalId.value || null,
-        });
-
-        lastScan.value = response.data;
-        const scanStatus = response.data.status;
-        const message = response.data.message || "Scan processed";
-        const displayName = response.data?.registration?.name
-            ? `${response.data.registration.name}`
-            : "";
-
-        setStatus(scanStatus, message, displayName);
-        recentScans.value.unshift({
-            ...response.data,
-            scanned_at: response.data.scanned_at,
-        });
-
-        if (recentScans.value.length > 8) {
-            recentScans.value.pop();
+export default {
+    components: {
+        CameraScanner,
+        FormsHeaderActions,
+        AppLayout,
+    },
+    props: {
+        event_id: {
+            type: String,
+            default: "",
+        },
+    },
+    data() {
+        return {
+            eventId: "",
+            scanType: "checkin",
+            terminalId: "",
+            isProcessing: false,
+            lastScan: null,
+            recentScans: [],
+            status: "idle",
+            statusMessage: "Ready to scan",
+            statusDetail: "",
+        };
+    },
+    computed: {
+        statusClass() {
+            switch (this.status) {
+                case "success":
+                    return "bg-emerald-100 text-emerald-800 border-emerald-300";
+                case "already_scanned":
+                    return "bg-yellow-100 text-yellow-800 border-yellow-300";
+                case "invalid":
+                case "wrong_event":
+                case "full":
+                case "ineligible":
+                    return "bg-rose-100 text-rose-800 border-rose-300";
+                default:
+                    return "bg-slate-100 text-slate-700 border-slate-200";
+            }
+        },
+        scanTypeLabel() {
+            return this.scanType.charAt(0).toUpperCase() + this.scanType.slice(1);
+        },
+    },
+    methods: {
+        setStatus(nextStatus, message, detail = "") {
+            this.status = nextStatus;
+            this.statusMessage = message;
+            this.statusDetail = detail;
+            this.playTone(nextStatus);
+        },
+        async handleDecode(text) {
+            if (!this.eventId) {
+                this.setStatus("invalid", "Select event first", "Event ID is required.");
+                return;
+            }
+            this.isProcessing = true;
+            try {
+                const response = await axios.post(`/api/forms/event/${this.eventId}/scan`, {
+                    payload: text,
+                    scan_type: this.scanType,
+                    terminal_id: this.terminalId || null,
+                });
+                this.lastScan = response.data;
+                const scanStatus = response.data.status;
+                const message = response.data.message || "Scan processed";
+                const displayName = response.data?.registration?.name
+                    ? `${response.data.registration.name}`
+                    : "";
+                this.setStatus(scanStatus, message, displayName);
+                this.recentScans.unshift({
+                    ...response.data,
+                    scanned_at: response.data.scanned_at,
+                });
+                if (this.recentScans.length > 8) {
+                    this.recentScans.pop();
+                }
+            } catch (error) {
+                const message = error?.response?.data?.message || "Scan failed";
+                this.setStatus("invalid", message, "Try again.");
+            } finally {
+                this.isProcessing = false;
+            }
+        },
+        playTone(toneStatus) {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.type = "sine";
+                oscillator.frequency.value = toneStatus === "success" ? 880 : toneStatus === "already_scanned" ? 520 : 220;
+                gainNode.gain.value = 0.06;
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.12);
+            } catch (error) {
+                // Audio feedback is optional
+            }
+        },
+    },
+    mounted() {
+        const params = new URLSearchParams(window.location.search);
+        this.eventId = params.get("event_id") ?? "";
+        this.terminalId = localStorage.getItem("formscan_terminal_id") || "";
+        if (!this.terminalId) {
+            this.terminalId = window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+            localStorage.setItem("formscan_terminal_id", this.terminalId);
         }
-    } catch (error: any) {
-        const message = error?.response?.data?.message || "Scan failed";
-        setStatus("invalid", message, "Try again.");
-    } finally {
-        isProcessing.value = false;
-    }
+
+        if (this.event_id) {
+            this.eventId = this.event_id;
+        }
+    },
 };
-
-const playTone = (toneStatus: string) => {
-    try {
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-
-        oscillator.type = "sine";
-        oscillator.frequency.value = toneStatus === "success" ? 880 : toneStatus === "already_scanned" ? 520 : 220;
-        gainNode.gain.value = 0.06;
-
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.12);
-    } catch (error) {
-        // Audio feedback is optional
-    }
-};
-
-onMounted(() => {
-    const params = new URLSearchParams(window.location.search);
-    eventId.value = params.get("event_id") ?? "";
-
-    terminalId.value = localStorage.getItem("formscan_terminal_id") || "";
-    if (!terminalId.value) {
-        terminalId.value = window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-        localStorage.setItem("formscan_terminal_id", terminalId.value);
-    }
-});
 </script>
 
 <template>

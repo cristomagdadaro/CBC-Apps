@@ -46,6 +46,7 @@ export default {
             beep: null,
             isMdUp: false,
             isOpen: false,
+            _scanCooldown: null,
         };
     },
     computed: {
@@ -79,8 +80,12 @@ export default {
         onDecode(detectedCodes) {
             if (!detectedCodes?.length) return;
             const code = detectedCodes[0].rawValue;
-            if (!code || code === this.lastDecoded) return;
-            this.lastDecoded = code; this.$emit('decoded', code);
+            if (!code) return;
+            // Add a cooldown to prevent rapid-fire duplicate events, but allow consecutive scans
+            if (this._scanCooldown) return;
+            this._scanCooldown = setTimeout(() => { this._scanCooldown = null; }, 1000); // 1 second cooldown
+            this.lastDecoded = code;
+            this.$emit('decoded', code);
             if (this.beep) this.beep.play().catch(() => {});
             this.showBorder = true;
             setTimeout(() => { if (this.beep) { this.beep.pause(); this.beep.currentTime = 0; } this.showBorder = false; }, 1000);

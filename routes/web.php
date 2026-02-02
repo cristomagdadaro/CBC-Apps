@@ -134,8 +134,10 @@ Route::middleware([
                 return Inertia::render('Forms/FormCreate');
             })->name('forms.create');
 
-            Route::get('/scan', function () {
-                return Inertia::render('Forms/FormScan');
+            Route::get('/scan/{event_id?}', function ($event_id = null) {
+                return Inertia::render('Forms/FormScan', [
+                    'event_id' => $event_id,
+                ]);
             })->name('forms.scan');
 
             Route::get('/update/{event_id?}', function ($event_id = null) {
