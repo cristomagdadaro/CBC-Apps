@@ -8,16 +8,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('event_certificate_templates', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->string('event_id');
-            $table->string('template_path');
-            $table->string('template_name');
-            $table->string('template_mime')->nullable();
-            $table->timestamps();
+        if (!Schema::hasTable('event_certificate_templates')) 
+            Schema::create('event_certificate_templates', function (Blueprint $table) {
+                $table->uuid('id')->primary();
+                $table->string('event_id');
+                $table->string('template_path');
+                $table->string('template_name');
+                $table->string('template_mime')->nullable();
+                $table->timestamps();
 
-            $table->index('event_id');
-        });
+                $table->index('event_id');
+            });
     }
 
     public function down(): void

@@ -11,25 +11,26 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('audit_logs', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->string('model_type'); // e.g., 'App\Models\Transaction'
-            $table->uuid('model_id');
-            $table->enum('action', ['created', 'updated', 'deleted', 'force_deleted']);
-            $table->json('old_values')->nullable(); // Previous values before change
-            $table->json('new_values')->nullable(); // New values after change
-            $table->ipAddress('ip_address')->nullable();
-            $table->string('user_agent')->nullable();
-            $table->text('description')->nullable();
-            $table->timestamps();
+        if (!Schema::hasTable('audit_logs')) 
+            Schema::create('audit_logs', function (Blueprint $table) {
+                $table->uuid('id')->primary();
+                $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
+                $table->string('model_type'); // e.g., 'App\Models\Transaction'
+                $table->uuid('model_id');
+                $table->enum('action', ['created', 'updated', 'deleted', 'force_deleted']);
+                $table->json('old_values')->nullable(); // Previous values before change
+                $table->json('new_values')->nullable(); // New values after change
+                $table->ipAddress('ip_address')->nullable();
+                $table->string('user_agent')->nullable();
+                $table->text('description')->nullable();
+                $table->timestamps();
 
-            // Indexes for efficient querying
-            $table->index(['model_type', 'model_id']);
-            $table->index('user_id');
-            $table->index('action');
-            $table->index('created_at');
-        });
+                // Indexes for efficient querying
+                $table->index(['model_type', 'model_id']);
+                $table->index('user_id');
+                $table->index('action');
+                $table->index('created_at');
+            });
     }
 
     /**

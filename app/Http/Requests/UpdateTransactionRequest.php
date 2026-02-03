@@ -33,7 +33,7 @@ class UpdateTransactionRequest extends FormRequest
             'user_id' => 'required|exists:users,id',
             'expiration' => 'date|nullable',
             'remarks' => 'string|nullable',
-            'project_code' => 'required|string',
+            'project_code' => 'nullable|string',
             'personnel_id' => 'nullable|exists:personnels,id'
         ];
     }
