@@ -63,7 +63,7 @@ class EventSubformResponseController extends BaseController
             'workflow_status' => $result['status'],
             'participant_hash' => $participantHash,
             'participant' => $result['participant'],
-            'event_id' => $requirement?->event_id ?? $validated['form_parent_id'],
+            'event_subform_id' => $requirement?->event_id ?? $validated['form_parent_id'],
             'requirement_id' => $validated['form_parent_id'],
             'data' => $result['subformResponse'],
         ], $statusCode);

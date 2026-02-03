@@ -46,8 +46,7 @@ class EventGuestRegistrationApiTest extends TestCase
         ];
 
         $response = $this->postJson(route('api.form.registration.post', ['event_id' => $form->event_id]), $payload);
-        $response->assertStatus(201)
-            ->assertJsonStructure(['status', 'participant_hash', 'participant', 'event_id']);
+        $response->assertStatus(201)->assertJsonStructure(['status', 'participant_hash', 'participant', 'event_subform_id']);
 
         $this->assertDatabaseHas('participants', [
             'email' => 'guest@example.com',
@@ -55,7 +54,7 @@ class EventGuestRegistrationApiTest extends TestCase
         ]);
 
         $this->assertDatabaseHas('registrations', [
-            'event_id' => $form->event_id,
+            'event_subform_id' => $form->event_id,
             'attendance_type' => 'In-person',
         ]);
     }
@@ -77,13 +76,13 @@ class EventGuestRegistrationApiTest extends TestCase
 
         $participantA = Participant::factory()->create();
         $registrationA = Registration::factory()->create([
-            'event_id' => $formA->event_id,
+            'event_subform_id' => $formA->event_id,
             'participant_id' => $participantA->id,
         ]);
 
         $participantB = Participant::factory()->create();
         $registrationB = Registration::factory()->create([
-            'event_id' => $formB->event_id,
+            'event_subform_id' => $formB->event_id,
             'participant_id' => $participantB->id,
         ]);
 
@@ -124,7 +123,7 @@ class EventGuestRegistrationApiTest extends TestCase
 
         $participant = Participant::factory()->create();
         $registration = Registration::factory()->create([
-            'event_id' => $form->event_id,
+            'event_subform_id' => $form->event_id,
             'participant_id' => $participant->id,
         ]);
 
@@ -161,9 +160,15 @@ class EventGuestRegistrationApiTest extends TestCase
             'config' => ['open_from' => now()->subHour(), 'open_to' => now()->addDay()],
         ]);
 
+        $participant = Participant::factory()->create();
+
         $response = $this->postJson(route('api.subform.response.store'), [
             'form_parent_id' => $requirement->id,
             'subform_type' => 'registration',
+            'participant_id' => Registration::factory()->create([
+                'event_subform_id' => $form->event_id,
+                'participant_id' => $participant->id,
+            ])->id,
             'response_data' => [
                 'name' => 'Guest 1',
                 'email' => 'guest1@example.com',
@@ -180,7 +185,7 @@ class EventGuestRegistrationApiTest extends TestCase
         $response->assertStatus(201);
 
         $this->assertDatabaseHas('registrations', [
-            'event_id' => $form->event_id,
+            'event_subform_id' => $form->event_id,
         ]);
     }
 
@@ -199,7 +204,7 @@ class EventGuestRegistrationApiTest extends TestCase
         foreach ($requirements as $requirement) {
             Participant::factory()->count(2)->create()->each(function ($participant) use ($requirement, $form) {
                 $registration = Registration::factory()->create([
-                    'event_id' => $form->event_id,
+                    'event_subform_id' => $form->event_id,
                     'participant_id' => $participant->id,
                 ]);
 
@@ -403,7 +408,7 @@ class EventGuestRegistrationApiTest extends TestCase
         $participants = Participant::factory()->count(2)->create();
         $registrations = $participants->map(function ($participant) use ($form) {
             return Registration::factory()->create([
-                'event_id' => $form->event_id,
+                'event_subform_id' => $form->event_id,
                 'participant_id' => $participant->id,
             ]);
         });
@@ -447,7 +452,7 @@ class EventGuestRegistrationApiTest extends TestCase
         // Create a 3rd participant (not yet registered)
         $participant3 = Participant::factory()->create();
         $registration3 = Registration::factory()->create([
-            'event_id' => $form->event_id,
+            'event_subform_id' => $form->event_id,
             'participant_id' => $participant3->id,
         ]);
 

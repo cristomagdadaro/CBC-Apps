@@ -29,7 +29,6 @@ class EventFormRequirementsApiTest extends TestCase
             'venue' => 'Convention Center',
         ]);
         $response = $this->getJson('/api/forms/event/0911');
-        print_r($response->json());
         $response->assertStatus(200);
     }
 

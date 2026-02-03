@@ -34,7 +34,7 @@ class ParticipantRepo extends AbstractRepoService
             return [
                 'participant' => $participant,
                 'participant_hash' => $temp,
-                'event_id' => $eventId,
+                'event_subform_id' => $eventId,
             ];
         });
     }

@@ -31,7 +31,6 @@ class CheckFormMaxSlot
         $isSubformResponse = false;
         $requirement = null;
 
-        // If form_parent_id is provided, resolve it to the event_id (subform response endpoint)
         if ($formParentId && !$eventId) {
             $requirement = EventSubform::find($formParentId);
             $formId = $requirement?->event_id;
@@ -60,13 +59,10 @@ class CheckFormMaxSlot
 
         $maxSlots = $requirement?->max_slots ?? $form->max_slots;
 
-        // ✅ Corrected: Skip validation if `max_slots` is not set (null)
         if (is_null($maxSlots) || $maxSlots <= 0) {
             return $next($request);
         }
 
-        // For subform responses, check the response count
-        // For registrations, check the participant count
         if ($isSubformResponse) {
             $currentCount = EventSubformResponse::where('form_parent_id', $formParentId)->count();
             if ($currentCount >= $maxSlots) {
@@ -75,8 +71,7 @@ class CheckFormMaxSlot
                 ]], 403);
             }
         } else {
-            // Registration endpoint - check registrations count
-            $currentCount = Registration::where('event_id', $formId)->count();
+            $currentCount = Registration::where('event_subform_id', $formId)->count();
             if ($currentCount >= $maxSlots) {
                 return response()->json(['errors' => [
                     'full' => ['This form has reached the maximum number of participants.']

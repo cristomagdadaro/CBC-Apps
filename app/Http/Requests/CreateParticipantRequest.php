@@ -18,17 +18,6 @@ class CreateParticipantRequest extends FormRequest
         return true;
     }
 
-    public function prepareForValidation(): void
-    {
-        do {
-            $temp = Str::uuid()->toString();
-        } while (Participant::where('id', $temp)->exists());
-
-        $this->merge([
-            'id' => $temp,
-        ]);
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -37,7 +26,6 @@ class CreateParticipantRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => ['required', 'string'],
             'name' => ['required', 'string'],
             'email' => ['required', 'email'],
             'phone' => ['required', 'string'],
