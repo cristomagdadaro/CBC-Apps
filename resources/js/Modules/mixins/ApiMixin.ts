@@ -67,7 +67,7 @@ export default {
                 this.processing = false;
             });
         },
-        async submitCreate(toCast: boolean = false, except: string = '') {
+        async submitCreate(toCast: boolean = false, except:  string | string[] | null = null) {
             this.processing = true;
             this.form.clearErrors();
             return await this.model.api.postIndex(this.form.data()).then(response => {
@@ -82,10 +82,10 @@ export default {
                 this.processing = false;
             });
         },
-        async submitUpdate(toCast: boolean = false, except: string = '') {
+        async submitUpdate(toCast: boolean = false, except:  string | string[] | null = null) {
             this.processing = true;
             this.form.clearErrors();
-            console.log(this.model);
+            console.log(this.form.data());
             return await this.model.api.putIndex(this.form.data()).then(response => {
                 this.resetForm(except);
                 if (toCast) {

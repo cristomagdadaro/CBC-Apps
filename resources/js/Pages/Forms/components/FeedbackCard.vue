@@ -4,6 +4,12 @@ import SubformResponse from "@/Modules/domain/SubformResponse";
 import DtoResponse from "@/Modules/dto/DtoResponse";
 import ProgressTabs from "@/Components/ProgressTabs.vue";
 import LikertScale from "@/Components/LikertScale.vue";
+import PrimaryButton from "@/Components/PrimaryButton.vue";
+import InputLabel from "@/Components/InputLabel.vue";
+import InputError from "@/Components/InputError.vue";
+import Checkbox from "@/Components/Checkbox.vue";
+import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
+import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 
 export default {
     name: "FeedbackCard",
@@ -11,6 +17,13 @@ export default {
     components: {
         ProgressTabs,
         LikertScale,
+        PrimaryButton,
+        InputLabel,
+        InputError,
+        Checkbox,
+        TransitionContainer,
+        SubmitBtn,
+    
     },
     props: {
         responseData: {

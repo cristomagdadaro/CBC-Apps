@@ -26,7 +26,7 @@ export default {
             }
         },
         async handleUpdate() {
-            const response = await this.submitUpdate(null, 'response_data');
+            const response = await this.submitUpdate(null, ['response_data','form_parent_id','subform_type']);
             if (response instanceof DtoResponse) {
                 this.showSuccess = true;
                 this.$emit('updatedModel', response.data);
@@ -238,7 +238,7 @@ export default {
                 />
             </div>
             <div class="flex flex-col gap-2">
-                <custom-dropdown v-if="config?.config?.attendance_type_required" :value="form.response_data.attendance_type" @selectedChange="form.response_data.attendance_type = $event"  :error="form.errors.attendance_type" placeholder="Are you attending Online or In-person?" :required="config.config.attendance_type_required" :withAllOption="false" :options="[{name: 'Online', label: 'Online'}, {name: 'In-person', label: 'In-person'}]">
+                <custom-dropdown v-if="config?.config?.attendance_type_required" :value="form.response_data.attendance_type" @selectedChange="form.response_data.attendance_type = $event"  :error="form.errors.attendance_type" placeholder="Are you attending Online or In-person?" :required="config?.config?.attendance_type_required" :withAllOption="false" :options="[{name: 'Online', label: 'Online'}, {name: 'In-person', label: 'In-person'}]">
                     <template #icon>
                         <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />

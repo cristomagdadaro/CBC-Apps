@@ -12,12 +12,10 @@ import Form from "@/Modules/domain/Form";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import SuspendFormBtn from "@/Pages/Forms/components/SuspendFormBtn.vue";
 import Participant from "@/Modules/domain/Participant";
-import ListOfParticipants from "@/Pages/Forms/components/ListOfParticipants.vue";
 import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 import TabNavigation from "@/Components/TabNavigation.vue";
 import RequirementsManager from "@/Components/Forms/RequirementsManager.vue";
 import FormStyleDesigner from "@/Pages/Forms/components/FormStyleDesigner.vue";
-import SubformResponse from "@/Modules/domain/SubformResponse";
 import FormUpdateDashboard from "@/Pages/Forms/components/FormUpdateDashboard.vue";
 import EventCertificates from "@/Pages/Forms/components/EventCertificates.vue";
 
@@ -43,7 +41,6 @@ export default {
         RequirementsManager,
         TabNavigation,
         LoaderIcon,
-        ListOfParticipants,
         SuspendFormBtn,
         TimeInput,
         DateInput,
@@ -90,9 +87,8 @@ export default {
             <TabNavigation
                 v-model="activeTab"
                 :tabs="[
+                    { key: 'dashboard', label: 'Summary' },
                     { key: 'update', label: 'Update Form' },
-                    { key: 'participants', label: `Responses ${ $page.props.responsesCount }` },
-                    { key: 'dashboard', label: 'Dashboard' },
                     { key: 'certificates', label: 'eCertificates' },
                 ]"
             >
@@ -185,11 +181,6 @@ export default {
                                 </div>
                             </div>
                         </form>
-                    </div>
-
-                    <!-- Participants tab -->
-                    <div v-else-if="activeKey === 'participants'" class="mt-4">
-                        <list-of-participants :event-id="data?.event_id" :form-parent-id="data?.id" :form-class="data" />
                     </div>
 
                     <div v-else-if="activeKey === 'dashboard'" class="mt-4">
