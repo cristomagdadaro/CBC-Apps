@@ -38,7 +38,7 @@
         'bp'      => public_path('imgs/bagong_pilipinas.png'),
     ];
 
-/*   $logos = [
+    /*  $logos = [
         'cbc'     => '/imgs/logo-black.png',
         'overlay' => '/imgs/Overlay.png',
         'da'      => '/imgs/da_bpo.png',
@@ -95,8 +95,8 @@
             </div>
 
             <div class="header">
-                <h3 style="font-size:10px">LABORATORY USE, EQUIPMENT, AND SUPPLY REQUEST FORM</h3>
-                <div>{{ $copy }}</div>
+                <h3 style="font-size:10px">FACILITIES, EQUIPMENT, and SUPPLIES REQUEST FORM</h3>
+                <div style="opacity: 50%;">{{ $copy }}</div>
             </div>
 
             <table style="border: none; border-collapse: collapse;">
@@ -111,9 +111,19 @@
                 <tr><td colspan="1"><b>Purpose</b></td><td colspan="3">{{ $rf->request_purpose }}</td></tr>
                 <tr><td colspan="1"><b>Project</b></td><td colspan="3">{{ $rf->project_title }}</td></tr>
                 <tr><td colspan="1"><b>Date/Time</b></td><td colspan="1">{{ $rf->date_of_use }} {{ $rf->time_of_use }}</td><td colspan="1"><b>Expected Return</b></td><td colspan="1">{{ $rf->date_of_use }} {{ $rf->time_of_use }}</td></tr>
+                
+                @if(!empty($labs))
                 <tr><td colspan="1"><b>Laboratory</b></td><td colspan="3">{{ $labs }}</td></tr>
+                @endif
+
+                @if(!empty($equipments))
                 <tr><td colspan="1"><b>Equipment</b></td><td colspan="3">{{ $equipments }}</td></tr>
+                @endif
+
+                @if(!empty($supplies))
                 <tr><td colspan="1"><b>Supplies</b></td><td colspan="3">{{ $supplies }}</td></tr>
+                @endif
+
             </table>
 
             <p><b>Liability Clause:</b></p>
@@ -174,8 +184,8 @@
         </table>
 
             <br>
-            <p @if($form->approval_constraint) @endif><b>Approval Remarks:</b> {{ $form->approval_constraint }}</p>
-            <p @if($form->disapproved_remarks) @endif><b>Disapproval Remarks:</b> {{ $form->disapproved_remarks }}</p>
+            @if($form->approval_constraint)<p><b>Approval Remarks:</b> {{ $form->approval_constraint }}</p> @endif
+            @if($form->disapproved_remarks)<p><b>Disapproval Remarks:</b> {{ $form->disapproved_remarks }}</p> @endif
 
             <footer style="margin-top: 5mm; position: absolute; bottom: 0; width: 48%;">
                 <table style="width: 100%; border: none; border-collapse: collapse;">

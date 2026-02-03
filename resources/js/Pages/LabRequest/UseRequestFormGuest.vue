@@ -32,9 +32,9 @@ export default {
 </script>
 
 <template>
-    <Head title="Access and Use Request Form" />
+    <Head title="Facilities, Equipment, and Supplies Request Form" />
     <guest-form-page
-        :title="'Access and Use Request Form'"
+        :title="'Facilities, Equipment, and Supplies Request Form'"
         :subtitle="'This form is intended for requesting access to and use of the facilities, equipment, and services provided by the DA-Crop Biotechnology Center. Please provide accurate and complete information to ensure a smooth processing of your request.'"
         :delay-ready="delayReady"
     >

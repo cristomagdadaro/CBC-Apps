@@ -26,7 +26,7 @@ export default {
 </script>
 
 <template>
-    <Head title="Supplies and Equipment Reports" />
+    <Head title="Report Attachment" />
 
     <AppLayout>
         <template #header>
