@@ -6,6 +6,7 @@ export default class SubformResponse extends DtoSubformResponse {
         index: 'api.subform.response.index',
         post: 'api.subform.response.store',
         delete: 'api.subform.response.delete',
+        put: 'api.subform.response.put',
     };
 
     constructor(response: DtoSubformResponse) {
@@ -14,6 +15,7 @@ export default class SubformResponse extends DtoSubformResponse {
         this.api._apiIndex = SubformResponse.endpoints.index;
         this.api._apiPost = SubformResponse.endpoints.post;
         this.api._apiDelete = SubformResponse.endpoints.delete;
+        this.api._apiPut = SubformResponse.endpoints.put;
     }
 
     identifier(model: DtoBaseClass): object {

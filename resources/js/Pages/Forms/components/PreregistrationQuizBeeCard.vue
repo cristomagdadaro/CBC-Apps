@@ -1,22 +1,56 @@
 <script>
 import SubformMixin from "@/Modules/mixins/SubformMixin";
 import SubformResponse from "@/Modules/domain/SubformResponse";
+import DtoResponse from "@/Modules/dto/DtoResponse";
 
 export default {
     name: "PreregistrationQuizBeeCard",
     mixins: [SubformMixin],
+    props: {
+        responseData: {
+            type: Object,
+            default: null,
+        },
+    },
+    computed: {
+        isEditMode() {
+            return !!this.responseData?.id;
+        },
+    },
+    methods: {
+        async handleSubmit() {
+            if (this.isEditMode) {
+                await this.handleUpdate();
+            } else {
+                await this.handleCreate();
+            }
+        },
+        async handleUpdate() {
+            const response = await this.submitUpdate(null, 'response_data');
+            if (response instanceof DtoResponse) {
+                this.showSuccess = true;
+                this.$emit('updatedModel', response.data);
+            }
+        },
+    },
     beforeMount() {
         this.model = new SubformResponse();
-        this.setFormAction('create').response_data = SubformResponse.getSubformFields('preregistration_biotech');
-        this.form.response_data.event_id = this.eventId;
-        this.form.form_parent_id = this.eventId;
+        if (this.isEditMode) {
+            this.setFormAction('update');
+            this.form.id = this.responseData.id;
+            this.form.response_data = this.responseData.response_data || {};
+        } else {
+            this.setFormAction('create').response_data = SubformResponse.getSubformFields('preregistration_biotech');
+            this.form.response_data.event_id = this.eventId;
+            this.form.form_parent_id = this.eventId;
+        }
         this.form.subform_type = 'preregistration_biotech';
     },
 }
 </script>
 
 <template>
-    <form v-if="form" @submit.prevent="handleCreate()" class="py-4 select-none relative bg-white px-3 border-t border-purple-800 mt-3" :class="{'border border-red-600 rounded-md': form.hasErrors}">
+    <form v-if="form" @submit.prevent="handleSubmit()" class="py-4 select-none relative bg-white px-3 border-t border-purple-800 mt-3" :class="{'border border-red-600 rounded-md': form.hasErrors}">
         <transition-container type="slide-top">
             <div v-show="showSuccess" class="absolute flex top-0 left-0 bg-AB w-full h-full z-50 text-white text-xl font-medium justify-center items-center rounded-b-md shadow">
                 <button @click.prevent="showSuccess = false" class="absolute top-0 right-0 p-2">
@@ -49,7 +83,7 @@ export default {
         <div class="pb-3 pt-1">
             <label class="text-purple-700 uppercase justify-center flex">{{ form.errors.suspended || form.errors.full || form.errors.expired }}</label>
             <h3 class="text-lg leading-tight uppercase font-extrabold">
-                Pre-register Now!
+                {{ isEditMode ? 'Update Pre-registration' : 'Pre-register Now!' }}
             </h3> 
             <p class="text-xs leading-tight">
                 Tell us where you're studying and whether you'd like to compete in tomorrow's biotech quiz bee. Fields marked with <span class="text-red-600">*</span> are required.
@@ -204,7 +238,7 @@ export default {
                 />
             </div>
             <div class="flex flex-col gap-2">
-                <custom-dropdown v-if="config.config.attendance_type_required" :value="form.response_data.attendance_type" @selectedChange="form.response_data.attendance_type = $event"  :error="form.errors.attendance_type" placeholder="Are you attending Online or In-person?" :required="config.config.attendance_type_required" :withAllOption="false" :options="[{name: 'Online', label: 'Online'}, {name: 'In-person', label: 'In-person'}]">
+                <custom-dropdown v-if="config?.config?.attendance_type_required" :value="form.response_data.attendance_type" @selectedChange="form.response_data.attendance_type = $event"  :error="form.errors.attendance_type" placeholder="Are you attending Online or In-person?" :required="config.config.attendance_type_required" :withAllOption="false" :options="[{name: 'Online', label: 'Online'}, {name: 'In-person', label: 'In-person'}]">
                     <template #icon>
                         <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
@@ -232,8 +266,8 @@ export default {
                 </div>
             </div>
             <submit-btn :disabled="model.api.processing" :processing="model.api.processing">
-                <span v-if="!model.api.processing">Register</span>
-                <span v-else>Registering</span>
+                <span v-if="!model.api.processing">{{ isEditMode ? 'Update' : 'Register' }}</span>
+                <span v-else>{{ isEditMode ? 'Updating' : 'Registering' }}</span>
             </submit-btn>
         </div>
     </form>

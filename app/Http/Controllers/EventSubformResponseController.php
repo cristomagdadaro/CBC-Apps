@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateEventSubformResponseRequest;
 use App\Http\Requests\GetEventSubformRequest;
+use App\Http\Requests\UpdateEventSubformResponseRequest;
 use App\Models\EventSubform;
 use App\Repositories\EventSubformResponseRepo;
 use Illuminate\Http\JsonResponse;
@@ -60,6 +61,28 @@ class EventSubformResponseController extends BaseController
             'requirement_id' => $validated['form_parent_id'],
             'data' => $result['subformResponse'],
         ], 201);
+    }
+
+    public function update(UpdateEventSubformResponseRequest $request, string $event_id): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+
+            $updated = $this->repo()->updateResponse(
+                $this->repo()->model->findOrFail($event_id),
+                $validated
+            );
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $updated,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 400);
+        }
     }
 
     public function delete(Request $request, string $response_id): JsonResponse

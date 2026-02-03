@@ -1,6 +1,7 @@
 <script>
 import SubformMixin from "@/Modules/mixins/SubformMixin";
 import SubformResponse from "@/Modules/domain/SubformResponse";
+import DtoResponse from "@/Modules/dto/DtoResponse";
 import ProgressTabs from "@/Components/ProgressTabs.vue";
 import LikertScale from "@/Components/LikertScale.vue";
 
@@ -11,12 +12,21 @@ export default {
         ProgressTabs,
         LikertScale,
     },
+    props: {
+        responseData: {
+            type: Object,
+            default: null,
+        },
+    },
     data() {
         return {
             currentStep: 0,
         }
     },
     computed: {
+        isEditMode() {
+            return !!this.responseData?.id;
+        },
         steps() {
             return [
                 'Activity Evaluation',
@@ -33,6 +43,13 @@ export default {
         }
     },
     methods: {
+        async handleSubmit() {
+            if (this.isEditMode) {
+                await this.handleUpdate();
+            } else {
+                await this.handleCreate();
+            }
+        },
         async handleCreate() {
             const retainParent = this.form.form_parent_id;
             const retainType = this.form.subform_type;
@@ -49,6 +66,13 @@ export default {
                 this.form.subform_type = retainType;
             }
         },
+        async handleUpdate() {
+            const response = await this.submitUpdate(null, 'response_data');
+            if (response instanceof DtoResponse) {
+                this.showSuccess = true;
+                this.$emit('updatedModel', response.data);
+            }
+        },
         nextStep() {
             if (this.currentStep < this.steps.length - 1) {
                 this.currentStep += 1;
@@ -62,9 +86,15 @@ export default {
     },
     beforeMount() {
         this.model = new SubformResponse();
-        this.setFormAction('create').response_data = SubformResponse.getSubformFields('feedback');
-        this.form.form_parent_id = this.eventId;
-        this.form.response_data.event_id = this.config?.event_id ?? this.eventId;
+        if (this.isEditMode) {
+            this.setFormAction('update');
+            this.form.id = this.responseData.id;
+            this.form.response_data = this.responseData.response_data || {};
+        } else {
+            this.setFormAction('create').response_data = SubformResponse.getSubformFields('feedback');
+            this.form.form_parent_id = this.eventId;
+            this.form.response_data.event_id = this.config?.event_id ?? this.eventId;
+        }
         this.form.subform_type = 'feedback';
     },
     watch: {
@@ -79,8 +109,8 @@ export default {
 </script>
 
 <template>
-    <form v-if="form" @submit.prevent="handleCreate()" class="py-4 select-none relative bg-white px-3 border-t border-gray-800 mt-3" :class="{'border border-red-600 rounded-md': form.hasErrors}">
-        <custom-dropdown @selectedChange="form.participant_id = $event" :error="form.errors.participant_id" :value="form.participant_id" :options="participantsAsOptions" :withAllOption="false" placeholder="Select a recent registration" label="Answering as" class="mb-4"/>
+    <form v-if="form" @submit.prevent="handleSubmit()" class="py-4 select-none relative bg-white px-3 border-t border-gray-800 mt-3" :class="{'border border-red-600 rounded-md': form.hasErrors}">
+        <custom-dropdown v-if="!isEditMode" @selectedChange="form.participant_id = $event" :error="form.errors.participant_id" :value="form.participant_id" :options="participantsAsOptions" :withAllOption="false" placeholder="Select a recent registration" label="Answering as" class="mb-4"/>
         <transition-container type="slide-top">
             <div v-show="showSuccess" class="absolute flex top-0 left-0 bg-AC w-full h-full z-50 text-white text-xl font-medium justify-center items-center rounded-b-md shadow">
                 <button @click.prevent="showSuccess = false" class="absolute top-0 right-0 p-2">
@@ -105,7 +135,7 @@ export default {
         <div class="pb-3 pt-1">
             <label class="text-red-600 uppercase justify-center flex">{{ form.errors.suspended || form.errors.full || form.errors.expired }}</label>
             <h3 class="text-lg leading-tight uppercase font-extrabold">
-                Activity Feedback Form
+                {{ isEditMode ? 'Update Feedback' : 'Activity Feedback Form' }}
             </h3>
             <p class="text-xs leading-none">
                 Kindly provide the required and honest feedback. Fields marked with <span class="text-red-600">*</span> are required.
@@ -167,8 +197,8 @@ export default {
                 </PrimaryButton>
 
                 <submit-btn v-else :disabled="model.api.processing" :processing="model.api.processing">
-                    <span v-if="!model.api.processing">Submit Feedback</span>
-                    <span v-else>Submitting...</span>
+                    <span v-if="!model.api.processing">{{ isEditMode ? 'Update Feedback' : 'Submit Feedback' }}</span>
+                    <span v-else>{{ isEditMode ? 'Updating...' : 'Submitting...' }}</span>
                 </submit-btn>
             </div>
         </div>

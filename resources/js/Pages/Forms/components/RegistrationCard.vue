@@ -1,22 +1,56 @@
 <script>
 import SubformMixin from "@/Modules/mixins/SubformMixin";
 import SubformResponse from "@/Modules/domain/SubformResponse";
+import DtoResponse from "@/Modules/dto/DtoResponse";
 
 export default {
     name: "RegistrationCard",
     mixins: [SubformMixin],
+    props: {
+        responseData: {
+            type: Object,
+            default: null,
+        },
+    },
+    computed: {
+        isEditMode() {
+            return !!this.responseData?.id;
+        },
+    },
+    methods: {
+        async handleSubmit() {
+            if (this.isEditMode) {
+                await this.handleUpdate();
+            } else {
+                await this.handleCreate();
+            }
+        },
+        async handleUpdate() {
+            const response = await this.submitUpdate(null, 'response_data');
+            if (response instanceof DtoResponse) {
+                this.showSuccess = true;
+                this.$emit('updatedModel', response.data);
+            }
+        },
+    },
     beforeMount() {
         this.model = new SubformResponse();
-        this.setFormAction('create').response_data = SubformResponse.getSubformFields('registration');
-        this.form.form_parent_id = this.eventId;
-        this.form.response_data.event_id = this.config?.event_id ?? this.eventId;
+        if (this.isEditMode) {
+            this.setFormAction('update');
+            this.form.id = this.responseData.id;
+            this.form.response_data = this.responseData.response_data || {};
+        } else {
+            this.setFormAction('create').response_data = SubformResponse.getSubformFields('registration');
+            this.form.form_parent_id = this.eventId;
+            this.form.response_data.event_id = this.config?.event_id ?? this.eventId;
+        }
         this.form.subform_type = 'registration';
     },
 }
 </script>
 
 <template>
-    <form v-if="form" @submit.prevent="handleCreate()" class="py-4 select-none relative bg-white px-3 border-t border-gray-800 mt-3" :class="{'border border-red-600 rounded-md': form.hasErrors}">
+    <form v-if="form" @submit.prevent="handleSubmit()" class="py-4 select-none relative bg-white px-3 border-t border-gray-800 mt-3" :class="{'border border-red-600 rounded-md': form.hasErrors}">
         <transition-container type="slide-top">
             <div v-show="showSuccess" class="absolute flex top-0 left-0 bg-AB w-full h-full z-50 text-white text-xl font-medium justify-center items-center rounded-b-md shadow">
                 <button @click.prevent="showSuccess = false" class="absolute top-0 right-0 p-2">
@@ -49,8 +83,8 @@ export default {
         <div class="pb-3 pt-1">
             <label class="text-red-600 uppercase justify-center flex">{{ form.errors.suspended || form.errors.full || form.errors.expired }}</label>
             <h3 class="text-lg leading-tight uppercase font-extrabold">
-                Register Now!
-            </h3> {{  }}
+                {{ isEditMode ? 'Update Registration' : 'Register Now!' }}
+            </h3>
             <p class="text-xs leading-none">
                 Kindly provide the required and correct details. Fields marked with <span class="text-red-600">*</span> are required.
             </p>
@@ -222,8 +256,8 @@ export default {
                 </div>
             </div>
             <submit-btn :disabled="model.api.processing" :processing="model.api.processing">
-                <span v-if="!model.api.processing">Register</span>
-                <span v-else>Registering</span>
+                <span v-if="!model.api.processing">{{ isEditMode ? 'Update' : 'Register' }}</span>
+                <span v-else>{{ isEditMode ? 'Updating' : 'Registering' }}</span>
             </submit-btn>
         </div>
     </form>

@@ -40,6 +40,14 @@ class EventSubformResponseRepo extends AbstractRepoService
         });
     }
 
+    public function updateResponse(EventSubformResponse $response, array $data): EventSubformResponse
+    {
+        $response->response_data = $data['response_data'] ?? $response->response_data;
+        $response->save();
+
+        return $response;
+    }
+
     public function getResponsesByEventId(string $event_id)
     {
         return $this->model

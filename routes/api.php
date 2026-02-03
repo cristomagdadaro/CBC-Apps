@@ -71,6 +71,7 @@ Route::middleware(env('APP_ENV') === 'production' ? ['api', 'auth:sanctum'] : ['
             Route::delete('/delete/{event_id?}', [FormController::class, 'delete'])->name('api.form.delete');
             Route::middleware(['check.form.suspended'])->put('/update/{event_id?}', action: [FormController::class, 'update'])->name('api.form.put');
             Route::get('/responses/{event_id?}', [EventSubformResponseController::class, 'index'])->name('api.subform.response.index');
+            Route::put('/responses/{event_id?}', [EventSubformResponseController::class, 'update'])->name('api.subform.response.put');
             Route::delete('/responses/{response_id}', [EventSubformResponseController::class, 'delete'])->name('api.subform.response.delete');
             Route::get('/requirements/{event_id?}', [EventSubformController::class, 'index'])->name('api.subform.requirement.index');
             Route::post('/certificates/{event_id}/template', [EventCertificateController::class, 'uploadTemplate'])->name('api.event.certificates.template.upload');

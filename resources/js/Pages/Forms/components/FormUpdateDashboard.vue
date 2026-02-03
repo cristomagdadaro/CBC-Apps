@@ -1,5 +1,4 @@
-<script setup>
-import { computed, onMounted, ref, watch } from 'vue';
+<script>
 import {
     Chart,
     PieController,
@@ -12,241 +11,279 @@ import {
     Legend,
 } from 'chart.js';
 import DataFormatterMixin from '@/Modules/mixins/DataFormatterMixin';
+import Modal from '@/Components/Modal.vue';
+import PreregistrationCard from '@/Pages/Forms/components/PreregistrationCard.vue';
+import PreregistrationQuizBeeCard from '@/Pages/Forms/components/PreregistrationQuizBeeCard.vue';
+import RegistrationCard from '@/Pages/Forms/components/RegistrationCard.vue';
+import FeedbackCard from '@/Pages/Forms/components/FeedbackCard.vue';
 
 Chart.register(BarController, PieController, BarElement, ArcElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-const formatDateTime = DataFormatterMixin.methods.formatDateTime;
-
-const props = defineProps({
-    stats: {
-        type: Object,
-        default: () => ({
-            responses_total: 0,
-            responses_by_type: {},
-            registrations_total: 0,
-            participants_total: 0,
-            requirements_total: 0,
-        }),
+export default {
+    name: 'FormUpdateDashboard',
+    components: {
+        Modal,
+        PreregistrationCard,
+        PreregistrationQuizBeeCard,
+        RegistrationCard,
+        FeedbackCard,
     },
-    responsesByType: {
-        type: Object,
-        default: () => ({}),
+    mixins: [DataFormatterMixin],
+    props: {
+        stats: {
+            type: Object,
+            default: () => ({
+                responses_total: 0,
+                responses_by_type: {},
+                registrations_total: 0,
+                participants_total: 0,
+                requirements_total: 0,
+            }),
+        },
+        responsesByType: {
+            type: Object,
+            default: () => ({}),
+        },
+        eventId: [String, Number],
+        config: Object,
     },
-});
-
-const responseChartCanvas = ref(null);
-const totalsChartCanvas = ref(null);
-const expandedGroups = ref({});
-
-let responseChartInstance = null;
-let totalsChartInstance = null;
-
-const toggleGroup = (formType) => {
-    expandedGroups.value[formType] = !expandedGroups.value[formType];
-};
-
-const labelMap = {
-    pre_registration: 'Pre-registration',
-    pre_registration_biotech: 'Pre-registration + Quiz Bee',
-    registration: 'Registration',
-    pre_test: 'Pre-test',
-    post_test: 'Post-test',
-    feedback: 'Feedback',
-};
-
-const responseLabels = computed(() =>
-    Object.keys(props.stats?.responses_by_type || {}).map((key) => labelMap[key] || key)
-);
-
-const responseValues = computed(() =>
-    Object.values(props.stats?.responses_by_type || {})
-);
-
-const responseColors = ['#22c55e', '#0ea5e9', '#eab308', '#ef4444', '#a855f7', '#10b981'];
-const totalsColors = ['#3b82f6', '#f97316', '#22c55e'];
-
-const responseTableRows = computed(() => {
-    const entries = Object.entries(props.stats?.responses_by_type || {});
-
-    return entries.map(([key, value]) => ({
-        form_type: key,
-        label: labelMap[key] || key,
-        count: value ?? 0,
-    }));
-});
-
-const responseDataGroups = computed(() => {
-    const groups = props.responsesByType || {};
-    return Object.entries(groups).map(([key, items]) => {
-        const itemsArray = Array.isArray(items) ? items : [];
-        
-        // Extract unique keys from all response_data objects
-        const uniqueKeys = new Set();
-        itemsArray.forEach(item => {
-            if (item.response_data && typeof item.response_data === 'object') {
-                Object.keys(item.response_data).forEach(k => uniqueKeys.add(k));
-            }
-        });
-        
+    data() {
         return {
-            form_type: key,
-            label: labelMap[key] || key,
-            items: itemsArray,
-            dataColumns: Array.from(uniqueKeys).sort(),
-        };
-    });
-});
-
-const formatValue = (value) => {
-    if (value === null || value === undefined || value === '') {
-        return '-';
-    }
-    if (Array.isArray(value)) {
-        return value.join(', ');
-    }
-    return String(value);
-};
-
-const escapeCSV = (value) => {
-    if (value === null || value === undefined) {
-        return '';
-    }
-    const str = Array.isArray(value) ? value.join(', ') : String(value);
-    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-        return `"${str.replace(/"/g, '""')}"`;
-    }
-    return str;
-};
-
-const exportToCSV = (group) => {
-    const headers = ['Submitted On', 'Respondent', ...group.dataColumns.map(col => col.replace(/_/g, ' '))];
-    const rows = group.items.map(item => [
-        item.created_at,
-        item.response_data?.name || item.response_data?.full_name || item.response_data?.email || 'N/A',
-        ...group.dataColumns.map(col => item.response_data?.[col] ?? ''),
-    ]);
-
-    const csvContent = [
-        headers.map(escapeCSV).join(','),
-        ...rows.map(row => row.map(escapeCSV).join(',')),
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-
-    link.setAttribute('href', url);
-    link.setAttribute('download', `${group.form_type}_responses.csv`);
-    link.style.visibility = 'hidden';
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-};
-
-const destroyCharts = () => {
-    if (responseChartInstance) {
-        responseChartInstance.destroy();
-        responseChartInstance = null;
-    }
-    if (totalsChartInstance) {
-        totalsChartInstance.destroy();
-        totalsChartInstance = null;
-    }
-};
-
-const buildCharts = () => {
-    destroyCharts();
-
-    if (responseChartCanvas.value) {
-        responseChartInstance = new Chart(responseChartCanvas.value, {
-            type: 'pie',
-            data: {
-                labels: responseLabels.value,
-                datasets: [
-                    {
-                        label: 'Responses by Form Type',
-                        data: responseValues.value,
-                        backgroundColor: responseColors,
-                    },
-                ],
+            expandedGroups: {},
+            showResponseModal: false,
+            selectedResponse: null,
+            selectedResponseType: null,
+            selectedFormType: null,
+            labelMap: {
+                pre_registration: 'Pre-registration',
+                pre_registration_biotech: 'Pre-registration + Quiz Bee',
+                registration: 'Registration',
+                pre_test: 'Pre-test',
+                post_test: 'Post-test',
+                feedback: 'Feedback',
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false,
-                        position: 'bottom',
-                        labels: {
-                            usePointStyle: true,
-                            color: (ctx) => {
-                                const index = ctx.dataIndex ?? 0;
-                                return responseColors[index] || '#6b7280';
+            responseColors: ['#22c55e', '#0ea5e9', '#eab308', '#ef4444', '#a855f7', '#10b981'],
+            totalsColors: ['#3b82f6', '#f97316', '#22c55e'],
+            responseChartInstance: null,
+            totalsChartInstance: null,
+        };
+    },
+    computed: {
+        responseLabels() {
+            return Object.keys(this.stats?.responses_by_type || {}).map((key) => this.labelMap[key] || key);
+        },
+        responseValues() {
+            return Object.values(this.stats?.responses_by_type || {});
+        },
+        responseTableRows() {
+            const entries = Object.entries(this.stats?.responses_by_type || {});
+            return entries.map(([key, value]) => ({
+                form_type: key,
+                label: this.labelMap[key] || key,
+                count: value ?? 0,
+            }));
+        },
+        responseDataGroups() {
+            const groups = this.responsesByType || {};
+            return Object.entries(groups).map(([key, items]) => {
+                const itemsArray = Array.isArray(items) ? items : [];
+                const uniqueKeys = new Set();
+                itemsArray.forEach(item => {
+                    if (item.response_data && typeof item.response_data === 'object') {
+                        Object.keys(item.response_data).forEach(k => uniqueKeys.add(k));
+                    }
+                });
+                return {
+                    form_type: key,
+                    label: this.labelMap[key] || key,
+                    items: itemsArray,
+                    dataColumns: Array.from(uniqueKeys).sort(),
+                };
+            });
+        },
+    },
+    methods: {
+        toggleGroup(formType) {
+            this.expandedGroups[formType] = !this.expandedGroups[formType];
+        },
+        getFormCardComponent(formType) {
+            const components = {
+                'preregistration': 'PreregistrationCard',
+                'pre_registration': 'PreregistrationCard',
+                'preregistration_biotech': 'PreregistrationQuizBeeCard',
+                'pre_registration_biotech': 'PreregistrationQuizBeeCard',
+                'registration': 'RegistrationCard',
+                'feedback': 'FeedbackCard',
+            };
+            return components[formType] || null;
+        },
+        openResponseModal(response, formType) {
+            this.selectedResponse = response;
+            this.selectedResponseType = formType;
+            this.selectedFormType = formType;
+            this.showResponseModal = true;
+        },
+        closeResponseModal() {
+            this.showResponseModal = false;
+            this.selectedResponse = null;
+            this.selectedResponseType = null;
+            this.selectedFormType = null;
+        },
+        onResponseUpdated(updatedResponse) {
+            this.closeResponseModal();
+        },
+        formatValue(value) {
+            if (value === null || value === undefined || value === '') {
+                return '-';
+            }
+            if (Array.isArray(value)) {
+                return value.join(', ');
+            }
+            return String(value);
+        },
+        escapeCSV(value) {
+            if (value === null || value === undefined) {
+                return '';
+            }
+            const str = Array.isArray(value) ? value.join(', ') : String(value);
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        },
+        exportToCSV(group) {
+            const headers = ['Submitted On', 'Respondent', ...group.dataColumns.map(col => col.replace(/_/g, ' '))];
+            const rows = group.items.map(item => [
+                item.created_at,
+                item.response_data?.name || item.response_data?.full_name || item.response_data?.email || 'N/A',
+                ...group.dataColumns.map(col => item.response_data?.[col] ?? ''),
+            ]);
+
+            const csvContent = [
+                headers.map(this.escapeCSV).join(','),
+                ...rows.map(row => row.map(this.escapeCSV).join(',')),
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+
+            link.setAttribute('href', url);
+            link.setAttribute('download', `${group.form_type}_responses.csv`);
+            link.style.visibility = 'hidden';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        },
+        destroyCharts() {
+            if (this.responseChartInstance) {
+                this.responseChartInstance.destroy();
+                this.responseChartInstance = null;
+            }
+            if (this.totalsChartInstance) {
+                this.totalsChartInstance.destroy();
+                this.totalsChartInstance = null;
+            }
+        },
+        buildCharts() {
+            this.destroyCharts();
+
+            this.$nextTick(() => {
+                if (this.$refs.responseChartCanvas) {
+                    this.responseChartInstance = new Chart(this.$refs.responseChartCanvas, {
+                        type: 'pie',
+                        data: {
+                            labels: this.responseLabels,
+                            datasets: [
+                                {
+                                    label: 'Responses by Form Type',
+                                    data: this.responseValues,
+                                    backgroundColor: this.responseColors,
+                                },
+                            ],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false,
+                                    position: 'bottom',
+                                    labels: {
+                                        usePointStyle: true,
+                                        color: (ctx) => {
+                                            const index = ctx.dataIndex ?? 0;
+                                            return this.responseColors[index] || '#6b7280';
+                                        },
+                                    },
+                                },
                             },
                         },
-                    },
-                },
-            },
-        });
-    }
+                    });
+                }
 
-    if (totalsChartCanvas.value) {
-        totalsChartInstance = new Chart(totalsChartCanvas.value, {
-            type: 'bar',
-            data: {
-                labels: ['Registrations', 'Participants', 'Responses'],
-                datasets: [
-                    {
-                        label: 'Totals',
-                        data: [
-                            props.stats?.registrations_total || 0,
-                            props.stats?.participants_total || 0,
-                            props.stats?.responses_total || 0,
-                        ],
-                        backgroundColor: totalsColors,
-                        borderWidth: 0,
-                    },
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false,
-                    },
-                },
-                scales: {
-                    x: {
-                        grid: { display: false, drawBorder: false },
-                        ticks: {
-                            color: (ctx) => totalsColors[ctx.index] || '#6b7280',
+                if (this.$refs.totalsChartCanvas) {
+                    this.totalsChartInstance = new Chart(this.$refs.totalsChartCanvas, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Registrations', 'Participants', 'Responses'],
+                            datasets: [
+                                {
+                                    label: 'Totals',
+                                    data: [
+                                        this.stats?.registrations_total || 0,
+                                        this.stats?.participants_total || 0,
+                                        this.stats?.responses_total || 0,
+                                    ],
+                                    backgroundColor: this.totalsColors,
+                                    borderWidth: 0,
+                                },
+                            ],
                         },
-                        border: { display: false },
-                    },
-                    y: {
-                        grid: { display: false, drawBorder: false },
-                        ticks: { display: false },
-                        border: { display: false },
-                    },
-                },
-            },
-        });
-    }
-};
-
-onMounted(() => {
-    buildCharts();
-});
-
-watch(
-    () => props.stats,
-    () => {
-        buildCharts();
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false,
+                                },
+                            },
+                            scales: {
+                                x: {
+                                    grid: { display: false, drawBorder: false },
+                                    ticks: {
+                                        color: (ctx) => this.totalsColors[ctx.index] || '#6b7280',
+                                    },
+                                    border: { display: false },
+                                },
+                                y: {
+                                    grid: { display: false, drawBorder: false },
+                                    ticks: { display: false },
+                                    border: { display: false },
+                                },
+                            },
+                        },
+                    });
+                }
+            });
+        },
     },
-    { deep: true }
-);
+    watch: {
+        stats: {
+            handler() {
+                this.buildCharts();
+            },
+            deep: true,
+        },
+    },
+    mounted() {
+        this.buildCharts();
+    },
+    beforeUnmount() {
+        this.destroyCharts();
+    },
+};
 </script>
 
 <template>
@@ -323,6 +360,7 @@ watch(
                                 >
                                     {{ col.replace(/_/g, ' ') }}
                                 </th>
+                                <th class="px-4 py-2 text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -335,9 +373,21 @@ watch(
                                 >
                                     {{ formatValue(item.response_data?.[col]) }}
                                 </td>
+                                <td class="px-4 py-2 text-center">
+                                    <button
+                                        @click="openResponseModal(item, group.form_type)"
+                                        class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded transition-colors"
+                                        title="Edit this response"
+                                    >
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                        Edit
+                                    </button>
+                                </td>
                             </tr>
                             <tr v-if="!group.items.length">
-                                <td :colspan="2 + group.dataColumns.length" class="px-4 py-3 text-center text-gray-500 dark:text-gray-400">
+                                <td :colspan="3 + group.dataColumns.length" class="px-4 py-3 text-center text-gray-500 dark:text-gray-400">
                                     No responses available.
                                 </td>
                             </tr>
@@ -346,5 +396,20 @@ watch(
             </div>
             </div>
         </div>
+        
+        <!-- Response Edit Modal -->
+        <modal :show="showResponseModal" @close="closeResponseModal">
+            <div class="p-6 max-h-[90vh] overflow-y-auto">                
+                <component 
+                    v-if="selectedResponseType && getFormCardComponent(selectedResponseType)"
+                    :is="getFormCardComponent(selectedResponseType)"
+                    :responseData="selectedResponse"
+                    :eventId="eventId"
+                    :config="config"
+                    @updatedModel="onResponseUpdated"
+                    @createdModel="onResponseUpdated"
+                />
+            </div>
+        </modal>
     </div>
 </template>

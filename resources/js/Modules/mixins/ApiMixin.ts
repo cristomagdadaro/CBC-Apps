@@ -85,6 +85,7 @@ export default {
         async submitUpdate(toCast: boolean = false, except: string = '') {
             this.processing = true;
             this.form.clearErrors();
+            console.log(this.model);
             return await this.model.api.putIndex(this.form.data()).then(response => {
                 this.resetForm(except);
                 if (toCast) {
