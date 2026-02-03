@@ -71,9 +71,7 @@ const onTabClick = (tab) => {
                 <span>{{ tab.label }}</span>
             </button>
         </nav>
-
-        <!-- Optional content slot per tab -->
-        <div class="mt-4">
+        <div>
             <slot :active-key="activeKey" />
         </div>
     </div>

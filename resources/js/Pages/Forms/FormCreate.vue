@@ -54,7 +54,7 @@ export default {
         </template>
         <div class="flex justify-center gap-5 py-12">
             <div class="flex flex-col w-1/4">
-                <span>Event Form</span>
+                <span class="font-semibold text-gray-700">Event Details</span>
                 <form v-if="!!form" @submit.prevent="submitProxyCreate">
                     <div class="w-full mx-auto">
                         <div class="bg-white dark:bg-gray-800 overflow-hidden sm:rounded-lg">
@@ -116,7 +116,7 @@ export default {
                 </form>
             </div>
             <div class="flex flex-col w-fit">
-                <span>Preview</span>
+                <span class="font-semibold text-gray-700">Preview</span>
                 <guest-card :data="form" class="bg-white drop-shadow-lg"/>
             </div>
         </div>

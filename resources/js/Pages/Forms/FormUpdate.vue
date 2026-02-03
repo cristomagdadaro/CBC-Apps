@@ -18,6 +18,7 @@ import RequirementsManager from "@/Components/Forms/RequirementsManager.vue";
 import FormStyleDesigner from "@/Pages/Forms/components/FormStyleDesigner.vue";
 import FormUpdateDashboard from "@/Pages/Forms/components/FormUpdateDashboard.vue";
 import EventCertificates from "@/Pages/Forms/components/EventCertificates.vue";
+import GuestCard from "@/Pages/Forms/components/GuestCard.vue";
 
 export default {
     name: "FormUpdate",
@@ -51,11 +52,12 @@ export default {
         AddButton,
         AppLayout,
         ListOfForms,
+        GuestCard,
     },
     mixins: [ApiMixin],
     data() {
         return {
-            activeTab: "update",
+            activeTab: "dashboard",
         };
     },
     async beforeMount() {
@@ -93,96 +95,103 @@ export default {
                 ]"
             >
                 <template #default="{ activeKey }">
-                    <div v-if="activeKey === 'update'" class="mt-4">
-                        <form v-if="!!form" @submit.prevent="submitProxyUpdate" class="max-w-3xl min-w-xl w-full mx-auto">
-                            <div class="w-full flex flex-col gap-6">
-                                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg" :class="{ 'border border-red-600': form.hasErrors }">
-                                    <div class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100">
-                                        <div
-                                            class="flex flex-row w-full gap-3 bg-gray-200 p-2 rounded-md justify-between shadow py-4"
-                                        >
-                                            <div class="flex flex-col justify-center gap-1 w-full">
-                                                <text-input
-                                                    placeholder="Title"
-                                                    v-model="form.title"
-                                                    :error="form.errors.title"
-                                                />
-                                                <text-area
-                                                    placeholder="Form Description"
-                                                    v-model="form.description"
-                                                    :error="form.errors.description"
-                                                    class="text-xs"
-                                                />
+                    <div v-if="activeKey === 'update'" class="mt-4 flex justify-center gap-5">
+                        <div>
+                            <span class="font-semibold text-gray-700">Event Details</span>
+                            <form v-if="!!form" @submit.prevent="submitProxyUpdate" class="max-w-3xl min-w-xl w-full mx-auto">
+                                <div class="w-full flex flex-col gap-6">
+                                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg" :class="{ 'border border-red-600': form.hasErrors }">
+                                        <div class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100">
+                                            <div
+                                                class="flex flex-row w-full gap-3 bg-gray-200 p-2 rounded-md justify-between shadow py-4"
+                                            >
+                                                <div class="flex flex-col justify-center gap-1 w-full">
+                                                    <text-input
+                                                        placeholder="Title"
+                                                        v-model="form.title"
+                                                        :error="form.errors.title"
+                                                    />
+                                                    <text-area
+                                                        placeholder="Form Description"
+                                                        v-model="form.description"
+                                                        :error="form.errors.description"
+                                                        class="text-xs"
+                                                    />
+                                                </div>
+                                                <div class="flex flex-col items-center justify-center">
+                                                    <label class="text-3xl leading-none font-[1000]">
+                                                        {{ form.event_id }}
+                                                    </label>
+                                                    <span class="text-[0.6rem] leading-none select-none">Event ID</span>
+                                                </div>
                                             </div>
-                                            <div class="flex flex-col items-center justify-center">
-                                                <label class="text-3xl leading-none font-[1000]">
-                                                    {{ form.event_id }}
-                                                </label>
-                                                <span class="text-[0.6rem] leading-none select-none">Event ID</span>
+                                            <div class="grid grid-cols-2 grid-rows-2 px-1 gap-2">
+                                                <div>
+                                                    <span class="font-bold uppercase">Start Date: </span>
+                                                    <date-input v-model="form.date_from" :error="form.errors.date_from" />
+                                                </div>
+                                                <div>
+                                                    <span class="font-bold uppercase">End Date: </span>
+                                                    <date-input v-model="form.date_to" :error="form.errors.date_to" />
+                                                </div>
+                                                <div>
+                                                    <span class="font-bold uppercase">Start Time: </span>
+                                                    <time-input v-model="form.time_from" :error="form.errors.time_from" />
+                                                </div>
+                                                <div>
+                                                    <span class="font-bold uppercase">End Time: </span>
+                                                    <time-input v-model="form.time_to" :error="form.errors.time_to" />
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="grid grid-cols-2 grid-rows-2 px-1 gap-2">
-                                            <div>
-                                                <span class="font-bold uppercase">Start Date: </span>
-                                                <date-input v-model="form.date_from" :error="form.errors.date_from" />
+                                            <div class="px-1 flex flex-col gap-1">
+                                                <div>
+                                                    <span class="font-bold uppercase">Venue: </span>
+                                                    <text-input
+                                                        placeholder="Venue"
+                                                        v-model="form.venue"
+                                                        :error="form.errors.venue"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <span class="font-bold uppercase">Other details: </span>
+                                                    <text-area
+                                                        placeholder="Other details"
+                                                        v-model="form.details"
+                                                        class="w-full text-xs"
+                                                        :error="form.errors.details"
+                                                    />
+                                                </div>
                                             </div>
-                                            <div>
-                                                <span class="font-bold uppercase">End Date: </span>
-                                                <date-input v-model="form.date_to" :error="form.errors.date_to" />
-                                            </div>
-                                            <div>
-                                                <span class="font-bold uppercase">Start Time: </span>
-                                                <time-input v-model="form.time_from" :error="form.errors.time_from" />
-                                            </div>
-                                            <div>
-                                                <span class="font-bold uppercase">End Time: </span>
-                                                <time-input v-model="form.time_to" :error="form.errors.time_to" />
-                                            </div>
-                                        </div>
-                                        <div class="px-1 flex flex-col gap-1">
-                                            <div>
-                                                <span class="font-bold uppercase">Venue: </span>
-                                                <text-input
-                                                    placeholder="Venue"
-                                                    v-model="form.venue"
-                                                    :error="form.errors.venue"
-                                                />
-                                            </div>
-                                            <div>
-                                                <span class="font-bold uppercase">Other details: </span>
-                                                <text-area
-                                                    placeholder="Other details"
-                                                    v-model="form.details"
-                                                    class="w-full text-xs"
-                                                    :error="form.errors.details"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div class="px-1">
-                                            <requirements-manager v-model="form.requirements" :error="form.errors.requirements"/>
-                                        </div> 
-                                        <div class="px-1">
-                                            <form-style-designer v-model="form.style_tokens" :error="styleTokensError" />
-                                        </div>
-                                        <div class="flex flex-col p-2">
-                                            <div class="flex gap-1 justify-between">
-                                                <suspend-form-btn :data="form" />
-                                                <button
-                                                    class="bg-blue-200 text-blue-900 w-fit px-4 py-2 rounded flex items-center gap-1"
-                                                    title="Temporarily stop accepting responses"
-                                                >
-                                                    <loader-icon v-if="model.api.processing" />
-                                                    <span v-if="model.api.processing"> Updating </span>
-                                                    <span v-else> Update </span>
-                                                </button>
+                                            <div class="px-1">
+                                                <requirements-manager v-model="form.requirements" :error="form.errors.requirements"/>
+                                            </div> 
+                                            <div class="flex flex-col p-2">
+                                                <div class="flex gap-1 justify-between">
+                                                    <suspend-form-btn :data="form" />
+                                                    <button
+                                                        class="bg-blue-200 text-blue-900 w-fit px-4 py-2 rounded flex items-center gap-1"
+                                                        title="Temporarily stop accepting responses"
+                                                    >
+                                                        <loader-icon v-if="model.api.processing" />
+                                                        <span v-if="model.api.processing"> Updating </span>
+                                                        <span v-else> Update </span>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                            </form>
+                        </div>
+                        <div class="flex gap-5">
+                            <form-style-designer v-model="form.style_tokens" :error="styleTokensError" />
+                            <div class="flex flex-col w-fit">
+                                <span class="font-semibold text-gray-700">Preview</span>
+                                <guest-card :data="form" class="bg-white drop-shadow-lg"/>
                             </div>
-                        </form>
+                        </div>
                     </div>
-
+                    
                     <div v-else-if="activeKey === 'dashboard'" class="mt-4">
                         <form-update-dashboard
                             :stats="$page.props.eventStats"

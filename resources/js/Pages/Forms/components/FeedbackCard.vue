@@ -10,6 +10,7 @@ import InputError from "@/Components/InputError.vue";
 import Checkbox from "@/Components/Checkbox.vue";
 import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
+import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 
 export default {
     name: "FeedbackCard",
@@ -23,7 +24,7 @@ export default {
         Checkbox,
         TransitionContainer,
         SubmitBtn,
-    
+        CustomDropdown,
     },
     props: {
         responseData: {
@@ -122,8 +123,7 @@ export default {
 </script>
 
 <template>
-    <form v-if="form" @submit.prevent="handleSubmit()" class="py-4 select-none relative bg-white px-3 border-t border-gray-800 mt-3" :class="{'border border-red-600 rounded-md': form.hasErrors}">
-        <custom-dropdown v-if="!isEditMode" @selectedChange="form.participant_id = $event" :error="form.errors.participant_id" :value="form.participant_id" :options="participantsAsOptions" :withAllOption="false" placeholder="Select a recent registration" label="Answering as" class="mb-4"/>
+    <form v-if="form" @submit.prevent="handleSubmit()" class="py-4 select-none relative bg-white px-3 border-t" :class="{'border border-red-600 rounded-md': form.hasErrors}">
         <transition-container type="slide-top">
             <div v-show="showSuccess" class="absolute flex top-0 left-0 bg-AC w-full h-full z-50 text-white text-xl font-medium justify-center items-center rounded-b-md shadow">
                 <button @click.prevent="showSuccess = false" class="absolute top-0 right-0 p-2">
@@ -148,13 +148,13 @@ export default {
         <div class="pb-3 pt-1">
             <label class="text-red-600 uppercase justify-center flex">{{ form.errors.suspended || form.errors.full || form.errors.expired }}</label>
             <h3 class="text-lg leading-tight uppercase font-extrabold">
-                {{ isEditMode ? 'Update Feedback' : 'Activity Feedback Form' }}
+                {{ isEditMode ? 'Update Feedback' : 'Post Activity Feedback Form' }}
             </h3>
             <p class="text-xs leading-none">
                 Kindly provide the required and honest feedback. Fields marked with <span class="text-red-600">*</span> are required.
             </p>
         </div>
-
+        <custom-dropdown v-if="!isEditMode" @selectedChange="form.participant_id = $event" :error="form.errors.participant_id" :value="form.participant_id" :options="participantsAsOptions" :withAllOption="false" placeholder="Select a recent registration" label="Answering as" class="mb-4"/>
         <div class="mb-4">
             <ProgressTabs :steps="steps" v-model:current="currentStep" :clickable="false" />
         </div>
