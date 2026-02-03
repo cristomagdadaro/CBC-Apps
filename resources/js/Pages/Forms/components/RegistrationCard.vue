@@ -11,6 +11,10 @@ export default {
             type: Object,
             default: null,
         },
+        participantId: {
+            type: String,
+            default: null,
+        },
     },
     computed: {
         isEditMode() {
@@ -45,6 +49,9 @@ export default {
             this.form.response_data.event_id = this.config?.event_id ?? this.eventId;
         }
         this.form.subform_type = 'registration';
+        if (this.participantId) {
+            this.form.participant_id = this.participantId;
+        }
     },
 }
 </script>

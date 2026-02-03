@@ -8,7 +8,6 @@ import AddIcon from "@/Components/Icons/AddIcon.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
-import PersonnelHeaderActions from "@/Pages/Inventory/Personnel/components/PersonnelHeaderActions.vue";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import TextInput from "@/Components/TextInput.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
@@ -19,15 +18,18 @@ import TextArea from "@/Components/TextArea.vue";
 import DateInput from "@/Components/DateInput.vue";
 import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/TransactionReportAccordion.vue";
 import AuditInfoCard from "@/Components/AuditInfoCard.vue";
+import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
+
 export default {
     name: "IngoingUpdateForm",
     components: {
         AuditInfoCard,
         TextArea,
         TransactionReportAccordion,
-        ResetBtn, AppLayout, TextInput, SubmitBtn, PersonnelHeaderActions, DateInput,
+        ResetBtn, AppLayout, TextInput, SubmitBtn, DateInput,
         LoaderIcon,
         PrimaryButton,
+        TransactionHeaderAction,
         SecondaryButton,Link, AddIcon, FilterIcon, CustomDropdown, Head},
     props: {
         attachedReports: {
@@ -143,9 +145,7 @@ export default {
 <template>
     <AppLayout title="Update Transaction Details">
         <template #header>
-            <Link :href="route('transactions.index')" class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                Incoming Transaction Update
-            </Link>
+            <TransactionHeaderAction />
         </template>
         <form v-if="!!form" @submit.prevent="submitUpdate" class="py-12 max-w-xl mx-auto">
             <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">

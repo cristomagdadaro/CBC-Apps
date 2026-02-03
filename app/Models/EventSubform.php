@@ -31,9 +31,16 @@ class EventSubform extends BaseModel
         'id',
         'event_id',
         'form_type',
+        'step_type',
+        'step_order',
+        'is_enabled',
+        'open_from',
+        'open_to',
         'is_required',
         'max_slots',
         'config',
+        'visibility_rules',
+        'completion_rules',
     ];
 
     protected $casts = [
@@ -41,6 +48,11 @@ class EventSubform extends BaseModel
         'is_required' => 'boolean',
         'max_slots' => 'integer',
         'config' => 'array',
+        'is_enabled' => 'boolean',
+        'open_from' => 'datetime',
+        'open_to' => 'datetime',
+        'visibility_rules' => 'array',
+        'completion_rules' => 'array',
     ];
 
     protected array $searchable = [
@@ -62,11 +74,14 @@ class EventSubform extends BaseModel
     {
         $now = Carbon::now();
 
-        if ($this->open_from && $now->lt($this->open_from)) {
+        $openFrom = $this->open_from ?? data_get($this->config, 'open_from');
+        $openTo = $this->open_to ?? data_get($this->config, 'open_to');
+
+        if ($openFrom && $now->lt(Carbon::parse($openFrom))) {
             return false;
         }
 
-        if ($this->open_to && $now->gt($this->open_to)) {
+        if ($openTo && $now->gt(Carbon::parse($openTo))) {
             return false;
         }
 

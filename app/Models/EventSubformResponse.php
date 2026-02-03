@@ -31,11 +31,15 @@ class EventSubformResponse extends Model
         'participant_id', //registrations -> id
         'subform_type',  // preregistration, feedback, etc.
         'response_data', // JSON or text data
+        'status',
+        'completion_hash',
+        'submitted_at',
     ];
 
     protected $casts = [
         'id' => 'string',
         'response_data' => 'array',
+        'submitted_at' => 'datetime',
     ];
 
     public function formParent()

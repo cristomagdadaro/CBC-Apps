@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('event_id', 4)->index();
             $table->string('form_type');
             $table->boolean('is_required')->default(true);
-            $table->integer('max_slots')->nullable()->after('is_required');
+            $table->integer('max_slots')->nullable();
             $table->json('config')->nullable();
             $table->timestamps();
 

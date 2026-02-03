@@ -20,10 +20,15 @@ class RegistrationFactory extends Factory
      */
     public function definition(): array
     {
+        $eventSubformId = EventSubform::query()->inRandomOrder()->value('id')
+            ?? EventSubform::factory()->create()->id;
+        $participantId = Participant::query()->inRandomOrder()->value('id')
+            ?? Participant::factory()->create()->id;
+
         return [
             'id' => $this->faker->uuid(),
-            'event_subform_id' => EventSubform::inRandomOrder()->first()->id,
-            'participant_id' => Participant::inRandomOrder()->first()->id,
+            'event_subform_id' => $eventSubformId,
+            'participant_id' => $participantId,
             'attendance_type' => $this->faker->randomElement(['Online', 'In-Person']),
         ];
     }

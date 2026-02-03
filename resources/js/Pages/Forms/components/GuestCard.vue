@@ -9,11 +9,13 @@ import RegistrationCard from "@/Pages/Forms/components/RegistrationCard.vue";
 import FeedbackCard from "@/Pages/Forms/components/FeedbackCard.vue";
 import TabNavigation from "@/Components/TabNavigation.vue";
 import { mergeFormStyleTokens } from "@/Modules/shared/formStyleTokens";
+import ApiMixin from "@/Modules/mixins/ApiMixin";
+import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 
 export default {
     name: "GuestCard",
     components: {TabNavigation, FeedbackCard, RegistrationCard, InputError, InputLabel, TextInput, PreregistrationCard, PreregistrationQuizBeeCard},
-    mixins: [DataFormatterMixin],
+    mixins: [ApiMixin, FormLocalMixin, DataFormatterMixin],
     props: {
         data: {
             type: Object,
@@ -27,21 +29,45 @@ export default {
             activeTab: null,
             // referenced in beforeDestroy when clearing the interval
             intervalId: null,
+            workflowState: null,
+            workflowLoading: false,
+            workflowError: null,
+            selectedParticipantHash: null,
         };
     },
     computed: {
         resolvedStyleTokens() {
             return mergeFormStyleTokens(this.data?.style_tokens);
         },
-        currentRequirement() {
-            const map = {
-                preregistration: 'preregistration',
-                preregistration_quiz: 'preregistration_biotech',
-                registration: 'registration',
-                feedback: 'feedback',
+        workflowSteps() {
+            return this.workflowState?.steps || [];
+        },
+        workflowTabs() {
+            const labelMap = {
+                preregistration: 'Pre-Registration',
+                preregistration_biotech: 'Pre-Registration + Quiz Bee',
+                registration: 'Registration',
+                pre_test: 'Pre-test',
+                post_test: 'Post-test',
+                feedback: 'Feedback',
             };
 
-            const formType = map[this.activeTab];
+            return this.workflowSteps
+                .filter((step) => step.status !== 'hidden')
+                .map((step) => ({
+                    key: step.form_type,
+                    label: labelMap[step.form_type] ?? step.form_type,
+                    disabled: step.status !== 'available',
+                }));
+        },
+        activeStep() {
+            return this.workflowSteps.find((step) => step.form_type === this.activeTab) || null;
+        },
+        currentRequirement() {
+            if (this.activeStep) {
+                return this.activeStep;
+            }
+            const formType = this.activeTab;
             return formType ? this.whatForm(formType) : null;
         },
         currentMaxSlots() {
@@ -63,36 +89,74 @@ export default {
     },
     mounted() {
         this.startCountdown();
-        // Set default active tab to first available open form to avoid null in TabNavigation
-        if (this.activeTab === null) {
-            if (this.isFormOpen(this.whatForm('preregistration'))) {
-                this.activeTab = 'preregistration';
-            } else if (this.isFormOpen(this.whatForm('preregistration_biotech'))) {
-                this.activeTab = 'preregistration_quiz';
-            } else if (this.isFormOpen(this.whatForm('registration'))) {
-                this.activeTab = 'registration';
-            } else if (this.isFormOpen(this.whatForm('feedback'))) {
-                this.activeTab = 'feedback';
-            }
-        }
+        this.selectedParticipantHash = this.participantHashes?.slice(-1)?.[0] ?? null;
+        this.loadWorkflow();
+    },
+    watch: {
+        participantHashes: {
+            handler(newHashes) {
+                const latest = newHashes?.slice(-1)?.[0] ?? null;
+                if (latest && latest !== this.selectedParticipantHash) {
+                    this.selectedParticipantHash = latest;
+                    this.loadWorkflow();
+                }
+            },
+        },
     },
     beforeDestroy() {
         clearInterval(this.intervalId);
     },
     methods: {
+        async loadWorkflow() {
+            if (!this.data?.event_id) {
+                return;
+            }
+
+            this.workflowLoading = true;
+            this.workflowError = null;
+
+            try {
+                const response = await this.fetchGetApi('api.event.workflow.state.guest', {
+                    routeParams: this.data.event_id,
+                    participant_id: this.selectedParticipantHash,
+                });    console.log(response.data);
+                this.workflowState = response?.data ?? null;
+                this.setActiveTabFromWorkflow();
+            } catch (error) {
+                this.workflowError = 'Unable to load workflow state.';
+            } finally {
+                this.workflowLoading = false;
+            }
+        },
+        handleCreatedModel(payload) {
+            this.$emit('createdModel', payload);
+            this.loadWorkflow();
+        },
+        setActiveTabFromWorkflow() {
+            if (!this.workflowSteps?.length) {
+                return;
+            }
+
+            const available = this.workflowSteps.find((step) => step.status === 'available');
+            this.activeTab = available?.form_type ?? this.workflowSteps[0]?.form_type ?? null;
+        },
         whatForm(formType) {
             if (!this.data || !Array.isArray(this.data.requirements) || this.data.requirements.length <= 0) return null;
             return this.data.requirements.find((requirement) => requirement.form_type === formType) || null;
         },
+        getStep(formType) {
+            return this.workflowSteps.find((step) => step.form_type === formType) || null;
+        },
         getRequirementFormId(formType) {
-            const form = this.whatForm(formType);
-            return form ? form.id : null;
+            const step = this.getStep(formType) ?? this.whatForm(formType);
+            return step ? step.id : null;
         },
         isFormOpen(form) {
-            if (!form || !form.config) {
+            if (!form) {
                 return false;
             }
-            const { open_from, open_to } = form.config;
+            const open_from = form.open_from ?? form.config?.open_from;
+            const open_to = form.open_to ?? form.config?.open_to;
             if (!open_from || !open_to) {
                 return false;
             }
@@ -128,13 +192,32 @@ export default {
             return {};
         },
         isFormFull(formType) {
-            const form = this.whatForm(formType);
+            const form = this.getStep(formType) ?? this.whatForm(formType);
             if (!form) return false;
             
             const maxSlots = form?.max_slots ?? this.data?.max_slots ?? null;
             const responsesCount = form?.responses_count ?? 0;
             
             return !!maxSlots && maxSlots > 0 && responsesCount >= maxSlots;
+        },
+        getStepMessage(step) {
+            if (!step) {
+                return 'This step is not available.';
+            }
+            switch (step.status) {
+                case 'locked':
+                    return 'Complete the previous step to continue.';
+                case 'expired':
+                    return 'This step is outside the allowed time window.';
+                case 'full':
+                    return 'Maximum number of responses reached.';
+                case 'disabled':
+                    return 'This step is currently disabled by the admin.';
+                case 'hidden':
+                    return 'This step is not available.';
+                default:
+                    return null;
+            }
         },
     }
 }
@@ -189,7 +272,7 @@ export default {
             </div>
             <div>
                 <span class="font-bold uppercase">Slots Available: </span>
-                <span v-if="isFormFull(activeTab === 'preregistration' ? 'preregistration' : activeTab === 'preregistration_quiz' ? 'preregistration_biotech' : activeTab === 'registration' ? 'registration' : 'feedback')" class="text-red-600">FULL</span>
+                <span v-if="isFormFull(activeTab)" class="text-red-600">FULL</span>
                 <label v-else>{{ slotsAvailable }}</label>
             </div>
         </div>
@@ -202,80 +285,77 @@ export default {
             <span class="leading-none text-xs text-center">unable to accept registration</span>
         </div>
         <div v-else class="flex flex-col gap-1">
+            <div v-if="participantHashes?.length" class="flex items-center gap-2 px-2 py-2 bg-white rounded-md border">
+                <label class="text-xs font-semibold text-gray-500 uppercase">Continue as</label>
+                <select v-model="selectedParticipantHash" @change="loadWorkflow" class="text-sm border-gray-300 rounded-md">
+                    <option :value="null">New participant</option>
+                    <option v-for="hash in participantHashes" :key="hash" :value="hash">
+                        {{ hash }}
+                    </option>
+                </select>
+            </div>
+            <div v-if="workflowLoading" class="text-sm text-gray-500 px-2">Loading workflow...</div>
+            <div v-if="workflowError" class="text-sm text-red-600 px-2">{{ workflowError }}</div>
+
             <TabNavigation
+                v-if="workflowTabs.length"
                 v-model="activeTab"
-                :tabs="[
-                    isFormOpen(whatForm('preregistration')) ? { key: 'preregistration', label: 'Pre-Registration' } : null,
-                    isFormOpen(whatForm('preregistration_biotech')) ? { key: 'preregistration_quiz', label: 'Pre-Registration + Quiz Bee' } : null,
-                    isFormOpen(whatForm('registration')) ? { key: 'registration', label: 'Registration' } : null,
-                    isFormOpen(whatForm('feedback')) ? { key: 'feedback', label: 'Feedback' } : null,
-                ].filter(Boolean)"
+                :tabs="workflowTabs"
             >
                 <template #default="{ activeKey }">
                     <div v-if="activeKey === 'preregistration'">
-                        <!-- Pre-registration -->
                         <preregistration-card
-                            v-if="isFormOpen(whatForm('preregistration')) && !isFormFull('preregistration')"
+                            v-if="activeStep?.status === 'available'"
                             :event-id="getRequirementFormId('preregistration')"
-                            :config="whatForm('preregistration')"
-                            @createdModel="$emit('createdModel', $event)"
+                            :config="getStep('preregistration')"
+                            @createdModel="handleCreatedModel"
                         />
-                        <h3 v-else-if="whatForm('preregistration') && whatForm('preregistration').config && !isFormFull('preregistration')" class="bg-AB text-white p-3 rounded-md shadow leading-none">
-                            Pre-registration will open on
-                            <b>{{ formatDateTime(whatForm('preregistration').config.open_from) }}</b>
-                        </h3>
-                        <div v-else-if="isFormFull('preregistration')" class="text-center bg-orange-500 text-white py-5 rounded-b">
-                            Maximum Number of Pre-Registrations Reached!
+                        <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                            {{ getStepMessage(getStep('preregistration')) }}
                         </div>
                     </div>
 
-                    <div v-if="activeKey === 'preregistration_quiz'">
+                    <div v-if="activeKey === 'preregistration_biotech'">
                         <preregistration-quiz-bee-card
-                            v-if="isFormOpen(whatForm('preregistration_biotech')) && !isFormFull('preregistration_biotech')"
+                            v-if="activeStep?.status === 'available'"
                             :event-id="getRequirementFormId('preregistration_biotech')"
-                            :config="whatForm('preregistration_biotech')"
-                            @createdModel="$emit('createdModel', $event)"
+                            :config="getStep('preregistration_biotech')"
+                            @createdModel="handleCreatedModel"
                         />
-                        <h3 v-else-if="whatForm('preregistration_biotech') && whatForm('preregistration_biotech').config && !isFormFull('preregistration_biotech')" class="bg-AB text-white p-3 rounded-md shadow leading-none">
-                            Quiz Bee Pre-registration will open on
-                            <b>{{ formatDateTime(whatForm('preregistration_biotech').config.open_from) }}</b>
-                        </h3>
-                        <div v-else-if="isFormFull('preregistration_biotech')" class="text-center bg-orange-500 text-white py-5 rounded-b">
-                            Maximum Number of Quiz Bee Pre-Registrations Reached!
+                        <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                            {{ getStepMessage(getStep('preregistration_biotech')) }}
                         </div>
                     </div>
 
                     <div v-if="activeKey === 'registration'">
-                        <!-- Registration -->
                         <registration-card
-                            v-if="isFormOpen(whatForm('registration')) && !isFormFull('registration')"
+                            v-if="activeStep?.status === 'available'"
                             :event-id="getRequirementFormId('registration')"
-                            :config="whatForm('registration')"
-                            @createdModel="$emit('createdModel', $event)"
+                            :participant-id="selectedParticipantHash"
+                            :config="getStep('registration')"
+                            @createdModel="handleCreatedModel"
                         />
-                        <h3 v-else-if="whatForm('registration') && whatForm('registration').config && !isFormFull('registration')" class="bg-AB text-white p-3 rounded-md shadow leading-none">
-                            Registration will open on
-                            <b>{{ formatDateTime(whatForm('registration').config.open_from) }}</b>
-                        </h3>
-                        <div v-else-if="isFormFull('registration')" class="text-center bg-orange-500 text-white py-5 rounded-b">
-                            Maximum Number of Registrations Reached!
+                        <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                            {{ getStepMessage(getStep('registration')) }}
                         </div>
                     </div>
 
                     <div v-if="activeKey === 'feedback'">
-                        <!-- Feedback / Evaluation -->
                         <feedback-card
-                            v-if="isFormOpen(whatForm('feedback')) && !isFormFull('feedback')"
+                            v-if="activeStep?.status === 'available'"
                             :event-id="getRequirementFormId('feedback')"
-                            :config="whatForm('feedback')"
-                            @createdModel="$emit('createdModel', $event)"
+                            :participant-id="selectedParticipantHash"
+                            :config="getStep('feedback')"
+                            @createdModel="handleCreatedModel"
                         />
-                        <h3 v-else-if="whatForm('feedback') && whatForm('feedback').config && !isFormFull('feedback')" class="bg-AB text-white p-3 rounded-md shadow leading-none">
-                            Evaluation Form will be open on
-                            <b>{{ formatDateTime(whatForm('feedback').config.open_from) }}</b>
-                        </h3>
-                        <div v-else-if="isFormFull('feedback')" class="text-center bg-orange-500 text-white py-5 rounded-b">
-                            Maximum Number of Feedback Responses Reached!
+                        <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                            {{ getStepMessage(getStep('feedback')) }}
+                        </div>
+                    </div>
+
+                    <div v-if="['preregistration', 'preregistration_biotech', 'registration', 'feedback'].indexOf(activeKey) === -1">
+                        <div class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                            This step type is not yet supported in the guest UI.
                         </div>
                     </div>
                 </template>

@@ -6,6 +6,7 @@ use App\Http\Requests\FormScanRequest;
 use App\Models\EventSubform;
 use App\Models\EventScanLog;
 use App\Models\EventSubformResponse;
+use App\Models\ParticipantStepState;
 use App\Models\Registration;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -33,13 +34,13 @@ class FormScanController extends Controller
             $scanType,
             $terminalId,
             $payloadHash,
-            $now,
+            $signature,
+            $payloadVersion,
+            $payload,
             $parsed,
             $registrationId,
             $payloadEventId,
-            $signature,
-            $payloadVersion,
-            $payload
+            $now
         ) {
             $status = 'invalid';
             $message = 'Invalid QR payload.';
@@ -315,11 +316,32 @@ class FormScanController extends Controller
         $missing = [];
 
         foreach ($required as $requirement) {
-            $exists = EventSubformResponse::where('form_parent_id', $requirement->id)
+            $completed = ParticipantStepState::where('event_subform_id', $requirement->id)
                 ->where('participant_id', $registrationId)
+                ->where('status', ParticipantStepState::STATUS_COMPLETED)
                 ->exists();
 
-            if (!$exists) {
+            if (!$completed) {
+                $legacy = EventSubformResponse::where('form_parent_id', $requirement->id)
+                    ->where('participant_id', $registrationId)
+                    ->exists();
+
+                if ($legacy) {
+                    ParticipantStepState::updateOrCreate(
+                        [
+                            'event_id' => $eventId,
+                            'participant_id' => $registrationId,
+                            'event_subform_id' => $requirement->id,
+                        ],
+                        [
+                            'status' => ParticipantStepState::STATUS_COMPLETED,
+                            'completed_at' => now(),
+                            'meta' => ['source' => 'legacy-scan'],
+                        ]
+                    );
+                    continue;
+                }
+
                 $missing[] = $requirement->form_type;
             }
         }

@@ -91,9 +91,16 @@ class FormController extends BaseController
         $validated = $request->validate([
             'requirements' => ['array'],
             'requirements.*.form_type' => ['required', 'string'],
+            'requirements.*.step_type' => ['nullable', 'string'],
+            'requirements.*.step_order' => ['nullable', 'integer', 'min:1'],
+            'requirements.*.is_enabled' => ['boolean'],
+            'requirements.*.open_from' => ['nullable', 'date'],
+            'requirements.*.open_to' => ['nullable', 'date', 'after_or_equal:requirements.*.open_from'],
             'requirements.*.is_required' => ['boolean'],
             'requirements.*.max_slots' => ['nullable', 'integer', 'min:0'],
             'requirements.*.config' => ['array'],
+            'requirements.*.visibility_rules' => ['nullable', 'array'],
+            'requirements.*.completion_rules' => ['nullable', 'array'],
         ]);
 
         $requirements = $validated['requirements'] ?? [];

@@ -31,6 +31,10 @@ export default {
             type: Object,
             default: null,
         },
+        participantId: {
+            type: String,
+            default: null,
+        },
     },
     data() {
         return {
@@ -110,6 +114,9 @@ export default {
             this.form.response_data.event_id = this.config?.event_id ?? this.eventId;
         }
         this.form.subform_type = 'feedback';
+        if (this.participantId) {
+            this.form.participant_id = this.participantId;
+        }
     },
     watch: {
         'form.response_data.agreed_tc': {

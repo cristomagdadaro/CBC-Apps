@@ -25,6 +25,16 @@ export default {
     },
     methods: {
         saveLocalHashedIds(response) {
+            const hash = response?.participant_hash;
+            if (!hash) {
+                return;
+            }
+
+            const exists = this.localHashedIds.some((item) => item?.participant_hash === hash);
+            if (exists) {
+                return;
+            }
+
             this.localHashedIds.push(response);
 
             // Ensure the array does not exceed 6 items

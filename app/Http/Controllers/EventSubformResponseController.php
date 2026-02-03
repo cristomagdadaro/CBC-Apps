@@ -7,6 +7,7 @@ use App\Http\Requests\GetEventSubformRequest;
 use App\Http\Requests\UpdateEventSubformResponseRequest;
 use App\Models\EventSubform;
 use App\Repositories\EventSubformResponseRepo;
+use App\Services\EventWorkflowService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -45,22 +46,27 @@ class EventSubformResponseController extends BaseController
         ], 200);
     }
 
-    public function create(CreateEventSubformResponseRequest $request)
+    public function create(CreateEventSubformResponseRequest $request, EventWorkflowService $workflow)
     {
         $validated = $request->validated();
 
         $requirement = EventSubform::select(['id', 'event_id'])->find($validated['form_parent_id']);
 
-        $result = $this->repo()->createWithOptionalParticipant($validated);
+        $result = $workflow->submit($validated);
+
+        $statusCode = $result['status'] === 'duplicate' ? 200 : 201;
+
+        $participantHash = $result['registration']?->id ?? ($validated['participant_id'] ?? null);
 
         return response()->json([
             'status' => 'success',
-            'participant_hash' => $result['registration']?->id,
+            'workflow_status' => $result['status'],
+            'participant_hash' => $participantHash,
             'participant' => $result['participant'],
             'event_id' => $requirement?->event_id ?? $validated['form_parent_id'],
             'requirement_id' => $validated['form_parent_id'],
             'data' => $result['subformResponse'],
-        ], 201);
+        ], $statusCode);
     }
 
     public function update(UpdateEventSubformResponseRequest $request, string $event_id): JsonResponse

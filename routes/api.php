@@ -3,6 +3,7 @@
 use App\Http\Controllers\EventSubformController;
 use App\Http\Controllers\EventCertificateController;
 use App\Http\Controllers\EventSubformResponseController;
+use App\Http\Controllers\EventWorkflowController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\FormScanController;
 use App\Http\Controllers\ItemController;
@@ -56,6 +57,7 @@ Route::prefix('guest')->group(function () {
     Route::get('/transactions-public', [TransactionController::class, 'index'])->name('api.inventory.transactions.index.public');
     Route::post('/outgoing', [TransactionController::class, 'outgoingStockStore'])->name('api.inventory.transactions.store.public');
     Route::get('/remaining-stocks', [TransactionController::class, 'remainingStocks'])->name('api.inventory.transactions.remaining-stocks');
+    Route::get('/forms/event/{event_id}/workflow', [EventWorkflowController::class, 'state'])->name('api.event.workflow.state.guest');
     Route::middleware(['check.form.suspended','check.form.expired','check.form.maxslot'])->post('/forms/event', [EventSubformResponseController::class, 'create'])->name('api.subform.response.store');
 });
 
@@ -71,6 +73,7 @@ Route::middleware(env('APP_ENV') === 'production' ? ['api', 'auth:sanctum'] : ['
             Route::delete('/delete/{event_id?}', [FormController::class, 'delete'])->name('api.form.delete');
             Route::middleware(['check.form.suspended'])->put('/update/{event_id?}', action: [FormController::class, 'update'])->name('api.form.put');
             Route::get('/responses/{event_id?}', [EventSubformResponseController::class, 'index'])->name('api.subform.response.index');
+            Route::get('/workflow/{event_id}', [EventWorkflowController::class, 'state'])->name('api.event.workflow.state');
             Route::put('/responses/{event_id?}', [EventSubformResponseController::class, 'update'])->name('api.subform.response.put');
             Route::delete('/responses/{response_id}', [EventSubformResponseController::class, 'delete'])->name('api.subform.response.delete');
             Route::get('/requirements/{event_id?}', [EventSubformController::class, 'index'])->name('api.subform.requirement.index');

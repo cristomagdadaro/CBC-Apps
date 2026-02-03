@@ -32,7 +32,6 @@ class CreateEventSubformResponseRequest extends FormRequest
 
         $participantExempt = [
             Subform::PREREGISTRATION->value,
-            Subform::REGISTRATION->value,
             Subform::PREREGISTRATION_BIOTECH->value,
         ];
         
@@ -44,11 +43,6 @@ class CreateEventSubformResponseRequest extends FormRequest
                 'nullable',
                 'uuid',
                 'exists:registrations,id',
-                Rule::unique('event_subform_responses')
-                    ->where(fn ($q) =>
-                        $q->where('form_parent_id', $this->form_parent_id)
-                        ->where('subform_type', $this->subform_type)
-                    ),
             ],
             'response_data' => ['required', 'array'],
         ];

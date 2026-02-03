@@ -29,7 +29,10 @@ class FormRepo extends AbstractRepoService
             ->where('event_id', $eventId)
             ->withCount('participants')
             ->with(['requirements' => function ($query) {
-                $query->withCount('responses');
+                $query->withCount('responses')
+                    ->orderByRaw('CASE WHEN step_order IS NULL THEN 1 ELSE 0 END')
+                    ->orderBy('step_order')
+                    ->orderBy('created_at');
             }])
             ->first();
 
@@ -80,7 +83,10 @@ class FormRepo extends AbstractRepoService
             ->newQuery()
             ->where('event_id', $eventId)
             ->with(['requirements' => function ($query) {
-                $query->withCount('responses');
+                $query->withCount('responses')
+                    ->orderByRaw('CASE WHEN step_order IS NULL THEN 1 ELSE 0 END')
+                    ->orderBy('step_order')
+                    ->orderBy('created_at');
             }])
             ->first();
     }
@@ -131,7 +137,7 @@ class FormRepo extends AbstractRepoService
             EventSubform::where('event_id', $form->event_id)->delete();
         }
 
-        foreach ($requirements as $req) {
+        foreach ($requirements as $index => $req) {
             $subform = EventSubform::withTrashed()->firstOrNew([
                 'event_id' => $form->event_id,
                 'form_type' => $req['form_type'], // use form_type as unique key
@@ -142,9 +148,16 @@ class FormRepo extends AbstractRepoService
             }
 
             $subform->fill([
+                'step_type' => $req['step_type'] ?? $req['form_type'],
+                'step_order' => $req['step_order'] ?? ($index + 1),
+                'is_enabled' => $req['is_enabled'] ?? true,
+                'open_from' => $req['open_from'] ?? null,
+                'open_to' => $req['open_to'] ?? null,
                 'is_required' => $req['is_required'] ?? true,
                 'max_slots' => array_key_exists('max_slots', $req) ? $req['max_slots'] : null,
                 'config' => $req['config'] ?? [],
+                'visibility_rules' => $req['visibility_rules'] ?? null,
+                'completion_rules' => $req['completion_rules'] ?? null,
             ]);
 
             $subform->save();
