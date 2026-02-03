@@ -123,7 +123,7 @@ export default {
 </script>
 
 <template>
-    <form v-if="form" @submit.prevent="handleSubmit()" class="py-4 select-none relative bg-white px-3 border-t" :class="{'border border-red-600 rounded-md': form.hasErrors}">
+    <form v-if="form" @submit.prevent="handleSubmit()" class="py-3 select-none relative bg-white px-3 border-t" :class="{'border border-red-600 rounded-md': form.hasErrors}">
         <transition-container type="slide-top">
             <div v-show="showSuccess" class="absolute flex top-0 left-0 bg-AC w-full h-full z-50 text-white text-xl font-medium justify-center items-center rounded-b-md shadow">
                 <button @click.prevent="showSuccess = false" class="absolute top-0 right-0 p-2">
