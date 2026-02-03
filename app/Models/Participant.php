@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Traits\Auditable;
 
 class Participant extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, Auditable;
 
     protected $table = 'participants';
     public $incrementing = false;

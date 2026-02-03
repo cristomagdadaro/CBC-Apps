@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
+use App\Traits\Auditable;
 
 class EventCertificateTemplate extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, Auditable;
 
     protected $table = 'event_certificate_templates';
 
