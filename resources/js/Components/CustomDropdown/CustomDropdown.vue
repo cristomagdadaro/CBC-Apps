@@ -122,15 +122,47 @@ export default {
     watch: {
         'options': {
             handler(){
+                // If value is given, move the selected option to the top
+                if (this.value !== undefined && this.value !== null) {
+                    const selectedOption = this.options.find(option => option.name === this.value);
+                    if (selectedOption) {
+                        this.selected = selectedOption;
+                        this.filteredOptions = [selectedOption, ...this.options.filter(option => option.name !== this.value)];
+                        return;
+                    }
+                }
+                this.selected = this.options.find(option => option.selected) || null;
                 this.filteredOptions = this.options;
             },
             deep: true,
         },
+        'value': {
+            handler(newVal) {
+                if (newVal !== undefined && newVal !== null) {
+                    const selectedOption = this.options.find(option => option.name === newVal);
+                    if (selectedOption) {
+                        this.selected = selectedOption;
+                        this.filteredOptions = [selectedOption, ...this.options.filter(option => option.name !== newVal)];
+                        return;
+                    }
+                }
+                this.selected = this.options.find(option => option.selected) || null;
+                this.filteredOptions = this.options;
+            },
+            immediate: true
+        },
     },
     mounted() {
         if (!this.options) return;
-        this.selected = this.options.find(option => option.selected);
-        this.selectByValue(this.value, true);
+        if (this.value !== undefined && this.value !== null) {
+            const selectedOption = this.options.find(option => option.name === this.value);
+            if (selectedOption) {
+                this.selected = selectedOption;
+                this.filteredOptions = [selectedOption, ...this.options.filter(option => option.name !== this.value)];
+                return;
+            }
+        }
+        this.selected = this.options.find(option => option.selected) || null;
         this.filteredOptions = this.options;
     }
 }

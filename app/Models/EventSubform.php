@@ -49,8 +49,8 @@ class EventSubform extends BaseModel
         'max_slots' => 'integer',
         'config' => 'array',
         'is_enabled' => 'boolean',
-        'open_from' => 'datetime',
-        'open_to' => 'datetime',
+        'open_from' => 'datetime:Y-m-d H:i:s',
+        'open_to' => 'datetime:Y-m-d H:i:s',
         'visibility_rules' => 'array',
         'completion_rules' => 'array',
     ];

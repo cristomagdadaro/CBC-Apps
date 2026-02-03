@@ -197,6 +197,14 @@ class EventWorkflowService
             return ParticipantStepState::STATUS_COMPLETED;
         }
 
+        if ($this->isBeforeOpenFrom($step)) {
+            return ParticipantStepState::STATUS_NOT_YET_OPEN;
+        }
+
+        if ($this->isAfterOpenTo($step)) {
+            return ParticipantStepState::STATUS_EXPIRED;
+        }
+
         if (!$step->isOpen()) {
             return ParticipantStepState::STATUS_EXPIRED;
         }
@@ -258,6 +266,8 @@ class EventWorkflowService
 
         $legacy = EventSubformResponse::query()
             ->where('form_parent_id', $step->id)
+            ->where('subform_type', $step->form_type)
+            ->where('status', 'submitted')
             ->where('participant_id', $participantId)
             ->first();
 
@@ -325,6 +335,26 @@ class EventWorkflowService
     {
         $openTo = $step->open_to ?? data_get($step->config, 'open_to');
         return $openTo ? Carbon::parse($openTo)->toDateTimeString() : null;
+    }
+
+    protected function isBeforeOpenFrom(EventSubform $step): bool
+    {
+        $openFrom = $step->open_from ?? data_get($step->config, 'open_from');
+        if (!$openFrom) {
+            return false;
+        }
+
+        return now()->lt(Carbon::parse($openFrom));
+    }
+
+    protected function isAfterOpenTo(EventSubform $step): bool
+    {
+        $openTo = $step->open_to ?? data_get($step->config, 'open_to');
+        if (!$openTo) {
+            return false;
+        }
+
+        return now()->gt(Carbon::parse($openTo));
     }
 
     protected function buildCompletionHash(string $participantId, string $stepId, array $payload): string

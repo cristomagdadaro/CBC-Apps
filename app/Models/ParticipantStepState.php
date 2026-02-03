@@ -32,6 +32,7 @@ class ParticipantStepState extends Model
     public const STATUS_COMPLETED = 'completed';
     public const STATUS_DISABLED = 'disabled';
     public const STATUS_EXPIRED = 'expired';
+    public const STATUS_NOT_YET_OPEN = 'not_yet_open';
     public const STATUS_FULL = 'full';
     public const STATUS_HIDDEN = 'hidden';
 }

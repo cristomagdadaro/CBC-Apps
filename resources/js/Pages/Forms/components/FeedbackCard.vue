@@ -161,7 +161,6 @@ export default {
                 Kindly provide the required and honest feedback. Fields marked with <span class="text-red-600">*</span> are required.
             </p>
         </div>
-        <custom-dropdown v-if="!isEditMode" @selectedChange="form.participant_id = $event" :error="form.errors.participant_id" :value="form.participant_id" :options="participantsAsOptions" :withAllOption="false" placeholder="Select a recent registration" label="Answering as" class="mb-4"/>
         <div class="mb-4">
             <ProgressTabs :steps="steps" v-model:current="currentStep" :clickable="false" />
         </div>

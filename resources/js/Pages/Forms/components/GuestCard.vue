@@ -11,10 +11,11 @@ import TabNavigation from "@/Components/TabNavigation.vue";
 import { mergeFormStyleTokens } from "@/Modules/shared/formStyleTokens";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
+import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 
 export default {
     name: "GuestCard",
-    components: {TabNavigation, FeedbackCard, RegistrationCard, InputError, InputLabel, TextInput, PreregistrationCard, PreregistrationQuizBeeCard},
+    components: {TabNavigation, FeedbackCard, RegistrationCard, InputError, InputLabel, TextInput, PreregistrationCard, PreregistrationQuizBeeCard, CustomDropdown},
     mixins: [ApiMixin, FormLocalMixin, DataFormatterMixin],
     props: {
         data: {
@@ -107,7 +108,12 @@ export default {
         clearInterval(this.intervalId);
     },
     methods: {
+        onParticipantHashChange(value) {
+            this.selectedParticipantHash = value;
+            this.loadWorkflow();
+        },
         async loadWorkflow() {
+            console.log('Loading workflow for participant:', this.selectedParticipantHash);
             if (!this.data?.event_id) {
                 return;
             }
@@ -119,7 +125,7 @@ export default {
                 const response = await this.fetchGetApi('api.event.workflow.state.guest', {
                     routeParams: this.data.event_id,
                     participant_id: this.selectedParticipantHash,
-                });    console.log(response.data);
+                });
                 this.workflowState = response?.data ?? null;
                 this.setActiveTabFromWorkflow();
             } catch (error) {
@@ -202,19 +208,21 @@ export default {
         },
         getStepMessage(step) {
             if (!step) {
-                return 'This step is not available.';
+                return 'This step is not available';
             }
             switch (step.status) {
                 case 'locked':
-                    return 'Complete the previous step to continue.';
+                    return 'Complete the previous step to continue';
                 case 'expired':
-                    return 'This step is outside the allowed time window.';
+                    return 'This step is outside the allowed time window';
                 case 'full':
                     return 'Maximum number of responses reached.';
                 case 'disabled':
-                    return 'This step is currently disabled by the admin.';
+                    return 'This step is currently disabled by the admin';
                 case 'hidden':
-                    return 'This step is not available.';
+                    return 'This step is not available';
+                case 'completed':
+                    return `You have already completed required forms`;
                 default:
                     return null;
             }
@@ -286,13 +294,29 @@ export default {
         </div>
         <div v-else class="flex flex-col gap-1">
             <div v-if="participantHashes?.length" class="flex items-center gap-2 px-2 py-2 bg-white rounded-md border">
-                <label class="text-xs font-semibold text-gray-500 uppercase">Continue as</label>
-                <select v-model="selectedParticipantHash" @change="loadWorkflow" class="text-sm border-gray-300 rounded-md">
-                    <option :value="null">New participant</option>
-                    <option v-for="hash in participantHashes" :key="hash" :value="hash">
-                        {{ hash }}
-                    </option>
-                </select>
+                <label class="text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">Continue as</label>
+                <custom-dropdown
+                    @selectedChange="onParticipantHashChange"
+                    :value="selectedParticipantHash"
+                    :options="[
+                        {
+                            name: null,
+                            label: 'New participant'
+                        },
+                        ...storedLocalHashedIds.map(item => ({
+                            name: item.participant_hash,
+                            label: item.participant.name
+                        })),
+                        
+                    ]"
+                    :withAllOption="false"
+                >
+                    <template #icon>
+                        <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                        </svg>
+                    </template>
+                </custom-dropdown>
             </div>
             <div v-if="workflowLoading" class="text-sm text-gray-500 px-2">Loading workflow...</div>
             <div v-if="workflowError" class="text-sm text-red-600 px-2">{{ workflowError }}</div>
@@ -310,7 +334,7 @@ export default {
                             :config="getStep('preregistration')"
                             @createdModel="handleCreatedModel"
                         />
-                        <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                        <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
                             {{ getStepMessage(getStep('preregistration')) }}
                         </div>
                     </div>
@@ -322,7 +346,7 @@ export default {
                             :config="getStep('preregistration_biotech')"
                             @createdModel="handleCreatedModel"
                         />
-                        <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                        <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
                             {{ getStepMessage(getStep('preregistration_biotech')) }}
                         </div>
                     </div>
@@ -335,7 +359,7 @@ export default {
                             :config="getStep('registration')"
                             @createdModel="handleCreatedModel"
                         />
-                        <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                        <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
                             {{ getStepMessage(getStep('registration')) }}
                         </div>
                     </div>
@@ -348,13 +372,12 @@ export default {
                             :config="getStep('feedback')"
                             @createdModel="handleCreatedModel"
                         />
-                        <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                        <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
                             {{ getStepMessage(getStep('feedback')) }}
                         </div>
                     </div>
-
                     <div v-if="['preregistration', 'preregistration_biotech', 'registration', 'feedback'].indexOf(activeKey) === -1">
-                        <div class="bg-AB text-white p-3 rounded-md shadow leading-none">
+                        <div class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
                             This step type is not yet supported in the guest UI.
                         </div>
                     </div>
