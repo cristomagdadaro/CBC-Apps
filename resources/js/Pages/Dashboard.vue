@@ -406,19 +406,19 @@ watch(
                     <div class="flex flex-col text-sm gap-1">
                         <Link v-for="transaction in $page.props.recentTransactions" :key="transaction.id" :href="route('transactions.show', transaction.id)" class="py-2 rounded-md px-2 hover:opacity-75 duration-200" :class="transaction.transac_type === 'incoming' ? 'bg-green-200':'bg-red-200'">
                             <p>
-                                <span class="font-medium">{{ transaction.item.name }}</span>
+                                <span class="font-medium">{{ transaction?.item?.name }}</span>
                                 <span>{{ transaction.type }}</span>
                                 &mdash;
-                                <span class="font-medium">{{ transaction.quantity }}</span>
-                                {{ transaction.unit }}
+                                <span class="font-medium">{{ transaction?.quantity }}</span>
+                                {{ transaction?.unit }}
                             </p>
                             <p class="text-xs text-gray-500 dark:text-gray-400">
                                 By
                                 <span class="font-medium">
-                                    {{ transaction.personnel ? transaction.personnel.fname + ' ' + transaction.personnel.lname : 'Unknown' }}
+                                    {{ transaction?.personnel ? transaction?.personnel?.fname + ' ' + transaction?.personnel?.lname : 'Unknown' }}
                                 </span>
                                 on
-                                <span>{{ new Date(transaction.created_at).toLocaleString() }}</span>
+                                <span>{{ new Date(transaction?.created_at).toLocaleString() }}</span>
                             </p>
                         </Link>
                         <Link :href="route('transactions.index')" class="text-blue-600 dark:text-blue-400 hover:underline">

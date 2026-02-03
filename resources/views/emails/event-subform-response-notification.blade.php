@@ -25,11 +25,11 @@
                                 </tr>
                                 <tr>
                                     <td style="padding:8px 0; color:#64748b;">Event ID</td>
-                                    <td style="padding:8px 0; font-weight:600; color:#111827;">{{ $response->formParent?->event_id ?? 'N/A' }}</td>
+                                    <td style="padding:8px 0; font-weight:600; color:#111827;"><a href="{{route('forms.guest.index', $response->formParent?->event_id)}}">{{ $response->formParent?->event_id ?? 'N/A' }}</a></td>
                                 </tr>
                                 <tr>
                                     <td style="padding:8px 0; color:#64748b;">Event Title</td>
-                                    <td style="padding:8px 0; font-weight:600; color:#111827;">{{ $response->formParent?->form?->title ?? 'N/A' }}</td>
+                                    <td style="padding:8px 0; font-weight:600; color:#111827;"><a href="{{route('forms.guest.index', $response->formParent?->event_id)}}">{{ $response->formParent?->form?->title ?? 'N/A' }}</a></td>
                                 </tr>
                                 <tr>
                                     <td style="padding:8px 0; color:#64748b;">Subform Type</td>

@@ -163,16 +163,31 @@ export default {
 
             return null;
         },
-        resetForm(retain: string | null = null){
-            let temp = null;
-            if (retain && this.form && Object.prototype.hasOwnProperty.call(this.form, retain)) {
-                temp = this.form[retain];
-            }
+        resetForm(retain: string | string[] | null = null) {
+            if (!this.form) return;
+
+            const retainKeys = Array.isArray(retain)
+                ? retain
+                : retain
+                    ? [retain]
+                    : [];
+
+            const retainedValues: Record<string, any> = {};
+
+            // store retained values
+            retainKeys.forEach(key => {
+                if (Object.prototype.hasOwnProperty.call(this.form, key)) {
+                    retainedValues[key] = this.form[key];
+                }
+            });
+
             this.form.reset();
             this.form.clearErrors();
-            if (retain && temp !== null) {
-                this.form[retain] = temp;
-            }
+
+            // restore retained values
+            Object.entries(retainedValues).forEach(([key, value]) => {
+                this.form[key] = value;
+            });
         },
         formatNumber(value){
             if (value === null || value === undefined) return '';

@@ -45,8 +45,6 @@ class EventSubformController extends BaseController
         $eventStats = [
             'responses_total' => $requirements->sum('responses_count'),
             'responses_by_type' => $responsesByType,
-            'registrations_total' => Registration::where('event_subform_id', $event_id)->count(),
-            'participants_total' => Registration::where('event_subform_id', $event_id)->distinct('participant_id')->count('participant_id'),
             'requirements_total' => $requirements->count(),
         ];
 

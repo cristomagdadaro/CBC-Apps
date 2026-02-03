@@ -53,7 +53,7 @@ export default {
         },
         async proxySubmit() {
             if (this.isPublic) {
-                this.form.employee_id = this.employee_id;
+                //this.form.employee_id = this.employee_id;
                 this.form.user_id = null;
                 this.form.personnel_id = null;
             }
@@ -148,9 +148,10 @@ export default {
                         v-if="isPublic"
                         required
                         label="PhilRice ID"
+                        placeholder="XX-XXXX"
                         name="employee_id"
                         id="employee_id"
-                        v-model="employee_id"
+                        v-model="form.employee_id"
                         :error="form.errors.employee_id"
                     />
 
@@ -177,8 +178,9 @@ export default {
                         required
                         type-input="number"
                         autocomplete="off"
-                        label="Quantity"
+                        :label="'Quantity by ' + data?.unit"
                         name="quantity"
+                        :placeholder="'How many ' + data?.unit + '(s)?'"
                         id="quantity"
                         v-model="form.quantity"
                         :error="form.errors.quantity"
@@ -196,7 +198,7 @@ export default {
                     />
 
                     <div class="flex gap-1 justify-between">
-                        <cancel-btn @click="resetForm">
+                        <cancel-btn @click="resetForm(['barcode','item_id','transac_type','unit'])">
                             Reset
                         </cancel-btn>
                         <submit-btn :disabled="model.api.processing">

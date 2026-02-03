@@ -206,8 +206,8 @@ export default {
                                                 <span class="font-bold text-xs whitespace-nowrap overflow-ellipsis overflow-hidden">
                                                     {{ item.name }} {{ item.description ? `(${item.description})` : '' }}
                                                 </span>
-                                            <span class="text-xs text-gray-500">{{ item.barcode }}</span>
                                             <span class="text-xs text-gray-500">{{ item.brand }}</span>
+                                            <span class="text-xs text-gray-500">{{ item.barcode }}</span>
                                         </div>
                                         <span class="text-right">{{ formatNumber(item.remaining_quantity) }}</span>
                                     </div>

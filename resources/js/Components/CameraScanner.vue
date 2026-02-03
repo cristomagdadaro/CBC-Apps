@@ -57,6 +57,18 @@ export default {
     },
     methods: {
         stopMediaTracks() { if (this.stream) { this.stream.getTracks().forEach(t => t.stop()); this.stream = null; } },
+        stopVideoElementTracks() {
+            const video = this.$el?.querySelector('video');
+            const stream = video?.srcObject;
+            if (stream && typeof stream.getTracks === 'function') {
+                stream.getTracks().forEach(t => t.stop());
+                video.srcObject = null;
+            }
+        },
+        stopAllStreams() {
+            this.stopMediaTracks();
+            this.stopVideoElementTracks();
+        },
         paintCenterText(detectedCodes, ctx) {
             for (const detectedCode of detectedCodes) {
                 const { boundingBox, rawValue } = detectedCode;
@@ -113,7 +125,11 @@ export default {
             const wasMdUp = this.isMdUp;
             this.isMdUp = typeof window !== 'undefined' ? window.innerWidth >= 768 : false;
         },
-        toggleOpen() { this.isOpen = !this.isOpen; if (this.isOpen && !this.stream) this.setupMediaSource(); else if (!this.isOpen) this.stopMediaTracks(); },
+        toggleOpen() {
+            this.isOpen = !this.isOpen;
+            if (this.isOpen && !this.stream) this.setupMediaSource();
+            else if (!this.isOpen) this.stopAllStreams();
+        },
     },
     mounted() {
         this.beep = new Audio(this.beepUrl); this.beep.load();
@@ -127,8 +143,8 @@ export default {
     },
     watch: {
         error(val) { if (val) this.$emit('error', val); },
-        enabled(val) { if (val && this.isOpen) this.setupMediaSource(); else if (!val) this.stopMediaTracks(); },
-        isOpen(val) { if (val && !this.stream) this.setupMediaSource(); else if (!val) this.stopMediaTracks(); },
+        enabled(val) { if (val && this.isOpen) this.setupMediaSource(); else if (!val) this.stopAllStreams(); },
+        isOpen(val) { if (val && !this.stream) this.setupMediaSource(); else if (!val) this.stopAllStreams(); },
     },
 };
 </script>
@@ -180,7 +196,7 @@ export default {
             <div v-show="showScannerArea" class="flex flex-col gap-2 w-full">
                 <div class="relative w-full h-full mt-2">
                     <QrcodeStream
-                        v-if="enabled && hasDevice"
+                        v-if="enabled && hasDevice && showScannerArea"
                         :constraints="{ deviceId: selectedDevice?.deviceId }"
                         :track="paintOutline"
                         :formats="selectedBarcodeFormats"

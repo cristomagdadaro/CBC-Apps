@@ -254,22 +254,9 @@ watch(
         <div class="grid gap-4 md:grid-cols-3">
             <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Responses</h3>
-                <p class="mt-2 text-3xl font-semibold text-gray-900 dark:text-white">{{ stats.responses_total }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Across all form types</p>
+                <p class="mt-2 text-3xl md:text-5xl font-semibold text-gray-900 dark:text-white text-center">{{ stats.responses_total }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 text-center">Across all form types</p>
             </div>
-            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
-                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Registrations</h3>
-                <p class="mt-2 text-3xl font-semibold text-gray-900 dark:text-white">{{ stats.registrations_total }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Registered participants</p>
-            </div>
-            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
-                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Participants</h3>
-                <p class="mt-2 text-3xl font-semibold text-gray-900 dark:text-white">{{ stats.participants_total }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Unique attendees</p>
-            </div>
-        </div>
-
-        <div class="grid gap-4 md:grid-cols-2">
             <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Responses by Form Type</h3>
                 <div class="mt-4 h-64">
@@ -283,7 +270,6 @@ watch(
                 </div>
             </div>
         </div>
-
         <div class="space-y-4">
             <div
                 v-for="group in responseDataGroups"
