@@ -76,16 +76,16 @@ export default {
 </script>
 
 <template>
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-2">
         <div class="text-sm">
             <p class="font-semibold text-gray-700">Form Theme</p>
             <p class="text-xs text-gray-500">Pick a solid color or supply a public image URL for each highlighted block.</p>
         </div>
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-2">
             <div
                 v-for="field in fields"
                 :key="field.key"
-                class="border rounded-xl p-3 bg-white shadow-sm flex flex-col gap-3"
+                class="border rounded-xl p-3 bg-white shadow-sm flex flex-col gap-2"
             >
                 <div class="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
                     <div>

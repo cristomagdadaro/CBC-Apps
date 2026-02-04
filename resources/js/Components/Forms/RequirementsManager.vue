@@ -77,7 +77,6 @@ export default {
             this.requirements = [
                 ...this.requirements,
                 {
-                    //id: crypto.randomUUID(),
                     form_type: null,
                     step_type: null,
                     step_order: nextStepOrder,
@@ -86,11 +85,8 @@ export default {
                     max_slots: null,
                     open_from: null,
                     open_to: null,
-                    config: {
-                        attendance_type_required: false,
-                        open_from: null,
-                        open_to: null,
-                    },
+                    visibility_rules: {},
+                    completion_rules: {},
                 },
             ];
             this.normalizeRequirements();
@@ -109,21 +105,10 @@ export default {
                 form_type: value || null,
                 step_type: prev.step_type || value || null,
                 step_order: prev.step_order || index + 1,
-                config: {
-                    attendance_type_required: prev.config?.attendance_type_required ?? false,
-                    open_from: prev.config?.open_from ?? null,
-                    open_to: prev.config?.open_to ?? null,
-                },
+                visibility_rules: prev.visibility_rules || {},
+                completion_rules: prev.completion_rules || {},
             };
-
-            // If this is a pre-registration/registration type, enable attendance config by default
-            if (['preregistration', 'preregistration_biotech', 'registration'].includes(value)) {
-                copy[index].config = {
-                    ...copy[index].config,
-                    attendance_type_required: true,
-                };
-            }
-
+            
             this.requirements = copy;
             this.normalizeRequirements();
         },
@@ -143,31 +128,19 @@ export default {
             };
             this.requirements = copy;
         },
-        toggleAttendanceType(index) {
+        updateMaxSlots(index, value) {
             const copy = [...this.requirements];
-            const prev = !!copy[index].config?.attendance_type_required;
-            copy[index].config = {
-                ...(copy[index].config || {}),
-                attendance_type_required: !prev,
-            };
+            copy[index].max_slots = value ? parseInt(value) : null;
             this.requirements = copy;
         },
         updateOpenFrom(index, value) {
             const copy = [...this.requirements];
             copy[index].open_from = value || null;
-            copy[index].config = {
-                ...(copy[index].config || {}),
-                open_from: value || null,
-            };
             this.requirements = copy;
         },
         updateOpenTo(index, value) {
             const copy = [...this.requirements];
             copy[index].open_to = value || null;
-            copy[index].config = {
-                ...(copy[index].config || {}),
-                open_to: value || null,
-            };
             this.requirements = copy;
         },
         moveRequirement(index, direction) {
@@ -254,7 +227,8 @@ export default {
                                     type="number"
                                     min="0"
                                     placeholder="No limit"
-                                    v-model="requirements[index].max_slots"
+                                    :value="req.max_slots || ''"
+                                    @change="updateMaxSlots(index, $event.target.value)"
                                     class="text-xs p-0 px-2 rounded-md" />
                             </div>
                         </div>
@@ -265,7 +239,7 @@ export default {
                                 <input
                                     type="datetime-local"
                                     class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 rounded-md shadow-sm text-[11px] px-1 py-0.5"
-                                    :value="req.open_from || req.config?.open_from || ''"
+                                    :value="req.open_from || ''"
                                     @change="updateOpenFrom(index, $event.target.value)"
                                 />
                             </div>
@@ -274,7 +248,7 @@ export default {
                                 <input
                                     type="datetime-local"
                                     class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 rounded-md shadow-sm text-[11px] px-1 py-0.5"
-                                    :value="req.open_to || req.config?.open_to || ''"
+                                    :value="req.open_to || ''"
                                     @change="updateOpenTo(index, $event.target.value)"
                                 />
                             </div>
@@ -284,24 +258,9 @@ export default {
                                 <input type="checkbox" :checked="req.is_required" @change="toggleRequired(index)" class="rounded-full" />
                                 <span>Required</span>
                             </div>
-                            <div
-                                v-if="['preregistration', 'preregistration_biotech', 'registration'].includes(req.form_type)"
-                                class="flex items-center gap-2 text-xs mt-1"
-                            >
-                                <label class="flex items-center gap-1">
-                                    <input
-                                        type="checkbox"
-                                        :checked="req.config?.attendance_type_required"
-                                        @change="toggleAttendanceType(index)"
-                                        class="rounded-full"
-                                    />
-                                    <span>Is this a Hybrid Event?</span>
-                                </label>
-                            </div>
-
                             <button
                                 type="button"
-                                class="text-xs text-red-500 hover:text-red-700"
+                                class="text-xs text-red-500 hover:text-red-700 mt-1"
                                 @click="removeRequirement(index)"
                             >
                                 Remove

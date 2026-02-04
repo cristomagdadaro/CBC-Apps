@@ -35,6 +35,16 @@ class EventSubformController extends BaseController
 
         $formRepo = new \App\Repositories\FormRepo(new Form());
 
+        // Load form with properly sorted requirements
+        $form = Form::where('event_id', $event_id)
+            ->with(['requirements' => function ($query) {
+                $query->withCount('responses')
+                    ->orderByRaw('CASE WHEN step_order IS NULL THEN 1 ELSE 0 END')
+                    ->orderBy('step_order')
+                    ->orderBy('created_at');
+            }])
+            ->first();
+
         $requirements = EventSubform::where('event_id', $event_id)
             ->withCount('responses')
             ->get();
@@ -63,11 +73,7 @@ class EventSubformController extends BaseController
             ->map(fn ($items) => $items->values());
 
         return Inertia::render('Forms/FormUpdate', [
-            'data' => Form::where('event_id', $event_id)
-                ->with(['requirements' => function ($query) {
-                    $query->withCount('responses');
-                }])
-                ->first(),
+            'data' => $form,
             'responsesCount' => $formRepo->getResponsesCountByEventId($event_id),
             'subformRequirements' => EventSubform::select(['id as name', 'form_type as label'])->where('event_id', $event_id)->get(),
             'eventStats' => $eventStats,

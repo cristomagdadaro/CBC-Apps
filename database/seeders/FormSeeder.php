@@ -25,18 +25,34 @@ class FormSeeder extends Seeder
                     'is_required' => true,
                     'max_slots' => fake()->numberBetween(0, 50),
                     'step_order' => 1,
+                    'visibility_rules' => [],
+                    'completion_rules' => [
+                        'required_fields' => ['agreed_tc'],
+                    ],
                 ],
                 [
                     'form_type' => Subform::REGISTRATION->value,
                     'is_required' => true,
                     'max_slots' => fake()->numberBetween(0, 50),
                     'step_order' => 2,
+                    'visibility_rules' => [
+                        'requires_steps' => [Subform::PREREGISTRATION->value],
+                    ],
+                    'completion_rules' => [
+                        'required_fields' => ['agreed_tc'],
+                    ],
                 ],
                 [
                     'form_type' => Subform::FEEDBACK->value,
                     'is_required' => false,
                     'max_slots' => fake()->numberBetween(0, 50),
                     'step_order' => 3,
+                    'visibility_rules' => [
+                        'requires_steps' => [Subform::REGISTRATION->value],
+                    ],
+                    'completion_rules' => [
+                        'min_score' => 3,
+                    ],
                 ],
             ];
 
@@ -54,6 +70,8 @@ class FormSeeder extends Seeder
                         'open_to' => now()->addDays(7),
                         'step_order' => $requirementData['step_order'],
                         'is_enabled' => true,
+                        'visibility_rules' => $requirementData['visibility_rules'] ?? [],
+                        'completion_rules' => $requirementData['completion_rules'] ?? [],
                     ]
                 );
                 $createdRequirements[] = $requirement;

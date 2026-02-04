@@ -67,7 +67,10 @@ export default {
     },
     methods: {
         async submitProxyUpdate() {
-            console.log(this.form.data());
+            // Log the data being submitted
+            const formData = this.form.data();
+            console.log('Form data before submit:', formData);
+            console.log('Requirements:', formData.requirements);
             await this.submitUpdate();
             this.setRequirements();
         },
@@ -97,7 +100,7 @@ export default {
                 <template #default="{ activeKey }">
                     <div v-if="activeKey === 'update'" class="mt-4 flex justify-center gap-5">
                         <div>
-                            <span class="font-semibold text-gray-700">Event Details</span>
+                            <span class="font-semibold text-gray-700 text-sm">Event Details</span>
                             <form v-if="!!form" @submit.prevent="submitProxyUpdate" class="max-w-3xl min-w-xl w-full mx-auto">
                                 <div class="w-full flex flex-col gap-6">
                                     <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg" :class="{ 'border border-red-600': form.hasErrors }">
@@ -162,7 +165,7 @@ export default {
                                                     />
                                                 </div>
                                             </div>
-                                            <div class="px-1">
+                                            <div class="px-1">{{ form.requirements }}
                                                 <requirements-manager v-model="form.requirements" :error="form.errors.requirements"/>
                                             </div> 
                                             <div class="flex flex-col p-2">
@@ -186,7 +189,15 @@ export default {
                         <div class="flex gap-5">
                             <form-style-designer v-model="form.style_tokens" :error="styleTokensError" />
                             <div class="flex flex-col w-fit">
-                                <span class="font-semibold text-gray-700">Preview</span>
+                                <div class="flex justify-between text-sm">
+                                    <span class="font-semibold text-gray-700">Preview</span>
+                                    <a class="font-semibold text-gray-700 mr-1" title="Visit Form" :href="route('forms.guest.index', form.event_id)" target="_blank">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-auto h-5" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M6.364 13.5a.5.5 0 0 0 .5.5H13.5a1.5 1.5 0 0 0 1.5-1.5v-10A1.5 1.5 0 0 0 13.5 1h-10A1.5 1.5 0 0 0 2 2.5v6.636a.5.5 0 1 0 1 0V2.5a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 .5.5v10a.5.5 0 0 1-.5.5H6.864a.5.5 0 0 0-.5.5"/>
+                                            <path fill-rule="evenodd" d="M11 5.5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793l-8.147 8.146a.5.5 0 0 0 .708.708L10 6.707V10.5a.5.5 0 0 0 1 0z"/>
+                                        </svg>
+                                    </a>
+                                </div>
                                 <guest-card :data="form" class="bg-white drop-shadow-lg"/>
                             </div>
                         </div>
