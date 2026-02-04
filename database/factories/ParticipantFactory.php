@@ -30,6 +30,7 @@ class ParticipantFactory extends Factory
             'is_pwd' => $this->faker->boolean(),
             'city_address' => $this->faker->city(),
             'province_address' => $this->faker->city(),
+            'region_address' => $this->faker->stateAbbr(),
             'country_address' => $this->faker->country(),
             'agreed_tc' => $this->faker->boolean(),
             'agreed_updates' => $this->faker->boolean(),

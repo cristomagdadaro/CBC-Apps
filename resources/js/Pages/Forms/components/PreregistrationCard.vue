@@ -286,7 +286,7 @@ export default {
                     autocomplete="country"
                     @input="form.clearErrors('country_address')"
                 />
-            </div>{{ form }}
+            </div>
             <div class="flex flex-col gap-2">
                 <custom-dropdown v-if="config?.config?.attendance_type_required" :value="form.response_data.attendance_type" @selectedChange="form.response_data.attendance_type = $event"  :error="form.errors.attendance_type" placeholder="Are you attending Online or In-person?" :required="config?.config?.attendance_type_required" :withAllOption="false" :options="[{name: 'Online', label: 'Online'}, {name: 'In-person', label: 'In-person'}]">
                     <template #icon>

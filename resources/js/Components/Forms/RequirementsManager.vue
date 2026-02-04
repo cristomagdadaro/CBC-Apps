@@ -63,11 +63,8 @@ export default {
                 { value: 'organization', label: 'Organization' },
                 { value: 'designation', label: 'Designation/Position' },
                 { value: 'attendance_type', label: 'Attendance Type' },
-                { value: 'participant_1_gradelevel', label: 'Participant 1 Grade Level' },
-                { value: 'participant_2_gradelevel', label: 'Participant 2 Grade Level' },
-                { value: 'participant_1_sex', label: 'Participant 1 Sex' },
-                { value: 'participant_2_sex', label: 'Participant 2 Sex' },
-                { value: 'team_name', label: 'Team Name' },
+                { value: 'sex', label: 'Sex' },
+                { value: 'age', label: 'Age' },
             ]
         },
     },

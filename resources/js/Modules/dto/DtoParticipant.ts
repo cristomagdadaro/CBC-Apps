@@ -13,6 +13,7 @@ export default class DtoParticipant extends DtoBaseClass implements IParticipant
     is_pwd: string;
     city_address: string;
     province_address: string;
+    region_address: string;
     country_address: string;
     agreed_tc: string;
     agreed_updates: string;
@@ -34,6 +35,7 @@ export default class DtoParticipant extends DtoBaseClass implements IParticipant
         this.is_pwd = data?.is_pwd ? "Yes" : "No";
         this.city_address = data?.city_address ?? '';
         this.province_address = data?.province_address ?? '';
+        this.region_address = data?.region_address ?? '';
         this.country_address = data?.country_address ?? '';
         this.agreed_tc = data?.agreed_tc ? "Yes" : "No";
         this.agreed_updates = data?.agreed_updates ? "Yes" : "No";

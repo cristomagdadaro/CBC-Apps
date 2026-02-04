@@ -38,6 +38,7 @@ class Participant extends BaseModel
         'is_pwd',
         'city_address',
         'province_address',
+        'region_address',
         'country_address',
         'agreed_tc',
         'agreed_updates',

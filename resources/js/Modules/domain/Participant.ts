@@ -30,6 +30,7 @@ export default class Participant extends DtoParticipant {
             is_pwd: false,
             city_address: null,
             province_address: null,
+            region_address: null,
             country_address: null,
             agreed_tc: false,
             event_id: null,
@@ -52,8 +53,10 @@ export default class Participant extends DtoParticipant {
             is_pwd: data?.is_pwd,
             city_address: data?.city_address,
             province_address: data?.province_address,
+            region_address: data?.region_address,
             country_address: data?.country_address,
             agreed_tc: data?.agreed_tc,
+            agreed_updates: data?.agreed_updates,
             event_id: data?.event_id,
             attendance_type: data?.attendance_type
         }

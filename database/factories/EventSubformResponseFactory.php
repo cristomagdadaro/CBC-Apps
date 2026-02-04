@@ -46,6 +46,7 @@ class EventSubformResponseFactory extends Factory
             'attendance_type' => $this->faker->randomElement(['Online', 'Onsite']),
             'country_address' => $this->faker->country(),
             'province_address' => $this->faker->state(),
+            'region_address' => $this->faker->stateAbbr(),
         ],
         ];
     }

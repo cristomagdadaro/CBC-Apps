@@ -11,6 +11,7 @@ interface IParticipant extends IBaseClass {
     is_pwd: string;
     city_address: string;
     province_address: string;
+    region_address: string;
     country_address: string;
     agreed_tc: string;
     agreed_updates: string;

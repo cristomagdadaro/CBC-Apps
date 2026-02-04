@@ -8,16 +8,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasColumn('participants', 'agreed_updates')) 
-            Schema::table('participants', function (Blueprint $table) {
-                $table->boolean('agreed_updates')->default(false)->after('agreed_tc');
-            });
+        Schema::table('participants', function (Blueprint $table) {
+            $table->boolean('agreed_updates')->default(false)->after('agreed_tc');
+            $table->string('region_address')->nullable()->after('province_address');
+        });
     }
 
     public function down(): void
     {
         Schema::table('participants', function (Blueprint $table) {
             $table->dropColumn('agreed_updates');
+            $table->dropColumn('region_address');
         });
     }
 };
