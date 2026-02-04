@@ -217,14 +217,14 @@ export default {
                     return 'Complete the previous step to continue';
                 case 'not_yet_open':
                     return step.open_from 
-                        ? `This form will be available from ${this.formatDateTime(step.open_from)}`
+                        ? `This form will be available on ${this.formatDateTime(step.open_from)}`
                         : 'This form is not yet available';
                 case 'expired':
                     return 'This form is no longer available. It closed on ' + (step.open_to ? this.formatDateTime(step.open_to) : 'an earlier date');
                 case 'full':
                     return 'Maximum number of responses reached. No more slots available.';
                 case 'disabled':
-                    return 'This form is currently disabled by the administrator';
+                    return 'This form is currently disabled';
                 case 'hidden':
                     return 'This form is not available at this time';
                 case 'completed':

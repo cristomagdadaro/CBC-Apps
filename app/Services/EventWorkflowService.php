@@ -58,7 +58,7 @@ class EventWorkflowService
         $step = EventSubform::query()->findOrFail($validated['form_parent_id']);
         $participantId = Arr::get($validated, 'participant_id');
 
-        $this->assertCanSubmit($step, $participantId, Arr::get($validated, 'subform_type'));
+        $this->assertCanSubmit($step, $participantId, Arr::get($validated, 'subform_type'), Arr::get($validated, 'response_data', []));
 
         return DB::transaction(function () use ($validated, $step, $participantId) {
             $context = app(Pipeline::class)
@@ -130,7 +130,7 @@ class EventWorkflowService
         });
     }
 
-    public function assertCanSubmit(EventSubform $step, ?string $participantId, ?string $subformType = null): void
+    public function assertCanSubmit(EventSubform $step, ?string $participantId, ?string $subformType = null, array $responseData = []): void
     {
         if ($subformType && $subformType !== $step->form_type) {
             $this->throwWorkflowError('subform_type', 'This step does not match the submitted form type.');
@@ -147,6 +147,8 @@ class EventWorkflowService
             $this->throwWorkflowError('step', 'This step is not available based on current conditions.');
         }
 
+        $this->assertConditionalLimits($step, $responseData);
+
         if (!$participantId) {
             if (!$this->isFirstStep($step)) {
                 $this->throwWorkflowError('step', 'You must complete the prior steps before starting this one.');
@@ -162,6 +164,39 @@ class EventWorkflowService
         $previousStep = $this->getPreviousStep($step);
         if ($previousStep && !$this->isStepCompleted($previousStep, $participantId)) {
             $this->throwWorkflowError('step', 'Complete the previous step before proceeding.');
+        }
+    }
+
+    protected function assertConditionalLimits(EventSubform $step, array $responseData): void
+    {
+        $limits = data_get($step->config, 'limits', []);
+
+        if (!is_array($limits) || empty($limits)) {
+            return;
+        }
+
+        foreach ($limits as $limit) {
+            $field = Arr::get($limit, 'field');
+            $max = Arr::get($limit, 'max');
+
+            if (!$field || !is_numeric($max)) {
+                continue;
+            }
+
+            $value = data_get($responseData, $field);
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            $count = EventSubformResponse::query()
+                ->where('form_parent_id', $step->id)
+                ->where("response_data->$field", $value)
+                ->count();
+
+            if ($count >= (int) $max) {
+                $label = ucwords(str_replace('_', ' ', $field));
+                $this->throwWorkflowError('limit', "Limit reached for $label (max $max). Please contact the admin.");
+            }
         }
     }
 

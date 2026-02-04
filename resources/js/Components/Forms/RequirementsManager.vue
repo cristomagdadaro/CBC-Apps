@@ -4,10 +4,11 @@ import InputError from '@/Components/InputError.vue'
 import TransitionContainer from '@/Components/Transitions/TransitionContrainer.vue'
 import CaretDown from '@/Components/Icons/CaretDown.vue'
 import { toRaw } from 'vue'
+import AddIcon from '@/Components/Icons/AddIcon.vue'
 
 export default {
     name: 'RequirementsManager',
-    components: { TransitionContainer, InputError, TextInput, CaretDown },
+    components: { TransitionContainer, InputError, TextInput, CaretDown, AddIcon },
 
     props: {
         modelValue: {
@@ -54,11 +55,35 @@ export default {
                 { value: 'feedback', label: 'Feedback / Evaluation' },
             ]
         },
+        limitFieldOptions() {
+            return [
+                { value: 'province_address', label: 'Province' },
+                { value: 'city_address', label: 'City' },
+                { value: 'organization', label: 'Organization' },
+                { value: 'designation', label: 'Designation/Position' },
+                { value: 'attendance_type', label: 'Attendance Type' },
+                { value: 'participant_1_gradelevel', label: 'Participant 1 Grade Level' },
+                { value: 'participant_2_gradelevel', label: 'Participant 2 Grade Level' },
+                { value: 'participant_1_sex', label: 'Participant 1 Sex' },
+                { value: 'participant_2_sex', label: 'Participant 2 Sex' },
+                { value: 'team_name', label: 'Team Name' },
+            ]
+        },
     },
 
     methods: {
         cloneRequirements() {
-            return this.requirements.map(r => ({ ...toRaw(r) }))
+            return this.requirements.map(r => {
+                const raw = toRaw(r)
+                const config = raw?.config ?? {}
+                return {
+                    ...raw,
+                    config: {
+                        ...config,
+                        limits: Array.isArray(config?.limits) ? config.limits.map(limit => ({ ...limit })) : [],
+                    },
+                }
+            })
         },
 
         emitUpdate(list) {
@@ -132,6 +157,9 @@ export default {
                 max_slots: null,
                 open_from: null,
                 open_to: null,
+                config: {
+                    limits: [],
+                },
                 visibility_rules: {},
                 completion_rules: {},
             })
@@ -170,6 +198,7 @@ export default {
                 form_type: value,
                 step_type: copy[index].step_type ?? value,
                 id: null,
+                config: copy[index].config ?? { limits: [] },
             }
 
             this.clearError(`req_${index}_type`)
@@ -217,6 +246,58 @@ export default {
             copy[index].open_to = value || null
             this.emitUpdate(copy)
             this.showSuccess('Open to date updated')
+        },
+
+        addLimit(index) {
+            const copy = this.cloneRequirements()
+            if (!copy[index].config) {
+                copy[index].config = { limits: [] }
+            }
+            if (!Array.isArray(copy[index].config.limits)) {
+                copy[index].config.limits = []
+            }
+            copy[index].config.limits.push({ field: '', max: 1 })
+            this.emitUpdate(copy)
+        },
+
+        removeLimit(index, limitIndex) {
+            const copy = this.cloneRequirements()
+            const limits = copy[index]?.config?.limits || []
+            limits.splice(limitIndex, 1)
+            copy[index].config.limits = limits
+            this.emitUpdate(copy)
+        },
+
+        updateLimitField(index, limitIndex, value) {
+            const copy = this.cloneRequirements()
+            if (!copy[index].config) {
+                copy[index].config = { limits: [] }
+            }
+            if (!Array.isArray(copy[index].config.limits)) {
+                copy[index].config.limits = []
+            }
+            if (!copy[index].config.limits[limitIndex]) {
+                copy[index].config.limits[limitIndex] = { field: '', max: 1 }
+            }
+            copy[index].config.limits[limitIndex].field = value
+            this.emitUpdate(copy)
+        },
+
+        updateLimitMax(index, limitIndex, value) {
+            const max = value ? parseInt(value) : null
+            if (max != null && max < 1) return
+            const copy = this.cloneRequirements()
+            if (!copy[index].config) {
+                copy[index].config = { limits: [] }
+            }
+            if (!Array.isArray(copy[index].config.limits)) {
+                copy[index].config.limits = []
+            }
+            if (!copy[index].config.limits[limitIndex]) {
+                copy[index].config.limits[limitIndex] = { field: '', max: 1 }
+            }
+            copy[index].config.limits[limitIndex].max = max
+            this.emitUpdate(copy)
         },
 
         moveRequirement(index, direction) {
@@ -324,6 +405,15 @@ export default {
                                 <caret-down class="w-3 h-3 transform" />
                                 Down
                             </button>
+                            <button
+                                type="button" 
+                                class="px-2 py-1 border rounded flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                                :disabled="!req?.is_enabled"
+                                @click="addLimit(index)"
+                            >
+                                <add-icon class="w-3 h-3" />
+                                Add Limit
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -344,7 +434,7 @@ export default {
                                     class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 rounded-md shadow-sm text-xs py-0.5 px-2 transition"
                                     :class="{ 'border-red-500': localErrors[`req_${index}_type`] }"
                                     :value="req.form_type || ''"
-                                    :disabled="!req.is_enabled"
+                                    :disabled="!req?.is_enabled"
                                     @change="handleTypeChange(index, $event.target.value)"
                                     title="Select the type of form"
                                 >
@@ -372,7 +462,7 @@ export default {
                                     min="0"
                                     placeholder="No limit"
                                     :value="req.max_slots || ''"
-                                    :disabled="!req.is_enabled"
+                                    :disabled="!req?.is_enabled"
                                     @change="updateMaxSlots(index, $event.target.value)"
                                     class="text-xs p-0 px-2 rounded-md border border-gray-300 dark:border-gray-700 dark:bg-gray-900 transition"
                                     :class="{ 'border-red-500': localErrors[`req_${index}_slots`] }"
@@ -416,7 +506,7 @@ export default {
                                     class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 rounded-md shadow-sm text-[11px] px-1 py-0.5 border transition"
                                     :class="{ 'border-red-500': localErrors[`req_${index}_to`] }"
                                     :value="req.open_to || ''"
-                                    :disabled="!req.is_enabled"
+                                    :disabled="!req?.is_enabled"
                                     @change="updateOpenTo(index, $event.target.value)"
                                     title="When this form is no longer available"
                                 />
@@ -438,7 +528,7 @@ export default {
                                     :checked="req.is_required" 
                                     @change="toggleRequired(index)" 
                                     class="rounded-full"
-                                    :disabled="!req.is_enabled"
+                                    :disabled="!req?.is_enabled"
                                     title="Mark as required for completion"
                                 />
                                 <span>{{ req.is_required ? 'Required' : 'Optional' }}</span>
@@ -447,12 +537,68 @@ export default {
                                 type="button"
                                 class="text-xs text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900 px-2 py-1 rounded transition mt-1"
                                 @click="removeRequirement(index)"
-                                :disabled="!req.is_enabled"
+                                :disabled="!req?.is_enabled"
                                 title="Remove this form"
                             >
                                 ✕ Remove
                             </button>
                         </div>
+                    </div>
+
+                    <div v-if="req?.config?.limits?.length" class="mt-2 border-t pt-2" :class="{'opacity-50': req.is_enabled === false}">
+                        <div class="flex items-center justify-between">
+                            <label class="text-[11px] text-gray-500 uppercase">Conditional Limits</label>
+                            <span class="text-[10px] text-gray-400">Limit submissions per field value</span>
+                        </div>
+
+                        <div class="mt-2 flex flex-col gap-2">
+                            <div
+                                v-for="(limit, limitIndex) in req.config.limits"
+                                :key="`${index}-limit-${limitIndex}`"
+                                class="grid grid-cols-3 gap-2 items-center"
+                            >
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[10px] text-gray-500">Column</label>
+                                    <input
+                                        list="limit-field-options"
+                                        type="text"
+                                        class="text-xs p-0.5 px-2 rounded-md border border-gray-300"
+                                        :value="limit.field"
+                                        :disabled="!req?.is_enabled"
+                                        @change="updateLimitField(index, limitIndex, $event.target.value)"
+                                        placeholder="e.g. province_address"
+                                    />
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[10px] text-gray-500">Max per value</label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        class="text-xs p-0.5 px-2 rounded-md border border-gray-300"
+                                        :value="limit.max"
+                                        :disabled="!req?.is_enabled"
+                                        @change="updateLimitMax(index, limitIndex, $event.target.value)"
+                                        placeholder="Max"
+                                    />
+                                </div>
+                                <div class="flex items-end justify-end">
+                                    <button
+                                        type="button"
+                                        class="text-[11px] text-red-500 hover:text-red-700"
+                                        :disabled="!req?.is_enabled"
+                                        @click="removeLimit(index, limitIndex)"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <datalist id="limit-field-options">
+                            <option v-for="opt in limitFieldOptions" :key="opt.value" :value="opt.value">
+                                {{ opt.label }}
+                            </option>
+                        </datalist>
                     </div>
                 </div>
             </div>

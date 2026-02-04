@@ -99,6 +99,9 @@ class FormController extends BaseController
             'requirements.*.is_required' => ['boolean'],
             'requirements.*.max_slots' => ['nullable', 'integer', 'min:0'],
             'requirements.*.config' => ['nullable', 'array'],
+            'requirements.*.config.limits' => ['nullable', 'array'],
+            'requirements.*.config.limits.*.field' => ['required_with:requirements.*.config.limits.*.max', 'string'],
+            'requirements.*.config.limits.*.max' => ['required_with:requirements.*.config.limits.*.field', 'integer', 'min:1'],
             'requirements.*.visibility_rules' => ['nullable', 'array'],
             'requirements.*.completion_rules' => ['nullable', 'array'],
         ]);
