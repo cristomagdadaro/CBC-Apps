@@ -40,6 +40,7 @@ class Participant extends BaseModel
         'province_address',
         'country_address',
         'agreed_tc',
+        'agreed_updates',
     ];
 
     protected $casts = [

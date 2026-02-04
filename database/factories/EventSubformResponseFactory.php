@@ -39,6 +39,7 @@ class EventSubformResponseFactory extends Factory
             'phone' => $this->faker->phoneNumber(),
             'is_pwd' => $this->faker->boolean(),
             'agreed_tc' => true,
+            'agreed_updates' => $this->faker->boolean(),
             'designation' => $this->faker->jobTitle(),
             'city_address' => $this->faker->city(),
             'organization' => $this->faker->company(),

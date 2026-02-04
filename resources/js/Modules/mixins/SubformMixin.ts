@@ -11,7 +11,7 @@ import ApiMixin from "@/Modules/mixins/ApiMixin";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
-
+import CertifySection from "@/Pages/Forms/components/Template/CertifySection.vue";
 
 export default {
     mixins: [ApiMixin, FormLocalMixin, DataFormatterMixin],
@@ -20,7 +20,7 @@ export default {
         config: Object,
     },
     components: {
-        CustomDropdown,SubmitBtn,TransitionContainer, Checkbox, Dropdown, DropdownLink, InputError, TextInput, QrcodeVue, QrcodeCanvas, QrcodeSvg
+        CustomDropdown,SubmitBtn,TransitionContainer, Checkbox, Dropdown, DropdownLink, InputError, TextInput, QrcodeVue, QrcodeCanvas, QrcodeSvg, CertifySection
     },
     watch: {
         'form.agreed_tc': {
@@ -28,7 +28,13 @@ export default {
             handler() {
                 this.form?.clearErrors('agreed_tc');
             }
-        }
+        },
+        'form.agreed_updates': {
+            immediate: true,
+            handler() {
+                this.form?.clearErrors('agreed_updates');
+            }
+        },
     },
     data() {
         return {

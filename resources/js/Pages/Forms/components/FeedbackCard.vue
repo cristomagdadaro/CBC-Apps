@@ -192,15 +192,7 @@ export default {
                     <textarea id="other_topics" v-model="form.response_data.other_topics" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm" rows="3" @input="form.clearErrors('other_topics')" />
                     <InputError :message="form.errors.other_topics" />
                 </div>
-                <div class="py-3 flex gap-2">
-                    <Checkbox id="agreed_tc" :class="{'border border-red-600' : form.errors.agreed_tc}" v-model="form.response_data.agreed_tc" :checked="form.response_data.agreed_tc" />
-                    <p class="text-xs leading-none" @click.prevent="form.response_data.agreed_tc = !form.response_data.agreed_tc">
-                        By submitting this form you certify the accuracy of the information and consent to data processing.
-                        <transition-container type="slide-bottom">
-                            <InputError v-show="!!form.errors.agreed_tc" :message="form.errors.agreed_tc" />
-                        </transition-container>
-                    </p>
-                </div>
+                <CertifySection :agreed_tc="form.response_data.agreed_tc" :agreed_updates="form.response_data.agreed_updates" :errors="form.errors" @update:agreed_tc="form.response_data.agreed_tc = $event" @update:agreed_updates="form.response_data.agreed_updates = $event" />
             </div>
 
             <!-- Navigation / Submit -->

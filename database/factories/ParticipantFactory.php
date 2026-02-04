@@ -32,6 +32,7 @@ class ParticipantFactory extends Factory
             'province_address' => $this->faker->city(),
             'country_address' => $this->faker->country(),
             'agreed_tc' => $this->faker->boolean(),
+            'agreed_updates' => $this->faker->boolean(),
         ];
     }
 }

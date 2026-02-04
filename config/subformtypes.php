@@ -20,6 +20,7 @@ return [
         'country_address' => 'nullable|string',
         'attendance_type' => 'nullable|string|in:Online,In-person',
         'agreed_tc' => 'accepted',
+        'agreed_updates' => 'boolean|nullable',
     ],
 
     // Registration form fields
@@ -39,6 +40,7 @@ return [
         'country_address' => 'nullable|string',
         'attendance_type' => 'nullable|string|in:Online,In-person',
         'agreed_tc' => 'accepted',
+        'agreed_updates' => 'boolean|nullable',
     ],
 
     // Preregistration + Quiz Bee form fields
@@ -76,6 +78,7 @@ return [
         'comments_event_coordination' => 'nullable|string',
         'other_topics' => 'nullable|string',
         'agreed_tc' => 'accepted',
+        'agreed_updates' => 'boolean|nullable',
     ],
 
     // Post-test form fields
@@ -107,5 +110,6 @@ return [
         'coach_email' => 'required|email',
         'coach_phone' => 'required|string',
         'agreed_tc' => 'accepted',
+        'agreed_updates' => 'boolean|nullable',
     ]
 ];

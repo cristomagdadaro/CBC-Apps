@@ -13,6 +13,7 @@ interface IParticipant extends IBaseClass {
     province_address: string;
     country_address: string;
     agreed_tc: string;
+    agreed_updates: string;
     event_id?: string;
     attendance_type?: string;
 

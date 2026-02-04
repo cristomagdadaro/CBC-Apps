@@ -82,6 +82,7 @@ class CreateEventSubformResponseRequest extends FormRequest
             'comments_event_coordination' => 'Enter comments or suggestions about event coordination.',
             'other_topics' => 'List other topics you wish to be included.',
             'agreed_tc' => 'You must agree to the terms and conditions to submit feedback.',
+            'agreed_updates' => 'You must indicate your consent regarding updates.',
         ];
 
         foreach ($feedbackFields as $field => $ruleString) {

@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('province_address')->nullable();
             $table->string('country_address')->nullable();
             $table->boolean('agreed_tc')->default(false);
+            $table->boolean('agreed_updates')->default(false);
             $table->timestamps();
         });
     }

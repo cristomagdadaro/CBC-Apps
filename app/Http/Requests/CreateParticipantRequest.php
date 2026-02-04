@@ -39,6 +39,7 @@ class CreateParticipantRequest extends FormRequest
             'province_address' => ['nullable', 'string'],
             'country_address' => ['nullable', 'string'],
             'agreed_tc' => ['required', 'accepted'],
+            'agreed_updates' => ['nullable', 'boolean'],
             'event_id' => ['required', 'string', 'exists:forms,event_id'],
             'attendance_type' => ['required', 'string', Rule::in(['Online', 'In-person'])],
         ];

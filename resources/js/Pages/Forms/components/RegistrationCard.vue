@@ -302,15 +302,7 @@ export default {
                         </svg>
                     </template>
                 </custom-dropdown>
-                <div class="py-3 flex gap-2">
-                    <Checkbox id="agreed_tc" :class="{'border border-red-600' : form.errors.agreed_tc}" v-model="form.response_data.agreed_tc" :checked="form.response_data.agreed_tc" autocomplete="agreed_tc"/>
-                    <p class="text-xs leading-none" @click.prevent="form.response_data.agreed_tc = !form.response_data.agreed_tc">
-                        By submitting this form, you consent to the DA-Crop Biotechnology Center collecting and using your data in accordance with our privacy policy.
-                        <transition-container type="slide-bottom">
-                            <InputError v-show="!!form.errors.agreed_tc" class="" :message="form.errors.agreed_tc" />
-                        </transition-container>
-                    </p>
-                </div>
+                <CertifySection :agreed_tc="form.response_data.agreed_tc" :agreed_updates="form.response_data.agreed_updates" :errors="form.errors" @update:agreed_tc="form.response_data.agreed_tc = $event" @update:agreed_updates="form.response_data.agreed_updates = $event" />
             </div>
             <submit-btn :disabled="model.api.processing" :processing="model.api.processing">
                 <span v-if="!model.api.processing">{{ isEditMode ? 'Update' : 'Register' }}</span>

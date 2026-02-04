@@ -36,6 +36,7 @@ export default class DtoSubformResponse extends DtoBaseClass implements ISubform
                     event_id: null,
                     attendance_type: null,
                     agreed_tc: false,
+                    agreed_updates: false,
                 };
             case 'registration':
                 return {
@@ -55,6 +56,7 @@ export default class DtoSubformResponse extends DtoBaseClass implements ISubform
                     event_id: null,
                     attendance_type: null,
                     agreed_tc: false,
+                    agreed_updates: false,
                 };
             case 'preregistration_biotech':
                 return {
@@ -75,6 +77,7 @@ export default class DtoSubformResponse extends DtoBaseClass implements ISubform
                     attendance_type: null,
                     join_quiz_bee: false,
                     agreed_tc: false,
+                    agreed_updates: false,
                 };
             case 'preregistration_quizbee':
                 return {
@@ -94,6 +97,7 @@ export default class DtoSubformResponse extends DtoBaseClass implements ISubform
                     coach_email: null,
                     coach_phone: null,
                     agreed_tc: false,
+                    agreed_updates: false,
                 };
             case 'feedback':
                 return {
@@ -110,6 +114,7 @@ export default class DtoSubformResponse extends DtoBaseClass implements ISubform
                     comments_event_coordination: '',
                     other_topics: '',
                     agreed_tc: false,
+                    agreed_updates: false,
                 };
             case 'posttest':
                 return {

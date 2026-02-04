@@ -286,7 +286,7 @@ export default {
                     autocomplete="country"
                     @input="form.clearErrors('country_address')"
                 />
-            </div>
+            </div>{{ form }}
             <div class="flex flex-col gap-2">
                 <custom-dropdown v-if="config?.config?.attendance_type_required" :value="form.response_data.attendance_type" @selectedChange="form.response_data.attendance_type = $event"  :error="form.errors.attendance_type" placeholder="Are you attending Online or In-person?" :required="config?.config?.attendance_type_required" :withAllOption="false" :options="[{name: 'Online', label: 'Online'}, {name: 'In-person', label: 'In-person'}]">
                     <template #icon>
@@ -295,15 +295,7 @@ export default {
                         </svg>
                     </template>
                 </custom-dropdown>
-                <div class="py-3 flex gap-2">
-                    <Checkbox id="agreed_tc" :class="{'border border-red-600' : form.errors.agreed_tc}" v-model="form.response_data.agreed_tc" :checked="form.response_data.agreed_tc" autocomplete="agreed_tc"/>
-                    <p class="text-xs leading-none" @click.prevent="form.response_data.agreed_tc = !form.response_data.agreed_tc">
-                        By submitting this form, you consent to the DA-Crop Biotechnology Center collecting and using your data in accordance with our privacy policy.
-                        <transition-container type="slide-bottom">
-                            <InputError v-show="!!form.errors.agreed_tc" class="" :message="form.errors.agreed_tc" />
-                        </transition-container>
-                    </p>
-                </div>
+                <CertifySection :agreed_tc="form.response_data.agreed_tc" :agreed_updates="form.response_data.agreed_updates" :errors="form.errors" @update:agreed_tc="form.response_data.agreed_tc = $event" @update:agreed_updates="form.response_data.agreed_updates = $event" />
             </div>
             <submit-btn :disabled="model.api.processing" :processing="model.api.processing">
                 <span v-if="!model.api.processing">{{ isEditMode ? 'Update' : 'Register' }}</span>
