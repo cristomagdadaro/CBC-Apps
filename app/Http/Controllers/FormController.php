@@ -63,7 +63,8 @@ class FormController extends BaseController
 
     public function create(CreateFormRequest $request): Model
     {
-        return parent::_store($request);
+        //return parent::_store($request);
+        return $this->repo()->createEventWithRequirements($request->validated());
     }
 
     public function update(UpdateFormRequest $request, $event_id = null): Model
@@ -97,7 +98,7 @@ class FormController extends BaseController
             'requirements.*.open_to' => ['nullable', 'date', 'after_or_equal:requirements.*.open_from'],
             'requirements.*.is_required' => ['boolean'],
             'requirements.*.max_slots' => ['nullable', 'integer', 'min:0'],
-            'requirements.*.config' => ['array'],
+            'requirements.*.config' => ['nullable', 'array'],
             'requirements.*.visibility_rules' => ['nullable', 'array'],
             'requirements.*.completion_rules' => ['nullable', 'array'],
         ]);

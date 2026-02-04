@@ -248,9 +248,9 @@ export default {
                 </div>
             </transition-container>
         </div>
-        <div class="flex flex-col border-t p-2 bg-gray-200 rounded-md">
-    <span class="font-bold uppercase text-center">Statistics</span>
-            
+<div class="flex flex-col border-t p-2 bg-gray-200 rounded-md">
+    <span v-if="visibleResponseTypes.length" class="font-bold uppercase text-center">Statistics</span>
+    <span v-else class="font-bold uppercase text-center">No Responses</span>
     <div class="flex gap-1 justify-center flex-wrap">
         <template v-for="(item, index) in visibleResponseTypes" :key="item.key">
             <div

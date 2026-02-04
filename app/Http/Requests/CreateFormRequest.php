@@ -22,15 +22,10 @@ class CreateFormRequest extends FormRequest
     public function prepareForValidation(): void
     {
         do {
-            $temp = Str::uuid()->toString();
-        } while (Form::where('id', $temp)->exists());
-
-        do {
             $event = str_pad(mt_rand(0, 9999), 4, '0', STR_PAD_LEFT);
         } while (Form::where('event_id', $event)->exists());
 
         $this->merge([
-            'id' => $temp,
             'event_id' => $event,
             'style_tokens' => $this->normalizeStyleTokens($this->input('style_tokens')),
         ]);
@@ -44,7 +39,6 @@ class CreateFormRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'id' => ['required'],
             'event_id' => ['required', 'string', 'min:4', 'max:4'],
             'title' => ['required', 'string', 'min:10', 'max:510', 'unique:forms,title'],
             'description' => ['nullable', 'string'],

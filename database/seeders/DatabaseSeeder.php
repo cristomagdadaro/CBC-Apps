@@ -39,11 +39,11 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
-            FormSeeder::class,
+            //FormSeeder::class,
             InventorySeeder::class,
-            //RequesterSeeder::class,
-            //UseRequestFormSeeder::class,
-            //RequestFormPIvotSeeder::class,
+            RequesterSeeder::class,
+            UseRequestFormSeeder::class,
+            RequestFormPIvotSeeder::class,
         ]);
     }
 }

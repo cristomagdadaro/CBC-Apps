@@ -165,7 +165,7 @@ export default {
                                                     />
                                                 </div>
                                             </div>
-                                            <div class="px-1">{{ form.requirements }}
+                                            <div class="px-1">
                                                 <requirements-manager v-model="form.requirements" :error="form.errors.requirements"/>
                                             </div> 
                                             <div class="flex flex-col p-2">

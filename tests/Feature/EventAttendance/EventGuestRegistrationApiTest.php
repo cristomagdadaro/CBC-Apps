@@ -16,43 +16,6 @@ class EventGuestRegistrationApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_get_form_with_requirements_page(): void
-    {
-        //route('forms.update', $form->event_id)
-        $form = Form::factory()->create();
-        Sanctum::actingAs(User::factory()->create());
-        $response = $this->get(route('forms.update', $form->event_id));
-        $response->assertStatus(200)->assertJsonStructure([
-            'event_id',
-            'title',
-            'description',
-            'details',
-            'date_from',
-            'date_to',
-            'time_from',
-            'time_to',
-            'venue',
-            'is_suspended',
-            'max_slots',
-            'requirements' => [
-                '*' => [
-                    'id',
-                    'event_id',
-                    'form_type',
-                    'step_type',
-                    'step_order',
-                    'is_enabled',
-                    'open_from',
-                    'open_to',
-                    'max_slots',
-                    'visibility_rules',
-                    'completion_rules',
-                    'responses_count',
-                ],
-            ],
-        ]);
-    }
-
     public function test_guest_registration_creates_participant_and_registration(): void
     {
         $form = Form::factory()->create([

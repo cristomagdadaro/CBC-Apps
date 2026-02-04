@@ -91,6 +91,13 @@ class FormRepo extends AbstractRepoService
             ->first();
     }
 
+    public function createEventWithRequirements(array $data): Model
+    {
+        $form = $this->model->create($data);
+        $this->updateRequirements($form->event_id, $data['requirements'] ?? []);
+        return $form;
+    }
+
     public function updateByEventId(string $eventId, array $data): Model
     {
         $model = $this->model
