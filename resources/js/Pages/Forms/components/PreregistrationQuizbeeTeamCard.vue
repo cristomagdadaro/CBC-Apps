@@ -1,11 +1,12 @@
 <script>
 import SubformMixin from "@/Modules/mixins/SubformMixin";
+import LocationMixin from "@/Modules/mixins/LocationMixin";
 import SubformResponse from "@/Modules/domain/SubformResponse";
 import DtoResponse from "@/Modules/dto/DtoResponse";
 
 export default {
     name: "PreregistrationQuizbeeTeamCard",
-    mixins: [SubformMixin],
+    mixins: [SubformMixin, LocationMixin],
     props: {
         responseData: {
             type: Object,
@@ -20,6 +21,20 @@ export default {
     computed: {
         isEditMode() {
             return !!this.responseData?.id;
+        },
+    },
+    watch: {
+        'form.response_data.region_address'(value) {
+            if (!this.form) return;
+            this.form.response_data.province_address = null;
+            this.form.response_data.city_address = null;
+            this.loadProvinces(value);
+            this.locationCities = [];
+        },
+        'form.response_data.province_address'(value) {
+            if (!this.form) return;
+            this.form.response_data.city_address = null;
+            this.loadCities(value, this.form.response_data.region_address);
         },
     },
     methods: {
@@ -130,6 +145,15 @@ export default {
         }
         this.form.subform_type = 'preregistration_quizbee';
     },
+    mounted() {
+        this.loadRegions();
+        if (this.form?.response_data?.region_address) {
+            this.loadProvinces(this.form.response_data.region_address);
+        }
+        if (this.form?.response_data?.province_address) {
+            this.loadCities(this.form.response_data.province_address, this.form.response_data.region_address);
+        }
+    },
 }
 </script>
 
@@ -173,25 +197,49 @@ export default {
                 autocomplete="organization"
                 @input="form.clearErrors('organization')"
             />
-            <div class="grid grid-cols-2 gap-2">
-                <TextInput
-                    id="city_address"
-                    v-model="form.response_data.city_address"
-                    type="text"
-                    :error="form.errors.city_address"
-                    placeholder="City"
-                    autocomplete="city"
-                    @input="form.clearErrors('city_address')"
-                />
-                <TextInput
-                    id="province_address"
-                    v-model="form.response_data.province_address"
-                    type="text"
+            <div class="grid grid-cols-3 gap-2">
+                <custom-dropdown
+                    :value="form.response_data.region_address"
+                    @selectedChange="form.response_data.region_address = $event"
+                    :error="form.errors.region_address"
+                    placeholder="Region"
+                    :withAllOption="false"
+                    :options="locationRegions.map(region => ({ name: region, label: region }))"
+                >
+                    <template #icon>
+                        <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                        </svg>
+                    </template>
+                </custom-dropdown>
+                <custom-dropdown
+                    :value="form.response_data.province_address"
+                    @selectedChange="form.response_data.province_address = $event"
                     :error="form.errors.province_address"
                     placeholder="Province"
-                    autocomplete="province"
-                    @input="form.clearErrors('province_address')"
-                />
+                    :withAllOption="false"
+                    :options="locationProvinces.map(province => ({ name: province, label: province }))"
+                >
+                    <template #icon>
+                        <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                        </svg>
+                    </template>
+                </custom-dropdown>
+                <custom-dropdown
+                    :value="form.response_data.city_address"
+                    @selectedChange="form.response_data.city_address = $event"
+                    :error="form.errors.city_address"
+                    placeholder="City"
+                    :withAllOption="false"
+                    :options="locationCities.map(city => ({ name: city.city ?? city, label: city.city ?? city }))"
+                >
+                    <template #icon>
+                        <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                        </svg>
+                    </template>
+                </custom-dropdown>
             </div>
 
             <TextInput

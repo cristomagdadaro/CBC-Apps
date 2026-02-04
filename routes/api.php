@@ -7,6 +7,7 @@ use App\Http\Controllers\EventWorkflowController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\FormScanController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\RequestFormPivotController;
 use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\PersonnelController;
@@ -37,6 +38,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 Route::prefix('guest')->group(function () {
+    Route::prefix('locations')->group(function () {
+        Route::get('/regions', [LocationController::class, 'regions'])->name('api.locations.regions');
+        Route::get('/provinces', [LocationController::class, 'provinces'])->name('api.locations.provinces');
+        Route::get('/cities', [LocationController::class, 'cities'])->name('api.locations.cities');
+    });
     Route::prefix('forms')->group(function () {
         Route::get('/{event_id?}', [FormController::class, 'index'])->name('api.form.guest.index');
         Route::middleware(['check.form.suspended','check.form.expired','check.form.maxslot'])->post('/registration/{event_id?}', [ParticipantController::class, 'post'])->name('api.form.registration.post');
@@ -63,6 +69,11 @@ Route::prefix('guest')->group(function () {
 
 /* 'auth:sanctum', */
 Route::middleware(env('APP_ENV') === 'production' ? ['api', 'auth:sanctum'] : ['api'])->group(function () {
+    Route::prefix('locations')->group(function () {
+        Route::get('/regions', [LocationController::class, 'regions'])->name('api.locations.regions.auth');
+        Route::get('/provinces', [LocationController::class, 'provinces'])->name('api.locations.provinces.auth');
+        Route::get('/cities', [LocationController::class, 'cities'])->name('api.locations.cities.auth');
+    });
     Route::prefix('forms')->group(function () {
         Route::prefix('event')->group(function () {
             Route::get('/', [FormController::class, 'index'])->name('api.form.index');

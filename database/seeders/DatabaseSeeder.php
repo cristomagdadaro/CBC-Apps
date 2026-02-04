@@ -44,6 +44,7 @@ class DatabaseSeeder extends Seeder
             RequesterSeeder::class,
             UseRequestFormSeeder::class,
             RequestFormPIvotSeeder::class,
+            LocCitiesSeeder::class,
         ]);
     }
 }

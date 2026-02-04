@@ -57,6 +57,7 @@ export default {
         },
         limitFieldOptions() {
             return [
+                { value: 'region_address', label: 'Region' },
                 { value: 'province_address', label: 'Province' },
                 { value: 'city_address', label: 'City' },
                 { value: 'organization', label: 'Organization' },
