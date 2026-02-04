@@ -1,5 +1,4 @@
 <script>
-import ScanBtn from "@/Components/Buttons/ScanBtn.vue";
 import {Link} from "@inertiajs/vue3";
 import CreateSupplierLink from "@/Pages/Inventory/Transactions/components/presentation/CreateSupplierLink.vue";
 import CreatePersonnelLink from "@/Pages/Inventory/Transactions/components/presentation/CreatePersonnelLink.vue";
@@ -8,7 +7,7 @@ import OutgoingTransactionLink from "@/Pages/Inventory/Transactions/components/p
 
 export default {
     name: "SupplierHeaderActions",
-    components: {ScanBtn, Link, CreateSupplierLink, CreatePersonnelLink, IncommingTransactionLink, OutgoingTransactionLink}
+    components: {Link, CreateSupplierLink, CreatePersonnelLink, IncommingTransactionLink, OutgoingTransactionLink}
 }
 </script>
 

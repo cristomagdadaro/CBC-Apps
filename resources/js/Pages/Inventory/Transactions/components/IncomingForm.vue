@@ -1,25 +1,16 @@
 <script>
 import {Head, Link} from "@inertiajs/vue3";
-import SecondaryButton from "@/Components/SecondaryButton.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
 import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
-import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import SpinnerIcon from "@/Components/Icons/SpinnerIcon.vue";
 import NavLink from "@/Components/NavLink.vue";
 import AddIcon from "@/Components/Icons/AddIcon.vue";
 import QrcodeVue from 'qrcode.vue';
 import { createCanvas } from "canvas";
-import TextInput from "@/Components/TextInput.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin.js";
 import Transaction from "@/Modules/domain/Transaction";
-import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import JsBarcode from "jsbarcode";
-import DateInput from "@/Components/DateInput.vue";
-import TextArea from "@/Components/TextArea.vue";
-import ResetBtn from "@/Components/Buttons/ResetBtn.vue";
-import TransactionHeaderAction
-    from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
+import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
 import CreateItemForm from "@/Pages/Inventory/Items/components/CreateItemForm.vue";
 import DeleteIcon from '@/Components/Icons/DeleteIcon.vue';
 import SelectSearchField from "@/Components/SelectSearchField.vue";
@@ -29,18 +20,9 @@ export default {
     name: "IncomingForm",
     components: {
         TransactionHeaderAction,
-        ResetBtn,
-        TextArea,
-        DateInput,
-        SubmitBtn,
-        TextInput,
-        AddIcon,
-        NavLink,
-        SpinnerIcon,
-        FilterIcon,
         QrcodeVue,
         SelectSearchField,
-        CustomDropdown, Link, LoaderIcon, PrimaryButton, SecondaryButton, Head, CreateItemForm,
+        Link, LoaderIcon, Head, CreateItemForm,
         DeleteIcon},
     mixins: [ApiMixin],
     data() {

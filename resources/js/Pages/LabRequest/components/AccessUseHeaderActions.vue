@@ -1,11 +1,10 @@
 <script>
-import AddButton from "@/Components/Buttons/AddButton.vue";
 import {Link} from "@inertiajs/vue3";
 import BaseBtn from "@/Components/Buttons/BaseBtn.vue";
 
 export default {
     name: "AccessUseHeaderActions",
-    components: {BaseBtn, Link, AddButton}
+    components: {BaseBtn, Link}
 }
 </script>
 

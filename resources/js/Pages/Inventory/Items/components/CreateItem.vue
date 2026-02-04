@@ -2,31 +2,23 @@
 
 import {defineComponent} from "vue";
 import {Head, Link} from "@inertiajs/vue3";
-import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin.js";
 import Item from "@/Modules/domain/Item";
-import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
-import ResetBtn from "@/Components/Buttons/ResetBtn.vue";
-import TextInput from "@/Components/TextInput.vue";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import AddIcon from "@/Components/Icons/AddIcon.vue";
 import ItemsHeaderActions from "@/Pages/Inventory/Items/components/ItemsHeaderActions.vue";
-import FileInput from "@/Components/FileInput.vue";
 import CreateItemForm from "@/Pages/Inventory/Items/components/CreateItemForm.vue";
 
 export default defineComponent({
     components: {
-        FileInput,
         ItemsHeaderActions,
         AddIcon,
         FilterIcon,
-        TextInput,
-        ResetBtn, SubmitBtn,
         Link,
         LoaderIcon,
         CreateItemForm,
-        CustomDropdown, Head},
+        Head},
     mixins: [ApiMixin],
     beforeMount() {
         this.model = new Item();

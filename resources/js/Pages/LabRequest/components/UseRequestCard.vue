@@ -4,15 +4,13 @@ import ApiMixin from "@/Modules/mixins/ApiMixin.js";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin.js";
 import DtoResponse from "@/Modules/dto/DtoResponse";
 import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
-import Modal from "@/Components/Modal.vue";
 import UseRequestApprovalBtn from "@/Pages/LabRequest/components/UseRequestApprovalBtn.vue";
-import TextArea from "@/Components/TextArea.vue";
 import DeleteIcon from "@/Components/Icons/DeleteIcon.vue";
 import PrinterIcon from "@/Components/Icons/PrinterIcon.vue";
 
 export default {
     name: "UseRequestCard",
-    components: {DeleteIcon, TextArea, UseRequestApprovalBtn, Modal, PrinterIcon},
+    components: {DeleteIcon, UseRequestApprovalBtn, PrinterIcon},
     mixins: [ApiMixin, DataFormatterMixin],
     data(){
         return {

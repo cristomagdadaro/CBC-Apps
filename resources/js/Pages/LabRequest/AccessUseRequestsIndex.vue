@@ -1,10 +1,5 @@
 <script>
 import ApiMixin from "@/Modules/mixins/ApiMixin.js";
-import SearchBy from "@/Components/SearchBy.vue";
-import InputError from "@/Components/InputError.vue";
-import SearchBtn from "@/Components/Buttons/SearchBtn.vue";
-import TextInput from "@/Components/TextInput.vue";
-import PaginateBtn from "@/Components/PaginateBtn.vue";
 import ArrowLeft from "@/Components/Icons/ArrowLeft.vue";
 import ArrowRight from "@/Components/Icons/ArrowRight.vue";
 import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
@@ -19,7 +14,7 @@ export default {
         AccessUseHeaderActions,
         CustomDropdown, FilterIcon,
         ListOfUseRequests,
-        ArrowRight, ArrowLeft, PaginateBtn, TextInput, SearchBtn, InputError, SearchBy},
+        ArrowRight, ArrowLeft},
     mixins: [ApiMixin],
     data() {
         return {

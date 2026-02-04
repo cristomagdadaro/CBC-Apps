@@ -1,18 +1,13 @@
 <script>
-import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
-import TextInput from "@/Components/TextInput.vue";
 import Transaction from "@/Modules/domain/Transaction";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
-import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
-import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
-import TextArea from "@/Components/TextArea.vue";
 import DtoResponse from "@/Modules/dto/DtoResponse";
 import DtoError from "@/Modules/dto/DtoError.js";
 
 export default {
     name: "OutgoingForm",
-    components: {TextArea, CancelBtn, SubmitBtn, TextInput, FilterIcon, CustomDropdown},
+    components: {FilterIcon},
     props: {
         personnels: Object,
     },

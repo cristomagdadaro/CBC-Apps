@@ -3,7 +3,7 @@ import TransitionContainer from "@/Components/Transitions/TransitionContrainer.v
 
 export default {
     name: "TransactionReportAccordion",
-    components: { TransitionContainer },
+    components: { },
     props: {
         reports: {
             type: Array,

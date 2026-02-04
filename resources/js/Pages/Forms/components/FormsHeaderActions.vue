@@ -1,11 +1,9 @@
 <script>
-import AddButton from "@/Components/Buttons/AddButton.vue";
 import {Link} from "@inertiajs/vue3";
-import ScanBtn from "@/Components/Buttons/ScanBtn.vue";
 
 export default {
     name: "FormsHeaderActions",
-    components: {ScanBtn, Link, AddButton}
+    components: {Link}
 }
 </script>
 

@@ -11,7 +11,7 @@ export default {
     components: {
         GuestFormPage,
         RequesterGuestCard,
-        TransitionContainer, GuestCard,
+        GuestCard,
         Head
     },
     props: {

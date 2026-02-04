@@ -8,7 +8,7 @@ import CreatePersonnelLink from "@/Pages/Inventory/Transactions/components/prese
 
 export default {
     name: "TransactionHeaderAction",
-    components: {TransitionContainer, IncommingTransactionLink, OutgoingTransactionLink, Link, AttachReportLink, CreatePersonnelLink},
+    components: {IncommingTransactionLink, OutgoingTransactionLink, Link, AttachReportLink, CreatePersonnelLink},
 }
 </script>
 

@@ -1,16 +1,11 @@
 <script>
 import {Head} from "@inertiajs/vue3";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
-import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Transaction from "@/Modules/domain/Transaction";
-import TextInput from "@/Components/TextInput.vue";
-import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
-import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
 import BaseResponse from "@/Modules/DataTable/domain/BaseResponse";
 import ErrorResponse from "@/Modules/DataTable/domain/ErrorResponse";
-import TextArea from "@/Components/TextArea.vue";
 import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/TransactionReportAccordion.vue";
 import AuditInfoCard from "@/Components/AuditInfoCard.vue";
 
@@ -18,9 +13,8 @@ export default {
     name: "OutgoingUpdateForm",
     components: {
         AuditInfoCard,
-        TextArea,
         TransactionReportAccordion,
-        CancelBtn, SubmitBtn, TextInput, TransactionHeaderAction, CustomDropdown, FilterIcon, Head},
+        TransactionHeaderAction, FilterIcon, Head},
     props: {
         data: Object,
         summary: Object,

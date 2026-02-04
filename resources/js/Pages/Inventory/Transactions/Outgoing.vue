@@ -2,22 +2,16 @@
 import {Head} from "@inertiajs/vue3";
 import AddIcon from "@/Components/Icons/AddIcon.vue";
 import SearchBy from "@/Modules/DataTable/presentation/components/SearchBy.vue";
-import Modal from "@/Components/Modal.vue";
-import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import Transaction from "@/Modules/domain/Transaction";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import SearchBox from "@/Components/Search/SearchBox.vue";
-import TextInput from "@/Components/TextInput.vue";
-import SearchBtn from "@/Components/Buttons/SearchBtn.vue";
-import PaginateBtn from "@/Components/PaginateBtn.vue";
 import ArrowRight from "@/Components/Icons/ArrowRight.vue";
 import ArrowLeft from "@/Components/Icons/ArrowLeft.vue";
 import ListOfForms from "@/Pages/Forms/components/ListOfForms.vue";
 import OutgoingForm from "@/Pages/Inventory/Transactions/components/OutgoingForm.vue";
 import Personnel from "@/Modules/domain/Personnel.js";
-import TransactionHeaderAction
-    from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
+import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
 
 export default {
     name: "Outgoing",
@@ -27,8 +21,7 @@ export default {
         ListOfForms,
         ArrowLeft,
         ArrowRight,
-        PaginateBtn,
-        SearchBtn, TextInput, SearchBox, FilterIcon, CustomDropdown, Modal, SearchBy, AddIcon, Head},
+        SearchBy, SearchBox, FilterIcon, AddIcon, Head},
     mixins: [ApiMixin],
     props: {
         categories: {

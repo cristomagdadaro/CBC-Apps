@@ -4,7 +4,7 @@ import NavLink from "@/Components/NavLink.vue";
 
 export default {
     name: "OutgoingTransactionLink",
-    components: {TransitionContainer, NavLink},
+    components: {NavLink},
 };
 </script>
 >

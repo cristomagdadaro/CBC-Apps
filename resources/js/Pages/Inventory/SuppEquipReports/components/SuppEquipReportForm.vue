@@ -2,26 +2,14 @@
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import SuppEquipReport from "@/Modules/domain/SuppEquipReport";
 import Transaction from "@/Modules/domain/Transaction";
-import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
-import TextInput from "@/Components/TextInput.vue";
-import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
-import SearchBtn from "@/Components/Buttons/SearchBtn.vue";
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
 import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
-import InputError from "@/Components/InputError.vue";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 
 export default {
     name: 'SuppEquipReportForm',
     components: {
         FilterIcon,
-        InputError,
         LoaderIcon,
-        TransitionContainer,
-        SearchBtn,
-        SubmitBtn,
-        TextInput,
-        CustomDropdown,
     },
     mixins: [ApiMixin],
     props: {

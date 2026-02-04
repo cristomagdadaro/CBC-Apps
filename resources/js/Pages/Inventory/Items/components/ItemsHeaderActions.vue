@@ -1,7 +1,5 @@
 <script>
 import {Link} from "@inertiajs/vue3";
-import AddButton from "@/Components/Buttons/AddButton.vue";
-import ScanBtn from "@/Components/Buttons/ScanBtn.vue";
 import CreateItemLink from "@/Pages/Inventory/Transactions/components/presentation/CreateItemLink.vue";
 import CreateSupplierLink from "@/Pages/Inventory/Transactions/components/presentation/CreateSupplierLink.vue";
 import CreatePersonnelLink from "@/Pages/Inventory/Transactions/components/presentation/CreatePersonnelLink.vue";
@@ -11,7 +9,7 @@ import BarcodePrintingLink from "@/Pages/Inventory/Transactions/components/prese
 
 export default {
     name: "ItemsHeaderActions",
-    components: {ScanBtn, Link, AddButton, CreateItemLink, CreateSupplierLink, CreatePersonnelLink, IncommingTransactionLink, OutgoingTransactionLink, BarcodePrintingLink},
+    components: {Link, CreateItemLink, CreateSupplierLink, CreatePersonnelLink, IncommingTransactionLink, OutgoingTransactionLink, BarcodePrintingLink},
 }
 </script>
 

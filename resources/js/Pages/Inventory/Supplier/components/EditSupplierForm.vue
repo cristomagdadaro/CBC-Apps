@@ -1,15 +1,9 @@
 <script>
-import PrimaryButton from "@/Components/PrimaryButton.vue";
 import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
-import SecondaryButton from "@/Components/SecondaryButton.vue";
 import {Head} from "@inertiajs/vue3";
 import ApiMixin from "@/Modules/mixins/ApiMixin.js";
 import Supplier from "@/Modules/domain/Supplier";
 import PersonnelHeaderActions from "@/Pages/Inventory/Personnel/components/PersonnelHeaderActions.vue";
-import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
-import TextInput from "@/Components/TextInput.vue";
-import ResetBtn from "@/Components/Buttons/ResetBtn.vue";
-import TextArea from "@/Components/TextArea.vue";
 import SupplierHeaderActions from "@/Pages/Inventory/Supplier/components/SupplierHeaderActions.vue";
 import AuditInfoCard from "@/Components/AuditInfoCard.vue";
 
@@ -18,13 +12,9 @@ export default {
     components: {
         AuditInfoCard,
         SupplierHeaderActions,
-        TextArea,
-        ResetBtn,
-        TextInput,
-        SubmitBtn,
         PersonnelHeaderActions,
-        Head, SecondaryButton,
-        LoaderIcon, PrimaryButton
+        Head,
+        LoaderIcon
     },
     mixins: [ApiMixin],
     beforeMount() {

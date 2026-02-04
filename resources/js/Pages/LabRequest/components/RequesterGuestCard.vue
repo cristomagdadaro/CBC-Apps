@@ -1,30 +1,16 @@
 <script>
-import DateInput from "@/Components/DateInput.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
-import TextInput from "@/Components/TextInput.vue";
-import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
-import Dropdown from "@/Components/Dropdown.vue";
-import InputError from "@/Components/InputError.vue";
-import DropdownLink from "@/Components/DropdownLink.vue";
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
-import TimeInput from "@/Components/TimeInput.vue";
-import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import DtoResponse from "@/Modules/dto/DtoResponse";
 import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import TagifyInput from "@/Components/Tagify.vue";
-import ProgressTabs from "@/Components/ProgressTabs.vue";
 import Personnel from "@/Modules/domain/Personnel";
-import SuccessModal from "@/Components/SuccessModal.vue";
 
 export default {
     name: "RequesterGuestCard",
     components: {
         TagifyInput,
-        SubmitBtn, TimeInput, TransitionContainer, DropdownLink, InputError, Dropdown, CustomDropdown, TextInput, DateInput,
-        ProgressTabs,
-        SuccessModal,
     },
     mixins: [ApiMixin, FormLocalMixin, DataFormatterMixin],
     data() {

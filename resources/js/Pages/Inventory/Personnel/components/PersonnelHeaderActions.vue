@@ -1,15 +1,13 @@
 
 <script>
-import ScanBtn from "@/Components/Buttons/ScanBtn.vue";
 import {Link} from "@inertiajs/vue3";
 import CreatePersonnelLink from "@/Pages/Inventory/Transactions/components/presentation/CreatePersonnelLink.vue";
-import AddButton from "@/Components/Buttons/AddButton.vue";
 import IncommingTransactionLink from "@/Pages/Inventory/Transactions/components/presentation/IncommingTransactionLink.vue";
 import OutgoingTransactionLink from "@/Pages/Inventory/Transactions/components/presentation/OutgoingTransactionLink.vue";
 
 export default {
     name: "PersonnelHeaderActions",
-    components: {ScanBtn, Link, AddButton, CreatePersonnelLink, IncommingTransactionLink, OutgoingTransactionLink}
+    components: {Link, CreatePersonnelLink, IncommingTransactionLink, OutgoingTransactionLink}
 }
 </script>
 

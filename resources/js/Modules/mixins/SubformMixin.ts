@@ -1,15 +1,7 @@
 import DtoResponse from "@/Modules/dto/DtoResponse";
-import TextInput from "@/Components/TextInput.vue";
-import InputError from "@/Components/InputError.vue";
-import DropdownLink from "@/Components/DropdownLink.vue";
-import Dropdown from "@/Components/Dropdown.vue";
-import Checkbox from "@/Components/Checkbox.vue";
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
 import QrcodeVue, { QrcodeCanvas, QrcodeSvg } from 'qrcode.vue'
-import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
-import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import CertifySection from "@/Pages/Forms/components/Template/CertifySection.vue";
 
@@ -19,9 +11,7 @@ export default {
         eventId: [String, Number],
         config: Object,
     },
-    components: {
-        CustomDropdown,SubmitBtn,TransitionContainer, Checkbox, Dropdown, DropdownLink, InputError, TextInput, QrcodeVue, QrcodeCanvas, QrcodeSvg, CertifySection
-    },
+    components: { QrcodeVue, QrcodeCanvas, QrcodeSvg, CertifySection },
     watch: {
         'form.agreed_tc': {
             immediate: true,

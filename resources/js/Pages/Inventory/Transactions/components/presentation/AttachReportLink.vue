@@ -5,7 +5,7 @@ import ScanBtn from "@/Components/Buttons/ScanBtn.vue";
 
 export default {
     name: "AttachReportLink",
-    components: {TransitionContainer, NavLink, ScanBtn},
+    components: {NavLink},
 };
 </script>
 >

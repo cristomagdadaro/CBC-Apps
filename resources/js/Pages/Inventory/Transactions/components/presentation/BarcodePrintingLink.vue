@@ -5,7 +5,7 @@ import PrinterIcon from "@/Components/Icons/PrinterIcon.vue";
 
 export default {
     name: "BarcodePrintingLink",
-    components: {TransitionContainer, NavLink, PrinterIcon},
+    components: {NavLink, PrinterIcon},
 };
 </script>
 >

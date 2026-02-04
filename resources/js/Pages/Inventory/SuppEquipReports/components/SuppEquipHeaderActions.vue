@@ -1,15 +1,12 @@
 <script>
 import {Link} from "@inertiajs/vue3";
-import AddButton from "@/Components/Buttons/AddButton.vue";
-import ScanBtn from "@/Components/Buttons/ScanBtn.vue";
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
 import IncommingTransactionLink from "@/Pages/Inventory/Transactions/components/presentation/IncommingTransactionLink.vue";
 import OutgoingTransactionLink from "@/Pages/Inventory/Transactions/components/presentation/OutgoingTransactionLink.vue";
 import AttachReportLink from "../../Transactions/components/presentation/AttachReportLink.vue";
 
 export default {
     name: "SuppEquipHeaderActions",
-    components: {ScanBtn, Link, AddButton, TransitionContainer, IncommingTransactionLink, OutgoingTransactionLink, AttachReportLink},
+    components: {Link, IncommingTransactionLink, OutgoingTransactionLink, AttachReportLink},
     props: {
         showAttachButton: {
             type: Boolean,

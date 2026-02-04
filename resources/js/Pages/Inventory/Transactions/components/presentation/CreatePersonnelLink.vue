@@ -4,7 +4,7 @@ import NavLink from "@/Components/NavLink.vue";
 
 export default {
     name: "CreatePersonnelLink",
-    components: {TransitionContainer, NavLink},
+    components: {NavLink},
 };
 </script>
 >

@@ -1,45 +1,27 @@
 <script>
 import {Head} from "@inertiajs/vue3";
 import SearchComp from "@/Components/Search/SearchComp.vue";
-import TransactionHeaderAction
-    from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
+import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
 import Transaction from "@/Modules/domain/Transaction";
 import DataTable from "@/Modules/DataTable/presentation/DataTable.vue";
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
 import RequesterGuestCard from "@/Pages/LabRequest/components/RequesterGuestCard.vue";
-import SearchBtn from "@/Components/Buttons/SearchBtn.vue";
 import ArrowRight from "@/Components/Icons/ArrowRight.vue";
 import ArrowLeft from "@/Components/Icons/ArrowLeft.vue";
-import TextInput from "@/Components/TextInput.vue";
-import Modal from "@/Components/Modal.vue";
-import SearchBy from "@/Modules/DataTable/presentation/components/SearchBy.vue";
-import PaginateBtn from "@/Components/PaginateBtn.vue";
 import OutgoingForm from "@/Pages/Inventory/Transactions/components/OutgoingForm.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Personnel from "@/Modules/domain/Personnel";
 import GuestFormPage from "@/Pages/Shared/GuestFormPage.vue";
 import CameraScanner from "@/Components/CameraScanner.vue";
 import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
-import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
-import SuccessModal from "@/Components/SuccessModal.vue";
 
 export default {
     name: "OutgoingFormGuest",
     components: {
-        CustomDropdown,
         LoaderIcon,
         CameraScanner,
         GuestFormPage,
         OutgoingForm,
-        PaginateBtn,
-        SearchBy,
-        Modal,
-        TextInput,
-        ArrowLeft,
-        ArrowRight,
-        SearchBtn,
-        SuccessModal,
-        RequesterGuestCard, TransitionContainer, TransactionHeaderAction, SearchComp, Head},
+        RequesterGuestCard, TransactionHeaderAction, SearchComp, Head},
     mixins: [ApiMixin],
     props: {
         categories: {

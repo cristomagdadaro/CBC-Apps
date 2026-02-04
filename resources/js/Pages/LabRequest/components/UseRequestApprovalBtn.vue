@@ -9,7 +9,7 @@ import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 
 export default {
     name: "UseRequestApprovalBtn",
-    components: {SubmitBtn, TextArea, LoaderIcon},
+    components: {LoaderIcon},
     props: {
         data: Object
     },

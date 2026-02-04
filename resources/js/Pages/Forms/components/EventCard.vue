@@ -1,34 +1,20 @@
 <script>
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Form from "@/Modules/domain/Form.js";
-import Modal from "@/Components/Modal.vue";
-import ConfirmationModal from "@/Components/ConfirmationModal.vue";
-import DeleteBtn from "@/Components/Buttons/DeleteBtn.vue";
-import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
 import SuspendFormBtn from "@/Pages/Forms/components/SuspendFormBtn.vue";
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
 import DtoResponse from "@/Modules/dto/DtoResponse";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 import Participant from "@/Modules/domain/Participant";
 import RequirementsManager from "@/Components/Forms/RequirementsManager.vue";
-import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal.vue";
-import ScanBtn from "@/Components/Buttons/ScanBtn.vue";
 
 export default {
     name: "EventCard",
 
     components: {
-        DeleteConfirmationModal,
         RequirementsManager,
         LoaderIcon,
-        TransitionContainer,
         SuspendFormBtn,
-        CancelBtn,
-        DeleteBtn,
-        ScanBtn,
-        ConfirmationModal,
-        Modal,
     },
 
     mixins: [ApiMixin, DataFormatterMixin],
