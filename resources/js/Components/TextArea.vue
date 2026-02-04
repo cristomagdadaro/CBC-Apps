@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, nextTick } from 'vue';
 
 const props = defineProps({
     modelValue: [String, Number],
@@ -10,25 +10,43 @@ const props = defineProps({
     classes: String,
     id: String,
     label: String,
+    rows: {
+        type: Number,
+        default: 4,
+    },
 });
 
 const emit = defineEmits(['update:modelValue']);
 
 const input = ref(null);
-const isChameleon = ref(props.chameleon); // Local state for toggling
+
+function adjustHeight() {
+    if (!input.value) return;
+    // reset height so scrollHeight shrinks when content is removed
+    input.value.style.height = 'auto';
+    const newHeight = input.value.scrollHeight;
+    input.value.style.height = `${newHeight}px`;
+}
+
+function onInput(e) {
+    emit('update:modelValue', e.target.value);
+    adjustHeight();
+}
 
 onMounted(() => {
     if (input.value && input.value.hasAttribute('autofocus')) {
         input.value.focus();
     }
+    // ensure height adjusts after initial render/value
+    nextTick(adjustHeight);
 });
 
-// Watch for changes in the prop and sync it with the local state
-watch(() => props.chameleon, (newVal) => {
-    isChameleon.value = newVal;
+watch(() => props.modelValue, () => {
+    // adjust when parent updates the value
+    nextTick(adjustHeight);
 });
 
-defineExpose({ focus: () => input.value?.focus() });
+defineExpose({ focus: () => input.value?.focus(), adjustHeight });
 </script>
 
 <template>
@@ -38,10 +56,11 @@ defineExpose({ focus: () => input.value?.focus() });
         </div>
         <textarea
             ref="input"
-            class="leading-tight  w-full focus:border-AB focus:ring-AB rounded-md shadow-sm"
+            :rows="rows"
+            class="leading-tight w-full focus:border-AB focus:ring-AB rounded-md shadow-sm resize-none overflow-hidden"
             :value="modelValue"
             :placeholder="placeholder"
-            @input="$emit('update:modelValue', $event.target.value)"
+            @input="onInput"
         />
     </div>
 </template>
