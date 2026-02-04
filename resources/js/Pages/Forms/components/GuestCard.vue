@@ -1,6 +1,7 @@
 <script>
 import PreregistrationCard from "@/Pages/Forms/components/PreregistrationCard.vue";
 import PreregistrationQuizBeeCard from "@/Pages/Forms/components/PreregistrationQuizBeeCard.vue";
+import PreregistrationQuizbeeTeamCard from "@/Pages/Forms/components/PreregistrationQuizbeeTeamCard.vue";
 import TextInput from "@/Components/TextInput.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import InputError from "@/Components/InputError.vue";
@@ -16,7 +17,7 @@ import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 
 export default {
     name: "GuestCard",
-    components: {LoaderIcon, TabNavigation, FeedbackCard, RegistrationCard, InputError, InputLabel, TextInput, PreregistrationCard, PreregistrationQuizBeeCard, CustomDropdown},
+    components: {LoaderIcon, TabNavigation, FeedbackCard, RegistrationCard, InputError, InputLabel, TextInput, PreregistrationCard, PreregistrationQuizBeeCard, PreregistrationQuizbeeTeamCard, CustomDropdown},
     mixins: [ApiMixin, FormLocalMixin, DataFormatterMixin],
     props: {
         data: {
@@ -48,6 +49,7 @@ export default {
             const labelMap = {
                 preregistration: 'Pre-Registration',
                 preregistration_biotech: 'Pre-Registration + Quiz Bee',
+                preregistration_quizbee: 'Pre-Registration Quiz Bee',
                 registration: 'Registration',
                 pre_test: 'Pre-test',
                 post_test: 'Post-test',
@@ -371,6 +373,18 @@ export default {
                         </div>
                     </div>
 
+                    <div v-if="activeKey === 'preregistration_quizbee'">
+                        <preregistration-quizbee-team-card
+                            v-if="activeStep?.status === 'available'"
+                            :event-id="getRequirementFormId('preregistration_quizbee')"
+                            :config="getStep('preregistration_quizbee')"
+                            @createdModel="handleCreatedModel"
+                        />
+                        <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
+                            {{ getStepMessage(getStep('preregistration_quizbee')) }}
+                        </div>
+                    </div>
+
                     <div v-if="activeKey === 'registration'">
                         <registration-card
                             v-if="activeStep?.status === 'available'"
@@ -396,7 +410,7 @@ export default {
                             {{ getStepMessage(getStep('feedback')) }}
                         </div>
                     </div>
-                    <div v-if="['preregistration', 'preregistration_biotech', 'registration', 'feedback'].indexOf(activeKey) === -1">
+                    <div v-if="['preregistration', 'preregistration_biotech', 'preregistration_quizbee', 'registration', 'feedback'].indexOf(activeKey) === -1">
                         <div class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
                             This step type is not yet supported in the guest UI.
                         </div>

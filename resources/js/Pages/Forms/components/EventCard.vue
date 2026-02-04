@@ -55,6 +55,8 @@ export default {
             return {
                 pre_registration: "Pre-registration",
                 pre_registration_biotech: "Pre-registration + Quiz Bee",
+                pre_registration_quizbee: "Pre-registration Quiz Bee",
+                preregistration_quizbee: "Pre-registration Quiz Bee",
                 registration: "Registration",
                 pre_test: "Pre-test",
                 post_test: "Post-test",
@@ -77,6 +79,7 @@ export default {
                 feedback: 0,
                 preregistration: 0,
                 preregistration_biotech: 0,
+                preregistration_quizbee: 0,
                 pretest: 0,
                 posttest: 0,
             };
@@ -100,6 +103,9 @@ export default {
                         break;
                     case "preregistration_biotech":
                         result.preregistration_biotech = req.responses_count ?? 0;
+                        break;
+                    case "preregistration_quizbee":
+                        result.preregistration_quizbee = req.responses_count ?? 0;
                         break;
                     case "pre_test":
                         result.pretest = req.responses_count ?? 0;
@@ -131,6 +137,7 @@ export default {
                 { key: 'feedback', label: 'Feedback' },
                 { key: 'preregistration', label: 'Pre-registration' },
                 { key: 'preregistration_biotech', label: 'Pre-registration + Quiz Bee' },
+                { key: 'preregistration_quizbee', label: 'Pre-registration Quiz Bee' },
                 { key: 'pretest', label: 'Pre-test' },
                 { key: 'posttest', label: 'Post-test' },
             ].filter(item => this.responseCountByType[item.key] > 0);
@@ -293,6 +300,16 @@ export default {
             >
                 <label class="text-xl font-[1000]">{{ responseCountByType.preregistration_biotech }}</label>
                 <span class="text-[0.6rem] select-none">Pre-registration + Quiz Bee</span>
+            </div>
+            <div
+                v-else-if="item.key === 'preregistration_quizbee'"
+                :class="[
+                    'flex flex-col items-center text-green-900 w-fit px-2 py-1',
+                    hasRightBorder(index) ? 'border-r-2 border-gray-900' : ''
+                ]"
+            >
+                <label class="text-xl font-[1000]">{{ responseCountByType.preregistration_quizbee }}</label>
+                <span class="text-[0.6rem] select-none">Pre-registration Quiz Bee</span>
             </div>
             <div
                 v-else-if="item.key === 'pretest'"

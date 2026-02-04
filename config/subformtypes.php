@@ -86,4 +86,22 @@ return [
         'score' => 'integer',
         'remarks' => 'string',
     ],
+
+    Subform::PREREGISTRATION_QUIZBEE->value => [
+        'organization' => 'required|string',
+        'city_address' => 'nullable|string',
+        'province_address' => 'nullable|string',
+        'team_name' => 'required|string',
+        'participant_1_name' => 'required|string',
+        'participant_1_sex' => 'required|string|in:Male,Female,Prefer not to say',
+        'participant_1_gradelevel' => 'required|string|in:Grade 11',
+        'participant_2_name' => 'required|string',
+        'participant_2_sex' => 'required|string|in:Male,Female,Prefer not to say',
+        'participant_2_gradelevel' => 'required|string|in:Grade 12',
+        'proof_of_enrollment' => 'required|file|mimes:pdf|max:2048',
+        'coach_name' => 'required|string',
+        'coach_email' => 'required|email',
+        'coach_phone' => 'required|string',
+        'agreed_tc' => 'accepted',
+    ]
 ];

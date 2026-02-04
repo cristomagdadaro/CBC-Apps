@@ -14,6 +14,7 @@ import DataFormatterMixin from '@/Modules/mixins/DataFormatterMixin';
 import Modal from '@/Components/Modal.vue';
 import PreregistrationCard from '@/Pages/Forms/components/PreregistrationCard.vue';
 import PreregistrationQuizBeeCard from '@/Pages/Forms/components/PreregistrationQuizBeeCard.vue';
+import PreregistrationQuizbeeTeamCard from '@/Pages/Forms/components/PreregistrationQuizbeeTeamCard.vue';
 import RegistrationCard from '@/Pages/Forms/components/RegistrationCard.vue';
 import FeedbackCard from '@/Pages/Forms/components/FeedbackCard.vue';
 
@@ -25,6 +26,7 @@ export default {
         Modal,
         PreregistrationCard,
         PreregistrationQuizBeeCard,
+        PreregistrationQuizbeeTeamCard,
         RegistrationCard,
         FeedbackCard,
     },
@@ -57,6 +59,8 @@ export default {
             labelMap: {
                 pre_registration: 'Pre-registration',
                 pre_registration_biotech: 'Pre-registration + Quiz Bee',
+                pre_registration_quizbee: 'Pre-registration Quiz Bee',
+                preregistration_quizbee: 'Pre-registration Quiz Bee',
                 registration: 'Registration',
                 pre_test: 'Pre-test',
                 post_test: 'Post-test',
@@ -112,6 +116,8 @@ export default {
                 'pre_registration': 'PreregistrationCard',
                 'preregistration_biotech': 'PreregistrationQuizBeeCard',
                 'pre_registration_biotech': 'PreregistrationQuizBeeCard',
+                'preregistration_quizbee': 'PreregistrationQuizbeeTeamCard',
+                'pre_registration_quizbee': 'PreregistrationQuizbeeTeamCard',
                 'registration': 'RegistrationCard',
                 'feedback': 'FeedbackCard',
             };

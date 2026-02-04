@@ -47,6 +47,7 @@ export default {
             return [
                 { value: 'preregistration', label: 'Pre-registration' },
                 { value: 'preregistration_biotech', label: 'Pre-registration + Quiz Bee' },
+                { value: 'preregistration_quizbee', label: 'Pre-registration Quiz Bee' },
                 { value: 'registration', label: 'Registration / Attendance' },
                 { value: 'pretest', label: 'Pre-test' },
                 { value: 'posttest', label: 'Post-test' },

@@ -33,6 +33,7 @@ class CreateEventSubformResponseRequest extends FormRequest
         $participantExempt = [
             Subform::PREREGISTRATION->value,
             Subform::PREREGISTRATION_BIOTECH->value,
+            Subform::PREREGISTRATION_QUIZBEE->value,
         ];
         
         $rules = [

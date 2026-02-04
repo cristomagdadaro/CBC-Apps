@@ -48,7 +48,7 @@ class EventSubformResponseController extends BaseController
 
     public function create(CreateEventSubformResponseRequest $request, EventWorkflowService $workflow)
     {
-        $validated = $request->validated();
+        $validated = $this->withUploadedProof($request, $request->validated());
 
         $requirement = EventSubform::select(['id', 'event_id'])->find($validated['form_parent_id']);
 
@@ -72,7 +72,7 @@ class EventSubformResponseController extends BaseController
     public function update(UpdateEventSubformResponseRequest $request, string $event_id): JsonResponse
     {
         try {
-            $validated = $request->validated();
+            $validated = $this->withUploadedProof($request, $request->validated());
 
             $updated = $this->repo()->updateResponse(
                 $this->repo()->model->findOrFail($event_id),
@@ -89,6 +89,17 @@ class EventSubformResponseController extends BaseController
                 'message' => $e->getMessage(),
             ], 400);
         }
+    }
+
+    private function withUploadedProof(Request $request, array $validated): array
+    {
+        if ($request->hasFile('response_data.proof_of_enrollment')) {
+            $file = $request->file('response_data.proof_of_enrollment');
+            $path = $file->store('quizbee/proof-of-enrollment', 'public');
+            $validated['response_data']['proof_of_enrollment'] = $path;
+        }
+
+        return $validated;
     }
 
     public function delete(Request $request, string $response_id): JsonResponse

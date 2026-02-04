@@ -76,29 +76,33 @@ class EventWorkflowService
             $validated = $context['validated'] ?? $validated;
             $participantId = Arr::get($validated, 'participant_id', $participantId);
 
-            if (!$participantId) {
+            if (!$participantId && !$this->canStartWithoutParticipant($step)) {
                 $this->throwWorkflowError('participant_id', 'Participant is required to continue this step.');
             }
 
-            $existing = EventSubformResponse::query()
-                ->where('form_parent_id', $step->id)
-                ->where('participant_id', $participantId)
-                ->first();
+            if ($participantId) {
+                $existing = EventSubformResponse::query()
+                    ->where('form_parent_id', $step->id)
+                    ->where('participant_id', $participantId)
+                    ->first();
 
-            if ($existing) {
-                $this->ensureStepState($step, $participantId, $existing->completion_hash, 'duplicate');
+                if ($existing) {
+                    $this->ensureStepState($step, $participantId, $existing->completion_hash, 'duplicate');
 
-                return [
-                    'status' => 'duplicate',
-                    'participant' => $context['participant'] ?? null,
-                    'registration' => $context['registration'] ?? null,
-                    'subformResponse' => $existing,
-                ];
+                    return [
+                        'status' => 'duplicate',
+                        'participant' => $context['participant'] ?? null,
+                        'registration' => $context['registration'] ?? null,
+                        'subformResponse' => $existing,
+                    ];
+                }
             }
 
             $this->assertSlotAvailability($step);
 
-            $completionHash = $this->buildCompletionHash($participantId, $step->id, $validated['response_data'] ?? []);
+            $completionHash = $participantId
+                ? $this->buildCompletionHash($participantId, $step->id, $validated['response_data'] ?? [])
+                : null;
 
             $context['validated'] = $validated;
             $context['validated']['completion_hash'] = $completionHash;
@@ -113,7 +117,9 @@ class EventWorkflowService
 
             $response = $context['subformResponse'];
 
-            $this->ensureStepState($step, $participantId, $completionHash, 'submitted');
+            if ($participantId) {
+                $this->ensureStepState($step, $participantId, $completionHash, 'submitted');
+            }
 
             return [
                 'status' => 'created',
@@ -369,9 +375,11 @@ class EventWorkflowService
         $allowed = [
             Subform::PREREGISTRATION->value,
             Subform::PREREGISTRATION_BIOTECH->value,
+            Subform::PREREGISTRATION_QUIZBEE->value,
         ];
+        $type = $step->form_type ?? $step->step_type;
 
-        return in_array($step->form_type, $allowed, true);
+        return in_array($type, $allowed, true);
     }
 
     protected function isVisible(EventSubform $step, ?string $participantId): bool

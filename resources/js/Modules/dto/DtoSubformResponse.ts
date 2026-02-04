@@ -73,6 +73,24 @@ export default class DtoSubformResponse extends DtoBaseClass implements ISubform
                     join_quiz_bee: false,
                     agreed_tc: false,
                 };
+            case 'preregistration_quizbee':
+                return {
+                    organization: null,
+                    city_address: null,
+                    province_address: null,
+                    team_name: null,
+                    participant_1_name: null,
+                    participant_1_sex: null,
+                    participant_1_gradelevel: null,
+                    participant_2_name: null,
+                    participant_2_sex: null,
+                    participant_2_gradelevel: null,
+                    proof_of_enrollment: null,
+                    coach_name: null,
+                    coach_email: null,
+                    coach_phone: null,
+                    agreed_tc: false,
+                };
             case 'feedback':
                 return {
                     clarity_objective: null,
