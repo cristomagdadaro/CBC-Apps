@@ -60,7 +60,7 @@ export default {
 
             <label
                 for="agreed_tc"
-                class="text-xs leading-snug cursor-pointer select-none"
+                class="text-xs leading-snug cursor-pointer"
             >
                 I hereby certify that the information provided is true, correct, and complete. I authorize the Department of Agriculture – Crop Biotechnology Center (DA-CBC) to collect, process, store, update, and manage my personal data in accordance with Republic Act No. 10173 (Data Privacy Act of 2012) for legitimate purposes related to its programs and web applications.
 
@@ -82,7 +82,7 @@ export default {
 
             <label
                 for="agreed_updates"
-                class="text-xs leading-snug cursor-pointer select-none"
+                class="text-xs leading-snug cursor-pointer"
             >
                 I consent to receive official updates, announcements, and program-related communications from the DA–Crop Biotechnology Center through my registered email address, mobile number, and/or messaging applications.
 

@@ -50,6 +50,7 @@ export default {
             const response = await this.submitCreate(null, 'response_data');
             this.showSuccess = response.status === 201;
             if (response instanceof DtoResponse) {
+                //@ts-ignore
                 this.registrationIDHashed = response.data.participant_hash;
                 this.saveLocalHashedIds(response.data);
                 this.$emit('createdModel', response.data);

@@ -125,6 +125,12 @@ Route::middleware([
     })->name('dashboard');
 
     Route::prefix('apps')->group(function () {
+        Route::prefix('manuals')->group(function () {
+            Route::get('/', function () {
+                return Inertia::render('Manuals/ManualsIndex');
+            })->name('manuals.index');
+        });
+
         Route::prefix('event-forms')->group(function () {
             Route::get('/', function () {
                 return Inertia::render('Forms/FormIndex');

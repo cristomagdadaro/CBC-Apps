@@ -62,6 +62,10 @@ const services = [
             },
         ]
     },
+    {
+        label: 'Manuals & Guides',
+        href: 'manuals.index',
+    },
 ]
 </script>
 
