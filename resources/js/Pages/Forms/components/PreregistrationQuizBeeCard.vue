@@ -58,11 +58,13 @@ export default {
             this.setFormAction('create').response_data = SubformResponse.getSubformFields('preregistration_biotech');
             this.form.response_data.event_id = this.eventId;
             this.form.form_parent_id = this.eventId;
+            this.form.response_data.region_address = 'REGION III';
+            this.loadProvinces(this.form.response_data.region_address);
         }
         this.form.subform_type = 'preregistration_biotech';
     },
     mounted() {
-        this.loadRegions();
+        //this.loadRegions();
         if (this.form?.response_data?.region_address) {
             this.loadProvinces(this.form.response_data.region_address);
         }
@@ -238,6 +240,7 @@ export default {
                     @selectedChange="form.response_data.region_address = $event"
                     :error="form.errors.region_address"
                     placeholder="Region"
+                    disabled
                     :withAllOption="false"
                     :options="locationRegions.map(region => ({ name: region, label: region }))"
                 >

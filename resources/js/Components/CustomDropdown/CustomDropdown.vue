@@ -7,19 +7,19 @@
             </transition-container>
         </div>
         <div>
-            <div class="w-full focus-within:ring-1 flex gap-1 justify-between border-gray-700 items-center bg-white rounded px-4 py-2 border" @click.prevent="toggle">
-                <div v-if="!searchable" class="text-gray-600 whitespace-nowrap overflow-hidden overflow-ellipsis">{{ selected? selected.label : placeholder }}</div>
+            <div :class="['w-full focus-within:ring-1 flex gap-1 justify-between border-gray-700 items-center rounded px-4 py-2 border', { 'bg-white': !disabled, 'bg-gray-100': disabled, 'opacity-60 cursor-not-allowed': disabled }]" @click.prevent="toggle">
+                <div v-if="!searchable" :class="['text-gray-600 whitespace-nowrap overflow-hidden overflow-ellipsis', { 'text-gray-400': disabled }]">{{ selected? selected.label : value? value : placeholder }}</div>
                 <input v-else type="text" @keydown.esc="search = null" @keydown="filterOptions()" v-model="search" class="w-full text-gray-600 border-none focus:outline-none focus:border-transparent focus:ring-0 p-0" :placeholder="selected? selected.label : placeholder" />
                 <div class="flex gap-2 items-center">
-                    <close-icon class="h-5 w-5" v-if="selected && showClear" @click.prevent="select(null)" />
-                    <slot name="icon" :class="open?'rotate-180':'rotate-360'" class="h-4 w-4 duration-300" />
+                    <close-icon class="h-5 w-5" v-if="selected && showClear && !disabled" @click.prevent="disabled ? null : select(null)" />
+                    <slot v-if="!disabled" name="icon" :class="open?'rotate-180':'rotate-360'" class="h-4 w-4 duration-300" />
                 </div>
             </div>
             <div v-show="open" class="fixed inset-0 z-48" @click.prevent="open = false" />
             <transition-container>
                 <div
                     v-show="open"
-                    class="z-50 absolute border shadow rounded bg-white mt-1 py-2 max-h-[30vh] overflow-hidden overflow-y-auto py-2"
+                    class="z-50 absolute border shadow rounded bg-white mt-1 max-h-[30vh] overflow-hidden overflow-y-auto py-2"
                 >
                     <div v-if="filteredOptions" class="hidden text-xs text-gray-700 px-2 shadow-lg">Options</div>
                     <dropdown-option v-if="!filteredOptions.length">No options available</dropdown-option>
@@ -80,6 +80,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        disabled: {
+            type: Boolean,
+            default: false,
+        },
         error: String,
     },
     data(){
@@ -93,9 +97,11 @@ export default {
     },
     methods: {
         toggle(){
+            if (this.disabled) return;
             this.open = !this.open;
         },
         select(option){
+            if (this.disabled) return;
             if (option){
                 this.$emit('selectedChange', option.name);
             } else {
@@ -107,8 +113,8 @@ export default {
         },
         selectByValue(value, silent = false) {
             this.selected = this.options.find(option => option.name === value);
-
             if (!silent) {
+                if (this.disabled) return;
                 this.$emit('selectedChange', this.selected ? this.selected.name : null);
             }
         },
@@ -145,9 +151,10 @@ export default {
                         this.filteredOptions = [selectedOption, ...this.options.filter(option => option.name !== newVal)];
                         return;
                     }
+                } else {
+                    this.selected = this.options.find(option => option.selected) || null;
+                    this.filteredOptions = this.options;
                 }
-                this.selected = this.options.find(option => option.selected) || null;
-                this.filteredOptions = this.options;
             },
             immediate: true
         },
