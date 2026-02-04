@@ -1,6 +1,5 @@
 <script>
 import {Head} from "@inertiajs/vue3";
-import AppLayout from "@/Layouts/AppLayout.vue";
 import TextInput from "@/Components/TextInput.vue";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
@@ -9,7 +8,7 @@ import JsBarcode from "jsbarcode";
 
 export default {
     name: "BarcodePrint",
-    components: {SubmitBtn, TextInput, AppLayout, Head},
+    components: {SubmitBtn, TextInput, Head},
     mixins: [ApiMixin],
     data() {
         return {

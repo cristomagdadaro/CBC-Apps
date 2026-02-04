@@ -1,5 +1,4 @@
 <script>
-import AppLayout from "@/Layouts/AppLayout.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin.js";
 import SearchBy from "@/Components/SearchBy.vue";
 import InputError from "@/Components/InputError.vue";
@@ -20,7 +19,7 @@ export default {
         AccessUseHeaderActions,
         CustomDropdown, FilterIcon,
         ListOfUseRequests,
-        ArrowRight, ArrowLeft, PaginateBtn, TextInput, SearchBtn, InputError, SearchBy, AppLayout},
+        ArrowRight, ArrowLeft, PaginateBtn, TextInput, SearchBtn, InputError, SearchBy},
     mixins: [ApiMixin],
     data() {
         return {

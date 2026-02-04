@@ -2,7 +2,6 @@
 import {Head} from "@inertiajs/vue3";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
-import AppLayout from "@/Layouts/AppLayout.vue";
 import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Transaction from "@/Modules/domain/Transaction";
@@ -21,7 +20,7 @@ export default {
         AuditInfoCard,
         TextArea,
         TransactionReportAccordion,
-        CancelBtn, SubmitBtn, TextInput, TransactionHeaderAction, AppLayout, CustomDropdown, FilterIcon, Head},
+        CancelBtn, SubmitBtn, TextInput, TransactionHeaderAction, CustomDropdown, FilterIcon, Head},
     props: {
         data: Object,
         summary: Object,

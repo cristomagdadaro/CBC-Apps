@@ -1,6 +1,5 @@
 <script>
 import { Head } from "@inertiajs/vue3";
-import AppLayout from "@/Layouts/AppLayout.vue";
 import SuppEquipHeaderActions from "./components/SuppEquipHeaderActions.vue";
 import SuppEquipReportForm from "@/Pages/Inventory/SuppEquipReports/components/SuppEquipReportForm.vue";
 
@@ -9,7 +8,6 @@ export default {
     components: {
         SuppEquipReportForm,
         SuppEquipHeaderActions,
-        AppLayout,
         Head,
     },
     props: {

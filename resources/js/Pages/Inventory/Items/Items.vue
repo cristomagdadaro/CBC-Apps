@@ -1,7 +1,6 @@
 <script>
 import {Head} from "@inertiajs/vue3";
 import DataTable from "@/Modules/DataTable/presentation/DataTable.vue";
-import AppLayout from "@/Layouts/AppLayout.vue";
 import SearchComp from "@/Components/Search/SearchComp.vue";
 import Item from "@/Modules/domain/Item";
 import ItemsHeaderActions from "@/Pages/Inventory/Items/components/ItemsHeaderActions.vue";
@@ -10,7 +9,6 @@ export default {
     name: "Items",
     components: {
         ItemsHeaderActions,
-        AppLayout,
         SearchComp,
         DataTable,
         Head

@@ -62,7 +62,7 @@ export default {
                 for="agreed_tc"
                 class="text-xs leading-snug cursor-pointer"
             >
-                I hereby certify that the information provided is true, correct, and complete. I authorize the Department of Agriculture – Crop Biotechnology Center (DA-CBC) to collect, process, store, update, and manage my personal data in accordance with Republic Act No. 10173 (Data Privacy Act of 2012) for legitimate purposes related to its programs and web applications.
+                I hereby certify that the information provided is true, correct, and complete. I authorize the <a href="https://dacbc.philrice.gov.ph/" target="_blank">Department of Agriculture – Crop Biotechnology Center (DA-CBC)</a> to collect, process, store, update, and manage my personal data in accordance with Republic Act No. 10173 (Data Privacy Act of 2012) for legitimate purposes related to its programs and web applications.
 
                 <transition-container type="slide-bottom">
                     <InputError

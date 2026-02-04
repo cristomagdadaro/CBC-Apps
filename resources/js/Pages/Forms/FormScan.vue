@@ -2,14 +2,11 @@
 import axios from "axios";
 import CameraScanner from "@/Components/CameraScanner.vue";
 import FormsHeaderActions from "@/Pages/Forms/components/FormsHeaderActions.vue";
-// @ts-ignore
-import AppLayout from "@/Layouts/AppLayout.vue";
 
 export default {
     components: {
         CameraScanner,
         FormsHeaderActions,
-        AppLayout,
     },
     props: {
         event_id: {

@@ -8,7 +8,6 @@ import Supplier from "@/Modules/domain/Supplier";
 import PersonnelHeaderActions from "@/Pages/Inventory/Personnel/components/PersonnelHeaderActions.vue";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import TextInput from "@/Components/TextInput.vue";
-import AppLayout from "@/Layouts/AppLayout.vue";
 import ResetBtn from "@/Components/Buttons/ResetBtn.vue";
 import TextArea from "@/Components/TextArea.vue";
 import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
@@ -21,7 +20,6 @@ export default {
         CancelBtn,
         TextArea,
         ResetBtn,
-        AppLayout,
         TextInput,
         SubmitBtn,
         PersonnelHeaderActions,

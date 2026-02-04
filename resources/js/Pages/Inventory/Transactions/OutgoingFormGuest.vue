@@ -1,7 +1,6 @@
 <script>
 import {Head} from "@inertiajs/vue3";
 import SearchComp from "@/Components/Search/SearchComp.vue";
-import AppLayout from "@/Layouts/AppLayout.vue";
 import TransactionHeaderAction
     from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
 import Transaction from "@/Modules/domain/Transaction";
@@ -40,7 +39,7 @@ export default {
         ArrowRight,
         SearchBtn,
         SuccessModal,
-        RequesterGuestCard, TransitionContainer, TransactionHeaderAction, AppLayout, SearchComp, Head},
+        RequesterGuestCard, TransitionContainer, TransactionHeaderAction, SearchComp, Head},
     mixins: [ApiMixin],
     props: {
         categories: {

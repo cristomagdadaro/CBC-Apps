@@ -6,6 +6,7 @@ import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import { Head, Link } from '@inertiajs/vue3';
+import AppLayout from './Layouts/AppLayout.vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -18,6 +19,7 @@ createInertiaApp({
         // Register global components
         vueApp.component('Head', Head);
         vueApp.component('Link', Link);
+        vueApp.component('AppLayout', AppLayout);
 
         // Set global property
         vueApp.config.globalProperties.$appVersion = import.meta.env.VITE_APP_VERSION;

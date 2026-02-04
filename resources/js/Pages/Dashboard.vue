@@ -1,5 +1,4 @@
 <script setup>
-import AppLayout from '@/Layouts/AppLayout.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { onMounted, watch, ref } from 'vue';
 import {

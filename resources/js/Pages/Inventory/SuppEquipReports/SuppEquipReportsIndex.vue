@@ -1,7 +1,6 @@
 <script>
 import {Head} from "@inertiajs/vue3";
 import {markRaw} from "vue";
-import AppLayout from "@/Layouts/AppLayout.vue";
 import SearchComp from "@/Components/Search/SearchComp.vue";
 import SuppEquipReport from "@/Modules/domain/SuppEquipReport";
 import SuppEquipReportsCard from "@/Pages/Inventory/SuppEquipReports/components/SuppEquipReportsCard.vue";
@@ -13,7 +12,6 @@ export default {
         SuppEquipHeaderActions,
         SuppEquipReportsCard,
         SearchComp,
-        AppLayout,
         Head
     },
     data() {

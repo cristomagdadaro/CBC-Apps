@@ -1,5 +1,4 @@
 <script>
-import AppLayout from "@/Layouts/AppLayout.vue";
 import IncomingForm from "@/Pages/Inventory/Transactions/components/IncomingForm.vue";
 import CreateItemForm from "@/Pages/Inventory/Items/components/CreateItemForm.vue";
 import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
@@ -7,7 +6,6 @@ import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/T
 export default {
     name: "Incoming",
     components: {
-        AppLayout,
         IncomingForm,
         CreateItemForm,
         TransactionHeaderAction,

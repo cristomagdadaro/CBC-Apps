@@ -9,7 +9,6 @@ import Item from "@/Modules/domain/Item";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import ResetBtn from "@/Components/Buttons/ResetBtn.vue";
 import TextInput from "@/Components/TextInput.vue";
-import AppLayout from "@/Layouts/AppLayout.vue";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import AddIcon from "@/Components/Icons/AddIcon.vue";
 import ItemsHeaderActions from "@/Pages/Inventory/Items/components/ItemsHeaderActions.vue";
@@ -22,7 +21,6 @@ export default defineComponent({
         ItemsHeaderActions,
         AddIcon,
         FilterIcon,
-        AppLayout,
         TextInput,
         ResetBtn, SubmitBtn,
         Link,

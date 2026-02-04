@@ -274,7 +274,7 @@ export default {
             </div>
         </div>
     </div>
-
+{{ $appEnv }}
     <button
         v-if="todayEvents && todayEvents.length"
         type="button"

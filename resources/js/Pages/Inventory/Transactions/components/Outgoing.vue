@@ -5,7 +5,6 @@ import SearchBy from "@/Modules/DataTable/presentation/components/SearchBy.vue";
 import Modal from "@/Components/Modal.vue";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import FilterIcon from "@/Components/Icons/FilterIcon.vue";
-import AppLayout from "@/Layouts/AppLayout.vue";
 import Transaction from "@/Modules/domain/Transaction";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import SearchBox from "@/Components/Search/SearchBox.vue";
@@ -29,7 +28,7 @@ export default {
         ArrowLeft,
         ArrowRight,
         PaginateBtn,
-        SearchBtn, TextInput, SearchBox, AppLayout, FilterIcon, CustomDropdown, Modal, SearchBy, AddIcon, Head},
+        SearchBtn, TextInput, SearchBox, FilterIcon, CustomDropdown, Modal, SearchBy, AddIcon, Head},
     mixins: [ApiMixin],
     props: {
         categories: {

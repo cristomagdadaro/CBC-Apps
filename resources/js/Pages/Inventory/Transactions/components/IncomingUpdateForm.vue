@@ -10,7 +10,6 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import TextInput from "@/Components/TextInput.vue";
-import AppLayout from "@/Layouts/AppLayout.vue";
 import ResetBtn from "@/Components/Buttons/ResetBtn.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin.js";
 import Transaction from "@/Modules/domain/Transaction";
@@ -26,7 +25,7 @@ export default {
         AuditInfoCard,
         TextArea,
         TransactionReportAccordion,
-        ResetBtn, AppLayout, TextInput, SubmitBtn, DateInput,
+        ResetBtn, TextInput, SubmitBtn, DateInput,
         LoaderIcon,
         PrimaryButton,
         TransactionHeaderAction,

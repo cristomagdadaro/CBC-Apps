@@ -1,6 +1,5 @@
 <script>
 import ListOfForms from "@/Pages/Forms/components/ListOfForms.vue";
-import AppLayout from "@/Layouts/AppLayout.vue";
 import AddButton from "@/Components/Buttons/AddButton.vue";
 import { Link } from "@inertiajs/vue3";
 import FormsHeaderActions from "@/Pages/Forms/components/FormsHeaderActions.vue";
@@ -50,7 +49,6 @@ export default {
         FormsHeaderActions,
         Link,
         AddButton,
-        AppLayout,
         ListOfForms,
         GuestCard,
     },

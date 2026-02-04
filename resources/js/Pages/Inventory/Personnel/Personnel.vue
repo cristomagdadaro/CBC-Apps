@@ -1,7 +1,6 @@
 <script>
 import {Head} from "@inertiajs/vue3";
 import DataTable from "@/Modules/DataTable/presentation/DataTable.vue";
-import AppLayout from "@/Layouts/AppLayout.vue";
 import SearchComp from "@/Components/Search/SearchComp.vue";
 import Personnel from "@/Modules/domain/Personnel";
 import PersonnelHeaderActions from "@/Pages/Inventory/Personnel/components/PersonnelHeaderActions.vue";
@@ -9,7 +8,7 @@ import PersonnelHeaderActions from "@/Pages/Inventory/Personnel/components/Perso
 export default {
     name: "Personnel",
     components: {
-        PersonnelHeaderActions, SearchComp, AppLayout, Head, DataTable
+        PersonnelHeaderActions, SearchComp, Head, DataTable
     },
     computed: {
         DataTable() {

@@ -1,5 +1,4 @@
 <script>
-import AppLayout from "@/Layouts/AppLayout.vue";
 import Welcome from "@/Components/Welcome.vue";
 import ListOfForms from "@/Pages/Forms/components/ListOfForms.vue";
 import AddButton from "@/Components/Buttons/AddButton.vue";
@@ -26,7 +25,7 @@ export default {
         SearchBtn,
         TextInput,
         InputError,
-        FormsHeaderActions, Modal, AddButton, ListOfForms, Welcome, AppLayout, Link
+        FormsHeaderActions, Modal, AddButton, ListOfForms, Welcome, Link
     },
     computed: {
         Form() {

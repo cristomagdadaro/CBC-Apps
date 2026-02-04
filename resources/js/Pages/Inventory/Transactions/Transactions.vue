@@ -1,7 +1,6 @@
 <script>
 import {Head} from "@inertiajs/vue3";
 import DataTable from "@/Modules/DataTable/presentation/DataTable.vue";
-import AppLayout from "@/Layouts/AppLayout.vue";
 import SearchComp from "@/Components/Search/SearchComp.vue";
 import Transaction from "@/Modules/domain/Transaction";
 import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
@@ -11,7 +10,6 @@ export default {
     components: {
         TransactionHeaderAction,
         SearchComp,
-        AppLayout,
         DataTable,
         Head
     },

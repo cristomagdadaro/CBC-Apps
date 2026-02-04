@@ -7,14 +7,12 @@ import FormsHeaderActions from "@/Pages/Forms/components/FormsHeaderActions.vue"
 import PersonnelHeaderActions from "@/Pages/Inventory/Personnel/components/PersonnelHeaderActions.vue";
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 import ResetBtn from "@/Components/Buttons/ResetBtn.vue";
-import AppLayout from "@/Layouts/AppLayout.vue";
 import TextInput from "@/Components/TextInput.vue";
 
 export default {
     name: "EditPersonnelForm",
     components: {
         TextInput,
-        AppLayout,
         ResetBtn,
         SubmitBtn, PersonnelHeaderActions, FormsHeaderActions,
         LoaderIcon, Head

@@ -1,5 +1,4 @@
 <script>
-import AppLayout from "@/Layouts/AppLayout.vue";
 import { ref } from 'vue';
 import OverviewTopic from './Topics/OverviewTopic.vue';
 import CustomFormTopic from './Topics/CustomFormTopic.vue';
@@ -10,11 +9,11 @@ import InventoryReportTopic from './Topics/InventoryReportTopic.vue';
 import AddSupplierTopic from './Topics/AddSupplierTopic.vue';
 import AddItemTopic from './Topics/AddItemTopic.vue';
 import ProfilePasswordTopic from './Topics/ProfilePasswordTopic.vue';
+import ConsoleLoggerTopic from './Topics/ConsoleLoggerTopic.vue';
 
 export default {
     name: 'ManualsIndex',
     components: { 
-        AppLayout,
         OverviewTopic,
         CustomFormTopic,
         FESRequestFormTopic,
@@ -24,6 +23,7 @@ export default {
         AddSupplierTopic,
         AddItemTopic,
         ProfilePasswordTopic,
+        ConsoleLoggerTopic,
     },
     setup() {
         const activeSection = ref('overview');
@@ -74,6 +74,11 @@ export default {
                 icon: '👤',
                 component: ProfilePasswordTopic,
             },
+            consoleLogger: {
+                title: 'Console Logger (Development)',
+                icon: '🖥️',
+                component: ConsoleLoggerTopic,
+            },
         };
 
         const menuItems = [
@@ -86,6 +91,7 @@ export default {
             { id: 'addSupplier', label: 'How to add a new Supplier', icon: '🤝' },
             { id: 'addItem', label: 'How to add a new Item', icon: '🏷️' },
             { id: 'profilePassword', label: 'How to update Profile and Password', icon: '👤' },
+            { id: 'consoleLogger', label: 'Console Logger (Development)', icon: '🖥️' },
         ];
 
         return {
@@ -93,7 +99,7 @@ export default {
             sections,
             menuItems
         };
-    }
+    },
 }
 </script>
 
