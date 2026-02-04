@@ -85,7 +85,6 @@ export default {
         async submitUpdate(toCast: boolean = false, except:  string | string[] | null = null) {
             this.processing = true;
             this.form.clearErrors();
-            console.log(this.form.data());
             return await this.model.api.putIndex(this.form.data()).then(response => {
                 this.resetForm(except);
                 if (toCast) {
@@ -155,7 +154,7 @@ export default {
                 URL.revokeObjectURL(url);
 
             } catch (error) {
-                console.log(error);
+                
             } finally {
                 if (link) {
                     document.body.removeChild(link);
