@@ -25,7 +25,7 @@
                     <dropdown-option v-if="!filteredOptions.length">No options available</dropdown-option>
                     <template v-else>
                         <dropdown-option v-if="withAllOption" @click.prevent="select({name:null, label:'All fields'})" :selected="selected && selected.name === defaultOption.name">All fields</dropdown-option>
-                        <dropdown-option v-for="option in filteredOptions" @click.prevent="select(option)" v-bind:key="option.label" :selected="option.name === value">
+                        <dropdown-option v-for="option in filteredOptions" @click.prevent="select(option)" v-bind:key="option.label + option.name" :selected="option.name === value">
                             {{ option.label }}
                         </dropdown-option>
                     </template>
