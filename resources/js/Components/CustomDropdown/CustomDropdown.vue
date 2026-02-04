@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-col gap-0.5 w-full">
         <div v-if="label" class="text-xs text-gray-500 flex items-center justify-between">
-            <span class="flex gap-0.5 whitespace-nowrap">{{ label }}<b v-if="required" class="text-red-500 select-none">*</b></span>
+            <span class="flex gap-0.5 whitespace-nowrap">{{ label }}<b v-if="required" class="text-red-500 ">*</b></span>
             <transition-container type="slide-bottom">
                 <InputError v-show="!!error" class="" :message="error" />
             </transition-container>

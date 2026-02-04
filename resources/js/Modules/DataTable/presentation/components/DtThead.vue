@@ -5,7 +5,7 @@ export default {
 </script>
 
 <template>
-    <thead class="select-none">
+    <thead >
         <slot />
     </thead>
 </template>

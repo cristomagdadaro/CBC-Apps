@@ -154,7 +154,7 @@ export default {
             </button>
             <div class="flex flex-col items-center justify-center">
                 <label class="text-xl leading-none font-[1000] uppercase" :class="colorStatus(formsData.request_status)">{{ formsData.request_status }}</label>
-                <span class="text-[0.6rem] leading-none select-none">on {{ formatDate(formsData.updated_at) }}</span>
+                <span class="text-[0.6rem] leading-none ">on {{ formatDate(formsData.updated_at) }}</span>
             </div>
         </div>
         <Modal
@@ -205,7 +205,7 @@ export default {
                             </div>
                             <div class="flex flex-col items-center justify-center">
                                 <label class="text-xl leading-none font-[1000] uppercase" :class="colorStatus(formsData.request_status)">{{ formsData.request_status }}</label>
-                                <span class="text-[0.6rem] leading-none select-none">on {{ formatDate(formsData.updated_at) }}</span>
+                                <span class="text-[0.6rem] leading-none ">on {{ formatDate(formsData.updated_at) }}</span>
                             </div>
                         </div>
                         <div class="mt-4 text-sm text-gray-600 dark:text-gray-400">

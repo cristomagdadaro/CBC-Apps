@@ -264,11 +264,11 @@ export default {
             </div>
             <div class="flex flex-col items-center justify-center border-l pl-2">
                 <label class="text-xl leading-none font-[1000]">{{ data.event_id }}</label>
-                <span class="text-[0.6rem] leading-none select-none">Form ID</span>
+                <span class="text-[0.6rem] leading-none ">Form ID</span>
             </div>
         </div>
 
-        <div class="flex flex-col items-center justify-center p-2 rounded-md select-none drop-shadow">
+        <div class="flex flex-col items-center justify-center p-2 rounded-md  drop-shadow">
             <span v-if="isExpired" class="text-sm uppercase leading-none text-red-600">Event has ended</span>
             <span v-else class="text-sm uppercase leading-none">Event starts in </span>
             <label class="leading-none font-bold text-4xl" :class="{'text-red-600' : isExpired}">{{ countdownDisplay }}</label>

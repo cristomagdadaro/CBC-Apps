@@ -105,12 +105,12 @@ export default {
 </script>
 
 <template>
-    <form v-if="!!form" class="flex gap-2 items-end select-none"  @submit.prevent="searchEvent">
+    <form v-if="!!form" class="flex gap-2 items-end "  @submit.prevent="searchEvent">
         <div class="flex flex-col w-full gap-2">
             <div class="w-full flex gap-2 items-end lg:px-0 px-2">
                 <div class="flex gap-3 w-full">
                     <div class="flex flex-col gap-0.5">
-                        <div class="flex justify-between select-none">
+                        <div class="flex justify-between ">
                             <label class="text-gray-600 text-xs">Per Page</label>
                         </div>
                         <custom-dropdown :show-clear="false"
@@ -133,7 +133,7 @@ export default {
                     />
                     <search-box class="w-full" v-model="form.search" />
                     <div class="flex flex-col gap-0.5">
-                        <div class="flex justify-between select-none">
+                        <div class="flex justify-between ">
                             <label class="text-gray-600 text-xs">&nbsp;</label>
                         </div>
                         <search-btn type="submit" :disabled="model?.processing" class="w-[10rem] text-center h-full hover:bg-AB duration-150">

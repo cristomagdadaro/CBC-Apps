@@ -59,7 +59,7 @@ export default {
 
 <template>
     <div class="w-full">
-        <div class="flex items-center justify-between select-none">
+        <div class="flex items-center justify-between ">
             <div v-for="(label, idx) in steps" :key="idx" class="flex-1 flex items-center">
                 <div
                     class="flex items-center cursor-pointer group"

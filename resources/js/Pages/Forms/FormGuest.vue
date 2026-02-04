@@ -502,7 +502,7 @@ export default {
                         :data="eventFormFromApi.data[0]"
                         @createdModel="handleCreatedModel"
                     />
-                    <label class="text-[0.6rem] leading-none select-none">
+                    <label class="text-[0.6rem] leading-none ">
                         Form from Search
                     </label>
                 </div>
@@ -514,7 +514,7 @@ export default {
                         :data="resolvedEventForm"
                         @createdModel="handleCreatedModel"
                     />
-                    <label class="text-[0.6rem] leading-none select-none">
+                    <label class="text-[0.6rem] leading-none ">
                         Form from URL
                     </label>
                 </div>

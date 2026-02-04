@@ -200,7 +200,7 @@ export default {
             </div>
             <div class="flex flex-col items-center justify-center">
                 <label class="lg:text-4xl text-2xl leading-none font-[1000]">{{ formsData.event_id }}</label>
-                <span class="text-[0.6rem] leading-none select-none">Event ID</span>
+                <span class="text-[0.6rem] leading-none ">Event ID</span>
             </div>
         </div>
         <div class="grid grid-cols-2 grid-rows-2 px-1">
@@ -269,7 +269,7 @@ export default {
                 ]"
             >
                 <label class="text-xl font-[1000]">{{ responseCountByType.registration }}</label>
-                <span class="text-[0.6rem] select-none">Registrations</span>
+                <span class="text-[0.6rem] ">Registrations</span>
             </div>
             <div
                 v-else-if="item.key === 'feedback'"
@@ -279,7 +279,7 @@ export default {
                 ]"
             >
                 <label class="text-xl font-[1000]">{{ responseCountByType.feedback }}</label>
-                <span class="text-[0.6rem] select-none">Feedback</span>
+                <span class="text-[0.6rem] ">Feedback</span>
             </div>
             <div
                 v-else-if="item.key === 'preregistration'"
@@ -289,7 +289,7 @@ export default {
                 ]"
             >
                 <label class="text-xl font-[1000]">{{ responseCountByType.preregistration }}</label>
-                <span class="text-[0.6rem] select-none">Pre-registration</span>
+                <span class="text-[0.6rem] ">Pre-registration</span>
             </div>
             <div
                 v-else-if="item.key === 'preregistration_biotech'"
@@ -299,7 +299,7 @@ export default {
                 ]"
             >
                 <label class="text-xl font-[1000]">{{ responseCountByType.preregistration_biotech }}</label>
-                <span class="text-[0.6rem] select-none">Pre-registration + Quiz Bee</span>
+                <span class="text-[0.6rem] ">Pre-registration + Quiz Bee</span>
             </div>
             <div
                 v-else-if="item.key === 'preregistration_quizbee'"
@@ -309,7 +309,7 @@ export default {
                 ]"
             >
                 <label class="text-xl font-[1000]">{{ responseCountByType.preregistration_quizbee }}</label>
-                <span class="text-[0.6rem] select-none">Pre-registration Quiz Bee</span>
+                <span class="text-[0.6rem] ">Pre-registration Quiz Bee</span>
             </div>
             <div
                 v-else-if="item.key === 'pretest'"
@@ -319,14 +319,14 @@ export default {
                 ]"
             >
                 <label class="text-xl font-[1000]">{{ responseCountByType.pretest }}</label>
-                <span class="text-[0.6rem] select-none">Pre-test</span>
+                <span class="text-[0.6rem] ">Pre-test</span>
             </div>
             <div
                 v-else-if="item.key === 'posttest'"
                 class="flex flex-col items-center text-green-900 w-fit px-2 py-1"
             >
                 <label class="text-xl font-[1000]">{{ responseCountByType.posttest }}</label>
-                <span class="text-[0.6rem] select-none">Post-test</span>
+                <span class="text-[0.6rem] ">Post-test</span>
             </div>
         </template>
     </div>

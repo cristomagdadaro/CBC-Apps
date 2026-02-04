@@ -211,7 +211,7 @@ export default {
             <div v-show="currentStepKey === 'request_type'" class="flex flex-col gap-2 w-full">
                 <div class="w-full relative">
                     <h2 class="flex justify-between items-center">
-                        <span class="font-bold uppercase">Request Types:<b class="text-red-500 select-none">*</b></span>
+                        <span class="font-bold uppercase">Request Types:<b class="text-red-500 ">*</b></span>
                         <transition-container type="slide-bottom">
                             <InputError v-show="!!hasErr('request_type')" :message="errMsg('request_type')" />
                         </transition-container>

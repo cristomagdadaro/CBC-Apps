@@ -97,7 +97,7 @@ export default {
         </template>
         <div class="py-4" v-if="!!form">
             <div class="flex flex-col sm:p-5 p-3 sm:gap-3 gap-1 bg-white shadow rounded max-w-xl mx-auto">
-                <div v-if="data" class="flex select-none justify-between items-center gap-5 py-2 px-1 md:px-4 border-b">
+                <div v-if="data" class="flex  justify-between items-center gap-5 py-2 px-1 md:px-4 border-b">
                     <div class="flex flex-col">
                         <span class="font-bold text-base md:text-lg whitespace-nowrap overflow-ellipsis overflow-hidden">
                             {{ summary.name }} {{ summary.description ? `(${summary.description})` : '' }}

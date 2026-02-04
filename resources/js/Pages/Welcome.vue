@@ -22,7 +22,7 @@ onMounted(() => {
     <div class="min-h-screen flex items-center justify-center text-white text-3xl fixed top-0 left-0 font-bold relative overflow-hidden">
         <div class="absolute inset-0 bg-gradient-radial dark:bg-gradient-radial animate-gradient"></div>
     </div>
-    <div class="absolute top-0 left-0 w-full select-none">
+    <div class="absolute top-0 left-0 w-full ">
         <div class="relative sm:flex justify-center items-center min-h-screen">
             <div class="sm:fixed sm:top-0 sm:end-0 p-6 text-end z-10">
                 <Link v-if="$page.props.auth.user" :href="route('dashboard')" class="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
@@ -51,7 +51,7 @@ onMounted(() => {
                     <blockquote class="mt-2 font-semibold text-gray-300 leading-none">Better Crops, Better Lives</blockquote>
                 </div>
                 <div class="flex flex-col items-center justify-center gap-2 text-sm w-full">
-                    <h3 class="dark:text-white opacity-25 leading-none select-none">Apps & Services</h3>
+                    <h3 class="dark:text-white opacity-25 leading-none ">Apps & Services</h3>
                     <div class="flex flex-col md:flex-row items-center justify-center w-full drop-shadow-md">
                         <Link :href="route('forms.guest.index')" class="flex items-center gap-1 dark:text-green-400 hover:text-white p-2 text-AB hover:bg-green-600 duration-200 dark:hover:text-AA md:text-lg text-normal px-4 md:border-r">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-event" viewBox="0 0 16 16">

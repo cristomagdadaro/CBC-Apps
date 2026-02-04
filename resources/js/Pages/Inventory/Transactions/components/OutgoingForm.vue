@@ -105,7 +105,7 @@ export default {
 <template>
     <div class="grid sm:grid-cols-3 grid-cols-1 sm:p-5 p-3 sm:gap-3">
         <div class="flex flex-col col-span-2 gap-1 bg-white rounded">
-            <div  v-if="data" class="flex flex-col select-none justify-between items-center gap-5 py-2 px-1 md:px-4 border-b">
+            <div  v-if="data" class="flex flex-col  justify-between items-center gap-5 py-2 px-1 md:px-4 border-b">
                 <div class="flex flex-col leading-none w-full">
                     <span class="font-bold text-base md:text-lg whitespace-nowrap overflow-ellipsis overflow-hidden">
                         {{ data.name }} {{ data.description ? `(${data.description})` : '' }}

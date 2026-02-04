@@ -56,7 +56,7 @@ export default {
                 v-for="opt in options"
                 :key="opt"
                 type="button"
-                class="flex-1 py-1.5 text-xs border rounded-md text-center transition-colors select-none"
+                class="flex-1 py-1.5 text-xs border rounded-md text-center transition-colors "
                 :class="{
                     'border-red-600' : error,
                     'bg-blue-600 text-white border-blue-600 shadow-sm': String(modelValue) === String(opt),

@@ -125,7 +125,7 @@ export default {
                                                     <label class="text-3xl leading-none font-[1000]">
                                                         {{ form.event_id }}
                                                     </label>
-                                                    <span class="text-[0.6rem] leading-none select-none">Event ID</span>
+                                                    <span class="text-[0.6rem] leading-none ">Event ID</span>
                                                 </div>
                                             </div>
                                             <div class="grid grid-cols-2 grid-rows-2 px-1 gap-2">
