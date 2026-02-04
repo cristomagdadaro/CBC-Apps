@@ -219,15 +219,24 @@ export default {
         },
 
         moveRequirement(index, direction) {
-            const sorted = this.sortedRequirements[index]
-            const actualIndex = this.requirements.indexOf(sorted)
-            if (actualIndex === -1) return
+            const sorted = this.sortedRequirements
+            const current = sorted[index]
+            const target = sorted[index + direction]
+            
+            if (!current || !target) return
 
             const copy = this.cloneRequirements()
-            const target = actualIndex + direction
-            if (target < 0 || target >= copy.length) return
 
-            ;[copy[actualIndex], copy[target]] = [copy[target], copy[actualIndex]]
+            const currentIndex = copy.findIndex(r => r === current)
+            const targetIndex = copy.findIndex(r => r === target)
+
+            if (currentIndex === -1 || targetIndex === -1) return
+
+            // 🔑 Swap step_order values
+            const temp = copy[currentIndex].step_order
+            copy[currentIndex].step_order = copy[targetIndex].step_order
+            copy[targetIndex].step_order = temp
+
             this.emitUpdate(this.normalize(copy))
             this.showSuccess('Form order updated')
         },

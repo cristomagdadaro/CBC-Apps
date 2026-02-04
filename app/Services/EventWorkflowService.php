@@ -193,10 +193,7 @@ class EventWorkflowService
             return ParticipantStepState::STATUS_HIDDEN;
         }
 
-        if ($participantId && $this->isStepCompleted($step, $participantId)) {
-            return ParticipantStepState::STATUS_COMPLETED;
-        }
-
+        // Check time-based constraints first, before completion status
         if ($this->isBeforeOpenFrom($step)) {
             return ParticipantStepState::STATUS_NOT_YET_OPEN;
         }
@@ -207,6 +204,11 @@ class EventWorkflowService
 
         if (!$step->isOpen()) {
             return ParticipantStepState::STATUS_EXPIRED;
+        }
+
+        // Check completion status after time constraints
+        if ($participantId && $this->isStepCompleted($step, $participantId)) {
+            return ParticipantStepState::STATUS_COMPLETED;
         }
 
         if ($this->isStepFull($step)) {

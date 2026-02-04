@@ -213,18 +213,38 @@ export default {
             switch (step.status) {
                 case 'locked':
                     return 'Complete the previous step to continue';
+                case 'not_yet_open':
+                    return step.open_from 
+                        ? `This form will be available from ${this.formatDateTime(step.open_from)}`
+                        : 'This form is not yet available';
                 case 'expired':
-                    return 'This step is outside the allowed time window';
+                    return 'This form is no longer available. It closed on ' + (step.open_to ? this.formatDateTime(step.open_to) : 'an earlier date');
                 case 'full':
-                    return 'Maximum number of responses reached.';
+                    return 'Maximum number of responses reached. No more slots available.';
                 case 'disabled':
-                    return 'This step is currently disabled by the admin';
+                    return 'This form is currently disabled by the administrator';
                 case 'hidden':
-                    return 'This step is not available';
+                    return 'This form is not available at this time';
                 case 'completed':
-                    return `You have already completed required forms`;
+                    return 'You have already completed this form';
                 default:
-                    return null;
+                    return 'This form is not available';
+            }
+        },
+        formatDateTime(dateString) {
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+            } catch (error) {
+                console.error('Error formatting date:', dateString, error);
+                return dateString;
             }
         },
     }
