@@ -12,10 +12,11 @@ import { mergeFormStyleTokens } from "@/Modules/shared/formStyleTokens";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
+import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 
 export default {
     name: "GuestCard",
-    components: {TabNavigation, FeedbackCard, RegistrationCard, InputError, InputLabel, TextInput, PreregistrationCard, PreregistrationQuizBeeCard, CustomDropdown},
+    components: {LoaderIcon, TabNavigation, FeedbackCard, RegistrationCard, InputError, InputLabel, TextInput, PreregistrationCard, PreregistrationQuizBeeCard, CustomDropdown},
     mixins: [ApiMixin, FormLocalMixin, DataFormatterMixin],
     props: {
         data: {
@@ -113,7 +114,6 @@ export default {
             this.loadWorkflow();
         },
         async loadWorkflow() {
-            console.log('Loading workflow for participant:', this.selectedParticipantHash);
             if (!this.data?.event_id) {
                 return;
             }
@@ -318,8 +318,8 @@ export default {
                     </template>
                 </custom-dropdown>
             </div>
-            <div v-if="workflowLoading" class="text-sm text-gray-500 px-2">Loading workflow...</div>
-            <div v-if="workflowError" class="text-sm text-red-600 px-2">{{ workflowError }}</div>
+            <div v-if="workflowLoading" class="text-sm text-gray-500 px-2 text-center w-full flex gap-1 justify-center"><LoaderIcon /> Loading Attached Forms</div>
+            <div v-if="workflowError" class="text-sm text-red-600 px-2 text-center w-full">{{ workflowError }}</div>
 
             <TabNavigation
                 v-if="workflowTabs.length"

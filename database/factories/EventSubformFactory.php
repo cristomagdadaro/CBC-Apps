@@ -30,11 +30,18 @@ class EventSubformFactory extends Factory
                 Subform::POSTTEST->value,
                 Subform::FEEDBACK->value,
             ]),
+            'step_order' => $this->faker->numberBetween(1, 10),
+            'is_enabled' => true,
+            'open_from' => now()->subDay()->toDateTimeString(),
+            'open_to' => now()->addDay()->toDateTimeString(),
             'is_required' => true,
             'max_slots' => $this->faker->numberBetween(0, 50),
-            'config' => [
-                'open_from' => now()->subDay()->toDateTimeString(),
-                'open_to' => now()->addDay()->toDateTimeString(),
+            'visibility_rules' => [
+                'requires_steps' => [Subform::PREREGISTRATION->value],
+            ],
+            'completion_rules' => [
+                'min_score' => $this->faker->numberBetween(1, 5),
+                'required_fields' => ['agreed_tc'],
             ],
         ];
     }

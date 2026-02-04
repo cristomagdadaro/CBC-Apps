@@ -8,9 +8,8 @@ use App\Models\EventSubformResponse;
 use App\Models\Form;
 use App\Models\Participant;
 use App\Models\Registration;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Arr;
+
 
 class FormSeeder extends Seeder
 {
@@ -20,22 +19,24 @@ class FormSeeder extends Seeder
     public function run(): void
     {
         Form::factory(1)->create()->each(function (Form $form) {
-            // Create EventRequirements with per-requirement max_slots
             $requirements = [
                 [
                     'form_type' => Subform::PREREGISTRATION->value,
                     'is_required' => true,
-                    'max_slots' => 50,
+                    'max_slots' => fake()->numberBetween(0, 50),
+                    'step_order' => 1,
                 ],
                 [
                     'form_type' => Subform::REGISTRATION->value,
                     'is_required' => true,
-                    'max_slots' => 30,
+                    'max_slots' => fake()->numberBetween(0, 50),
+                    'step_order' => 2,
                 ],
                 [
                     'form_type' => Subform::FEEDBACK->value,
                     'is_required' => false,
-                    'max_slots' => 25,
+                    'max_slots' => fake()->numberBetween(0, 50),
+                    'step_order' => 3,
                 ],
             ];
 
@@ -47,19 +48,17 @@ class FormSeeder extends Seeder
                         'form_type' => $requirementData['form_type'],
                     ],
                     [
-                        'id' => (string) fake()->uuid(),
                         'is_required' => $requirementData['is_required'],
                         'max_slots' => $requirementData['max_slots'],
-                        'config' => [
-                            'open_from' => now(),
-                            'open_to' => now()->addDays(7),
-                        ],
+                        'open_from' => now(),
+                        'open_to' => now()->addDays(7),
+                        'step_order' => $requirementData['step_order'],
+                        'is_enabled' => true,
                     ]
                 );
                 $createdRequirements[] = $requirement;
             }
 
-            // Generate participants respecting per-requirement max_slots
             $totalParticipants = random_int(10, 20);
             Participant::factory()->count($totalParticipants)->create()->each(function (Participant $participant) use ($form, $createdRequirements) {
                 $registration = Registration::factory()->create([
@@ -67,11 +66,8 @@ class FormSeeder extends Seeder
                     'event_subform_id' => $form->event_id,
                 ]);
 
-                // Create responses for random requirements
                 foreach ($createdRequirements as $requirement) {
-                    // Randomly decide whether to create a response for this requirement
-                    if (fake()->boolean(75)) { // 75% chance to create response
-                        // Generate responseData dynamically based on form type
+                    if (fake()->boolean(50)) {
                         $responseData = $this->generateResponseData(
                             $requirement->form_type,
                             $participant,
@@ -112,22 +108,18 @@ class FormSeeder extends Seeder
     {
         $rules = strtolower($rules);
 
-        // Try to get value from participant if it exists
         if (isset($participant->$fieldName)) {
             return $participant->$fieldName;
         }
 
-        // Handle special fields from registration
         if ($fieldName === 'attendance_type') {
             return $registration->attendance_type;
         }
 
-        // Handle boolean fields
         if (str_contains($rules, 'boolean') || str_contains($rules, 'accepted')) {
             return fake()->boolean(80); // 80% true for boolean fields
         }
 
-        // Handle integer/rating fields (1-5)
         if (str_contains($rules, 'integer')) {
             if (str_contains($fieldName, 'rating') || 
                 str_contains($fieldName, 'clarity') || 
@@ -143,12 +135,10 @@ class FormSeeder extends Seeder
             return fake()->randomNumber();
         }
 
-        // Handle email fields
         if (str_contains($rules, 'email')) {
             return fake()->email();
         }
 
-        // Handle text/string fields
         if (str_contains($rules, 'string') || str_contains($rules, 'text')) {
             if (str_contains($fieldName, 'comment') || 
                 str_contains($fieldName, 'remarks') ||

@@ -63,7 +63,6 @@ class FormController extends BaseController
 
     public function create(CreateFormRequest $request): Model
     {
-
         return parent::_store($request);
     }
 
