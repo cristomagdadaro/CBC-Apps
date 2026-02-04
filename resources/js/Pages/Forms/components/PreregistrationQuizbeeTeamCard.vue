@@ -178,13 +178,13 @@ export default {
         </transition-container>
 
         <div class="pb-3 pt-1">
-            <label class="text-purple-700 uppercase justify-center flex">{{ form.errors.suspended || form.errors.full || form.errors.expired || form.errors.limit }}</label>
             <h3 class="text-lg leading-tight uppercase font-extrabold">
                 {{ isEditMode ? 'Update Quiz Bee Team Registration' : 'Quiz Bee Team Registration' }}
             </h3>
-            <p class="text-xs leading-tight">
+            <p class="text-sm leading-tight">
                 Provide the team and coach details for quiz bee participation. Fields marked with <span class="text-red-600">*</span> are required.
             </p>
+            <label class="text-red-700 uppercase justify-center flex text-sm leading-tight">{{ form.errors.suspended || form.errors.full || form.errors.expired || form.errors.limit }}</label>
         </div>
 
         <div class="flex flex-col gap-3">

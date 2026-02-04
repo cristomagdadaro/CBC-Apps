@@ -153,13 +153,13 @@ export default {
             </div>
         </transition-container>
         <div class="pb-3 pt-1">
-            <label class="text-red-600 uppercase justify-center flex">{{ form.errors.suspended || form.errors.full || form.errors.expired || form.errors.limit }}</label>
             <h3 class="text-lg leading-tight uppercase font-extrabold">
                 {{ isEditMode ? 'Update Feedback' : 'Post Activity Feedback Form' }}
             </h3>
-            <p class="text-xs leading-none">
+            <p class="text-sm leading-none">
                 Kindly provide the required and honest feedback. Fields marked with <span class="text-red-600">*</span> are required.
             </p>
+            <label class="text-red-700 uppercase justify-center flex text-sm leading-tight">{{ form.errors.suspended || form.errors.full || form.errors.expired || form.errors.limit }}</label>
         </div>
         <div class="mb-4">
             <ProgressTabs :steps="steps" v-model:current="currentStep" :clickable="false" />

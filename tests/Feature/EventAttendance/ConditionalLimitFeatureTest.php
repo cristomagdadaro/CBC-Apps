@@ -101,7 +101,7 @@ class ConditionalLimitFeatureTest extends TestCase
             ->post(route('api.subform.response.store'), $payload);
 
         $response->assertStatus(422);
-        $response->assertJsonPath('errors.limit.0', 'Limit reached for Province Address (max 1). Please contact the admin.');
+        $response->assertJsonPath('errors.limit.0', 'Limit reached for Province Address (max 1)');
     }
 
     public function test_submission_allowed_for_different_value_under_limit(): void
@@ -187,7 +187,7 @@ class ConditionalLimitFeatureTest extends TestCase
             ->post(route('api.subform.response.store'), $payload);
 
         $response->assertStatus(422);
-        $response->assertJsonPath('errors.limit.0', 'Limit reached for City Address (max 1). Please contact the admin.');
+        $response->assertJsonPath('errors.limit.0', 'Limit reached for City Address (max 1)');
     }
 
     public function test_submission_allowed_when_limits_present_but_under_max(): void

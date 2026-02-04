@@ -75,6 +75,6 @@ class ConditionalLimitTest extends TestCase
         ])->post(route('api.subform.response.store'), $payload);
 
         $response->assertStatus(422);
-        $response->assertJsonPath('errors.limit.0', 'Limit reached for Province Address (max 1). Please contact the admin.');
+        $response->assertJsonPath('errors.limit.0', 'Limit reached for Province Address (max 1)');
     }
 }
