@@ -507,6 +507,42 @@ export default {
         createDonutChart(refName, labels, data, colors) {
             const canvas = this.$refs[refName];
             if (!canvas || !labels.length) return null;
+            const doughnutLabelPlugin = {
+                id: 'doughnutLabelPlugin',
+                afterDatasetsDraw(chart) {
+                    const MAX_LABELS = 5; // if more segments than this, hide labels to avoid clutter
+                    const ctx = chart.ctx;
+                    const dataset = chart.data.datasets[0];
+                    const meta = chart.getDatasetMeta(0);
+                    const total = dataset.data.reduce((s, v) => s + (Number(v) || 0), 0);
+                    if (!meta || !meta.data) return;
+                    if (chart.data.labels.length > MAX_LABELS) return; // skip drawing when many labels
+
+                    meta.data.forEach((arc, i) => {
+                        const value = Number(dataset.data[i]) || 0;
+                        if (value <= 0) return;
+                        const startAngle = arc.startAngle;
+                        const endAngle = arc.endAngle;
+                        const angle = (startAngle + endAngle) / 2;
+                        const r = (arc.innerRadius + arc.outerRadius) / 2;
+                        const x = arc.x + Math.cos(angle) * r;
+                        const y = arc.y + Math.sin(angle) * r;
+
+                        // hide very small slices (less than 3% of total)
+                        if (total > 0 && value / total < 0.03) return;
+
+                        ctx.save();
+                        ctx.fillStyle = '#000';
+                        ctx.font = '12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        const labelText = String(chart.data.labels[i] || '');
+                        ctx.fillText(labelText, x, y);
+                        ctx.restore();
+                    });
+                },
+            };
+
             return new Chart(canvas, {
                 type: 'doughnut',
                 data: {
@@ -517,10 +553,11 @@ export default {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'bottom' },
+                        legend: { position: 'bottom', display: false },
                         tooltip: { enabled: true },
                     },
                 },
+                plugins: [doughnutLabelPlugin],
             });
         },
         buildCharts() {
@@ -609,7 +646,7 @@ export default {
                 const sexEntries = Object.entries(this.sexCounts || {});
                 const sexLabels = sexEntries.map(([label]) => label);
                 const sexValues = sexEntries.map(([, value]) => value);
-                this.sexChartInstance = this.createPieChart(
+                this.sexChartInstance = this.createDonutChart(
                     'sexChartCanvas',
                     sexLabels,
                     sexValues,
@@ -627,7 +664,7 @@ export default {
                 const ipEntries = Object.entries(this.ipCounts || {});
                 const ipLabels = ipEntries.map(([label]) => label);
                 const ipValues = ipEntries.map(([, value]) => value);
-                this.ipChartInstance = this.createPieChart(
+                this.ipChartInstance = this.createDonutChart(
                     'ipChartCanvas',
                     ipLabels,
                     ipValues,
@@ -637,7 +674,7 @@ export default {
                 const pwdEntries = Object.entries(this.pwdCounts || {});
                 const pwdLabels = pwdEntries.map(([label]) => label);
                 const pwdValues = pwdEntries.map(([, value]) => value);
-                this.pwdChartInstance = this.createPieChart(
+                this.pwdChartInstance = this.createDonutChart(
                     'pwdChartCanvas',
                     pwdLabels,
                     pwdValues,
@@ -647,7 +684,7 @@ export default {
                 const orgEntries = Object.entries(this.organizationCounts || {});
                 const orgLabels = orgEntries.map(([label]) => label);
                 const orgValues = orgEntries.map(([, value]) => value);
-                this.organizationChartInstance = this.createPieChart(
+                this.organizationChartInstance = this.createDonutChart(
                     'organizationChartCanvas',
                     orgLabels,
                     orgValues,
