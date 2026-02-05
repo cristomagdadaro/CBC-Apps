@@ -106,6 +106,7 @@ export default abstract class ApiService {
 
         this.processing = true;
         try {
+            ConsoleLogger.debug('PUT Parameters:', params);
             // @ts-ignore
             const response = await axios.put(`${route(url)}/${id}`, params);
             this.processing = false;
@@ -121,6 +122,7 @@ export default abstract class ApiService {
     async delete(url: string, id: any) {
         this.processing = true;
         try {
+            ConsoleLogger.debug('DELETE Parameters:', id);
             // @ts-ignore
             const response = await axios.delete(route(url, id), id);
             this.processing = false;

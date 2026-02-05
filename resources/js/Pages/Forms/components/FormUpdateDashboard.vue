@@ -254,6 +254,39 @@ export default {
             const str = String(value).trim();
             return str === '' ? null : str;
         },
+        normalizeBooleanValue(value) {
+            if (value === null || value === undefined || value === '') {
+                return null;
+            }
+            if (typeof value === 'boolean') {
+                return value;
+            }
+            if (typeof value === 'string') {
+                const lower = value.toLowerCase().trim();
+                if (lower === 'true' || lower === '1' || lower === 'yes') {
+                    return true;
+                }
+                if (lower === 'false' || lower === '0' || lower === 'no') {
+                    return false;
+                }
+                return null;
+            }
+            if (typeof value === 'number') {
+                return value !== 0;
+            }
+            return null;
+        },
+        getFormCardComponent(formType) {
+            const components = {
+                'preregistration': 'PreregistrationCard',
+                'preregistration_biotech': 'PreregistrationQuizBeeCard',
+                'preregistration_quizbee': 'PreregistrationQuizbeeTeamCard',
+                'registration': 'RegistrationCard',
+                'feedback': 'FeedbackCard',
+            };
+
+            return components[formType] || null;
+        },
         normalizeBoolean(value) {
             if (value === null || value === undefined || value === '') {
                 return null;
@@ -454,6 +487,12 @@ export default {
         onResponseUpdated(updatedResponse) {
             this.closeResponseModal();
         },
+        openResponseModal(response, formType) {
+            this.selectedResponse = response;
+            this.selectedResponseType = formType;
+            this.selectedFormType = formType;
+            this.showResponseModal = true;
+        },
         closeResponseModal() {
             this.showResponseModal = false;
             this.selectedResponse = null;
@@ -463,6 +502,11 @@ export default {
         formatValue(value) {
             if (value === null || value === undefined || value === '') {
                 return '-';
+            }
+            // Check if value is a boolean-like string and normalize it
+            const normalizedBool = this.normalizeBooleanValue(value);
+            if (normalizedBool !== null) {
+                return normalizedBool;
             }
             if (Array.isArray(value)) {
                 return value.join(', ');

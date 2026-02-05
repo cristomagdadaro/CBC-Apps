@@ -5,7 +5,7 @@ const emit = defineEmits(['update:checked']);
 
 const props = defineProps({
     checked: {
-        type: [Array, Boolean],
+        type: [Boolean, String, Number],
         default: false,
     },
     value: {
@@ -15,9 +15,27 @@ const props = defineProps({
     id: String,
 });
 
+// Normalize various boolean-like values to actual boolean
+const normalizeValue = (val) => {
+    if (val === null || val === undefined || val === '') {
+        return false;
+    }
+    if (typeof val === 'boolean') {
+        return val;
+    }
+    if (typeof val === 'string') {
+        const lower = val.toLowerCase().trim();
+        return lower === 'true' || lower === '1' || lower === 'yes';
+    }
+    if (typeof val === 'number') {
+        return val !== 0;
+    }
+    return Boolean(val);
+};
+
 const proxyChecked = computed({
     get() {
-        return props.checked;
+        return normalizeValue(props.checked);
     },
 
     set(val) {

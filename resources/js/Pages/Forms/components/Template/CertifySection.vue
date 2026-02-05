@@ -13,12 +13,12 @@ export default {
 
     props: {
         agreed_tc: {
-            type: Boolean,
-            required: true,
+            type: [Boolean, String, Number],
+            default: false,
         },
         agreed_updates: {
-            type: Boolean,
-            required: true,
+            type: [Boolean, String, Number],
+            default: false,
         },
         errors: {
             type: Object,
@@ -55,6 +55,7 @@ export default {
             <Checkbox
                 id="agreed_tc"
                 v-model="agreedTcModel"
+                :checked="agreedTcModel"
                 :class="{ 'border border-red-600': errors.agreed_tc }"
             />
 
@@ -77,6 +78,7 @@ export default {
             <Checkbox
                 id="agreed_updates"
                 v-model="agreedUpdatesModel"
+                :checked="agreedUpdatesModel"
                 :class="{ 'border border-red-600': errors.agreed_updates }"
             />
 

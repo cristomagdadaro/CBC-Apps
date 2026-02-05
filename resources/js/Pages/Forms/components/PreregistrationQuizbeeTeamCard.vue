@@ -137,7 +137,8 @@ export default {
         if (this.isEditMode) {
             this.setFormAction('update');
             this.form.id = this.responseData.id;
-            this.form.response_data = this.responseData.response_data || {};
+            // Ensure all response_data fields are preserved, including address fields
+            this.form.response_data = Object.assign({}, this.responseData.response_data || {});
         } else {
             this.setFormAction('create').response_data = SubformResponse.getSubformFields('preregistration_quizbee');
             this.form.form_parent_id = this.eventId;
