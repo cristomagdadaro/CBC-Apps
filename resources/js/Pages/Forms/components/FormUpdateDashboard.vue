@@ -77,6 +77,9 @@ export default {
             ipChartInstance: null,
             pwdChartInstance: null,
             organizationChartInstance: null,
+            regionPieInstance: null,
+            provincePieInstance: null,
+            cityPieInstance: null,
         };
     },
     computed: {
@@ -149,6 +152,62 @@ export default {
         },
         organizationCounts() {
             return this.aggregateCounts('organization', (value) => this.normalizeText(value));
+        },
+        geoRegionSummary() {
+            const regionMap = new Map();
+
+            this.allResponses.forEach((item) => {
+                const region = this.normalizeText(item.response_data?.region_address);
+                if (!region) {
+                    return;
+                }
+
+                if (!regionMap.has(region)) {
+                    regionMap.set(region, {
+                        region,
+                        provinces: new Set(),
+                        cities: new Set(),
+                    });
+                }
+
+                const province = this.normalizeText(item.response_data?.province_address);
+                const city = this.normalizeText(item.response_data?.city_address);
+                const entry = regionMap.get(region);
+
+                if (province) {
+                    entry.provinces.add(province);
+                }
+
+                if (city) {
+                    entry.cities.add(city);
+                }
+            });
+
+            return Array.from(regionMap.values())
+                .map((entry) => ({
+                    region: entry.region,
+                    provinceCount: entry.provinces.size,
+                    cityCount: entry.cities.size,
+                }))
+                .sort((a, b) => a.region.localeCompare(b.region));
+        },
+        geoRegionLabels() {
+            return this.geoRegionSummary.map((e) => e.region);
+        },
+        geoDetailedNames() {
+            // collect unique province and city names
+            const provinces = new Set();
+            const cities = new Set();
+            this.allResponses.forEach((item) => {
+                const province = this.normalizeText(item.response_data?.province_address);
+                const city = this.normalizeText(item.response_data?.city_address);
+                if (province) provinces.add(province);
+                if (city) cities.add(city);
+            });
+            return {
+                provinces: Array.from(provinces).sort(),
+                cities: Array.from(cities).sort(),
+            };
         },
     },
     methods: {
@@ -250,33 +309,120 @@ export default {
                 },
             });
         },
-        getFormCardComponent(formType) {
-            const components = {
-                'preregistration': 'PreregistrationCard',
-                'pre_registration': 'PreregistrationCard',
-                'preregistration_biotech': 'PreregistrationQuizBeeCard',
-                'pre_registration_biotech': 'PreregistrationQuizBeeCard',
-                'preregistration_quizbee': 'PreregistrationQuizbeeTeamCard',
-                'pre_registration_quizbee': 'PreregistrationQuizbeeTeamCard',
-                'registration': 'RegistrationCard',
-                'feedback': 'FeedbackCard',
+        createStackedBarChart(refName, labels, datasets) {
+            const canvas = this.$refs[refName];
+            if (!canvas || !labels.length) {
+                return null;
+            }
+            // Plugin to draw dataset label (province/city name) on each stacked segment
+            const stackedLabelPlugin = {
+                id: 'stackedLabelPlugin',
+                afterDatasetsDraw(chart) {
+                    const ctx = chart.ctx;
+                    chart.data.datasets.forEach((dataset, datasetIndex) => {
+                        const meta = chart.getDatasetMeta(datasetIndex);
+                        meta.data.forEach((bar, i) => {
+                            const value = dataset.data[i];
+                            if (!value || value === 0) return;
+
+                            const x = bar.x;
+                            const y = bar.y;
+                            const base = bar.base ?? (bar.y + bar.height || 0);
+                            const height = Math.abs(base - y);
+                            const centerY = y + (base - y) / 2;
+
+                            ctx.save();
+                            ctx.font = '11px Arial';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+
+                            const labelText = String(dataset.label || '');
+                            ctx.font = '11px Arial';
+                            const textWidth = ctx.measureText(labelText).width;
+                            const barWidth = bar.width || Math.max((bar.right - bar.left) || 0, 0);
+
+                            if (height > 20 && textWidth <= barWidth - 6) {
+                                // fits inside segment - render full name in white
+                                ctx.fillStyle = '#ffffff';
+                                ctx.fillText(labelText, x, centerY);
+                            } else {
+                                // render full name above the segment, wrapping if necessary
+                                ctx.fillStyle = '#111827';
+                                const maxCharsPerLine = 30;
+                                const words = labelText.split(' ');
+                                const lines = [];
+                                let line = '';
+                                words.forEach((w) => {
+                                    if ((line + ' ' + w).trim().length <= maxCharsPerLine) {
+                                        line = (line + ' ' + w).trim();
+                                    } else {
+                                        if (line) lines.push(line);
+                                        line = w;
+                                    }
+                                });
+                                if (line) lines.push(line);
+
+                                const lineHeight = 14;
+                                const startY = y - 8 - (lines.length - 1) * lineHeight;
+                                lines.forEach((ln, idx) => {
+                                    ctx.fillText(ln, x, startY + idx * lineHeight);
+                                });
+                            }
+
+                            ctx.restore();
+                        });
+                    });
+                },
             };
-            return components[formType] || null;
+
+            return new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets,
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label(ctx) {
+                                    const v = ctx.raw ?? ctx.parsed?.y ?? ctx.parsed?.r ?? 0;
+                                    return `${ctx.dataset.label}: ${v}`;
+                                },
+                            },
+                        },
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: { display: false, drawBorder: false },
+                            border: { display: false },
+                        },
+                        y: {
+                            stacked: true,
+                            grid: { display: false, drawBorder: false },
+                            ticks: { precision: 0 },
+                            border: { display: false },
+                        },
+                    },
+                },
+                plugins: [stackedLabelPlugin],
+            });
         },
-        openResponseModal(response, formType) {
-            this.selectedResponse = response;
-            this.selectedResponseType = formType;
-            this.selectedFormType = formType;
-            this.showResponseModal = true;
+        onResponseUpdated(updatedResponse) {
+            this.closeResponseModal();
         },
         closeResponseModal() {
             this.showResponseModal = false;
             this.selectedResponse = null;
             this.selectedResponseType = null;
             this.selectedFormType = null;
-        },
-        onResponseUpdated(updatedResponse) {
-            this.closeResponseModal();
         },
         formatValue(value) {
             if (value === null || value === undefined || value === '') {
@@ -353,6 +499,29 @@ export default {
                 this.organizationChartInstance.destroy();
                 this.organizationChartInstance = null;
             }
+            // regionGeoChartInstance removed
+            if (this.regionPieInstance) { this.regionPieInstance.destroy(); this.regionPieInstance = null; }
+            if (this.provincePieInstance) { this.provincePieInstance.destroy(); this.provincePieInstance = null; }
+            if (this.cityPieInstance) { this.cityPieInstance.destroy(); this.cityPieInstance = null; }
+        },
+        createDonutChart(refName, labels, data, colors) {
+            const canvas = this.$refs[refName];
+            if (!canvas || !labels.length) return null;
+            return new Chart(canvas, {
+                type: 'doughnut',
+                data: {
+                    labels,
+                    datasets: [{ data, backgroundColor: colors }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: { enabled: true },
+                    },
+                },
+            });
         },
         buildCharts() {
             this.destroyCharts();
@@ -484,6 +653,27 @@ export default {
                     orgValues,
                     orgLabels.map((_, index) => piePalette[index % piePalette.length])
                 );
+
+                const regionEntries = this.geoRegionSummary || [];
+                const regionLabels = regionEntries.map((entry) => entry.region);
+
+                // create donuts: region, province, city
+                const regionCounts = regionEntries.map((entry) => this.allResponses.filter(r => this.normalizeText(r.response_data?.region_address) === entry.region).length);
+                const provinceCountsMap = this.aggregateCounts('province_address', (v) => this.normalizeText(v));
+                const provinceLabels = Object.keys(provinceCountsMap);
+                const provinceCounts = provinceLabels.map(l => provinceCountsMap[l]);
+                const cityCountsMap = this.aggregateCounts('city_address', (v) => this.normalizeText(v));
+                const cityLabels = Object.keys(cityCountsMap);
+                const cityCounts = cityLabels.map(l => cityCountsMap[l]);
+
+                const palette = this.responseColors.concat(this.totalsColors);
+                const regionColors = regionLabels.map((_, i) => palette[i % palette.length]);
+                const provinceColors = provinceLabels.map((_, i) => palette[(i + regionLabels.length) % palette.length]);
+                const cityColors = cityLabels.map((_, i) => palette[(i + regionLabels.length + provinceLabels.length) % palette.length]);
+
+                this.regionPieInstance = this.createDonutChart('regionPieCanvas', regionLabels, regionCounts, regionColors);
+                this.provincePieInstance = this.createDonutChart('provincePieCanvas', provinceLabels, provinceCounts, provinceColors);
+                this.cityPieInstance = this.createDonutChart('cityPieCanvas', cityLabels, cityCounts, cityColors);
             });
         },
     },
@@ -639,6 +829,24 @@ export default {
                 <div class="mt-4 h-56">
                     <canvas ref="organizationChartCanvas"></canvas>
                 </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
+                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Region, Province, and City Coverage</h3>
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="h-48">
+                        <h4 class="text-xs text-gray-500 mb-2">Regions</h4>
+                        <canvas ref="regionPieCanvas" class="h-40 w-full"></canvas>
+                    </div>
+                    <div class="h-48">
+                        <h4 class="text-xs text-gray-500 mb-2">Provinces</h4>
+                        <canvas ref="provincePieCanvas" class="h-40 w-full"></canvas>
+                    </div>
+                    <div class="h-48">
+                        <h4 class="text-xs text-gray-500 mb-2">Cities</h4>
+                        <canvas ref="cityPieCanvas" class="h-40 w-full"></canvas>
+                    </div>
+                </div>
+                <!-- stacked bar removed; multi-series pies above display region/province/city -->
             </div>
         </div>
         
