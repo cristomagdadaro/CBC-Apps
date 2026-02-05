@@ -80,6 +80,8 @@ export default {
             regionPieInstance: null,
             provincePieInstance: null,
             cityPieInstance: null,
+            selectedRegion: null,
+            selectedProvince: null,
         };
     },
     computed: {
@@ -208,6 +210,40 @@ export default {
                 provinces: Array.from(provinces).sort(),
                 cities: Array.from(cities).sort(),
             };
+        },
+        filteredProvinceCounts() {
+            if (!this.selectedRegion) {
+                return this.aggregateCounts('province_address', (v) => this.normalizeText(v));
+            }
+            const counts = {};
+            this.allResponses.forEach((item) => {
+                const region = this.normalizeText(item.response_data?.region_address);
+                if (region !== this.selectedRegion) return;
+                const province = this.normalizeText(item.response_data?.province_address);
+                if (province === null || province === undefined || province === '') return;
+                counts[province] = (counts[province] || 0) + 1;
+            });
+            return counts;
+        },
+        filteredCityCounts() {
+            if (!this.selectedProvince && !this.selectedRegion) {
+                return this.aggregateCounts('city_address', (v) => this.normalizeText(v));
+            }
+            const counts = {};
+            this.allResponses.forEach((item) => {
+                if (this.selectedRegion) {
+                    const region = this.normalizeText(item.response_data?.region_address);
+                    if (region !== this.selectedRegion) return;
+                }
+                if (this.selectedProvince) {
+                    const province = this.normalizeText(item.response_data?.province_address);
+                    if (province !== this.selectedProvince) return;
+                }
+                const city = this.normalizeText(item.response_data?.city_address);
+                if (city === null || city === undefined || city === '') return;
+                counts[city] = (counts[city] || 0) + 1;
+            });
+            return counts;
         },
     },
     methods: {
@@ -504,7 +540,7 @@ export default {
             if (this.provincePieInstance) { this.provincePieInstance.destroy(); this.provincePieInstance = null; }
             if (this.cityPieInstance) { this.cityPieInstance.destroy(); this.cityPieInstance = null; }
         },
-        createDonutChart(refName, labels, data, colors) {
+        createDonutChart(refName, labels, data, colors, onSliceClick = null) {
             const canvas = this.$refs[refName];
             if (!canvas || !labels.length) return null;
             const doughnutLabelPlugin = {
@@ -552,6 +588,12 @@ export default {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    onClick: onSliceClick ? (event, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            onSliceClick(labels[index]);
+                        }
+                    } : undefined,
                     plugins: {
                         legend: { position: 'bottom', display: false },
                         tooltip: { enabled: true },
@@ -696,10 +738,10 @@ export default {
 
                 // create donuts: region, province, city
                 const regionCounts = regionEntries.map((entry) => this.allResponses.filter(r => this.normalizeText(r.response_data?.region_address) === entry.region).length);
-                const provinceCountsMap = this.aggregateCounts('province_address', (v) => this.normalizeText(v));
+                const provinceCountsMap = this.filteredProvinceCounts;
                 const provinceLabels = Object.keys(provinceCountsMap);
                 const provinceCounts = provinceLabels.map(l => provinceCountsMap[l]);
-                const cityCountsMap = this.aggregateCounts('city_address', (v) => this.normalizeText(v));
+                const cityCountsMap = this.filteredCityCounts;
                 const cityLabels = Object.keys(cityCountsMap);
                 const cityCounts = cityLabels.map(l => cityCountsMap[l]);
 
@@ -708,10 +750,40 @@ export default {
                 const provinceColors = provinceLabels.map((_, i) => palette[(i + regionLabels.length) % palette.length]);
                 const cityColors = cityLabels.map((_, i) => palette[(i + regionLabels.length + provinceLabels.length) % palette.length]);
 
-                this.regionPieInstance = this.createDonutChart('regionPieCanvas', regionLabels, regionCounts, regionColors);
-                this.provincePieInstance = this.createDonutChart('provincePieCanvas', provinceLabels, provinceCounts, provinceColors);
+                this.regionPieInstance = this.createDonutChart(
+                    'regionPieCanvas',
+                    regionLabels,
+                    regionCounts,
+                    regionColors,
+                    (label) => this.onRegionClick(label)
+                );
+                this.provincePieInstance = this.createDonutChart(
+                    'provincePieCanvas',
+                    provinceLabels,
+                    provinceCounts,
+                    provinceColors,
+                    (label) => this.onProvinceClick(label)
+                );
                 this.cityPieInstance = this.createDonutChart('cityPieCanvas', cityLabels, cityCounts, cityColors);
             });
+        },
+        onRegionClick(regionLabel) {
+            if (this.selectedRegion === regionLabel) {
+                this.selectedRegion = null;
+                this.selectedProvince = null;
+            } else {
+                this.selectedRegion = regionLabel;
+                this.selectedProvince = null;
+            }
+            this.buildCharts();
+        },
+        onProvinceClick(provinceLabel) {
+            if (this.selectedProvince === provinceLabel) {
+                this.selectedProvince = null;
+            } else {
+                this.selectedProvince = provinceLabel;
+            }
+            this.buildCharts();
         },
     },
     watch: {
@@ -869,14 +941,23 @@ export default {
             </div>
             <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Region, Province, and City Coverage</h3>
+                <div v-if="selectedRegion || selectedProvince" class="mt-2 mb-3 p-2 bg-blue-50 dark:bg-blue-900 rounded">
+                    <p class="text-xs text-blue-900 dark:text-blue-100">
+                        <span v-if="selectedRegion"><strong>Region:</strong> {{ selectedRegion }}</span>
+                        <span v-if="selectedProvince" class="ml-2"><strong>Province:</strong> {{ selectedProvince }}</span>
+                    </p>
+                    <button @click="() => { selectedRegion = null; selectedProvince = null; buildCharts(); }" class="mt-1 text-xs text-blue-600 dark:text-blue-300 hover:underline">
+                        ← Reset Filter
+                    </button>
+                </div>
                 <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="h-48">
-                        <h4 class="text-xs text-gray-500 mb-2">Regions</h4>
-                        <canvas ref="regionPieCanvas" class="h-40 w-full"></canvas>
+                        <h4 class="text-xs text-gray-500 mb-2">Regions (Click to filter)</h4>
+                        <canvas ref="regionPieCanvas" class="h-40 w-full cursor-pointer"></canvas>
                     </div>
                     <div class="h-48">
-                        <h4 class="text-xs text-gray-500 mb-2">Provinces</h4>
-                        <canvas ref="provincePieCanvas" class="h-40 w-full"></canvas>
+                        <h4 class="text-xs text-gray-500 mb-2">Provinces (Click to filter)</h4>
+                        <canvas ref="provincePieCanvas" class="h-40 w-full cursor-pointer"></canvas>
                     </div>
                     <div class="h-48">
                         <h4 class="text-xs text-gray-500 mb-2">Cities</h4>
