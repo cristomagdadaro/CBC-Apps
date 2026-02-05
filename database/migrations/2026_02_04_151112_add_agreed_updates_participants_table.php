@@ -9,8 +9,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('participants', function (Blueprint $table) {
-            $table->boolean('agreed_updates')->default(false)->after('agreed_tc');
-            $table->string('region_address')->nullable()->after('province_address');
+            // agreed_updates already exists in create_participants_table migration, only add region_address
+            if (!Schema::hasColumn('participants', 'region_address')) {
+                $table->string('region_address')->nullable()->after('province_address');
+            }
         });
     }
 
