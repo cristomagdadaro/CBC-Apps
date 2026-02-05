@@ -21,7 +21,7 @@ export default {
     methods: {
         async handleUpdateApprovalBtn(status) {
             this.form.request_status = status;
-            this.form.approved_by = this.$page.props.auth.user.name ?? this.form.approved_by;
+            this.form.approved_by = this.$page.props.auth?.user?.name ?? this.form.approved_by;
             const response = await this.submitUpdate();
             if (!(response instanceof DtoError)) {
                 this.form.request_status = response.data.request_status;

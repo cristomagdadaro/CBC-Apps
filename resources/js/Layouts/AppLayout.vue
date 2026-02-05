@@ -180,13 +180,13 @@ const services = [
                             <div class="ms-3 relative">
                                 <Dropdown align="right" width="48">
                                     <template #trigger>
-                                        <button v-if="$page.props.jetstream.managesProfilePhotos" class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-gray-300 transition">
-                                            <img class="h-8 w-8 rounded-full object-cover" :src="$page.props.auth.user.profile_photo_url" :alt="$page.props.auth.user.name">
+                                        <button v-if="$page.props.jetstream.managesProfilePhotos && $page.props.auth?.user" class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-gray-300 transition">
+                                            <img class="h-8 w-8 rounded-full object-cover" :src="$page.props.auth.user.profile_photo_url" :alt="$page.props.auth?.user?.name">
                                         </button>
 
                                         <span v-else class="inline-flex rounded-md">
                                             <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
-                                                {{ $page.props.auth.user.name }}
+                                                {{ $page.props.auth?.user?.name || 'Account' }}
                                                 <caret-down class="ms-2 -me-0.5 h-4 w-4" />
                                             </button>
                                         </span>
@@ -284,16 +284,16 @@ const services = [
                     <!-- Responsive Settings Options -->
                     <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
                         <div class="flex items-center px-4">
-                            <div v-if="$page.props.jetstream.managesProfilePhotos" class="shrink-0 me-3">
-                                <img class="h-10 w-10 rounded-full object-cover" :src="$page.props.auth.user.profile_photo_url" :alt="$page.props.auth.user.name">
+                            <div v-if="$page.props.jetstream.managesProfilePhotos && $page.props.auth?.user" class="shrink-0 me-3">
+                                <img class="h-10 w-10 rounded-full object-cover" :src="$page.props.auth.user.profile_photo_url" :alt="$page.props.auth?.user?.name">
                             </div>
 
                             <div>
                                 <div class="font-medium text-base text-gray-800 dark:text-gray-200">
-                                    {{ $page.props.auth.user.name }}
+                                    {{ $page.props.auth?.user?.name || 'Account' }}
                                 </div>
                                 <div class="font-medium text-sm text-gray-500">
-                                    {{ $page.props.auth.user.email }}
+                                    {{ $page.props.auth?.user?.email }}
                                 </div>
                             </div>
                         </div>
