@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col gap-0.5 w-full">
+    <div class="flex flex-col gap-0.5 w-full rounded-md">
         <div v-if="label" class="text-xs text-gray-500 flex items-center justify-between">
             <span class="flex gap-0.5 whitespace-nowrap">{{ label }}<b v-if="required" class="text-red-500 ">*</b></span>
             <transition-container type="slide-bottom">
@@ -7,7 +7,7 @@
             </transition-container>
         </div>
         <div>
-            <div :class="['w-full focus-within:ring-1 flex gap-1 justify-between border-gray-700 items-center rounded px-4 py-2 border', { 'bg-white': !disabled, 'bg-gray-100': disabled, 'opacity-60 cursor-not-allowed': disabled }]" @click.prevent="toggle">
+            <div :class="['w-full focus-within:ring-1 flex gap-1 justify-between border-gray-700 items-center rounded px-4 py-2 border', { 'bg-white': !disabled, 'bg-gray-100': disabled, 'opacity-60 cursor-not-allowed': disabled,'border-red-600': !!error }]" @click.prevent="toggle">
                 <div v-if="!searchable" :class="['text-gray-600 whitespace-nowrap overflow-hidden overflow-ellipsis', { 'text-gray-400': disabled }]">{{ selected? selected.label : value? value : placeholder }}</div>
                 <input v-else type="text" @keydown.esc="search = null" @keydown="filterOptions()" v-model="search" class="w-full text-gray-600 border-none focus:outline-none focus:border-transparent focus:ring-0 p-0" :placeholder="selected? selected.label : placeholder" />
                 <div class="flex gap-2 items-center">
