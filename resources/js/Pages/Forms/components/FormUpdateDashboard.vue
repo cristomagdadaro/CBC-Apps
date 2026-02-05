@@ -12,6 +12,7 @@ import {
 } from 'chart.js';
 import DataFormatterMixin from '@/Modules/mixins/DataFormatterMixin';
 import Modal from '@/Components/Modal.vue';
+import TabNavigation from '@/Components/TabNavigation.vue';
 import PreregistrationCard from '@/Pages/Forms/components/PreregistrationCard.vue';
 import PreregistrationQuizBeeCard from '@/Pages/Forms/components/PreregistrationQuizBeeCard.vue';
 import PreregistrationQuizbeeTeamCard from '@/Pages/Forms/components/PreregistrationQuizbeeTeamCard.vue';
@@ -24,6 +25,7 @@ export default {
     name: 'FormUpdateDashboard',
     components: {
         Modal,
+        TabNavigation,
         PreregistrationCard,
         PreregistrationQuizBeeCard,
         PreregistrationQuizbeeTeamCard,
@@ -51,11 +53,11 @@ export default {
     },
     data() {
         return {
-            expandedGroups: {},
             showResponseModal: false,
             selectedResponse: null,
             selectedResponseType: null,
             selectedFormType: null,
+            activeFormType: null,
             labelMap: {
                 pre_registration: 'Pre-registration',
                 pre_registration_biotech: 'Pre-registration + Quiz Bee',
@@ -70,6 +72,11 @@ export default {
             totalsColors: ['#3b82f6', '#f97316', '#22c55e'],
             responseChartInstance: null,
             totalsChartInstance: null,
+            sexChartInstance: null,
+            ageChartInstance: null,
+            ipChartInstance: null,
+            pwdChartInstance: null,
+            organizationChartInstance: null,
         };
     },
     computed: {
@@ -105,10 +112,143 @@ export default {
                 };
             });
         },
+        responseTabs() {
+            return this.responseDataGroups.map((group) => ({
+                key: group.form_type,
+                label: group.label,
+                count: group.items.length,
+            }));
+        },
+        activeGroup() {
+            return this.responseDataGroups.find((group) => group.form_type === this.activeFormType) || null;
+        },
+        allResponses() {
+            const groups = this.responsesByType || {};
+            return Object.values(groups).flatMap((items) => (Array.isArray(items) ? items : []));
+        },
+        sexCounts() {
+            return this.aggregateCounts('sex', (value) => this.normalizeText(value));
+        },
+        ageCounts() {
+            const counts = {};
+            this.allResponses.forEach((item) => {
+                const raw = item.response_data?.age;
+                const age = Number.parseInt(raw, 10);
+                if (Number.isNaN(age)) {
+                    return;
+                }
+                counts[age] = (counts[age] || 0) + 1;
+            });
+            return counts;
+        },
+        ipCounts() {
+            return this.aggregateCounts('is_ip', (value) => this.normalizeBoolean(value));
+        },
+        pwdCounts() {
+            return this.aggregateCounts('is_pwd', (value) => this.normalizeBoolean(value));
+        },
+        organizationCounts() {
+            return this.aggregateCounts('organization', (value) => this.normalizeText(value));
+        },
     },
     methods: {
-        toggleGroup(formType) {
-            this.expandedGroups[formType] = !this.expandedGroups[formType];
+        normalizeText(value) {
+            if (value === null || value === undefined) {
+                return null;
+            }
+            const str = String(value).trim();
+            return str === '' ? null : str;
+        },
+        normalizeBoolean(value) {
+            if (value === null || value === undefined || value === '') {
+                return null;
+            }
+            if (value === true || value === 1 || value === '1' || value === 'Yes' || value === 'yes') {
+                return 'Yes';
+            }
+            if (value === false || value === 0 || value === '0' || value === 'No' || value === 'no') {
+                return 'No';
+            }
+            return this.normalizeText(value);
+        },
+        aggregateCounts(field, normalizer) {
+            const counts = {};
+            this.allResponses.forEach((item) => {
+                const raw = item.response_data?.[field];
+                const normalized = normalizer ? normalizer(raw) : raw;
+                if (normalized === null || normalized === undefined || normalized === '') {
+                    return;
+                }
+                counts[normalized] = (counts[normalized] || 0) + 1;
+            });
+            return counts;
+        },
+        createPieChart(refName, labels, data, colors) {
+            const canvas = this.$refs[refName];
+            if (!canvas || !labels.length) {
+                return null;
+            }
+            return new Chart(canvas, {
+                type: 'pie',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            data,
+                            backgroundColor: colors,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                        },
+                    },
+                },
+            });
+        },
+        createBarChart(refName, labels, data, color) {
+            const canvas = this.$refs[refName];
+            if (!canvas || !labels.length) {
+                return null;
+            }
+            return new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            data,
+                            backgroundColor: color,
+                            borderWidth: 0,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false,
+                        },
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false, drawBorder: false },
+                            border: { display: false },
+                        },
+                        y: {
+                            grid: { display: false, drawBorder: false },
+                            ticks: { precision: 0 },
+                            border: { display: false },
+                        },
+                    },
+                },
+            });
         },
         getFormCardComponent(formType) {
             const components = {
@@ -193,6 +333,26 @@ export default {
                 this.totalsChartInstance.destroy();
                 this.totalsChartInstance = null;
             }
+            if (this.sexChartInstance) {
+                this.sexChartInstance.destroy();
+                this.sexChartInstance = null;
+            }
+            if (this.ageChartInstance) {
+                this.ageChartInstance.destroy();
+                this.ageChartInstance = null;
+            }
+            if (this.ipChartInstance) {
+                this.ipChartInstance.destroy();
+                this.ipChartInstance = null;
+            }
+            if (this.pwdChartInstance) {
+                this.pwdChartInstance.destroy();
+                this.pwdChartInstance = null;
+            }
+            if (this.organizationChartInstance) {
+                this.organizationChartInstance.destroy();
+                this.organizationChartInstance = null;
+            }
         },
         buildCharts() {
             this.destroyCharts();
@@ -274,6 +434,56 @@ export default {
                         },
                     });
                 }
+
+                const piePalette = this.responseColors;
+
+                const sexEntries = Object.entries(this.sexCounts || {});
+                const sexLabels = sexEntries.map(([label]) => label);
+                const sexValues = sexEntries.map(([, value]) => value);
+                this.sexChartInstance = this.createPieChart(
+                    'sexChartCanvas',
+                    sexLabels,
+                    sexValues,
+                    sexLabels.map((_, index) => piePalette[index % piePalette.length])
+                );
+
+                const ageEntries = Object.entries(this.ageCounts || {})
+                    .map(([label, value]) => [Number.parseInt(label, 10), value])
+                    .filter(([label]) => !Number.isNaN(label))
+                    .sort((a, b) => a[0] - b[0]);
+                const ageLabels = ageEntries.map(([label]) => String(label));
+                const ageValues = ageEntries.map(([, value]) => value);
+                this.ageChartInstance = this.createBarChart('ageChartCanvas', ageLabels, ageValues, '#22c55e');
+
+                const ipEntries = Object.entries(this.ipCounts || {});
+                const ipLabels = ipEntries.map(([label]) => label);
+                const ipValues = ipEntries.map(([, value]) => value);
+                this.ipChartInstance = this.createPieChart(
+                    'ipChartCanvas',
+                    ipLabels,
+                    ipValues,
+                    ipLabels.map((_, index) => piePalette[index % piePalette.length])
+                );
+
+                const pwdEntries = Object.entries(this.pwdCounts || {});
+                const pwdLabels = pwdEntries.map(([label]) => label);
+                const pwdValues = pwdEntries.map(([, value]) => value);
+                this.pwdChartInstance = this.createPieChart(
+                    'pwdChartCanvas',
+                    pwdLabels,
+                    pwdValues,
+                    pwdLabels.map((_, index) => piePalette[index % piePalette.length])
+                );
+
+                const orgEntries = Object.entries(this.organizationCounts || {});
+                const orgLabels = orgEntries.map(([label]) => label);
+                const orgValues = orgEntries.map(([, value]) => value);
+                this.organizationChartInstance = this.createPieChart(
+                    'organizationChartCanvas',
+                    orgLabels,
+                    orgValues,
+                    orgLabels.map((_, index) => piePalette[index % piePalette.length])
+                );
             });
         },
     },
@@ -283,6 +493,16 @@ export default {
                 this.buildCharts();
             },
             deep: true,
+        },
+        responseDataGroups: {
+            handler(groups) {
+                if (!this.activeFormType && groups.length) {
+                    this.activeFormType = groups[0].form_type;
+                } else if (this.activeFormType && !groups.find(group => group.form_type === this.activeFormType)) {
+                    this.activeFormType = groups[0]?.form_type ?? null;
+                }
+            },
+            immediate: true,
         },
     },
     mounted() {
@@ -296,6 +516,80 @@ export default {
 
 <template>
     <div class="space-y-6">
+        <div class="space-y-4">
+            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
+                <TabNavigation v-model="activeFormType" :tabs="responseTabs">
+                    <template #default>
+                        <div class="mt-4 overflow-x-auto" v-if="activeGroup">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <span class="uppercase">{{ activeGroup.label }}</span>
+                                </h3>
+                                <button
+                                    @click="exportToCSV(activeGroup)"
+                                    class="inline-flex items-center gap-2 px-3 py-1 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    Export CSV
+                                </button>
+                            </div>
+                            <table class="min-w-full text-sm text-left">
+                                <thead class="text-xs uppercase text-gray-500 dark:text-gray-400 border-b">
+                                    <tr>
+                                        <th class="px-4 py-2">Submitted On</th>
+                                        <th
+                                            v-for="col in activeGroup.dataColumns"
+                                            :key="col"
+                                            class="px-4 py-2"
+                                        >
+                                            {{ col.replace(/_/g, ' ') }}
+                                        </th>
+                                        <th class="px-4 py-2 text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in activeGroup.items" :key="item.id" class="border-b">
+                                        <td class="px-4 py-2 text-gray-700 dark:text-gray-200">{{ formatDateTime(item.created_at) }}</td>
+                                        <td
+                                            v-for="col in activeGroup.dataColumns"
+                                            :key="col"
+                                            class="px-4 py-2 text-gray-700 dark:text-gray-200"
+                                        >
+                                            {{ formatValue(item.response_data?.[col]) }}
+                                        </td>
+                                        <td class="px-4 py-2 text-center">
+                                            <button
+                                                @click="openResponseModal(item, activeGroup.form_type)"
+                                                class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded transition-colors"
+                                                title="Edit this response"
+                                            >
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                                Edit
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="!activeGroup.items.length">
+                                        <td :colspan="3 + activeGroup.dataColumns.length" class="px-4 py-3 text-center text-gray-500 dark:text-gray-400">
+                                            No responses available.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div v-else class="py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                            No responses available.
+                        </div>
+                    </template>
+                    <template #icon="{ tab }">
+                        <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">{{ tab.count }}</span>
+                    </template>
+                </TabNavigation>
+            </div>
+        </div>
         <div class="grid gap-4 md:grid-cols-3">
             <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Responses</h3>
@@ -315,93 +609,36 @@ export default {
                 </div>
             </div>
         </div>
-        <div class="space-y-4">
-            <div
-                v-for="group in responseDataGroups"
-                :key="group.form_type"
-                class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4"
-            >
-                <div :id="group.form_type" class="flex w-full justify-between items-center cursor-pointer" @click="toggleGroup(group.form_type)">
-                    <div class="flex items-center gap-3 flex-1">
-                        <svg
-                            :class="['w-5 h-5 text-gray-500 transition-transform', { 'rotate-180': expandedGroups[group.form_type] }]"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                        </svg>
-                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">
-                            <span class="uppercase">{{ group.label }}</span>
-                        </h3>
-                        <div class="text-sm text-gray-700 dark:text-gray-200">
-                            <span class="font-semibold">{{ group.items.length }}</span> response<span v-if="group.items.length > 1">s</span>
-                        </div>
-                    </div>
-                    <button
-                        @click.stop="expandedGroups[group.form_type] = expandedGroups[group.form_type]"
-                        class="sr-only"
-                    >
-                        Toggle
-                    </button>
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
+                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Sex</h3>
+                <div class="mt-4 h-56">
+                    <canvas ref="sexChartCanvas"></canvas>
                 </div>
-                <div v-show="expandedGroups[group.form_type]" class="mt-4 overflow-x-auto">
-                    <div class="flex justify-end mb-3">
-                        <button
-                            @click="exportToCSV(group)"
-                            class="inline-flex items-center gap-2 px-3 py-1 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors"
-                        >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                            Export CSV
-                        </button>
-                    </div>
-                    <table class="min-w-full text-sm text-left">
-                        <thead class="text-xs uppercase text-gray-500 dark:text-gray-400 border-b">
-                            <tr>
-                                <th class="px-4 py-2">Submitted On</th>
-                                <th
-                                    v-for="col in group.dataColumns"
-                                    :key="col"
-                                    class="px-4 py-2"
-                                >
-                                    {{ col.replace(/_/g, ' ') }}
-                                </th>
-                                <th class="px-4 py-2 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="item in group.items" :key="item.id" class="border-b">
-                                <td class="px-4 py-2 text-gray-700 dark:text-gray-200">{{ formatDateTime(item.created_at) }}</td>
-                                <td
-                                    v-for="col in group.dataColumns"
-                                    :key="col"
-                                    class="px-4 py-2 text-gray-700 dark:text-gray-200"
-                                >
-                                    {{ formatValue(item.response_data?.[col]) }}
-                                </td>
-                                <td class="px-4 py-2 text-center">
-                                    <button
-                                        @click="openResponseModal(item, group.form_type)"
-                                        class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded transition-colors"
-                                        title="Edit this response"
-                                    >
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                        Edit
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr v-if="!group.items.length">
-                                <td :colspan="3 + group.dataColumns.length" class="px-4 py-3 text-center text-gray-500 dark:text-gray-400">
-                                    No responses available.
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
             </div>
+            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
+                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Age</h3>
+                <div class="mt-4 h-56">
+                    <canvas ref="ageChartCanvas"></canvas>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
+                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Indigenous Peoples (IP)</h3>
+                <div class="mt-4 h-56">
+                    <canvas ref="ipChartCanvas"></canvas>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
+                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Person with Disability (PWD)</h3>
+                <div class="mt-4 h-56">
+                    <canvas ref="pwdChartCanvas"></canvas>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
+                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Organization</h3>
+                <div class="mt-4 h-56">
+                    <canvas ref="organizationChartCanvas"></canvas>
+                </div>
             </div>
         </div>
         

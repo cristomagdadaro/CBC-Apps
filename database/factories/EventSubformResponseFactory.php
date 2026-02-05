@@ -5,6 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Enums\Subform;
 use App\Models\EventSubform;
+use App\Models\LocCity;
 use App\Models\Registration;
 
 /**
@@ -41,12 +42,12 @@ class EventSubformResponseFactory extends Factory
             'agreed_tc' => true,
             'agreed_updates' => $this->faker->boolean(),
             'designation' => $this->faker->jobTitle(),
-            'city_address' => $this->faker->city(),
             'organization' => $this->faker->company(),
             'attendance_type' => $this->faker->randomElement(['Online', 'Onsite']),
-            'country_address' => $this->faker->country(),
-            'province_address' => $this->faker->state(),
-            'region_address' => $this->faker->stateAbbr(),
+            'country_address' => 'Philippines',
+            'city_address' => LocCity::query()->inRandomOrder()->value('city'),
+            'province_address' => LocCity::query()->inRandomOrder()->value('province'),
+            'region_address' => LocCity::query()->inRandomOrder()->value('region'),
         ],
         ];
     }

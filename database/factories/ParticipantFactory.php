@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Enums\Sex;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\LocCity;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Participant>
@@ -28,10 +29,10 @@ class ParticipantFactory extends Factory
             'designation' => $this->faker->jobTitle(),
             'is_ip' => $this->faker->boolean(),
             'is_pwd' => $this->faker->boolean(),
-            'city_address' => $this->faker->city(),
-            'province_address' => $this->faker->city(),
-            'region_address' => $this->faker->stateAbbr(),
-            'country_address' => $this->faker->country(),
+            'country_address' => 'Philippines',
+            'city_address' => LocCity::query()->inRandomOrder()->value('city'),
+            'province_address' => LocCity::query()->inRandomOrder()->value('province'),
+            'region_address' => LocCity::query()->inRandomOrder()->value('region'),
             'agreed_tc' => $this->faker->boolean(),
             'agreed_updates' => $this->faker->boolean(),
         ];
