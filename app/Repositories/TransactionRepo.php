@@ -30,6 +30,7 @@ class TransactionRepo extends AbstractRepoService
         $paginate = filter_var($parameters->get('paginate', true), FILTER_VALIDATE_BOOLEAN);
         $filter    = $parameters->get('filter');
         $filterBy  = $parameters->get('filter_by');
+        $minRemaining = $parameters->get('min_remaining');
 
         $orderByRaw = match ($sort) {
             'name'               => 'items.name',
@@ -78,6 +79,10 @@ class TransactionRepo extends AbstractRepoService
                 $like = '%' . $search . '%';
                 $query->havingRaw('barcode LIKE ?', [$like]);
             }
+        }
+
+        if ($minRemaining !== null && is_numeric($minRemaining)) {
+            $query->havingRaw('remaining_quantity >= ?', [(float) $minRemaining]);
         }
 
         if ($search !== null && $search !== '') {

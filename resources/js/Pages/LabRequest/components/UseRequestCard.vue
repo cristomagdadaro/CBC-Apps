@@ -212,6 +212,7 @@ export default {
                                     <span><b>Purpose of Request:</b> {{ formsData.requestForm?.request_purpose }}</span>
                                     <span><b>Project Title:</b> {{ formsData.requestForm?.project_title }}</span>
                                     <span><b>Requested Time and Date of Use:</b> {{ formatTime(formsData.requestForm?.time_of_use) }} {{ formatDate(formsData.requestForm?.date_of_use) }}</span>
+                                    <span v-if="formsData.requestForm?.date_of_use_end || formsData.requestForm?.time_of_use_end"><b>Requested End Time and Date:</b> {{ formatTime(formsData.requestForm?.time_of_use_end) }} {{ formatDate(formsData.requestForm?.date_of_use_end) }}</span>
                                     <span><b>Reviewed by:</b> {{ formsData.approved_by }}</span>
                                     <span><b>Details of Request:</b> {{ formsData.requestForm?.request_details }}</span>
                                 </div>

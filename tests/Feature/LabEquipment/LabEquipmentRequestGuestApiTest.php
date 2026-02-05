@@ -24,6 +24,8 @@ class LabEquipmentRequestGuestApiTest extends TestCase
             'project_title' => 'Genome Study',
             'date_of_use' => now()->addDays(3)->toDateString(),
             'time_of_use' => '10:00',
+            'date_of_use_end' => now()->addDays(4)->toDateString(),
+            'time_of_use_end' => '16:00',
             'labs_to_use' => ['Lab A', 'Lab B'],
             'equipments_to_use' => ['Microscope'],
             'consumables_to_use' => ['Pipettes'],
@@ -44,6 +46,8 @@ class LabEquipmentRequestGuestApiTest extends TestCase
         $this->assertDatabaseHas('use_request_forms', [
             'request_purpose' => 'Research activity',
             'project_title' => 'Genome Study',
+            'date_of_use_end' => now()->addDays(4)->toDateString(),
+            'time_of_use_end' => '16:00:00',
         ]);
 
         $this->assertDatabaseHas('request_forms_pivot', [

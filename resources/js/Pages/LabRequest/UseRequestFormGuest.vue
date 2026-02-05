@@ -2,7 +2,6 @@
 
 import {Head} from "@inertiajs/vue3";
 import GuestCard from "@/Pages/Forms/components/GuestCard.vue";
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
 import RequesterGuestCard from "@/Pages/LabRequest/components/RequesterGuestCard.vue";
 import GuestFormPage from "@/Pages/Shared/GuestFormPage.vue";
 

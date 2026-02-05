@@ -104,6 +104,10 @@ export default {
                 required('request_purpose', 'Request purpose');
                 required('date_of_use', 'Date of use');
                 required('time_of_use', 'Time of use');
+                if (this.requiresEndTime) {
+                    required('date_of_use_end', 'End date of use');
+                    required('time_of_use_end', 'End time of use');
+                }
             } else if (stepKey === 'terms') {
                 if (!f.agreed_clause_1) this.clientErrors['agreed_clause_1'] = 'You must agree to this clause';
                 if (!f.agreed_clause_2) this.clientErrors['agreed_clause_2'] = 'You must agree to this clause';
@@ -159,6 +163,9 @@ export default {
         },
         currentStepKey() {
             return this.filteredSteps[this.currentStep]?.key;
+        },
+        requiresEndTime() {
+            return this.selectedRequestTypes.includes('Equipments') || this.selectedRequestTypes.includes('Laboratory Access');
         }
     },
     watch: {
@@ -195,6 +202,7 @@ export default {
         <form v-if="form" @submit.prevent="handleCreate()" class="px-2 py-0  md:rounded-md flex flex-col gap-4 bg-white">
             <!-- Step 0: Request Type -->
             <div v-show="currentStepKey === 'request_type'" class="flex flex-col gap-2 w-full">
+                <p class="text-sm text-gray-600">Select the type(s) of resources or facilities you need. You can choose multiple options if your request requires different types of support.</p>
                 <div class="w-full relative">
                     <h2 class="flex justify-between items-center">
                         <span class="font-bold uppercase">Request Types:<b class="text-red-500 ">*</b></span>
@@ -216,10 +224,11 @@ export default {
 
             <!-- Step 1: Requestor Information -->
             <div v-show="currentStepKey === 'requestor'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Provide your contact and affiliation details. You can search for your PhilRice ID to auto-fill some fields, or enter your information manually.</p>
                 <h2>
                     <span class="font-bold uppercase">Requestor Information: </span>
                 </h2>
-        
+                <p class="text-sm text-gray-600">Auto-fill by PhilRice ID</p>
                 <div class="flex items-end gap-2">
                     <TextInput id="employee_id" v-model="employee_id" type="text" :error="errMsg('employee_id')" label="PhilRice ID" placeholder="**-****" name="employee_id" autocomplete="employee_id" @input="form.clearErrors('employee_id')"/>
                     <button type="button" class="px-3 py-2 rounded bg-gray-800 text-white text-sm hover:bg-gray-900 disabled:opacity-50" :disabled="searchLoading" @click="searchPersonnel">
@@ -229,7 +238,7 @@ export default {
                 </div>
                 
                 <br class="border" />
-                
+                <p class="text-sm text-gray-600">Manually enter your information</p>
                 <TextInput id="name" v-model="form.name" required type="text" :error="errMsg('name')" label="Full Name" placeholder="Juan Dela Cruz" autocomplete="name" @input="form.clearErrors('name')" />
                 <TextInput id="position" v-model="form.position" type="text" :error="form.errors.position" label="Position" placeholder="SRS I, Student" autocomplete="position" @input="form.clearErrors('position')" />
                 <TextInput id="affiliation" v-model="form.affiliation" required type="text" :error="errMsg('affiliation')" label="Affiliation/Agency/Office" placeholder="Office Name" autocomplete="affiliation" @input="form.clearErrors('affiliation')" />
@@ -241,6 +250,7 @@ export default {
 
             <!-- Step 2: Request Form Details -->
             <div v-show="currentStepKey === 'details'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Tell us the purpose of your request and when you plan to use the resources. Include any special instructions or project details that may help us better assist you.</p>
                 <span class="font-bold uppercase">Request Form: </span>
                 <TextInput id="request_purpose" v-model="form.request_purpose" required type="text" :error="errMsg('request_purpose')" label="Purpose of Request" placeholder="Reason or purpose of your request" autocomplete="request_purpose" @input="form.clearErrors('request_purpose')" />
                 <TextInput id="request_details" v-model="form.request_details" type="text" :error="form.errors.request_details" label="Special Request or Instructions" placeholder="If applicable" autocomplete="request_details" @input="form.clearErrors('request_details')" />
@@ -249,10 +259,15 @@ export default {
                     <DateInput id="date_of_use" v-model="form.date_of_use" required type="text" :error="errMsg('date_of_use')" label="Date of Use" autocomplete="date_of_use" @input="form.clearErrors('date_of_use')" />
                     <TimeInput id="time_of_use" v-model="form.time_of_use" required type="text" :error="errMsg('time_of_use')" label="Time of Use" autocomplete="time_of_use" @input="form.clearErrors('time_of_use')" />
                 </div>
+                <div v-if="requiresEndTime" class="flex gap-2">
+                    <DateInput id="date_of_use_end" v-model="form.date_of_use_end" required type="text" :error="errMsg('date_of_use_end')" label="End Date of Use" autocomplete="date_of_use_end" @input="form.clearErrors('date_of_use_end')" />
+                    <TimeInput id="time_of_use_end" v-model="form.time_of_use_end" required type="text" :error="errMsg('time_of_use_end')" label="End Time of Use" autocomplete="time_of_use_end" @input="form.clearErrors('time_of_use_end')" />
+                </div>
             </div>
 
             <!-- Step 3: Supplies -->
             <div v-show="currentStepKey === 'supplies'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Search and select the supplies or consumables you need for your project. Start typing to find available items.</p>
                 <h2>
                     <span class="font-bold uppercase">Supplies: </span><span class="text-sm">Type to SEARCH and press ENTER select</span>
                 </h2>
@@ -261,6 +276,7 @@ export default {
 
             <!-- Step 4: Equipments -->
             <div v-show="currentStepKey === 'equipments'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Select the equipment you'll need for your research or project. Search by typing the equipment name.</p>
                 <h2>
                     <span class="font-bold uppercase">Equipments: </span><span class="text-sm">Type to SEARCH and press ENTER select</span>
                 </h2>
@@ -269,6 +285,7 @@ export default {
 
             <!-- Step 5: Laboratory Facilities -->
             <div v-show="currentStepKey === 'labs'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Choose the laboratory or lab facilities you'll be using. Search to find the available labs that match your needs.</p>
                 <h2>
                     <span class="font-bold uppercase">Laboratory Facilities: </span><span class="text-sm">Type to SEARCH and press ENTER select</span>
                 </h2>
@@ -277,6 +294,7 @@ export default {
 
             <!-- Step 6: Terms & Conditions -->
             <div v-show="currentStepKey === 'terms'" class="flex flex-col gap-3 text-sm leading-tight text-justify">
+                <p class="text-sm text-gray-600">Please read and agree to all terms and conditions below to complete your request. By checking the boxes, you acknowledge your responsibilities as a resource user.</p>
                 <h2>
                     <span class="font-bold uppercase">Terms & Conditions: </span>
                 </h2>
@@ -306,8 +324,8 @@ export default {
                 <div class="flex items-center gap-2">
                     <button v-if="currentStep < filteredSteps.length - 1" type="button" class="px-3 py-2 rounded bg-blue-600 text-white text-sm hover:bg-blue-700" @click="nextStep">Next</button>
                     <submit-btn v-else :disabled="model.api.processing" :processing="model.api.processing">
-                        <span v-if="!model.api.processing">Register</span>
-                        <span v-else>Registering</span>
+                        <span v-if="!model.api.processing">Submit</span>
+                        <span v-else>Saving</span>
                     </submit-btn>
                 </div>
             </div>

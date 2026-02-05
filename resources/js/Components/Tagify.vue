@@ -4,12 +4,12 @@ import '@yaireo/tagify/dist/tagify.css';
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Dropdown from "@/Components/Dropdown.vue";
 import DropdownLink from "@/Components/DropdownLink.vue";
-import { toRaw } from 'vue';
 
 export default {
     name: "TagifyInput",
     components: {DropdownLink, Dropdown},
     mixins: [ApiMixin],
+    emits: ['update:modelValue'],
     props: {
         modelValue: {
             type: [Array, String],
@@ -29,87 +29,99 @@ export default {
         },
     },
     async mounted() {
-        this.tagify = new Tagify(this.$refs.input, {
-            whitelist: this.whitelist,
-            enforceWhitelist: this.enforceWhitelist,
-            dropdown: { enabled: 1 },
-        })
-
-        // initial value
-        if (this.modelValue && this.modelValue.length) {
-            this.tagify.addTags(this.modelValue)
-        }
-
-        // listen for changes
-        this.tagify.on('change', e => {
-            const value = JSON.parse(e.detail.value).map(tag => tag.value)
-            this.$emit('update:modelValue', value)
-        })
-
-        const fetched = await this.fetchData();
-        this.mergeData(fetched);
+        await this.initializeTagify();
     },
     watch: {
         modelValue(newVal) {
-            if (!this.tagify) return
-            this.tagify.removeAllTags()
-            if (newVal && newVal.length) {
-                this.tagify.addTags(newVal)
-            }
+            this.syncModelValue(newVal);
         },
         whitelist(newVal) {
-            if (!this.tagify) return;
-            const merged = this.normalizeWhitelist(newVal || []);
-            this.tagify.settings.whitelist = merged;
-            this.tagify.settings.dropdown.enabled = merged.length ? 1 : 0;
-            if (this.enforceWhitelist) this.tagify.settings.enforceWhitelist = true;
-            this.apiData = merged;
+            this.applyWhitelist(this.mergeData(newVal || [], this.apiData));
         }
     },
     data() {
         return {
             apiData: [],
+            filteredData: [],
+            searchQuery: '',
             tagify: null,
         }
     },
     methods: {
+        async initializeTagify() {
+            const fetched = await this.fetchData();
+            this.apiData = this.mergeData(this.whitelist || [], fetched);
+
+            this.tagify = new Tagify(this.$refs.input, {
+                whitelist: this.apiData,
+                enforceWhitelist: this.enforceWhitelist,
+                dropdown: {
+                    enabled: 0,
+                    closeOnSelect: false,
+                },
+            });
+
+            this.syncModelValue(this.modelValue);
+
+            this.tagify.on('change', this.onTagifyChange);
+            this.tagify.on('input', this.onTagifyInput);
+        },
         async fetchData() {
             if (!this.apiLink)
                 return [];
-
+            
             const params = {
                 filter: 'name',
                 per_page: '*',
             }
-            const fetched = await this.fetchGetApi(this.apiLink, params).then((response) => {
-                return response.data.map((item) => {
+            try {
+                const response = await this.fetchGetApi(this.apiLink, params);
+                const payload = response?.data ?? response;
+                const list = Array.isArray(payload)
+                    ? payload
+                    : Array.isArray(payload?.data)
+                        ? payload.data
+                        : [];
+                        
+                return list.map((item) => {
+                    if (item?.value) {
+                        return {
+                            value: item.value,
+                            label: item.label ?? item.value,
+                        };
+                    }
+
                     return {
                         value: item.label,
                         label: item.label,
-                    }
+                    };
                 });
-            });
-
-            return fetched;
+            } catch (error) {
+                console.error('Failed to fetch Tagify data:', error);
+                return [];
+            }
         },
-        mergeData(fetched = []) {
-            const propList = this.normalizeWhitelist(this.whitelist || []);
+        mergeData(source = [], fetched = []) {
+            const sourceList = this.normalizeWhitelist(source);
             const fetchedList = this.normalizeWhitelist(fetched);
 
             const mergedObj = {};
-            [...propList, ...fetchedList].forEach(item => {
+            [...sourceList, ...fetchedList].forEach(item => {
                 if (item?.value && !mergedObj[item.value]) {
                     mergedObj[item.value] = item;
                 }
             });
 
-            const mergedWhitelist = Object.values(mergedObj);
+            return Object.values(mergedObj);
+        },
+        applyWhitelist(mergedWhitelist) {
+            this.apiData = mergedWhitelist;
+            this.updateFilteredData();
+            if (!this.tagify) return;
 
             this.tagify.settings.whitelist = mergedWhitelist;
-            this.tagify.settings.dropdown.enabled = mergedWhitelist.length ? 1 : 0;
-            if (this.enforceWhitelist) this.tagify.settings.enforceWhitelist = true;
-
-            this.apiData = mergedWhitelist;
+            this.tagify.settings.dropdown.enabled = 0;
+            this.tagify.settings.enforceWhitelist = !!this.enforceWhitelist;
         },
 
         normalizeWhitelist(list) {
@@ -127,8 +139,62 @@ export default {
                 })
                 .filter(Boolean);
         },
-        handleSearch(query) {
-            console.log(query);
+        onTagifyChange(event) {
+            const rawValue = event?.detail?.value ?? '';
+            if (!rawValue) {
+                this.$emit('update:modelValue', []);
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(rawValue);
+                const value = Array.isArray(parsed) ? parsed.map(tag => tag.value) : [];
+                this.$emit('update:modelValue', value);
+            } catch (error) {
+                console.error('Failed to parse Tagify value:', error);
+                this.$emit('update:modelValue', []);
+            }
+        },
+        onTagifyInput(event) {
+            const value = (event?.detail?.value ?? '').trim();
+            this.handleSearch(value);
+        },
+        syncModelValue(value) {
+            if (!this.tagify) return;
+            this.tagify.removeAllTags();
+            if (value && value.length) {
+                this.tagify.addTags(value);
+            }
+        },
+        handleSearch(eventOrValue) {
+            const value = typeof eventOrValue === 'string'
+                ? eventOrValue
+                : (eventOrValue?.target?.value ?? '');
+
+            this.searchQuery = value;
+            this.updateFilteredData();
+        },
+        updateFilteredData() {
+            const query = this.searchQuery.trim().toLowerCase();
+            if (!query) {
+                this.filteredData = [...this.apiData];
+                return;
+            }
+
+            this.filteredData = this.apiData.filter(item => {
+                const label = String(item?.label ?? '').toLowerCase();
+                const value = String(item?.value ?? '').toLowerCase();
+                return label.includes(query) || value.includes(query);
+            });
+        },
+        selectItem(item) {
+            if (!this.tagify || !item?.value) return;
+            this.tagify.addTags(item.value);
+            this.searchQuery = '';
+            if (this.tagify?.DOM?.input) {
+                this.tagify.DOM.input.value = '';
+            }
+            this.updateFilteredData();
         }
     },
     beforeUnmount() {
@@ -140,7 +206,7 @@ export default {
 </script>
 
 <template>
-    <Dropdown align="right" @input="handleSearch($refs.input)">
+    <Dropdown align="right">
         <template #trigger>
             <input
                 ref="input"
@@ -148,12 +214,18 @@ export default {
                 :placeholder="placeholder"
                 :class="classes"
                 class="w-full"
+                @input="handleSearch"
             />
         </template>
 
         <template #content>
             <div>
-                <DropdownLink as="button" v-for="item in apiData" :key="item.value" @click.prevent="tagify.addTags(item.value)">
+                <DropdownLink
+                    as="button"
+                    v-for="item in filteredData"
+                    :key="item.value"
+                    @click.prevent="selectItem(item)"
+                >
                     <div class="flex items-center gap-1">
                         <span>{{ item.label }}</span>
                     </div>

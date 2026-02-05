@@ -52,10 +52,60 @@ Route::prefix('guest')->group(function () {
     
     Route::get('/personnel/public', [PersonnelController::class, 'index'])->name('api.inventory.personnels.index.guest');
     Route::get('/items/public', function () {
-        return ['data' => Item::selectRaw("CONCAT(name, IF(description IS NOT NULL AND description != '', CONCAT(' (', description, ')'), '')) AS label, id AS name")->where('category_id', 6)->get()];
+        $minRemaining = request()->query('min_remaining', 0);
+        $params = collect([
+            'filter' => 'category',
+            'filter_by' => 6,
+            'min_remaining' => $minRemaining,
+            'paginate' => false,
+            'per_page' => '*',
+        ]);
+
+        $stocks = app(\App\Repositories\TransactionRepo::class)
+            ->getRemainingStocks($params)
+            ->get('data', collect());
+
+        $items = collect($stocks)->map(function ($row) {
+            $baseLabel = $row->name . ($row->description ? " ({$row->description})" : '');
+            $stockInfo = $row->remaining_quantity !== null
+                ? " - {$row->remaining_quantity}" . ($row->unit ? " {$row->unit}" : '')
+                : '';
+
+            return [
+                'value' => $baseLabel,
+                'label' => $baseLabel . $stockInfo,
+            ];
+        })->values();
+
+        return ['data' => $items];
     })->name('api.inventory.items.public');
     Route::get('/equipments/public', function () {
-        return [ 'data' => Item::select('name as label', 'id as name')->where('category_id', '7')->get()];
+        $minRemaining = request()->query('min_remaining', 0);
+        $params = collect([
+            'filter' => 'category',
+            'filter_by' => 7,
+            'min_remaining' => $minRemaining,
+            'paginate' => false,
+            'per_page' => '*',
+        ]);
+
+        $stocks = app(\App\Repositories\TransactionRepo::class)
+            ->getRemainingStocks($params)
+            ->get('data', collect());
+
+        $items = collect($stocks)->map(function ($row) {
+            $baseLabel = $row->name . ($row->description ? " ({$row->description})" : '');
+            $stockInfo = $row->remaining_quantity !== null
+                ? " - {$row->remaining_quantity}" . ($row->unit ? " {$row->unit}" : '')
+                : '';
+
+            return [
+                'value' => $baseLabel,
+                'label' => $baseLabel . $stockInfo,
+            ];
+        })->values();
+
+        return ['data' => $items];
     })->name('api.inventory.equipments.public');
     Route::get('/laboratories/public', function () {
         return [ 'data' => config('system.laboratories')];

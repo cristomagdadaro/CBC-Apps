@@ -7,7 +7,9 @@ export default class DtoRequestForm extends DtoBaseClass implements IRequestForm
     request_purpose: string;
     project_title: string;
     date_of_use: string;
+    date_of_use_end: string;
     time_of_use: string;
+    time_of_use_end: string;
     labs_to_use: string[];
     equipments_to_use: string[];
     consumables_to_use: string[];
@@ -22,7 +24,9 @@ export default class DtoRequestForm extends DtoBaseClass implements IRequestForm
         this.request_purpose = data?.request_purpose ?? '';
         this.project_title = data?.project_title ?? '';
         this.date_of_use = data?.date_of_use ?? '';
+        this.date_of_use_end = data?.date_of_use_end ?? '';
         this.time_of_use = data?.time_of_use ?? '';
+        this.time_of_use_end = data?.time_of_use_end ?? '';
         this.labs_to_use = Array.isArray(data?.labs_to_use) ? data.labs_to_use : [];
         this.equipments_to_use = Array.isArray(data?.equipments_to_use) ? data.equipments_to_use : [];
         this.consumables_to_use = Array.isArray(data?.consumables_to_use) ? data.consumables_to_use : [];
