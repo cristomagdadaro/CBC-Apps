@@ -2,15 +2,9 @@
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import SuppEquipReport from "@/Modules/domain/SuppEquipReport";
 import Transaction from "@/Modules/domain/Transaction";
-import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
-import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 
 export default {
     name: 'SuppEquipReportForm',
-    components: {
-        FilterIcon,
-        LoaderIcon,
-    },
     mixins: [ApiMixin],
     props: {
         reportTemplates: {

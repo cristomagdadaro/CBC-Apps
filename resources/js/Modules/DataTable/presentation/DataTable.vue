@@ -7,36 +7,12 @@ import DtRowHead from "@/Modules/DataTable/presentation/components/DtRowHead.vue
 import DtRowBody from "@/Modules/DataTable/presentation/components/DtRowBody.vue";
 import DtHead from "@/Modules/DataTable/presentation/components/DtHead.vue";
 import DtData from "@/Modules/DataTable/presentation/components/DtData.vue";
-import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
-import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
-import CaretDown from "@/Components/Icons/CaretDown.vue";
 import DtLinkButton from "@/Modules/DataTable/presentation/components/DtLinkButton.vue";
-import EditIcon from "@/Components/Icons/EditIcon.vue";
-import DeleteIcon from "@/Components/Icons/DeleteIcon.vue";
-import CheckallIcon from "@/Components/Icons/CheckallIcon.vue";
-import Checkbox from "@/Components/Checkbox.vue";
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
-import DeleteBtn from "@/Components/Buttons/DeleteBtn.vue";
-import ConfirmationModal from "@/Components/ConfirmationModal.vue";
-import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
-import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal.vue";
 
 export default {
     name: 'DataTable',
     components: {
-        DeleteConfirmationModal,
-        CancelBtn,
-        ConfirmationModal,
-        DeleteBtn,
-        TransitionContainer,
-        Checkbox,
-        CheckallIcon,
-        DeleteIcon,
-        EditIcon,
         DtLinkButton,
-        CaretDown,
-        CustomDropdown,
-        LoaderIcon,
         DtData,
         DtHead,
         DtRowBody,

@@ -1,24 +1,13 @@
 <script>
 
 import {defineComponent} from "vue";
-import {Head, Link} from "@inertiajs/vue3";
-import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin.js";
 import Item from "@/Modules/domain/Item";
-import FilterIcon from "@/Components/Icons/FilterIcon.vue";
-import AddIcon from "@/Components/Icons/AddIcon.vue";
 import ItemsHeaderActions from "@/Pages/Inventory/Items/components/ItemsHeaderActions.vue";
 import CreateItemForm from "@/Pages/Inventory/Items/components/CreateItemForm.vue";
 
 export default defineComponent({
-    components: {
-        ItemsHeaderActions,
-        AddIcon,
-        FilterIcon,
-        Link,
-        LoaderIcon,
-        CreateItemForm,
-        Head},
+    components: { ItemsHeaderActions, CreateItemForm },
     mixins: [ApiMixin],
     beforeMount() {
         this.model = new Item();
@@ -34,10 +23,10 @@ export default defineComponent({
             });
         },
         categories() {
-            return this.$page.props.categories.map(categories => {
+            return this.$page.props.categories.map(category => {
                 return {
-                    name: categories.id,
-                    label: categories.name,
+                    name: category.id,
+                    label: category.name,
                 }
             });
         },

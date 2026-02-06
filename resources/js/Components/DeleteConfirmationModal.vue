@@ -1,15 +1,9 @@
 <script>
 import ConfirmationModal from "@/Components/ConfirmationModal.vue";
-import DeleteBtn from "@/Components/Buttons/DeleteBtn.vue";
-import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
-import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 
 export default {
     name: "DeleteConfirmationModal",
     components: {
-        LoaderIcon,
-        CancelBtn,
-        DeleteBtn,
         ConfirmationModal,
     },
     props: {

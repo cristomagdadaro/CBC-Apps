@@ -15,6 +15,20 @@ class QuizbeePreregistrationTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected $seeder = \Database\Seeders\DatabaseSeeder::class;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Ensure Cebu City/Cebu exist for validation
+        \Illuminate\Support\Facades\DB::table('loc_cities')->insertOrIgnore([
+            'id' => 1,
+            'city' => 'Cebu City',
+            'province' => 'Cebu',
+            'region' => 'VII',
+        ]);
+    }
+
     public function test_preregistration_quizbee_submission_stores_file_and_response(): void
     {
         Storage::fake('public');

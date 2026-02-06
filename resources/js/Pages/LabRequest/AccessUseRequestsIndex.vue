@@ -1,20 +1,15 @@
 <script>
-import ApiMixin from "@/Modules/mixins/ApiMixin.js";
-import ArrowLeft from "@/Components/Icons/ArrowLeft.vue";
-import ArrowRight from "@/Components/Icons/ArrowRight.vue";
+import ApiMixin from "@/Modules/mixins/ApiMixin";
 import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import ListOfUseRequests from "@/Pages/LabRequest/components/ListOfUseRequests.vue";
-import FilterIcon from "@/Components/Icons/FilterIcon.vue";
-import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import AccessUseHeaderActions from "@/Pages/LabRequest/components/AccessUseHeaderActions.vue";
 
 export default {
     name: "AccessUseRequestsIndex",
     components: {
         AccessUseHeaderActions,
-        CustomDropdown, FilterIcon,
-        ListOfUseRequests,
-        ArrowRight, ArrowLeft},
+        ListOfUseRequests
+    },
     mixins: [ApiMixin],
     data() {
         return {

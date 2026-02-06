@@ -14,6 +14,20 @@ class EventWorkflowApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected $seeder = \Database\Seeders\DatabaseSeeder::class;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Ensure Cebu City/Cebu exist for validation
+        \Illuminate\Support\Facades\DB::table('loc_cities')->insertOrIgnore([
+            'id' => 1,
+            'city' => 'Cebu City',
+            'province' => 'Cebu',
+            'region' => 'VII',
+        ]);
+    }
+
     private function createFormWithSteps(): array
     {
         $form = Form::factory()->create([
@@ -72,8 +86,8 @@ class EventWorkflowApiTest extends TestCase
             'designation' => 'Analyst',
             'is_ip' => true,
             'is_pwd' => false,
-            'city_address' => 'Tagum',
-            'province_address' => 'Davao del Norte',
+            'city_address' => 'Cebu City',
+            'province_address' => 'Cebu',
             'country_address' => 'Philippines',
             'attendance_type' => 'In-person',
             'agreed_tc' => true,

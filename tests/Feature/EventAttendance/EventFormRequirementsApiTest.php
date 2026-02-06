@@ -14,6 +14,20 @@ class EventFormRequirementsApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected $seeder = \Database\Seeders\DatabaseSeeder::class;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Ensure Cebu City/Cebu exist for validation
+        \Illuminate\Support\Facades\DB::table('loc_cities')->insertOrIgnore([
+            'id' => 1,
+            'city' => 'Cebu City',
+            'province' => 'Cebu',
+            'region' => 'VII',
+        ]);
+    }
+
     public function test_event_responses_per_form(): void
     {
         //get all  event responses per form

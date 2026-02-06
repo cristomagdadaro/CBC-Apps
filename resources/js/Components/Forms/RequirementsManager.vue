@@ -1,14 +1,8 @@
 <script>
-import TextInput from '@/Components/TextInput.vue'
-import InputError from '@/Components/InputError.vue'
-import TransitionContainer from '@/Components/Transitions/TransitionContrainer.vue'
-import CaretDown from '@/Components/Icons/CaretDown.vue'
 import { toRaw } from 'vue'
-import AddIcon from '@/Components/Icons/AddIcon.vue'
 
 export default {
     name: 'RequirementsManager',
-    components: { TransitionContainer, InputError, TextInput, CaretDown, AddIcon },
 
     props: {
         modelValue: {

@@ -89,7 +89,7 @@ class ConsoleLoggerService {
     /**
      * Debug level logging
      */
-    debug(...args: unknown[]): void {
+    debug(...args: unknown[]): void {console.debug(this.isEnabled);
         if (this.isEnabled) {
             console.debug(`[${this.getTimestamp()}] 🐛 DEBUG:`, ...args);
         }

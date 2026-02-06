@@ -2,9 +2,6 @@
 import PreregistrationCard from "@/Pages/Forms/components/PreregistrationCard.vue";
 import PreregistrationQuizBeeCard from "@/Pages/Forms/components/PreregistrationQuizBeeCard.vue";
 import PreregistrationQuizbeeTeamCard from "@/Pages/Forms/components/PreregistrationQuizbeeTeamCard.vue";
-import TextInput from "@/Components/TextInput.vue";
-import InputLabel from "@/Components/InputLabel.vue";
-import InputError from "@/Components/InputError.vue";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import RegistrationCard from "@/Pages/Forms/components/RegistrationCard.vue";
 import FeedbackCard from "@/Pages/Forms/components/FeedbackCard.vue";
@@ -12,12 +9,10 @@ import TabNavigation from "@/Components/TabNavigation.vue";
 import { mergeFormStyleTokens } from "@/Modules/shared/formStyleTokens";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
-import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
-import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 
 export default {
     name: "GuestCard",
-    components: {LoaderIcon, TabNavigation, FeedbackCard, RegistrationCard, InputError, InputLabel, TextInput, PreregistrationCard, PreregistrationQuizBeeCard, PreregistrationQuizbeeTeamCard, CustomDropdown},
+    components: { TabNavigation, FeedbackCard, RegistrationCard, PreregistrationCard, PreregistrationQuizBeeCard, PreregistrationQuizbeeTeamCard },
     mixins: [ApiMixin, FormLocalMixin, DataFormatterMixin],
     props: {
         data: {

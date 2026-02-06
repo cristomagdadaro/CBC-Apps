@@ -1,29 +1,18 @@
 <script>
-import {Head, Link} from "@inertiajs/vue3";
-import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
-import FilterIcon from "@/Components/Icons/FilterIcon.vue";
-import SpinnerIcon from "@/Components/Icons/SpinnerIcon.vue";
-import NavLink from "@/Components/NavLink.vue";
-import AddIcon from "@/Components/Icons/AddIcon.vue";
 import QrcodeVue from 'qrcode.vue';
 import { createCanvas } from "canvas";
-import ApiMixin from "@/Modules/mixins/ApiMixin.js";
+import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Transaction from "@/Modules/domain/Transaction";
 import JsBarcode from "jsbarcode";
 import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
 import CreateItemForm from "@/Pages/Inventory/Items/components/CreateItemForm.vue";
-import DeleteIcon from '@/Components/Icons/DeleteIcon.vue';
-import SelectSearchField from "@/Components/SelectSearchField.vue";
-
 
 export default {
     name: "IncomingForm",
     components: {
         TransactionHeaderAction,
-        QrcodeVue,
-        SelectSearchField,
-        Link, LoaderIcon, Head, CreateItemForm,
-        DeleteIcon},
+        QrcodeVue, CreateItemForm,
+    },
     mixins: [ApiMixin],
     data() {
         return {
@@ -168,7 +157,7 @@ export default {
 </script>
 
 <template>
-   <form v-if="!!form" @submit.prevent="submitCreate" class="py-12 max-w-xl mx-auto">
+<form v-if="!!form" @submit.prevent="submitCreate" class="py-12 max-w-xl mx-auto">
         <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
             <div class="flex flex-col gap-2 mx-auto w-full">
                 <div class="flex flex-col">

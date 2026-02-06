@@ -56,7 +56,9 @@ Route::prefix('forms')->group(function () {
 
 Route::prefix('rental')->group(function () {
     Route::get('/vehicle', function () {
-        return Inertia::render('Rentals/VehicleRentalFormGuest');
+        return Inertia::render('Rentals/VehicleRentalFormGuest', [
+            'vehicleOptions' => config('system.vehicles'),
+        ]);
     })->name('rental.vehicle.guest');
     
     Route::get('/venue', function () {

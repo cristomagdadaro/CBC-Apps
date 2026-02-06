@@ -1,73 +1,81 @@
-<script setup>
-import { ref } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+<script>
 import ApplicationMark from '@/Components/ApplicationMark.vue';
 import Banner from '@/Components/Banner.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import CaretDown from '@/Components/Icons/CaretDown.vue';
 
-defineProps({
-    title: String,
-});
-
-const showingNavigationDropdown = ref(false);
-
-const switchToTeam = (team) => {
-    router.put(route('current-team.update'), {
-        team_id: team.id,
-    }, {
-        preserveState: false,
-    });
-};
-
-const logout = () => {
-    router.post(route('logout'));
-};
-
-const services = [
-    {
-        label: 'Dashboard',
-        href: 'dashboard',
-    },{
-        label: 'Event Forms',
-        href: 'forms.index',
-    },{
-        label: 'Rentals',
-        href: 'rentals.index',
-    },{
-        label: 'FES Request Form',
-        href: 'accessUseRequest.index',
-    },{
-        label: 'Inventory Management',
-        href: 'forms.index',
-        children: [
-            {
-                label: 'Transactions',
-                href: 'transactions.index'
+export default {
+    name: 'AppLayout',
+    components: {
+        ApplicationMark,
+        Banner,
+        NavLink,
+        ResponsiveNavLink,
+    },
+    props: {
+        title: String,
+    },
+    data() {
+        return {
+            showingNavigationDropdown: false,
+            services: [
+                {
+                    label: 'Dashboard',
+                    href: 'dashboard',
+                },{
+                    label: 'Event Forms',
+                    href: 'forms.index',
+                },{
+                    label: 'Rentals',
+                    href: 'rentals.index',
+                },{
+                    label: 'FES Request Form',
+                    href: 'accessUseRequest.index',
+                },{
+                    label: 'Inventory Management',
+                    href: 'forms.index',
+                    children: [
+                        {
+                            label: 'Transactions',
+                            href: 'transactions.index'
+                        }, {
+                            label: 'Barcode Printing',
+                            href: 'inventory.barcodes.print'
+                        },{
+                            label: 'Items',
+                            href: 'items.index',
+                        },{
+                            label: 'Suppliers',
+                            href: 'suppliers.index'
+                        },{
+                            label: 'Personnels',
+                            href: 'personnels.index'
+                        },{
+                            label: 'File Reports',
+                            href: 'suppEquipReports.index',
+                        },
+                    ]
+                },
+                {
+                    label: 'Manuals & Guides',
+                    href: 'manuals.index',
+                },
+            ],
+        };
+    },
+    methods: {
+        switchToTeam(team) {
+            router.put(route('current-team.update'), {
+                team_id: team.id,
             }, {
-                label: 'Barcode Printing',
-                href: 'inventory.barcodes.print'
-            },{
-                label: 'Items',
-                href: 'items.index',
-            },{
-                label: 'Suppliers',
-                href: 'suppliers.index'
-            },{
-                label: 'Personnels',
-                href: 'personnels.index'
-            },{
-                label: 'File Reports',
-                href: 'suppEquipReports.index',
-            },
-        ]
+                preserveState: false,
+            });
+        },
+        logout() {
+            router.post(route('logout'));
+        },
     },
-    {
-        label: 'Manuals & Guides',
-        href: 'manuals.index',
-    },
-]
+};
 </script>
 
 <template>

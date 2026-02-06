@@ -1,24 +1,13 @@
 <script>
 
 import {defineComponent} from "vue";
-import {Head, Link} from "@inertiajs/vue3";
-import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
-import ApiMixin from "@/Modules/mixins/ApiMixin.js";
+import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Item from "@/Modules/domain/Item";
-import FilterIcon from "@/Components/Icons/FilterIcon.vue";
-import AddIcon from "@/Components/Icons/AddIcon.vue";
 import ItemsHeaderActions from "@/Pages/Inventory/Items/components/ItemsHeaderActions.vue";
 import AuditInfoCard from "@/Components/AuditInfoCard.vue";
 
 export default defineComponent({
-    components: {
-        AuditInfoCard,
-        ItemsHeaderActions,
-        AddIcon,
-        FilterIcon,
-        Link,
-        LoaderIcon,
-        Head},
+    components: { AuditInfoCard, ItemsHeaderActions },
     mixins: [ApiMixin],
     beforeMount() {
         this.model = new Item();

@@ -3,6 +3,8 @@ export default {
         return {
             localHashedIds: JSON.parse(localStorage.getItem("participant_hashes")) || [],
             lastCreatedForm: null,
+            showSuccessModal: false,
+            successMessage: 'Your request has been submitted successfully.',
         };
     },
     computed: {

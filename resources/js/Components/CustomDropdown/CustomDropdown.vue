@@ -35,16 +35,10 @@
     </div>
 </template>
 <script>
-import TransitionContainer from "@/Components/CustomDropdown/Components/TransitionContainer.vue";
-import CaretDown from "@/Components/Icons/CaretDown.vue";
-import CaretUp from "@/Components/Icons/CaretUp.vue";
 import DropdownOption from "@/Components/CustomDropdown/Components/DropdownOption.vue";
-import CloseIcon from "@/Components/Icons/CloseIcon.vue";
-import TextField from "@/Components/TextInput.vue";
-import InputError from "@/Components/InputError.vue";
 
 export default {
-    components: {InputError, TextField, CloseIcon, DropdownOption, CaretUp, CaretDown, TransitionContainer},
+    components: {DropdownOption},
     props: {
         searchable: {
             type: Boolean,

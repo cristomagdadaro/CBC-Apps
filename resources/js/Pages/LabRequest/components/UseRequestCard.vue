@@ -1,16 +1,14 @@
 <script>
 import axios from "axios";
 import ApiMixin from "@/Modules/mixins/ApiMixin.js";
-import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin.js";
+import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import DtoResponse from "@/Modules/dto/DtoResponse";
 import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import UseRequestApprovalBtn from "@/Pages/LabRequest/components/UseRequestApprovalBtn.vue";
-import DeleteIcon from "@/Components/Icons/DeleteIcon.vue";
-import PrinterIcon from "@/Components/Icons/PrinterIcon.vue";
 
 export default {
     name: "UseRequestCard",
-    components: {DeleteIcon, UseRequestApprovalBtn, PrinterIcon},
+    components: {UseRequestApprovalBtn},
     mixins: [ApiMixin, DataFormatterMixin],
     data(){
         return {

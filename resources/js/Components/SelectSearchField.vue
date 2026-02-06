@@ -1,12 +1,8 @@
 <script>
-import TextInput from "@/Components/TextInput.vue";
-import CloseIcon from "@/Components/Icons/CloseIcon.vue";
 import ConcreteApiService from "@/Modules/infrastructure/ConcreteApiService";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
-import TransitionContainer from "@/Components/CustomDropdown/Components/TransitionContainer.vue";
 
 export default {
-    components: {TransitionContainer, CloseIcon, TextInput },
     emits: ['update:modelValue'],
     mixins: [ApiMixin],
     props: {

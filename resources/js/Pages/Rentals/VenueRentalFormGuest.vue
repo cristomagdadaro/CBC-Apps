@@ -1,126 +1,130 @@
-<script setup>
-import { ref, computed } from 'vue';
-import TextInput from '@/Components/TextInput.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import InputError from '@/Components/InputError.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import LoaderIcon from '@/Components/Icons/LoaderIcon.vue';
-
-defineProps({
-    title: {
-        type: String,
-        default: 'Venue Rental Form'
-    }
-});
-
-defineEmits(['submitted']);
-
-const form = ref({
-    venue_type: '',
-    date_from: '',
-    date_to: '',
-    time_from: '08:00',
-    time_to: '17:00',
-    expected_attendees: '',
-    event_name: '',
-    requested_by: '',
-    contact_number: '',
-    notes: '',
-});
-
-const errors = ref({});
-const loading = ref(false);
-const availabilityChecking = ref(false);
-
-const venueOptions = [
-    { name: 'plenary', label: 'Plenary Hall' },
-    { name: 'training_room', label: 'Training Room' },
-    { name: 'mph', label: 'Multi-Purpose Hall' }
-];
-
-const isAvailable = ref(true);
-const availabilityMessage = ref('');
-
-const minDate = computed(() => {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
-});
-
-const checkAvailability = async () => {
-    if (!form.value.venue_type || !form.value.date_from || !form.value.date_to) {
-        return;
-    }
-
-    availabilityChecking.value = true;
-    try {
-        const response = await fetch(`/api/rental-venues/check-availability/${form.value.venue_type}/${form.value.date_from}/${form.value.date_to}`);
-        const data = await response.json();
-        isAvailable.value = data.available;
-        availabilityMessage.value = data.available
-            ? 'Venue is available for your selected dates'
-            : 'Venue is not available for your selected dates';
-    } catch (error) {
-        availabilityMessage.value = 'Error checking availability';
-    } finally {
-        availabilityChecking.value = false;
-    }
-};
-
-const handleDateChange = () => {
-    checkAvailability();
-};
-
-const submitForm = async () => {
-    if (!isAvailable.value) {
-        errors.value.general = 'Please select available dates';
-        return;
-    }
-
-    loading.value = true;
-    errors.value = {};
-
-    try {
-        const response = await fetch('/api/rental-venues', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-            },
-            body: JSON.stringify(form.value)
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            if (response.status === 422) {
-                errors.value = data.errors || {};
-            } else if (response.status === 409) {
-                errors.value.general = data.message;
-            } else {
-                errors.value.general = data.message || 'An error occurred';
-            }
-            return;
+<script>
+export default {
+    name: 'VenueRentalFormGuest',
+    props: {
+        title: {
+            type: String,
+            default: 'Venue Rental Form'
         }
-
-        // Success
-        form.value = {
-            venue_type: '',
-            date_from: '',
-            date_to: '',
-            time_from: '08:00',
-            time_to: '17:00',
-            expected_attendees: '',
-            event_name: '',
-            requested_by: '',
-            contact_number: '',
-            notes: '',
+    },
+    emits: ['submitted'],
+    data() {
+        return {
+            form: {
+                venue_type: '',
+                date_from: '',
+                date_to: '',
+                time_from: '08:00',
+                time_to: '17:00',
+                expected_attendees: '',
+                event_name: '',
+                requested_by: '',
+                contact_number: '',
+                notes: '',
+            },
+            errors: {},
+            loading: false,
+            availabilityChecking: false,
+            isAvailable: true,
+            availabilityMessage: '',
+            venueOptions: [
+                { name: 'plenary', label: 'Plenary Hall' },
+                { name: 'training_room', label: 'Training Room' },
+                { name: 'mph', label: 'Multi-Purpose Hall' }
+            ],
         };
-        isAvailable.value = true;
-        availabilityMessage.value = '';
-    } catch (error) {
-        errors.value.general = 'Failed to submit form. Please try again.';
-    } finally {
-        loading.value = false;
+    },
+    computed: {
+        minDate() {
+            const today = new Date();
+            return today.toISOString().split('T')[0];
+        }
+    },
+    methods: {
+        async checkAvailability() {
+            if (!this.form.venue_type || !this.form.date_from || !this.form.date_to) {
+                return;
+            }
+
+            this.availabilityChecking = true;
+            try {
+                const response = await fetch(`/api/rental-venues/check-availability/${this.form.venue_type}/${this.form.date_from}/${this.form.date_to}`);
+                const data = await response.json();
+                this.isAvailable = data.available;
+                this.availabilityMessage = data.available
+                    ? 'Venue is available for your selected dates'
+                    : 'Venue is not available for your selected dates';
+            } catch (error) {
+                this.availabilityMessage = 'Error checking availability';
+            } finally {
+                this.availabilityChecking = false;
+            }
+        },
+        handleDateChange() {
+            this.checkAvailability();
+        },
+        clearErrors(field) {
+            if (this.errors[field]) {
+                delete this.errors[field];
+            }
+        },
+        async submitForm() {
+            if (!this.isAvailable) {
+                this.errors.general = 'Please select available dates';
+                return;
+            }
+
+            this.loading = true;
+            this.errors = {};
+
+            try {
+                const response = await fetch('/api/rental-venues', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    },
+                    body: JSON.stringify(this.form)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    if (response.status === 422) {
+                        this.errors = data.errors || {};
+                    } else if (response.status === 409) {
+                        this.errors.general = data.message;
+                    } else {
+                        this.errors.general = data.message || 'An error occurred';
+                    }
+                    return;
+                }
+
+                // Success
+                this.$emit('submitted', data.data);
+                this.resetForm();
+            } catch (error) {
+                this.errors.general = 'Failed to submit form. Please try again.';
+            } finally {
+                this.loading = false;
+            }
+        },
+        resetForm() {
+            this.form = {
+                venue_type: '',
+                date_from: '',
+                date_to: '',
+                time_from: '08:00',
+                time_to: '17:00',
+                expected_attendees: '',
+                event_name: '',
+                requested_by: '',
+                contact_number: '',
+                notes: '',
+            };
+            this.isAvailable = true;
+            this.availabilityMessage = '';
+        }
     }
 };
 </script>
@@ -129,10 +133,12 @@ const submitForm = async () => {
     <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
         <div class="max-w-2xl mx-auto">
             <div class="bg-white rounded-lg shadow-lg p-6 md:p-8">
-                <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ title }}</h1>
-                <p class="text-gray-600 mb-6">Book a venue for your event</p>
+                <div class="pb-6 border-b">
+                    <h1 class="text-3xl font-bold text-gray-800">{{ title }}</h1>
+                    <p class="text-gray-600 text-sm mt-2">Book a venue for your event. Fields marked with <span class="text-red-600">*</span> are required.</p>
+                </div>
 
-                <form @submit.prevent="submitForm" class="space-y-6">
+                <form @submit.prevent="submitForm" class="space-y-6 mt-6">
                     <!-- General Error -->
                     <div v-if="errors.general" class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
                         {{ errors.general }}
@@ -145,6 +151,7 @@ const submitForm = async () => {
                             id="venue_type"
                             v-model="form.venue_type"
                             @change="handleDateChange"
+                            :class="{'border-red-500': errors.venue_type}"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-AB focus:ring-AB"
                         >
                             <option value="">Select a venue</option>
@@ -163,6 +170,8 @@ const submitForm = async () => {
                             v-model="form.event_name"
                             type="text"
                             placeholder="Name of your event"
+                            :error="errors.event_name?.[0]"
+                            @input="clearErrors('event_name')"
                             class="mt-1 block w-full"
                         />
                         <InputError :message="errors.event_name?.[0]" class="mt-2" />
@@ -178,6 +187,7 @@ const submitForm = async () => {
                                 type="date"
                                 :min="minDate"
                                 @change="handleDateChange"
+                                :error="errors.date_from?.[0]"
                                 class="mt-1 block w-full"
                             />
                             <InputError :message="errors.date_from?.[0]" class="mt-2" />
@@ -191,6 +201,7 @@ const submitForm = async () => {
                                 type="date"
                                 :min="form.date_from || minDate"
                                 @change="handleDateChange"
+                                :error="errors.date_to?.[0]"
                                 class="mt-1 block w-full"
                             />
                             <InputError :message="errors.date_to?.[0]" class="mt-2" />
@@ -200,7 +211,7 @@ const submitForm = async () => {
                     <!-- Availability Status -->
                     <div v-if="form.date_from && form.date_to && form.venue_type" class="p-4 rounded-lg" :class="isAvailable ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'">
                         <div class="flex items-center gap-2">
-                            <LoaderIcon v-if="availabilityChecking" class="text-AB" />
+                            <loader-icon v-if="availabilityChecking" class="text-AB" />
                             <span :class="isAvailable ? 'text-green-700' : 'text-red-700'">
                                 {{ availabilityMessage || 'Checking availability...' }}
                             </span>
@@ -215,6 +226,7 @@ const submitForm = async () => {
                                 id="time_from"
                                 v-model="form.time_from"
                                 type="time"
+                                :error="errors.time_from?.[0]"
                                 class="mt-1 block w-full"
                             />
                             <InputError :message="errors.time_from?.[0]" class="mt-2" />
@@ -226,6 +238,7 @@ const submitForm = async () => {
                                 id="time_to"
                                 v-model="form.time_to"
                                 type="time"
+                                :error="errors.time_to?.[0]"
                                 class="mt-1 block w-full"
                             />
                             <InputError :message="errors.time_to?.[0]" class="mt-2" />
@@ -241,6 +254,8 @@ const submitForm = async () => {
                             type="number"
                             min="1"
                             placeholder="Number of attendees"
+                            :error="errors.expected_attendees?.[0]"
+                            @input="clearErrors('expected_attendees')"
                             class="mt-1 block w-full"
                         />
                         <InputError :message="errors.expected_attendees?.[0]" class="mt-2" />
@@ -254,6 +269,8 @@ const submitForm = async () => {
                             v-model="form.requested_by"
                             type="text"
                             placeholder="Full name"
+                            :error="errors.requested_by?.[0]"
+                            @input="clearErrors('requested_by')"
                             class="mt-1 block w-full"
                         />
                         <InputError :message="errors.requested_by?.[0]" class="mt-2" />
@@ -267,6 +284,8 @@ const submitForm = async () => {
                             v-model="form.contact_number"
                             type="tel"
                             placeholder="09XX-XXX-XXXX"
+                            :error="errors.contact_number?.[0]"
+                            @input="clearErrors('contact_number')"
                             class="mt-1 block w-full"
                         />
                         <InputError :message="errors.contact_number?.[0]" class="mt-2" />
@@ -286,10 +305,10 @@ const submitForm = async () => {
                     </div>
 
                     <!-- Submit Button -->
-                    <div class="flex gap-4 pt-4">
+                    <div class="flex gap-4 pt-6 border-t">
                         <PrimaryButton :disabled="loading || !isAvailable" class="flex-1">
-                            <span v-if="loading" class="flex items-center gap-2">
-                                <LoaderIcon />
+                            <span v-if="loading" class="flex items-center justify-center gap-2">
+                                <loader-icon />
                                 Submitting...
                             </span>
                             <span v-else>Submit Venue Rental Request</span>

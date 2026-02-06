@@ -1,9 +1,7 @@
 <script>
-import CloseIcon from "@/Components/Icons/CloseIcon.vue";
 
 export default {
     name: "searchBox",
-    components: {CloseIcon},
     props: {
         modelValue: String|Number,
     },

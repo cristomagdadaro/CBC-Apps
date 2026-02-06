@@ -1,27 +1,19 @@
 <script>
-import {Head} from "@inertiajs/vue3";
-import SearchComp from "@/Components/Search/SearchComp.vue";
 import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
 import Transaction from "@/Modules/domain/Transaction";
-import DataTable from "@/Modules/DataTable/presentation/DataTable.vue";
 import RequesterGuestCard from "@/Pages/LabRequest/components/RequesterGuestCard.vue";
-import ArrowRight from "@/Components/Icons/ArrowRight.vue";
-import ArrowLeft from "@/Components/Icons/ArrowLeft.vue";
 import OutgoingForm from "@/Pages/Inventory/Transactions/components/OutgoingForm.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Personnel from "@/Modules/domain/Personnel";
 import GuestFormPage from "@/Pages/Shared/GuestFormPage.vue";
 import CameraScanner from "@/Components/CameraScanner.vue";
-import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
-
 export default {
     name: "OutgoingFormGuest",
     components: {
-        LoaderIcon,
         CameraScanner,
         GuestFormPage,
         OutgoingForm,
-        RequesterGuestCard, TransactionHeaderAction, SearchComp, Head},
+        RequesterGuestCard, TransactionHeaderAction},
     mixins: [ApiMixin],
     props: {
         categories: {

@@ -1,16 +1,9 @@
 <script>
-import {Head} from "@inertiajs/vue3";
-import AddIcon from "@/Components/Icons/AddIcon.vue";
-import SearchBy from "@/Modules/DataTable/presentation/components/SearchBy.vue";
-import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import Transaction from "@/Modules/domain/Transaction";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
-import SearchBox from "@/Components/Search/SearchBox.vue";
-import ArrowRight from "@/Components/Icons/ArrowRight.vue";
-import ArrowLeft from "@/Components/Icons/ArrowLeft.vue";
 import ListOfForms from "@/Pages/Forms/components/ListOfForms.vue";
 import OutgoingForm from "@/Pages/Inventory/Transactions/components/OutgoingForm.vue";
-import Personnel from "@/Modules/domain/Personnel.js";
+import Personnel from "@/Modules/domain/Personnel";
 import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
 
 export default {
@@ -19,9 +12,7 @@ export default {
         TransactionHeaderAction,
         OutgoingForm,
         ListOfForms,
-        ArrowLeft,
-        ArrowRight,
-        SearchBy, SearchBox, FilterIcon, AddIcon, Head},
+    },
     mixins: [ApiMixin],
     props: {
         categories: {

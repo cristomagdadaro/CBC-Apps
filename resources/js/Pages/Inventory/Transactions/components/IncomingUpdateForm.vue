@@ -1,11 +1,7 @@
 <script>
-import {Head, Link} from "@inertiajs/vue3";
 import {createCanvas} from "canvas";
 import JsBarcode from "jsbarcode";
-import FilterIcon from "@/Components/Icons/FilterIcon.vue";
-import AddIcon from "@/Components/Icons/AddIcon.vue";
-import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
-import ApiMixin from "@/Modules/mixins/ApiMixin.js";
+import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Transaction from "@/Modules/domain/Transaction";
 import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/TransactionReportAccordion.vue";
 import AuditInfoCard from "@/Components/AuditInfoCard.vue";
@@ -16,8 +12,8 @@ export default {
     components: {
         AuditInfoCard,
         TransactionReportAccordion,
-        TransactionHeaderAction,
-        Link, LoaderIcon, AddIcon, FilterIcon, Head},
+        TransactionHeaderAction
+    },
     props: {
         attachedReports: {
             type: Array,

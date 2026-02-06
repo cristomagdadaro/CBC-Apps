@@ -1,15 +1,11 @@
 <script>
-import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import DtoError from "@/Modules/dto/DtoError";
 import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
-import TextArea from "@/Components/TextArea.vue";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
-import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
 
 export default {
     name: "UseRequestApprovalBtn",
-    components: {LoaderIcon},
     props: {
         data: Object
     },

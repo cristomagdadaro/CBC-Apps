@@ -4,7 +4,6 @@ import Form from "@/Modules/domain/Form.js";
 import SuspendFormBtn from "@/Pages/Forms/components/SuspendFormBtn.vue";
 import DtoResponse from "@/Modules/dto/DtoResponse";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
-import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 import Participant from "@/Modules/domain/Participant";
 import RequirementsManager from "@/Components/Forms/RequirementsManager.vue";
 
@@ -13,7 +12,6 @@ export default {
 
     components: {
         RequirementsManager,
-        LoaderIcon,
         SuspendFormBtn,
     },
 

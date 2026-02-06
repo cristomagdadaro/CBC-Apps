@@ -1,17 +1,10 @@
 <script>
-
-import {Head} from "@inertiajs/vue3";
-import GuestCard from "@/Pages/Forms/components/GuestCard.vue";
 import RequesterGuestCard from "@/Pages/LabRequest/components/RequesterGuestCard.vue";
-import GuestFormPage from "@/Pages/Shared/GuestFormPage.vue";
 
 export default {
     name: 'UseRequestFormGuest',
     components: {
-        GuestFormPage,
         RequesterGuestCard,
-        GuestCard,
-        Head
     },
     props: {
         requestForm: { type: Object },
@@ -20,6 +13,8 @@ export default {
     data() {
         return {
             delayReady: false,
+            title: 'Facilities, Equipment, and Supplies Request Form',
+            subtitle: 'This form is intended for requesting access to and use of the facilities, equipment, and services provided by the DA-Crop Biotechnology Center. Please provide accurate and complete information to ensure a smooth processing of your request.',
         }
     },
     mounted() {
@@ -31,10 +26,10 @@ export default {
 </script>
 
 <template>
-    <Head title="Facilities, Equipment, and Supplies Request Form" />
+    <Head :title="title" />
     <guest-form-page
-        :title="'Facilities, Equipment, and Supplies Request Form'"
-        :subtitle="'This form is intended for requesting access to and use of the facilities, equipment, and services provided by the DA-Crop Biotechnology Center. Please provide accurate and complete information to ensure a smooth processing of your request.'"
+        :title="title"
+        :subtitle="subtitle"
         :delay-ready="delayReady"
     >
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">

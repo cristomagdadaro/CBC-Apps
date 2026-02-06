@@ -16,6 +16,20 @@ class EventGuestRegistrationApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected $seeder = \Database\Seeders\DatabaseSeeder::class;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Ensure Cebu City/Cebu exist for validation
+        \Illuminate\Support\Facades\DB::table('loc_cities')->insertOrIgnore([
+            'id' => 1,
+            'city' => 'Cebu City',
+            'province' => 'Cebu',
+            'region' => 'VII',
+        ]);
+    }
+
     public function test_guest_registration_creates_participant_and_registration(): void
     {
         $form = Form::factory()->create([
@@ -37,8 +51,8 @@ class EventGuestRegistrationApiTest extends TestCase
             'designation' => 'Analyst',
             'is_ip' => true,
             'is_pwd' => false,
-            'city_address' => 'Tagum',
-            'province_address' => 'Davao del Norte',
+            'city_address' => 'Cebu City',
+            'province_address' => 'Cebu',
             'country_address' => 'Philippines',
             'agreed_tc' => true,
             'attendance_type' => 'In-person',
@@ -322,8 +336,8 @@ class EventGuestRegistrationApiTest extends TestCase
             'designation' => 'Analyst',
             'is_ip' => false,
             'is_pwd' => false,
-            'city_address' => 'Tagum',
-            'province_address' => 'Davao del Norte',
+            'city_address' => 'Cebu City',
+            'province_address' => 'Cebu',
             'country_address' => 'Philippines',
             'agreed_tc' => true,
             'attendance_type' => 'In-person',
@@ -344,8 +358,8 @@ class EventGuestRegistrationApiTest extends TestCase
             'designation' => 'Officer',
             'is_ip' => false,
             'is_pwd' => false,
-            'city_address' => 'Tagum',
-            'province_address' => 'Davao del Norte',
+            'city_address' => 'Cebu City',
+            'province_address' => 'Cebu',
             'country_address' => 'Philippines',
             'agreed_tc' => true,
             'attendance_type' => 'In-person',
@@ -366,8 +380,8 @@ class EventGuestRegistrationApiTest extends TestCase
             'designation' => 'Manager',
             'is_ip' => false,
             'is_pwd' => false,
-            'city_address' => 'Tagum',
-            'province_address' => 'Davao del Norte',
+            'city_address' => 'Cebu City',
+            'province_address' => 'Cebu',
             'country_address' => 'Philippines',
             'agreed_tc' => true,
             'attendance_type' => 'In-person',

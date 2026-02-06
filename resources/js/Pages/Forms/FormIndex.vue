@@ -1,32 +1,12 @@
 <script>
-import Welcome from "@/Components/Welcome.vue";
 import ListOfForms from "@/Pages/Forms/components/ListOfForms.vue";
-import AddButton from "@/Components/Buttons/AddButton.vue";
-import Modal from "@/Components/Modal.vue";
-import {Link} from '@inertiajs/vue3';
 import FormsHeaderActions from "@/Pages/Forms/components/FormsHeaderActions.vue";
-import InputError from "@/Components/InputError.vue";
-import TextInput from "@/Components/TextInput.vue";
-import SearchBtn from "@/Components/Buttons/SearchBtn.vue";
 import Form from "@/Modules/domain/Form";
-import SearchBy from "@/Components/SearchBy.vue";
-import PaginateBtn from "@/Components/PaginateBtn.vue";
-import ArrowLeft from "@/Components/Icons/ArrowLeft.vue";
-import ArrowRight from "@/Components/Icons/ArrowRight.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 
 export default {
     name: "FormIndex",
-    components: {
-        ArrowRight,
-        ArrowLeft,
-        PaginateBtn,
-        SearchBy,
-        SearchBtn,
-        TextInput,
-        InputError,
-        FormsHeaderActions, Modal, AddButton, ListOfForms, Welcome, Link
-    },
+    components: { FormsHeaderActions, ListOfForms },
     computed: {
         Form() {
             return Form

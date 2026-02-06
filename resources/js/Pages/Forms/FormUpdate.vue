@@ -1,18 +1,14 @@
 <script>
 import ListOfForms from "@/Pages/Forms/components/ListOfForms.vue";
-import { Link } from "@inertiajs/vue3";
 import FormsHeaderActions from "@/Pages/Forms/components/FormsHeaderActions.vue";
 import Form from "@/Modules/domain/Form";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import SuspendFormBtn from "@/Pages/Forms/components/SuspendFormBtn.vue";
 import Participant from "@/Modules/domain/Participant";
-import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
-import TabNavigation from "@/Components/TabNavigation.vue";
 import RequirementsManager from "@/Components/Forms/RequirementsManager.vue";
 import FormStyleDesigner from "@/Pages/Forms/components/FormStyleDesigner.vue";
 import FormUpdateDashboard from "@/Pages/Forms/components/FormUpdateDashboard.vue";
 import EventCertificates from "@/Pages/Forms/components/EventCertificates.vue";
-import GuestCard from "@/Pages/Forms/components/GuestCard.vue";
 
 export default {
     name: "FormUpdate",
@@ -34,12 +30,9 @@ export default {
         FormUpdateDashboard,
         EventCertificates,
         RequirementsManager,
-        LoaderIcon,
         SuspendFormBtn,
         FormsHeaderActions,
-        Link,
         ListOfForms,
-        GuestCard,
     },
     mixins: [ApiMixin],
     data() {

@@ -1,30 +1,13 @@
 <script>
 import PaginateBtn from "@/Components/PaginateBtn.vue";
-import InputError from "@/Components/InputError.vue";
-import SearchBy from "@/Components/SearchBy.vue";
-import ArrowLeft from "@/Components/Icons/ArrowLeft.vue";
-import SearchBtn from "@/Components/Buttons/SearchBtn.vue";
-import TextInput from "@/Components/TextInput.vue";
-import ArrowRight from "@/Components/Icons/ArrowRight.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
-import SearchBox from "@/Components/Search/SearchBox.vue";
+import SearchBox from  "@/Components/Search/searchBox.vue"; 
 import {defineAsyncComponent} from "vue";
-import FilterIcon from "@/Components/Icons/FilterIcon.vue";
-import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
-import DeleteBtn from "@/Components/Buttons/DeleteBtn.vue";
-import ConfirmationModal from "@/Components/ConfirmationModal.vue";
-import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
 import DtoResponse from "@/Modules/dto/DtoResponse.js";
-import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal.vue";
 
 export default {
     name: "SearchComp",
-    components: {
-        DeleteConfirmationModal,
-        CancelBtn, ConfirmationModal, DeleteBtn,
-        CustomDropdown,
-        FilterIcon,
-        SearchBox, ArrowRight, TextInput, SearchBtn, ArrowLeft, SearchBy, InputError, PaginateBtn},
+    components: { SearchBox, PaginateBtn },
     mixins: [ApiMixin],
     props: {
         propModel: {

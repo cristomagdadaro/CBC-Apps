@@ -1,9 +1,6 @@
 <script>
-import CaretDown from "@/Components/Icons/CaretDown.vue";
-
 export default {
     name: "TransactionReportAccordion",
-    components: { CaretDown },
     props: {
         reports: {
             type: Array,

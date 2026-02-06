@@ -1,13 +1,11 @@
 <script>
-import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import Transaction from "@/Modules/domain/Transaction";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import DtoResponse from "@/Modules/dto/DtoResponse";
-import DtoError from "@/Modules/dto/DtoError.js";
+import DtoError from "@/Modules/dto/DtoError";
 
 export default {
     name: "OutgoingForm",
-    components: {FilterIcon},
     props: {
         personnels: Object,
     },

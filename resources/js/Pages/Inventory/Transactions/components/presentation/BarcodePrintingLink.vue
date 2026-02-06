@@ -1,11 +1,6 @@
 <script>
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
-import NavLink from "@/Components/NavLink.vue";
-import PrinterIcon from "@/Components/Icons/PrinterIcon.vue";
-
 export default {
     name: "BarcodePrintingLink",
-    components: {NavLink, PrinterIcon},
 };
 </script>
 >

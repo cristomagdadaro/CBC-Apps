@@ -1,6 +1,4 @@
 <script>
-import {Head} from "@inertiajs/vue3";
-import FilterIcon from "@/Components/Icons/FilterIcon.vue";
 import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Transaction from "@/Modules/domain/Transaction";
@@ -14,7 +12,7 @@ export default {
     components: {
         AuditInfoCard,
         TransactionReportAccordion,
-        TransactionHeaderAction, FilterIcon, Head},
+        TransactionHeaderAction },
     props: {
         data: Object,
         summary: Object,

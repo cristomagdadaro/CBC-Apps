@@ -1,19 +1,12 @@
 <script>
-import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
-import {Head} from "@inertiajs/vue3";
-import ApiMixin from "@/Modules/mixins/ApiMixin.js";
+import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Supplier from "@/Modules/domain/Supplier";
 import PersonnelHeaderActions from "@/Pages/Inventory/Personnel/components/PersonnelHeaderActions.vue";
 import SupplierHeaderActions from "@/Pages/Inventory/Supplier/components/SupplierHeaderActions.vue";
 
 export default {
     name: "CreateSupplierForm",
-    components: {
-        SupplierHeaderActions,
-        PersonnelHeaderActions,
-        Head,
-        LoaderIcon
-    },
+    components: { SupplierHeaderActions, PersonnelHeaderActions },
     mixins: [ApiMixin],
     beforeMount() {
         this.model = new Supplier();

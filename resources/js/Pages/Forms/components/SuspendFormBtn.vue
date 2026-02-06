@@ -1,12 +1,10 @@
 <script>
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Form from "@/Modules/domain/Form";
-import DtoError from "@/Modules/dto/DtoError.js";
-import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
+import DtoError from "@/Modules/dto/DtoError";
 
 export default {
     name: "SuspendFormBtn",
-    components: {LoaderIcon},
     props: {
         data: Object
     },

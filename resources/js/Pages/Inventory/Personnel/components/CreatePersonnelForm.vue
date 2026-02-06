@@ -1,6 +1,4 @@
 <script>
-import {Head, router} from "@inertiajs/vue3";
-import LoaderIcon from "@/Components/Icons/LoaderIcon.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Personnel from "@/Modules/domain/Personnel";
 import FormsHeaderActions from "@/Pages/Forms/components/FormsHeaderActions.vue";
@@ -8,9 +6,7 @@ import PersonnelHeaderActions from "@/Pages/Inventory/Personnel/components/Perso
 
 export default {
     name: "CreatePersonnelForm",
-    components: {
-        PersonnelHeaderActions,
-        FormsHeaderActions, LoaderIcon, Head},
+    components: { PersonnelHeaderActions, FormsHeaderActions },
     mixins: [ApiMixin],
     beforeMount() {
         this.model = new Personnel();

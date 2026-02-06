@@ -30,8 +30,6 @@ export default {
             requestTypeOptions: ['Supplies', 'Equipments', 'Laboratory Access'],
             currentStep: 0,
             clientErrors: {},
-            showSuccessModal: false,
-            successMessage: 'Your request has been submitted successfully.',
         };
     },
     methods: {

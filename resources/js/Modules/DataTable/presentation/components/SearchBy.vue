@@ -15,13 +15,7 @@
     </div>
 </template>
 <script>
-import {ref} from "vue";
-import SearchIcon from "@/Components/Icons/SearchIcon.vue";
-import FilterIcon from "@/Components/Icons/FilterIcon.vue";
-import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
-
 export default {
-    components: {CustomDropdown, FilterIcon, SearchIcon},
     props: {
         options: {
             type: Object,
