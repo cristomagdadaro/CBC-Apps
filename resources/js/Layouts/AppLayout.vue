@@ -33,6 +33,9 @@ const services = [
         label: 'Event Forms',
         href: 'forms.index',
     },{
+        label: 'Rentals',
+        href: 'rentals.index',
+    },{
         label: 'FES Request Form',
         href: 'accessUseRequest.index',
     },{

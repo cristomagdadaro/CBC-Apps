@@ -10,6 +10,7 @@ import AddSupplierTopic from './Topics/AddSupplierTopic.vue';
 import AddItemTopic from './Topics/AddItemTopic.vue';
 import ProfilePasswordTopic from './Topics/ProfilePasswordTopic.vue';
 import ConsoleLoggerTopic from './Topics/ConsoleLoggerTopic.vue';
+import RentalServicesTopic from './Topics/RentalServicesTopic.vue';
 
 export default {
     name: 'ManualsIndex',
@@ -24,6 +25,7 @@ export default {
         AddItemTopic,
         ProfilePasswordTopic,
         ConsoleLoggerTopic,
+        RentalServicesTopic,
     },
     setup() {
         const activeSection = ref('overview');
@@ -78,6 +80,11 @@ export default {
                 title: 'Console Logger (Development)',
                 icon: '🖥️',
                 component: ConsoleLoggerTopic,
+            rentalServices: {
+                title: 'Rental Services Module',
+                icon: '🚗',
+                component: RentalServicesTopic,
+            },
             },
         };
 
@@ -87,6 +94,7 @@ export default {
             { id: 'fesRequestForm', label: 'How to use FES Request Form', icon: '🏛️' },
             { id: 'inventorySystem', label: 'How to use the Inventory System', icon: '📦' },
             { id: 'inventoryTransactions', label: 'How to add Incoming/Outgoing', icon: '📊' },
+            { id: 'rentalServices', label: 'Rental Services Module', icon: '🚗' },
             { id: 'inventoryReport', label: 'How to file a Report', icon: '📄' },
             { id: 'addSupplier', label: 'How to add a new Supplier', icon: '🤝' },
             { id: 'addItem', label: 'How to add a new Item', icon: '🏷️' },
@@ -138,14 +146,14 @@ export default {
                     <div class="lg:col-span-3">
                         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 sm:p-8">
                             <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-                                <span class="text-3xl">{{ sections[activeSection].icon }}</span>
+                                <span class="text-3xl">{{ sections[activeSection]?.icon }}</span>
                                 <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                                    {{ sections[activeSection].title }}
+                                    {{ sections[activeSection]?.title }}
                                 </h1>
                             </div>
 
                             <component 
-                                :is="sections[activeSection].component"
+                                :is="sections[activeSection]?.component"
                                 class="prose prose-sm dark:prose-invert max-w-none"
                             />
                         </div>

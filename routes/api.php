@@ -150,4 +150,5 @@ Route::middleware(['api'])->group(function () {
     });
 
     require __DIR__.'/inventory.php';
+    require __DIR__.'/rental.php';
 });

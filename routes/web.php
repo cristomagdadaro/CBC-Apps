@@ -54,6 +54,16 @@ Route::prefix('forms')->group(function () {
     //Route::get('/{id}/pdf', function(){return view('generator.pdf.printable-request-form', ['form' => \App\Models\RequestFormPivot::with(['requester', 'request_form'])->findOrFail(request()->route('id'))]);})->name('forms.generate.pdf');
 });
 
+Route::prefix('rental')->group(function () {
+    Route::get('/vehicle', function () {
+        return Inertia::render('Rentals/VehicleRentalFormGuest');
+    })->name('rental.vehicle.guest');
+    
+    Route::get('/venue', function () {
+        return Inertia::render('Rentals/VenueRentalFormGuest');
+    })->name('rental.venue.guest');
+});
+
 Route::middleware([
     
 ])->group(function () {
@@ -129,6 +139,16 @@ Route::middleware([
             Route::get('/', function () {
                 return Inertia::render('Manuals/ManualsIndex');
             })->name('manuals.index');
+        });
+
+        Route::prefix('rentals')->group(function () {
+            Route::get('/', function () {
+                return Inertia::render('Rentals/RentalsIndex');
+            })->name('rentals.index');
+
+            Route::get('/calendar', function () {
+                return Inertia::render('Rentals/CalendarModule');
+            })->name('rentals.calendar');
         });
 
         Route::prefix('event-forms')->group(function () {

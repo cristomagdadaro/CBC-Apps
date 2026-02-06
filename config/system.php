@@ -47,7 +47,25 @@ return [
             'label' => "Molecular Diagnostics Room",
         ],
     ],
-    'evemt_halls' => [
+    'vehicles' => [
+        [
+            'name' => Inventory::INNOVA->value,
+            'label' => "Innova",
+        ],
+        [
+            'name' => Inventory::PICKUP->value,
+            'label' => "Pickup Truck",
+        ],
+        [
+            'name' => Inventory::VAN->value,
+            'label' => "Van",
+        ],
+        [
+            'name' => Inventory::SUV->value,
+            'label' => "SUV",
+        ],
+    ],
+    'event_halls' => [
         [
             'name' => Inventory::PLENARY->value,
             'label' => "Plenary Hall",

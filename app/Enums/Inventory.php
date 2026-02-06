@@ -27,4 +27,12 @@ enum Inventory: string
     case TRAININGROOM = '14'; // Training Room
 
     case MPH = '15'; // Multi-Purpose Hall
+
+    case INNOVA = 'INNOVA'; // change into plate number
+
+    case PICKUP = 'PICKUP'; //  change into plate number
+
+    case VAN = 'VAN'; // change into plate number
+
+    case SUV = 'SUV'; // change into plate number
 }
