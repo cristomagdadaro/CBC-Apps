@@ -77,7 +77,7 @@ export default {
 
         // For logged-in users, set user_id so we know who inserted the record
         if (this.isAuthenticated) {
-            this.form.user_id = this.$page.props.auth.user.id;
+            this.form.user_id = this.$page.props?.auth?.user?.id;
         }
 
         this.form.transac_type = 'outgoing';

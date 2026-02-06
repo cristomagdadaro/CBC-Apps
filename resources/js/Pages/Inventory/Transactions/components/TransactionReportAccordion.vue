@@ -1,9 +1,9 @@
 <script>
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
+import CaretDown from "@/Components/Icons/CaretDown.vue";
 
 export default {
     name: "TransactionReportAccordion",
-    components: { },
+    components: { CaretDown },
     props: {
         reports: {
             type: Array,
@@ -88,9 +88,7 @@ export default {
                     @click="togglePanel(openIndex === null ? 0 : null)"
                     :title="hasReports ? 'Toggle first report' : 'No reports'"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
-                        <path d="M6 8l4 4 4-4" />
-                    </svg>
+                        <caret-down class="h-4 w-4" :class="{'rotate-180': openIndex !== null}" />
                 </button>
             </div>
         </header>
@@ -117,9 +115,7 @@ export default {
                             {{ formatDate(report.reported_at || report.created_at) }} · {{ report.user?.name || 'Unknown user' }}
                         </span>
                     </div>
-                    <span class="text-gray-400 transition-transform" :class="{'rotate-180': openIndex === index}">
-                        ^
-                    </span>
+                    <caret-down class="h-4 w-4 text-gray-400 transition-transform" :class="{'rotate-180': openIndex === index}" />
                 </button>
                 <transition-container type="fade">
                     <div v-if="openIndex === index" class="border-t border-gray-100 px-3 py-2 text-xs text-gray-600 space-y-2">

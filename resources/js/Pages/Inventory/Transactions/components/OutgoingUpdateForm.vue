@@ -77,7 +77,7 @@ export default {
     },
     mounted() {
         if (!this.form.user_id) {
-            this.form.user_id = this.$page.props.auth.user.id;
+            this.form.user_id = this.$page.props?.auth?.user?.id;
         }
     }
 }

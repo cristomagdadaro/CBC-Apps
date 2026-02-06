@@ -137,6 +137,8 @@ export default {
         selectTransaction(transaction) {
             this.selectedTransaction = transaction;
             this.form.transaction_id = transaction?.id || null;
+            if (transaction?.personnel?.fullName)
+                this.form.report_data['reported_by'] = transaction?.personnel?.fullName ||  null;
             this.transactionResults = [];
             if (transaction?.barcode) {
                 this.transactionSearch = transaction.barcode;
@@ -258,8 +260,9 @@ export default {
                         class="border rounded px-3 py-2 cursor-pointer hover:border-AB"
                         @click="selectTransaction(tx)"
                     >
-                        <p class="text-sm font-semibold text-gray-700">{{ tx.item?.fullName || 'Unnamed Item' }}</p>
+                        <p class="text-sm font-semibold text-gray-700">{{ tx.item?.fullName || 'Unnamed Item' }} by {{ tx?.personnel?.fullName ?? tx?.personnel?.fullName }}</p>
                         <p class="text-xs text-gray-500">Barcode: {{ tx.barcode || 'Not set' }} · {{ tx.transac_type }}</p>
+                        <p class="text-xs text-gray-500">Date: {{ tx.created_at || 'Not set' }}</p>
                     </div>
                 </div>
 

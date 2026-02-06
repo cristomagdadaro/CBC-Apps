@@ -160,7 +160,7 @@ export default {
 
         this.form.transac_type = 'incoming';
         this.form.barcode = this.preGenerateBarcode;
-        this.form.user_id = this.$page.props.auth.user.id;
+        this.form.user_id = this.$page.props?.auth?.user?.id;
 
         await this.generateBarcode();
     },

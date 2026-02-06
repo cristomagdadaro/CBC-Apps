@@ -159,6 +159,12 @@ Route::middleware([
                     'reportTemplates' => config('suppequipreportforms'),
                 ]);
             })->name('suppEquipReports.create');
+
+            Route::get('/create/guest', function () {
+                return Inertia::render('Inventory/SuppEquipReports/SuppEquipReportsCreateGuest', [
+                    'reportTemplates' => config('suppequipreportforms'),
+                ]);
+            })->name('suppEquipReports.create.guest');
         });
 
         Route::prefix('access-use-requests')->group(function () {
