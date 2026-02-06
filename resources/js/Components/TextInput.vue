@@ -52,7 +52,7 @@ defineExpose({ focus: () => input.value?.focus() });
             class="w-full placeholder:text-gray-300 focus:border-AB focus:ring-AB rounded-md shadow-sm"
             :value="modelValue"
             :placeholder="placeholder"
-            :type="typeInput"
+            :type="typeInput || type"
             @input="$emit('update:modelValue', $event.target.value)"
         >
     </div>

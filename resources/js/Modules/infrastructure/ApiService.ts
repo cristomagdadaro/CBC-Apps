@@ -39,7 +39,7 @@ export default abstract class ApiService {
             if (cleanedParams && Object.prototype.hasOwnProperty.call(cleanedParams, 'routeParams')) {
                 delete cleanedParams.routeParams;
             }
-
+            
             const id = model ? model.apiGet : null;
             // @ts-ignore
             const routeUrl = id
