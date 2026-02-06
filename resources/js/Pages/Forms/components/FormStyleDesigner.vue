@@ -44,6 +44,9 @@ export default {
         },
     },
     methods: {
+        isTextColorOrShadowField(key) {
+            return key.includes('-text-color') || key === 'form-text-shadow';
+        },
         handleModeChange(key, rawValue) {
             const mode = rawValue === '' ? null : rawValue;
             const current = this.localTokens[key] || { mode: null, value: null };
@@ -69,7 +72,11 @@ export default {
             };
         },
         clearToken(key) {
-            this.updateToken(key, { mode: null, value: null });
+            if (this.isTextColorOrShadowField(key)) {
+                this.updateToken(key, { value: null });
+            } else {
+                this.updateToken(key, { mode: null, value: null });
+            }
         },
     },
 };
@@ -93,6 +100,7 @@ export default {
                         <p class="text-xs text-gray-500">{{ field.description }}</p>
                     </div>
                     <select
+                        v-if="!isTextColorOrShadowField(field.key)"
                         class="border rounded-md text-sm px-2 py-1 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-AB/40"
                         :value="localTokens[field.key]?.mode ?? ''"
                         @change="handleModeChange(field.key, $event.target.value)"
@@ -103,28 +111,61 @@ export default {
                     </select>
                 </div>
 
-                <div v-if="localTokens[field.key]?.mode === 'color'" class="flex flex-col gap-3 md:flex-row md:items-center">
-                    <input
-                        type="color"
-                        class="h-10 w-14 rounded border border-gray-200 cursor-pointer"
-                        :value="localTokens[field.key]?.value || '#1f2937'"
-                        @input="updateToken(field.key, { value: $event.target.value })"
-                    >
-                    <TextInput
-                        v-model="localTokens[field.key].value"
-                        placeholder="#1F2937"
-                        classes="text-sm"
-                    />
-                </div>
+                <!-- Background color/image fields -->
+                <template v-if="!isTextColorOrShadowField(field.key)">
+                    <div v-if="localTokens[field.key]?.mode === 'color'" class="flex flex-col gap-3 md:flex-row md:items-center">
+                        <input
+                            type="color"
+                            class="h-10 w-14 rounded border border-gray-200 cursor-pointer"
+                            :value="localTokens[field.key]?.value || '#1f2937'"
+                            @input="updateToken(field.key, { value: $event.target.value })"
+                        >
+                        <TextInput
+                            v-model="localTokens[field.key].value"
+                            placeholder="#1F2937"
+                            classes="text-sm"
+                        />
+                    </div>
 
-                <div v-else-if="localTokens[field.key]?.mode === 'image'" class="flex flex-col gap-1">
-                    <TextInput
-                        v-model="localTokens[field.key].value"
-                        placeholder="https://cdn.example.com/background.jpg"
-                        classes="text-sm"
-                    />
-                    <p class="text-[0.65rem] text-gray-500">Use a public URL or relative storage path to an uploaded asset.</p>
-                </div>
+                    <div v-else-if="localTokens[field.key]?.mode === 'image'" class="flex flex-col gap-1">
+                        <TextInput
+                            v-model="localTokens[field.key].value"
+                            placeholder="https://cdn.example.com/background.jpg"
+                            classes="text-sm"
+                        />
+                        <p class="text-[0.65rem] text-gray-500">Use a public URL or relative storage path to an uploaded asset.</p>
+                    </div>
+                </template>
+
+                <!-- Text color and shadow fields -->
+                <template v-else>
+                    <div class="flex flex-col gap-3">
+                        <div v-if="field.key.includes('-text-color')" class="flex items-center gap-3">
+                            <div class="flex items-center gap-2">
+                                <input
+                                    type="color"
+                                    class="h-10 w-14 rounded border border-gray-200 cursor-pointer"
+                                    :value="localTokens[field.key]?.value || '#111827'"
+                                    @input="updateToken(field.key, { value: $event.target.value })"
+                                >
+                            </div>
+                            <TextInput
+                                v-model="localTokens[field.key].value"
+                                placeholder="#111827"
+                                classes="text-sm"
+                            />
+                        </div>
+
+                        <div v-else class="flex flex-col gap-1">
+                            <TextInput
+                                v-model="localTokens[field.key].value"
+                                placeholder="0 1px 2px rgba(0, 0, 0, 0.35)"
+                                classes="text-sm"
+                            />
+                            <p class="text-[0.65rem] text-gray-500">Optional CSS text-shadow value (e.g., 0 1px 2px rgba(0,0,0,0.5))</p>
+                        </div>
+                    </div>
+                </template>
 
                 <div class="flex justify-end">
                     <button

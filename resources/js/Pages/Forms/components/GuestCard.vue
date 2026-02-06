@@ -178,26 +178,31 @@ export default {
         },
         styleFor(key) {
             const token = this.resolvedStyleTokens?.[key];
-            if (!token || !token.value) {
-                return {};
+            const textColorToken = this.resolvedStyleTokens?.[`${key}-text-color`];
+            const textShadowToken = this.resolvedStyleTokens?.['form-text-shadow'];
+            
+            const styles = {};
+
+            if (token && token.value) {
+                if (token.mode === 'image') {
+                    styles.backgroundImage = `url(${token.value})`;
+                    styles.backgroundSize = 'cover';
+                    styles.backgroundPosition = 'center';
+                    styles.backgroundRepeat = 'no-repeat';
+                } else if (token.mode === 'color') {
+                    styles.backgroundColor = token.value;
+                }
             }
 
-            if (token.mode === 'image') {
-                return {
-                    backgroundImage: `url(${token.value})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                };
+            if (textColorToken?.value) {
+                styles.color = textColorToken.value;
             }
 
-            if (token.mode === 'color') {
-                return {
-                    backgroundColor: token.value,
-                };
+            if (textShadowToken?.value) {
+                styles.textShadow = textShadowToken.value;
             }
 
-            return {};
+            return styles;
         },
         isFormFull(formType) {
             const form = this.getStep(formType) ?? this.whatForm(formType);

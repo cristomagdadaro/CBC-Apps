@@ -51,7 +51,7 @@ export default {
         <template #header>
             <forms-header-actions />
         </template>
-        <div class="flex justify-center gap-5 py-12">
+        <div class="flex flex-col md:flexrow justify-center gap-5 py-12">
             <div class="flex flex-col w-1/4">
                 <span class="font-semibold text-gray-700">Event Details</span>
                 <form v-if="!!form" @submit.prevent="submitProxyCreate">
@@ -99,9 +99,6 @@ export default {
                                 <div class="px-1 flex flex-col gap-1">
                                     <requirements-manager v-model="form.requirements" :error="form.errors.requirements"/>
                                 </div>
-                                <div class="px-1 flex flex-col gap-1">
-                                    <form-style-designer v-model="form.style_tokens" :error="styleTokensError" />
-                                </div>
                                 <div class="flex flex-col p-2">
                                     <div class="flex gap-1 justify-end">
                                         <button class="bg-blue-200 text-blue-900 w-fit px-4 py-2 rounded" title="Temporarily stop accepting responses">
@@ -113,6 +110,9 @@ export default {
                         </div>
                     </div>
                 </form>
+            </div>
+            <div class="px-1 flex flex-col gap-1">
+                <form-style-designer v-model="form.style_tokens" :error="styleTokensError" />
             </div>
             <div class="flex flex-col w-fit">
                 <span class="font-semibold text-gray-700">Preview</span>
