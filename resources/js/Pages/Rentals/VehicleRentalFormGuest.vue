@@ -5,6 +5,12 @@ import VehicleRentalForm from '@/Pages/Rentals/components/VehicleRentalForm.vue'
 export default {
     name: 'VehicleRentalFormGuest',
     components: { VehicleRentalForm },
+    props: {
+        vehicleOptions: {
+            type: Array,
+            default: () => []
+        }
+    },
     data() {
         return {
             delayReady: false,
@@ -29,7 +35,7 @@ export default {
         >
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
             <div class="flex gap-5 flex-col w-full">
-                <vehicle-rental-form />
+                <vehicle-rental-form :vehicle-options="vehicleOptions" />
             </div>
         </transition-container>
     </GuestFormPage>
