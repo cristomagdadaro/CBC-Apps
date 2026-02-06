@@ -1,5 +1,6 @@
-interface IRegistration {
-    id: string;
+import IForm from "./IForm";
+
+export default interface IRegistration extends IBaseClass {
     event_id: string;
     participant_id: string;
     pretest_finished: boolean;

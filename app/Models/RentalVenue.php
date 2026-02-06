@@ -2,14 +2,21 @@
 
 namespace App\Models;
 
+use Database\Factories\RentalVenueFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RentalVenue extends Model
 {
-    use SoftDeletes;
+    use HasFactory, HasUuids, SoftDeletes;
 
     protected $table = 'rental_venues';
+
+    protected $keyType = 'string';
+
+    public $incrementing = false;
 
     protected $fillable = [
         'venue_type',
@@ -32,6 +39,11 @@ class RentalVenue extends Model
     public const STATUS_REJECTED = 'rejected';
     public const STATUS_COMPLETED = 'completed';
     public const STATUS_CANCELLED = 'cancelled';
+
+    protected static function newFactory()
+    {
+        return RentalVenueFactory::new();
+    }
 
     public static function getStatuses(): array
     {

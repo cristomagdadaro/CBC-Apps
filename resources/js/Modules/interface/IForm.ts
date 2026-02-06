@@ -1,3 +1,4 @@
+import IRegistration from "./IRegistration";
 
 type FormStyleMode = 'color' | 'image' | null;
 

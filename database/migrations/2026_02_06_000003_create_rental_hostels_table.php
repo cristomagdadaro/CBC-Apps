@@ -24,7 +24,7 @@ return new class extends Migration
             $table->softDeletes();
 
             // Indexes for conflict detection queries
-            $table->index(['hostel_unit', 'status', 'check_in_date', 'check_out_date']);
+            $table->index(['hostel_unit', 'check_in_date', 'check_out_date']);
         });
     }
 

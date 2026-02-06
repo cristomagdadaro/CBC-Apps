@@ -2,14 +2,21 @@
 
 namespace App\Models;
 
+use Database\Factories\RentalVehicleFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RentalVehicle extends Model
 {
-    use SoftDeletes;
+    use HasFactory, HasUuids, SoftDeletes;
 
     protected $table = 'rental_vehicles';
+
+    protected $keyType = 'string';
+
+    public $incrementing = false;
 
     protected $fillable = [
         'vehicle_type',
@@ -31,6 +38,11 @@ class RentalVehicle extends Model
     public const STATUS_REJECTED = 'rejected';
     public const STATUS_COMPLETED = 'completed';
     public const STATUS_CANCELLED = 'cancelled';
+
+    protected static function newFactory()
+    {
+        return RentalVehicleFactory::new();
+    }
 
     public static function getStatuses(): array
     {

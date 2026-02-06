@@ -1,5 +1,4 @@
 import DtoTransaction from "@/Modules/dto/DtoTransaction";
-import Show from "@/Pages/Profile/Show.vue";
 import {usePage} from "@inertiajs/vue3";
 
 export default class Transaction extends DtoTransaction {

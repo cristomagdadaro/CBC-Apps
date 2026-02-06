@@ -61,6 +61,8 @@ import LikertScale from "@/Components/LikertScale.vue";
 
 // Transitions & Animation
 import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
+import DataTable from '@/Modules/DataTable/presentation/DataTable.vue';
+import SearchComp from '@/Components/Search/SearchComp.vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -126,6 +128,9 @@ createInertiaApp({
 
         // Global Transitions & Animation
         vueApp.component('TransitionContainer', TransitionContainer);
+        vueApp.component('DataTable', DataTable);
+        vueApp.component('SearchComp', SearchComp);
+        
 
         // Set global properties
         vueApp.config.globalProperties.$appVersion = import.meta.env.VITE_APP_VERSION;
