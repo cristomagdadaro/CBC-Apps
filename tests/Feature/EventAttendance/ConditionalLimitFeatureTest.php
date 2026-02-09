@@ -25,6 +25,13 @@ class ConditionalLimitFeatureTest extends TestCase
             'province' => 'Cebu',
             'region' => 'VII',
         ]);
+        // Ensure Bohol exists for testing different values
+        \Illuminate\Support\Facades\DB::table('loc_cities')->insertOrIgnore([
+            'id' => 2,
+            'city' => 'Tagbilaran',
+            'province' => 'Bohol',
+            'region' => 'VII',
+        ]);
     }
 
     private function createFormAndSubform(array $config = []): EventSubform
@@ -122,7 +129,7 @@ class ConditionalLimitFeatureTest extends TestCase
     {
         $subform = $this->createFormAndSubform([
             'limits' => [
-                ['field' => 'province_address', 'max' => 1],
+                ['field' => 'organization', 'max' => 1],
             ],
         ]);
 
@@ -131,7 +138,7 @@ class ConditionalLimitFeatureTest extends TestCase
             'participant_id' => null,
             'subform_type' => $subform->form_type,
             'response_data' => [
-                'province_address' => 'Cebu',
+                'organization' => 'Test School A',
             ],
             'status' => 'submitted',
             'submitted_at' => now(),
@@ -139,7 +146,7 @@ class ConditionalLimitFeatureTest extends TestCase
 
         $payload = $this->validPayload($subform, [
             'response_data' => [
-                'province_address' => 'Bohol',
+                'organization' => 'Test School B',
             ],
         ]);
 

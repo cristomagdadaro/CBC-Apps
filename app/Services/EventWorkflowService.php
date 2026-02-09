@@ -195,7 +195,7 @@ class EventWorkflowService
 
             if ($count >= (int) $max) {
                 $label = ucwords(str_replace('_', ' ', $field));
-                $this->throwWorkflowError('limit', "Limit reached for $value (max $max)");
+                $this->throwWorkflowError('limit', "Limit reached for $label (max $max)");
             }
         }
     }
