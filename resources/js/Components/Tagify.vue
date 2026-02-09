@@ -75,7 +75,7 @@ export default {
                 per_page: '*',
             }
             try {
-                const response = await this.fetchGetApi(this.apiLink, params);
+                const response = await this.fetchGetApi(this.apiLink, params); console.log(response);
                 const payload = response?.data ?? response;
                 const list = Array.isArray(payload)
                     ? payload

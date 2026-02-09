@@ -5,12 +5,14 @@ import DtoResponse from "@/Modules/dto/DtoResponse";
 import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import TagifyInput from "@/Components/Tagify.vue";
+import SuccessModal from "@/Components/SuccessModal.vue";
 import Personnel from "@/Modules/domain/Personnel";
 
 export default {
     name: "RequesterGuestCard",
     components: {
         TagifyInput,
+        SuccessModal,
     },
     props: {
         requestTypeOptions: {
@@ -154,10 +156,29 @@ export default {
         filteredSteps() {
             const types = new Set(this.selectedRequestTypes);
             return this.steps.filter(step => {
+                // Common steps always shown
                 if (['request_type', 'requestor', 'details', 'terms'].includes(step.key)) return true;
-                if (step.key === 'supplies') return types.has('Supplies');
-                if (step.key === 'equipments') return types.has('Equipments');
-                if (step.key === 'labs') return types.has('Laboratory Access');
+                
+                // Supplies step: show if any type contains "Supplies"
+                if (step.key === 'supplies') {
+                    return Array.from(types).some(type => type.toLowerCase().includes('supplies'));
+                }
+                
+                // Equipments step: show if any type contains "Equipment"
+                if (step.key === 'equipments') {
+                    return Array.from(types).some(type => type.toLowerCase().includes('equipment'));
+                }
+                
+                // Labs step: show if any type contains "Laboratory" or "Space" or "Lab"
+                if (step.key === 'labs') {
+                    return Array.from(types).some(type => {
+                        const lowerType = type.toLowerCase();
+                        return lowerType.includes('laboratory') || 
+                               lowerType.includes('lab') || 
+                               lowerType.includes('space');
+                    });
+                }
+                
                 return false;
             });
         },
@@ -168,7 +189,13 @@ export default {
             return this.filteredSteps[this.currentStep]?.key;
         },
         requiresEndTime() {
-            return this.selectedRequestTypes.includes('Equipments') || this.selectedRequestTypes.includes('Laboratory Access');
+            return Array.from(this.selectedRequestTypes).some(type => {
+                const lowerType = type.toLowerCase();
+                return lowerType.includes('equipment') || 
+                       lowerType.includes('laboratory') || 
+                       lowerType.includes('lab') || 
+                       lowerType.includes('space');
+            });
         }
     },
     watch: {

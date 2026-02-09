@@ -54,6 +54,7 @@ export default {
             currentSearch: '',
             debounceTimeout: null,
             selectedOption: null,
+            isUsingLocalOptions: false,
         };
     },
     methods: {
@@ -67,7 +68,13 @@ export default {
                 // Load initial data if not already loaded
                 if (this.formattedOptions.length === 0) {
                     this.resetPagination();
-                    this.getOptionsFromApi();
+                    // Check if we have local options first
+                    if (this.options && this.options.length > 0) {
+                        this.initLocalOptions();
+                    } else if (this.apiLink) {
+                        // Fall back to API if no local options
+                        this.getOptionsFromApi();
+                    }
                 }
             } else {
                 this.closeDropdown();
@@ -159,7 +166,29 @@ export default {
         handleSearch(searchValue) {
             this.currentSearch = searchValue;
             this.resetPagination();
-            this.getOptionsFromApi(searchValue);
+            
+            // If we have local options (from props), search offline
+            if (this.options && this.options.length > 0) {
+                this.searchLocalOptions(searchValue);
+            } else if (this.apiLink) {
+                // Otherwise search via API
+                this.getOptionsFromApi(searchValue);
+            }
+        },
+
+        searchLocalOptions(searchValue) {
+            if (!searchValue) {
+                // If no search, show all options
+                this.filteredOptions = [...this.formattedOptions];
+            } else {
+                // Filter options by label or value
+                const searchLower = searchValue.toLowerCase();
+                this.filteredOptions = this.formattedOptions.filter(option => {
+                    const labelMatch = String(option.label).toLowerCase().includes(searchLower);
+                    const valueMatch = String(option.value).toLowerCase().includes(searchLower);
+                    return labelMatch || valueMatch;
+                });
+            }
         },
 
         handleDropdownScroll(event) {
@@ -247,6 +276,8 @@ export default {
             const mapped = (this.options || []).map(this.formatOption).filter(Boolean);
             this.formattedOptions = mapped;
             this.filteredOptions = mapped;
+            // Mark that we're using local options so we know not to fetch from API
+            this.isUsingLocalOptions = true;
         },
     },
 
@@ -364,7 +395,7 @@ export default {
                     >
                         <p v-if="hasOptions">
                             {{ filteredOptions.length }} option{{ filteredOptions.length !== 1 ? 's' : '' }}
-                            <span v-if="hasMoreData" class="text-gray-400">(scroll for more)</span>
+                            <span v-if="hasMoreData && !options.length" class="text-gray-400">(scroll for more)</span>
                         </p>
                         <p v-else>{{ emptyStateMessage }}</p>
                     </div>

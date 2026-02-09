@@ -297,13 +297,13 @@ watch(
                                     <dt>Pending</dt>
                                     <dd class="font-semibold">{{ stats.access_requests.pending }}</dd>
                                 </div>
-                                <div :class="'text-[' + accessColors[1] + ']'">
-                                    <dt>Rejected</dt>
-                                    <dd class="font-semibold">{{ stats.access_requests.rejected }}</dd>
-                                </div>
                                 <div :class="'text-[' + accessColors[2] + ']'">
                                     <dt>Approved</dt>
                                     <dd class="font-semibold">{{ stats.access_requests.approved }}</dd>
+                                </div>
+                                <div :class="'text-[' + accessColors[1] + ']'">
+                                    <dt>Rejected</dt>
+                                    <dd class="font-semibold">{{ stats.access_requests.rejected }}</dd>
                                 </div>
                             </dl>
                             <div class="mt-4 h-32">

@@ -83,7 +83,7 @@ Route::prefix('guest')->group(function () {
         $minRemaining = request()->query('min_remaining', 0);
         $params = collect([
             'filter' => 'category',
-            'filter_by' => 7,
+            'filter_by' => [7,4],
             'min_remaining' => $minRemaining,
             'paginate' => false,
             'per_page' => '*',

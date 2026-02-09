@@ -73,12 +73,11 @@ export default {
                 this.form.filter = '';
                 this.form.filter_by = '';
                 this.searchEvent();
-                return;
+            } else{
+                this.form.filter = filter;
+                this.form.filter_by = filter_by;
+                this.searchEvent();
             }
-
-            this.form.filter = filter;
-            this.form.filter_by = filter_by;
-            this.searchEvent();
         },
     }
 }
