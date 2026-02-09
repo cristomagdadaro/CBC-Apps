@@ -175,31 +175,20 @@ class FormRepo extends AbstractRepoService
 
     public function getTodayEvents(): Collection
     {
+        // We only need the start of today. 
+        // Anything ending *after* this point is valid.
         $startOfDay = Carbon::now()->startOfDay();
-        $endOfDay = Carbon::now()->endOfDay();
 
         return $this->model
             ->newQuery()
             ->select([
-                'event_id',
-                'title',
-                'venue',
-                'date_from',
-                'date_to',
-                'time_from',
-                'time_to',
+                'event_id', 'title', 'venue', 
+                'date_from', 'date_to', 
+                'time_from', 'time_to'
             ])
             ->where('is_suspended', false)
-            ->where(function ($query) use ($startOfDay, $endOfDay) {
-                $query
-                    ->whereBetween('date_from', [$startOfDay, $endOfDay])
-                    ->orWhereBetween('date_to', [$startOfDay, $endOfDay])
-                    ->orWhere(function ($subQuery) use ($startOfDay, $endOfDay) {
-                        $subQuery
-                            ->where('date_from', '<=', $startOfDay)
-                            ->where('date_to', '>=', $endOfDay);
-                    });
-            })
+            // Logic: Show any event that has NOT finished before today
+            ->where('date_to', '>=', $startOfDay) 
             ->orderBy('date_from')
             ->orderBy('time_from')
             ->get();

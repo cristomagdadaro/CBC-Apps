@@ -253,7 +253,7 @@ export default {
     >
         <div class="bg-white/95 text-gray-800 shadow-2xl rounded-2xl border border-AB/30 w-64 max-h-[80vh] flex flex-col backdrop-blur">
             <div class="px-4 py-3 border-b border-gray-100">
-                <p class="text-lg font-bold uppercase text-gray-500">Today's Events</p>
+                <p class="text-lg font-bold uppercase text-gray-500">Events</p>
                 <p class="text-xs text-gray-400">{{ todayEvents.length }} ongoing</p>
             </div>
             <div class="overflow-y-auto scroll-m-0 divide-y divide-gray-100">
@@ -285,7 +285,7 @@ export default {
             <path d="M11 7.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z"/>
             <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1.5A1.5 1.5 0 0 1 16 2.5V14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2.5A1.5 1.5 0 0 1 1.5 1H3V.5a.5.5 0 0 1 .5-.5M15 4H1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1z"/>
         </svg>
-        Today's Events
+        Events
     </button>
 
     <transition name="fade">
@@ -296,7 +296,7 @@ export default {
             <div class="bg-white text-gray-800 rounded-3xl shadow-2xl w-11/12 max-w-md m-auto p-5 flex flex-col max-h-[85vh]">
                 <div class="flex items-center justify-between mb-4">
                     <div>
-                        <p class="text-xs uppercase tracking-[0.4em] text-gray-400">Today's Events</p>
+                        <p class="text-xs uppercase tracking-[0.4em] text-gray-400">Events</p>
                         <p class="text-lg font-semibold text-AB">{{ todayEvents.length }} scheduled</p>
                     </div>
                     <button type="button" class="text-gray-500 hover:text-gray-700" @click="closeMobileTodayPanel">

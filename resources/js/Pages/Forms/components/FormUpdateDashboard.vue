@@ -72,16 +72,16 @@ export default {
             totalsColors: ['#3b82f6', '#f97316', '#22c55e'],
             responseChartInstance: null,
             totalsChartInstance: null,
-            sexChartInstance: null,
-            ageChartInstance: null,
-            ipChartInstance: null,
-            pwdChartInstance: null,
-            organizationChartInstance: null,
             regionPieInstance: null,
             provincePieInstance: null,
             cityPieInstance: null,
             selectedRegion: null,
             selectedProvince: null,
+            dynamicChartConfigs: [],
+            dynamicChartInstances: {},
+            selectedChartFormType: null,
+            selectedChartColumn: null,
+            selectedChartType: null,
         };
     },
     computed: {
@@ -130,30 +130,6 @@ export default {
         allResponses() {
             const groups = this.responsesByType || {};
             return Object.values(groups).flatMap((items) => (Array.isArray(items) ? items : []));
-        },
-        sexCounts() {
-            return this.aggregateCounts('sex', (value) => this.normalizeText(value));
-        },
-        ageCounts() {
-            const counts = {};
-            this.allResponses.forEach((item) => {
-                const raw = item.response_data?.age;
-                const age = Number.parseInt(raw, 10);
-                if (Number.isNaN(age)) {
-                    return;
-                }
-                counts[age] = (counts[age] || 0) + 1;
-            });
-            return counts;
-        },
-        ipCounts() {
-            return this.aggregateCounts('is_ip', (value) => this.normalizeBoolean(value));
-        },
-        pwdCounts() {
-            return this.aggregateCounts('is_pwd', (value) => this.normalizeBoolean(value));
-        },
-        organizationCounts() {
-            return this.aggregateCounts('organization', (value) => this.normalizeText(value));
         },
         geoRegionSummary() {
             const regionMap = new Map();
@@ -245,6 +221,22 @@ export default {
             });
             return counts;
         },
+        chartFormOptions() {
+            return this.responseDataGroups.map((group) => ({
+                value: group.form_type,
+                label: group.label,
+            }));
+        },
+        selectedFormColumns() {
+            if (!this.selectedChartFormType) return [];
+            const group = this.responseDataGroups.find((g) => g.form_type === this.selectedChartFormType);
+            return group?.dataColumns || [];
+        },
+        selectedColumnDataType() {
+            if (!this.selectedChartFormType || !this.selectedChartColumn) return null;
+            const values = this.getColumnValues(this.selectedChartFormType, this.selectedChartColumn);
+            return this.inferDataType(values);
+        },
     },
     methods: {
         normalizeText(value) {
@@ -298,6 +290,217 @@ export default {
                 return 'No';
             }
             return this.normalizeText(value);
+        },
+        getColumnsForFormType(formType) {
+            const group = this.responseDataGroups.find((g) => g.form_type === formType);
+            return group?.dataColumns || [];
+        },
+        getColumnValues(formType, column) {
+            const group = this.responseDataGroups.find((g) => g.form_type === formType);
+            if (!group) return [];
+            return group.items.flatMap((item) => {
+                const value = item.response_data?.[column];
+                if (Array.isArray(value)) return value;
+                return [value];
+            });
+        },
+        isBooleanLike(value) {
+            if (value === true || value === false) return true;
+            if (value === 1 || value === 0) return true;
+            if (typeof value === 'string') {
+                const lower = value.toLowerCase().trim();
+                return ['true', 'false', 'yes', 'no', '1', '0'].includes(lower);
+            }
+            return false;
+        },
+        isNumericLike(value) {
+            if (value === null || value === undefined || value === '') return false;
+            if (typeof value === 'number') return Number.isFinite(value);
+            if (typeof value === 'string') {
+                const normalized = value.replace(/,/g, '').trim();
+                return normalized !== '' && !Number.isNaN(Number(normalized));
+            }
+            return false;
+        },
+        isDateLike(value) {
+            if (!value || typeof value !== 'string') return false;
+            const trimmed = value.trim();
+            if (trimmed.length < 6) return false;
+            const timestamp = Date.parse(trimmed);
+            return !Number.isNaN(timestamp);
+        },
+        inferDataType(values) {
+            const samples = values
+                .filter((v) => v !== null && v !== undefined && v !== '')
+                .slice(0, 50);
+            if (!samples.length) return 'string';
+
+            let boolCount = 0;
+            let numberCount = 0;
+            let dateCount = 0;
+
+            samples.forEach((value) => {
+                if (this.isBooleanLike(value)) {
+                    boolCount += 1;
+                } else if (this.isNumericLike(value)) {
+                    numberCount += 1;
+                } else if (this.isDateLike(value)) {
+                    dateCount += 1;
+                }
+            });
+
+            const total = samples.length;
+            if (boolCount / total >= 0.8) return 'boolean';
+            if (dateCount / total >= 0.7) return 'date';
+            if (numberCount / total >= 0.7) return 'number';
+            return 'string';
+        },
+        getChartTypeOptions(dataType) {
+            if (dataType === 'date') {
+                return ['bar'];
+            }
+            return ['bar', 'pie', 'doughnut'];
+        },
+        normalizeChartValue(value, dataType) {
+            if (value === null || value === undefined || value === '') return null;
+            if (dataType === 'boolean') {
+                return this.normalizeBoolean(value);
+            }
+            if (dataType === 'number') {
+                const parsed = Number(String(value).replace(/,/g, '').trim());
+                return Number.isNaN(parsed) ? null : parsed;
+            }
+            if (dataType === 'date') {
+                const timestamp = Date.parse(String(value));
+                return Number.isNaN(timestamp) ? null : new Date(timestamp);
+            }
+            return this.normalizeText(value);
+        },
+        buildCategoricalCounts(values, dataType, maxItems = 12) {
+            const counts = {};
+            values.forEach((value) => {
+                const normalized = this.normalizeChartValue(value, dataType);
+                if (normalized === null || normalized === undefined || normalized === '') return;
+                const key = String(normalized);
+                counts[key] = (counts[key] || 0) + 1;
+            });
+
+            const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+            if (entries.length <= maxItems) {
+                return entries;
+            }
+
+            const top = entries.slice(0, maxItems);
+            const remainder = entries.slice(maxItems);
+            const otherCount = remainder.reduce((sum, [, value]) => sum + value, 0);
+            if (otherCount > 0) {
+                top.push(['Other', otherCount]);
+            }
+            return top;
+        },
+        buildNumericSeries(values) {
+            const numericValues = values
+                .map((value) => this.normalizeChartValue(value, 'number'))
+                .filter((value) => typeof value === 'number');
+            if (!numericValues.length) return { labels: [], data: [] };
+
+            const uniqueValues = Array.from(new Set(numericValues)).sort((a, b) => a - b);
+            if (uniqueValues.length <= 10) {
+                const labels = uniqueValues.map((v) => String(v));
+                const data = labels.map((label) => numericValues.filter((v) => String(v) === label).length);
+                return { labels, data };
+            }
+
+            const min = Math.min(...numericValues);
+            const max = Math.max(...numericValues);
+            const binCount = 8;
+            const range = max - min || 1;
+            const binSize = Math.ceil(range / binCount);
+
+            const bins = Array.from({ length: binCount }, (_, index) => ({
+                min: min + index * binSize,
+                max: min + (index + 1) * binSize,
+                count: 0,
+            }));
+
+            numericValues.forEach((value) => {
+                const index = Math.min(Math.floor((value - min) / binSize), binCount - 1);
+                bins[index].count += 1;
+            });
+
+            const labels = bins.map((bin) => `${bin.min}-${bin.max}`);
+            const data = bins.map((bin) => bin.count);
+            return { labels, data };
+        },
+        buildDateSeries(values) {
+            const dates = values
+                .map((value) => this.normalizeChartValue(value, 'date'))
+                .filter((value) => value instanceof Date);
+            if (!dates.length) return { labels: [], data: [] };
+
+            const buckets = {};
+            dates.forEach((date) => {
+                const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                buckets[key] = (buckets[key] || 0) + 1;
+            });
+
+            const labels = Object.keys(buckets).sort();
+            const data = labels.map((label) => buckets[label]);
+            return { labels, data };
+        },
+        buildChartData(config) {
+            const values = this.getColumnValues(config.formType, config.column);
+            const dataType = config.dataType || this.inferDataType(values);
+
+            if (dataType === 'number') {
+                return this.buildNumericSeries(values);
+            }
+
+            if (dataType === 'date') {
+                return this.buildDateSeries(values);
+            }
+
+            const entries = this.buildCategoricalCounts(values, dataType);
+            const labels = entries.map(([label]) => label);
+            const data = entries.map(([, value]) => value);
+            return { labels, data };
+        },
+        getChartTitle(config) {
+            const label = this.labelMap[config.formType] || config.formType;
+            return `${label} · ${config.column.replace(/_/g, ' ')}`;
+        },
+        addDynamicChart() {
+            if (!this.selectedChartFormType || !this.selectedChartColumn || !this.selectedChartType) return;
+            const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+            const dataType = this.selectedColumnDataType || 'string';
+            this.dynamicChartConfigs.push({
+                id,
+                formType: this.selectedChartFormType,
+                column: this.selectedChartColumn,
+                chartType: this.selectedChartType,
+                dataType,
+            });
+            this.buildCharts();
+        },
+        removeDynamicChart(id) {
+            this.dynamicChartConfigs = this.dynamicChartConfigs.filter((chart) => chart.id !== id);
+            if (this.dynamicChartInstances[id]) {
+                this.dynamicChartInstances[id].destroy();
+                delete this.dynamicChartInstances[id];
+            }
+            this.buildCharts();
+        },
+        updateDynamicChart(chart) {
+            const columns = this.getColumnsForFormType(chart.formType);
+            if (!columns.includes(chart.column)) {
+                chart.column = columns[0] || null;
+            }
+            chart.dataType = this.inferDataType(this.getColumnValues(chart.formType, chart.column));
+            const availableTypes = this.getChartTypeOptions(chart.dataType);
+            if (!availableTypes.includes(chart.chartType)) {
+                chart.chartType = availableTypes[0];
+            }
+            this.buildCharts();
         },
         aggregateCounts(field, normalizer) {
             const counts = {};
@@ -559,30 +762,12 @@ export default {
                 this.totalsChartInstance.destroy();
                 this.totalsChartInstance = null;
             }
-            if (this.sexChartInstance) {
-                this.sexChartInstance.destroy();
-                this.sexChartInstance = null;
-            }
-            if (this.ageChartInstance) {
-                this.ageChartInstance.destroy();
-                this.ageChartInstance = null;
-            }
-            if (this.ipChartInstance) {
-                this.ipChartInstance.destroy();
-                this.ipChartInstance = null;
-            }
-            if (this.pwdChartInstance) {
-                this.pwdChartInstance.destroy();
-                this.pwdChartInstance = null;
-            }
-            if (this.organizationChartInstance) {
-                this.organizationChartInstance.destroy();
-                this.organizationChartInstance = null;
-            }
             // regionGeoChartInstance removed
             if (this.regionPieInstance) { this.regionPieInstance.destroy(); this.regionPieInstance = null; }
             if (this.provincePieInstance) { this.provincePieInstance.destroy(); this.provincePieInstance = null; }
             if (this.cityPieInstance) { this.cityPieInstance.destroy(); this.cityPieInstance = null; }
+            Object.values(this.dynamicChartInstances).forEach((chart) => chart.destroy());
+            this.dynamicChartInstances = {};
         },
         createDonutChart(refName, labels, data, colors, onSliceClick = null) {
             const canvas = this.$refs[refName];
@@ -727,56 +912,6 @@ export default {
                     });
                 }
 
-                const piePalette = this.responseColors;
-
-                const sexEntries = Object.entries(this.sexCounts || {});
-                const sexLabels = sexEntries.map(([label]) => label);
-                const sexValues = sexEntries.map(([, value]) => value);
-                this.sexChartInstance = this.createDonutChart(
-                    'sexChartCanvas',
-                    sexLabels,
-                    sexValues,
-                    sexLabels.map((_, index) => piePalette[index % piePalette.length])
-                );
-
-                const ageEntries = Object.entries(this.ageCounts || {})
-                    .map(([label, value]) => [Number.parseInt(label, 10), value])
-                    .filter(([label]) => !Number.isNaN(label))
-                    .sort((a, b) => a[0] - b[0]);
-                const ageLabels = ageEntries.map(([label]) => String(label));
-                const ageValues = ageEntries.map(([, value]) => value);
-                this.ageChartInstance = this.createBarChart('ageChartCanvas', ageLabels, ageValues, '#22c55e');
-
-                const ipEntries = Object.entries(this.ipCounts || {});
-                const ipLabels = ipEntries.map(([label]) => label);
-                const ipValues = ipEntries.map(([, value]) => value);
-                this.ipChartInstance = this.createDonutChart(
-                    'ipChartCanvas',
-                    ipLabels,
-                    ipValues,
-                    ipLabels.map((_, index) => piePalette[index % piePalette.length])
-                );
-
-                const pwdEntries = Object.entries(this.pwdCounts || {});
-                const pwdLabels = pwdEntries.map(([label]) => label);
-                const pwdValues = pwdEntries.map(([, value]) => value);
-                this.pwdChartInstance = this.createDonutChart(
-                    'pwdChartCanvas',
-                    pwdLabels,
-                    pwdValues,
-                    pwdLabels.map((_, index) => piePalette[index % piePalette.length])
-                );
-
-                const orgEntries = Object.entries(this.organizationCounts || {});
-                const orgLabels = orgEntries.map(([label]) => label);
-                const orgValues = orgEntries.map(([, value]) => value);
-                this.organizationChartInstance = this.createDonutChart(
-                    'organizationChartCanvas',
-                    orgLabels,
-                    orgValues,
-                    orgLabels.map((_, index) => piePalette[index % piePalette.length])
-                );
-
                 const regionEntries = this.geoRegionSummary || [];
                 const regionLabels = regionEntries.map((entry) => entry.region);
 
@@ -809,6 +944,58 @@ export default {
                     (label) => this.onProvinceClick(label)
                 );
                 this.cityPieInstance = this.createDonutChart('cityPieCanvas', cityLabels, cityCounts, cityColors);
+
+                const canvases = Array.isArray(this.$refs.dynamicChartCanvas)
+                    ? this.$refs.dynamicChartCanvas
+                    : this.$refs.dynamicChartCanvas
+                        ? [this.$refs.dynamicChartCanvas]
+                        : [];
+
+                this.dynamicChartConfigs.forEach((config, index) => {
+                    const canvas = canvases[index];
+                    if (!canvas) return;
+                    const { labels, data } = this.buildChartData(config);
+                    if (!labels.length) return;
+
+                    const palette = this.responseColors.concat(this.totalsColors);
+                    const colors = labels.map((_, i) => palette[i % palette.length]);
+
+                    this.dynamicChartInstances[config.id] = new Chart(canvas, {
+                        type: config.chartType,
+                        data: {
+                            labels,
+                            datasets: [
+                                {
+                                    data,
+                                    backgroundColor: colors,
+                                    borderWidth: 0,
+                                },
+                            ],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: config.chartType !== 'bar',
+                                    position: 'bottom',
+                                },
+                                tooltip: { enabled: true },
+                            },
+                            scales: config.chartType === 'bar' ? {
+                                x: {
+                                    grid: { display: false, drawBorder: false },
+                                    border: { display: false },
+                                },
+                                y: {
+                                    grid: { display: false, drawBorder: false },
+                                    ticks: { precision: 0 },
+                                    border: { display: false },
+                                },
+                            } : undefined,
+                        },
+                    });
+                });
             });
         },
         onRegionClick(regionLabel) {
@@ -837,6 +1024,12 @@ export default {
             },
             deep: true,
         },
+        responsesByType: {
+            handler() {
+                this.buildCharts();
+            },
+            deep: true,
+        },
         responseDataGroups: {
             handler(groups) {
                 if (!this.activeFormType && groups.length) {
@@ -844,8 +1037,39 @@ export default {
                 } else if (this.activeFormType && !groups.find(group => group.form_type === this.activeFormType)) {
                     this.activeFormType = groups[0]?.form_type ?? null;
                 }
+
+                if (!this.selectedChartFormType && groups.length) {
+                    this.selectedChartFormType = groups[0].form_type;
+                }
+                if (this.selectedChartFormType && (!this.selectedFormColumns.length)) {
+                    this.selectedChartFormType = groups[0]?.form_type ?? null;
+                }
+                if (this.selectedChartFormType && !this.selectedChartColumn) {
+                    this.selectedChartColumn = this.selectedFormColumns[0] || null;
+                }
+                if (!this.selectedChartType) {
+                    const options = this.getChartTypeOptions(this.selectedColumnDataType || 'string');
+                    this.selectedChartType = options[0] || 'bar';
+                }
             },
             immediate: true,
+        },
+        selectedChartFormType() {
+            this.selectedChartColumn = this.selectedFormColumns[0] || null;
+            const options = this.getChartTypeOptions(this.selectedColumnDataType || 'string');
+            this.selectedChartType = options[0] || 'bar';
+        },
+        selectedChartColumn() {
+            const options = this.getChartTypeOptions(this.selectedColumnDataType || 'string');
+            if (!options.includes(this.selectedChartType)) {
+                this.selectedChartType = options[0] || 'bar';
+            }
+        },
+        dynamicChartConfigs: {
+            handler() {
+                this.buildCharts();
+            },
+            deep: true,
         },
     },
     mounted() {
@@ -887,7 +1111,7 @@ export default {
                                             :key="col"
                                             class="px-4 py-2"
                                         >
-                                            {{ col.replace(/_/g, ' ') }}
+                                            {{ col.replace(/_/g, ' ') }}ss
                                         </th>
                                         <th class="px-4 py-2 text-center">Actions</th>
                                     </tr>
@@ -952,64 +1176,117 @@ export default {
                 </div>
             </div>
         </div>
-        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div class="space-y-4">
             <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
-                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Sex</h3>
-                <div class="mt-4 h-56">
-                    <canvas ref="sexChartCanvas"></canvas>
-                </div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
-                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Age</h3>
-                <div class="mt-4 h-56">
-                    <canvas ref="ageChartCanvas"></canvas>
-                </div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
-                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Indigenous Peoples (IP)</h3>
-                <div class="mt-4 h-56">
-                    <canvas ref="ipChartCanvas"></canvas>
-                </div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
-                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Person with Disability (PWD)</h3>
-                <div class="mt-4 h-56">
-                    <canvas ref="pwdChartCanvas"></canvas>
-                </div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
-                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Organization</h3>
-                <div class="mt-4 h-56">
-                    <canvas ref="organizationChartCanvas"></canvas>
-                </div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
-                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Region, Province, and City Coverage</h3>
-                <div v-if="selectedRegion || selectedProvince" class="mt-2 mb-3 p-2 bg-blue-50 dark:bg-blue-900 rounded">
-                    <p class="text-xs text-blue-900 dark:text-blue-100">
-                        <span v-if="selectedRegion"><strong>Region:</strong> {{ selectedRegion }}</span>
-                        <span v-if="selectedProvince" class="ml-2"><strong>Province:</strong> {{ selectedProvince }}</span>
-                    </p>
-                    <button @click="() => { selectedRegion = null; selectedProvince = null; buildCharts(); }" class="mt-1 text-xs text-blue-600 dark:text-blue-300 hover:underline">
-                        ← Reset Filter
-                    </button>
-                </div>
-                <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="h-48">
-                        <h4 class="text-xs text-gray-500 mb-2">Regions (Click to filter)</h4>
-                        <canvas ref="regionPieCanvas" class="h-40 w-full cursor-pointer"></canvas>
-                    </div>
-                    <div class="h-48">
-                        <h4 class="text-xs text-gray-500 mb-2">Provinces (Click to filter)</h4>
-                        <canvas ref="provincePieCanvas" class="h-40 w-full cursor-pointer"></canvas>
-                    </div>
-                    <div class="h-48">
-                        <h4 class="text-xs text-gray-500 mb-2">Cities</h4>
-                        <canvas ref="cityPieCanvas" class="h-40 w-full"></canvas>
+                <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Custom Charts</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Select a form, a column, and a chart type to visualize custom subform data.</p>
                     </div>
                 </div>
-                <!-- stacked bar removed; multi-series pies above display region/province/city -->
+                <div class="mt-4 grid gap-3 md:grid-cols-4">
+                    <div>
+                        <label class="text-xs text-gray-500 dark:text-gray-400">Form Type</label>
+                        <select v-model="selectedChartFormType" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                            <option v-for="option in chartFormOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 dark:text-gray-400">Column</label>
+                        <select v-model="selectedChartColumn" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                            <option v-for="column in selectedFormColumns" :key="column" :value="column">{{ column.replace(/_/g, ' ') }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 dark:text-gray-400">Chart Type</label>
+                        <select v-model="selectedChartType" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                            <option v-for="chartType in getChartTypeOptions(selectedColumnDataType || 'string')" :key="chartType" :value="chartType">
+                                {{ chartType.charAt(0).toUpperCase() + chartType.slice(1) }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button
+                            @click="addDynamicChart"
+                            class="w-full inline-flex items-center justify-center gap-2 rounded bg-blue-500 px-3 py-2 text-sm text-white hover:bg-blue-600"
+                        >
+                            Add Chart
+                        </button>
+                    </div>
+                </div>
+                <p v-if="selectedColumnDataType" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    Detected data type: <span class="font-semibold">{{ selectedColumnDataType }}</span>
+                </p>
             </div>
+
+            <div v-if="dynamicChartConfigs.length" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <div v-for="(chart, index) in dynamicChartConfigs" :key="chart.id" class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-200">{{ getChartTitle(chart) }}</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Type: {{ chart.chartType }} · Data: {{ chart.dataType }}</p>
+                        </div>
+                        <button @click="removeDynamicChart(chart.id)" class="text-xs text-red-500 hover:underline">Remove</button>
+                    </div>
+                    <div class="mt-3 grid gap-2 md:grid-cols-3">
+                        <div>
+                            <label class="text-xs text-gray-500 dark:text-gray-400">Form</label>
+                            <select v-model="chart.formType" @change="updateDynamicChart(chart)" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                                <option v-for="option in chartFormOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 dark:text-gray-400">Column</label>
+                            <select v-model="chart.column" @change="updateDynamicChart(chart)" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                                <option v-for="column in getColumnsForFormType(chart.formType)" :key="column" :value="column">{{ column.replace(/_/g, ' ') }}</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500 dark:text-gray-400">Chart</label>
+                            <select v-model="chart.chartType" @change="updateDynamicChart(chart)" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                                <option v-for="chartType in getChartTypeOptions(chart.dataType || 'string')" :key="chartType" :value="chartType">
+                                    {{ chartType.charAt(0).toUpperCase() + chartType.slice(1) }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-4 h-56">
+                        <canvas ref="dynamicChartCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div v-else class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                No custom charts yet. Add a chart to visualize any column from your subforms.
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
+            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Region, Province, and City Coverage</h3>
+            <div v-if="selectedRegion || selectedProvince" class="mt-2 mb-3 p-2 bg-blue-50 dark:bg-blue-900 rounded">
+                <p class="text-xs text-blue-900 dark:text-blue-100">
+                    <span v-if="selectedRegion"><strong>Region:</strong> {{ selectedRegion }}</span>
+                    <span v-if="selectedProvince" class="ml-2"><strong>Province:</strong> {{ selectedProvince }}</span>
+                </p>
+                <button @click="() => { selectedRegion = null; selectedProvince = null; buildCharts(); }" class="mt-1 text-xs text-blue-600 dark:text-blue-300 hover:underline">
+                    ← Reset Filter
+                </button>
+            </div>
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="h-48">
+                    <h4 class="text-xs text-gray-500 mb-2">Regions (Click to filter)</h4>
+                    <canvas ref="regionPieCanvas" class="h-40 w-full cursor-pointer"></canvas>
+                </div>
+                <div class="h-48">
+                    <h4 class="text-xs text-gray-500 mb-2">Provinces (Click to filter)</h4>
+                    <canvas ref="provincePieCanvas" class="h-40 w-full cursor-pointer"></canvas>
+                </div>
+                <div class="h-48">
+                    <h4 class="text-xs text-gray-500 mb-2">Cities</h4>
+                    <canvas ref="cityPieCanvas" class="h-40 w-full"></canvas>
+                </div>
+            </div>
+            <!-- stacked bar removed; multi-series pies above display region/province/city -->
         </div>
         
         <!-- Response Edit Modal -->
