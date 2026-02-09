@@ -8,6 +8,10 @@ export default {
     },
     props: {
         requestForm: { type: Object },
+        requestTypeOptions: {
+            type: Array,
+            default: () => []
+        },
         quote: String,
     },
     data() {
@@ -34,7 +38,7 @@ export default {
     >
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
             <div class="flex gap-5 flex-col w-full">
-                <requester-guest-card :data="requestForm" />
+                <requester-guest-card :data="requestForm" :request-type-options="requestTypeOptions" />
             </div>
         </transition-container>
     </guest-form-page>

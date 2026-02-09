@@ -118,7 +118,7 @@ Route::prefix('guest')->group(function () {
 });
 
 /* 'auth:sanctum', */
-Route::middleware(['api','auth:sanctum'])->group(function () {
+Route::middleware(['api'])->group(function () {
     Route::prefix('locations')->group(function () {
         Route::get('/regions', [LocationController::class, 'regions'])->name('api.locations.regions.auth');
         Route::get('/provinces', [LocationController::class, 'provinces'])->name('api.locations.provinces.auth');

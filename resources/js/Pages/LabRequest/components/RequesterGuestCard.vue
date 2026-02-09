@@ -12,6 +12,12 @@ export default {
     components: {
         TagifyInput,
     },
+    props: {
+        requestTypeOptions: {
+            type: Array,
+            default: () => []
+        }
+    },
     mixins: [ApiMixin, FormLocalMixin, DataFormatterMixin],
     data() {
         return {
@@ -27,7 +33,6 @@ export default {
                 { key: 'labs', label: 'Laboratory Facilities' },
                 { key: 'terms', label: 'Terms & Conditions' },
             ],
-            requestTypeOptions: ['Supplies', 'Equipments', 'Laboratory Access'],
             currentStep: 0,
             clientErrors: {},
         };

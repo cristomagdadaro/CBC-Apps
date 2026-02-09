@@ -35,4 +35,12 @@ enum Inventory: string
     case VAN = 'VAN'; // change into plate number
 
     case SUV = 'SUV'; // change into plate number
+
+    case COASTER = 'COASTER'; // change into plate number
+
+    case EBIKE = 'EBIKE'; // change into plate number
+
+    case BIKE = 'BIKE'; // change into plate number
+
+    case TRACTOR = 'TRACTOR'; // change into plate number
 }

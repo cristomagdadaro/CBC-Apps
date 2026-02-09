@@ -17,6 +17,31 @@ return [
         [ 'name' => 'mid', 'label' => 'Mid Stock (75%)' ],
         [ 'name' => 'high', 'label' => 'High Stock (100%)' ],
     ],
+    'request_types' => [
+        'Supplies',
+        'Equipments',
+        'Laboratory Access',
+        'Office Space',
+        'Screenhouse Space',
+        'Storage Space',
+        'Utility Space',
+        'Field experimental Space',
+        'Plant growth chamber Space',
+        'Biofreezer Space',
+        'Medicool Space',
+        'Parking Space',
+    ],
+    'offices' => [
+        'Researchers Office I',
+        'Researchers Office II',
+        'Accountant\'s Office',
+        'Prayer Room',
+    ],
+    'screenhouses' => [
+        'Screenhouse 1',
+        'Screenhouse 2',
+        'Screenhouse 3',
+    ],
     'laboratories' => [
         [
             'name' => Inventory::BIOINFOROOM->value,
@@ -63,6 +88,22 @@ return [
         [
             'name' => Inventory::SUV->value,
             'label' => "SUV",
+        ],
+        [
+            'name' => Inventory::COASTER->value,
+            'label' => "Coaster",
+        ],
+        [
+            'name' => Inventory::EBIKE->value,
+            'label' => "E-Bike",
+        ],
+        [
+            'name' => Inventory::BIKE->value,
+            'label' => "Bike",
+        ],
+        [
+            'name' => Inventory::TRACTOR->value,
+            'label' => "Tractor",
         ],
     ],
     'event_halls' => [
