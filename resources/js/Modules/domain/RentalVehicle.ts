@@ -6,7 +6,7 @@ export default class RentalVehicle extends DtoRentalVehicle {
         store: 'api.rental.vehicles.store',
         update: 'api.rental.vehicles.update',
         destroy: 'api.rental.vehicles.destroy',
-        show: 'rental-vehicles.show',
+        //show: 'rental-vehicles.show',
     }
     constructor(response: DtoRentalVehicle) {
         super(response);
@@ -14,7 +14,7 @@ export default class RentalVehicle extends DtoRentalVehicle {
         this.api._apiPost = RentalVehicle.endpoints.store;
         this.api._apiPut = RentalVehicle.endpoints.update;
         this.api._apiDelete = RentalVehicle.endpoints.destroy;
-        this.showPage = RentalVehicle.endpoints.show;
+        //this.showPage = RentalVehicle.endpoints.show;
     }
 
     createFields(): object {
@@ -56,7 +56,7 @@ export default class RentalVehicle extends DtoRentalVehicle {
                 db_key: 'id',
                 align: 'text-center',
                 sortable: true,
-                visible: true,
+                visible: false,
             },
             {
                 title: 'Vehicle Type',
@@ -80,7 +80,7 @@ export default class RentalVehicle extends DtoRentalVehicle {
                 db_key: 'contact_number',
                 align: 'text-center',
                 sortable: true,
-                visible: true,
+                visible: false,
             },
             {
                 title: 'Date From',
@@ -112,7 +112,7 @@ export default class RentalVehicle extends DtoRentalVehicle {
                 db_key: 'purpose',
                 align: 'text-left',
                 sortable: true,
-                visible: false,
+                visible: true,
             },
             {
                 title: 'Notes',

@@ -14,11 +14,11 @@ class CreateRentalVenueRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'venue_type' => ['required', 'string', 'in:plenary,training_room,mph'],
+            'venue_type' => ['required', 'string', 'in:'.implode(',', array_column(config('system.event_halls'), 'name'))],
             'date_from' => ['required', 'date', 'after_or_equal:today'],
             'date_to' => ['required', 'date', 'after_or_equal:date_from'],
-            'time_from' => ['required', 'date_format:H:i'],
-            'time_to' => ['required', 'date_format:H:i', 'after:time_from'],
+            'time_from' => ['required', 'date_format:H:i:s'],
+            'time_to' => ['required', 'date_format:H:i:s', 'after:time_from'],
             'expected_attendees' => ['required', 'integer', 'min:1', 'max:5000'],
             'event_name' => ['required', 'string', 'max:255'],
             'requested_by' => ['required', 'string', 'max:255'],

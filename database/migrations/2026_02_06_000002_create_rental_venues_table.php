@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('rental_venues', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->enum('venue_type', ['plenary', 'training_room', 'mph']);
+            $table->string('venue_type');
             $table->date('date_from');
             $table->date('date_to');
             $table->time('time_from');

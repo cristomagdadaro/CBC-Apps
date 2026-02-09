@@ -111,14 +111,38 @@ class RentalVenueController extends BaseController
             $from = Carbon::parse($dateFrom);
             $to = Carbon::parse($dateTo);
 
-            $isAvailable = !$this->repository->checkConflict($venueType, $from, $to, '00:00', '23:59');
+            $conflicts = $this->repository->getConflicts($venueType, $from, $to);
+            $isAvailable = $conflicts->isEmpty();
 
-            return response()->json([
+            $response = [
                 'available' => $isAvailable,
                 'venue_type' => $venueType,
                 'date_from' => $dateFrom,
                 'date_to' => $dateTo,
-            ]);
+            ];
+
+            if ($isAvailable) {
+                $response['message'] = 'Venue is available for the selected dates.';
+            } else {
+                // Build descriptive message about conflicts
+                $conflictMessages = $conflicts->map(function ($rental) {
+                    return "Booked by {$rental->requested_by} from {$rental->date_from} to {$rental->date_to}";
+                })->implode('; ');
+                $response['message'] = "Venue is not available for the selected dates. Conflicts: {$conflictMessages}";
+                $response['conflicts'] = $conflicts->map(function ($rental) {
+                    return [
+                        'requested_by' => $rental->requested_by,
+                        'event_name' => $rental->event_name,
+                        'date_from' => $rental->date_from,
+                        'date_to' => $rental->date_to,
+                        'time_from' => $rental->time_from,
+                        'time_to' => $rental->time_to,
+                        'status' => $rental->status,
+                    ];
+                });
+            }
+
+            return response()->json($response);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Invalid date format',

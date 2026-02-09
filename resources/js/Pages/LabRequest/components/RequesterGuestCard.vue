@@ -6,13 +6,14 @@ import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import TagifyInput from "@/Components/Tagify.vue";
 import SuccessModal from "@/Components/SuccessModal.vue";
-import Personnel from "@/Modules/domain/Personnel";
+import PersonnelLookup from "@/Components/PersonnelLookup.vue";
 
 export default {
     name: "RequesterGuestCard",
     components: {
         TagifyInput,
         SuccessModal,
+        PersonnelLookup,
     },
     props: {
         requestTypeOptions: {
@@ -25,7 +26,6 @@ export default {
         return {
             model: null,
             employee_id: '',
-            searchLoading: false,
             steps: [
                 { key: 'request_type', label: 'Request Type' },
                 { key: 'requestor', label: 'Requestor Info' },
@@ -47,47 +47,16 @@ export default {
                 this.$emit('createdModel', response);
             }
         },
-        async searchPersonnel() {
-            this.clientErrors = { ...this.clientErrors, employee_id: null };
-
-            if (!this.employee_id) {
-                this.clientErrors.employee_id = 'PhilRice ID is required';
-                return;
-            }
-
-            this.searchLoading = true;
-            try {
-                const response = await this.fetchGetApi('api.inventory.personnels.index.guest', {
-                    filter: 'employee_id',
-                    search: this.employee_id,
-                    is_exact: true,
-                }, Personnel);
-
-                const payload = response?.data ?? response ?? [];
-                const record = Array.isArray(payload?.data ?? payload)
-                    ? (payload.data ?? payload)[0]
-                    : (payload.data ?? payload);
-
-                if (!record) {
-                    this.clientErrors.employee_id = 'No personnel found for this ID';
-                    return;
-                }
-
-                const fullName = record.fullName;
-
-                this.form.name = fullName || this.form.name;
-                this.form.position = record.position ?? this.form.position;
-                this.form.phone = record.phone ?? this.form.phone;
-                this.form.email = record.email ?? this.form.email;
-                this.form.affiliation = "Philippine Rice Research Institute";
-                delete this.clientErrors.employee_id;
-                this.form.clearErrors('employee_id');
-            } catch (error) {
-                console.error(error);
-                this.clientErrors.employee_id = 'Lookup failed. Please try again.';
-            } finally {
-                this.searchLoading = false;
-            }
+        handlePersonnelFound(data) {
+            this.form.name = data.fullName || this.form.name;
+            this.form.position = data.position ?? this.form.position;
+            this.form.phone = data.phone ?? this.form.phone;
+            this.form.email = data.email ?? this.form.email;
+            this.form.affiliation = data.affiliation;
+            this.form.clearErrors('employee_id');
+        },
+        handlePersonnelError(error) {
+            this.clientErrors[error.field] = error.message;
         },
         validateStep(index) {
             this.clientErrors = {};
@@ -258,14 +227,11 @@ export default {
                 <h2>
                     <span class="font-bold uppercase">Requestor Information: </span>
                 </h2>
-                <p class="text-sm text-gray-600">Auto-fill by PhilRice ID</p>
-                <div class="flex items-end gap-2">
-                    <TextInput id="employee_id" v-model="employee_id" type="text" :error="errMsg('employee_id')" label="PhilRice ID" placeholder="**-****" name="employee_id" autocomplete="employee_id" @input="form.clearErrors('employee_id')"/>
-                    <button type="button" class="px-3 py-2 rounded bg-gray-800 text-white text-sm hover:bg-gray-900 disabled:opacity-50" :disabled="searchLoading" @click="searchPersonnel">
-                        <span v-if="!searchLoading">Search</span>
-                        <span v-else>Searching…</span>
-                    </button>
-                </div>
+                <PersonnelLookup
+                    v-model="employee_id"
+                    @found="handlePersonnelFound"
+                    @error="handlePersonnelError"
+                />
                 
                 <br class="border" />
                 <p class="text-sm text-gray-600">Manually enter your information</p>

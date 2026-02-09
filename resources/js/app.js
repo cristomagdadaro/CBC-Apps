@@ -20,6 +20,7 @@ import DateInput from "@/Components/DateInput.vue";
 import TimeInput from "@/Components/TimeInput.vue";
 import FileInput from "@/Components/FileInput.vue";
 import SelectSearchField from "@/Components/SelectSearchField.vue";
+import PersonnelLookup from "@/Components/PersonnelLookup.vue";
 
 // Button Components
 import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
@@ -138,6 +139,7 @@ createInertiaApp({
         vueApp.component('TimeInput', TimeInput);
         vueApp.component('FileInput', FileInput);
         vueApp.component('SelectSearchField', SelectSearchField);
+        vueApp.component('PersonnelLookup', PersonnelLookup);
 
         // Global Button Components
         vueApp.component('SubmitBtn', SubmitBtn);

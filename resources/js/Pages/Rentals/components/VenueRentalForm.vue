@@ -1,35 +1,27 @@
 <script>
-import RentalVehicle from '@/Modules/domain/RentalVehicle';
+import RentalVenue from "@/Modules/domain/RentalVenue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
-import SuccessModal from "@/Components/SuccessModal.vue";
 
 export default {
-    name: 'VehicleRentalForm',
-    components: {
-        SuccessModal,
-    },
+    name: 'VenueRentalForm',
     mixins: [ApiMixin, FormLocalMixin],
     props: {
-        vehicleOptions: {
+        venueOptions: {
             type: Array,
             default: () => []
         }
     },
     beforeMount() {
-        this.model = new RentalVehicle();
+        this.model = new RentalVenue();
         this.setFormAction('create');
     },
     data() {
         return {
-            submitted: false,
-            availableVehicles: [],
             availabilityChecking: false,
             isAvailable: true,
             availabilityMessage: '',
             employee_id: null,
-            showSuccessModal: false,
-            successMessage: '',
         };
     },
     computed: {
@@ -40,24 +32,23 @@ export default {
     },
     methods: {
         async checkAvailability() {
-            if (!this.form.vehicle_type || !this.form.date_from || !this.form.date_to) {
+            if (!this.form.venue_type || !this.form.date_from || !this.form.date_to) {
                 return;
             }
 
             this.availabilityChecking = true;
             try {
-                const response = await this.fetchGetApi('api.rental.vehicles.check-availability', { routeParams: {vehicleType: this.form.vehicle_type, dateFrom: this.form.date_from, dateTo: this.form.date_to} });
+                const response = await this.fetchGetApi('api.rental.venues.check-availability', { routeParams: {venueType: this.form.venue_type, dateFrom: this.form.date_from, dateTo: this.form.date_to} });
                 this.isAvailable = response.available;
                 this.availabilityMessage = response.message;
             } catch (error) {
-                console.error('Error checking availability:', error);
                 this.availabilityMessage = 'Error checking availability';
             } finally {
                 this.availabilityChecking = false;
             }
         },
-        handleVehicleTypeChange(value) {
-            this.form.vehicle_type = value;
+        handleVenueTypeChange(value) {
+            this.form.venue_type = value;
             this.checkAvailability();
         },
         handleDateChange() {
@@ -82,7 +73,7 @@ export default {
             
             this.successMessage = (data && data.message) ? data.message : 'Rental request submitted successfully';
             this.showSuccessModal = true;
-            this.$emit('submitted', data.data ?? data);
+            this.$emit('submitted', data.data);
         },
     }
 };
@@ -95,13 +86,13 @@ export default {
         :message="successMessage"
         @close="showSuccessModal = false"
     />
-
     <div v-if="form" class="bg-white p-2 rounded-md flex flex-col gap-2 max-w-xl drop-shadow-lg lg:mx-0 my-4 md:mt-0">
         <form @submit.prevent="submitProxyCreate" class="space-y-3 bg-white rounded-lg p-3">
+            <!-- General Error -->
             <div v-if="form.errors.general" class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
                 {{ form.errors.general }}
             </div>
-            <div v-if="form.date_from && form.date_to && form.vehicle_type" class="px-4 py-2 rounded-md" :class="isAvailable ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'">
+            <div v-if="form.date_from && form.date_to && form.venue_type" class="px-4 py-2 rounded-md" :class="isAvailable ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'">
                 <div class="flex items-center gap-2">
                     <loader-icon v-if="availabilityChecking" class="text-AB" />
                     <span :class="isAvailable ? 'text-green-700' : 'text-red-700'">
@@ -109,20 +100,35 @@ export default {
                     </span>
                 </div>
             </div>
+            <!-- Venue Type -->
             <custom-dropdown
-                label="Vehicle Type"
+                label="Venue Type"
                 required
-                placeholder="Select a vehicle"
-                @selectedChange="handleVehicleTypeChange"
-                :value="form.vehicle_type"
+                placeholder="Select a venue"
+                @selectedChange="handleVenueTypeChange"
+                :value="form.venue_type"
                 :with-all-option="false"
-                :options="vehicleOptions.map(v => ({ name: v.name, label: v.label }))"
-                :error="form.errors.vehicle_type"
+                :options="venueOptions.map(v => ({ name: v.name, label: v.label }))"
+                :error="form.errors.venue_type"
             >
                 <template #icon>
                     <caret-down class="h-4 w-4 text-gray-600" />
                 </template>
             </custom-dropdown>
+
+            <!-- Event Name -->
+            <TextInput
+                id="event_name"
+                label="Event Name"
+                required
+                v-model="form.event_name"
+                type="text"
+                placeholder="Name of your event"
+                :error="form.errors.event_name"
+                class="mt-1 block w-full"
+            />
+
+            <!-- Date Range -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <DateInput
                     id="date_from"
@@ -144,6 +150,8 @@ export default {
                     :error="form.errors.date_to"
                 />
             </div>
+
+            <!-- Time Range -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <TimeInput
                     id="time_from"
@@ -164,15 +172,21 @@ export default {
                     class="mt-1 block w-full"
                 />
             </div>
-            <TextArea
-                id="purpose"
-                v-model="form.purpose"
-                label="Purpose"
+
+            <!-- Expected Attendees -->
+            <TextInput
+                id="expected_attendees"
+                label="Expected Attendees"
                 required
-                placeholder="Describe the purpose of your vehicle rental"
-                :class="{'border-red-500': form.errors.purpose}"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-AB focus:ring-AB"
-            ></TextArea>
+                v-model.number="form.expected_attendees"
+                type="number"
+                min="1"
+                placeholder="Number of attendees"
+                :error="form.errors.expected_attendees"
+                class="mt-1 block w-full"
+            />
+
+            <!-- Requested By -->
             <PersonnelLookup
                 v-model="employee_id"
                 @found="handlePersonnelFound"
@@ -187,6 +201,8 @@ export default {
                 :error="form.errors.requested_by"
                 class="mt-1 block w-full"
             />
+
+            <!-- Contact Number -->
             <TextInput
                 id="contact_number"
                 label="Contact Number"
@@ -197,6 +213,8 @@ export default {
                 :error="form.errors.contact_number"
                 class="mt-1 block w-full"
             />
+
+            <!-- Notes -->
             <TextArea
                 id="notes"
                 label="Additional Notes"
@@ -204,13 +222,15 @@ export default {
                 placeholder="Any additional information"
                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-AB focus:ring-AB"
             ></TextArea>
+
+            <!-- Submit Button -->
             <div class="flex gap-4 pt-6 border-t">
                 <PrimaryButton :disabled="processing || !isAvailable" class="justify-center flex-1">
                     <span v-if="processing" class="flex items-center justify-center gap-2">
                         <loader-icon />
                         Submitting...
                     </span>
-                    <span v-else>Submit Rental Request</span>
+                    <span v-else>Submit Venue Rental Request</span>
                 </PrimaryButton>
             </div>
         </form>

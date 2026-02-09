@@ -1,7 +1,6 @@
 <script>
 import VehicleRentalForm from '@/Pages/Rentals/components/VehicleRentalForm.vue';
 
-
 export default {
     name: 'VehicleRentalFormGuest',
     components: { VehicleRentalForm },

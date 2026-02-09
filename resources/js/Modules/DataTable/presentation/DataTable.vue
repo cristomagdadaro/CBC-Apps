@@ -65,6 +65,10 @@ export default {
             ],
             showConfirmModal: false,
             rowPendingDelete: null,
+            hoveredRowId: null,
+            hoverTimer: null,
+            showTooltip: false,
+            tooltipPosition: { x: 0, y: 0 },
         };
     },
     methods: {
@@ -113,6 +117,28 @@ export default {
             const showPage = this.dt?.data?.[0]?.showPage;
             const id = row?.identifier?.()?.id ?? row.id;
             return showPage && id ? route(showPage, id) : '#';
+        },
+        getRowId(row) {
+            return row?.identifier?.()?.id ?? row?.id ?? this.displayedRows.indexOf(row);
+        },
+        onRowMouseEnter(row, event) {
+            const rowId = this.getRowId(row);
+            this.hoveredRowId = rowId;
+            this.hoverTimer = setTimeout(() => {
+                this.tooltipPosition = {
+                    x: event.pageX,
+                    y: event.pageY
+                };
+                this.showTooltip = true;
+            }, 1000);
+        },
+        onRowMouseLeave() {
+            this.hoveredRowId = null;
+            this.showTooltip = false;
+            if (this.hoverTimer) {
+                clearTimeout(this.hoverTimer);
+                this.hoverTimer = null;
+            }
         },
     }
 }
@@ -175,6 +201,8 @@ export default {
                     <dt-row-body
                         v-for="row in displayedRows"
                         :key="row?.identifier?.()?.id ?? row?.id ?? displayedRows.indexOf(row)"
+                        @mouseenter="onRowMouseEnter(row, $event)"
+                        @mouseleave="onRowMouseLeave"
                     >
                         <dt-data class="text-center border-y border-gray-500 lg:p-0 p-1">
                             {{ (dt.from ? dt.from : 1) + displayedRows.indexOf(row) }}
@@ -215,5 +243,26 @@ export default {
                 </dt-row-body>
             </dt-tbody>
         </dt-table>
+
+        <!-- Row Hover Tooltip -->
+        <transition-container type="fade">
+            <div
+                v-if="showTooltip && displayedRows"
+                class="fixed z-50 bg-gray-900 text-white rounded-lg shadow-lg p-4 max-w-sm"
+                :style="{ left: tooltipPosition.x + 'px', top: tooltipPosition.y + 20 + 'px' }"
+                @mouseleave="onRowMouseLeave"
+            >
+                <div class="space-y-2">
+                    <div
+                        v-for="header in displayedHeaders"
+                        :key="header.key"
+                        class="text-sm"
+                    >
+                        <span class="font-semibold text-gray-300">{{ header.title }}:</span>
+                        <span class="ml-2">{{ getNestedValue(displayedRows[displayedRows.findIndex(r => getRowId(r) === hoveredRowId)], header.key) || '-' }}</span>
+                    </div>
+                </div>
+            </div>
+        </transition-container>
     </div>
 </template>

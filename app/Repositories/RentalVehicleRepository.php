@@ -78,4 +78,26 @@ class RentalVehicleRepository
 
         return $query->exists();
     }
+
+    public function getConflicts(string $vehicleType, Carbon $dateFrom, Carbon $dateTo, ?string $excludeId = null)
+    {
+        $query = RentalVehicle::where('vehicle_type', $vehicleType)
+            ->whereIn('status', ['pending', 'approved'])
+            ->where(function ($q) use ($dateFrom, $dateTo) {
+                $q->where(function ($subQ) use ($dateFrom, $dateTo) {
+                    $subQ->whereBetween('date_from', [$dateFrom, $dateTo])
+                        ->orWhereBetween('date_to', [$dateFrom, $dateTo])
+                        ->orWhere(function ($innerQ) use ($dateFrom, $dateTo) {
+                            $innerQ->where('date_from', '<=', $dateFrom)
+                                ->where('date_to', '>=', $dateTo);
+                        });
+                });
+            });
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        return $query->get();
+    }
 }

@@ -62,7 +62,9 @@ Route::prefix('rental')->group(function () {
     })->name('rental.vehicle.guest');
     
     Route::get('/venue', function () {
-        return Inertia::render('Rentals/VenueRentalFormGuest');
+        return Inertia::render('Rentals/VenueRentalFormGuest',[
+            'venueOptions' => config('system.event_halls'),
+        ]);
     })->name('rental.venue.guest');
 });
 

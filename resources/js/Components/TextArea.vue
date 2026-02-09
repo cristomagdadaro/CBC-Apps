@@ -8,6 +8,7 @@ const props = defineProps({
     error: String,
     type: String,
     classes: String,
+    required: Boolean,
     id: String,
     label: String,
     rows: {
@@ -22,10 +23,12 @@ const input = ref(null);
 
 function adjustHeight() {
     if (!input.value) return;
-    // reset height so scrollHeight shrinks when content is removed
+    // Calculate minimum height from rows prop
+    const lineHeight = parseFloat(getComputedStyle(input.value).lineHeight) || 20;
+    const minHeight = props.rows * lineHeight;
     input.value.style.height = 'auto';
     const newHeight = input.value.scrollHeight;
-    input.value.style.height = `${newHeight}px`;
+    input.value.style.height = `${Math.max(newHeight, minHeight)}px`;
 }
 
 function onInput(e) {
@@ -52,7 +55,10 @@ defineExpose({ focus: () => input.value?.focus(), adjustHeight });
 <template>
     <div class="w-full relative " :class="{'border-red-500': error}">
         <div v-if="label" class="text-xs text-gray-500 flex items-center justify-between">
-            <span class="flex gap-0.5 whitespace-nowrap">{{ label }}</span>
+            <span class="flex gap-0.5 whitespace-nowrap">{{ label }}<b v-if="required" class="text-red-500 ">*</b></span>
+            <transition-container type="slide-bottom">
+                <InputError v-show="!!error" :message="error" />
+            </transition-container>
         </div>
         <textarea
             ref="input"
@@ -61,6 +67,7 @@ defineExpose({ focus: () => input.value?.focus(), adjustHeight });
             :value="modelValue"
             :placeholder="placeholder"
             @input="onInput"
+            :style="{ minHeight: rows * 20 + 'px' }"
         />
     </div>
 </template>

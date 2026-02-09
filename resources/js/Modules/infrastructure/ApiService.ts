@@ -33,7 +33,7 @@ export default abstract class ApiService {
 
     async get(url: string, params?: any, model?: DtoBaseClass) {
         this.processing = true;
-        try { 
+        try { console.log(params);
             const routeParams = params?.routeParams;
             const cleanedParams = params ? { ...params } : undefined;
             if (cleanedParams && Object.prototype.hasOwnProperty.call(cleanedParams, 'routeParams')) {
