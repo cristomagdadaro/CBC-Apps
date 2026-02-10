@@ -31,6 +31,7 @@ export default class Transaction extends DtoTransaction {
     {
         return {
             barcode: null,
+            barcode_prri: null,
             item_id: null,
             transac_type: null,
             quantity: null,
@@ -43,6 +44,8 @@ export default class Transaction extends DtoTransaction {
             expiration: null,
             remarks: null,
             project_code: null,
+            par_no: null,
+            condition: null,
         };
     }
 
@@ -51,6 +54,7 @@ export default class Transaction extends DtoTransaction {
         return {
             id: model.id ?? null,
             barcode: model.barcode ?? null,
+            barcode_prri: model.barcode_prri ?? null,
             item_id: model.item_id ?? null,
             transac_type: model.transac_type ?? null,
             quantity: model.quantity ?? null,
@@ -63,6 +67,8 @@ export default class Transaction extends DtoTransaction {
             expiration: model.expiration ?? null,
             remarks: model.remarks ?? null,
             project_code: model.project_code ?? null,
+            par_no: model.par_no ?? null,
+            condition: model.condition ?? null,
         };
     }
 
@@ -93,6 +99,13 @@ export default class Transaction extends DtoTransaction {
                 align: 'dataColor',
                 sortable: true,
                 visible: true,
+            },{
+                title: 'PRRI Barcode',
+                key: 'barcode_prri',
+                db_key: 'barcode_prri',
+                align: 'dataColor',
+                sortable: true,
+                visible: false,
             },{
                 title: 'Type',
                 key: 'transac_type',
@@ -170,6 +183,20 @@ export default class Transaction extends DtoTransaction {
                 align: 'dataColor',
                 sortable: true,
                 visible: true,
+            },{
+                title: 'PAR No',
+                key: 'par_no',
+                db_key: 'par_no',
+                align: 'dataColor',
+                sortable: true,
+                visible: false,
+            },{
+                title: 'Condition',
+                key: 'condition',
+                db_key: 'condition',
+                align: 'dataColor',
+                sortable: true,
+                visible: false,
             }
         ]
     }

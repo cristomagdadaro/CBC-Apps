@@ -28,6 +28,46 @@ enum Inventory: string
 
     case MPH = '15'; // Multi-Purpose Hall
 
+    case DIAGNOSTICLAB = '16'; // Diagnostic Laboratory
+
+    case PHENOTYPINGAREA = '17'; // Phenotyping Area
+
+    case MICROSCOPESEQUENCEROOM = '18'; // Microscope and Sequencing Room
+
+    case GENERALEQUIPMENTAREA = '19'; // General Equipment Area
+
+    case SAMPLEPROCESSINGROOM = '20'; // Sample Processing Room
+
+    case WASHROOMI = '21'; // Wash Room I
+
+    case MOTORPOOL = '22'; // Motor Pool
+
+    case AADELACRUZ = '23'; // AADelaCruz Office
+
+    case RRSURALTA = '24'; // RR Suralta Office
+
+    case AAOFFICE = '25'; // AA Office
+
+    case MEETINGROOM = '26'; // Meeting Room
+
+    case SUPPLIESROOM1 = '27'; // Supplies Room I
+
+    case SUPPLIESROOM2 = '28'; // Supplies Room II
+
+    case CONSULTANTOFFICE = '29'; // Consultant Office
+
+    case DNAEXTRACTIONROOM = '30'; // DNA Extraction Room
+
+    case DARKROOM = '31'; // Dark Room
+
+    case FREEZERROOM = '32'; // Freezer Room
+
+    case LIGHTROOM = '33'; // Light Room
+
+    case SCREENHOUSE1 = '34'; // Screenhouse 1
+
+    case WASHROOMII = '35'; // Wash Room II
+
     case INNOVA = 'INNOVA'; // change into plate number
 
     case PICKUP = 'PICKUP'; //  change into plate number

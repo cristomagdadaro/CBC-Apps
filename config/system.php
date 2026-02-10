@@ -76,6 +76,31 @@ return [
             'name' => Inventory::MOLECULARDIAGNOSTICSROOM->value,
             'label' => "Molecular Diagnostics Room",
         ],
+        [
+            'name' => Inventory::DIAGNOSTICLAB->value,
+            'label' => "Diagnostic Laboratory",
+        ],
+        [
+            'name' => Inventory::PHENOTYPINGAREA->value,
+            'label' => "Phenotyping Area",
+        ],
+        [
+            'name' => Inventory::MICROSCOPESEQUENCEROOM->value,
+            'label' => "Microscope and Sequencing Room",
+        ],
+        [
+            'name' => Inventory::GENERALEQUIPMENTAREA->value,
+            'label' => "General Equipment Area",
+        ],
+        [
+            'name' => Inventory::SAMPLEPROCESSINGROOM->value,
+            'label' => "Sample Processing Room",
+        ],
+        [
+            'name' => Inventory::WASHROOMI->value,
+            'label' => "Wash Room I",
+        ],
+        
     ],
     'vehicles' => [
         [
@@ -163,6 +188,34 @@ return [
             'label' => "Molecular Diagnostics Room",
         ],
         [
+            'name' => Inventory::DIAGNOSTICLAB->value,
+            'label' => "Diagnostic Laboratory",
+        ],
+        [
+            'name' => Inventory::PHENOTYPINGAREA->value,
+            'label' => "Phenotyping Area",
+        ],
+        [
+            'name' => Inventory::MICROSCOPESEQUENCEROOM->value,
+            'label' => "Microscope and Sequencing Room",
+        ],
+        [
+            'name' => Inventory::GENERALEQUIPMENTAREA->value,
+            'label' => "General Equipment Area",
+        ],
+        [
+            'name' => Inventory::SAMPLEPROCESSINGROOM->value,
+            'label' => "Sample Processing Room",
+        ],
+        [
+            'name' => Inventory::WASHROOMI->value,
+            'label' => "Wash Room I",
+        ],
+        [
+            'name' => Inventory::WASHROOMII->value,
+            'label' => "Wash Room II",
+        ],
+        [
             'name' => Inventory::CENTRALBODEGA->value,
             'label' => "Central Bodega",
         ],
@@ -186,5 +239,57 @@ return [
             'name' => Inventory::MPH->value,
             'label' => "Multi-Purpose Hall",
         ],
+        [
+            'name' => Inventory::MOTORPOOL->value,
+            'label' => "Motor Pool",
+        ],
+        [
+            'name' => Inventory::AADELACRUZ->value,
+            'label' => "AADelaCruz Office",
+        ],
+        [
+            'name' => Inventory::RRSURALTA->value,
+            'label' => "RRSuralta Office",
+        ],
+        [
+            'name' => Inventory::AAOFFICE->value,
+            'label' => "AA Office",
+        ],
+        [
+            'name' => Inventory::MEETINGROOM->value,
+            'label' => "Meeting Room",
+        ],
+        [
+            'name' => Inventory::SUPPLIESROOM1->value,
+            'label' => "Supplies Room I",
+        ],
+        [
+            'name' => Inventory::SUPPLIESROOM2->value,
+            'label' => "Supplies Room II",
+        ],
+        [
+            'name' => Inventory::CONSULTANTOFFICE->value,
+            'label' => "Consultant Office",
+        ],
+        [
+            'name' => Inventory::DARKROOM->value,
+            'label' => "Dark Room",
+        ],
+        [
+            'name' => Inventory::DNAEXTRACTIONROOM->value,
+            'label' => "DNA Extraction Room",
+        ],
+        [
+            'name' => Inventory::FREEZERROOM->value,
+            'label' => "Freezer Room",
+        ],
+        [
+            'name' => Inventory::LIGHTROOM->value,
+            'label' => "Light Room",
+        ],
+        [
+            'name' => Inventory::SCREENHOUSE1->value,
+            'label' => "Screenhouse 1",
+        ]
     ]
 ];

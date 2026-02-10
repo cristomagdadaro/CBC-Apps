@@ -23,6 +23,7 @@ class ItemFactory extends Factory
             'name' => $this->faker->word,
             'brand' => $this->faker->company,
             'description' => $this->faker->randomElement([null, $this->faker->text]),
+            'specifications' => $this->faker->randomElement([null, $this->faker->paragraph]),
             'category_id' => $this->faker->randomElement(Category::all()->pluck('id')->toArray()),
             'supplier_id' => $this->faker->randomElement(Supplier::all()->pluck('id')->toArray()),
             'image' => null,

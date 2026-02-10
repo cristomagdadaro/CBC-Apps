@@ -5,6 +5,7 @@ import DtoUser from "@/Modules/dto/DtoUser";
 
 export default class DtoTransaction extends DtoBaseClass implements ITransaction{
     barcode: string;
+    barcode_prri: string;
     item_id:string;
     transac_type: string;
     quantity: number;
@@ -17,6 +18,8 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
     expiration: string;
     remarks: string;
     project_code: string;
+    par_no: string;
+    condition: string;
 
     item: IItem;
     user: IUser;
@@ -26,6 +29,7 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
         super(data);
 
         this.barcode = data?.barcode;
+        this.barcode_prri = data?.barcode_prri;
         this.item_id = data?.item_id;
         this.transac_type = data?.transac_type;
         this.quantity = data?.quantity;
@@ -38,6 +42,8 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
         this.expiration = data?.expiration;
         this.remarks = data?.remarks;
         this.project_code = data?.project_code;
+        this.par_no = data?.par_no;
+        this.condition = data?.condition;
 
         if (data?.item)
             this.item = new DtoItem(data?.item);

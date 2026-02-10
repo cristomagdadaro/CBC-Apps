@@ -39,6 +39,7 @@ class CreateTransactionRequest extends FormRequest
                     ['exists:transactions,barcode']
                 ),
             ],
+            'barcode_prri' => 'nullable|string',
             'transac_type' => [
                 'required',
                 'string',
@@ -64,6 +65,8 @@ class CreateTransactionRequest extends FormRequest
             'remarks' => 'string|nullable',
             'project_code' => 'nullable|string',
             'personnel_id' => 'nullable|exists:personnels,id',
+            'par_no' => 'nullable|string',
+            'condition' => 'nullable|string',
         ];
     }
 

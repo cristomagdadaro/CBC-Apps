@@ -6,6 +6,7 @@ export default class DtoItem extends DtoBaseClass implements IItem {
     name: string;
     brand: string;
     description: string;
+    specifications: string;
     category_id: string;
     supplier_id: string;
     image: string;
@@ -19,6 +20,7 @@ export default class DtoItem extends DtoBaseClass implements IItem {
         this.name = data?.name;
         this.brand = data?.brand;
         this.description = data?.description;
+        this.specifications = data?.specifications;
         this.category_id = data?.category_id;
         this.supplier_id = data?.supplier_id;
         this.image = data?.image;

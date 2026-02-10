@@ -34,6 +34,7 @@ class Transaction extends BaseModel
         'id',
         'item_id',
         'barcode',
+        'barcode_prri',
         'transac_type',
         'quantity',
         'unit_price',
@@ -44,12 +45,15 @@ class Transaction extends BaseModel
         'expiration',
         'remarks',
         'project_code',
+        'par_no',
+        'condition',
     ];
 
     protected array $searchable = [
         'id',
         'item_id',
         'barcode',
+        'barcode_prri',
         'transac_type',
         'quantity',
         'unit_price',
@@ -60,6 +64,8 @@ class Transaction extends BaseModel
         'expiration',
         'remarks',
         'project_code',
+        'par_no',
+        'condition',
     ];
 
     protected function serializeDate(DateTimeInterface $date): string

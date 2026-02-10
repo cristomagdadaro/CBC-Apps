@@ -31,6 +31,10 @@ export default {
                 item_id: null,
                 unit: null,
                 remarks: null,
+                barcode_prri: null,
+                par_no: null,
+                condition: null,
+                location: null,
             },
         }
     },
@@ -177,6 +181,11 @@ export default {
                             v-model="form.remarks"
                             :error="form.errors.remarks"
                         />
+                        <div class="grid grid-cols-2 gap-2">
+                            <text-input label="PRRI Barcode" v-model="form.barcode_prri" :error="form.errors.barcode_prri" />
+                            <text-input label="PAR No" v-model="form.par_no" :error="form.errors.par_no" />
+                            <text-input label="Condition" v-model="form.condition" :error="form.errors.condition" />
+                        </div>
                         <div class="flex gap-1 justify-between">
                             <cancel-btn @click="resetForm">
                                 Cancel

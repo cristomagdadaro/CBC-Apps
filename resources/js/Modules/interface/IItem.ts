@@ -3,6 +3,7 @@ interface IItem extends IBaseClass {
     name: string;
     brand: string;
     description: string;
+    specifications: string;
     category_id: string;
     supplier_id: string;
     image: string;

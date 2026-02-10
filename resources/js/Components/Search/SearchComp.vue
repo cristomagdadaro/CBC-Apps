@@ -114,7 +114,7 @@ export default {
                         @searchBy="form.filter = $event"
                         @isExact="form.is_exact = $event"
                     />
-                    <search-box class="w-full" v-model="form.search" />
+                    <search-box class="w-full" v-model="form.search" @keydown.enter.prevent="searchEvent()"/>
                     <div class="flex flex-col gap-0.5">
                         <div class="flex justify-between ">
                             <label class="text-gray-600 text-xs">&nbsp;</label>

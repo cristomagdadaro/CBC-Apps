@@ -95,7 +95,7 @@ export default {
             <div class="flex flex-col justify-between max-w-[90vw] gap-3 mx-auto">
                 <div class="w-full flex gap-2 items-end lg:px-0 px-2">
                     <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
-                    <text-input placeholder="Search..." v-model="form.search" />
+                    <text-input placeholder="Search..." v-model="form.search"  @keydown.enter.prevent="searchEvent()" />
                     <search-btn @click="searchEvent" :disabled="model?.processing" class="w-[10rem] text-center">
                         <span v-if="!model?.processing">Search</span>
                         <span v-else>Searching</span>

@@ -19,6 +19,7 @@ class InventorySeeder extends Seeder
             ItemsSeeder::class,
             PersonnelSeeder::class,
             TransactionSeeder::class,
+            InventoryIcf2026Seeder::class,
         ]);
     }
 }

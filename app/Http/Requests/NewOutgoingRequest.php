@@ -45,6 +45,7 @@ class NewOutgoingRequest extends FormRequest
                     ['exists:transactions,barcode']
                 ),
             ],
+            'barcode_prri' => 'nullable|string',
             'transac_type' => [
                 'required',
                 'string',
@@ -61,6 +62,8 @@ class NewOutgoingRequest extends FormRequest
             'expiration' => 'date|nullable',
             'remarks' => 'string|nullable',
             'personnel_id' => 'required|exists:personnels,id',
+            'par_no' => 'nullable|string',
+            'condition' => 'nullable|string',
         ];
     }
 

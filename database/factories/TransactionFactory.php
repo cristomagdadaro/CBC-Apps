@@ -29,6 +29,7 @@ class TransactionFactory extends Factory
             return [
                 'item_id' => Item::all()->random()->id,
                 'barcode' => $newBarcode,
+                'barcode_prri' => $this->faker->numerify('##########'),
                 'transac_type' => Inventory::INCOMING->value,
                 'quantity' => $this->faker->numberBetween(1, 1000),
                 'unit_price' => $this->faker->randomNumber(2),
@@ -38,6 +39,8 @@ class TransactionFactory extends Factory
                 'user_id' => User::all()->random()->id,
                 'expiration' => $this->faker->date(),
                 'remarks' => $this->faker->text,
+                'par_no' => $this->faker->bothify('##-##-####'),
+                'condition' => $this->faker->randomElement(['Unserviceable', 'Serviceable', 'Needing Repair', 'Obsolete', 'No Longer Needed', 'Not Used Since Purchase']),
             ];
         }
 
@@ -49,6 +52,7 @@ class TransactionFactory extends Factory
             return [
                 'item_id' => Item::all()->random()->id,
                 'barcode' => null,
+                'barcode_prri' => $this->faker->numerify('##########'),
                 'transac_type' => Inventory::OUTGOING->value,
                 'quantity' => $this->faker->numberBetween(-1000, -1),
                 'unit_price' => null,
@@ -58,6 +62,8 @@ class TransactionFactory extends Factory
                 'user_id' => User::all()->random()->id,
                 'expiration' => null,
                 'remarks' => 'Factory Fallback: No INCOMING transactions found.',
+                'par_no' => $this->faker->bothify('##-##-####'),
+                'condition' => $this->faker->randomElement(['Unserviceable', 'Serviceable', 'Needing Repair', 'Obsolete', 'No Longer Needed', 'Not Used Since Purchase']),
             ];
         }
 
@@ -75,6 +81,7 @@ class TransactionFactory extends Factory
         return [
             'item_id' => $incomingTransaction->item_id,
             'barcode' => $incomingTransaction->barcode,
+            'barcode_prri' => $incomingTransaction->barcode_prri,
             'transac_type' => Inventory::OUTGOING->value,
             'quantity' => $safeQuantity * -1,
             'unit_price' => $incomingTransaction->unit_price,
@@ -85,6 +92,8 @@ class TransactionFactory extends Factory
             'expiration' => $incomingTransaction->expiration,
             'remarks' => $remarks,
             'project_code' => $this->faker->bothify('PC-#####'),
+            'par_no' => $incomingTransaction->par_no,
+            'condition' => $incomingTransaction->condition,
         ];
     }
 

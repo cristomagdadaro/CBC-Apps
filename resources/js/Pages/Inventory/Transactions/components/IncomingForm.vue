@@ -208,6 +208,11 @@ export default {
                     </template>
                 </custom-dropdown>
                 <div class="grid grid-cols-2 gap-2">
+                    <text-input label="PRRI Barcode" v-model="form.barcode_prri" :error="form.errors.barcode_prri" />
+                    <text-input label="PAR No" v-model="form.par_no" :error="form.errors.par_no" />
+                    <text-input label="Condition" v-model="form.condition" :error="form.errors.condition" />
+                </div>
+                <div class="grid grid-cols-2 gap-2">
                     <text-input required type="number" label="Quantity" v-model="form.quantity" :error="form.errors.quantity" />
                     <text-input type="number" label="Unit Price" v-model="form.unit_price" :error="form.errors.unit_price" />
                     <text-input required label="Unit" v-model="form.unit" :error="form.errors.unit" />
