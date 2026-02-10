@@ -29,7 +29,7 @@ class CreateTransactionRequest extends FormRequest
         return [
             'item_id' => 'required|exists:items,id',
             'barcode' => [
-                'required', 'string',
+                'required', 'string', 'unique:transactions,barcode',
                 Rule::when(
                     fn ($input) => $input->transac_type === Inventory::INCOMING->value,
                     ['unique:transactions,barcode']
@@ -39,7 +39,7 @@ class CreateTransactionRequest extends FormRequest
                     ['exists:transactions,barcode']
                 ),
             ],
-            'barcode_prri' => 'nullable|string',
+            'barcode_prri' => 'nullable|string|unique:transactions,barcode_prri',
             'transac_type' => [
                 'required',
                 'string',
@@ -65,7 +65,7 @@ class CreateTransactionRequest extends FormRequest
             'remarks' => 'string|nullable',
             'project_code' => 'nullable|string',
             'personnel_id' => 'nullable|exists:personnels,id',
-            'par_no' => 'nullable|string',
+            'par_no' => 'nullable|string|unique:transactions,par_no',
             'condition' => 'nullable|string',
         ];
     }

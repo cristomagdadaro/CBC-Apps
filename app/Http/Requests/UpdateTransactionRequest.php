@@ -24,8 +24,8 @@ class UpdateTransactionRequest extends FormRequest
     {
         return [
             'item_id' => 'required|exists:items,id',
-            'barcode' => 'required|string|unique:transactions,id,' . $this->id,
-            'barcode_prri' => 'nullable|string',
+            'barcode' => 'required|string|unique:transactions,barcode,' . $this->id,
+            'barcode_prri' => 'nullable|string|unique:transactions,barcode_prri,' . $this->id,
             'transac_type' => 'required|string|in:incoming,outgoing',
             'quantity' => 'required|numeric',
             'unit_price' => 'nullable|numeric',
@@ -36,7 +36,7 @@ class UpdateTransactionRequest extends FormRequest
             'remarks' => 'string|nullable',
             'project_code' => 'nullable|string',
             'personnel_id' => 'nullable|exists:personnels,id',
-            'par_no' => 'nullable|string',
+            'par_no' => 'nullable|string|unique:transactions,par_no,' . $this->id,
             'condition' => 'nullable|string',
         ];
     }
