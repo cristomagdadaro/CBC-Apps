@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Enums\Inventory;
 use App\Mail\OutgoingTransactionNotification;
+use App\Models\Option;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Mail;
 
@@ -15,7 +16,7 @@ class TransactionObserver
             return;
         }
 
-        $recipient = config('system.outgoing_transaction_notification_email');
+        $recipient = Option::getEventResponseNotificationEmail();
         if (empty($recipient)) {
             return;
         }

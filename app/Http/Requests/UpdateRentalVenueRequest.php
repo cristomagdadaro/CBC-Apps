@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Option;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateRentalVenueRequest extends FormRequest
@@ -14,7 +15,7 @@ class UpdateRentalVenueRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'venue_type' => ['sometimes', 'string', 'in:'.implode(',', array_column(config('system.event_halls'), 'name'))],
+            'venue_type' => ['sometimes', 'string', 'in:'.implode(',', array_column(Option::getEventHalls()->toArray(), 'name'))],
             'date_from' => ['sometimes', 'date', 'after_or_equal:today'],
             'date_to' => ['sometimes', 'date', 'after_or_equal:date_from'],
             'time_from' => ['sometimes', 'date_format:H:i:s'],

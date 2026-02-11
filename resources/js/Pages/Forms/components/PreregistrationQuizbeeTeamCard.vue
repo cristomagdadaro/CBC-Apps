@@ -277,34 +277,16 @@ export default {
             </div>
 
             <div class="grid grid-cols-2 gap-2">
-                <custom-dropdown
-                    :value="form.response_data.participant_1_sex"
-                    @selectedChange="form.response_data.participant_1_sex = $event"
+                <SelectSex
+                    v-model="form.response_data.participant_1_sex"
                     :error="form.errors.participant_1_sex"
-                    placeholder="Participant 1 Sex*"
-                    :withAllOption="false"
-                    :options="[{name: 'Male', label: 'Male'}, {name: 'Female', label: 'Female'}, {name: 'Prefer not to say', label: 'Prefer not to say'}]"
-                >
-                    <template #icon>
-                        <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                        </svg>
-                    </template>
-                </custom-dropdown>
-                <custom-dropdown
-                    :value="form.response_data.participant_2_sex"
-                    @selectedChange="form.response_data.participant_2_sex = $event"
+                    placeholder="Participant 1 Sex"
+                />
+                <SelectSex
+                    v-model="form.response_data.participant_2_sex"
                     :error="form.errors.participant_2_sex"
-                    placeholder="Participant 2 Sex*"
-                    :withAllOption="false"
-                    :options="[{name: 'Male', label: 'Male'}, {name: 'Female', label: 'Female'}, {name: 'Prefer not to say', label: 'Prefer not to say'}]"
-                >
-                    <template #icon>
-                        <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                        </svg>
-                    </template>
-                </custom-dropdown>
+                    placeholder="Participant 2 Sex"
+                />
             </div>
 
             <div class="grid grid-cols-2 gap-2">

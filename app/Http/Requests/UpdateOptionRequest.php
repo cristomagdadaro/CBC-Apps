@@ -25,7 +25,7 @@ class UpdateOptionRequest extends FormRequest
     {
         return [
             'key' => ['required', 'string', Rule::unique('options', 'key')->ignore($this->id)],
-            'value' => ['nullable', 'string'],
+            'value' => ['nullable'],
             'label' => ['required', 'string'],
             'description' => ['nullable', 'string'],
             'type' => ['required', 'string', 'in:text,select,checkbox,textarea,json,boolean,number'],

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Option;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateRentalVehicleRequest extends FormRequest
@@ -14,7 +15,7 @@ class UpdateRentalVehicleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'vehicle_type' => ['sometimes', 'string', 'in:'.implode(',', array_column(config('system.vehicles'), 'name'))],
+            'vehicle_type' => ['sometimes', 'string', 'in:'.implode(',', array_column(Option::getVehicles()->toArray(), 'name'))],
             'date_from' => ['sometimes', 'date', 'after_or_equal:today'],
             'date_to' => ['sometimes', 'date', 'after_or_equal:date_from'],
             'time_from' => ['sometimes', 'date_format:H:i:s'],

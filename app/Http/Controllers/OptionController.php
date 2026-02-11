@@ -65,6 +65,13 @@ class OptionController extends BaseController
     public function getByKey(Request $request, $key)
     {
         $value = $this->service->getByKey($key);
+        
+        // Try to decode if JSON, otherwise leave as string
+        $decoded = @json_decode($value, true);
+        if ($decoded !== null) {
+            $value = $decoded;
+        }
+        
         return new Collection([
             'key' => $key,
             'value' => $value

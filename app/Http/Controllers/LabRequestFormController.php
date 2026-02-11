@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Option;
 use App\Repositories\RequestFormPivotRepo;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -22,7 +23,7 @@ class LabRequestFormController extends BaseController
     {
         return Inertia::render('LabRequest/UseRequestFormGuest', [
             'requestForm' => $this->repo()->getGuestFormById($request_id),
-            'requestTypeOptions' => collect(config('system.request_types'))->keys()->map(fn ($key) => strtoupper($key))->values(),
+            'requestTypeOptions' => Option::getRequestTypes(),
         ]);
     }
 }

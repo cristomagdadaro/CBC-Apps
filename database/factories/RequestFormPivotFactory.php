@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Option;
 use App\Models\UseRequestForm;
 use App\Models\Requester;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -31,7 +32,7 @@ class RequestFormPivotFactory extends Factory
             'agreed_clause_3' => $this->faker->boolean(),
             'approval_constraint' => $this->faker->sentence(),
             'disapproved_remarks' => $this->faker->sentence(),
-            'approved_by' => config('system.approving_officers'),
+            'approved_by' => Option::getApprovingOfficers(),
         ];
     }
 }

@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\EventSubformResponse;
 use App\Models\Participant;
 use App\Mail\EventSubformResponseNotification;
+use App\Models\Option;
 use Illuminate\Support\Facades\Mail;
 
 class EventSubformResponseObserver
@@ -24,7 +25,7 @@ class EventSubformResponseObserver
      */
     public function created(EventSubformResponse $response)
     {
-        $notificationEmail = config('system.event_response_notification_email');
+        $notificationEmail = Option::getEventResponseNotificationEmail();
         if (empty($notificationEmail)) {
             return;
         }

@@ -12,9 +12,7 @@ use App\Http\Controllers\RequesterController;
 use App\Http\Controllers\RequestFormPivotController;
 use App\Http\Controllers\SupplierController;
 use App\Models\Category;
-use App\Models\EventSubform;
-use App\Models\EventSubformResponse;
-use App\Models\EventCertificateTemplate;
+use App\Models\Option;
 use App\Models\Form;
 use App\Models\Item;
 use App\Models\Personnel;
@@ -57,13 +55,13 @@ Route::prefix('forms')->group(function () {
 Route::prefix('rental')->group(function () {
     Route::get('/vehicle', function () {
         return Inertia::render('Rentals/VehicleRentalFormGuest', [
-            'vehicleOptions' => config('system.vehicles'),
+            'vehicleOptions' => Option::getVehicles(),
         ]);
     })->name('rental.vehicle.guest');
     
     Route::get('/venue', function () {
         return Inertia::render('Rentals/VenueRentalFormGuest',[
-            'venueOptions' => config('system.event_halls'),
+            'venueOptions' => Option::getEventHalls(),
         ]);
     })->name('rental.venue.guest');
 });
@@ -246,7 +244,7 @@ Route::middleware([
                         'items' => Item::get(),
                         'suppliers' => Supplier::withTrashed()->get(),
                         'categories' => Category::all(),
-                        'storage_locations' => config('system.storage_locations'),
+                        'storage_locations' => Option::getStorageLocations(),
                         'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                     ]);
                 })->name('transactions.incoming');
@@ -254,8 +252,8 @@ Route::middleware([
                 Route::get('/outgoing', function () {
                     return Inertia::render('Inventory/Transactions/components/Outgoing', [
                         'fromUrl' => url()->previous(),
-                        'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
-                        'stockLevel' => config('system.stock_levels'),
+                        'personnels' => Personnel::selectRaw(expression: 'id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
+                        'stockLevel' => Option::getStockLevels(),
                         'categories' => Category::select('id as name', 'name as label')
                 ->has('items')
                 ->get(),
@@ -281,7 +279,7 @@ Route::middleware([
                             'data' => $transaction,
                             'items' => Item::withTrashed()->get(),
                             'fromUrl' => route('transactions.index'),
-                            'storage_locations' => config('system.storage_locations'),
+                            'storage_locations' => Option::getStorageLocations(),
                             'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                             'attachedReports' => $attachedReports,
                         ]);

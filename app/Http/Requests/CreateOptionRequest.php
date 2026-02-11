@@ -37,7 +37,7 @@ class CreateOptionRequest extends FormRequest
     {
         return [
             'key' => ['required', 'string', 'unique:options,key'],
-            'value' => ['nullable', 'string'],
+            'value' => ['nullable'],
             'label' => ['required', 'string'],
             'description' => ['nullable', 'string'],
             'type' => ['required', 'string', 'in:text,select,checkbox,textarea,json,boolean,number'],

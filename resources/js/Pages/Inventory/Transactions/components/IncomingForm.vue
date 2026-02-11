@@ -49,14 +49,14 @@ export default {
     },
     computed: {
         storage_locations() {
-            if (!this.$page.props?.storage_locations)
+            if (!Array.isArray(this.$page.props.storage_locations)) {
                 return [];
-            return this.$page.props.storage_locations.map(location => {
-                return {
-                    name: location.name,
-                    label: location.label,
-                }
-            });
+            }
+
+            return this.$page.props.storage_locations.map(location => ({
+                name: location.name,
+                label: location.label,
+            }));
         },
         items() {
             if (!this.$page.props?.items)

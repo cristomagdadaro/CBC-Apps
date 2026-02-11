@@ -20,6 +20,10 @@ import DateInput from "@/Components/DateInput.vue";
 import TimeInput from "@/Components/TimeInput.vue";
 import FileInput from "@/Components/FileInput.vue";
 import SelectSearchField from "@/Components/SelectSearchField.vue";
+import SelectSex from '@/Components/SelectSex.vue';
+import SelectRegion from "@/Components/SelectRegion.vue";
+import SelectProvince from "@/Components/SelectProvince.vue";
+import SelectCity from "@/Components/SelectCity.vue";
 import PersonnelLookup from "@/Components/PersonnelLookup.vue";
 
 // Button Components
@@ -139,6 +143,10 @@ createInertiaApp({
         vueApp.component('TimeInput', TimeInput);
         vueApp.component('FileInput', FileInput);
         vueApp.component('SelectSearchField', SelectSearchField);
+        vueApp.component('SelectSex', SelectSex);
+        vueApp.component('SelectRegion', SelectRegion);
+        vueApp.component('SelectProvince', SelectProvince);
+        vueApp.component('SelectCity', SelectCity);
         vueApp.component('PersonnelLookup', PersonnelLookup);
 
         // Global Button Components

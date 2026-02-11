@@ -20,6 +20,7 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\Item;
+use App\Models\Option;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /*
@@ -110,7 +111,7 @@ Route::prefix('guest')->group(function () {
         return ['data' => $items];
     })->name('api.inventory.equipments.public');
     Route::get('/laboratories/public', function () {
-        return [ 'data' => config('system.laboratories')];
+        return [ 'data' => Option::getLaboratories() ];
     })->name('api.inventory.laboratories.public');
     Route::get('/transactions-public', [TransactionController::class, 'index'])->name('api.inventory.transactions.index.public');
     Route::post('/outgoing', [TransactionController::class, 'outgoingStockStore'])->name('api.inventory.transactions.store.public');

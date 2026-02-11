@@ -16,6 +16,7 @@
 <body>
 
 @php
+    use App\Models\Option;
     $requester   = $form->requester;
     $rf          = $form->request_form;
 
@@ -173,7 +174,7 @@
                     </div>
                     <div style="width: 200px; display: inline-block; text-align: center;">
                         <div style="font-weight: bold; padding-bottom: 2px; text-transform: uppercase;">
-                            {{ config('system.center_chief') }}
+                            {{ Option::getCenterChief() }}
                         </div>
                         <div style="border-top: 1px solid #000; font-style: italic; padding-top: 3px;">
                             Center Chief

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\Inventory;
 use App\Models\Category;
 use App\Models\Item;
+use App\Models\Option;
 use App\Models\Personnel;
 use App\Models\Supplier;
 use App\Models\Transaction;
@@ -13,6 +14,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Faker\Generator as Faker;
+use ParaTest\Options;
 
 class InventoryIcf2026Seeder extends Seeder
 {
@@ -129,7 +131,7 @@ class InventoryIcf2026Seeder extends Seeder
             }
 
             $barcodePrri = $this->nullableTrim($data['barcode_prri'] ?? null);
-            $storage = $this->faker->randomElement(config('system.storage_locations'));
+            $storage = $this->faker->randomElement(Option::getStorageLocations() ?? ['name' => 'Default Storage']);
             $barcode = TransactionFactory::generateBarcode($storage['name']);
 
             try {

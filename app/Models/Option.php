@@ -83,4 +83,95 @@ class Option extends BaseModel
     {
         return static::where('group', $group)->pluck('value', 'key')->toArray();
     }
+
+    /**
+     * Get all options keyed storage_locations
+     */
+    public static function getStorageLocations()
+    {
+        return json_decode(static::getByKey('storage_locations'), true) ?? [];
+    }
+
+    /**
+     * Get all options group by fes
+     */
+    public static function getRequestTypes()
+    {
+        $temp = static::getByGroup('fes');
+        $newTemp = [];
+
+        foreach ($temp as $value) {
+            $decoded = json_decode($value, true);
+
+            if (is_array($decoded)) {
+                $newTemp = array_merge($newTemp, $decoded);
+            }
+        }
+
+        return $newTemp;
+    }
+
+    /**
+     * Get all options keyed stock_levels
+     */
+    public static function getStockLevels()
+    {
+        return json_decode(static::getByKey('stock_levels'), true) ?? [];
+    }
+
+    /**
+     * Get all options keyed event_halls
+     */
+    public static function getEventHalls()
+    {
+        return json_decode(static::getByKey('event_halls'), true) ?? [];
+    }
+
+    /**
+     * Get all options keyed laboratories
+     */
+    public static function getLaboratories()
+    {
+        return json_decode(static::getByKey('laboratories'), true) ?? [];
+    }
+
+    /**
+     * Get all vehicle from the transactions table join with items table and category_id of 8 for vehicles
+     */
+    public static function getVehicles()
+    {
+        return Transaction::join('items', 'transactions.item_id', '=', 'items.id')
+            ->where('items.category_id', 8)
+            ->selectRaw('items.description as name, concat(items.brand, " (", items.description, ")") as label')
+            ->get();
+    }
+
+    public static function getApprovingOfficers()
+    {
+        return json_decode(static::getByKey('approving_officers'), true) ?? [];
+    }
+
+    public static function getEventResponseNotificationEmail()
+    {
+        return json_decode(static::getByKey('event_response_notification_email'), true) ?? [];
+    }
+    
+    public static function getCenterChief()
+    {
+        return static::getByKey('center_chief') ?? 'Default Center Chief';
+    }
+
+    public static function getSexOptions()
+    {
+        $value = static::getByKey('sex');
+
+        if (!$value) {
+            return [];
+        }
+
+        $decoded = json_decode($value, true);
+
+        return is_array($decoded) ? $decoded : [];
+    }
+
 }
