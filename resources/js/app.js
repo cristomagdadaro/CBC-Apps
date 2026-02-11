@@ -84,6 +84,8 @@ import UnviewIcon from './Components/Icons/UnviewIcon.vue';
 import UploadIcon from './Components/Icons/UploadIcon.vue';
 import ViewIcon from './Components/Icons/ViewIcon.vue';
 import WarningIcon from './Components/Icons/WarningIcon.vue';
+import ScanIcon from './Components/Icons/ScanIcon.vue';
+import SettingIcon from './Components/Icons/SettingIcon.vue';
 
 // Dropdown Components
 import DropdownLink from "@/Components/DropdownLink.vue";
@@ -207,6 +209,8 @@ createInertiaApp({
         vueApp.component('UploadIcon', UploadIcon);
         vueApp.component('ViewIcon', ViewIcon);
         vueApp.component('WarningIcon', WarningIcon);
+        vueApp.component('ScanIcon', ScanIcon);
+        vueApp.component('SettingIcon', SettingIcon);
 
         // Global Dropdown Components
         vueApp.component('DropdownLink', DropdownLink);

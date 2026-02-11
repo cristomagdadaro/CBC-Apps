@@ -189,7 +189,7 @@ export default {
                     </div>
                 </div>
             </form>
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg justify-center">
                 <!-- Show forms when available -->
                 <list-of-forms
                     v-if="eventFormFromApi && eventFormFromApi.total > 0 && !model.api.processing"

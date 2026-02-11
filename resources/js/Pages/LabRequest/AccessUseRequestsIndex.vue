@@ -125,7 +125,6 @@ export default {
             </div>
         </form>
         <div class="bg-white dark:bg-gray-800 overflow-hidden sm:rounded-lg">
-            <!-- Show forms when available -->
             <list-of-use-requests
                 v-if="eventFormFromApi && eventFormFromApi.total > 0 && !model.api.processing"
                 :forms-data="eventFormFromApi.data"

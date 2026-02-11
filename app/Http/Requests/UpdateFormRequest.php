@@ -33,13 +33,13 @@ class UpdateFormRequest extends FormRequest
     {
         $rules = [
             'event_id' => ['required', 'string', 'min:4', 'max:4', 'exists:forms,event_id'],
-            'title' => ['required', 'string', 'min:10', 'max:510'],
-            'description' => ['nullable', 'string'],
+            'title' => ['required', 'string', 'min:10', 'max:256'],
+            'description' => ['nullable', 'string', 'max:512'],
             'details' => ['nullable', 'string'],
             'date_from' => ['required', 'date_format:Y-m-d', 'before_or_equal:date_to'],
             'date_to' => ['required', 'date_format:Y-m-d', 'after_or_equal:date_from'],
-            'time_from' => ['required', 'date_format:H:i:s'],
-            'time_to' => ['required', 'date_format:H:i:s'],
+            'time_from' => ['required', 'date_format:H:i:s', 'before_or_equal:time_to'],
+            'time_to' => ['required', 'date_format:H:i:s', 'after_or_equal:time_from'],
             'venue' => ['nullable', 'string'],
             'is_suspended' => 'nullable|boolean',
             'requirements' => 'nullable|array',

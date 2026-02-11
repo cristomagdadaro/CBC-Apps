@@ -2,6 +2,7 @@ import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
 import { FormAppearanceTokens, mergeFormStyleTokens } from "@/Modules/shared/formStyleTokens";
 import SubformRequirement from "../domain/SubformRequirement";
 import IForm from "../interface/IForm";
+import IRegistration from "../interface/IRegistration";
 import DtoSubformRequirement from "./DtoSubformRequirement";
 import DtoRegistration from "./DtoRegistration";
 import DtoParticipant from "./DtoParticipant";

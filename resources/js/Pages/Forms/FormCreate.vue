@@ -51,7 +51,7 @@ export default {
         <template #header>
             <forms-header-actions />
         </template>
-        <div class="flex flex-col md:flexrow justify-center gap-5 py-12">
+        <div class="flex flex-col md:flex-row justify-center gap-5 py-12">
             <div class="flex flex-col w-1/4">
                 <span class="font-semibold text-gray-700">Event Details</span>
                 <form v-if="!!form" @submit.prevent="submitProxyCreate">

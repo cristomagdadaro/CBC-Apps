@@ -93,8 +93,12 @@ class FormRepo extends AbstractRepoService
 
     public function createEventWithRequirements(array $data): Model
     {
+        // Extract requirements before creating the form to avoid mass assignment issues
+        $requirements = $data['requirements'] ?? [];
+        unset($data['requirements']);
+        
         $form = $this->model->create($data);
-        $this->updateRequirements($form->event_id, $data['requirements'] ?? []);
+        $this->updateRequirements($form->event_id, $requirements);
         return $form;
     }
 
