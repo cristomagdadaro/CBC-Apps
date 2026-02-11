@@ -72,4 +72,9 @@ class TransactionController extends BaseController
     {
         return $this->repo()->createOutgoingWithPipeline($request->validated());
     }
+
+    public function getRemainingStocksPerCategory(GetTransactionRequest $request, string $categoryName): Collection
+    {
+        return $this->repo()->getRemainingStocksPerCategory(new Collection($request->all()), $categoryName);
+    }
 }

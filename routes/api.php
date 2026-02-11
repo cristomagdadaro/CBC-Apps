@@ -51,6 +51,7 @@ Route::prefix('guest')->group(function () {
     Route::post('/', [RequestFormPivotController::class, 'create'])->name('api.requestFormPivot.post');
     
     Route::get('/personnel/public', [PersonnelController::class, 'index'])->name('api.inventory.personnels.index.guest');
+    Route::get('/public/category/{categoryName?}', [TransactionController::class, 'getRemainingStocksPerCategory'])->name('api.inventory.categories.public');
     Route::get('/items/public', function () {
         $minRemaining = request()->query('min_remaining', 0);
         $params = collect([
@@ -83,7 +84,7 @@ Route::prefix('guest')->group(function () {
         $minRemaining = request()->query('min_remaining', 0);
         $params = collect([
             'filter' => 'category',
-            'filter_by' => [7,4],
+            'filter_by' => [4, 5],
             'min_remaining' => $minRemaining,
             'paginate' => false,
             'per_page' => '*',

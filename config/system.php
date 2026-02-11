@@ -18,23 +18,34 @@ return [
         [ 'name' => 'high', 'label' => 'High Stock (100%)' ],
     ],
     'request_types' => [
-        'Office Supplies',
-        'IEC Materials',
-        'Tokens',
-        'ICT Equipment',
-        'ICT Supplies',
-        'Laboratory Consumables',
-        'Laboratory Equipment',
-        'Laboratory Access',
-        'Office Space',
-        'Screenhouse Space',
-        'Storage Space',
-        'Utility Space',
-        'Field experimental Space',
-        'Plant growth chamber Space',
-        'Biofreezer Space',
-        'Medicool Space',
-        'Parking Space',
+        'supplies' => [
+            'Office Supplies',
+            'ICT Supplies',
+            'Laboratory Consumables',
+        ],
+
+        'equipment' => [
+            'ICT Equipment',
+            'Laboratory Equipment',
+            'Plant Growth Chamber',
+            'Biofreezer',
+            'Medicool',
+        ],
+
+        'materials' => [
+            'IEC Materials',
+            'Tokens',
+        ],
+
+        'spaces' => [
+            'Office Space',
+            'Laboratory Access',
+            'Screenhouse Space',
+            'Storage Space',
+            'Utility Space',
+            'Field Experimental Space',
+            'Parking Space',
+        ],
     ],
     'offices' => [
         'Researchers Office I',

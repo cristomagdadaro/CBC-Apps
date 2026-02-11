@@ -22,7 +22,7 @@ class LabRequestFormController extends BaseController
     {
         return Inertia::render('LabRequest/UseRequestFormGuest', [
             'requestForm' => $this->repo()->getGuestFormById($request_id),
-            'requestTypeOptions' => config('system.request_types'),
+            'requestTypeOptions' => collect(config('system.request_types'))->keys()->map(fn ($key) => strtoupper($key))->values(),
         ]);
     }
 }

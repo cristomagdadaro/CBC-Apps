@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Transaction;
+use App\Models\Category;
 use Illuminate\Support\Collection;
 use Illuminate\Pipeline\Pipeline;
 use App\Pipelines\InventoryTransaction\ResolveUserByEmployeeId;
@@ -56,7 +57,40 @@ class TransactionRepo extends AbstractRepoService
             ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode');
 
         if ($filter === 'category' && $filterBy) {
-            $query->where('items.category_id', $filterBy);
+            $values = is_array($filterBy) ? $filterBy : [$filterBy];
+
+            $ids = [];
+            $names = [];
+
+            foreach ($values as $value) {
+                if (is_numeric($value)) {
+                    $ids[] = (int) $value;
+                } else {
+                    $names[] = trim($value);
+                }
+            }
+
+            if (!empty($names)) {
+                $catIds = Category::where(function ($q) use ($names) {
+                        $q->whereIn('name', $names);
+
+                        foreach ($names as $name) {
+                            $q->orWhere('name', 'like', "%{$name}%");
+                        }
+                    })
+                    ->pluck('id')
+                    ->toArray();
+
+                $ids = array_merge($ids, $catIds);
+            }
+
+            $ids = array_values(array_unique($ids));
+
+            if (!empty($ids)) {
+                $query->whereIn('items.category_id', $ids);
+            } else {
+                $query->whereRaw('0 = 1');
+            }
         } elseif ($filter === 'quantity' && $filterBy) {
             $percentageExpr = 'CASE WHEN total_ingoing <> 0 THEN remaining_quantity / total_ingoing ELSE 0 END';
 
@@ -158,5 +192,12 @@ class TransactionRepo extends AbstractRepoService
             ->thenReturn();
 
         return $context['model'];
+    }
+
+    public function getRemainingStocksPerCategory(Collection $parameters, string $categoryName): Collection
+    {
+        $parameters->put('filter', 'category');
+        $parameters->put('filter_by', $categoryName);
+        return $this->getRemainingStocks($parameters);
     }
 }

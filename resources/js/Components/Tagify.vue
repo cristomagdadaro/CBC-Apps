@@ -27,6 +27,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        params: {
+            type: Object,
+            default: () => ({}),
+        },
     },
     async mounted() {
         await this.initializeTagify();
@@ -73,6 +77,7 @@ export default {
             const params = {
                 filter: 'name',
                 per_page: '*',
+                ...this.params,
             }
             try {
                 const response = await this.fetchGetApi(this.apiLink, params); console.log(response);

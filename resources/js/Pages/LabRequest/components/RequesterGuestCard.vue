@@ -267,7 +267,7 @@ export default {
                 <h2>
                     <span class="font-bold uppercase">Supplies: </span><span class="text-sm">Type to SEARCH and press ENTER select</span>
                 </h2>
-                <TagifyInput v-model="form.consumables_to_use" name="consumables_to_use" placeholder="Select available supplies" api-link="api.inventory.items.public" />
+                <TagifyInput v-model="form.consumables_to_use" name="consumables_to_use" placeholder="Select available supplies" api-link="api.inventory.categories.public" :params="{ routeParams: {categoryName: 'Office Supplies'} }" />
             </div>
 
             <!-- Step 4: Equipments -->
@@ -276,7 +276,7 @@ export default {
                 <h2>
                     <span class="font-bold uppercase">Equipments: </span><span class="text-sm">Type to SEARCH and press ENTER select</span>
                 </h2>
-                <TagifyInput v-model="form.equipments_to_use" name="equipments_to_use" placeholder="Select available laboratory facilities" api-link="api.inventory.equipments.public" />
+                <TagifyInput v-model="form.equipments_to_use" name="equipments_to_use" placeholder="Select available laboratory facilities" api-link="api.inventory.categories.public" :params="{ routeParams: {categoryName: 'ICT Supplies'} }" />
             </div>
 
             <!-- Step 5: Laboratory Facilities -->
@@ -285,7 +285,7 @@ export default {
                 <h2>
                     <span class="font-bold uppercase">Laboratory Facilities: </span><span class="text-sm">Type to SEARCH and press ENTER select</span>
                 </h2>
-                <TagifyInput v-model="form.labs_to_use" name="labs_to_use" placeholder="Select available laboratory facilities" api-link="api.inventory.laboratories.public" />
+                <TagifyInput v-model="form.labs_to_use" name="labs_to_use" placeholder="Select available laboratory facilities" api-link="api.inventory.categories.public" :params="{ routeParams: {categoryName: 'laboratories'} }" />
             </div>
 
             <!-- Step 6: Terms & Conditions -->

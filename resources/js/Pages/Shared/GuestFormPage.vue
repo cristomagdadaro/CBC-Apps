@@ -27,7 +27,7 @@ export default {
 <template>
     <div class="absolute top-0 left-0 w-full h-full z-[999] flex justify-center overflow-y-auto max-h-screen overflow-hidden">
         <div class="relative sm:flex flex-col md:gap-5 justify-start items-center min-h-screen w-full md:w-fit h-full mt-0 md:mt-[5%]">
-            <div class="md:relative flex flex-col md:gap-5 w-full" :class="{ 'justify-center': !!$slots.search }">
+            <div class="md:relative flex flex-col md:gap-5 w-full max-w-6xl" :class="{ 'justify-center': !!$slots.search }">
                 <!-- Header / search / top content -->
                 <slot name="top">
                     <div v-show="delayReady" class="p-0 md:rounded-md flex flex-col gap-2 w-full md:drop-shadow-lg mb-0">
