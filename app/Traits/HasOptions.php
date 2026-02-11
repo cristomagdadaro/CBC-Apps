@@ -2,16 +2,29 @@
 
 namespace App\Traits;
 
-use App\Models\Option;
+use App\Repositories\OptionRepo;
 
 trait HasOptions
 {
+    protected static OptionRepo $optionRepo;
+
+    /**
+     * Initialize the option repo
+     */
+    protected static function initOptionRepo(): OptionRepo
+    {
+        if (!isset(self::$optionRepo)) {
+            self::$optionRepo = app(OptionRepo::class);
+        }
+        return self::$optionRepo;
+    }
+
     /**
      * Get an option by key
      */
     public static function option($key, $default = null)
     {
-        return Option::getByKey($key) ?? $default;
+        return self::initOptionRepo()->getByKey($key) ?? $default;
     }
 
     /**
@@ -19,7 +32,7 @@ trait HasOptions
      */
     public static function optionsByGroup($group)
     {
-        return Option::getByGroup($group);
+        return self::initOptionRepo()->getByGroup($group);
     }
 
     /**
@@ -27,7 +40,7 @@ trait HasOptions
      */
     public static function allOptions()
     {
-        return Option::all();
+        return app(OptionRepo::class)->get();
     }
 
     /**
@@ -35,7 +48,7 @@ trait HasOptions
      */
     public static function optionIsTrue($key)
     {
-        $value = Option::getByKey($key);
+        $value = self::initOptionRepo()->getByKey($key);
         return in_array($value, ['true', '1', 'yes', 'on']);
     }
 

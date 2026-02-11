@@ -12,7 +12,7 @@ use App\Http\Controllers\RequesterController;
 use App\Http\Controllers\RequestFormPivotController;
 use App\Http\Controllers\SupplierController;
 use App\Models\Category;
-use App\Models\Option;
+use App\Repositories\OptionRepo;
 use App\Models\Form;
 use App\Models\Item;
 use App\Models\Personnel;
@@ -61,13 +61,13 @@ Route::get('/laboratory/equipments/{equipment_id?}', function ($equipment_id = n
 Route::prefix('rental')->group(function () {
     Route::get('/vehicle', function () {
         return Inertia::render('Rentals/VehicleRentalFormGuest', [
-            'vehicleOptions' => Option::getVehicles(),
+            'vehicleOptions' => app(OptionRepo::class)->getVehicles(),
         ]);
     })->name('rental.vehicle.guest');
     
     Route::get('/venue', function () {
         return Inertia::render('Rentals/VenueRentalFormGuest',[
-            'venueOptions' => Option::getEventHalls(),
+            'venueOptions' => app(OptionRepo::class)->getEventHalls(),
         ]);
     })->name('rental.venue.guest');
 });
@@ -194,9 +194,10 @@ Route::middleware([
                 ]);
             })->name('suppEquipReports.create');
 
-            Route::get('/create/guest', function () {
+            Route::get('/create/guest/{barcode?}', function ($barcode = null) {
                 return Inertia::render('Inventory/SuppEquipReports/SuppEquipReportsCreateGuest', [
                     'reportTemplates' => config('suppequipreportforms'),
+                    'barcode' => $barcode,
                 ]);
             })->name('suppEquipReports.create.guest');
         });
@@ -256,7 +257,7 @@ Route::middleware([
                         'items' => Item::get(),
                         'suppliers' => Supplier::withTrashed()->get(),
                         'categories' => Category::all(),
-                        'storage_locations' => Option::getStorageLocations(),
+                        'storage_locations' => app(OptionRepo::class)->getStorageLocations(),
                         'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                     ]);
                 })->name('transactions.incoming');
@@ -265,7 +266,7 @@ Route::middleware([
                     return Inertia::render('Inventory/Transactions/components/Outgoing', [
                         'fromUrl' => url()->previous(),
                         'personnels' => Personnel::selectRaw(expression: 'id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
-                        'stockLevel' => Option::getStockLevels(),
+                        'stockLevel' => app(OptionRepo::class)->getStockLevels(),
                         'categories' => Category::select('id as name', 'name as label')
                 ->has('items')
                 ->get(),
@@ -291,7 +292,7 @@ Route::middleware([
                             'data' => $transaction,
                             'items' => Item::withTrashed()->get(),
                             'fromUrl' => route('transactions.index'),
-                            'storage_locations' => Option::getStorageLocations(),
+                            'storage_locations' => app(OptionRepo::class)->getStorageLocations(),
                             'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                             'attachedReports' => $attachedReports,
                         ]);

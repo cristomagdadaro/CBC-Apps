@@ -2,10 +2,12 @@
 import { useForm } from "@inertiajs/vue3";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
+import LaboratoryPersonnelMixin from "@/Modules/mixins/LaboratoryPersonnelMixin";
 import PersonnelLookup from "@/Components/PersonnelLookup.vue";
 import SelectSearchField from "@/Components/SelectSearchField.vue";
 import TextInput from "@/Components/TextInput.vue";
 import SuccessModal from "@/Components/SuccessModal.vue";
+import FlagIcon from '@/Components/Icons/FlagIcon.vue';
 
 export default {
     name: "LaboratoryEquipmentShow",
@@ -14,8 +16,9 @@ export default {
         SelectSearchField,
         TextInput,
         SuccessModal,
+        FlagIcon,
     },
-    mixins: [ApiMixin, DataFormatterMixin],
+    mixins: [ApiMixin, DataFormatterMixin, LaboratoryPersonnelMixin],
     props: {
         equipment_id: {
             type: String,
@@ -109,9 +112,23 @@ export default {
         handlePersonnelFound(data) {
             this.personnelPreview = data;
             this.checkInErrors = { ...this.checkInErrors, employee_id: null };
+            // Save to localStorage for future check-outs
+            this.saveLaboratoryPersonnel({
+                employee_id: this.checkInForm.employee_id,
+                fullName: data.fullName,
+                fname: data.fname,
+                mname: data.mname,
+                lname: data.lname,
+                suffix: data.suffix,
+            });
         },
         handlePersonnelError(error) {
             this.checkInErrors = { ...this.checkInErrors, [error.field]: error.message };
+        },
+        searchDifferentPersonnel() {
+            this.clearLaboratoryPersonnel();
+            this.checkOutForm.reset();
+            this.checkOutErrors = {};
         },
         resetCheckIn() {
             this.checkInForm.reset();
@@ -208,6 +225,11 @@ export default {
         } else {
             this.loadEquipmentOptions();
         }
+        this.loadLaboratoryPersonnel();
+        // Auto-fill check-out form with saved personnel
+        if (this.savedLaboratoryPersonnel?.employee_id) {
+            this.checkOutForm.employee_id = this.savedLaboratoryPersonnel.employee_id;
+        }
         setTimeout(() => {
             this.delayReady = true;
         }, 200);
@@ -278,20 +300,20 @@ export default {
                 <div v-if="hasEquipment" class="grid grid-cols-1 gap-4">
                     <div class="border rounded-lg bg-white p-4 shadow-sm">
                         <h2 class="text-base font-semibold mb-2">Current Status</h2>
-                        <div v-if="activeLog" class="flex flex-col gap-2 text-sm">
-                            <div class="flex justify-between gap-5">
+                        <div v-if="activeLog" class="flex flex-col gap-1 text-sm">
+                            <div class="flex justify-between gap-1">
                                 <span class="text-gray-500">Status</span>
                                 <span class="font-semibold uppercase">{{ activeLog.status }}</span>
                             </div>
-                            <div class="flex justify-between gap-5">
+                            <div class="flex justify-between gap-1">
                                 <span class="text-gray-500">Checked in at</span>
                                 <span>{{ formatDateTime(activeLog.started_at) }}</span>
                             </div>
-                            <div class="flex justify-between gap-5">
+                            <div class="flex justify-between gap-1">
                                 <span class="text-gray-500">Expected end</span>
                                 <span>{{ formatDateTime(activeLog.end_use_at) }}</span>
                             </div>
-                            <div class="flex justify-between gap-5">
+                            <div class="flex justify-between gap-1">
                                 <span class="text-gray-500">User</span>
                                 <span>{{ formatPersonnelName(activeLog.personnel) }}</span>
                             </div>
@@ -308,36 +330,15 @@ export default {
                         <p class="text-sm text-gray-500">Lookup your PhilRice ID to auto-fill details.</p>
                     </div>
 
-                    <div class="flex flex-col gap-3">
+                    <div class="flex flex-col gap-1">
                         <PersonnelLookup
                             v-model="checkInForm.employee_id"
                             @found="handlePersonnelFound"
                             @error="handlePersonnelError"
                         />
-                        <div v-if="getErrorMessage(checkInErrors.employee_id)" class="text-sm text-red-600">
+                        <div v-if="personnelPreview" class="text-center w-full text-xs text-AC">Hi! {{ personnelPreview.fullName }}</div>
+                        <div v-if="getErrorMessage(checkInErrors.employee_id)" class="text-center w-full text-xs text-red-600">
                             {{ getErrorMessage(checkInErrors.employee_id) }}
-                        </div>
-                        <div v-if="personnelPreview" class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                            <div>
-                                <span class="text-gray-500">Name</span>
-                                <div class="font-semibold">{{ personnelPreview.fullName }}</div>
-                            </div>
-                            <div>
-                                <span class="text-gray-500">Position</span>
-                                <div class="font-semibold">{{ personnelPreview.position || '-' }}</div>
-                            </div>
-                            <div>
-                                <span class="text-gray-500">Affiliation</span>
-                                <div class="font-semibold">{{ personnelPreview.affiliation || '-' }}</div>
-                            </div>
-                            <div>
-                                <span class="text-gray-500">Contact</span>
-                                <div class="font-semibold">{{ personnelPreview.phone || '-' }}</div>
-                            </div>
-                            <div>
-                                <span class="text-gray-500">Email</span>
-                                <div class="font-semibold">{{ personnelPreview.email || '-' }}</div>
-                            </div>
                         </div>
                     </div>
 
@@ -375,24 +376,42 @@ export default {
                 </div>
 
                 <div v-if="hasEquipment && canCheckOut" class="border rounded-lg bg-white p-4 shadow-sm">
-                    <div class="grid grid-cols-2 mb-3 gap-5">
+                    <div class="flex justify-between mb-3 gap-5">
                         <h2 class="text-base font-semibold w-fit">Check-out Equipment</h2>
                         <div class="flex items-center gap-2 w-fit justify-end">
                             <input id="admin_override" v-model="checkOutForm.admin_override" type="checkbox" class="rounded" />
                             <label for="admin_override" class="text-sm">Admin Override</label>
                         </div>
                     </div>
-                    <TextInput
-                        id="checkout_employee_id"
-                        v-model="checkOutForm.employee_id"
-                        label="PhilRice ID"
-                        :error="getErrorMessage(checkOutErrors.employee_id)"
-                        @keydown.enter.prevent="submitCheckOut"
-                        required
-                    />
+
+                    <!-- Show saved personnel info as label -->
+                    <div v-if="savedLaboratoryPersonnel" class="mb-2 flex gap-2 justify-between items-center">
+                        <div class="text-sm text-gray-600">As: <span class="font-semibold">{{ savedLaboratoryPersonnel.fullName }} ( {{ savedLaboratoryPersonnel.employee_id }} )</span></div>
+                        <button
+                            v-if="savedLaboratoryPersonnel"
+                            type="button"
+                            title="Clear"
+                            class="p-1 rounded bg-gray-300 text-gray-700 text-sm hover:bg-gray-400 h-fit"
+                            @click="searchDifferentPersonnel"
+                        >
+                            <close-icon class="w-5 h-5" />
+                        </button>
+                    </div>
+
+                    <div class="flex gap-2 items-end">
+                        <div v-if="!savedLaboratoryPersonnel" class="flex-1">
+                            <TextInput
+                                id="checkout_employee_id"
+                                v-model="checkOutForm.employee_id"
+                                :label="savedLaboratoryPersonnel ? 'Use different PhilRice ID' : 'PhilRice ID'"
+                                :error="getErrorMessage(checkOutErrors.employee_id)"
+                                @keydown.enter.prevent="submitCheckOut"
+                            />
+                        </div>
+                    </div>
 
                     <div v-if="getErrorMessage(checkOutErrors.base)" class="text-sm text-red-600 mt-2">{{ getErrorMessage(checkOutErrors.base) }}</div>
-
+                    <Link :href="route('suppEquipReports.create.guest', equipment.barcode)" class="flex flex-row-reverse items-center gap-1 bg-red-600 text-white p-2 px-4 rounded w-fit"><flag-icon class="h-4 w-4" /> Issue Encountered</Link>
                     <button
                         type="button"
                         class="mt-3 px-4 py-2 rounded bg-AB text-white text-sm hover:bg-AA w-full"

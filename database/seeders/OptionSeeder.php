@@ -15,7 +15,6 @@ class OptionSeeder extends Seeder
     public function run(): void
     {
         $options = [
-            // System Configuration
             [
                 'key' => 'app_name',
                 'value' => 'CBC Apps',
@@ -59,17 +58,15 @@ class OptionSeeder extends Seeder
             [
                 'key' => 'sex',
                 'value' => json_encode([
-                    [ 'value' => 'Male', 'label' => 'Male', 'icon' => 'gender-male', 'color' => 'text-blue-300' ],
-                    [ 'value' => 'Female', 'label' => 'Female', 'icon' => 'gender-female', 'color' => 'text-red-300' ],
-                    [ 'value' => 'Prefer not to say', 'label' => 'Prefer not to say', 'icon' => 'balloon-heart', 'color' => 'text-yellow-300' ]
+                    ['value' => 'Male', 'label' => 'Male', 'icon' => 'gender-male', 'color' => 'text-blue-300'],
+                    ['value' => 'Female', 'label' => 'Female', 'icon' => 'gender-female', 'color' => 'text-red-300'],
+                    ['value' => 'Prefer not to say', 'label' => 'Prefer not to say', 'icon' => 'balloon-heart', 'color' => 'text-yellow-300']
                 ]),
                 'label' => 'Sex',
                 'description' => 'Available options for sex',
                 'type' => 'json',
                 'group' => 'system',
             ],
-
-            // Email Configuration
             [
                 'key' => 'email_from_address',
                 'value' => 'noreply@cbcapps.local',
@@ -86,7 +83,6 @@ class OptionSeeder extends Seeder
                 'type' => 'text',
                 'group' => 'email',
             ],
-            
             [
                 'key' => 'event_response_notification_email',
                 'value' => '',
@@ -95,8 +91,6 @@ class OptionSeeder extends Seeder
                 'type' => 'text',
                 'group' => 'email',
             ],
-            
-            // Inventory Settings
             [
                 'key' => 'enable_inventory_notifications',
                 'value' => 'true',
@@ -113,8 +107,6 @@ class OptionSeeder extends Seeder
                 'type' => 'text',
                 'group' => 'inventory',
             ],
-
-            // Inventory Enums
             [
                 'key' => 'transaction_types',
                 'value' => json_encode([['name' => 'incoming', 'label' => 'Incoming'], ['name' => 'outgoing', 'label' => 'Outgoing']]),
@@ -137,8 +129,6 @@ class OptionSeeder extends Seeder
                 'type' => 'json',
                 'group' => 'inventory',
             ],
-
-            // Request Types
             [
                 'key' => 'request_type_supplies',
                 'value' => json_encode(['Office Supplies', 'ICT Supplies', 'Laboratory Consumables']),
@@ -171,11 +161,9 @@ class OptionSeeder extends Seeder
                 'type' => 'json',
                 'group' => 'fes',
             ],
-
-            // Offices
             [
                 'key' => 'office_researchers_i',
-                'value' => 'Researchers Office I',
+                'value' => '01',
                 'label' => 'Researchers Office I',
                 'description' => 'Office location for researchers',
                 'type' => 'text',
@@ -183,59 +171,15 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'office_researchers_ii',
-                'value' => 'Researchers Office II',
+                'value' => '02',
                 'label' => 'Researchers Office II',
                 'description' => 'Office location for researchers',
                 'type' => 'text',
                 'group' => 'offices',
             ],
             [
-                'key' => 'office_accountant',
-                'value' => 'Accountant\'s Office',
-                'label' => 'Accountant\'s Office',
-                'description' => 'Office location for accounting',
-                'type' => 'text',
-                'group' => 'offices',
-            ],
-            [
-                'key' => 'office_prayer_room',
-                'value' => 'Prayer Room',
-                'label' => 'Prayer Room',
-                'description' => 'Office location for prayer',
-                'type' => 'text',
-                'group' => 'offices',
-            ],
-
-            // Screenhouses
-            [
-                'key' => 'screenhouse_1',
-                'value' => 'Screenhouse 1',
-                'label' => 'Screenhouse 1',
-                'description' => 'Screenhouse location for agricultural research',
-                'type' => 'text',
-                'group' => 'screenhouses',
-            ],
-            [
-                'key' => 'screenhouse_2',
-                'value' => 'Screenhouse 2',
-                'label' => 'Screenhouse 2',
-                'description' => 'Screenhouse location for agricultural research',
-                'type' => 'text',
-                'group' => 'screenhouses',
-            ],
-            [
-                'key' => 'screenhouse_3',
-                'value' => 'Screenhouse 3',
-                'label' => 'Screenhouse 3',
-                'description' => 'Screenhouse location for agricultural research',
-                'type' => 'text',
-                'group' => 'screenhouses',
-            ],
-
-            // Laboratories
-            [
                 'key' => 'lab_bioinformatics_room',
-                'value' => 'Bioinformatics Room',
+                'value' => '03',
                 'label' => 'Bioinformatics Room',
                 'description' => 'Laboratory location for bioinformatics research',
                 'type' => 'text',
@@ -243,7 +187,7 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'lab_molecular_genetics_room',
-                'value' => 'Molecular Genetics Room',
+                'value' => '04',
                 'label' => 'Molecular Genetics Room',
                 'description' => 'Laboratory location for molecular genetics research',
                 'type' => 'text',
@@ -251,7 +195,7 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'lab_genome_engineering',
-                'value' => 'Genome Engineering Laboratory',
+                'value' => '05',
                 'label' => 'Genome Engineering Laboratory',
                 'description' => 'Laboratory location for genome engineering research',
                 'type' => 'text',
@@ -259,7 +203,7 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'lab_tissue_culture_room',
-                'value' => 'Tissue Culture Room',
+                'value' => '06',
                 'label' => 'Tissue Culture Room',
                 'description' => 'Laboratory location for tissue culture research',
                 'type' => 'text',
@@ -267,7 +211,7 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'lab_systems_biology_room',
-                'value' => 'Systems Biology Room',
+                'value' => '07',
                 'label' => 'Systems Biology Room',
                 'description' => 'Laboratory location for systems biology research',
                 'type' => 'text',
@@ -275,7 +219,7 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'lab_microbial_biotech_room',
-                'value' => 'Microbial Biotechnology Room',
+                'value' => '08',
                 'label' => 'Microbial Biotechnology Room',
                 'description' => 'Laboratory location for microbial biotechnology research',
                 'type' => 'text',
@@ -283,92 +227,15 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'lab_molecular_diagnostics_room',
-                'value' => 'Molecular Diagnostics Room',
+                'value' => '09',
                 'label' => 'Molecular Diagnostics Room',
                 'description' => 'Laboratory location for molecular diagnostics',
                 'type' => 'text',
                 'group' => 'laboratories',
             ],
             [
-                'key' => 'lab_diagnostic_lab',
-                'value' => 'Diagnostic Laboratory',
-                'label' => 'Diagnostic Laboratory',
-                'description' => 'Laboratory location for diagnostic testing',
-                'type' => 'text',
-                'group' => 'laboratories',
-            ],
-            [
-                'key' => 'lab_phenotyping_area',
-                'value' => 'Phenotyping Area',
-                'label' => 'Phenotyping Area',
-                'description' => 'Laboratory location for phenotyping research',
-                'type' => 'text',
-                'group' => 'laboratories',
-            ],
-            [
-                'key' => 'lab_microscope_sequencing_room',
-                'value' => 'Microscope and Sequencing Room',
-                'label' => 'Microscope and Sequencing Room',
-                'description' => 'Laboratory location for microscopy and DNA sequencing',
-                'type' => 'text',
-                'group' => 'laboratories',
-            ],
-            [
-                'key' => 'lab_general_equipment_area',
-                'value' => 'General Equipment Area',
-                'label' => 'General Equipment Area',
-                'description' => 'Laboratory location for general equipment storage and use',
-                'type' => 'text',
-                'group' => 'laboratories',
-            ],
-            [
-                'key' => 'lab_sample_processing_room',
-                'value' => 'Sample Processing Room',
-                'label' => 'Sample Processing Room',
-                'description' => 'Laboratory location for sample processing',
-                'type' => 'text',
-                'group' => 'laboratories',
-            ],
-            [
-                'key' => 'lab_wash_room_i',
-                'value' => 'Wash Room I',
-                'label' => 'Wash Room I',
-                'description' => 'Laboratory location for equipment washing',
-                'type' => 'text',
-                'group' => 'laboratories',
-            ],
-
-
-            // Event Halls
-            [
-                'key' => 'event_hall_plenary',
-                'value' => 'Plenary Hall',
-                'label' => 'Plenary Hall',
-                'description' => 'Event location for plenary sessions',
-                'type' => 'text',
-                'group' => 'event_halls',
-            ],
-            [
-                'key' => 'event_hall_training_room',
-                'value' => 'Training Room',
-                'label' => 'Training Room',
-                'description' => 'Event location for training sessions',
-                'type' => 'text',
-                'group' => 'event_halls',
-            ],
-            [
-                'key' => 'event_hall_mph',
-                'value' => 'Multi-Purpose Hall',
-                'label' => 'Multi-Purpose Hall',
-                'description' => 'Event location for multi-purpose activities',
-                'type' => 'text',
-                'group' => 'event_halls',
-            ],
-
-            // Storage Locations - Unique locations not in other groups
-            [
                 'key' => 'storage_loc_central_bodega',
-                'value' => 'Central Bodega',
+                'value' => '10',
                 'label' => 'Central Bodega',
                 'description' => 'Central storage location for inventory',
                 'type' => 'text',
@@ -376,7 +243,7 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'storage_loc_bodega_1',
-                'value' => 'Bodega 1',
+                'value' => '11',
                 'label' => 'Bodega 1',
                 'description' => 'Primary bodega storage location',
                 'type' => 'text',
@@ -384,15 +251,87 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'storage_loc_bodega_2',
-                'value' => 'Bodega 2',
+                'value' => '12',
                 'label' => 'Bodega 2',
                 'description' => 'Secondary bodega storage location',
                 'type' => 'text',
                 'group' => 'storage_locations',
             ],
             [
+                'key' => 'event_hall_plenary',
+                'value' => '13',
+                'label' => 'Plenary Hall',
+                'description' => 'Event location for plenary sessions',
+                'type' => 'text',
+                'group' => 'event_halls',
+            ],
+            [
+                'key' => 'event_hall_training_room',
+                'value' => '14',
+                'label' => 'Training Room',
+                'description' => 'Event location for training sessions',
+                'type' => 'text',
+                'group' => 'event_halls',
+            ],
+            [
+                'key' => 'event_hall_mph',
+                'value' => '15',
+                'label' => 'Multi-Purpose Hall',
+                'description' => 'Event location for multi-purpose activities',
+                'type' => 'text',
+                'group' => 'event_halls',
+            ],
+            [
+                'key' => 'lab_diagnostic_lab',
+                'value' => '16',
+                'label' => 'Diagnostic Laboratory',
+                'description' => 'Laboratory location for diagnostic testing',
+                'type' => 'text',
+                'group' => 'laboratories',
+            ],
+            [
+                'key' => 'lab_phenotyping_area',
+                'value' => '17',
+                'label' => 'Phenotyping Area',
+                'description' => 'Laboratory location for phenotyping research',
+                'type' => 'text',
+                'group' => 'laboratories',
+            ],
+            [
+                'key' => 'lab_microscope_sequencing_room',
+                'value' => '18',
+                'label' => 'Microscope and Sequencing Room',
+                'description' => 'Laboratory location for microscopy and DNA sequencing',
+                'type' => 'text',
+                'group' => 'laboratories',
+            ],
+            [
+                'key' => 'lab_general_equipment_area',
+                'value' => '19',
+                'label' => 'General Equipment Area',
+                'description' => 'Laboratory location for general equipment storage and use',
+                'type' => 'text',
+                'group' => 'laboratories',
+            ],
+            [
+                'key' => 'lab_sample_processing_room',
+                'value' => '20',
+                'label' => 'Sample Processing Room',
+                'description' => 'Laboratory location for sample processing',
+                'type' => 'text',
+                'group' => 'laboratories',
+            ],
+            [
+                'key' => 'lab_wash_room_i',
+                'value' => '21',
+                'label' => 'Wash Room I',
+                'description' => 'Laboratory location for equipment washing',
+                'type' => 'text',
+                'group' => 'laboratories',
+            ],
+            [
                 'key' => 'storage_loc_motor_pool',
-                'value' => 'Motor Pool',
+                'value' => '22',
                 'label' => 'Motor Pool',
                 'description' => 'Storage location at Motor Pool',
                 'type' => 'text',
@@ -400,7 +339,7 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'storage_loc_aa_delacruz_office',
-                'value' => 'AADelaCruz Office',
+                'value' => '23',
                 'label' => 'AADelaCruz Office',
                 'description' => 'Storage location in AADelaCruz Office',
                 'type' => 'text',
@@ -408,7 +347,7 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'storage_loc_rr_suralta_office',
-                'value' => 'RRSuralta Office',
+                'value' => '24',
                 'label' => 'RRSuralta Office',
                 'description' => 'Storage location in RRSuralta Office',
                 'type' => 'text',
@@ -416,7 +355,7 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'storage_loc_aa_office',
-                'value' => 'AA Office',
+                'value' => '25',
                 'label' => 'AA Office',
                 'description' => 'Storage location in AA Office',
                 'type' => 'text',
@@ -424,7 +363,7 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'storage_loc_meeting_room',
-                'value' => 'Meeting Room',
+                'value' => '26',
                 'label' => 'Meeting Room',
                 'description' => 'Storage location in Meeting Room',
                 'type' => 'text',
@@ -432,7 +371,7 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'storage_loc_supplies_room_i',
-                'value' => 'Supplies Room I',
+                'value' => '27',
                 'label' => 'Supplies Room I',
                 'description' => 'Primary supplies storage location',
                 'type' => 'text',
@@ -440,7 +379,7 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'storage_loc_supplies_room_ii',
-                'value' => 'Supplies Room II',
+                'value' => '28',
                 'label' => 'Supplies Room II',
                 'description' => 'Secondary supplies storage location',
                 'type' => 'text',
@@ -448,31 +387,31 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'storage_loc_consultant_office',
-                'value' => 'Consultant Office',
+                'value' => '29',
                 'label' => 'Consultant Office',
                 'description' => 'Storage location in Consultant Office',
                 'type' => 'text',
                 'group' => 'storage_locations',
             ],
             [
-                'key' => 'storage_loc_dark_room',
-                'value' => 'Dark Room',
-                'label' => 'Dark Room',
-                'description' => 'Dark room storage location',
-                'type' => 'text',
-                'group' => 'storage_locations',
-            ],
-            [
                 'key' => 'storage_loc_dna_extraction_room',
-                'value' => 'DNA Extraction Room',
+                'value' => '30',
                 'label' => 'DNA Extraction Room',
                 'description' => 'Storage location in DNA Extraction Room',
                 'type' => 'text',
                 'group' => 'storage_locations',
             ],
             [
+                'key' => 'storage_loc_dark_room',
+                'value' => '31',
+                'label' => 'Dark Room',
+                'description' => 'Dark room storage location',
+                'type' => 'text',
+                'group' => 'storage_locations',
+            ],
+            [
                 'key' => 'storage_loc_freezer_room',
-                'value' => 'Freezer Room',
+                'value' => '32',
                 'label' => 'Freezer Room',
                 'description' => 'Cold storage location for biological samples',
                 'type' => 'text',
@@ -480,7 +419,7 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'storage_loc_light_room',
-                'value' => 'Light Room',
+                'value' => '33',
                 'label' => 'Light Room',
                 'description' => 'Light room storage location',
                 'type' => 'text',
@@ -488,15 +427,60 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'storage_loc_wash_room_ii',
-                'value' => 'Wash Room II',
+                'value' => '35',
                 'label' => 'Wash Room II',
                 'description' => 'Storage location in Wash Room II',
                 'type' => 'text',
                 'group' => 'storage_locations',
             ],
-
-            
-            // Vehicles
+            [
+                'key' => 'office_accountant',
+                'value' => "36",
+                'label' => "Accountant's Office",
+                'description' => 'Office location for accounting',
+                'type' => 'text',
+                'group' => 'offices',
+            ],
+            [
+                'key' => 'office_prayer_room',
+                'value' => '37',
+                'label' => 'Prayer Room',
+                'description' => 'Office location for prayer',
+                'type' => 'text',
+                'group' => 'offices',
+            ],
+            [
+                'key' => 'screenhouse_1',
+                'value' => '38',
+                'label' => 'Screenhouse 1',
+                'description' => 'Screenhouse location for agricultural research',
+                'type' => 'text',
+                'group' => 'screenhouses',
+            ],
+            [
+                'key' => 'screenhouse_2',
+                'value' => '39',
+                'label' => 'Screenhouse 2',
+                'description' => 'Screenhouse location for agricultural research',
+                'type' => 'text',
+                'group' => 'screenhouses',
+            ],
+            [
+                'key' => 'screenhouse_3',
+                'value' => '40',
+                'label' => 'Screenhouse 3',
+                'description' => 'Screenhouse location for agricultural research',
+                'type' => 'text',
+                'group' => 'screenhouses',
+            ],
+            [
+                'key' => 'motorpool',
+                'value' => '41',
+                'label' => 'Motorpool',
+                'description' => 'Motorpool location for vehicle storage',
+                'type' => 'text',
+                'group' => 'storage_locations',
+            ],
             [
                 'key' => 'vehicles',
                 'value' => json_encode([
@@ -514,8 +498,6 @@ class OptionSeeder extends Seeder
                 'type' => 'json',
                 'group' => 'rental',
             ],
-
-            // Report Templates - Incident Report
             [
                 'key' => 'report_template_incident',
                 'value' => json_encode([
@@ -535,8 +517,6 @@ class OptionSeeder extends Seeder
                 'type' => 'json',
                 'group' => 'reports',
             ],
-
-            // Report Templates - Maintenance Report
             [
                 'key' => 'report_template_maintenance',
                 'value' => json_encode([
@@ -555,8 +535,6 @@ class OptionSeeder extends Seeder
                 'type' => 'json',
                 'group' => 'reports',
             ],
-
-            // Report Templates - Utilization Report
             [
                 'key' => 'report_template_utilization',
                 'value' => json_encode([

@@ -83,7 +83,11 @@ abstract class AbstractRepoService {
         $this->applySearchFilters($builder, $parameters);
         $this->applyGroupBy($builder, $parameters);
         $this->applySorting($builder, $parameters);
-        return $this->applyPagination($builder, $parameters);
+
+        if($withPagination)
+            return $this->applyPagination($builder, $parameters);
+        
+        return $builder->get();
     }
 
     public function applySearchFilters(Builder &$query, Collection $parameters): void

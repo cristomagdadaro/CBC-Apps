@@ -7,7 +7,7 @@ use App\Enums\Subform;
 use App\Models\EventSubform;
 use App\Models\LocCity;
 use App\Models\Registration;
-use App\Models\Option;
+use App\Repositories\OptionRepo;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\EventSubformResponse>
@@ -34,7 +34,7 @@ class EventSubformResponseFactory extends Factory
             ]),
         'response_data' => [
             'age' => $this->faker->numberBetween(18, 70),
-            'sex' => $this->faker->randomElement(Option::getSexOptions()),
+            'sex' => $this->faker->randomElement(app(OptionRepo::class)->getSexOptions()),
             'name' => $this->faker->name(),
             'email' => $this->faker->safeEmail(),
             'is_ip' => $this->faker->boolean(),

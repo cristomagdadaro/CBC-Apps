@@ -86,6 +86,13 @@ import ViewIcon from './Components/Icons/ViewIcon.vue';
 import WarningIcon from './Components/Icons/WarningIcon.vue';
 import ScanIcon from './Components/Icons/ScanIcon.vue';
 import SettingIcon from './Components/Icons/SettingIcon.vue';
+import BookmarkIcon from './Components/Icons/BookmarkIcon.vue';
+import CalendarIcon from './Components/Icons/CalendarIcon.vue';
+import FesIcon from './Components/Icons/FesIcon.vue';
+import FlagIcon from './Components/Icons/FlagIcon.vue';
+import BoxesIcon from './Components/Icons/BoxesIcon.vue';
+import TruckIcon from './Components/Icons/TruckIcon.vue';
+import BuildingIcon from './Components/Icons/BuildingIcon.vue';
 
 // Dropdown Components
 import DropdownLink from "@/Components/DropdownLink.vue";
@@ -211,6 +218,13 @@ createInertiaApp({
         vueApp.component('WarningIcon', WarningIcon);
         vueApp.component('ScanIcon', ScanIcon);
         vueApp.component('SettingIcon', SettingIcon);
+        vueApp.component('BookmarkIcon', BookmarkIcon);
+        vueApp.component('CalendarIcon', CalendarIcon);
+        vueApp.component('FesIcon', FesIcon);
+        vueApp.component('FlagIcon', FlagIcon);
+        vueApp.component('BoxesIcon', BoxesIcon);
+        vueApp.component('TruckIcon', TruckIcon);
+        vueApp.component('BuildingIcon', BuildingIcon);
 
         // Global Dropdown Components
         vueApp.component('DropdownLink', DropdownLink);

@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Option;
+use App\Repositories\OptionRepo;
 use App\Repositories\RequestFormPivotRepo;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class LabRequestFormController extends BaseController
 {
-    public function __construct(RequestFormPivotRepo $repository)
-    {
+    public function __construct(
+        RequestFormPivotRepo $repository,
+        private OptionRepo $optionRepo
+    ) {
         $this->service = $repository;
     }
 
@@ -23,7 +25,7 @@ class LabRequestFormController extends BaseController
     {
         return Inertia::render('LabRequest/UseRequestFormGuest', [
             'requestForm' => $this->repo()->getGuestFormById($request_id),
-            'requestTypeOptions' => Option::getRequestTypes(),
+            'requestTypeOptions' => $this->optionRepo->getRequestTypes(),
         ]);
     }
 }

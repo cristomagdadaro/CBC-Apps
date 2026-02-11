@@ -32,11 +32,11 @@ export default {
 
     <!-- Main content overlay -->
     <div class="fixed top-0 left-0 w-full h-full z-50 flex justify-center overflow-y-auto">
-        <div class="relative sm:flex flex-col md:gap-5 justify-start items-center w-full md:w-fit mt-0 md:mt-[5%] pb-8">
-            <div class="md:relative flex flex-col md:gap-5 w-full max-w-6xl" :class="{ 'justify-center': !!$slots.search }">
+        <div class="relative sm:flex flex-col md:gap-5 justify-start items-center md:w-fit mt-0 md:mt-[5%] pb-8 px-4 md:px-0">
+            <div class="md:relative flex flex-col md:gap-5 w-full max-w-6xl">
                 <!-- Header / search / top content -->
                 <slot name="top">
-                    <div v-show="delayReady" class="p-0 md:rounded-md flex flex-col gap-2 w-full md:drop-shadow-lg mb-0">
+                    <div v-show="delayReady" class="p-0 md:rounded-md flex flex-col gap-2 md:drop-shadow-lg mb-0">
                         <div class="relative flex flex-row bg-AB text-white p-2 px-4 md:rounded-md gap-2 shadow py-4">
                             <Link href="/">
                                 <img src="/imgs/logo.png" alt="logo" class="w-16 h-16" />
@@ -51,10 +51,10 @@ export default {
                         <slot name="search" />
                     </div>
                 </slot>
-            </div>
 
-            <!-- Main body content under header -->
-            <slot />
+                <!-- Main body content under header -->
+                <slot />
+            </div>
         </div>
     </div>
 

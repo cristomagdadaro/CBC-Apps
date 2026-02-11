@@ -4,19 +4,21 @@ namespace App\Observers;
 
 use App\Enums\Inventory;
 use App\Mail\OutgoingTransactionNotification;
-use App\Models\Option;
 use App\Models\Transaction;
+use App\Repositories\OptionRepo;
 use Illuminate\Support\Facades\Mail;
 
 class TransactionObserver
 {
+    public function __construct(private OptionRepo $optionRepo) {}
+
     public function created(Transaction $transaction): void
     {
         if ($transaction->transac_type !== Inventory::OUTGOING->value) {
             return;
         }
 
-        $recipient = Option::getEventResponseNotificationEmail();
+        $recipient = $this->optionRepo->getEventResponseNotificationEmail();
         if (empty($recipient)) {
             return;
         }

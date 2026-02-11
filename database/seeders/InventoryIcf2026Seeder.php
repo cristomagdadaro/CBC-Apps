@@ -9,6 +9,7 @@ use App\Models\Option;
 use App\Models\Personnel;
 use App\Models\Supplier;
 use App\Models\Transaction;
+use App\Repositories\OptionRepo;
 use Database\Factories\TransactionFactory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
@@ -131,11 +132,9 @@ class InventoryIcf2026Seeder extends Seeder
             }
 
             $barcodePrri = $this->nullableTrim($data['barcode_prri'] ?? null);
-            $storageOptions = Option::getStorageLocations() ?? [];
-            $storage = !empty($storageOptions) 
-                ? $this->faker->randomElement($storageOptions) 
-                : ['name' => 'Default Storage'];
-            $barcode = TransactionFactory::generateBarcode($storage['name'] ?? 'Default Storage');
+            $storageOptions = Option::where('label', $row[18])->first();
+            $storage = $storageOptions ? $storageOptions->value : null;
+            $barcode = TransactionFactory::generateBarcode($storage ?? '00');
 
             try {
                 $transaction = Transaction::factory()->create([

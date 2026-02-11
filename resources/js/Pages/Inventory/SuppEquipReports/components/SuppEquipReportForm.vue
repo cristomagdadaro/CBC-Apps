@@ -11,6 +11,10 @@ export default {
             type: Object,
             required: true,
         },
+        barcode: {
+            type: String,
+            required: false,
+        }
     },
     emits: ['saved'],
     data() {
@@ -65,6 +69,12 @@ export default {
         this.transactionModel = new Transaction();
         this.ensureReportType();
         this.initializeFieldState();
+    },
+    mounted() {
+        if(this.barcode) {
+            this.transactionSearch = this.barcode;
+            this.searchTransactions()
+        }
     },
     methods: {
         ensureReportType() {

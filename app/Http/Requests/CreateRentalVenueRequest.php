@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Option;
+use App\Repositories\OptionRepo;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateRentalVenueRequest extends FormRequest
@@ -14,8 +14,9 @@ class CreateRentalVenueRequest extends FormRequest
 
     public function rules(): array
     {
+        $optionRepo = app(OptionRepo::class);
         return [
-            'venue_type' => ['required', 'string', 'in:'.implode(',', array_column(Option::getEventHalls()->toArray(), 'name'))],
+            'venue_type' => ['required', 'string', 'in:'.implode(',', array_column($optionRepo->getEventHalls()->toArray(), 'name'))],
             'date_from' => ['required', 'date', 'after_or_equal:today'],
             'date_to' => ['required', 'date', 'after_or_equal:date_from'],
             'time_from' => ['required', 'date_format:H:i:s'],

@@ -17,6 +17,10 @@ export default {
             type: Object,
             required: true,
         },
+        barcode: {
+            type: String,
+            required: false,
+        }
     },
     data() {
         return {
@@ -56,7 +60,7 @@ export default {
     >
         <div class="py-10">
             <div class="max-w-4xl mx-auto space-y-6 px-4">
-                <supp-equip-report-form :report-templates="reportTemplates" @saved="closeForm"/>
+                <supp-equip-report-form :report-templates="reportTemplates" :barcode="barcode" @saved="closeForm"/>
             </div>
         </div>
     </GuestFormPage>

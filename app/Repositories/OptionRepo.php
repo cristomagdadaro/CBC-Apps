@@ -19,8 +19,9 @@ class OptionRepo extends AbstractRepoService
         return $this->model
             ->newQuery()
             ->where('group', $group)
-            ->pluck('value', 'key')
+            ->pluck(column: 'label', key: 'value')
             ->toArray();
+            //return $this->search(collect(['search' => 'Genome Engineering Laboratory' ?? '']), false)->pluck('value')->first();
     }
 
     /**
@@ -79,5 +80,107 @@ class OptionRepo extends AbstractRepoService
         return $query
             ->select('id', 'key', 'value', 'label', 'description', 'type', 'group', 'options')
             ->get();
+    }
+
+    /**
+     * Get all options keyed by storage_locations
+     */
+    public function getStorageLocations()
+    {
+        return $this->getByGroup('storage_locations');
+    }
+
+    /**
+     * Get all options grouped by fes
+     */
+    public function getRequestTypes()
+    {
+        $temp = $this->getByGroup('fes');
+        $newTemp = [];
+
+        foreach ($temp as $value) {
+            $decoded = json_decode($value, true);
+
+            if (is_array($decoded)) {
+                $newTemp = array_merge($newTemp, $decoded);
+            }
+        }
+
+        return $newTemp;
+    }
+
+    /**
+     * Get all options keyed by stock_levels
+     */
+    public function getStockLevels()
+    {
+        return json_decode($this->getByKey('stock_levels'), true) ?? [];
+    }
+
+    /**
+     * Get all options keyed by event_halls
+     */
+    public function getEventHalls()
+    {
+        return json_decode($this->getByKey('event_halls'), true) ?? [];
+    }
+
+    /**
+     * Get all options keyed by laboratories
+     */
+    public function getLaboratories()
+    {
+        return json_decode($this->getByKey('laboratories'), true) ?? [];
+    }
+
+    /**
+     * Get all vehicles from the transactions table join with items table and category_id of 8 for vehicles
+     */
+    public function getVehicles()
+    {
+        return \App\Models\Transaction::join('items', 'transactions.item_id', '=', 'items.id')
+            ->where('items.category_id', 8)
+            ->selectRaw('items.description as name, concat(items.brand, " (", items.description, ")") as label')
+            ->get();
+    }
+
+    /**
+     * Get approving officers
+     */
+    public function getApprovingOfficers()
+    {
+        return json_decode($this->getByKey('approving_officers'), true) ?? null;
+    }
+
+    /**
+     * Get event response notification email
+     */
+    public function getEventResponseNotificationEmail()
+    {
+        return json_decode($this->getByKey('event_response_notification_email'), true) ?? [];
+    }
+
+    /**
+     * Get center chief
+     */
+    public function getCenterChief()
+    {
+        return $this->getByKey('center_chief') ?? 'Default Center Chief';
+    }
+
+    /**
+     * Get sex options
+     */
+    public function getSexOptions()
+    {
+        $value = $this->getByKey('sex');
+
+        if (!$value) {
+            return [];
+        }
+
+        $decoded = json_decode($value, true);
+
+        return is_array($decoded) ? $decoded : [];
     }
 }

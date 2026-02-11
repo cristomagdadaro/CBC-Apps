@@ -5,11 +5,13 @@ namespace App\Observers;
 use App\Models\EventSubformResponse;
 use App\Models\Participant;
 use App\Mail\EventSubformResponseNotification;
-use App\Models\Option;
+use App\Repositories\OptionRepo;
 use Illuminate\Support\Facades\Mail;
 
 class EventSubformResponseObserver
 {
+    public function __construct(private OptionRepo $optionRepo) {}
+
     /**
      * Subform types that insert/update participant data
      */
@@ -25,7 +27,7 @@ class EventSubformResponseObserver
      */
     public function created(EventSubformResponse $response)
     {
-        $notificationEmail = Option::getEventResponseNotificationEmail();
+        $notificationEmail = $this->optionRepo->getEventResponseNotificationEmail();
         if (empty($notificationEmail)) {
             return;
         }

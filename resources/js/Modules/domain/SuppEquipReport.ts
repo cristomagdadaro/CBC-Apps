@@ -1,11 +1,14 @@
 import DtoSuppEquipReport from "@/Modules/dto/DtoSuppEquipReport";
+import {usePage} from "@inertiajs/vue3";
 
 export default class SuppEquipReport extends DtoSuppEquipReport {
     constructor(response: DtoSuppEquipReport = {} as DtoSuppEquipReport) {
         super(response);
 
-        this.api._apiIndex = 'api.inventory.supp_equip_reports.index';
-        this.api._apiPost = 'api.inventory.supp_equip_reports.store';
+        const page = usePage();
+        this.api._apiIndex = (!!page.props.auth?.user) ? 'api.inventory.supp_equip_reports.index':'api.inventory.transactions.index.public';
+        console.log(this.api._apiIndex);
+        this.api._apiPost = 'api.inventory.supp_equip_reports.store' ;
         this.api._apiPut = 'api.inventory.supp_equip_reports.update';
         this.api._apiDelete = 'api.inventory.supp_equip_reports.destroy';
 
