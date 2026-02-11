@@ -16,13 +16,7 @@ class LaboratoryCheckInRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'employee_id' => ['required_unless:is_guest,1', 'string', 'max:32'],
-            'is_guest' => ['nullable', 'boolean'],
-            'guest_name' => ['required_if:is_guest,1', 'string', 'max:150'],
-            'guest_position' => ['required_if:is_guest,1', 'string', 'max:150'],
-            'guest_affiliation' => ['required_if:is_guest,1', 'string', 'max:150'],
-            'guest_email' => ['required_if:is_guest,1', 'email', 'max:150'],
-            'guest_phone' => ['required_if:is_guest,1', 'string', 'max:50'],
+            'employee_id' => ['required', 'string', 'max:32'],
             'end_use_at' => ['required', 'date'],
             'purpose' => ['nullable', 'string', 'max:1000'],
         ];

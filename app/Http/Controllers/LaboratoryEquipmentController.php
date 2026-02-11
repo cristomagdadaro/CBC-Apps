@@ -15,7 +15,8 @@ class LaboratoryEquipmentController extends Controller
 
     public function index(): JsonResponse
     {
-        $equipment = $this->service->listEligibleEquipment();
+        $search = request()->query('search');
+        $equipment = $this->service->listEligibleEquipment($search);
 
         return response()->json([
             'data' => $equipment,

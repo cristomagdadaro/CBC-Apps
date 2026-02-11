@@ -34,17 +34,11 @@ export default {
             loading: false,
             message: null,
             messageType: "success",
-            isGuest: false,
             personnelPreview: null,
             checkInErrors: {},
             checkOutErrors: {},
             checkInForm: useForm({
                 employee_id: "",
-                guest_name: "",
-                guest_position: "",
-                guest_affiliation: "",
-                guest_email: "",
-                guest_phone: "",
                 end_use_at: "",
                 purpose: "",
             }),
@@ -131,12 +125,6 @@ export default {
 
             const payload = {
                 employee_id: this.checkInForm.employee_id,
-                is_guest: this.isGuest,
-                guest_name: this.checkInForm.guest_name,
-                guest_position: this.checkInForm.guest_position,
-                guest_affiliation: this.checkInForm.guest_affiliation,
-                guest_email: this.checkInForm.guest_email,
-                guest_phone: this.checkInForm.guest_phone,
                 end_use_at: this.checkInForm.end_use_at,
                 purpose: this.checkInForm.purpose,
             };
@@ -232,12 +220,12 @@ export default {
                         <SelectSearchField
                             id="equipment_selector"
                             label="Select equipment"
-                            placeholder="Search equipment name"
+                            placeholder="Search by name, ID, brand, or barcode"
                             :options="equipmentOptions"
                             v-model="selectedEquipmentId"
                         />
                         <p class="text-xs text-gray-500 mt-2">
-                            Scan the QR code if available, or select equipment from the list.
+                            Scan the QR code if available, or search and select equipment from the list.
                         </p>
                     </div>
 
@@ -259,16 +247,20 @@ export default {
                             <span class="text-xs uppercase text-gray-500">PhilRice Property No.</span>
                             <span class="font-semibold">{{ equipment.barcode_prri || '-' }}</span>
                         </div>
+                        <div class="flex flex-col gap-1">
+                            <span class="text-xs uppercase text-gray-500">CBC Barcode</span>
+                            <span class="font-semibold">{{ equipment.barcode || '-' }}</span>
+                        </div>
                     </div>
                 </div>
 
-                <div v-if="hasEquipment" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div v-if="hasEquipment" class="grid grid-cols-1 gap-4">
                     <div class="border rounded-lg bg-white p-4 shadow-sm">
                         <h2 class="text-base font-semibold mb-2">Current Status</h2>
                         <div v-if="activeLog" class="flex flex-col gap-2 text-sm">
                             <div class="flex justify-between gap-5">
                                 <span class="text-gray-500">Status</span>
-                                <span class="font-semibold">{{ activeLog.status }}</span>
+                                <span class="font-semibold uppercase">{{ activeLog.status }}</span>
                             </div>
                             <div class="flex justify-between gap-5">
                                 <span class="text-gray-500">Checked in at</span>
@@ -287,27 +279,15 @@ export default {
                             No active log for this equipment.
                         </div>
                     </div>
-
-                    <div class="border rounded-lg bg-white p-4 shadow-sm">
-                        <h2 class="text-base font-semibold mb-2">Allowed Actions</h2>
-                        <div class="text-sm text-gray-600">
-                            <span v-if="canCheckIn">Check-in available</span>
-                            <span v-else-if="canCheckOut">Check-out available</span>
-                            <span v-else>No actions allowed</span>
-                        </div>
-                    </div>
                 </div>
 
                 <div v-if="hasEquipment && canCheckIn" class="border rounded-lg bg-white p-4 shadow-sm">
-                    <div class="grid grid-cols-2 mb-3">
+                    <div class="grid grid-cols-1 md:grid-cols-2 mb-3 gap-2">
                         <h2 class="text-base font-semibold">Check-in Equipment</h2>
-                        <div class="flex items-center gap-2">
-                            <input id="is_guest" v-model="isGuest" type="checkbox" class="rounded" />
-                            <label for="is_guest" class="text-sm leading-none">Are you a non-PhilRice personnel or guest?</label>
-                        </div>
+                        <p class="text-sm text-gray-500">Lookup your PhilRice ID to auto-fill details.</p>
                     </div>
 
-                    <div v-if="!isGuest" class="flex flex-col gap-3">
+                    <div class="flex flex-col gap-3">
                         <PersonnelLookup
                             v-model="checkInForm.employee_id"
                             @found="handlePersonnelFound"
@@ -340,14 +320,6 @@ export default {
                         </div>
                     </div>
 
-                    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        <TextInput id="guest_name" v-model="checkInForm.guest_name" label="Full Name" :error="checkInErrors.guest_name" required />
-                        <TextInput id="guest_position" v-model="checkInForm.guest_position" label="Position" :error="checkInErrors.guest_position" required />
-                        <TextInput id="guest_affiliation" v-model="checkInForm.guest_affiliation" label="Affiliation" :error="checkInErrors.guest_affiliation" required />
-                        <TextInput id="guest_email" v-model="checkInForm.guest_email" label="Email" :error="checkInErrors.guest_email" required />
-                        <TextInput id="guest_phone" v-model="checkInForm.guest_phone" label="Phone" :error="checkInErrors.guest_phone" required />
-                    </div>
-
                     <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
                         <TextInput
                             id="end_use_at"
@@ -355,6 +327,7 @@ export default {
                             label="Estimated End of Use"
                             type="datetime-local"
                             :error="checkInErrors.end_use_at"
+                            @keydown.enter.prevent="submitCheckIn"
                             required
                         />
                         <TextInput
@@ -362,6 +335,7 @@ export default {
                             v-model="checkInForm.purpose"
                             label="Purpose (optional)"
                             :error="checkInErrors.purpose"
+                            @keydown.enter.prevent="submitCheckIn"
                         />
                     </div>
                     <p class="text-xs text-gray-500 mt-2">
@@ -372,7 +346,7 @@ export default {
 
                     <button
                         type="button"
-                        class="mt-3 px-4 py-2 rounded bg-AB text-white text-sm hover:bg-AB-dark"
+                        class="mt-3 px-4 py-2 rounded bg-AB text-white text-sm hover:bg-AB-dark w-full"
                         @click="submitCheckIn"
                     >
                         Check In Equipment
@@ -380,9 +354,9 @@ export default {
                 </div>
 
                 <div v-if="hasEquipment && canCheckOut" class="border rounded-lg bg-white p-4 shadow-sm">
-                    <div class="grid grid-cols-2 mb-3">
+                    <div class="grid grid-cols-2 mb-3 gap-5">
                         <h2 class="text-base font-semibold w-fit">Check-out Equipment</h2>
-                        <div class="flex items-center gap-2 w-fit">
+                        <div class="flex items-center gap-2 w-fit justify-end">
                             <input id="admin_override" v-model="checkOutForm.admin_override" type="checkbox" class="rounded" />
                             <label for="admin_override" class="text-sm">Admin Override</label>
                         </div>
@@ -392,6 +366,7 @@ export default {
                         v-model="checkOutForm.employee_id"
                         label="PhilRice ID"
                         :error="checkOutErrors.employee_id"
+                        @keydown.enter.prevent="submitCheckOut"
                         required
                     />
 

@@ -148,7 +148,7 @@ class Option extends BaseModel
 
     public static function getApprovingOfficers()
     {
-        return json_decode(static::getByKey('approving_officers'), true) ?? [];
+        return json_decode(static::getByKey('approving_officers'), true) ?? null;
     }
 
     public static function getEventResponseNotificationEmail()

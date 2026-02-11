@@ -14,9 +14,9 @@ use Illuminate\Support\Facades\DB;
 
 class LaboratoryLogService
 {
-    public function listEligibleEquipment(): Collection
+    public function listEligibleEquipment(?string $search = null): Collection
     {
-        return Transaction::query()
+        $query = Transaction::query()
             ->select([
                 'items.id as equipment_id',
                 'items.name',
@@ -31,8 +31,18 @@ class LaboratoryLogService
             ->where(function (Builder $query) {
                 $query->where('categories.id', 7)
                     ->orWhere('categories.name', 'Laboratory Equipment');
-            })
-            ->groupBy('items.id', 'items.name', 'items.brand', 'items.description', 'items.category_id', 'categories.name')
+            });
+
+        if ($search) {
+            $query->where(function (Builder $query) use ($search) {
+                $query->where('items.id', 'like', "%{$search}%")
+                    ->orWhere('items.name', 'like', "%{$search}%")
+                    ->orWhere('items.brand', 'like', "%{$search}%")
+                    ->orWhere('transactions.barcode', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->groupBy('items.id', 'items.name', 'items.brand', 'items.description', 'items.category_id', 'categories.name')
             ->orderBy('items.name')
             ->get();
     }
@@ -72,34 +82,11 @@ class LaboratoryLogService
                 abort(409, 'Equipment already has an active log.');
             }
 
-            $personnelId = null;
-
-            if (!empty($payload['is_guest'])) {
-                $nameParts = preg_split('/\s+/', trim($payload['guest_name'] ?? ''), -1, PREG_SPLIT_NO_EMPTY);
-                $firstName = $nameParts[0] ?? '';
-                $lastName = count($nameParts) > 1 ? $nameParts[count($nameParts) - 1] : $firstName;
-                $middleName = count($nameParts) > 2 ? implode(' ', array_slice($nameParts, 1, -1)) : null;
-
-                $guestPersonnel = Personnel::create([
-                    'fname' => $firstName,
-                    'mname' => $middleName,
-                    'lname' => $lastName,
-                    'suffix' => null,
-                    'position' => $payload['guest_position'],
-                    'phone' => $payload['guest_phone'],
-                    'address' => $payload['guest_affiliation'],
-                    'email' => $payload['guest_email'],
-                    'employee_id' => null,
-                ]);
-
-                $personnelId = $guestPersonnel->id;
-            } else {
-                $personnel = Personnel::where('employee_id', $payload['employee_id'])->first();
-                if (!$personnel) {
-                    abort(422, 'Personnel not found for the provided PhilRice ID.');
-                }
-                $personnelId = $personnel->id;
+            $personnel = Personnel::where('employee_id', $payload['employee_id'])->first();
+            if (!$personnel) {
+                abort(422, 'Personnel not found for the provided PhilRice ID.');
             }
+            $personnelId = $personnel->id;
 
             $log = new LaboratoryEquipmentLog();
             $log->equipment_id = $equipmentId;
@@ -146,19 +133,13 @@ class LaboratoryLogService
                 abort(409, 'No personnel record found for this log.');
             }
 
-            if (!$checkedInPersonnel->employee_id) {
-                if (!$isAdminOverride) {
-                    abort(403, 'Admin override required to check out guest logs.');
-                }
-            } else {
-                $personnel = Personnel::where('employee_id', $payload['employee_id'])->first();
-                if (!$personnel) {
-                    abort(422, 'Personnel not found for the provided PhilRice ID.');
-                }
+            $personnel = Personnel::where('employee_id', $payload['employee_id'])->first();
+            if (!$personnel) {
+                abort(422, 'Personnel not found for the provided PhilRice ID.');
+            }
 
-                if ($personnel->id !== $activeLog->personnel_id && !$isAdminOverride) {
-                    abort(403, 'Only the original check-in personnel can check out this equipment.');
-                }
+            if ($personnel->id !== $activeLog->personnel_id && !$isAdminOverride) {
+                abort(403, 'Only the original check-in personnel can check out this equipment.');
             }
 
             $activeLog->status = 'completed';

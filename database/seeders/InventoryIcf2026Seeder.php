@@ -131,8 +131,11 @@ class InventoryIcf2026Seeder extends Seeder
             }
 
             $barcodePrri = $this->nullableTrim($data['barcode_prri'] ?? null);
-            $storage = $this->faker->randomElement(Option::getStorageLocations() ?? ['name' => 'Default Storage']);
-            $barcode = TransactionFactory::generateBarcode($storage['name']);
+            $storageOptions = Option::getStorageLocations() ?? [];
+            $storage = !empty($storageOptions) 
+                ? $this->faker->randomElement($storageOptions) 
+                : ['name' => 'Default Storage'];
+            $barcode = TransactionFactory::generateBarcode($storage['name'] ?? 'Default Storage');
 
             try {
                 $transaction = Transaction::factory()->create([

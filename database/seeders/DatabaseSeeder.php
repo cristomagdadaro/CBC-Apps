@@ -41,12 +41,14 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
+            OptionSeeder::class,
             FormSeeder::class,
             InventorySeeder::class,
             RequesterSeeder::class,
             UseRequestFormSeeder::class,
             RequestFormPIvotSeeder::class,
             LocCitiesSeeder::class,
+            InventoryIcf2026Seeder::class,
             LaboratoryEquipmentLogSeeder::class,
         ]);
 

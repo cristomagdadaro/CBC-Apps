@@ -7,6 +7,7 @@ use App\Http\Controllers\EventWorkflowController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\FormScanController;
 use App\Http\Controllers\ItemController;
+use App\Models\Option;
 use App\Http\Controllers\LaboratoryEquipmentController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\OptionController;
@@ -21,7 +22,6 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\Item;
-use App\Models\Option;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /*
