@@ -368,6 +368,26 @@ Route::middleware([
             Route::get('/{event_id}', [FormController::class, 'show'])->name('forms.show');
             Route::post('/{event_id}/requirements', [FormController::class, 'updateRequirements'])->name('forms.requirements.update');
         });
+
+        Route::prefix('system')->group(function () {
+            Route::prefix('options')->group(function () {
+                Route::get('/', function () {
+                    return Inertia::render('System/Options/OptionsIndex', [
+                        'options' => \App\Models\Option::all(),
+                    ]);
+                })->name('system.options.index');
+
+                Route::get('/create', function () {
+                    return Inertia::render('System/Options/CreateOption');
+                })->name('system.options.create');
+
+                Route::get('/{id}', function () {
+                    return Inertia::render('System/Options/EditOption', [
+                        'data' => \App\Models\Option::find(request()->route('id')),
+                    ]);
+                })->name('system.options.show');
+            });
+        });
     });
 
 });

@@ -61,6 +61,10 @@ export default {
                     label: 'Manuals & Guides',
                     href: 'manuals.index',
                 },
+                {
+                    label: 'System Options',
+                    href: 'system.options.index',
+                },
             ],
         };
     },

@@ -11,6 +11,7 @@ import AddItemTopic from './Topics/AddItemTopic.vue';
 import ProfilePasswordTopic from './Topics/ProfilePasswordTopic.vue';
 import ConsoleLoggerTopic from './Topics/ConsoleLoggerTopic.vue';
 import RentalServicesTopic from './Topics/RentalServicesTopic.vue';
+import SystemOptionsTopic from './Topics/SystemOptionsTopic.vue';
 
 export default {
     name: 'ManualsIndex',
@@ -26,6 +27,7 @@ export default {
         ProfilePasswordTopic,
         ConsoleLoggerTopic,
         RentalServicesTopic,
+        SystemOptionsTopic,
     },
     setup() {
         const activeSection = ref('overview');
@@ -80,11 +82,16 @@ export default {
                 title: 'Console Logger (Development)',
                 icon: '🖥️',
                 component: ConsoleLoggerTopic,
+            },
             rentalServices: {
                 title: 'Rental Services Module',
                 icon: '🚗',
                 component: RentalServicesTopic,
             },
+            systemOptions: {
+                title: 'How to use System Options',
+                icon: '⚙️',
+                component: SystemOptionsTopic,
             },
         };
 
@@ -100,6 +107,7 @@ export default {
             { id: 'addItem', label: 'How to add a new Item', icon: '🏷️' },
             { id: 'profilePassword', label: 'How to update Profile and Password', icon: '👤' },
             { id: 'consoleLogger', label: 'Console Logger (Development)', icon: '🖥️' },
+            { id: 'systemOptions', label: 'How to use System Options', icon: '⚙️' },
         ];
 
         return {

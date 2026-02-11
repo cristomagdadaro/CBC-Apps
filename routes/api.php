@@ -8,6 +8,7 @@ use App\Http\Controllers\FormController;
 use App\Http\Controllers\FormScanController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\OptionController;
 use App\Http\Controllers\RequestFormPivotController;
 use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\PersonnelController;
@@ -152,4 +153,26 @@ Route::middleware(['api'])->group(function () {
 
     require __DIR__.'/inventory.php';
     require __DIR__.'/rental.php';
+
+    Route::prefix('options')->group(function () {
+        Route::get('/', [OptionController::class, 'index'])->name('api.options.index');
+        Route::post('/', [OptionController::class, 'store'])->name('api.options.store');
+        Route::put('/{id}', [OptionController::class, 'update'])->name('api.options.update');
+        Route::delete('/{id}', [OptionController::class, 'destroy'])->name('api.options.destroy');
+        
+        // Get options by group
+        Route::get('/group/{group}', [OptionController::class, 'getByGroup'])->name('api.options.group');
+        
+        // Get option by key
+        Route::get('/key/{key}', [OptionController::class, 'getByKey'])->name('api.options.key');
+        
+        // Get all options grouped
+        Route::get('/grouped/all', [OptionController::class, 'getAllGrouped'])->name('api.options.grouped');
+        
+        // Get options for dropdown
+        Route::get('/dropdown/list', [OptionController::class, 'getForDropdown'])->name('api.options.dropdown');
+        
+        // Get options with metadata
+        Route::get('/metadata/list', [OptionController::class, 'getWithMetadata'])->name('api.options.metadata');
+    });
 });
