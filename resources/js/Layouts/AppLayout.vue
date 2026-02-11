@@ -69,6 +69,21 @@ export default {
         };
     },
     methods: {
+        isServiceActive(service) {
+            if (!service) {
+                return false;
+            }
+
+            if (service.href && route().current(service.href)) {
+                return true;
+            }
+
+            if (Array.isArray(service.children)) {
+                return service.children.some((child) => route().current(child.href));
+            }
+
+            return false;
+        },
         switchToTeam(team) {
             router.put(route('current-team.update'), {
                 team_id: team.id,
@@ -103,12 +118,20 @@ export default {
                             </div>
 
                             <!-- Navigation Links -->
-                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                            <div class="hidden sm:ms-6 sm:flex sm:items-center sm:gap-2 sm:flex-wrap">
                                 <template v-for="service in services" :key="service.label">
                                     <!-- Show Dropdown if service has children -->
                                     <Dropdown v-if="service.children" align="right" width="60">
                                         <template #trigger>
-                                            <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
+                                            <button
+                                                type="button"
+                                                :class="[
+                                                    'inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md transition ease-in-out duration-150',
+                                                    isServiceActive(service)
+                                                        ? 'text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700'
+                                                        : 'text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700',
+                                                ]"
+                                            >
                                                 {{ service.label }}
                                                 <caret-down class="ms-2 -me-0.5 h-4 w-4" />
                                             </button>
@@ -270,29 +293,28 @@ export default {
                         <div class="sm:hidden flex flex-col gap-1">
                             <template v-for="service in services" :key="service.label">
                                 <!-- Show Dropdown if service has children -->
-                                <Dropdown v-if="service.children" align="right" width="60">
-                                    <template #trigger>
-                                        <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-normal leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
-                                            {{ service.label }}
-                                            <caret-down class="ms-2 -me-0.5 h-4 w-4" />
-                                        </button>
-                                    </template>
+                                <div class="flex flex-col">
+                                    <ResponsiveNavLink
+                                        :href="route(service.href)"
+                                        :active="isServiceActive(service)"
+                                    >
+                                        {{ service.label }}
+                                    </ResponsiveNavLink>
 
-                                    <template #content>
-                                        <div v-for="child in service.children" :key="child.label" class="w-60">
-                                            <ResponsiveNavLink :href="route(child.href)" :active="route().current(child.href)">
-                                                <div class="flex items-center gap-1">
-                                                    <span>{{ child.label }}</span>
-                                                </div>
-                                            </ResponsiveNavLink>
-                                        </div>
-                                    </template>
-                                </Dropdown>
-
-                                <!-- Show regular NavLink if no children -->
-                                <ResponsiveNavLink v-else :href="route(service.href)" :active="route().current(service.href)">
-                                    {{ service.label }}
-                                </ResponsiveNavLink>
+                                    <div
+                                        v-if="service.children"
+                                        class="ms-4 mt-1 flex flex-col gap-1 border-s border-gray-200 dark:border-gray-600 ps-3"
+                                    >
+                                        <ResponsiveNavLink
+                                            v-for="child in service.children"
+                                            :key="child.label"
+                                            :href="route(child.href)"
+                                            :active="route().current(child.href)"
+                                        >
+                                            {{ child.label }}
+                                        </ResponsiveNavLink>
+                                    </div>
+                                </div>
                             </template>
                         </div>
                     </div>
