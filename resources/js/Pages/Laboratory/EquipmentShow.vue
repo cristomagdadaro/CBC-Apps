@@ -255,7 +255,6 @@ export default {
                     <div v-else-if="equipment" class="grid grid-cols-1 md:grid-cols-2 gap-1">
                         <div class="col-span-2 pb-1 leading-none">
                             <h1 class="text-xl font-bold">{{ equipment.name }}</h1>
-                            <span class="text-xs text-gray-500">{{ equipment.id }}</span>
                         </div>
                         <div class="flex flex-col gap-1">
                             <span class="text-xs uppercase text-gray-500">Brand</span>

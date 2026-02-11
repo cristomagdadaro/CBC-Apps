@@ -23,8 +23,15 @@ class LaboratoryEquipmentController extends Controller
         ]);
     }
 
-    public function show(string $equipmentId): JsonResponse
+    public function show(string $identifier): JsonResponse
     {
+        $equipmentId = $this->service->resolveEquipmentId($identifier);
+        if (!$equipmentId) {
+            return response()->json([
+                'message' => 'Equipment not found.',
+            ], 404);
+        }
+
         $details = $this->service->getEquipmentDetails($equipmentId);
 
         if (!$details['equipment']) {
@@ -38,8 +45,15 @@ class LaboratoryEquipmentController extends Controller
         ]);
     }
 
-    public function checkIn(LaboratoryCheckInRequest $request, string $equipmentId): JsonResponse
+    public function checkIn(LaboratoryCheckInRequest $request, string $identifier): JsonResponse
     {
+        $equipmentId = $this->service->resolveEquipmentId($identifier);
+        if (!$equipmentId) {
+            return response()->json([
+                'message' => 'Equipment not found.',
+            ], 404);
+        }
+
         $log = $this->service->checkIn($equipmentId, $request->validated());
 
         return response()->json([
@@ -48,8 +62,15 @@ class LaboratoryEquipmentController extends Controller
         ], 201);
     }
 
-    public function checkOut(LaboratoryCheckOutRequest $request, string $equipmentId): JsonResponse
+    public function checkOut(LaboratoryCheckOutRequest $request, string $identifier): JsonResponse
     {
+        $equipmentId = $this->service->resolveEquipmentId($identifier);
+        if (!$equipmentId) {
+            return response()->json([
+                'message' => 'Equipment not found.',
+            ], 404);
+        }
+
         $log = $this->service->checkOut($equipmentId, $request->validated());
 
         return response()->json([

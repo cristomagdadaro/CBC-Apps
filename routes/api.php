@@ -125,9 +125,9 @@ Route::prefix('guest')->group(function () {
 Route::middleware(['api'])->group(function () {
     Route::prefix('laboratory')->group(function () {
         Route::get('/equipments', [LaboratoryEquipmentController::class, 'index'])->name('api.laboratory.equipments.index');
-        Route::get('/equipments/{equipment_id}', [LaboratoryEquipmentController::class, 'show'])->name('api.laboratory.equipments.show');
-        Route::post('/equipments/{equipment_id}/check-in', [LaboratoryEquipmentController::class, 'checkIn'])->name('api.laboratory.equipments.check-in');
-        Route::post('/equipments/{equipment_id}/check-out', [LaboratoryEquipmentController::class, 'checkOut'])->name('api.laboratory.equipments.check-out');
+        Route::get('/equipments/{identifier}', [LaboratoryEquipmentController::class, 'show'])->name('api.laboratory.equipments.show');
+        Route::post('/equipments/{identifier}/check-in', [LaboratoryEquipmentController::class, 'checkIn'])->name('api.laboratory.equipments.check-in');
+        Route::post('/equipments/{identifier}/check-out', [LaboratoryEquipmentController::class, 'checkOut'])->name('api.laboratory.equipments.check-out');
         Route::get('/dashboard', [LaboratoryEquipmentController::class, 'dashboard'])->name('api.laboratory.dashboard');
     });
 

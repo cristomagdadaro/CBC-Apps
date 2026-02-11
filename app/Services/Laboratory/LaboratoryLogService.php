@@ -14,6 +14,24 @@ use Illuminate\Support\Facades\DB;
 
 class LaboratoryLogService
 {
+    public function resolveEquipmentId(string $identifier): ?string
+    {
+        // If identifier is a UUID, return as-is
+        if (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $identifier)) {
+            return $identifier;
+        }
+
+        // Search by barcode or barcode_prri
+        $item = Item::query()
+            ->whereHas('transactions', function (Builder $query) use ($identifier) {
+                $query->where('barcode', $identifier)
+                    ->orWhere('barcode_prri', $identifier);
+            })
+            ->first();
+
+        return $item?->id;
+    }
+
     public function listEligibleEquipment(?string $search = null): Collection
     {
         $query = Transaction::query()
@@ -221,6 +239,11 @@ class LaboratoryLogService
     {
         return Item::query()
             ->with('category')
+            ->select('items.*')
+            ->addSelect(
+                DB::raw('(SELECT MAX(t.barcode) FROM transactions t WHERE t.item_id = items.id) as barcode'),
+                DB::raw('(SELECT MAX(t.barcode_prri) FROM transactions t WHERE t.item_id = items.id AND t.barcode_prri IS NOT NULL) as barcode_prri')
+            )
             ->where('items.id', $equipmentId)
             ->whereHas('category', function (Builder $query) {
                 $query->where('categories.id', 7)
