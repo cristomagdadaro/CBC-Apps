@@ -47,6 +47,7 @@ class DatabaseSeeder extends Seeder
             UseRequestFormSeeder::class,
             RequestFormPIvotSeeder::class,
             LocCitiesSeeder::class,
+            LaboratoryEquipmentLogSeeder::class,
         ]);
 
         RentalVehicle::factory()->count(20)->create();

@@ -7,6 +7,7 @@ use App\Http\Controllers\EventWorkflowController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\FormScanController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\LaboratoryEquipmentController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\OptionController;
 use App\Http\Controllers\RequestFormPivotController;
@@ -122,6 +123,14 @@ Route::prefix('guest')->group(function () {
 
 /* 'auth:sanctum', */
 Route::middleware(['api'])->group(function () {
+    Route::prefix('laboratory')->group(function () {
+        Route::get('/equipments', [LaboratoryEquipmentController::class, 'index'])->name('api.laboratory.equipments.index');
+        Route::get('/equipments/{equipment_id}', [LaboratoryEquipmentController::class, 'show'])->name('api.laboratory.equipments.show');
+        Route::post('/equipments/{equipment_id}/check-in', [LaboratoryEquipmentController::class, 'checkIn'])->name('api.laboratory.equipments.check-in');
+        Route::post('/equipments/{equipment_id}/check-out', [LaboratoryEquipmentController::class, 'checkOut'])->name('api.laboratory.equipments.check-out');
+        Route::get('/dashboard', [LaboratoryEquipmentController::class, 'dashboard'])->name('api.laboratory.dashboard');
+    });
+
     Route::prefix('locations')->group(function () {
         Route::get('/regions', [LocationController::class, 'regions'])->name('api.locations.regions.auth');
         Route::get('/provinces', [LocationController::class, 'provinces'])->name('api.locations.provinces.auth');

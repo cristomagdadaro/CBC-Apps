@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('forms:update-expired')->everyMinute();
+        $schedule->command('laboratory:mark-overdue')->everyMinute();
     }
 
     /**
