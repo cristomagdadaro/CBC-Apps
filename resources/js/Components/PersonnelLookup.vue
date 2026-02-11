@@ -1,10 +1,8 @@
 <script>
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Personnel from "@/Modules/domain/Personnel";
-import LoaderIcon from './Icons/LoaderIcon.vue';
 
 export default {
-  components: { LoaderIcon },
     name: "PersonnelLookup",
     mixins: [ApiMixin],
     props: {

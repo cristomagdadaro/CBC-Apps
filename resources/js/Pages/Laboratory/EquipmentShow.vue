@@ -5,6 +5,7 @@ import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import PersonnelLookup from "@/Components/PersonnelLookup.vue";
 import SelectSearchField from "@/Components/SelectSearchField.vue";
 import TextInput from "@/Components/TextInput.vue";
+import SuccessModal from "@/Components/SuccessModal.vue";
 
 export default {
     name: "LaboratoryEquipmentShow",
@@ -12,6 +13,7 @@ export default {
         PersonnelLookup,
         SelectSearchField,
         TextInput,
+        SuccessModal,
     },
     mixins: [ApiMixin, DataFormatterMixin],
     props: {
@@ -34,6 +36,7 @@ export default {
             loading: false,
             message: null,
             messageType: "success",
+            showSuccessModal: false,
             personnelPreview: null,
             checkInErrors: {},
             checkOutErrors: {},
@@ -135,6 +138,7 @@ export default {
                 });
                 this.messageType = "success";
                 this.message = "Check-in recorded successfully.";
+                this.showSuccessModal = true;
                 this.resetCheckIn();
                 await this.loadEquipment();
             } catch (error) {
@@ -161,6 +165,7 @@ export default {
                 });
                 this.messageType = "success";
                 this.message = "Check-out recorded successfully.";
+                this.showSuccessModal = true;
                 this.resetCheckOut();
                 await this.loadEquipment();
             } catch (error) {
@@ -179,6 +184,10 @@ export default {
                 .map((value) => String(value).trim())
                 .filter(Boolean);
             return parts.length ? parts.join(" ") : "-";
+        },
+        getErrorMessage(error) {
+            if (!error) return null;
+            return typeof error === 'string' ? error : Array.isArray(error) ? error[0] : error;
         },
     },
     watch: {
@@ -208,13 +217,25 @@ export default {
 
 <template>
     <Head :title="title" />
+    <SuccessModal
+        :show="showSuccessModal"
+        :title="message"
+        @close="showSuccessModal = false"
+    />
     <GuestFormPage :title="title" :subtitle="subtitle" :delay-ready="delayReady">
+        <!-- Loading Overlay -->
+        <transition name="fade">
+            <div v-if="processing" class="fixed top-0 left-0 w-full h-full z-[60] flex items-center justify-center bg-black bg-opacity-30">
+                <div class="flex flex-col items-center gap-3 bg-white rounded-lg p-6 shadow-lg">
+                    <div class="animate-spin rounded-full h-10 w-10 border-4 border-gray-300 border-t-AB"></div>
+                    <p class="text-sm text-gray-600 font-medium">Processing request...</p>
+                </div>
+            </div>
+        </transition>
+
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
-            <div class="flex flex-col gap-4 w-full max-w-4xl mx-auto p-2 bg-gray-100 md:rounded-md">
+            <div class="flex flex-col gap-4 w-full max-w-4xl mx-auto p-2 bg-gray-100 md:rounded-md h-full md:h-fit">
                 <div class="flex flex-col gap-2 border rounded-lg bg-white p-4 shadow-sm">
-                    <div v-if="message" :class="messageType === 'error' ? 'text-red-600' : 'text-green-600'" class="text-sm">
-                        {{ message }}
-                    </div>
 
                     <div v-if="!hasEquipment" class="mt-3">
                         <SelectSearchField
@@ -232,8 +253,9 @@ export default {
                     <div v-else-if="loading" class="text-sm text-gray-500">Loading equipment details...</div>
 
                     <div v-else-if="equipment" class="grid grid-cols-1 md:grid-cols-2 gap-1">
-                        <div class="col-span-2 pb-1">
+                        <div class="col-span-2 pb-1 leading-none">
                             <h1 class="text-xl font-bold">{{ equipment.name }}</h1>
+                            <span class="text-xs text-gray-500">{{ equipment.id }}</span>
                         </div>
                         <div class="flex flex-col gap-1">
                             <span class="text-xs uppercase text-gray-500">Brand</span>
@@ -276,7 +298,7 @@ export default {
                             </div>
                         </div>
                         <div v-else class="text-sm text-gray-500">
-                            No active log for this equipment.
+                            No active user for this equipment
                         </div>
                     </div>
                 </div>
@@ -293,8 +315,8 @@ export default {
                             @found="handlePersonnelFound"
                             @error="handlePersonnelError"
                         />
-                        <div v-if="checkInErrors.employee_id" class="text-sm text-red-600">
-                            {{ checkInErrors.employee_id }}
+                        <div v-if="getErrorMessage(checkInErrors.employee_id)" class="text-sm text-red-600">
+                            {{ getErrorMessage(checkInErrors.employee_id) }}
                         </div>
                         <div v-if="personnelPreview" class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                             <div>
@@ -326,7 +348,7 @@ export default {
                             v-model="checkInForm.end_use_at"
                             label="Estimated End of Use"
                             type="datetime-local"
-                            :error="checkInErrors.end_use_at"
+                            :error="getErrorMessage(checkInErrors.end_use_at)"
                             @keydown.enter.prevent="submitCheckIn"
                             required
                         />
@@ -334,7 +356,7 @@ export default {
                             id="purpose"
                             v-model="checkInForm.purpose"
                             label="Purpose (optional)"
-                            :error="checkInErrors.purpose"
+                            :error="getErrorMessage(checkInErrors.purpose)"
                             @keydown.enter.prevent="submitCheckIn"
                         />
                     </div>
@@ -365,12 +387,12 @@ export default {
                         id="checkout_employee_id"
                         v-model="checkOutForm.employee_id"
                         label="PhilRice ID"
-                        :error="checkOutErrors.employee_id"
+                        :error="getErrorMessage(checkOutErrors.employee_id)"
                         @keydown.enter.prevent="submitCheckOut"
                         required
                     />
 
-                    <div v-if="checkOutErrors.base" class="text-sm text-red-600 mt-2">{{ checkOutErrors.base }}</div>
+                    <div v-if="getErrorMessage(checkOutErrors.base)" class="text-sm text-red-600 mt-2">{{ getErrorMessage(checkOutErrors.base) }}</div>
 
                     <button
                         type="button"
@@ -384,3 +406,20 @@ export default {
         </transition-container>
     </GuestFormPage>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.fade-enter-to,
+.fade-leave-from {
+    opacity: 1;
+}
+</style>

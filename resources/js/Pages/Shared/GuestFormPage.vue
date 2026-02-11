@@ -25,8 +25,14 @@ export default {
 </script>
 
 <template>
-    <div class="absolute top-0 left-0 w-full h-full z-[999] flex justify-center overflow-y-auto max-h-screen overflow-hidden">
-        <div class="relative sm:flex flex-col md:gap-5 justify-start items-center min-h-screen w-full md:w-fit h-full mt-0 md:mt-[5%]">
+    <!-- Background gradient (fixed behind content) -->
+    <div class="fixed top-0 left-0 w-full h-full z-0 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-radial animate-gradient"></div>
+    </div>
+
+    <!-- Main content overlay -->
+    <div class="fixed top-0 left-0 w-full h-full z-50 flex justify-center overflow-y-auto">
+        <div class="relative sm:flex flex-col md:gap-5 justify-start items-center w-full md:w-fit mt-0 md:mt-[5%] pb-8">
             <div class="md:relative flex flex-col md:gap-5 w-full max-w-6xl" :class="{ 'justify-center': !!$slots.search }">
                 <!-- Header / search / top content -->
                 <slot name="top">
@@ -53,10 +59,6 @@ export default {
     </div>
 
     <social-links />
-    <!-- Background gradient -->
-    <div class="min-h-[100vh] max-h-screen flex items-center justify-center text-white text-3xl font-bold relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-radial animate-gradient"></div>
-    </div>
 </template>
 
 <style scoped>
