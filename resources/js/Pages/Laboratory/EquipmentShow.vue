@@ -10,7 +10,7 @@ import SuccessModal from "@/Components/SuccessModal.vue";
 import FlagIcon from '@/Components/Icons/FlagIcon.vue';
 
 export default {
-    name: "LaboratoryEquipmentShow",
+    name: "EquipmentShow",
     components: {
         PersonnelLookup,
         SelectSearchField,
@@ -37,6 +37,8 @@ export default {
             allowedActions: [],
             maxEndUseHours: 24,
             loading: false,
+            loadingActiveEquipments: false,
+            activeEquipments: [],
             message: null,
             messageType: "success",
             showSuccessModal: false,
@@ -89,6 +91,18 @@ export default {
                 });
             } catch (error) {
                 this.equipmentOptions = [];
+            }
+        },
+        async loadActiveEquipments() {
+            this.loadingActiveEquipments = true;
+            try {
+                const response = await this.fetchGetApi("api.laboratory.dashboard");
+                const payload = response?.data ?? response;
+                this.activeEquipments = Array.isArray(payload) ? payload : payload?.active ?? [];
+            } catch (error) {
+                this.activeEquipments = [];
+            } finally {
+                this.loadingActiveEquipments = false;
             }
         },
         async loadEquipment() {
@@ -230,6 +244,7 @@ export default {
             this.loadEquipmentOptions();
         }
         this.loadLaboratoryPersonnel();
+        this.loadActiveEquipments();
         // Auto-fill check-out form with saved personnel
         if (this.savedLaboratoryPersonnel?.employee_id) {
             this.checkOutForm.employee_id = this.savedLaboratoryPersonnel.employee_id;
@@ -260,76 +275,76 @@ export default {
         </transition>
 
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
-            <div class="flex flex-col gap-4 w-full max-w-4xl mx-auto p-2 bg-gray-100 md:rounded-md h-full md:h-fit">
-                <div class="flex flex-col gap-2 border rounded-lg bg-white p-4 shadow-sm">
-
-                    <div v-if="!hasEquipment" class="mt-3">
-                        <SelectSearchField
-                            id="equipment_selector"
-                            label="Select equipment"
-                            placeholder="Search by name, ID, brand, or barcode"
-                            :options="equipmentOptions"
-                            v-model="selectedEquipmentId"
-                        />
-                        <p class="text-xs text-gray-500 mt-2">
-                            Scan the QR code if available, or search and select equipment from the list.
-                        </p>
-                    </div>
-                    <div v-else-if="loading" class="text-sm text-gray-500">Loading equipment details...</div>
-                    <div v-else-if="equipment" class="grid grid-cols-1 md:grid-cols-2 gap-1">
-                        <div class="col-span-2 flex justify-between pb-1 leading-none">
-                            <h1 class="text-xl font-bold uppercase">{{ equipment.name }}</h1>
-                            <button v-if="!equipment_id" @click="selectedEquipmentId = null">
-                                <close-icon class="w-6 h-6 text-red-600" />
-                            </button>
+            <div class="flex flex-col lg:flex-row gap-4 w-full max-w-6xl mx-auto p-2 bg-gray-100 md:rounded-md h-full md:h-fit">
+                <div class="flex-1 flex flex-col gap-4">
+                    <div class="flex flex-col gap-2 border rounded-lg bg-white p-4 shadow-sm">
+                        <div v-if="!hasEquipment" class="mt-3">
+                            <SelectSearchField
+                                id="equipment_selector"
+                                label="Select equipment"
+                                placeholder="Search by name, ID, brand, or barcode"
+                                :options="equipmentOptions"
+                                v-model="selectedEquipmentId"
+                            />
+                            <p class="text-xs text-gray-500 mt-2">
+                                Scan the QR code if available, or search and select equipment from the list.
+                            </p>
                         </div>
-                        <div class="flex flex-col gap-1">
-                            <span class="text-xs uppercase text-gray-500">Brand</span>
-                            <span class="font-semibold">{{ equipment.brand || '-' }}</span>
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <span class="text-xs uppercase text-gray-500">Description</span>
-                            <span class="font-semibold">{{ equipment.description || '-' }}</span>
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <span class="text-xs uppercase text-gray-500">PhilRice Property No.</span>
-                            <span class="font-semibold">{{ equipment.barcode_prri || '-' }}</span>
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <span class="text-xs uppercase text-gray-500">CBC Barcode</span>
-                            <span class="font-semibold">{{ equipment.barcode || '-' }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div v-if="hasEquipment" class="grid grid-cols-1 gap-4">
-                    <div class="border rounded-lg bg-white p-4 shadow-sm">
-                        <h2 class="text-base font-semibold mb-2 uppercase">Current Status</h2>
-                        <div v-if="activeLog" class="flex flex-col gap-1 text-sm">
-                            <div class="flex justify-between gap-1">
-                                <span class="text-gray-500">Status</span>
-                                <span class="font-semibold uppercase">{{ activeLog.status }}</span>
+                        <div v-else-if="loading" class="text-sm text-gray-500">Loading equipment details...</div>
+                        <div v-else-if="equipment" class="grid grid-cols-1 md:grid-cols-2 gap-1">
+                            <div class="col-span-2 flex justify-between pb-1 leading-none">
+                                <h1 class="text-xl font-bold uppercase">{{ equipment.name }}</h1>
+                                <button v-if="!equipment_id" @click="selectedEquipmentId = null">
+                                    <close-icon class="w-6 h-6 text-red-600" />
+                                </button>
                             </div>
-                            <div class="flex justify-between gap-1">
-                                <span class="text-gray-500">Checked in at</span>
-                                <span>{{ formatDateTime(activeLog.started_at) }}</span>
+                            <div class="flex flex-col gap-1">
+                                <span class="text-xs uppercase text-gray-500">Brand</span>
+                                <span class="font-semibold">{{ equipment.brand || '-' }}</span>
                             </div>
-                            <div class="flex justify-between gap-1">
-                                <span class="text-gray-500">Expected end</span>
-                                <span>{{ formatDateTime(activeLog.end_use_at) }}</span>
+                            <div class="flex flex-col gap-1">
+                                <span class="text-xs uppercase text-gray-500">Description</span>
+                                <span class="font-semibold">{{ equipment.description || '-' }}</span>
                             </div>
-                            <div class="flex justify-between gap-1">
-                                <span class="text-gray-500">User</span>
-                                <span>{{ formatPersonnelName(activeLog.personnel) }}</span>
+                            <div class="flex flex-col gap-1">
+                                <span class="text-xs uppercase text-gray-500">PhilRice Property No.</span>
+                                <span class="font-semibold">{{ equipment.barcode_prri || '-' }}</span>
                             </div>
-                        </div>
-                        <div v-else class="text-sm text-gray-500">
-                            No active user for this equipment
+                            <div class="flex flex-col gap-1">
+                                <span class="text-xs uppercase text-gray-500">CBC Barcode</span>
+                                <span class="font-semibold">{{ equipment.barcode || '-' }}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div v-if="hasEquipment && canCheckIn" class="border rounded-lg bg-white p-4 shadow-sm">
+                    <div v-if="hasEquipment" class="grid grid-cols-1 gap-4">
+                        <div class="border rounded-lg bg-white p-4 shadow-sm">
+                            <h2 class="text-base font-semibold mb-2 uppercase">Current Status</h2>
+                            <div v-if="activeLog" class="flex flex-col gap-1 text-sm">
+                                <div class="flex justify-between gap-1">
+                                    <span class="text-gray-500">Status</span>
+                                    <span class="font-semibold uppercase">{{ activeLog.status }}</span>
+                                </div>
+                                <div class="flex justify-between gap-1">
+                                    <span class="text-gray-500">Checked in at</span>
+                                    <span>{{ formatDateTime(activeLog.started_at) }}</span>
+                                </div>
+                                <div class="flex justify-between gap-1">
+                                    <span class="text-gray-500">Expected end</span>
+                                    <span>{{ formatDateTime(activeLog.end_use_at) }}</span>
+                                </div>
+                                <div class="flex justify-between gap-1">
+                                    <span class="text-gray-500">User</span>
+                                    <span>{{ formatPersonnelName(activeLog.personnel) }}</span>
+                                </div>
+                            </div>
+                            <div v-else class="text-sm text-gray-500">
+                                No active user for this equipment
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="hasEquipment && canCheckIn" class="border rounded-lg bg-white p-4 shadow-sm">
                     <div class="grid grid-cols-1 md:grid-cols-2 mb-3 gap-2">
                         <h2 class="text-base font-bold uppercase">Check-in Equipment</h2>
                         <p class="text-sm text-gray-500">Lookup your PhilRice ID to auto-fill details.</p>
@@ -378,9 +393,9 @@ export default {
                     >
                         Check In Equipment
                     </button>
-                </div>
+                    </div>
 
-                <div v-if="hasEquipment && canCheckOut" class="border rounded-lg bg-white p-4 shadow-sm flex flex-col justify-end gap-2">
+                    <div v-if="hasEquipment && canCheckOut" class="border rounded-lg bg-white p-4 shadow-sm flex flex-col justify-end gap-2">
                     <div class="flex justify-between gap-5 items-center px-2">
                         <h2 class="text-base font-bold w-fit uppercase">Check-out Equipment</h2>
                         <a
@@ -435,6 +450,35 @@ export default {
                         >
                             Check Out Equipment
                         </button>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- Active Equipments Sidebar -->
+                <div class="w-full lg:w-80 flex flex-col gap-4">
+                    <div class="border rounded-lg bg-white p-4 shadow-sm h-full relative">
+                        <h2 class="text-sm font-bold uppercase mb-3 flex items-center justify-between">
+                            <span>Currently Active</span>
+                            <span class="text-xs bg-AB text-white px-2 py-1 rounded-full font-semibold">{{ activeEquipments.length }}</span>
+                        </h2>
+                        <div v-if="loadingActiveEquipments" class="text-sm text-gray-500 text-center py-4">Loading...</div>
+                        <div v-else-if="activeEquipments.length === 0" class="text-sm text-gray-500 text-center py-4">No active equipments</div>
+                        <div v-else class="flex flex-col gap-2 max-h-[28rem] overflow-y-auto">
+                            <div
+                                v-for="item in activeEquipments"
+                                :key="item.id"
+                                class="border-l-4 border-AB rounded p-3 bg-gray-50 hover:bg-gray-100 transition-colors cursor-default leading-tight"
+                            > 
+                                <h3 class="font-semibold text-sm text-gray-800 truncate">{{ item.equipment?.name }} {{ '(' + item.equipment?.brand + ')' }}</h3>
+                                <p class="text-xs text-gray-600 truncate">Checked in at <b>{{ formatDateTime(item.started_at) }}</b></p>
+                                <p class="text-xs text-gray-600 truncate">Expected end at <b>{{ formatDateTime(item.end_use_at) }}</b></p>
+                                <div class="text-xs space-y-1">
+                                    <div v-if="item.personnel" class="text-gray-700">
+                                        <span class="text-gray-500">User:</span> <b>{{ formatPersonnelName(item.personnel) }}</b>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
