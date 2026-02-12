@@ -29,6 +29,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // Public/Guest routes (no authentication required)
 require __DIR__.'/guest.php';
+require __DIR__.'/options.php';
 
 // Authenticated routes organized by module
 Route::middleware(['api', 'auth'])->group(function () {
@@ -37,5 +38,4 @@ Route::middleware(['api', 'auth'])->group(function () {
     require __DIR__.'/forms.php';
     require __DIR__.'/inventory.php';
     require __DIR__.'/rental.php';
-    require __DIR__.'/options.php';
 });

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['api', 'auth'])->prefix('options')->group(function () {
+Route::prefix('options')->group(function () {
     Route::get('/', [OptionController::class, 'index'])
         ->name('api.options.index');
     

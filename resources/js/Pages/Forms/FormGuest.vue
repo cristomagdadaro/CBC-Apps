@@ -247,6 +247,54 @@ export default {
 <template>
     <Head title="Event Form" />
 
+    <!-- Mobile Events Modal - rendered at root level -->
+    <teleport to="body">
+        <transition name="fade">
+            <div
+                v-if="showMobileTodayPanel"
+                class="md:hidden fixed inset-0 z-50 bg-black/60 flex"
+                @click="closeMobileTodayPanel"
+            >
+                <div 
+                    class="bg-white text-gray-800 rounded-3xl shadow-2xl w-11/12 max-w-md m-auto p-5 flex flex-col max-h-[85vh]" 
+                    @click.stop
+                >
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.4em] text-gray-400">Events</p>
+                            <p class="text-lg font-semibold text-AB">{{ todayEvents.length }} scheduled</p>
+                        </div>
+                        <button type="button" class="text-gray-500 hover:text-gray-700" @click="closeMobileTodayPanel">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                                <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="overflow-y-auto divide-y divide-gray-100 -mx-5 px-5 flex-1">
+                        <button
+                            v-for="event in todayEvents"
+                            :key="`mobile-${event.event_id}`"
+                            type="button"
+                            class="w-full text-left py-3 hover:bg-AB/5"
+                            @click="applyTodayEvent(event.event_id)"
+                        >
+                            <p class="font-semibold text-base text-AB leading-snug">{{ event.title || 'Untitled Event' }}</p>
+                            <p class="text-xs text-gray-500 tracking-[0.3em] uppercase">{{ event.event_id }}</p>
+                            <p class="text-sm text-gray-600 mt-1">{{ formatEventDates(event) }}</p>
+                            <p class="text-xs text-gray-500">
+                                {{ formatEventTimes(event) }}
+                                <span v-if="event.venue"> • {{ event.venue }}</span>
+                            </p>
+                        </button>
+                    </div>
+                    <button type="button" class="mt-4 w-full py-2 rounded-xl border border-gray-200 text-sm" @click="closeMobileTodayPanel">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </transition>
+    </teleport>
+
     <div
         v-if="showTodayPanel && todayEvents && todayEvents.length"
         class="hidden md:block fixed left-4 top-1/2 -translate-y-1/2 z-[1000] pointer-events-auto"
@@ -288,107 +336,69 @@ export default {
         Events
     </button>
 
-    <transition name="fade">
-        <div
-            v-if="showMobileTodayPanel"
-            class="md:hidden fixed inset-0 z-40 bg-black/60 flex"
-        >
-            <div class="bg-white text-gray-800 rounded-3xl shadow-2xl w-11/12 max-w-md m-auto p-5 flex flex-col max-h-[85vh]">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <p class="text-xs uppercase tracking-[0.4em] text-gray-400">Events</p>
-                        <p class="text-lg font-semibold text-AB">{{ todayEvents.length }} scheduled</p>
-                    </div>
-                    <button type="button" class="text-gray-500 hover:text-gray-700" @click="closeMobileTodayPanel">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
-                            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
-                        </svg>
-                    </button>
-                </div>
-                <div class="overflow-y-auto divide-y divide-gray-100 -mx-5 px-5 flex-1">
-                    <button
-                        v-for="event in todayEvents"
-                        :key="`mobile-${event.event_id}`"
-                        type="button"
-                        class="w-full text-left py-3 hover:bg-AB/5"
-                        @click="applyTodayEvent(event.event_id)"
-                    >
-                        <p class="font-semibold text-base text-AB leading-snug">{{ event.title || 'Untitled Event' }}</p>
-                        <p class="text-xs text-gray-500 tracking-[0.3em] uppercase">{{ event.event_id }}</p>
-                        <p class="text-sm text-gray-600 mt-1">{{ formatEventDates(event) }}</p>
-                        <p class="text-xs text-gray-500">
-                            {{ formatEventTimes(event) }}
-                            <span v-if="event.venue"> • {{ event.venue }}</span>
-                        </p>
-                    </button>
-                </div>
-                <button type="button" class="mt-4 w-full py-2 rounded-xl border border-gray-200 text-sm" @click="closeMobileTodayPanel">
-                    Close
-                </button>
-            </div>
-        </div>
-    </transition>
-
     <guest-form-page
         :title="'Event Forms'"
         :subtitle="'For the event id, kindly check the invitation or ask the organizers.'"
         :delay-ready="delayReady">
         <template #search>
-            <form v-if="!eventForm" class="flex gap-2 items-center pr-2 bg-gray-100 md:rounded-md"  @submit.prevent="searchEvent">
-                <div class="flex flex-col w-full items-center">
-                    <div class="grid grid-cols-4 gap-0.5 w-full items-center pb-2 pl-2">
-                        <TextInput
+            <form v-if="!eventForm" class="flex gap-2 items-center pr-2 bg-white md:rounded-md"  @submit.prevent="searchEvent">
+                <div class="flex flex-col w-full items-center gap-3">
+                    <div class="flex flex-row w-full items-center justify-between py-2 pl-2">
+                        <input
                             id="cell1"
                             ref="cell1"
                             v-model="eventId.cell1"
                             type="number"
-                            classes="text-center font-bold text-3xl"
+                            class="text-center font-bold text-3xl md:text-5xl py-2 md:py-3 border-none rounded focus:ring-0 w-14 md:w-20 bg-gray-100 drop-shadow"
                             required
                             autofocus
                             @input="handleInput('cell1', $event)"
                             @keydown.backspace="handleBackspace('cell1', $event)"
                             maxlength="1"
                             pattern="[0-9]"
-                            autocomplete="event"
+                            autocomplete="off"
                         />
-                        <TextInput
+                        <div class="border border-AB h-3 w-3 bg-AB flex rounded-full mx-1">&nbsp;</div>
+                        <input
                             id="cell2"
                             ref="cell2"
                             v-model="eventId.cell2"
                             type="number"
-                            classes="text-center font-bold text-3xl"
+                            class="text-center font-bold text-3xl md:text-5xl py-2 md:py-3 border-none rounded focus:ring-0 w-14 md:w-20 bg-gray-100 drop-shadow"
                             required
                             @input="handleInput('cell2', $event)"
                             @keydown.backspace="handleBackspace('cell2', $event)"
                             maxlength="1"
                             pattern="[0-9]"
-                            autocomplete="event"
+                            autocomplete="off"
                         />
-                        <TextInput
+                        <div class="border border-AB h-3 w-3 bg-AB flex rounded-full mx-1">&nbsp;</div>
+                        <input
                             id="cell3"
                             ref="cell3"
                             v-model="eventId.cell3"
                             type="number"
-                            classes="text-center font-bold text-3xl"
+                            class="text-center font-bold text-3xl md:text-5xl py-2 md:py-3 border-none rounded focus:ring-0 w-14 md:w-20 bg-gray-100 drop-shadow"
                             required
                             @input="handleInput('cell3', $event)"
                             @keydown.backspace="handleBackspace('cell3', $event)"
                             maxlength="1"
                             pattern="[0-9]"
-                            autocomplete="event"
+                            autocomplete="off"
                         />
-                        <TextInput
+                        <div class="border border-AB h-3 w-3 bg-AB flex rounded-full mx-1">&nbsp;</div>
+                        <input
                             id="cell4"
                             ref="cell4"
                             v-model="eventId.cell4"
                             type="number"
-                            classes="text-center font-bold text-3xl"
+                            class="text-center font-bold text-3xl md:text-5xl py-2 md:py-3 border-none rounded focus:ring-0 w-14 md:w-20 bg-gray-100 drop-shadow"
                             required
                             @input="handleInput('cell4', $event)"
                             @keydown.backspace="handleBackspace('cell4', $event)"
                             maxlength="1"
                             pattern="[0-9]"
-                            autocomplete="event"
+                            autocomplete="off"
                         />
                     </div>
                     <InputError class="mt-2" :message="form.errors.event" />
@@ -435,7 +445,7 @@ export default {
         </transition-container>
 
         <transition-container type="slide-top" :duration="500">
-            <div v-if="showFullQr" @click="closeFullQr" class="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 flex flex-col">
+            <div v-if="showFullQr" @click="closeFullQr" class="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50 flex-col">
                 <div @click="closeFullQr" class="absolute inset-0 cursor-pointer"></div>
                 <span class="text-white text-sm py-2">Show this to the organizers for scanning. Thank you!</span>
                 <span class="text-white text-sm py-2">{{ fullQrValue }}</span>
@@ -495,7 +505,7 @@ export default {
     </transition>
 
         <!-- Cards row -->
-        <div class="flex gap-5 md:flex-row flex-col">
+        <div class="flex gap-5 md:flex-row flex-col justify-center">
             <transition-container :duration="300" type="pop-in">
                 <div v-if="eventFormFromApi?.data?.length">
                     <guest-card
@@ -523,3 +533,15 @@ export default {
 
     </guest-form-page>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+</style>
