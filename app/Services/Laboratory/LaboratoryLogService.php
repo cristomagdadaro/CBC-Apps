@@ -198,12 +198,19 @@ class LaboratoryLogService
             ]);
     }
 
-    public function getActiveEquipment(): Collection
+    public function getActiveEquipment($employee_id = null): Collection
     {
-        return LaboratoryEquipmentLog::with(['equipment', 'personnel'])
+        $query = LaboratoryEquipmentLog::with(['equipment', 'personnel'])
             ->where('status', 'active')
-            ->orderBy('started_at')
-            ->get();
+            ->orderBy('started_at');
+
+        if ($employee_id) {
+            $query->whereHas('personnel', function ($q) use ($employee_id) {
+                $q->where('employee_id', $employee_id);
+            });
+        }
+
+        return $query->get();
     }
 
     public function getDashboardMetrics(): array

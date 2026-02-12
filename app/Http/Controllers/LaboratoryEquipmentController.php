@@ -93,10 +93,10 @@ class LaboratoryEquipmentController extends Controller
         ]);
     }
 
-    public function activeEquipments(): JsonResponse
+    public function activeEquipments($employee_id = null): JsonResponse
     {
         return response()->json([
-            'data' => $this->service->getActiveEquipment(),
+            'data' => $this->service->getActiveEquipment($employee_id),
         ]);
     }
 

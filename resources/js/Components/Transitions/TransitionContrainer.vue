@@ -6,17 +6,19 @@
         :leave-active-class="transitionClasses.leaveActive"
         :leave-from-class="transitionClasses.leaveFrom"
         :leave-to-class="transitionClasses.leaveTo"
+        @before-enter="applyDuration"
+        @before-leave="applyDuration"
     >
         <slot />
     </transition>
 </template>
 
 <script>
-const buildTransition = (config) => (duration) => ({
-    enterActive: `transition ease-out duration-${duration}`,
+const buildTransition = (config) => () => ({
+    enterActive: "transition ease-out [transition-duration:var(--transition-duration)]",
     enterFrom: config.enterFrom,
     enterTo: config.enterTo,
-    leaveActive: `transition ease-in duration-${duration}`,
+    leaveActive: "transition ease-in [transition-duration:var(--transition-duration)]",
     leaveFrom: config.leaveFrom,
     leaveTo: config.leaveTo,
 });
@@ -84,7 +86,14 @@ export default {
     computed: {
         transitionClasses() {
             const builder = TRANSITION_BUILDERS[this.type] || TRANSITION_BUILDERS.fade;
-            return builder(this.duration);
+            return builder();
+        },
+    },
+    methods: {
+        applyDuration(element) {
+            const duration = Number(this.duration);
+            const safeDuration = Number.isFinite(duration) && duration >= 0 ? duration : 300;
+            element.style.setProperty("--transition-duration", `${safeDuration}ms`);
         },
     },
 };

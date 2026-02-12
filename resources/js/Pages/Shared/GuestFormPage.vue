@@ -62,5 +62,16 @@ export default {
 </template>
 
 <style scoped>
+@media (max-width: 767px) {
+    :deep(input),
+    :deep(select),
+    :deep(textarea) {
+        font-size: 16px;
+    }
+}
+
+:global(html) {
+    -webkit-text-size-adjust: 100%;
+}
 </style>
 
