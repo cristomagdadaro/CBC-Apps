@@ -123,6 +123,7 @@ Route::prefix('guest')->group(function () {
     Route::get('/forms/event/{event_id}/workflow', [EventWorkflowController::class, 'state'])
         ->name('api.event.workflow.state.guest');
 
+    Route::get('/equipments/active', [LaboratoryEquipmentController::class, 'activeEquipments'])->name('api.laboratory.equipments.active');
     Route::get('/equipments/{identifier}', [LaboratoryEquipmentController::class, 'show'])->name('api.laboratory.equipments.show');
     Route::post('/equipments/{identifier}/check-in', [LaboratoryEquipmentController::class, 'checkIn'])->name('api.laboratory.equipments.check-in');
     Route::post('/equipments/{identifier}/check-out', [LaboratoryEquipmentController::class, 'checkOut'])->name('api.laboratory.equipments.check-out');

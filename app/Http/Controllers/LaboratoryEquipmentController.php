@@ -93,6 +93,13 @@ class LaboratoryEquipmentController extends Controller
         ]);
     }
 
+    public function activeEquipments(): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->service->getActiveEquipment(),
+        ]);
+    }
+
     public function logs(GetRequest $request): Collection
     {
         $result = $this->logRepo->search(new Collection($request->validated()));

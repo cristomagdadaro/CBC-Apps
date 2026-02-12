@@ -198,12 +198,17 @@ class LaboratoryLogService
             ]);
     }
 
-    public function getDashboardMetrics(): array
+    public function getActiveEquipment(): Collection
     {
-        $activeLogs = LaboratoryEquipmentLog::with(['equipment', 'personnel'])
+        return LaboratoryEquipmentLog::with(['equipment', 'personnel'])
             ->where('status', 'active')
             ->orderBy('started_at')
             ->get();
+    }
+
+    public function getDashboardMetrics(): array
+    {
+        $activeLogs = $this->getActiveEquipment();
 
         $overdueLogs = LaboratoryEquipmentLog::with(['equipment', 'personnel'])
             ->where('status', 'overdue')

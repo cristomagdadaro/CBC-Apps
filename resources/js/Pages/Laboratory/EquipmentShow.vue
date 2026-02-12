@@ -96,9 +96,9 @@ export default {
         async loadActiveEquipments() {
             this.loadingActiveEquipments = true;
             try {
-                const response = await this.fetchGetApi("api.laboratory.dashboard");
+                const response = await this.fetchGetApi("api.laboratory.equipments.active"); console.log(response);
                 const payload = response?.data ?? response;
-                this.activeEquipments = Array.isArray(payload) ? payload : payload?.active ?? [];
+                this.activeEquipments = Array.isArray(payload) ? payload : payload?.data ?? [];
             } catch (error) {
                 this.activeEquipments = [];
             } finally {
