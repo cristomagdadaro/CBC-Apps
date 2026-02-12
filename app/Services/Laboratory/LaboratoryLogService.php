@@ -61,6 +61,7 @@ class LaboratoryLogService
                 'items.category_id',
                 'categories.name as category_name',
                 DB::raw('MAX(transactions.barcode) as barcode'),
+                DB::raw('MAX(transactions.barcode_prri) as barcode_prri'),
             ])
             ->join('items', 'transactions.item_id', '=', 'items.id')
             ->join('categories', 'items.category_id', '=', 'categories.id')
@@ -74,7 +75,8 @@ class LaboratoryLogService
                 $query->where('items.id', 'like', "%{$search}%")
                     ->orWhere('items.name', 'like', "%{$search}%")
                     ->orWhere('items.brand', 'like', "%{$search}%")
-                    ->orWhere('transactions.barcode', 'like', "%{$search}%");
+                    ->orWhere('transactions.barcode', 'like', "%{$search}%")
+                    ->orWhere('transactions.barcode_prri', 'like', "%{$search}%");
             });
         }
 
