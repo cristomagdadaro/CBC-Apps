@@ -21,7 +21,6 @@ class OptionRepo extends AbstractRepoService
             ->where('group', $group)
             ->pluck(column: 'label', key: 'value')
             ->toArray();
-            //return $this->search(collect(['search' => 'Genome Engineering Laboratory' ?? '']), false)->pluck('value')->first();
     }
 
     /**
@@ -87,7 +86,20 @@ class OptionRepo extends AbstractRepoService
      */
     public function getStorageLocations()
     {
-        return $this->getByGroup('storage_locations');
+        $locations =  $this->getByGroup('storage_locations');
+        $normalized = collect($locations)
+            ->map(function ($label, $jsonKey) {
+                $decoded = json_decode($jsonKey, true);
+
+                return [
+                    'label' => $label,
+                    'name' => $decoded ?? null,
+                ];
+            })
+            ->values()
+            ->toArray();
+
+        return $normalized;
     }
 
     /**

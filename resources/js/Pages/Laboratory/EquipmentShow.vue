@@ -271,12 +271,13 @@ export default {
                             Scan the QR code if available, or search and select equipment from the list.
                         </p>
                     </div>
-
                     <div v-else-if="loading" class="text-sm text-gray-500">Loading equipment details...</div>
-
                     <div v-else-if="equipment" class="grid grid-cols-1 md:grid-cols-2 gap-1">
-                        <div class="col-span-2 pb-1 leading-none">
+                        <div class="col-span-2 flex justify-between pb-1 leading-none">
                             <h1 class="text-xl font-bold">{{ equipment.name }}</h1>
+                            <button v-if="!equipment_id" @click="selectedEquipmentId = null">
+                                <close-icon class="w-6 h-6 text-red-600" />
+                            </button>
                         </div>
                         <div class="flex flex-col gap-1">
                             <span class="text-xs uppercase text-gray-500">Brand</span>
@@ -385,7 +386,6 @@ export default {
                             class="flex flex-row items-center gap-1 bg-red-600 text-white p-1 px-2 rounded w-fit text-sm"
                         >
                             <flag-icon class="h-4 w-4" />
-                            Issue Encountered
                         </a>
                     </div>
 
