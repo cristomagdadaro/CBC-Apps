@@ -32,7 +32,7 @@ export default {
 
     <!-- Main content overlay -->
     <div class="fixed top-0 left-0 w-full h-full z-50 flex justify-center overflow-y-auto">
-        <div class="relative sm:flex flex-col md:gap-5 justify-start items-center md:w-fit mt-0 md:mt-[5%] pb-8 px-4 md:px-0">
+        <div class="relative sm:flex flex-col md:gap-5 justify-start items-center md:w-fit w-full">
             <div class="md:relative flex flex-col md:gap-5 w-full max-w-6xl">
                 <!-- Header / search / top content -->
                 <slot name="top">

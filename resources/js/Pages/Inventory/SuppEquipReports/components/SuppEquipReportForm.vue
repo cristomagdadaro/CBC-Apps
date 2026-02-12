@@ -264,7 +264,7 @@ export default {
                         class="border rounded px-3 py-2 cursor-pointer hover:border-AB"
                         @click="selectTransaction(tx)"
                     >
-                        <p class="text-sm font-semibold text-gray-700">{{ tx.item?.fullName || 'Unnamed Item' }} by {{ tx?.personnel?.fullName ?? tx?.personnel?.fullName }}</p>
+                        <p class="text-sm font-semibold text-gray-700">{{ tx.item.brand }} {{ tx.item?.fullName || 'Unnamed Item' }} by {{ tx?.personnel?.fullName ?? tx?.personnel?.fullName }}</p>
                         <p class="text-xs text-gray-500">Barcode: {{ tx.barcode || 'Not set' }} · {{ tx.transac_type }}</p>
                         <p class="text-xs text-gray-500">Date: {{ tx.created_at || 'Not set' }}</p>
                     </div>
@@ -272,7 +272,7 @@ export default {
 
                 <div v-if="selectedTransaction" class="rounded border border-green-200 bg-green-50 px-3 py-2 flex flex-col gap-1">
                     <div class="flex items-center justify-between">
-                        <p class="text-sm font-semibold text-green-800">Attached to {{ selectedTransaction.item?.fullName || 'Item' }}</p>
+                        <p class="text-sm font-semibold text-green-800">Attached to {{ selectedTransaction.item.brand }} {{ selectedTransaction.item?.fullName || 'Item' }}</p>
                         <button type="button" class="text-xs text-red-500" @click="clearTransaction">Clear</button>
                     </div>
                     <p class="text-xs text-green-700">Barcode: {{ selectedTransaction.barcode || 'Not set' }} · {{ selectedTransaction.transac_type }} · Qty {{ selectedTransaction.quantity }}</p>

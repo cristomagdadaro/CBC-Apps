@@ -376,34 +376,36 @@ export default {
                     </button>
                 </div>
 
-                <div v-if="hasEquipment && canCheckOut" class="border rounded-lg bg-white p-4 shadow-sm flex flex-col justify-end gap-3">
-                    <div class="flex justify-between gap-5 items-center">
+                <div v-if="hasEquipment && canCheckOut" class="border rounded-lg bg-white p-4 shadow-sm flex flex-col justify-end gap-2">
+                    <div class="flex justify-between gap-5 items-center px-2">
                         <h2 class="text-base font-semibold w-fit">Check-out Equipment</h2>
                         <a
                             :href="route('suppEquipReports.create.guest', equipment.barcode)"
                             target="_blank"
+                            title="Report an issue with this equipment"
                             rel="noopener noreferrer"
-                            class="flex flex-row items-center gap-1 bg-red-600 text-white p-1 px-2 rounded w-fit text-sm"
+                            class="flex flex-row items-center gap-1 text-red-600 p-1 px-2 w-fit text-xs rounded-full"
                         >
-                            <flag-icon class="h-4 w-4" />
+                            <flag-icon class="h-5 w-3" />
+                            Report
                         </a>
                     </div>
 
                     <!-- Show saved personnel info as label -->
-                    <div v-if="savedLaboratoryPersonnel" class="flex gap-2 justify-between items-center">
+                    <div v-if="savedLaboratoryPersonnel" class="flex gap-2 justify-between items-center px-2 pt-3">
                         <div class="text-sm text-gray-600">As: <span class="font-semibold">{{ savedLaboratoryPersonnel.fullName }} ( {{ savedLaboratoryPersonnel.employee_id }} )</span></div>
                         <button
                             v-if="savedLaboratoryPersonnel"
                             type="button"
                             title="Clear"
-                            class="p-1 rounded bg-gray-300 text-gray-700 text-sm hover:bg-gray-400 h-fit"
+                            class="p-1 rounded h-fit"
                             @click="searchDifferentPersonnel"
                         >
                             <close-icon class="w-5 h-5 text-red-600" />
                         </button>
                     </div>
 
-                    <div v-if="!savedLaboratoryPersonnel"  class="flex gap-2 items-end">
+                    <div v-if="!savedLaboratoryPersonnel"  class="flex gap-2 items-end px-2">
                         <div class="flex-1">
                             <TextInput
                                 id="checkout_employee_id"
@@ -418,7 +420,7 @@ export default {
                     <div v-if="getErrorMessage(checkOutErrors.base)" class="text-sm text-red-600 mt-2">{{ getErrorMessage(checkOutErrors.base) }}</div>
 
                     <div class="flex flex-col gap-1">
-                        <div class="flex items-center gap-2 w-fit justify-end">
+                        <div class="flex items-center gap-2 w-fit justify-end px-2">
                             <input id="admin_override" v-model="checkOutForm.admin_override" type="checkbox" class="rounded-full" />
                             <label for="admin_override" class="text-xs leading-none">Admin Override</label>
                         </div>
