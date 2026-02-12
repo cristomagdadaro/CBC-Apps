@@ -1,198 +1,216 @@
-<script setup>
-import { ref, computed } from "vue";
+<script>
+import Dropdown from "@/Components/Dropdown.vue";
 
-const props = defineProps({
-    title: {
-        type: String,
-        default: "Calendar",
+export default {
+    name: 'CalendarModule',
+    components: {
+        Dropdown,
     },
-    subtitle: {
-        type: String,
-        default: "",
+    props: {
+        title: {
+            type: String,
+            default: "Calendar",
+        },
+        subtitle: {
+            type: String,
+            default: "",
+        },
+        events: {
+            type: Array,
+            default: () => [],
+        },
+        typeOptions: {
+            type: Array,
+            default: () => [],
+        },
+        statusOptions: {
+            type: Array,
+            default: () => [
+                { key: "pending", label: "Pending" },
+                { key: "approved", label: "Approved" },
+                { key: "rejected", label: "Rejected" },
+                { key: "completed", label: "Completed" },
+                { key: "cancelled", label: "Cancelled" },
+            ],
+        },
+        statusColors: {
+            type: Object,
+            default: () => ({}),
+        },
+        legendGroups: {
+            type: Array,
+            default: () => [],
+        },
+        showTypeFilter: {
+            type: Boolean,
+            default: true,
+        },
+        showStatusFilter: {
+            type: Boolean,
+            default: true,
+        },
+        showLegend: {
+            type: Boolean,
+            default: true,
+        },
+        showStats: {
+            type: Boolean,
+            default: true,
+        },
+        showToday: {
+            type: Boolean,
+            default: true,
+        },
+        startDate: {
+            type: [String, Date],
+            default: null,
+        },
     },
-    events: {
-        type: Array,
-        default: () => [],
+    data() {
+        return {
+            currentDate: this.startDate ? new Date(this.startDate) : new Date(),
+            filterType: "all",
+            filterStatus: "all",
+            weekDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+            MAX_VISIBLE_EVENTS_PER_DAY: 2,
+        };
     },
-    typeOptions: {
-        type: Array,
-        default: () => [],
+    computed: {
+        normalizedEvents() {
+            return (this.events || []).map((event) => ({
+                ...event,
+                label: event.label || event.title || "(Untitled)",
+                subtitle: event.subtitle || event.requested_by || "",
+                type: event.type || "general",
+                status: event.status || "",
+            }));
+        },
+        filteredEvents() {
+            let list = [...this.normalizedEvents];
+
+            if (this.showTypeFilter && this.filterType !== "all") {
+                list = list.filter((event) => event.type === this.filterType);
+            }
+
+            if (this.showStatusFilter && this.filterStatus !== "all") {
+                list = list.filter((event) => event.status === this.filterStatus);
+            }
+
+            return list;
+        },
+        daysInMonth() {
+            return new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0).getDate();
+        },
+        firstDayOfMonth() {
+            return new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1).getDay();
+        },
+        calendarDays() {
+            const days = [];
+            for (let i = 0; i < this.firstDayOfMonth; i += 1) {
+                days.push(null);
+            }
+            for (let i = 1; i <= this.daysInMonth; i += 1) {
+                days.push(i);
+            }
+            return days;
+        },
+        monthYearLabel() {
+            const options = { month: "long", year: "numeric" };
+            return this.currentDate.toLocaleDateString("en-US", options);
+        },
+        legendData() {
+            if (this.legendGroups && this.legendGroups.length) {
+                return this.legendGroups;
+            }
+
+            const groups = [];
+            if (this.typeOptions && this.typeOptions.length) {
+                groups.push({
+                    title: "Types",
+                    items: this.typeOptions.map((item) => ({
+                        label: item.label,
+                        color: item.color || "#6B7280",
+                    })),
+                });
+            }
+
+            if (this.statusColors && Object.keys(this.statusColors).length) {
+                groups.push({
+                    title: "Status",
+                    items: Object.entries(this.statusColors).map(([key, value]) => ({
+                        label: key.charAt(0).toUpperCase() + key.slice(1),
+                        color: value,
+                    })),
+                });
+            }
+
+            return groups;
+        },
+        stats() {
+            return {
+                total: this.normalizedEvents.length,
+                visible: this.filteredEvents.length,
+            };
+        },
     },
-    statusOptions: {
-        type: Array,
-        default: () => [
-            { key: "pending", label: "Pending" },
-            { key: "approved", label: "Approved" },
-            { key: "rejected", label: "Rejected" },
-            { key: "completed", label: "Completed" },
-            { key: "cancelled", label: "Cancelled" },
-        ],
+    methods: {
+        previousMonth() {
+            this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() - 1);
+        },
+        nextMonth() {
+            this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1);
+        },
+        goToToday() {
+            this.currentDate = new Date();
+        },
+        toDateOnly(value) {
+            if (!value) return null;
+            if (value instanceof Date) return value.toISOString().split("T")[0];
+            const text = String(value).trim();
+            const iso = text.includes("T") ? text : text.replace(" ", "T");
+            const parsed = new Date(iso);
+            if (!Number.isNaN(parsed.getTime())) {
+                return parsed.toISOString().split("T")[0];
+            }
+            return text.length >= 10 ? text.slice(0, 10) : null;
+        },
+        getBookingsForDate(day) {
+            if (!day) return [];
+
+            const dateStr = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), day)
+                .toISOString()
+                .split("T")[0];
+
+            return this.filteredEvents.filter((event) => {
+                const dateFrom = this.toDateOnly(event.date_from || event.start_at || event.started_at);
+                const dateTo = this.toDateOnly(event.date_to || event.end_at || event.end_use_at || event.date_from);
+                if (!dateFrom || !dateTo) return false;
+                return dateStr >= dateFrom && dateStr <= dateTo;
+            });
+        },
+        getVisibleBookingsForDate(day) {
+            return this.getBookingsForDate(day).slice(0, this.MAX_VISIBLE_EVENTS_PER_DAY);
+        },
+        getRemainingBookingsForDate(day) {
+            const bookings = this.getBookingsForDate(day);
+            return bookings.length > this.MAX_VISIBLE_EVENTS_PER_DAY ? bookings.slice(this.MAX_VISIBLE_EVENTS_PER_DAY) : [];
+        },
+        getEventColor(event) {
+            if (event.color) return event.color;
+            const typeMatch = this.typeOptions.find((item) => item.key === event.type);
+            return typeMatch?.color || "#6B7280";
+        },
+        handleEventClick(event) {
+            if (event.checkoutPage && event.checkoutPageId) {
+                const url = route(event.checkoutPage, event.checkoutPageId);
+                const target = event.checkoutPageTarget || '_self';
+                window.open(url, target);
+            } else if (this.$inertia && this.$inertia.visit) {
+                // Fallback for testing without proper route
+                console.warn('Event has no checkout route configured:', event);
+            }
+        },
     },
-    statusColors: {
-        type: Object,
-        default: () => ({}),
-    },
-    legendGroups: {
-        type: Array,
-        default: () => [],
-    },
-    showTypeFilter: {
-        type: Boolean,
-        default: true,
-    },
-    showStatusFilter: {
-        type: Boolean,
-        default: true,
-    },
-    showLegend: {
-        type: Boolean,
-        default: true,
-    },
-    showStats: {
-        type: Boolean,
-        default: true,
-    },
-    showToday: {
-        type: Boolean,
-        default: true,
-    },
-    startDate: {
-        type: [String, Date],
-        default: null,
-    },
-});
-
-const currentDate = ref(props.startDate ? new Date(props.startDate) : new Date());
-const filterType = ref("all");
-const filterStatus = ref("all");
-
-const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-const normalizedEvents = computed(() =>
-    (props.events || []).map((event) => ({
-        ...event,
-        label: event.label || event.title || "(Untitled)",
-        subtitle: event.subtitle || event.requested_by || "",
-        type: event.type || "general",
-        status: event.status || "",
-    }))
-);
-
-const filteredEvents = computed(() => {
-    let list = [...normalizedEvents.value];
-
-    if (props.showTypeFilter && filterType.value !== "all") {
-        list = list.filter((event) => event.type === filterType.value);
-    }
-
-    if (props.showStatusFilter && filterStatus.value !== "all") {
-        list = list.filter((event) => event.status === filterStatus.value);
-    }
-
-    return list;
-});
-
-const daysInMonth = computed(() =>
-    new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1, 0).getDate()
-);
-
-const firstDayOfMonth = computed(() =>
-    new Date(currentDate.value.getFullYear(), currentDate.value.getMonth(), 1).getDay()
-);
-
-const calendarDays = computed(() => {
-    const days = [];
-    for (let i = 0; i < firstDayOfMonth.value; i += 1) {
-        days.push(null);
-    }
-    for (let i = 1; i <= daysInMonth.value; i += 1) {
-        days.push(i);
-    }
-    return days;
-});
-
-const monthYearLabel = computed(() => {
-    const options = { month: "long", year: "numeric" };
-    return currentDate.value.toLocaleDateString("en-US", options);
-});
-
-const legendData = computed(() => {
-    if (props.legendGroups && props.legendGroups.length) {
-        return props.legendGroups;
-    }
-
-    const groups = [];
-    if (props.typeOptions && props.typeOptions.length) {
-        groups.push({
-            title: "Types",
-            items: props.typeOptions.map((item) => ({
-                label: item.label,
-                color: item.color || "#6B7280",
-            })),
-        });
-    }
-
-    if (props.statusColors && Object.keys(props.statusColors).length) {
-        groups.push({
-            title: "Status",
-            items: Object.entries(props.statusColors).map(([key, value]) => ({
-                label: key.charAt(0).toUpperCase() + key.slice(1),
-                color: value,
-            })),
-        });
-    }
-
-    return groups;
-});
-
-const stats = computed(() => ({
-    total: normalizedEvents.value.length,
-    visible: filteredEvents.value.length,
-}));
-
-const previousMonth = () => {
-    currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() - 1);
-};
-
-const nextMonth = () => {
-    currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1);
-};
-
-const goToToday = () => {
-    currentDate.value = new Date();
-};
-
-const toDateOnly = (value) => {
-    if (!value) return null;
-    if (value instanceof Date) return value.toISOString().split("T")[0];
-    const text = String(value).trim();
-    const iso = text.includes("T") ? text : text.replace(" ", "T");
-    const parsed = new Date(iso);
-    if (!Number.isNaN(parsed.getTime())) {
-        return parsed.toISOString().split("T")[0];
-    }
-    return text.length >= 10 ? text.slice(0, 10) : null;
-};
-
-const getBookingsForDate = (day) => {
-    if (!day) return [];
-
-    const dateStr = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth(), day)
-        .toISOString()
-        .split("T")[0];
-
-    return filteredEvents.value.filter((event) => {
-        const dateFrom = toDateOnly(event.date_from || event.start_at || event.started_at);
-        const dateTo = toDateOnly(event.date_to || event.end_at || event.end_use_at || event.date_from);
-        if (!dateFrom || !dateTo) return false;
-        return dateStr >= dateFrom && dateStr <= dateTo;
-    });
-};
-
-const getEventColor = (event) => {
-    if (event.color) return event.color;
-    const typeMatch = props.typeOptions.find((item) => item.key === event.type);
-    return typeMatch?.color || "#6B7280";
 };
 </script>
 
@@ -296,18 +314,19 @@ const getEventColor = (event) => {
                             >
                                 <div class="h-full flex flex-col">
                                     <div class="font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                                        {{ calendarDays[(weekIndex - 1) * 7 + dayIndex - 1] || "" }}
+                                        {{ calendarDays[weekIndex * 7 + dayIndex - 1] || "" }}
                                     </div>
-                                    <div class="flex-1 overflow-y-auto space-y-1">
+                                    <div class="flex-1 space-y-1 overflow-visible relative">
                                         <div
-                                            v-for="booking in getBookingsForDate(calendarDays[(weekIndex - 1) * 7 + dayIndex - 1])"
+                                            v-for="booking in getVisibleBookingsForDate(calendarDays[weekIndex * 7 + dayIndex - 1])"
                                             :key="booking.id"
                                             :style="{
                                                 backgroundColor: getEventColor(booking) + '20',
                                                 borderColor: getEventColor(booking),
                                             }"
-                                            class="text-xs p-1.5 rounded border-l-2 cursor-pointer hover:opacity-80 transition-opacity"
+                                            class="text-xs p-1.5 rounded border-l-2 cursor-pointer hover:opacity-80 hover:shadow-md transition-opacity transform hover:scale-105"
                                             :title="booking.subtitle ? booking.label + ' - ' + booking.subtitle : booking.label"
+                                            @click="handleEventClick(booking)"
                                         >
                                             <div class="font-medium text-gray-900 dark:text-gray-100 truncate">
                                                 {{ booking.label }}
@@ -323,6 +342,52 @@ const getEventColor = (event) => {
                                                 {{ booking.status }}
                                             </div>
                                         </div>
+
+                                        <Dropdown
+                                            v-if="getRemainingBookingsForDate(calendarDays[weekIndex * 7 + dayIndex - 1]).length"
+                                            align="right"
+                                            width="auto"
+                                            max-height="16rem"
+                                        >
+                                            <template #trigger>
+                                                <button
+                                                    type="button"
+                                                    class="text-xs w-full text-left px-1.5 py-1 rounded border border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                >
+                                                    +{{ getRemainingBookingsForDate(calendarDays[weekIndex * 7 + dayIndex - 1]).length }} more
+                                                </button>
+                                            </template>
+
+                                            <template #content>
+                                                <div class="w-72 max-w-[85vw] p-2 space-y-1">
+                                                    <div
+                                                        v-for="booking in getRemainingBookingsForDate(calendarDays[weekIndex * 7 + dayIndex - 1])"
+                                                        :key="`remaining-${booking.id}`"
+                                                        :style="{
+                                                            backgroundColor: getEventColor(booking) + '20',
+                                                            borderColor: getEventColor(booking),
+                                                        }"
+                                                        class="text-xs p-1.5 rounded border-l-2 cursor-pointer hover:opacity-80 hover:shadow-md transition-opacity transform hover:scale-105"
+                                                        :title="booking.subtitle ? booking.label + ' - ' + booking.subtitle : booking.label"
+                                                        @click="handleEventClick(booking)"
+                                                    >
+                                                        <div class="font-medium text-gray-900 dark:text-gray-100 truncate">
+                                                            {{ booking.label }}
+                                                        </div>
+                                                        <div v-if="booking.subtitle" class="text-gray-600 dark:text-gray-400 truncate">
+                                                            {{ booking.subtitle }}
+                                                        </div>
+                                                        <div
+                                                            v-if="booking.status"
+                                                            :style="{ color: statusColors[booking.status] || '#6B7280' }"
+                                                            class="text-xs font-semibold capitalize"
+                                                        >
+                                                            {{ booking.status }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </Dropdown>
                                     </div>
                                 </div>
                             </td>

@@ -1,19 +1,57 @@
 <script>
-import ApiMixin from "@/Modules/mixins/ApiMixin";
-import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
-import AppLayout from "@/Layouts/AppLayout.vue";
-import CalendarModule from "@/Components/CalendarModule.vue";
-import LaboratoryLogHeaderAction from "@/Pages/Laboratory/components/LaboratoryLogHeaderAction.vue";
+import axios from 'axios';
+import {
+    Chart,
+    BarController,
+    BarElement,
+    CategoryScale,
+    LinearScale,
+    Tooltip,
+    Legend,
+} from 'chart.js';
+import AppLayout from '@/Layouts/AppLayout.vue';
+import CalendarModule from '@/Components/CalendarModule.vue';
+import Dropdown from '@/Components/Dropdown.vue';
+import DropdownOption from '@/Components/CustomDropdown/Components/DropdownOption.vue';
+import TabNavigation from '@/Components/TabNavigation.vue';
+import SearchComp from '@/Components/Search/SearchComp.vue';
+import LaboratoryEquipmentLog from '@/Modules/domain/LaboratoryEquipmentLog';
+import LaboratoryLogsDataTable from '@/Pages/Laboratory/components/LaboratoryLogsDataTable.vue';
+import LaboratoryLogHeaderAction from '@/Pages/Laboratory/components/LaboratoryLogHeaderAction.vue';
+
+Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 export default {
-    name: "LaboratoryDashboard",
-    components: { AppLayout, CalendarModule, LaboratoryLogHeaderAction },
-    mixins: [ApiMixin, DataFormatterMixin],
+    name: 'LaboratoryDashboard',
+    components: {
+        AppLayout,
+        CalendarModule,
+        Dropdown,
+        DropdownOption,
+        TabNavigation,
+        SearchComp,
+        LaboratoryLogHeaderAction,
+    },
     data() {
         return {
             dashboard: null,
             loading: false,
             refreshTimer: null,
+            activeTab: 'stats',
+            tabs: [
+                { key: 'stats', label: 'Statistics' },
+                { key: 'calendar', label: 'Calendar' },
+                { key: 'logs', label: 'Logs' },
+            ],
+            dayLabels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+            heatLegend: [
+                { label: '0 logs', className: 'bg-gray-100' },
+                { label: '1 log', className: 'bg-green-100' },
+                { label: '2-4 logs', className: 'bg-green-300' },
+                { label: '5-9 logs', className: 'bg-green-500' },
+                { label: '10+ logs', className: 'bg-green-700' },
+            ],
+            mostUsedChartInstance: null,
         };
     },
     computed: {
@@ -26,16 +64,34 @@ export default {
         mostUsed() {
             return this.dashboard?.most_used ?? [];
         },
+        activeCount() {
+            return this.activeLogs.length;
+        },
+        overdueCount() {
+            return this.overdueLogs.length;
+        },
+        currentInUseCount() {
+            return this.activeCount + this.overdueCount;
+        },
+        groupedActiveLogs() {
+            return this.groupLogsByLocation(this.activeLogs);
+        },
+        groupedOverdueLogs() {
+            return this.groupLogsByLocation(this.overdueLogs);
+        },
         calendarEvents() {
             const mapLog = (log) => ({
                 id: log.id,
-                type: "equipment",
+                type: 'equipment',
                 status: log.status,
                 date_from: log.started_at,
                 date_to: log.end_use_at,
-                label: log.equipment?.name || "Equipment",
+                label: log.equipment?.name || 'Equipment',
                 subtitle: this.formatPersonnelName(log.personnel),
-                color: log.status === "overdue" ? "#EF4444" : "#10B981",
+                color: log.status === 'overdue' ? '#EF4444' : '#10B981',
+                checkoutPage: 'laboratory.equipments.show',
+                checkoutPageId: log.id,
+                checkoutPageTarget: '_blank',
             });
 
             return [...this.activeLogs.map(mapLog), ...this.overdueLogs.map(mapLog)];
@@ -43,159 +99,392 @@ export default {
         calendarLegend() {
             return [
                 {
-                    title: "Status",
+                    title: 'Status',
                     items: [
-                        { label: "Active", color: "#10B981" },
-                        { label: "Overdue", color: "#EF4444" },
+                        { label: 'Active', color: '#10B981' },
+                        { label: 'Overdue', color: '#EF4444' },
                     ],
                 },
             ];
         },
         heatmap() {
             const rows = Array.from({ length: 7 }, () => Array(24).fill(0));
+
             (this.dashboard?.heatmap ?? []).forEach((entry) => {
                 const dayIndex = Math.max(0, Math.min(6, (entry.day_of_week ?? 1) - 1));
                 const hourIndex = Math.max(0, Math.min(23, entry.hour_of_day ?? 0));
                 rows[dayIndex][hourIndex] = entry.usage_count ?? 0;
             });
+
             return rows;
+        },
+        LaboratoryEquipmentLog() {
+            return LaboratoryEquipmentLog;
+        },
+        LaboratoryLogsDataTable() {
+            return LaboratoryLogsDataTable;
         },
     },
     methods: {
+        groupLogsByLocation(logs) {
+            const grouped = logs.reduce((accumulator, log) => {
+                const key = log.location_label || 'Unknown Location';
+
+                if (!accumulator[key]) {
+                    accumulator[key] = [];
+                }
+
+                accumulator[key].push(log);
+                return accumulator;
+            }, {});
+
+            return Object.entries(grouped)
+                .map(([location, items]) => ({ location, items }))
+                .sort((a, b) => a.location.localeCompare(b.location));
+        },
+        formatPersonnelName(personnel) {
+            if (!personnel) {
+                return '-';
+            }
+
+            const parts = [personnel.fname, personnel.mname, personnel.lname, personnel.suffix]
+                .filter(Boolean)
+                .map((value) => String(value).trim())
+                .filter(Boolean);
+
+            return parts.length ? parts.join(' ') : '-';
+        },
+        formatDateTime(value) {
+            if (!value) {
+                return '-';
+            }
+
+            const parsed = new Date(value);
+            if (Number.isNaN(parsed.getTime())) {
+                return value;
+            }
+
+            return parsed.toLocaleString();
+        },
+        heatColor(value) {
+            if (!value) return 'bg-gray-100';
+            if (value < 2) return 'bg-green-100';
+            if (value < 5) return 'bg-green-300';
+            if (value < 10) return 'bg-green-500';
+            return 'bg-green-700';
+        },
+        destroyCharts() {
+            if (this.mostUsedChartInstance) {
+                this.mostUsedChartInstance.destroy();
+                this.mostUsedChartInstance = null;
+            }
+        },
+        buildMostUsedChart() {
+            this.destroyCharts();
+
+            if (!this.$refs.mostUsedChartCanvas || !this.mostUsed.length) {
+                return;
+            }
+
+            try {
+                const canvas = this.$refs.mostUsedChartCanvas;
+                if (!canvas) return;
+
+                // Ensure canvas has valid dimensions
+                if (!canvas.offsetWidth || !canvas.offsetHeight) {
+                    return;
+                }
+
+                // Get context and verify it exists
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return;
+
+                const labels = this.mostUsed.map((item) => item.equipment_name || item.equipment_id);
+                const usageCounts = this.mostUsed.map((item) => item.usage_count ?? 0);
+                const durationHours = this.mostUsed.map((item) => {
+                    const seconds = item.total_duration_seconds ?? 0;
+                    return Number((seconds / 3600).toFixed(2));
+                });
+
+                this.mostUsedChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [
+                            {
+                                label: 'Usage Count',
+                                data: usageCounts,
+                                borderColor: '#0EA5E9',
+                                backgroundColor: 'rgba(14, 165, 233, 0.2)',
+                                borderWidth: 2,
+                            },
+                            {
+                                label: 'Total Hours',
+                                data: durationHours,
+                                borderColor: '#22C55E',
+                                backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                                borderWidth: 2,
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 750,
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                            },
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false, drawBorder: false },
+                                border: { display: false },
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 20,
+                                },
+                            },
+                            y: {
+                                grid: { display: false, drawBorder: false },
+                                border: { display: false },
+                                beginAtZero: true,
+                            },
+                        },
+                    },
+                });
+            } catch (error) {
+                console.error('Error building chart:', error);
+            }
+        },
         async loadDashboard() {
             this.loading = true;
+
             try {
-                const response = await this.fetchGetApi("api.laboratory.dashboard");
+                const response = await axios.get(route('api.laboratory.dashboard'));
                 const payload = response?.data?.data ?? response?.data ?? response;
                 this.dashboard = payload?.data ?? payload;
             } finally {
                 this.loading = false;
             }
         },
-        formatPersonnelName(personnel) {
-            if (!personnel) return "-";
-            const parts = [personnel.fname, personnel.mname, personnel.lname, personnel.suffix]
-                .filter(Boolean)
-                .map((value) => String(value).trim())
-                .filter(Boolean);
-            return parts.length ? parts.join(" ") : "-";
+    },
+    watch: {
+        mostUsed() {
+            this.$nextTick(() => {
+                requestAnimationFrame(() => {
+                    this.buildMostUsedChart();
+                });
+            });
         },
-        heatColor(value) {
-            if (!value) return "bg-gray-100";
-            if (value < 2) return "bg-green-100";
-            if (value < 5) return "bg-green-300";
-            if (value < 10) return "bg-green-500";
-            return "bg-green-700";
-        },
-        formatDuration(seconds) {
-            if (!seconds) return "0h";
-            const hours = Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
-            return `${hours}h ${minutes}m`;
+        activeTab(newValue) {
+            if (newValue === 'stats') {
+                this.$nextTick(() => {
+                    requestAnimationFrame(() => {
+                        setTimeout(() => {
+                            this.buildMostUsedChart();
+                        }, 100);
+                    });
+                });
+            }
         },
     },
-    mounted() {
-        this.loadDashboard();
-        this.refreshTimer = setInterval(this.loadDashboard, 30000);
+    async mounted() {
+        await this.loadDashboard();
+        //this.refreshTimer = setInterval(this.loadDashboard, 30000);
+        
+        this.$nextTick(() => {
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    this.buildMostUsedChart();
+                }, 200);
+            });
+        });
     },
     beforeUnmount() {
         if (this.refreshTimer) {
             clearInterval(this.refreshTimer);
         }
+
+        this.destroyCharts();
     },
 };
 </script>
 
 <template>
     <AppLayout title="Laboratory Logs Dashboard">
-         <template #header>
+        <template #header>
             <LaboratoryLogHeaderAction />
-         </template>
-        <div class="max-w-6xl mx-auto px-4 py-6">
-            <div class="flex flex-col gap-6">
-                <div class="flex flex-col gap-3">
-                    <div class="flex items-center justify-between">
-                        
-                        <div class="text-xs text-gray-500" v-if="loading">Refreshing...</div>
-                    </div>
-                    <div class="rounded-md bg-gray-50 border border-gray-200 px-4 py-3 text-xs text-gray-600">
-                        Active and overdue panels show current equipment usage; the heatmap aggregates check-ins by day and hour (darker = more logs),
-                        and the calendar highlights active/overdue spans across the month.
-                    </div>
+        </template>
+
+        <div class="py-6">
+            <div class="max-w-[90vw] mx-auto sm:px-6 lg:px-8 space-y-6">
+                <div class="flex justify-end" v-if="loading">
+                    <span class="text-xs text-gray-500">Refreshing...</span>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <div class="border rounded-lg bg-white p-4 shadow-sm">
-                        <h2 class="text-base font-semibold mb-3">Active Equipment</h2>
-                        <div v-if="activeLogs.length" class="space-y-2 text-sm">
-                            <div v-for="log in activeLogs" :key="log.id" class="flex flex-col gap-1 border-b pb-2">
-                                <Link class="font-semibold" :href="route('laboratory.equipments.show', log.equipment?.id)">{{ log.equipment?.name }}</Link>
-                                <div class="text-gray-500">Started: {{ formatDateTime(log.started_at) }}</div>
-                                <div class="text-gray-500">Ends: {{ formatDateTime(log.end_use_at) }}</div>
-                                <div class="text-gray-500">User: {{ formatPersonnelName(log.personnel) }}</div>
-                            </div>
+                <TabNavigation v-model="activeTab" :tabs="tabs" />
+
+                <div v-show="activeTab === 'stats'" class="space-y-6">
+                    <div class="grid gap-4 md:grid-cols-3">
+                        <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Current In Use</h3>
+                            <p class="mt-2 text-3xl font-semibold text-gray-900 dark:text-white">{{ currentInUseCount }}</p>
+                            <p class="mt-2 text-xs text-gray-500">Active + overdue equipment logs</p>
                         </div>
-                        <div v-else class="text-sm text-gray-500">No active equipment logs.</div>
+
+                        <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
+                            <Dropdown align="right" width="auto" max-height="24rem">
+                                <template #trigger>
+                                    <button type="button" class="w-full text-left">
+                                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Active Equipment</h3>
+                                        <p class="mt-2 text-3xl font-semibold text-green-600">{{ activeCount }}</p>
+                                        <p class="mt-2 text-xs text-gray-500">Click to view details</p>
+                                    </button>
+                                </template>
+
+                                <template #content>
+                                    <div class="w-[32rem] max-w-[85vw] p-2 text-sm">
+                                        <div v-if="groupedActiveLogs.length" class="space-y-2">
+                                            <div v-for="group in groupedActiveLogs" :key="group.location" class="border rounded-md p-2">
+                                                <div class="font-semibold text-gray-700 px-2 py-1">{{ group.location }} ({{ group.items.length }})</div>
+                                                <DropdownOption v-for="log in group.items" :key="log.id" class="!px-2 !py-2 !whitespace-normal">
+                                                    <a
+                                                        class="font-semibold text-blue-600 hover:underline"
+                                                        target="_blank"
+                                                        :href="route('laboratory.equipments.show', log.equipment?.id)"
+                                                    >
+                                                        {{ log.equipment?.name || 'Equipment' }}
+                                                    </a>
+                                                    <div class="text-gray-500 text-xs">Barcode: {{ log.equipment_barcode || '-' }}</div>
+                                                    <div class="text-gray-500 text-xs">Started: {{ formatDateTime(log.started_at) }}</div>
+                                                    <div class="text-gray-500 text-xs">Ends: {{ formatDateTime(log.end_use_at) }}</div>
+                                                    <div class="text-gray-500 text-xs">User: {{ formatPersonnelName(log.personnel) }}</div>
+                                                </DropdownOption>
+                                            </div>
+                                        </div>
+                                        <div v-else class="text-gray-500 p-2">No active equipment logs.</div>
+                                    </div>
+                                </template>
+                            </Dropdown>
+                        </div>
+
+                        <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
+                            <Dropdown align="right" width="auto" max-height="24rem">
+                                <template #trigger>
+                                    <button type="button" class="w-full text-left">
+                                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Overdue Equipment</h3>
+                                        <p class="mt-2 text-3xl font-semibold text-red-600">{{ overdueCount }}</p>
+                                        <p class="mt-2 text-xs text-gray-500">Click to view details</p>
+                                    </button>
+                                </template>
+
+                                <template #content>
+                                    <div class="w-[32rem] max-w-[85vw] p-2 text-sm">
+                                        <div v-if="groupedOverdueLogs.length" class="space-y-2">
+                                            <div v-for="group in groupedOverdueLogs" :key="group.location" class="border rounded-md p-2">
+                                                <div class="font-semibold text-gray-700 px-2 py-1">{{ group.location }} ({{ group.items.length }})</div>
+                                                <DropdownOption v-for="log in group.items" :key="log.id" class="!px-2 !py-2 !whitespace-normal">
+                                                    <a
+                                                        class="font-semibold text-red-600 hover:underline"
+                                                        target="_blank"
+                                                        :href="route('laboratory.equipments.show', log.equipment?.id)"
+                                                    >
+                                                        {{ log.equipment?.name || 'Equipment' }}
+                                                    </a>
+                                                    <div class="text-gray-500 text-xs">Barcode: {{ log.equipment_barcode || '-' }}</div>
+                                                    <div class="text-gray-500 text-xs">Expected end: {{ formatDateTime(log.end_use_at) }}</div>
+                                                    <div class="text-gray-500 text-xs">User: {{ formatPersonnelName(log.personnel) }}</div>
+                                                </DropdownOption>
+                                            </div>
+                                        </div>
+                                        <div v-else class="text-gray-500 p-2">No overdue equipment.</div>
+                                    </div>
+                                </template>
+                            </Dropdown>
+                        </div>
                     </div>
 
-                    <div class="border rounded-lg bg-white p-4 shadow-sm">
-                        <h2 class="text-base font-semibold mb-3">Overdue Equipment</h2>
-                        <div v-if="overdueLogs.length" class="space-y-2 text-sm">
-                            <div v-for="log in overdueLogs" :key="log.id" class="flex flex-col gap-1 border-b pb-2">
-                                <Link class="font-semibold text-red-600" :href="route('laboratory.equipments.show', log.equipment?.id)">{{ log.equipment?.name }}</Link>
-                                <div class="text-gray-500">Expected end: {{ formatDateTime(log.end_use_at) }}</div>
-                                <div class="text-gray-500">User: {{ formatPersonnelName(log.personnel) }}</div>
+                    <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
+                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Top 5 Most-Used Equipment</h3>
+                        <div v-if="mostUsed.length" class="h-72 w-full">
+                            <canvas 
+                                ref="mostUsedChartCanvas"
+                                :key="mostUsed.length"
+                                width="400"
+                                height="300"
+                                style="max-height: 100%; max-width: 100%;"
+                            ></canvas>
+                        </div>
+                        <div v-else class="text-sm text-gray-500">No usage data available.</div>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
+                        <div class="flex justify-between">
+                            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Usage Heatmap</h3>
+
+                            <div class="mb-3 flex gap-2 items-center">
+                                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200">LEGEND</h3>
+                                <div class="flex flex-wrap gap-3 text-xs text-gray-600">
+                                    <div v-for="legend in heatLegend" :key="legend.label" class="flex items-center gap-2">
+                                        <span :class="['inline-block h-3 w-6 rounded', legend.className]"></span>
+                                        <span>{{ legend.label }}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div v-else class="text-sm text-gray-500">No overdue equipment.</div>
-                    </div>
-                </div>
 
-                <div class="border rounded-lg bg-white p-4 shadow-sm">
-                    <h2 class="text-base font-semibold mb-3">Most-Used Equipment</h2>
-                    <div v-if="mostUsed.length" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                        <div v-for="item in mostUsed" :key="item.equipment_id" class="border rounded-md p-3">
-                            <div class="font-semibold">{{ item.equipment_name || item.equipment_id }}</div>
-                            <div class="text-gray-500">Usage count: {{ item.usage_count }}</div>
-                            <div class="text-gray-500">Total duration: {{ formatDuration(item.total_duration_seconds) }}</div>
-                        </div>
-                    </div>
-                    <div v-else class="text-sm text-gray-500">No usage data available.</div>
-                </div>
-
-                <div class="border rounded-lg bg-white p-4 shadow-sm">
-                    <h2 class="text-base font-semibold mb-3">Usage Heatmap</h2>
-                    <div class="overflow-x-auto">
-                        <div class="grid gap-1 text-xs" style="grid-template-columns: repeat(25, minmax(0, 1fr));">
-                            <div></div>
-                            <div v-for="hour in 24" :key="hour" class="text-center text-[0.65rem] text-gray-500">
-                                {{ hour - 1 }}
-                            </div>
-                        </div>
-                        <div v-for="(row, dayIndex) in heatmap" :key="dayIndex" class="grid gap-1" style="grid-template-columns: repeat(25, minmax(0, 1fr));">
-                            <div class="text-[0.65rem] text-gray-500">
-                                {{ ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dayIndex] }}
+                        <div class="overflow-x-auto">
+                            <div class="grid gap-1 text-xs" style="grid-template-columns: repeat(25, minmax(0, 1fr));">
+                                <div class="text-[0.65rem] text-gray-500 font-semibold">HOURS</div>
+                                <div v-for="hour in 24" :key="hour" class="text-center text-[0.65rem] text-gray-500">
+                                    {{ hour - 1 }}
+                                </div>
                             </div>
                             <div
-                                v-for="(cell, hourIndex) in row"
-                                :key="hourIndex"
-                                :class="['h-4 rounded', heatColor(cell)]"
-                                :title="cell + ' logs'"
-                            ></div>
+                                v-for="(row, dayIndex) in heatmap"
+                                :key="dayIndex"
+                                class="grid gap-1"
+                                style="grid-template-columns: repeat(25, minmax(0, 1fr));"
+                            >
+                                <div class="text-[0.65rem] text-gray-500">
+                                    {{ dayLabels[dayIndex] }}
+                                </div>
+                                <div
+                                    v-for="(cell, hourIndex) in row"
+                                    :key="hourIndex"
+                                    :class="['h-4 rounded-md mb-0.5', heatColor(cell)]"
+                                    :title="cell + ' logs'"
+                                ></div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <CalendarModule
-                    title="Equipment Usage Calendar"
-                    subtitle="Active and overdue equipment usage by day."
-                    :events="calendarEvents"
-                    :type-options="[{ key: 'equipment', label: 'Equipment' }]"
-                    :status-options="[{ key: 'active', label: 'Active' }, { key: 'overdue', label: 'Overdue' }]"
-                    :status-colors="{ active: '#10B981', overdue: '#EF4444' }"
-                    :legend-groups="calendarLegend"
-                    :show-type-filter="false"
-                />
+                <div v-show="activeTab === 'calendar'" class="space-y-6">
+                    <CalendarModule
+                        title="Equipment Usage Calendar"
+                        subtitle="Active and overdue equipment usage by day."
+                        :events="calendarEvents"
+                        :type-options="[{ key: 'equipment', label: 'Equipment' }]"
+                        :status-options="[{ key: 'active', label: 'Active' }, { key: 'overdue', label: 'Overdue' }]"
+                        :status-colors="{ active: '#10B981', overdue: '#EF4444' }"
+                        :legend-groups="calendarLegend"
+                        :show-type-filter="false"
+                    />
+                </div>
+                <div v-show="activeTab === 'logs'" class="space-y-6">
+                    <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
+                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Equipment Logs</h3>
+                        <search-comp
+                            :prop-model="LaboratoryEquipmentLog"
+                            :card-slot="LaboratoryLogsDataTable"
+                        />
+                    </div>
+                </div>
             </div>
         </div>
     </AppLayout>

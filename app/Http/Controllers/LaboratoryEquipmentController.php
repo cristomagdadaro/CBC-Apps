@@ -4,12 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Laboratory\LaboratoryCheckInRequest;
 use App\Http\Requests\Laboratory\LaboratoryCheckOutRequest;
+use App\Http\Requests\Generic\GetRequest;
+use App\Repositories\LaboratoryEquipmentLogRepo;
 use App\Services\Laboratory\LaboratoryLogService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class LaboratoryEquipmentController extends Controller
 {
-    public function __construct(private readonly LaboratoryLogService $service)
+    public function __construct(
+        private readonly LaboratoryLogService $service,
+        private readonly LaboratoryEquipmentLogRepo $logRepo,
+    )
     {
     }
 
@@ -84,5 +91,29 @@ class LaboratoryEquipmentController extends Controller
         return response()->json([
             'data' => $this->service->getDashboardMetrics(),
         ]);
+    }
+
+    public function logs(GetRequest $request): Collection
+    {
+        $result = $this->logRepo->search(new Collection($request->validated()));
+
+        if (is_array($result) && isset($result['data']) && $result['data'] instanceof Collection) {
+            $this->service->enrichLogsWithLocationDetails($result['data']);
+            return new Collection($result);
+        }
+
+        if ($result instanceof LengthAwarePaginator) {
+            $collection = $result->getCollection();
+            $this->service->enrichLogsWithLocationDetails($collection);
+            $result->setCollection($collection);
+            return new Collection($result);
+        }
+
+        if ($result instanceof Collection) {
+            $this->service->enrichLogsWithLocationDetails($result);
+            return $result;
+        }
+
+        return new Collection($result);
     }
 }

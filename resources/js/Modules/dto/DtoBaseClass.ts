@@ -12,6 +12,7 @@ export default class DtoBaseClass implements IBaseClass {
 
     indexPage: string;
     showPage: string;
+    showPageTarget?: string;
     updatePage: string;
     createPage: string;
 

@@ -14,4 +14,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['api', 'auth'])->prefix('laboratory')->group(function () {
     Route::get('/dashboard', [LaboratoryEquipmentController::class, 'dashboard'])->name('api.laboratory.dashboard');
+    Route::get('/logs', [LaboratoryEquipmentController::class, 'logs'])->name('api.laboratory.logs.index');
 });

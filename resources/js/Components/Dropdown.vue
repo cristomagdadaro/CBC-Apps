@@ -10,6 +10,10 @@ const props = defineProps({
         type: String,
         default: '48',
     },
+    maxHeight: {
+        type: String,
+        default: '25rem',
+    },
     contentClasses: {
         type: Array,
         default: () => ['py-1', 'bg-white dark:bg-gray-700'],
@@ -30,8 +34,17 @@ onUnmounted(() => document.removeEventListener('keydown', closeOnEscape));
 const widthClass = computed(() => {
     return {
         '48': 'w-48',
-    }[props.width.toString()];
+        '60': 'w-60',
+        '72': 'w-72',
+        '80': 'w-80',
+        '96': 'w-96',
+        'auto': 'w-auto',
+    }[props.width.toString()] ?? 'w-auto';
 });
+
+const contentStyle = computed(() => ({
+    maxHeight: props.maxHeight,
+}));
 
 const alignmentClasses = computed(() => {
     if (props.align === 'left') {
@@ -65,12 +78,16 @@ const alignmentClasses = computed(() => {
         >
             <div
                 v-show="open"
-                class="absolute z-50 mt-2 rounded-md shadow-lg"
+                class="absolute z-50 mt-2 rounded-md shadow-lg max-w-[90vw]"
                 :class="[widthClass, alignmentClasses]"
                 style="display: none;"
                 @click="open = false"
             >
-                <div class="rounded-md ring-1 ring-black ring-opacity-5 max-h-[25rem] overflow-y-auto" :class="contentClasses">
+                <div
+                    class="rounded-md ring-1 ring-black ring-opacity-5 overflow-x-hidden overflow-y-auto"
+                    :class="contentClasses"
+                    :style="contentStyle"
+                >
                     <slot name="content" />
                 </div>
             </div>

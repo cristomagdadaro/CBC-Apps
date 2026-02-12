@@ -10,12 +10,23 @@ export default {
             required: false,
             default: '#'
         },
+        target: {
+            type: String,
+            required: false,
+            default: '_self'
+        },
     }
 }
 </script>
 
 <template>
-    <Link v-if="href !== '#'" :href="href" class="text-blue-500 hover:text-blue-700 flex gap-1 items-center justify-center w-fit">
+    <Link
+        v-if="href !== '#'"
+        :href="href"
+        :target="target"
+        :rel="target === '_blank' ? 'noopener noreferrer' : null"
+        class="text-blue-500 hover:text-blue-700 flex gap-1 items-center justify-center w-fit"
+    >
         <slot />
     </Link>
     <button v-else class="text-blue-500 hover:text-blue-700 flex gap-1 items-center justify-center w-fit">

@@ -1,5 +1,5 @@
 <script>
-import { useForm } from "@inertiajs/vue3";
+import { useForm, usePage } from "@inertiajs/vue3";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import LaboratoryPersonnelMixin from "@/Modules/mixins/LaboratoryPersonnelMixin";
@@ -66,6 +66,10 @@ export default {
         },
         canCheckOut() {
             return this.allowedActions.includes("check-out");
+        },
+        isAdmin() {
+            const page = usePage();
+            return page.props.auth?.user?.is_admin ?? false;
         },
     },
     methods: {
@@ -274,7 +278,7 @@ export default {
                     <div v-else-if="loading" class="text-sm text-gray-500">Loading equipment details...</div>
                     <div v-else-if="equipment" class="grid grid-cols-1 md:grid-cols-2 gap-1">
                         <div class="col-span-2 flex justify-between pb-1 leading-none">
-                            <h1 class="text-xl font-bold">{{ equipment.name }}</h1>
+                            <h1 class="text-xl font-bold uppercase">{{ equipment.name }}</h1>
                             <button v-if="!equipment_id" @click="selectedEquipmentId = null">
                                 <close-icon class="w-6 h-6 text-red-600" />
                             </button>
@@ -300,7 +304,7 @@ export default {
 
                 <div v-if="hasEquipment" class="grid grid-cols-1 gap-4">
                     <div class="border rounded-lg bg-white p-4 shadow-sm">
-                        <h2 class="text-base font-semibold mb-2">Current Status</h2>
+                        <h2 class="text-base font-semibold mb-2 uppercase">Current Status</h2>
                         <div v-if="activeLog" class="flex flex-col gap-1 text-sm">
                             <div class="flex justify-between gap-1">
                                 <span class="text-gray-500">Status</span>
@@ -327,7 +331,7 @@ export default {
 
                 <div v-if="hasEquipment && canCheckIn" class="border rounded-lg bg-white p-4 shadow-sm">
                     <div class="grid grid-cols-1 md:grid-cols-2 mb-3 gap-2">
-                        <h2 class="text-base font-semibold">Check-in Equipment</h2>
+                        <h2 class="text-base font-bold uppercase">Check-in Equipment</h2>
                         <p class="text-sm text-gray-500">Lookup your PhilRice ID to auto-fill details.</p>
                     </div>
 
@@ -378,7 +382,7 @@ export default {
 
                 <div v-if="hasEquipment && canCheckOut" class="border rounded-lg bg-white p-4 shadow-sm flex flex-col justify-end gap-2">
                     <div class="flex justify-between gap-5 items-center px-2">
-                        <h2 class="text-base font-semibold w-fit">Check-out Equipment</h2>
+                        <h2 class="text-base font-bold w-fit uppercase">Check-out Equipment</h2>
                         <a
                             :href="route('suppEquipReports.create.guest', equipment.barcode)"
                             target="_blank"
@@ -392,8 +396,8 @@ export default {
                     </div>
 
                     <!-- Show saved personnel info as label -->
-                    <div v-if="savedLaboratoryPersonnel" class="flex gap-2 justify-between items-center px-2 pt-3">
-                        <div class="text-sm text-gray-600">As: <span class="font-semibold">{{ savedLaboratoryPersonnel.fullName }} ( {{ savedLaboratoryPersonnel.employee_id }} )</span></div>
+                    <div v-if="savedLaboratoryPersonnel" class="flex gap-2 justify-between items-center px-2 py-3">
+                        <div class="text-gray-600">As: <span class="font-semibold">{{ savedLaboratoryPersonnel.fullName }} ( {{ savedLaboratoryPersonnel.employee_id }} )</span></div>
                         <button
                             v-if="savedLaboratoryPersonnel"
                             type="button"
@@ -420,7 +424,7 @@ export default {
                     <div v-if="getErrorMessage(checkOutErrors.base)" class="text-sm text-red-600 mt-2">{{ getErrorMessage(checkOutErrors.base) }}</div>
 
                     <div class="flex flex-col gap-1">
-                        <div class="flex items-center gap-2 w-fit justify-end px-2">
+                        <div v-if="isAdmin" class="flex items-center gap-2 w-fit justify-end px-2">
                             <input id="admin_override" v-model="checkOutForm.admin_override" type="checkbox" class="rounded-full" />
                             <label for="admin_override" class="text-xs leading-none">Admin Override</label>
                         </div>

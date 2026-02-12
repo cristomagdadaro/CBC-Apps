@@ -45,6 +45,15 @@ class LaboratoryEquipmentLog extends BaseModel
         'active_lock' => 'boolean',
     ];
 
+    protected array $searchable = [
+        'equipment_id',
+        'personnel_id',
+        'status',
+        'purpose',
+        'started_at',
+        'end_use_at',
+    ];
+
     protected function serializeDate(DateTimeInterface $date): string
     {
         return $date->format('Y-m-d H:i:s');

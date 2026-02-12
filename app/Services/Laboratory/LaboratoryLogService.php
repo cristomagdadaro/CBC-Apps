@@ -6,31 +6,49 @@ use App\Models\Item;
 use App\Models\LaboratoryEquipmentLog;
 use App\Models\Personnel;
 use App\Models\Transaction;
+use App\Repositories\OptionRepo;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class LaboratoryLogService
 {
+    public function __construct(private readonly OptionRepo $optionRepo)
+    {
+
+    }
+
     public function resolveEquipmentId(string $identifier): ?string
     {
-        // If identifier is a UUID, return as-is
-        if (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $identifier)) {
-            return $identifier;
+        // 1️ If UUID — could be log ID or equipment ID
+        if (Str::isUuid($identifier)) {
+            // Try laboratory equipment log
+            $equipmentId = LaboratoryEquipmentLog::where('id', $identifier)
+                ->value('equipment_id');
+
+            return $equipmentId ?? $identifier;
         }
 
-        // Search by barcode or barcode_prri
-        $item = Item::query()
-            ->whereHas('transactions', function (Builder $query) use ($identifier) {
-                $query->where('barcode', $identifier)
-                    ->orWhere('barcode_prri', $identifier);
-            })
-            ->first();
+        // 2 Try barcode or barcode_prri (via transactions table directly)
+        $itemId = Transaction::query()
+            ->where('barcode', $identifier)
+            ->orWhere('barcode_prri', $identifier)
+            ->value('item_id');
 
-        return $item?->id;
+        if ($itemId) {
+            return $itemId;
+        }
+
+        // 3 Try transaction ID
+        $itemId = Transaction::where('id', $identifier)
+            ->value('item_id');
+
+        return $itemId ?: null;
     }
+
 
     public function listEligibleEquipment(?string $search = null): Collection
     {
@@ -192,6 +210,8 @@ class LaboratoryLogService
             ->orderBy('end_use_at')
             ->get();
 
+        $this->enrichLogsWithLocationDetails($activeLogs, $overdueLogs);
+
         $mostUsedRows = LaboratoryEquipmentLog::query()
             ->select([
                 'equipment_id',
@@ -201,7 +221,7 @@ class LaboratoryLogService
             ->whereIn('status', ['completed', 'overdue'])
             ->groupBy('equipment_id')
             ->orderByDesc('usage_count')
-            ->limit(10)
+            ->limit(5)
             ->get();
 
         $equipmentMap = Item::whereIn('id', $mostUsedRows->pluck('equipment_id'))
@@ -233,6 +253,94 @@ class LaboratoryLogService
             'most_used' => $mostUsed,
             'heatmap' => $heatmap,
         ];
+    }
+
+    public function enrichLogsWithLocationDetails(Collection ...$collections): void
+    {
+        $logs = collect($collections)
+            ->flatten(1)
+            ->filter();
+
+        if ($logs->isEmpty()) {
+            return;
+        }
+
+        $equipmentIds = $logs->pluck('equipment_id')
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($equipmentIds->isEmpty()) {
+            return;
+        }
+
+        $latestBarcodeByEquipment = Transaction::query()
+            ->select(['item_id', 'barcode'])
+            ->whereIn('item_id', $equipmentIds)
+            ->whereNotNull('barcode')
+            ->orderByDesc('created_at')
+            ->get()
+            ->unique('item_id')
+            ->keyBy('item_id');
+
+        $locationByCode = $this->buildStorageLocationLookup();
+
+        $logs->each(function (LaboratoryEquipmentLog $log) use ($latestBarcodeByEquipment, $locationByCode) {
+            $barcode = $latestBarcodeByEquipment->get($log->equipment_id)?->barcode;
+            $locationCode = $this->extractLocationCodeFromBarcode($barcode);
+            $locationLabel = $locationCode ? ($locationByCode[$locationCode] ?? 'Unknown Location') : 'Unknown Location';
+
+            $log->setAttribute('equipment_barcode', $barcode);
+            $log->setAttribute('location_code', $locationCode);
+            $log->setAttribute('location_label', $locationLabel);
+        });
+    }
+
+    private function buildStorageLocationLookup(): array
+    {
+        return collect($this->optionRepo->getStorageLocations())
+            ->mapWithKeys(function (array $location) {
+                $name = $location['name'] ?? null;
+                $label = $location['label'] ?? null;
+                $code = $this->normalizeLocationCode($name);
+
+                if (!$code || !$label) {
+                    return [];
+                }
+
+                return [$code => $label];
+            })
+            ->toArray();
+    }
+
+    private function extractLocationCodeFromBarcode(?string $barcode): ?string
+    {
+        if (!$barcode) {
+            return null;
+        }
+
+        if (!preg_match('/CBC-(\d+)-/i', $barcode, $matches)) {
+            return null;
+        }
+
+        return str_pad($matches[1], 2, '0', STR_PAD_LEFT);
+    }
+
+    private function normalizeLocationCode(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_numeric($value)) {
+            return str_pad((string) ((int) $value), 2, '0', STR_PAD_LEFT);
+        }
+
+        if (is_string($value) && preg_match('/(\d+)/', $value, $matches)) {
+            return str_pad((string) ((int) $matches[1]), 2, '0', STR_PAD_LEFT);
+        }
+
+        return null;
     }
 
     private function findEligibleEquipment(string $equipmentId): ?Item

@@ -118,6 +118,13 @@ export default {
             const id = row?.identifier?.()?.id ?? row.id;
             return showPage && id ? route(showPage, id) : '#';
         },
+        getShowPageTarget(row) {
+            return row?.showPageTarget
+                ?? this.dt?.data?.[0]?.showPageTarget
+                ?? this.dt?.showPageTarget
+                ?? this.model?.showPageTarget
+                ?? '_self';
+        },
         getRowId(row) {
             return row?.identifier?.()?.id ?? row?.id ?? this.displayedRows.indexOf(row);
         },
@@ -223,13 +230,14 @@ export default {
                         <dt-data v-if="appendActions" class="border-y border-gray-500">
                             <div class="flex flex-row gap-2 justify-evenly">
                                 <dt-link-button
-                                    v-if="dt?.data?.[0]?.showPage && row?.identifier?.()?.id"
+                                    v-if="dt?.data?.[0]?.showPage && getRowId(row)"
                                     :href="getShowPageRoute(row)"
+                                    :target="getShowPageTarget(row)"
                                     class="text-yellow-400"
                                 >
                                     <edit-icon class="w-4 h-auto" />
                                 </dt-link-button>
-                                <dt-link-button @click="openDeleteConfirm(row)" class="text-red-400">
+                                <dt-link-button v-if="row?.api?._apiDelete" @click="openDeleteConfirm(row)" class="text-red-400">
                                     <delete-icon class="w-4 h-auto" />
                                 </dt-link-button>
                             </div>

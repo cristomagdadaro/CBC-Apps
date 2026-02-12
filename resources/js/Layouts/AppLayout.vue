@@ -33,7 +33,7 @@ export default {
                     label: 'FES Request Form',
                     href: 'accessUseRequest.index',
                 },{
-                    label: 'Laboratory Logs',
+                    label: 'Lab Equipment Logger',
                     href: 'laboratory.dashboard',
                 },{
                     label: 'Inventory Management',
