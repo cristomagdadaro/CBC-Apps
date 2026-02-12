@@ -375,17 +375,22 @@ export default {
                     </button>
                 </div>
 
-                <div v-if="hasEquipment && canCheckOut" class="border rounded-lg bg-white p-4 shadow-sm">
-                    <div class="flex justify-between mb-3 gap-5">
+                <div v-if="hasEquipment && canCheckOut" class="border rounded-lg bg-white p-4 shadow-sm flex flex-col justify-end gap-3">
+                    <div class="flex justify-between gap-5 items-center">
                         <h2 class="text-base font-semibold w-fit">Check-out Equipment</h2>
-                        <div class="flex items-center gap-2 w-fit justify-end">
-                            <input id="admin_override" v-model="checkOutForm.admin_override" type="checkbox" class="rounded" />
-                            <label for="admin_override" class="text-sm">Admin Override</label>
-                        </div>
+                        <a
+                            :href="route('suppEquipReports.create.guest', equipment.barcode)"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="flex flex-row items-center gap-1 bg-red-600 text-white p-1 px-2 rounded w-fit text-sm"
+                        >
+                            <flag-icon class="h-4 w-4" />
+                            Issue Encountered
+                        </a>
                     </div>
 
                     <!-- Show saved personnel info as label -->
-                    <div v-if="savedLaboratoryPersonnel" class="mb-2 flex gap-2 justify-between items-center">
+                    <div v-if="savedLaboratoryPersonnel" class="flex gap-2 justify-between items-center">
                         <div class="text-sm text-gray-600">As: <span class="font-semibold">{{ savedLaboratoryPersonnel.fullName }} ( {{ savedLaboratoryPersonnel.employee_id }} )</span></div>
                         <button
                             v-if="savedLaboratoryPersonnel"
@@ -394,12 +399,12 @@ export default {
                             class="p-1 rounded bg-gray-300 text-gray-700 text-sm hover:bg-gray-400 h-fit"
                             @click="searchDifferentPersonnel"
                         >
-                            <close-icon class="w-5 h-5" />
+                            <close-icon class="w-5 h-5 text-red-600" />
                         </button>
                     </div>
 
-                    <div class="flex gap-2 items-end">
-                        <div v-if="!savedLaboratoryPersonnel" class="flex-1">
+                    <div v-if="!savedLaboratoryPersonnel"  class="flex gap-2 items-end">
+                        <div class="flex-1">
                             <TextInput
                                 id="checkout_employee_id"
                                 v-model="checkOutForm.employee_id"
@@ -411,14 +416,20 @@ export default {
                     </div>
 
                     <div v-if="getErrorMessage(checkOutErrors.base)" class="text-sm text-red-600 mt-2">{{ getErrorMessage(checkOutErrors.base) }}</div>
-                    <Link :href="route('suppEquipReports.create.guest', equipment.barcode)" class="flex flex-row-reverse items-center gap-1 bg-red-600 text-white p-2 px-4 rounded w-fit"><flag-icon class="h-4 w-4" /> Issue Encountered</Link>
-                    <button
-                        type="button"
-                        class="mt-3 px-4 py-2 rounded bg-AB text-white text-sm hover:bg-AA w-full"
-                        @click="submitCheckOut"
-                    >
-                        Check Out Equipment
-                    </button>
+
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-2 w-fit justify-end">
+                            <input id="admin_override" v-model="checkOutForm.admin_override" type="checkbox" class="rounded-full" />
+                            <label for="admin_override" class="text-xs leading-none">Admin Override</label>
+                        </div>
+                        <button
+                            type="button"
+                            class="px-4 py-2 rounded bg-AB text-white text-sm hover:bg-AA w-full"
+                            @click="submitCheckOut"
+                        >
+                            Check Out Equipment
+                        </button>
+                    </div>
                 </div>
             </div>
         </transition-container>
