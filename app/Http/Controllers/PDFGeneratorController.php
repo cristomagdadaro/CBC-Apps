@@ -75,12 +75,53 @@ class PDFGeneratorController extends Controller
         }
 
         if ($needsGenerate) {
-            $pdf = Pdf::loadView($template, compact('form'));
-            // Ensure any stale file is removed before writing
-            if (File::exists($cacheFile)) {
-                File::delete($cacheFile);
+            try {
+                $pdfBinary = Pdf::loadView($template, compact('form'))->output();
+
+                if (!$pdfBinary) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Failed to generate PDF output.',
+                    ], 500);
+                }
+
+                $tmpCacheFile = $cacheFile . '.tmp';
+                if (File::exists($tmpCacheFile)) {
+                    File::delete($tmpCacheFile);
+                }
+
+                File::put($tmpCacheFile, $pdfBinary);
+
+                if (!File::exists($tmpCacheFile) || File::size($tmpCacheFile) <= 0) {
+                    if (File::exists($tmpCacheFile)) {
+                        File::delete($tmpCacheFile);
+                    }
+
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Generated PDF is empty.',
+                    ], 500);
+                }
+
+                if (File::exists($cacheFile)) {
+                    File::delete($cacheFile);
+                }
+
+                File::move($tmpCacheFile, $cacheFile);
+            } catch (\Throwable $e) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unable to generate PDF.',
+                    'details' => $e->getMessage(),
+                ], 500);
             }
-            File::put($cacheFile, $pdf->output());
+        }
+
+        if (!File::exists($cacheFile) || File::size($cacheFile) <= 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'PDF file is missing or invalid.',
+            ], 500);
         }
 
         if ($prefetch) {

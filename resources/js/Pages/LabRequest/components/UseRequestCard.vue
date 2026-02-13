@@ -44,7 +44,7 @@ export default {
             this.showPrintModal = true;
 
             const baseUrl = route('forms.generate.pdf', this.formsData.id);
-            const prefetchUrl = `${baseUrl}?prefetch=1&force_refresh=1`;
+            const prefetchUrl = `${baseUrl}?prefetch=1`;
 
             let progressTimer = null;
             try {
@@ -61,7 +61,28 @@ export default {
                     const targetUrl = response.data.download_url ?? response.data.url;
 
                     const pdfResponse = await axios.get(targetUrl, { responseType: 'blob' });
-                    const blob = new Blob([pdfResponse.data], { type: 'application/pdf' });
+                    const contentType = (pdfResponse.headers?.['content-type'] ?? '').toLowerCase();
+
+                    if (!contentType.includes('application/pdf')) {
+                        const rawBlob = pdfResponse.data instanceof Blob
+                            ? pdfResponse.data
+                            : new Blob([pdfResponse.data]);
+
+                        let errorMessage = 'Failed to render PDF. Please try again.';
+                        try {
+                            const text = await rawBlob.text();
+                            const parsed = JSON.parse(text);
+                            errorMessage = parsed?.message || errorMessage;
+                        } catch {
+                            // keep default error message
+                        }
+
+                        throw new Error(errorMessage);
+                    }
+
+                    const blob = pdfResponse.data instanceof Blob
+                        ? pdfResponse.data
+                        : new Blob([pdfResponse.data], { type: 'application/pdf' });
                     const url = window.URL.createObjectURL(blob);
 
                     const disposition = pdfResponse.headers?.['content-disposition'] ?? '';
@@ -83,7 +104,7 @@ export default {
                     this.printError = 'PDF is not ready yet.';
                 }
             } catch (error) {
-                this.printError = 'Failed to render PDF. Please try again.';
+                this.printError = error?.message || 'Failed to render PDF. Please try again.';
             } finally {
                 if (progressTimer) clearInterval(progressTimer);
                 if (this.printProgress < 100) {

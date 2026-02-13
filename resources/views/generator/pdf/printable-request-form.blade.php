@@ -21,14 +21,45 @@
     $requester   = $form->requester;
     $rf          = $form->request_form;
 
+    $normalizeList = function ($value) {
+        if (is_array($value)) {
+            return $value;
+        }
+
+        if (is_string($value) && trim($value) !== '') {
+            $decoded = json_decode($value, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return [];
+    };
+
+    $arrayToString = function ($value) use ($normalizeList) {
+        $list = $normalizeList($value);
+        return empty($list) ? '' : implode(', ', $list);
+    };
+
     $dateRequested = $form->created_at->format('F d, Y');
     $dateGenerated = now();
     $requestId     = $form->id;
 
-    $requesttype = implode(', ', normalizeList($rf->request_type));
-    $labs       = implode(', ', normalizeList($rf->labs_to_use));
-    $equipments = implode(', ', normalizeList($rf->equipments_to_use));
-    $supplies   = implode(', ', normalizeList($rf->consumables_to_use));
+    $requesttype = $arrayToString($rf->request_type);
+
+    $laboratoriesSource = !empty($normalizeList($rf->laboratories_labels ?? []))
+        ? ($rf->laboratories_labels ?? [])
+        : ($rf->labs_to_use ?? []);
+
+    $equipmentsSource = !empty($normalizeList($rf->equipments_labels ?? []))
+        ? ($rf->equipments_labels ?? [])
+        : ($rf->equipments_to_use ?? []);
+
+    $consumablesSource = !empty($normalizeList($rf->consumables_labels ?? []))
+        ? ($rf->consumables_labels ?? [])
+        : ($rf->consumables_to_use ?? []);
+
+    $labs       = $arrayToString($laboratoriesSource);
+    $equipments = $arrayToString($equipmentsSource);
+    $supplies   = $arrayToString($consumablesSource);
 
     $requesterName = strtoupper($requester->name ?? '');
     $approverName  = strtoupper($form->approved_by ?? '');
@@ -47,19 +78,6 @@
         'da'      => '/imgs/da_bpo.png',
         'bp'      => '/imgs/bagong_pilipinas.png',
     ]; */
-
-    function normalizeList($value) {
-        if (is_array($value)) {
-            return $value;
-        }
-
-        if (is_string($value) && trim($value) !== '') {
-            $decoded = json_decode($value, true);
-            return is_array($decoded) ? $decoded : [];
-        }
-
-        return [];
-    }
 @endphp
 
 
