@@ -365,22 +365,25 @@ export default {
 <template>
     <div class="relative flex flex-col border-0 p-0 bg-transparent w-full">
         <div class="flex flex-col w-full">
-            <text-input
-                :id="id"
-                ref="textInput"
-                :title="title"
-                :label="dynamicLabel"
-                :error="$attrs.error"
-                :required="required"
-                :show-clear="!disabled"
-                :disabled="disabled"
-                v-model="displayedInput"
-                :placeholder="placeholder"
-                @focusin="toggleDropdown()"
-                @click="toggleDropdown()"
-                @input="debounceApiCall($event)"
-                @clear="clearSelection"
-            />
+            <div class="flex items-center gap-1">
+                <text-input
+                    :id="id"
+                    ref="textInput"
+                    :title="title"
+                    :label="dynamicLabel"
+                    :error="$attrs.error"
+                    :required="required"
+                    :show-clear="!disabled"
+                    :disabled="disabled"
+                    v-model="displayedInput"
+                    :placeholder="placeholder"
+                    @focusin="toggleDropdown()"
+                    @click="toggleDropdown()"
+                    @input="debounceApiCall($event)"
+                    @clear="clearSelection"
+                ><button class="bg-AB text-white m-1 rounded-md p-2"><search-icon class="h-5 w-5 pointer-events-none" /></button></text-input>
+                
+            </div>
 
             <transition-container>
                 <div

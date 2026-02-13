@@ -1,5 +1,6 @@
 <script>
 import { useForm, usePage } from "@inertiajs/vue3";
+import { router } from "@inertiajs/vue3";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import LaboratoryPersonnelMixin from "@/Modules/mixins/LaboratoryPersonnelMixin";
@@ -9,6 +10,7 @@ import TextInput from "@/Components/TextInput.vue";
 import SuccessModal from "@/Components/SuccessModal.vue";
 import FlagIcon from '@/Components/Icons/FlagIcon.vue';
 import ArrowRight from '@/Components/Icons/ArrowRight.vue';
+import ErrorIcon from '@/Components/Icons/ErrorIcon.vue';
 
 export default {
     name: "EquipmentShow",
@@ -19,6 +21,7 @@ export default {
         SuccessModal,
         FlagIcon,
         ArrowRight,
+        ErrorIcon,
     },
     mixins: [ApiMixin, DataFormatterMixin, LaboratoryPersonnelMixin],
     props: {
@@ -59,6 +62,9 @@ export default {
             showPhilRiceField: false,
             isRotating: false,
             filterActiveByPersonnel: false,
+            notFound: false,
+            isNavigating: false,
+            unsubscribeRouterEvents: null,
         };
     },
     computed: {
@@ -123,6 +129,7 @@ export default {
                 return;
             }
             this.loading = true;
+            this.notFound = false;
             try {
                 const response = await this.fetchGetApi("api.laboratory.equipments.show", {
                     routeParams: this.equipmentId,
@@ -136,6 +143,7 @@ export default {
             } catch (error) {
                 this.messageType = "error";
                 this.message = error?.response?.data?.message || "Unable to load equipment details.";
+                this.notFound = true;
             } finally {
                 this.loading = false;
                 this.loadActiveEquipments();
@@ -282,6 +290,21 @@ export default {
         setTimeout(() => {
             this.delayReady = true;
         }, 200);
+
+        // Setup Inertia router events for navigation loading
+        const unsubscribeStart = router.on('start', () => this.isNavigating = true);
+        const unsubscribeFinish = router.on('finish', () => this.isNavigating = false);
+        
+        this.unsubscribeRouterEvents = () => {
+            unsubscribeStart();
+            unsubscribeFinish();
+        };
+    },
+
+    beforeUnmount() {
+        if (this.unsubscribeRouterEvents) {
+            this.unsubscribeRouterEvents();
+        }
     },
 };
 </script>
@@ -306,7 +329,7 @@ export default {
 
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
             <div class="flex flex-col lg:flex-row gap-4 w-full max-w-6xl mx-auto p-2 bg-gray-100 md:rounded-md h-full md:h-fit">
-                <div class="flex-1 flex flex-col gap-4">
+                <div class="flex-1 flex flex-col gap-4" :class="{'my-auto' : notFound}">
                     <div class="flex flex-col gap-2 border rounded-lg bg-white p-4 shadow-sm">
                         <div v-if="!hasEquipment" class="mt-3">
                             <SelectSearchField
@@ -321,6 +344,24 @@ export default {
                             </p>
                         </div>
                         <div v-else-if="loading" class="text-sm text-gray-500">Loading equipment details...</div>
+                        <div v-else-if="notFound" class="flex flex-col items-center justify-center py-8">
+                            <div class="text-center">
+                                <error-icon class="w-12 h-12 text-red-500 mx-auto mb-3" />
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">Equipment Not Found</h3>
+                                <p class="text-sm text-gray-500 mb-4">{{ message || 'The equipment you are looking for could not be found.' }}</p>
+                                <Link
+                                    :href="route('laboratory.equipments.show')"
+                                    class="px-4 py-2 bg-AB text-white text-sm rounded hover:bg-AB-dark flex items-center gap-2 transition-opacity inline-flex"
+                                    :class="isNavigating ? 'opacity-70 pointer-events-none' : ''"
+                                >
+                                    <span v-if="isNavigating" class="inline-flex">
+                                        <loader-icon class="animate-spin h-4 w-4 flex-shrink-0" />
+                                    </span>
+                                    <span>Browse all equipment</span>
+                                </Link>
+                            </div>
+                        </div>
+                        
                         <div v-else-if="equipment" class="grid grid-cols-1 md:grid-cols-2 gap-1">
                             <div class="col-span-2 flex justify-between pb-1 leading-none">
                                 <h1 class="text-xl font-bold uppercase">{{ equipment.name }}</h1>
@@ -347,7 +388,7 @@ export default {
                         </div>
                     </div>
 
-                    <div v-if="hasEquipment" class="grid grid-cols-1 gap-4">
+                    <div v-if="hasEquipment && !notFound" class="grid grid-cols-1 gap-4">
                         <div class="border rounded-lg bg-white p-4 shadow-sm">
                             <h2 class="text-base font-semibold mb-2 uppercase">Current Status</h2>
                             <div v-if="activeLog" class="flex flex-col gap-1 text-sm">
@@ -374,7 +415,7 @@ export default {
                         </div>
                     </div>
 
-                    <div v-if="hasEquipment && canCheckIn" class="border rounded-lg bg-white p-4 shadow-sm">
+                    <div v-if="hasEquipment && !notFound && canCheckIn" class="border rounded-lg bg-white p-4 shadow-sm">
                     <div class="grid grid-cols-1 md:grid-cols-2 mb-3 gap-2">
                         <h2 class="text-base font-bold uppercase">Check-in Equipment</h2>
                         <p class="text-sm text-gray-500">Lookup your PhilRice ID to auto-fill details.</p>
@@ -425,7 +466,7 @@ export default {
                     </button>
                     </div>
 
-                    <div v-if="hasEquipment && canCheckOut" class="border rounded-lg bg-white p-4 shadow-sm flex flex-col justify-end gap-2">
+                    <div v-if="hasEquipment && !notFound && canCheckOut" class="border rounded-lg bg-white p-4 shadow-sm flex flex-col justify-end gap-2">
                         <div class="flex justify-between gap-5 items-center px-2">
                             <h2 class="text-base font-bold w-fit uppercase">Check-out Equipment</h2>
                             <a
@@ -560,17 +601,21 @@ export default {
                             <Link
                                 v-for="item in filteredActiveEquipments"
                                 :key="item.id"
-                                class="border-l-4 border-AB rounded p-3 bg-gray-50 hover:bg-gray-100 transition-colors cursor-default leading-tight"
+                                class="border-l-4 border-AB rounded p-3 bg-gray-50 hover:bg-gray-100 transition-colors cursor-default leading-tight flex items-start justify-between gap-2 relative"
+                                :class="isNavigating ? 'opacity-70 pointer-events-none' : ''"
                                 :href="route('laboratory.equipments.show', item.equipment_id)"
-                            > 
-                                <h3 class="font-semibold text-sm text-gray-800 truncate">{{ item.equipment?.name }} {{ '(' + item.equipment?.brand + ')' }}</h3>
-                                <p class="text-xs text-gray-600 truncate">Checked in at <b>{{ formatDateTime(item.started_at) }}</b></p>
-                                <p class="text-xs text-gray-600 truncate">Expected end at <b>{{ formatDateTime(item.end_use_at) }}</b></p>
-                                <div class="text-xs space-y-1">
-                                    <div v-if="item.personnel" class="text-gray-700">
-                                        <span class="text-gray-500">User:</span> <b>{{ formatPersonnelName(item.personnel) }}</b>
+                            >
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-semibold text-sm text-gray-800 truncate">{{ item.equipment?.name }} {{ '(' + item.equipment?.brand + ')' }}</h3>
+                                    <p class="text-xs text-gray-600 truncate">Checked in at <b>{{ formatDateTime(item.started_at) }}</b></p>
+                                    <p class="text-xs text-gray-600 truncate">Expected end at <b>{{ formatDateTime(item.end_use_at) }}</b></p>
+                                    <div class="text-xs space-y-1">
+                                        <div v-if="item.personnel" class="text-gray-700">
+                                            <span class="text-gray-500">User:</span> <b>{{ formatPersonnelName(item.personnel) }}</b>
+                                        </div>
                                     </div>
                                 </div>
+                                <loader-icon v-if="isNavigating" class="animate-spin h-4 w-4 flex-shrink-0 mt-1 absolute right-0 top-0 text-AA drop-shadow-sm" />
                             </Link>
                         </div>
                     </div>

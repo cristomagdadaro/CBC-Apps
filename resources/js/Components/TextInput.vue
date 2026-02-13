@@ -43,18 +43,21 @@ defineExpose({ focus: () => input.value?.focus() });
                 <InputError v-show="!!error" class="" :message="error" />
             </transition-container>
         </div>
-        <input
-            :id="id"
-            :name="id"
-            ref="input"
-            :class="{'border-red-500': error}"
-            :autocomplete="autocomplete"
-            class="w-full placeholder:text-gray-300 focus:border-AB focus:ring-AB rounded-md shadow-sm px-3 py-2"
-            :value="modelValue"
-            :placeholder="placeholder"
-            :type="typeInput || type"
-            @input="$emit('update:modelValue', $event.target.value)"
-        >
+        <div class="flex items-center">
+            <input
+                :id="id"
+                :name="id"
+                ref="input"
+                :class="{'border-red-500': error}"
+                :autocomplete="autocomplete"
+                class="w-full placeholder:text-gray-300 focus:border-AB focus:ring-AB rounded-md shadow-sm px-3 py-2"
+                :value="modelValue"
+                :placeholder="placeholder"
+                :type="typeInput || type"
+                @input="$emit('update:modelValue', $event.target.value)"
+            >
+            <slot />
+        </div>
     </div>
 </template>
 <style scoped>
