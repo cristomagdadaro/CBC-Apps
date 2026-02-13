@@ -8,8 +8,11 @@ interface IRequestForm extends IBaseClass {
     time_of_use: string;
     time_of_use_end: string;
     labs_to_use: Array<string> | object;
+    laboratories_labels?: Array<string> | object;
     equipments_to_use: Array<string> | object;
+    equipments_labels?: Array<string> | object;
     consumables_to_use: Array<string> | object;
+    consumables_labels?: Array<string> | object;
 
     requester: IRequester;
 }

@@ -11,8 +11,11 @@ export default class DtoRequestForm extends DtoBaseClass implements IRequestForm
     time_of_use: string;
     time_of_use_end: string;
     labs_to_use: string[];
+    laboratories_labels?: string[];
     equipments_to_use: string[];
+    equipments_labels?: string[];
     consumables_to_use: string[];
+    consumables_labels?: string[];
 
     requester: IRequester;
 
@@ -28,8 +31,12 @@ export default class DtoRequestForm extends DtoBaseClass implements IRequestForm
         this.time_of_use = data?.time_of_use ?? '';
         this.time_of_use_end = data?.time_of_use_end ?? '';
         this.labs_to_use = Array.isArray(data?.labs_to_use) ? data.labs_to_use : [];
+        this.laboratories_labels = Array.isArray(data?.laboratories_labels) ? data.laboratories_labels : [];
         this.equipments_to_use = Array.isArray(data?.equipments_to_use) ? data.equipments_to_use : [];
+        this.equipments_labels = Array.isArray(data?.equipments_labels) ? data.equipments_labels : [];
         this.consumables_to_use = Array.isArray(data?.consumables_to_use) ? data.consumables_to_use : [];
+        this.consumables_labels = Array.isArray(data?.consumables_labels) ? data.consumables_labels : [];
+
 
         const emptyRequester = {
             id: '',

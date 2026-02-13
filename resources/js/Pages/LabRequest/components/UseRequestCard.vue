@@ -217,22 +217,22 @@ export default {
                                 <span class="text-left font-bold uppercase pt-3">Items Requested</span>
                                 <table>
                                     <tbody>
-                                        <tr v-if="formsData.requestForm?.labs_to_use.length">
+                                        <tr v-if="(formsData.requestForm?.laboratories_labels?.length || formsData.requestForm?.labs_to_use?.length)">
                                             <th class="py-1 uppercase w-5 px-4 border text-left"><b>Laboratories</b></th>
                                             <td class="border">
-                                                {{ arrayToString(formsData.requestForm?.labs_to_use) }}
+                                                {{ arrayToString(formsData.requestForm?.laboratories_labels?.length ? formsData.requestForm?.laboratories_labels : formsData.requestForm?.labs_to_use) }}
                                             </td>
                                         </tr>
-                                        <tr v-if="formsData.requestForm?.equipments_to_use.length">
+                                        <tr v-if="(formsData.requestForm?.equipments_labels?.length || formsData.requestForm?.equipments_to_use?.length)">
                                             <th class="py-1 uppercase w-5 px-4 border text-left"><b>Equipments</b></th>
                                             <td class="border">
-                                                {{ arrayToString(formsData.requestForm?.equipments_to_use) }}
+                                                {{ arrayToString(formsData.requestForm?.equipments_labels?.length ? formsData.requestForm?.equipments_labels : formsData.requestForm?.equipments_to_use) }}
                                             </td>
                                         </tr>
                                         <tr v-if="formsData.requestForm?.consumables_to_use.length">
                                             <th class="py-1 uppercase w-5 px-4 border text-left"><b>Consumables</b></th>
                                             <td class="border">
-                                                {{ arrayToString(formsData.requestForm?.consumables_to_use) }}
+                                                {{ arrayToString(formsData.requestForm?.consumables_labels?.length ? formsData.requestForm?.consumables_labels : formsData.requestForm?.consumables_to_use) }}
                                             </td>
                                         </tr>
                                     </tbody>
