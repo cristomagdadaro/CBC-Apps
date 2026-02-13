@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         \App\Models\User::factory()->create([
             'name' => 'DA-CBC Administrator',
             'email' => 'dacropbiotechcenter@gmail.com',
+            'is_admin' => true,
         ]);
 
         \App\Models\User::factory()->create([
@@ -41,6 +42,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
+            RolesSeeder::class,
             OptionSeeder::class,
             FormSeeder::class,
             InventorySeeder::class,

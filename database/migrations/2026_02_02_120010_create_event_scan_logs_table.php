@@ -18,7 +18,7 @@ return new class extends Migration
             $table->uuid('registration_id')->nullable()->index();
             $table->string('scan_type', 36)->index();
             $table->string('status', 36)->index();
-            $table->foreignId('scanned_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignUuid('scanned_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('scanned_at')->index();
             $table->string('payload_hash')->index();
             $table->string('signature')->nullable();

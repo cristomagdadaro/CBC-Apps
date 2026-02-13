@@ -14,7 +14,7 @@ return new class extends Migration
         if (!Schema::hasTable('audit_logs')) 
             Schema::create('audit_logs', function (Blueprint $table) {
                 $table->uuid('id')->primary();
-                $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
+                $table->foreignUuid('user_id')->nullable()->constrained('users')->onDelete('set null');
                 $table->string('model_type'); // e.g., 'App\Models\Transaction'
                 $table->uuid('model_id');
                 $table->enum('action', ['created', 'updated', 'deleted', 'force_deleted']);

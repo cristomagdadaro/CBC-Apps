@@ -11,6 +11,8 @@ use Inertia\Inertia;
 use Symfony\Component\Process\Process;
 use App\Models\EventSubformResponse;
 use App\Observers\EventSubformResponseObserver;
+use App\Models\User;
+use App\Observers\UserObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -40,6 +42,7 @@ class AppServiceProvider extends ServiceProvider
         }
         Transaction::observe(TransactionObserver::class);
         EventSubformResponse::observe(EventSubformResponseObserver::class);
+        User::observe(UserObserver::class);
 
         // Audit logging for models with Auditable trait is automatically registered
         // via the bootAuditable() method in the Auditable trait

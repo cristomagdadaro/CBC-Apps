@@ -26,18 +26,23 @@ export default {
                 },{
                     label: 'Event Forms',
                     href: 'forms.index',
+                    permission: 'event.forms.manage',
                 },{
                     label: 'Rentals',
                     href: 'rentals.index',
+                    permission: 'rental.vehicle.manage',
                 },{
                     label: 'FES Request Form',
                     href: 'accessUseRequest.index',
+                    permission: 'fes.request.approve',
                 },{
                     label: 'Lab Equipment Logger',
                     href: 'laboratory.dashboard',
+                    permission: 'laboratory.logger.manage',
                 },{
                     label: 'Inventory Management',
                     href: 'forms.index',
+                    permission: 'inventory.manage',
                     children: [
                         {
                             label: 'Transactions',
@@ -67,11 +72,48 @@ export default {
                 {
                     label: 'System Options',
                     href: 'system.options.index',
+                    roles: ['admin'],
+                },
+                {
+                    label: 'Users Management',
+                    href: 'system.users.index',
+                    permission: 'users.manage',
+                    roles: ['admin'],
                 },
             ],
         };
     },
+    computed: {
+        visibleServices() {
+            return this.services.filter((service) => this.canAccessService(service));
+        },
+    },
     methods: {
+        hasPermission(permission) {
+            if (!permission) {
+                return true;
+            }
+
+            const permissions = this.$page.props?.auth?.permissions ?? [];
+
+            return permissions.includes('*') || permissions.includes(permission);
+        },
+        hasAnyRole(roles = []) {
+            if (!roles.length) {
+                return true;
+            }
+
+            const currentRoles = this.$page.props?.auth?.roles ?? [];
+
+            return roles.some((role) => currentRoles.includes(role));
+        },
+        canAccessService(service) {
+            if (!service) {
+                return false;
+            }
+
+            return this.hasPermission(service.permission) && this.hasAnyRole(service.roles || []);
+        },
         isServiceActive(service) {
             if (!service) {
                 return false;
@@ -122,7 +164,7 @@ export default {
 
                             <!-- Navigation Links -->
                             <div class="hidden sm:ms-6 sm:flex sm:items-center sm:gap-2 sm:flex-wrap">
-                                <template v-for="service in services" :key="service.label">
+                                <template v-for="service in visibleServices" :key="service.label">
                                     <!-- Show Dropdown if service has children -->
                                     <Dropdown v-if="service.children" align="right" width="60">
                                         <template #trigger>
@@ -294,7 +336,7 @@ export default {
                 <div :class="{'block': showingNavigationDropdown, 'hidden': ! showingNavigationDropdown}" class="sm:hidden">
                     <div class="pt-2 pb-3 space-y-1">
                         <div class="sm:hidden flex flex-col gap-1">
-                            <template v-for="service in services" :key="service.label">
+                            <template v-for="service in visibleServices" :key="service.label">
                                 <!-- Show Dropdown if service has children -->
                                 <div class="flex flex-col">
                                     <ResponsiveNavLink

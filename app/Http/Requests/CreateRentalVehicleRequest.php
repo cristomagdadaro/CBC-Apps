@@ -3,14 +3,13 @@
 namespace App\Http\Requests;
 
 use App\Repositories\OptionRepo;
-use App\Models\RentalVehicle;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateRentalVehicleRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('rental.vehicle.manage') ?? false;
     }
 
     public function rules(): array

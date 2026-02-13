@@ -19,6 +19,7 @@ use App\Models\Personnel;
 use App\Models\Registration;
 use App\Models\Supplier;
 use App\Models\Transaction;
+use App\Models\User;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -397,6 +398,22 @@ Route::middleware([
                         'data' => \App\Models\Option::find(request()->route('id')),
                     ]);
                 })->name('system.options.show');
+            });
+
+            Route::middleware(['auth', 'can:users.manage'])->prefix('users')->group(function () {
+                Route::get('/', function () {
+                    return Inertia::render('System/Users/UsersIndex');
+                })->name('system.users.index');
+
+                Route::get('/create', function () {
+                    return Inertia::render('System/Users/CreateUser');
+                })->name('system.users.create');
+
+                Route::get('/{id}', function () {
+                    return Inertia::render('System/Users/EditUser', [
+                        'data' => User::query()->with('roles:id,name,label')->findOrFail(request()->route('id')),
+                    ]);
+                })->name('system.users.show');
             });
         });
     });

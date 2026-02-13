@@ -22,7 +22,7 @@ return new class extends Migration
                 ->constrained('items')
                 ->nullOnDelete()
                 ->cascadeOnUpdate();
-            $table->foreignId('user_id')
+            $table->foreignUuid('user_id')
                 ->nullable()
                 ->constrained('users')
                 ->nullOnDelete()

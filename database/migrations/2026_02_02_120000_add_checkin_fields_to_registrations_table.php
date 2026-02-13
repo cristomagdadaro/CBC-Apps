@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('registrations', function (Blueprint $table) {
             $table->timestamp('checked_in_at')->nullable()->index();
-            $table->foreignId('checked_in_by')
+            $table->foreignUuid('checked_in_by')
                 ->nullable()
                 ->constrained('users')
                 ->nullOnDelete();

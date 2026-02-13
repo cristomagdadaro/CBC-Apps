@@ -2,20 +2,22 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Option;
+use App\Repositories\OptionRepo;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateRentalVenueRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('rental.venue.manage') ?? false;
     }
 
     public function rules(): array
     {
+        $optionRepo = app(OptionRepo::class);
+
         return [
-            'venue_type' => ['sometimes', 'string', 'in:'.implode(',', array_column(Option::getEventHalls()->toArray(), 'name'))],
+            'venue_type' => ['sometimes', 'string', 'in:'.implode(',', array_column($optionRepo->getEventHalls()->toArray(), 'name'))],
             'date_from' => ['sometimes', 'date', 'after_or_equal:today'],
             'date_to' => ['sometimes', 'date', 'after_or_equal:date_from'],
             'time_from' => ['sometimes', 'date_format:H:i:s'],

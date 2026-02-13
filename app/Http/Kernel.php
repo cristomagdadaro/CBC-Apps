@@ -67,6 +67,7 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'role.any' => \App\Http\Middleware\EnsureAnyRole::class,
         'check.form.suspended' => \App\Http\Middleware\CheckFormSuspended::class,
         'check.form.maxslot' => \App\Http\Middleware\CheckFormMaxSlot::class,
         'check.form.expired' => \App\Http\Middleware\CheckFormExpiration::class,

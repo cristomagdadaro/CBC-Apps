@@ -114,12 +114,12 @@ class LaboratoryEquipmentLogFactory extends Factory
         return Item::query()->inRandomOrder()->value('id');
     }
 
-    private function resolvePersonnelId(): ?int
+    private function resolvePersonnelId()
     {
         return Personnel::query()->inRandomOrder()->value('id');
     }
 
-    private function resolveUserId(): ?int
+    private function resolveUserId()
     {
         return User::query()->inRandomOrder()->value('id');
     }

@@ -6,7 +6,6 @@ use App\Http\Controllers\EventSubformResponseController;
 use App\Http\Controllers\EventWorkflowController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\FormScanController;
-use App\Http\Controllers\RequestFormPivotController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,9 +17,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['api', 'auth'])->prefix('forms')->group(function () {
+Route::prefix('forms')->group(function () {
     // Event forms
-    Route::prefix('event')->group(function () {
+    Route::middleware(['can:event.forms.manage'])->prefix('event')->group(function () {
         Route::get('/', [FormController::class, 'index'])
             ->name('api.form.index');
         
@@ -73,12 +72,4 @@ Route::middleware(['api', 'auth'])->prefix('forms')->group(function () {
             ->name('api.form.scan');
     });
 
-    // Use request forms
-    Route::prefix('use-request-form')->group(function () {
-        Route::get('/', [RequestFormPivotController::class, 'index'])
-            ->name('api.requestFormPivot.index');
-        
-        Route::put('/update/{request_pivot_id?}', [RequestFormPivotController::class, 'update'])
-            ->name('api.requestFormPivot.put');
-    });
 });

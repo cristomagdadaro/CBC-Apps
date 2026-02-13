@@ -2,20 +2,22 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Option;
+use App\Repositories\OptionRepo;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateRentalVehicleRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('rental.vehicle.manage') ?? false;
     }
 
     public function rules(): array
     {
+        $optionRepo = app(OptionRepo::class);
+
         return [
-            'vehicle_type' => ['sometimes', 'string', 'in:'.implode(',', array_column(Option::getVehicles()->toArray(), 'name'))],
+            'vehicle_type' => ['sometimes', 'string', 'in:'.implode(',', array_column($optionRepo->getVehicles()->toArray(), 'name'))],
             'date_from' => ['sometimes', 'date', 'after_or_equal:today'],
             'date_to' => ['sometimes', 'date', 'after_or_equal:date_from'],
             'time_from' => ['sometimes', 'date_format:H:i:s'],

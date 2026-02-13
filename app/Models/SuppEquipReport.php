@@ -47,7 +47,7 @@ class SuppEquipReport extends BaseModel
         'id' => 'string',
         'transaction_id' => 'string',
         'item_id' => 'string',
-        'user_id' => 'integer',
+        'user_id' => 'string',
         'report_data' => 'array',
         'reported_at' => 'datetime',
     ];

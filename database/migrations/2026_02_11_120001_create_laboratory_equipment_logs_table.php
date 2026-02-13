@@ -21,8 +21,8 @@ return new class extends Migration
             $table->timestamp('actual_end_at')->nullable();
             $table->boolean('active_lock')->default(true);
             $table->text('purpose')->nullable();
-            $table->unsignedBigInteger('checked_in_by')->nullable();
-            $table->unsignedBigInteger('checked_out_by')->nullable();
+            $table->uuid('checked_in_by')->nullable();
+            $table->uuid('checked_out_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

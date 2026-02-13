@@ -9,7 +9,7 @@ class CreateRentalVenueRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('rental.venue.manage') ?? false;
     }
 
     public function rules(): array
