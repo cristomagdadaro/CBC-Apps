@@ -597,25 +597,24 @@ export default {
                         </button>
                         <div v-if="loadingActiveEquipments" class="text-sm text-gray-500 text-center py-4">Loading...</div>
                         <div v-else-if="filteredActiveEquipments.length === 0" class="text-sm text-gray-500 text-center py-4">No active equipments</div>
-                        <div v-else class="flex flex-col gap-2 max-h-[29rem] h-fit overflow-y-auto">
+                        <div v-else class="flex flex-col gap-2 max-h-[29rem] h-fit overflow-y-auto overflow-x-hidden">
                             <Link
                                 v-for="item in filteredActiveEquipments"
                                 :key="item.id"
-                                class="border-l-4 border-AB rounded p-3 bg-gray-50 hover:bg-gray-100 transition-colors cursor-default leading-tight flex items-start justify-between gap-2 relative"
-                                :class="isNavigating ? 'opacity-70 pointer-events-none' : ''"
+                                class="border-l-4 border-AB rounded p-3 bg-gray-50 hover:bg-gray-200 transition-colors cursor-default leading-tight flex items-start justify-between gap-2 relative "
+                                :class="{ 'opacity-70 pointer-events-none' : isNavigating, 'pointer-events-none bg-gray-500 left-2 border-AA' : equipment?.id === item.equipment_id }"
                                 :href="route('laboratory.equipments.show', item.equipment_id)"
                             >
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="font-semibold text-sm text-gray-800 truncate">{{ item.equipment?.name }} {{ '(' + item.equipment?.brand + ')' }}</h3>
-                                    <p class="text-xs text-gray-600 truncate">Checked in at <b>{{ formatDateTime(item.started_at) }}</b></p>
-                                    <p class="text-xs text-gray-600 truncate">Expected end at <b>{{ formatDateTime(item.end_use_at) }}</b></p>
+                                <div class="flex-1 min-w-0" :class="equipment?.id === item.equipment_id ? 'text-white' : 'text-gray-600'">
+                                    <h3 class="font-semibold text-sm truncate">{{ item.equipment?.name }} {{ '(' + item.equipment?.brand + ')' }}</h3>
+                                    <p class="text-xs truncate">Checked in at <b>{{ formatDateTime(item.started_at) }}</b></p>
+                                    <p class="text-xs truncate">Expected end at <b>{{ formatDateTime(item.end_use_at) }}</b></p>
                                     <div class="text-xs space-y-1">
-                                        <div v-if="item.personnel" class="text-gray-700">
-                                            <span class="text-gray-500">User:</span> <b>{{ formatPersonnelName(item.personnel) }}</b>
+                                        <div v-if="item.personnel">
+                                            <span>User:</span> <b>{{ formatPersonnelName(item.personnel) }}</b>
                                         </div>
                                     </div>
                                 </div>
-                                <loader-icon v-if="isNavigating" class="animate-spin h-4 w-4 flex-shrink-0 mt-1 absolute right-0 top-0 text-AA drop-shadow-sm" />
                             </Link>
                         </div>
                     </div>

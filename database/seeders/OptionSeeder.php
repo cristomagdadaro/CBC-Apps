@@ -85,7 +85,7 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'event_response_notification_email',
-                'value' => '',
+                'value' => 'cristoreymagdadaro@gmail.com',
                 'label' => 'Event Response Notification Email',
                 'description' => 'Email for event response notifications',
                 'type' => 'text',
@@ -101,7 +101,7 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'outgoing_transaction_notification_email',
-                'value' => '',
+                'value' => 'cristoreymagdadaro@gmail.com',
                 'label' => 'Outgoing Transaction Notification Email',
                 'description' => 'Email for outgoing transaction notifications',
                 'type' => 'text',
