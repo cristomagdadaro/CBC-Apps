@@ -50,4 +50,26 @@ class UseRequestForm extends Model
         'equipments_to_use' => 'array',
         'consumables_to_use'=> 'array',
     ];
+
+    protected array $searchable = [
+        'id',
+        'request_type',
+        'request_details',
+        'request_purpose',
+        'project_title',
+        'date_of_use',
+        'date_of_use_end',
+        'time_of_use',
+        'time_of_use_end',
+    ];
+    
+    public function equipments()
+    {
+        
+    }
+
+    public function laboratories()
+    {
+        
+    }
 }

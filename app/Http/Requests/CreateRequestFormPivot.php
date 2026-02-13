@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Repositories\OptionRepo;
 
 class CreateRequestFormPivot extends FormRequest
 {
@@ -22,6 +23,8 @@ class CreateRequestFormPivot extends FormRequest
      */
     public function rules(): array
     {
+        $requestTypes = app(OptionRepo::class)->getRequestTypes()->pluck('label')->toArray();
+        
         return [
             'name' => 'required|string',
             'affiliation' => 'required|string',
@@ -30,7 +33,7 @@ class CreateRequestFormPivot extends FormRequest
             'phone' => 'required|string',
 
             'request_type' => 'required|array|min:1',
-            'request_type.*' => 'string|in:Supplies,Equipments,Laboratory Access',
+            'request_type.*' => 'string|in:'.implode(',', $requestTypes),
             'request_details' => 'nullable|string',
             'request_purpose' => 'required|string',
             'project_title' => 'nullable|string',

@@ -14,7 +14,7 @@ export default class RequestFormPivot extends DtoRequestFormPivot {
         this.api._apiPost = RequestFormPivot.endpoints.post;
         this.api._apiPut = RequestFormPivot.endpoints.put;
 
-        this.api.appendWith = ['requester', 'request_form'];
+        this.api.appendWith = ['requester', 'request_form', 'equipments', 'laboratories'];
     }
 
     createFields(): object {

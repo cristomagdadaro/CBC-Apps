@@ -77,7 +77,8 @@ export default {
 
             // Fetch from API if provided
             if (this.apiLink) {
-                const apiData = await this.fetchData();
+                const apiData = await this.fetchGetApi(this.apiLink, this.params);
+                console.log('Fetched Tagify options:', apiData);
                 this.options = [...this.options, ...apiData];
             }
 

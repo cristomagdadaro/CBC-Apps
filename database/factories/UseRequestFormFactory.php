@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Repositories\OptionRepo;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\UseRequestForm>
@@ -16,7 +17,7 @@ class UseRequestFormFactory extends Factory
      */
     public function definition(): array
     {
-        $types = ['Supplies', 'Equipments', 'Laboratory Access'];
+        $types = app(OptionRepo::class)->getRequestTypes()->pluck('label')->toArray();
 
         return [
             'id' => $this->faker->uuid(),

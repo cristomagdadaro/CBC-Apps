@@ -106,7 +106,7 @@ Route::prefix('guest')->group(function () {
         })->name('api.inventory.equipments.public');
 
         Route::get('/laboratories/public', function () {
-            return [ 'data' => app(OptionRepo::class)->getLaboratories() ];
+            return app(OptionRepo::class)->getLaboratories();
         })->name('api.inventory.laboratories.public');
 
         Route::get('/transactions-public', [TransactionController::class, 'index'])->name('api.inventory.transactions.index.public');

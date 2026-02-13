@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Repositories\OptionRepo;
 
 class CreateLabRequest extends FormRequest
 {
@@ -21,6 +22,8 @@ class CreateLabRequest extends FormRequest
      */
     public function rules(): array
     {
+        $requestTypes = app(OptionRepo::class)->getRequestTypes()->pluck('label')->toArray();
+
         return [
             //requester
             'name' => ['required', 'string', 'max:255'],
@@ -31,7 +34,7 @@ class CreateLabRequest extends FormRequest
 
             //lab request form
             'request_type' => ['required', 'array', 'min:1'],
-            'request_type.*' => ['string', 'max:255'],
+            'request_type.*' => 'string|in:'.implode(',', $requestTypes),
             'request_details' => ['required', 'string', 'max:255'],
             'request_purpose' => ['required', 'string', 'max:255'],
             'project_title' => ['required', 'string', 'max:255'],

@@ -151,7 +151,13 @@ class OptionRepo extends AbstractRepoService
      */
     public function getLaboratories()
     {
-        return json_decode($this->getByKey('laboratories'), true) ?? [];
+        return collect($this->getByGroup('laboratories'))->map(function ($label, $name) {
+            return [
+                'value' => (int) $name,
+                'value' => (int) $name,
+                'label' => $label,
+            ];
+        })->sortBy('label')->values();
     }
 
     /**

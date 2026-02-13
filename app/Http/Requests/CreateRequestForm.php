@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Repositories\OptionRepo;
 
 class CreateRequestForm extends FormRequest
 {
@@ -22,9 +23,11 @@ class CreateRequestForm extends FormRequest
      */
     public function rules(): array
     {
+        $requestTypes = app(OptionRepo::class)->getRequestTypes()->pluck('label')->toArray();
+        
         return [
             'request_type' => 'nullable|array',
-            'request_type.*' => 'string|in:Supplies,Equipments,Laboratory Access',
+            'request_type.*' => 'string|in:'.implode(',', $requestTypes),
             'request_details' => 'nullable|string',
             'request_purpose' => 'required|string',
             'project_title' => 'nullable|string',
