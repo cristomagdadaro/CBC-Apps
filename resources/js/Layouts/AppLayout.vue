@@ -1,6 +1,7 @@
 <script>
 import ApplicationMark from '@/Components/ApplicationMark.vue';
 import Banner from '@/Components/Banner.vue';
+import NotificationToast from '@/Components/NotificationToast.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { router } from '@inertiajs/vue3'
@@ -10,6 +11,7 @@ export default {
     components: {
         ApplicationMark,
         Banner,
+        NotificationToast,
         NavLink,
         ResponsiveNavLink,
     },
@@ -148,6 +150,7 @@ export default {
         <Head :title="title" />
 
         <Banner />
+        <NotificationToast />
 
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
             <nav class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
@@ -161,7 +164,7 @@ export default {
                                     <ApplicationMark class="block h-9 w-auto" />
                                 </Link>
                             </div>
-
+                            
                             <!-- Navigation Links -->
                             <div class="hidden sm:ms-6 sm:flex sm:items-center sm:gap-2 sm:flex-wrap">
                                 <template v-for="service in visibleServices" :key="service.label">
@@ -440,7 +443,7 @@ export default {
                     </div>
                 </div>
             </nav>
-
+{{ $page.props.auth.roles }} {{ $page.props.auth.permissions }}
             <!-- Page Heading -->
             <header v-if="$slots.header" class="bg-white dark:bg-gray-800 shadow">
                 <div class="max-w-[90vw] mx-auto py-2 px-4 sm:px-6 lg:px-8">

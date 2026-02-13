@@ -1,4 +1,4 @@
-import axios, {AxiosResponse} from "axios";
+import axios, {AxiosError, AxiosResponse} from "axios";
 import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
 import ConsoleLogger from "@/Modules/shared/infrastructure/ConsoleLogger";
 
@@ -29,6 +29,66 @@ export default abstract class ApiService {
             page: 1,
             per_page: 10
         };
+    }
+
+    private notifyError(error: unknown, fallbackMessage: string = 'Request failed. Please try again.') {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        const axiosError = error as AxiosError<any>;
+        const status = axiosError?.response?.status;
+        const responseMessage = axiosError?.response?.data?.message;
+
+        const message =
+            status === 401
+                ? 'Unauthorized request. Please sign in again.'
+                : status === 403
+                    ? 'Access denied for this action.'
+                    : status === 404
+                        ? 'Requested resource was not found.'
+                        : status === 422
+                            ? 'Some fields are invalid. Please review your input.'
+                            : responseMessage || fallbackMessage;
+
+        window.dispatchEvent(
+            new CustomEvent('cbc:notify', {
+                detail: {
+                    type: 'error',
+                    message,
+                },
+            })
+        );
+    }
+
+    protected notifySuccess(message: string = 'Operation completed successfully.') {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        window.dispatchEvent(
+            new CustomEvent('cbc:notify', {
+                detail: {
+                    type: 'success',
+                    message,
+                },
+            })
+        );
+    }
+
+    protected notifyWarning(message: string = 'Please note.') {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        window.dispatchEvent(
+            new CustomEvent('cbc:notify', {
+                detail: {
+                    type: 'warning',
+                    message,
+                },
+            })
+        );
     }
 
     async get(url: string, params?: any, model?: DtoBaseClass) {
@@ -72,6 +132,7 @@ export default abstract class ApiService {
             return response.data;
         } catch (error) {
             this.processing = false;
+            this.notifyError(error, 'Failed to load data.');
             throw error;
         }
     }
@@ -93,11 +154,13 @@ export default abstract class ApiService {
                 cleanConfig
             );
             this.processing = false;
+            this.notifySuccess('Data submitted successfully.');
             ConsoleLogger.debug('POST Response Data:', response.data);
             return response;
         } catch (error) {
             this.processing = false;
             ConsoleLogger.error('POST Error:', error);
+            this.notifyError(error, 'Failed to submit data.');
             throw error;
         }
     }
@@ -111,10 +174,12 @@ export default abstract class ApiService {
             const response = await axios.put(`${route(url)}/${id}`, params);
             this.processing = false;
             ConsoleLogger.debug('PUT Response Data:', response.data);
+            this.notifySuccess('Data updated successfully.');
             return response;
         } catch (error) {
             this.processing = false;
             ConsoleLogger.error('PUT Error:', error);
+            this.notifyError(error, 'Failed to update data.');
             throw error;
         }
     }
@@ -127,10 +192,12 @@ export default abstract class ApiService {
             const response = await axios.delete(route(url, id), id);
             this.processing = false;
             ConsoleLogger.debug('DELETE Response Data:', response.data);
+            this.notifyWarning('Data deleted successfully.');
             return response;
         } catch (error) {
             this.processing = false;
             ConsoleLogger.error('DELETE Error:', error);
+            this.notifyError(error, 'Failed to delete data.');
             throw error;
         }
     }
@@ -183,6 +250,7 @@ export default abstract class ApiService {
     {
         if (!this._apiIndex){
             console.error('API for index not found');
+            this.notifyError(new Error('API for index not found'), 'API for index not found.');
             return null;
         }
         return await this.get(this._apiIndex, params, model);
@@ -229,6 +297,7 @@ export default abstract class ApiService {
     {
         if (!this._apiPut){
             console.error('API for update not found');
+            this.notifyError(new Error('API for update not found'), 'API for update not found.');
             return null;
         }
         return await this.put(this._apiPut, this.getIdentifier(params), params);
@@ -238,6 +307,7 @@ export default abstract class ApiService {
     {
         if (!this._apiPost){
             console.error('API for create not found');
+            this.notifyError(new Error('API for create not found'), 'API for create not found.');
             return null;
         }
         return await this.post(this._apiPost, params);
@@ -247,6 +317,7 @@ export default abstract class ApiService {
     {
         if (!this._apiDelete){
             console.error('API for delete not found');
+            this.notifyError(new Error('API for delete not found'), 'API for delete not found.');
             return null;
         }
         return await this.delete(this._apiDelete, this.getIdentifier(params));

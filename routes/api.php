@@ -41,7 +41,7 @@ Route::middleware(['api', 'auth'])->group(function () {
 
     require __DIR__.'/forms.php';
 
-    Route::middleware(['can:fes.request.approve'])->group(function () {
+    Route::middleware(['can:fes.request.approve', 'role.any:admin'])->group(function () {
         require __DIR__.'/fes.php';
     });
 

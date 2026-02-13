@@ -171,12 +171,15 @@
 import { Link, router } from '@inertiajs/vue3'
 import { ref, computed } from 'vue'
 import axios from 'axios'
+import { useNotifier } from '@/Modules/composables/useNotifier'
 import TextInput from './components/ValueInputs/TextInput.vue'
 import NumberInput from './components/ValueInputs/NumberInput.vue'
 import TextareaInput from './components/ValueInputs/TextareaInput.vue'
 import BooleanInput from './components/ValueInputs/BooleanInput.vue'
 import JsonInput from './components/ValueInputs/JsonInput.vue'
 import SelectOptionsEditor from './components/SelectOptionsEditor.vue'
+
+const { success, error: notifyError } = useNotifier()
 
 const isSubmitting = ref(false)
 const errors = ref({})
@@ -229,13 +232,15 @@ const submitForm = async () => {
     }
 
     await axios.post(route('api.options.store'), payload)
+    success('Option created successfully.')
     router.push(route('system.options.index'))
   } catch (error) {
     if (error.response?.data?.errors) {
       errors.value = error.response.data.errors
+      notifyError('Please check the form fields and try again.')
     } else {
       console.error('Error creating option:', error)
-      alert('Failed to create option')
+      notifyError('Failed to create option.')
     }
   } finally {
     isSubmitting.value = false

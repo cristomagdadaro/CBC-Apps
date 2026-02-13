@@ -3,6 +3,9 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import { Link } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
 import axios from 'axios';
+import { useNotifier } from '@/Modules/composables/useNotifier';
+
+const { success, error: notifyError, warning } = useNotifier();
 
 const loading = ref(false);
 const users = ref([]);
@@ -20,16 +23,26 @@ const loadUsers = async () => {
         });
 
         users.value = response?.data?.data?.data ?? response?.data?.data ?? [];
+    } catch (error) {
+        notifyError('Failed to load users.');
     } finally {
         loading.value = false;
     }
 };
 
 const deleteUser = async (id) => {
-    if (!confirm('Delete this user?')) return;
+    if (!confirm('Delete this user?')) {
+        warning('User deletion was cancelled.');
+        return;
+    }
 
-    await axios.delete(route('api.users.destroy', id));
-    await loadUsers();
+    try {
+        await axios.delete(route('api.users.destroy', id));
+        success('User deleted successfully.');
+        await loadUsers();
+    } catch (error) {
+        notifyError('Failed to delete user.');
+    }
 };
 
 onMounted(loadUsers);

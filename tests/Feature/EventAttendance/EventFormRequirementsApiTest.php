@@ -9,10 +9,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
+use Tests\WithTestRoles;
 
 class EventFormRequirementsApiTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, WithTestRoles;
 
     protected $seeder = \Database\Seeders\DatabaseSeeder::class;
 
@@ -31,7 +32,7 @@ class EventFormRequirementsApiTest extends TestCase
     public function test_event_responses_per_form(): void
     {
         //get all  event responses per form
-        Sanctum::actingAs(User::factory()->create());
+        Sanctum::actingAs($this->createAdminUser());
         Form::factory()->create([
             'event_id' => '0911',
             'title' => 'Biotech Summit 2024',
@@ -48,7 +49,7 @@ class EventFormRequirementsApiTest extends TestCase
 
     public function test_create_event_form_and_attach_requirements(): void
     {
-        Sanctum::actingAs(User::factory()->create());
+        Sanctum::actingAs($this->createAdminUser());
 
         $payload = [
             'title' => 'National Biotechnology Week 2026',

@@ -12,14 +12,15 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
+use Tests\WithTestRoles;
 
 class InventorySuppEquipReportsApiTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, WithTestRoles;
 
     public function test_supp_equip_report_crud_flow(): void
     {
-        $user = User::factory()->create();
+        $user = $this->createAdminUser();
         Sanctum::actingAs($user);
 
         $category = Category::factory()->create();

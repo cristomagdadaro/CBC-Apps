@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\RentalVehicle;
 use App\Models\RentalVenue;
 use Illuminate\Database\Seeder;
+use App\Models\User;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,28 +16,28 @@ class DatabaseSeeder extends Seeder
     {
          //\App\Models\User::factory(10)->create();
 
-        \App\Models\User::factory()->create([
+        (User::factory()->create([
             'name' => 'DA-CBC Administrator',
             'email' => 'dacropbiotechcenter@gmail.com',
             'is_admin' => true,
-        ]);
+        ]))->roles()->syncWithoutDetaching([1]);
 
-        \App\Models\User::factory()->create([
+        User::factory()->create([
             'name' => 'Cristo Rey C. Magdadaro',
             'email' => 'magdadaro.cristoreyc@gmail.com',
         ]);
 
-        \App\Models\User::factory()->create([
+        User::factory()->create([
             'name' => 'Ephraim Dioeve Yarcia',
             'email' => 'ephraimdioeveyarcia@gmail.com',
         ]);
 
-        \App\Models\User::factory()->create([
+        User::factory()->create([
             'name' => 'Ma. Johna C. Doque',
             'email' => 'unknown@gmail.com',
         ]);
 
-        \App\Models\User::factory()->create([
+        User::factory()->create([
             'name' => 'Al Jun Omandam',
             'email' => 'unknown2@gmail.com',
         ]);

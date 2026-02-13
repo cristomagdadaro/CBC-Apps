@@ -206,11 +206,14 @@
 import { Link, router } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import axios from 'axios'
+import { useNotifier } from '@/Modules/composables/useNotifier'
 import TextInput from './components/ValueInputs/TextInput.vue'
 import NumberInput from './components/ValueInputs/NumberInput.vue'
 import TextareaInput from './components/ValueInputs/TextareaInput.vue'
 import BooleanInput from './components/ValueInputs/BooleanInput.vue'
 import JsonInput from './components/ValueInputs/JsonInput.vue'
+
+const { success, error: notifyError } = useNotifier()
 
 const props = defineProps({
   data: {
@@ -276,13 +279,15 @@ const submitForm = async () => {
     }
 
     await axios.put(route('api.options.update', props.data.id), payload)
+    success('Option updated successfully.')
     router.push(route('system.options.index'))
   } catch (error) {
     if (error.response?.data?.errors) {
       errors.value = error.response.data.errors
+      notifyError('Please check the form fields and try again.')
     } else {
       console.error('Error updating option:', error)
-      alert('Failed to update option')
+      notifyError('Failed to update option.')
     }
   } finally {
     isSubmitting.value = false
@@ -297,10 +302,11 @@ const deleteOption = async () => {
   isDeleting.value = true
   try {
     await axios.delete(route('api.options.destroy', props.data.id))
+    success('Option deleted successfully.')
     router.push(route('system.options.index'))
   } catch (error) {
     console.error('Error deleting option:', error)
-    alert('Failed to delete option')
+    notifyError('Failed to delete option.')
   } finally {
     isDeleting.value = false
   }

@@ -3,6 +3,9 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import { Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import axios from 'axios';
+import { useNotifier } from '@/Modules/composables/useNotifier';
+
+const { success, error: notifyError } = useNotifier();
 
 const form = ref({
     name: '',
@@ -29,9 +32,13 @@ const submit = async () => {
     errors.value = {};
     try {
         await axios.post(route('api.users.store'), form.value);
+        success('User created successfully.');
         router.visit(route('system.users.index'));
     } catch (error) {
         errors.value = error?.response?.data?.errors || {};
+        if (!Object.keys(errors.value).length) {
+            notifyError('Failed to create user.');
+        }
     } finally {
         submitting.value = false;
     }

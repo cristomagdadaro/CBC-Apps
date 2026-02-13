@@ -211,6 +211,9 @@
 import { Link } from '@inertiajs/vue3'
 import { ref, computed } from 'vue'
 import axios from 'axios'
+import { useNotifier } from '@/Modules/composables/useNotifier'
+
+const { success, error: notifyError } = useNotifier()
 
 const props = defineProps({
   options: {
@@ -298,11 +301,12 @@ const deleteOption = async () => {
   try {
     await axios.delete(route('api.options.destroy', deleteModal.value.option.id))
     deleteModal.value.isOpen = false
+    success('Option deleted successfully.')
     // Refresh the page
     location.reload()
   } catch (error) {
     console.error('Error deleting option:', error)
-    alert('Failed to delete option')
+    notifyError('Failed to delete option.')
   } finally {
     deleteModal.value.isDeleting = false
   }

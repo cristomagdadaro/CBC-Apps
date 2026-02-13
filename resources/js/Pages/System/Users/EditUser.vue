@@ -3,6 +3,9 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import { Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import axios from 'axios';
+import { useNotifier } from '@/Modules/composables/useNotifier';
+
+const { success, error: notifyError, warning } = useNotifier();
 
 const props = defineProps({
     data: { type: Object, required: true },
@@ -34,20 +37,30 @@ const submit = async () => {
     errors.value = {};
     try {
         await axios.put(route('api.users.update', props.data.id), form.value);
+        success('User updated successfully.');
         router.visit(route('system.users.index'));
     } catch (error) {
         errors.value = error?.response?.data?.errors || {};
+        if (!Object.keys(errors.value).length) {
+            notifyError('Failed to update user.');
+        }
     } finally {
         submitting.value = false;
     }
 };
 
 const destroyUser = async () => {
-    if (!confirm('Delete this user?')) return;
+    if (!confirm('Delete this user?')) {
+        warning('User deletion was cancelled.');
+        return;
+    }
     deleting.value = true;
     try {
         await axios.delete(route('api.users.destroy', props.data.id));
+        success('User deleted successfully.');
         router.visit(route('system.users.index'));
+    } catch (error) {
+        notifyError('Failed to delete user.');
     } finally {
         deleting.value = false;
     }

@@ -12,7 +12,6 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use App\Traits\Auditable;
-use App\Enums\Role as RoleEnum;
 use App\Models\Role;
 
 class User extends Authenticatable
@@ -100,7 +99,7 @@ class User extends Authenticatable
 
     public function hasAnyRole(array $roles): bool
     {
-        if ($this->is_admin || in_array(RoleEnum::ADMIN->value, $roles, true)) {
+        if ($this->is_admin) {
             return true;
         }
 
