@@ -26,6 +26,7 @@ export default {
         return {
             model: null,
             employee_id: '',
+            isNonPhilRiceEmployee: false,
             steps: [
                 { key: 'request_type', label: 'Request Type' },
                 { key: 'requestor', label: 'Requestor Info' },
@@ -70,10 +71,26 @@ export default {
                     this.clientErrors['request_type'] = 'Select at least one request type';
                 }
             } else if (stepKey === 'requestor') {
-                required('name', 'Full name');
-                required('affiliation', 'Affiliation');
-                required('phone', 'Contact number');
-                required('email', 'Email');
+                // If non-PhilRice employee, validate manual entry fields
+                if (this.employee_id && !this.form.name) {
+                    document.getElementById('personnel-lookip-btn') ? document.getElementById('personnel-lookip-btn').click() : this.clientErrors['employee_id'] = 'Please search for your PhilRice ID'
+                    this.clientErrors['employee_id'] = 'Please wait for personnel data to load';
+                }
+                else if (this.isNonPhilRiceEmployee) {
+                    required('name', 'Full name');
+                    required('affiliation', 'Affiliation');
+                    required('phone', 'Contact number');
+                    required('email', 'Email');
+                } else {
+                    // If PhilRice employee, validate that they selected someone from PersonnelLookup
+                    if (!this.employee_id) {
+                        this.clientErrors['employee_id'] = 'Please search for and select your PhilRice ID';
+                    }
+                    // Also check if name was populated from PersonnelLookup
+                    if (!f.name) {
+                        this.clientErrors['name'] = 'Could not find personnel. Please try again or mark as non-PhilRice employee';
+                    }
+                }
             } else if (stepKey === 'details') {
                 required('request_purpose', 'Request purpose');
                 required('date_of_use', 'Date of use');
@@ -215,7 +232,6 @@ export default {
                         placeholder="Select one or more"
                         :whitelist="requestTypeOptions"
                         :enforce-whitelist="true"
-                        classes="inline-flex items-center justify-between px-3 py-3 border border-gray-900 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white w-full hover:text-gray-700 focus:bg-gray-50"
                         @update:modelValue="form.clearErrors('request_type')"
                     />
                 </div>
@@ -228,19 +244,34 @@ export default {
                     <span class="font-bold uppercase">Requestor Information: </span>
                 </h2>
                 <PersonnelLookup
+                    v-if="!isNonPhilRiceEmployee"
                     v-model="employee_id"
                     @found="handlePersonnelFound"
                     @error="handlePersonnelError"
                 />
-                
-                <br class="border" />
-                <p class="text-sm text-gray-600">Manually enter your information</p>
-                <TextInput id="name" v-model="form.name" required type="text" :error="errMsg('name')" label="Full Name" placeholder="Juan Dela Cruz" autocomplete="name" @input="form.clearErrors('name')" />
-                <TextInput id="position" v-model="form.position" type="text" :error="form.errors.position" label="Position" placeholder="SRS I, Student" autocomplete="position" @input="form.clearErrors('position')" />
-                <TextInput id="affiliation" v-model="form.affiliation" required type="text" :error="errMsg('affiliation')" label="Affiliation/Agency/Office" placeholder="Office Name" autocomplete="affiliation" @input="form.clearErrors('affiliation')" />
-                <div class="flex items-center gap-2">
-                    <TextInput id="phone" v-model="form.phone" required type="text" :error="errMsg('phone')" label="Contact Number" placeholder="0900 000 000" autocomplete="phone" @input="form.clearErrors('phone')" />
-                    <TextInput id="email" v-model="form.email" required type="email" :error="errMsg('email')" label="Email Address" placeholder="sample@email.com" autocomplete="email" @input="form.clearErrors('email')" />
+                <label v-if="form.name && !isNonPhilRiceEmployee" class="text-AC text-semibold text-sm leading-none">Hi! {{ form.name }}</label>
+                <label v-else-if="clientErrors['employee_id']" class="text-AC text-semibold text-sm leading-none">{{ clientErrors['employee_id'] }}</label>
+                <div class="flex items-center gap-2 pt-2">
+                    <input 
+                        type="checkbox" 
+                        id="isNonPhilRice" 
+                        v-model="isNonPhilRiceEmployee"
+                        class="rounded"
+                    />
+                    <label for="isNonPhilRice" class="text-gray-600 cursor-pointer leading-none">
+                        I am a non-PhilRice employee/personnel
+                    </label>
+                </div>
+
+                <div v-show="isNonPhilRiceEmployee" class="flex flex-col gap-2 pt-2 border-t">
+                    <p class="text-sm text-gray-600">Manually enter your information</p>
+                    <TextInput id="name" v-model="form.name" required type="text" :error="errMsg('name')" label="Full Name" placeholder="Juan Dela Cruz" autocomplete="name" @input="form.clearErrors('name')" />
+                    <TextInput id="position" v-model="form.position" type="text" :error="form.errors.position" label="Position" placeholder="SRS I, Student" autocomplete="position" @input="form.clearErrors('position')" />
+                    <TextInput id="affiliation" v-model="form.affiliation" required type="text" :error="errMsg('affiliation')" label="Affiliation/Agency/Office" placeholder="Office Name" autocomplete="affiliation" @input="form.clearErrors('affiliation')" />
+                    <div class="flex items-center gap-2">
+                        <TextInput id="phone" v-model="form.phone" required type="text" :error="errMsg('phone')" label="Contact Number" placeholder="0900 000 000" autocomplete="phone" @input="form.clearErrors('phone')" />
+                        <TextInput id="email" v-model="form.email" required type="email" :error="errMsg('email')" label="Email Address" placeholder="sample@email.com" autocomplete="email" @input="form.clearErrors('email')" />
+                    </div>
                 </div>
             </div>
 

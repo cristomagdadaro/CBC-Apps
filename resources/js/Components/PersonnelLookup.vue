@@ -113,7 +113,7 @@ export default {
                 @keydown.enter.prevent="searchPersonnel"
                 @input="delete clientErrors.employee_id"
             />
-            <button type="button" class="px-3 py-[0.66rem] rounded bg-AB text-white text-sm hover:bg-AB-dark disabled:opacity-50" :disabled="searchLoading" @click="searchPersonnel">
+            <button id="personnel-lookip-btn" type="button" class="px-3 py-[0.66rem] rounded bg-AB text-white text-sm hover:bg-AB-dark disabled:opacity-50" :disabled="searchLoading" @click="searchPersonnel">
                 <search-icon v-if="!searchLoading" class="w-5 h-5" />
                 <loader-icon v-else class="w-5 h-5 animate-spin" />
             </button>

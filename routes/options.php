@@ -44,4 +44,8 @@ Route::prefix('options')->group(function () {
     // Get options with metadata
     Route::get('/metadata/list', [OptionController::class, 'getWithMetadata'])
         ->name('api.options.metadata');
+    
+    // Get options for select fields by type (unified endpoint)
+    Route::get('/select/{type}', [OptionController::class, 'getOptionsForSelect'])
+        ->name('api.options.select');
 });

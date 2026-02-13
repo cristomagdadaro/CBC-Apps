@@ -98,6 +98,7 @@ import BuildingIcon from './Components/Icons/BuildingIcon.vue';
 import DropdownLink from "@/Components/DropdownLink.vue";
 import Dropdown from "@/Components/Dropdown.vue";
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
+import MultiSelectDropdown from '@/Components/MultiSelectDropdown.vue';
 
 // Modal Components
 import Modal from "@/Components/Modal.vue";
@@ -230,6 +231,7 @@ createInertiaApp({
         vueApp.component('DropdownLink', DropdownLink);
         vueApp.component('Dropdown', Dropdown);
         vueApp.component('CustomDropdown', CustomDropdown);
+        vueApp.component('MultiSelectDropdown', MultiSelectDropdown);
 
         // Global Modal Components
         vueApp.component('Modal', Modal);

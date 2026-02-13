@@ -18,6 +18,17 @@ class FormRepo extends AbstractRepoService
         parent::__construct($model);
     }
 
+    /**
+     * Get all forms formatted for select fields
+     */
+    public function getOptions()
+    {
+        return $this->model
+            ->newQuery()
+            ->select('id as name', 'title as label')
+            ->get();
+    }
+
     public function getGuestFormByEventId(?string $eventId): ?Form
     {
         if (!$eventId) {

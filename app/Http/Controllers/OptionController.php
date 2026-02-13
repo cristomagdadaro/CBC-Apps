@@ -7,6 +7,14 @@ use App\Http\Requests\CreateOptionRequest;
 use App\Http\Requests\DeleteRequest;
 use App\Http\Requests\UpdateOptionRequest;
 use App\Repositories\OptionRepo;
+use App\Repositories\CategoryRepo;
+use App\Repositories\EventSubformRepo;
+use App\Repositories\FormRepo;
+use App\Repositories\ItemRepo;
+use App\Repositories\LaboratoryEquipmentLogRepo;
+use App\Repositories\ParticipantRepo;
+use App\Repositories\PersonnelRepo;
+use App\Repositories\SupplierRepo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
@@ -104,6 +112,43 @@ class OptionController extends BaseController
     {
         $group = $request->query('group');
         $options = $this->service->getWithMetadata($group);
+        return new Collection($options);
+    }
+
+    /**
+     * Get options for select fields by type
+     * Unified endpoint for all database tables
+     */
+    public function getOptionsForSelect(Request $request, string $type)
+    {
+        $repositories = [
+            'categories' => CategoryRepo::class,
+            'event_subforms' => EventSubformRepo::class,
+            'forms' => FormRepo::class,
+            'items' => ItemRepo::class,
+            'laboratory_equipment_logs' => LaboratoryEquipmentLogRepo::class,
+            'participants' => ParticipantRepo::class,
+            'personnels' => PersonnelRepo::class,
+            'suppliers' => SupplierRepo::class,
+        ];
+
+        if (!isset($repositories[$type])) {
+            return response()->json([
+                'message' => "Invalid option type: {$type}",
+                'available_types' => array_keys($repositories)
+            ], 400);
+        }
+
+        $repositoryClass = $repositories[$type];
+        $repository = app($repositoryClass);
+
+        if (!method_exists($repository, 'getOptions')) {
+            return response()->json([
+                'message' => "Repository does not support getOptions method"
+            ], 400);
+        }
+
+        $options = $repository->getOptions();
         return new Collection($options);
     }
 }

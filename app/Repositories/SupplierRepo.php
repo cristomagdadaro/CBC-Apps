@@ -10,4 +10,15 @@ class SupplierRepo extends AbstractRepoService
     {
         parent::__construct($model);
     }
+
+    /**
+     * Get all suppliers formatted for select fields
+     */
+    public function getOptions()
+    {
+        return $this->model
+            ->newQuery()
+            ->select('id as name', 'name as label')
+            ->get();
+    }
 }

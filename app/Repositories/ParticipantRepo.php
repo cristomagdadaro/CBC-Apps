@@ -14,6 +14,17 @@ class ParticipantRepo extends AbstractRepoService
         parent::__construct($model);
     }
 
+    /**
+     * Get all participants formatted for select fields
+     */
+    public function getOptions()
+    {
+        return $this->model
+            ->newQuery()
+            ->select('id as name', 'name as label')
+            ->get();
+    }
+
     public function createWithRegistration(array $validated): array
     {
         return DB::transaction(function () use ($validated) {

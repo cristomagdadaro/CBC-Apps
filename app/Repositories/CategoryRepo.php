@@ -19,4 +19,15 @@ class CategoryRepo extends AbstractRepoService
             ->has('items')
             ->get();
     }
+
+    /**
+     * Get all categories formatted for select fields
+     */
+    public function getOptions()
+    {
+        return $this->model
+            ->newQuery()
+            ->select('id as name', 'name as label')
+            ->get();
+    }
 }

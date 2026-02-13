@@ -196,8 +196,34 @@ class TransactionRepo extends AbstractRepoService
 
     public function getRemainingStocksPerCategory(Collection $parameters, string $categoryName): Collection
     {
-        $parameters->put('filter', 'category');
-        $parameters->put('filter_by', $categoryName);
-        return $this->getRemainingStocks($parameters);
+        $params = $parameters->merge([
+            'filter' => 'category',
+            'filter_by' => $categoryName,
+        ]);
+
+        $stock = $this->getRemainingStocks($params);
+
+        return collect($stock->get('data', []))
+            ->map(function ($row) {
+
+                $baseLabel = trim(
+                    $row->name .
+                    ($row->description ? " ({$row->description})" : '')
+                );
+
+                $stockInfo = $row->remaining_quantity !== null
+                    ? " - {$row->remaining_quantity}" . ($row->unit ? " {$row->unit} remaining" : '')
+                    : '';
+
+                return [
+                    'value' => $row->item_id,
+                    'label' => $baseLabel . $stockInfo,
+                    'barcode' => $row->barcode,
+                    'barcode_prri' => $row->barcode_prri ?? null,
+                    'unit' => $row->unit,
+                    'remaining_quantity' => (int) $row->remaining_quantity,
+                ];
+            })
+            ->values();
     }
 }

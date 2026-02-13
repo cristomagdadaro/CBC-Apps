@@ -12,4 +12,17 @@ class LaboratoryEquipmentLogRepo extends AbstractRepoService
     {
         parent::__construct($model);
     }
+
+    /**
+     * Get all laboratory equipment logs formatted for select fields
+     */
+    public function getOptions()
+    {
+        return $this->model
+            ->newQuery()
+            ->join('items', 'laboratory_equipment_logs.item_id', '=', 'items.id')
+            ->select('laboratory_equipment_logs.id as name', 'items.name as label')
+            ->distinct()
+            ->get();
+    }
 }

@@ -107,18 +107,27 @@ class OptionRepo extends AbstractRepoService
      */
     public function getRequestTypes()
     {
-        $temp = $this->getByGroup('fes');
-        $newTemp = [];
+        $records = $this->model
+            ->newQuery()
+            ->where('group', 'fes')
+            ->get();
 
-        foreach ($temp as $value) {
-            $decoded = json_decode($value, true);
+        $result = [];
+
+        foreach ($records as $record) {
+            $decoded = json_decode($record->value, true);
 
             if (is_array($decoded)) {
-                $newTemp = array_merge($newTemp, $decoded);
+                $result = array_merge($result, $decoded);
             }
         }
 
-        return $newTemp;
+        return collect($result)->map(function ($type) {
+            return [
+                'name' => $type,
+                'label' => $type,
+            ];
+        })->sortBy('label')->values();
     }
 
     /**

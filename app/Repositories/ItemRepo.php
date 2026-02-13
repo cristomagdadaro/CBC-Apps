@@ -12,4 +12,15 @@ class ItemRepo extends AbstractRepoService
     {
         parent::__construct($model);
     }
+
+    /**
+     * Get all items formatted for select fields
+     */
+    public function getOptions()
+    {
+        return $this->model
+            ->newQuery()
+            ->selectRaw('id as name, CONCAT(name, " (", COALESCE(brand, ""), IF(description != "", CONCAT(" - ", description), ""), ")") as label')
+            ->get();
+    }
 }
