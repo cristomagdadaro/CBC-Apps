@@ -21,6 +21,8 @@ class GetEventSubformRequest extends FormRequest
      */
     public function rules(): array
     {
-        return config('searching');
+        return [
+            'event_id' => 'nullable|string|exists:event_subforms,event_id'
+        ];
     }
 }

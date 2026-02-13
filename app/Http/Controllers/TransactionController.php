@@ -8,7 +8,6 @@ use App\Http\Requests\NewOutgoingRequest;
 use App\Http\Requests\UpdateTransactionRequest;
 use App\Models\NewBarcode;
 use App\Repositories\TransactionRepo;
-use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

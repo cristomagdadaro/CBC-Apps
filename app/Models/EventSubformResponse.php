@@ -42,7 +42,7 @@ class EventSubformResponse extends Model
         'submitted_at' => 'datetime',
     ];
 
-    public function formParent()
+    public function parent()
     {
         return $this->belongsTo(EventSubform::class, 'form_parent_id', 'id');
     }

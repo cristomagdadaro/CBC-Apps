@@ -7,11 +7,9 @@ use App\Http\Requests\DeleteItemRequest;
 use App\Http\Requests\GetItemRequest;
 use App\Http\Requests\UpdateItemRequest;
 use App\Repositories\ItemRepo;
-use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 
 class ItemController extends BaseController
 {

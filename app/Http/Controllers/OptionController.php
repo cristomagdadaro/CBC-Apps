@@ -30,8 +30,7 @@ class OptionController extends BaseController
      */
     public function index(GetRequest $request)
     {
-        $options = $this->service->search(new \Illuminate\Support\Collection($request->validated()));
-        return $options;
+        return $this->service->search(new Collection($request->validated()));
     }
 
     /**

@@ -2,15 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Generic\GetRequest;
-use App\Http\Requests\CreateRequest;
-use App\Http\Requests\UpdateRequest;
-use App\Http\Requests\DeleteRequest;
 use App\Repositories\AbstractRepoService;
-use GuzzleHttp\Promise\Create;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 abstract class BaseController extends Controller

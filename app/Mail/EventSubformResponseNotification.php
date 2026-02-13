@@ -18,9 +18,9 @@ class EventSubformResponseNotification extends Mailable
     public function build(): self
     {
         // Ensure relations are loaded on the existing model instance
-        $response = $this->response->load(['formParent', 'registration.participant']);
+        $response = $this->response->load(['parent', 'registration.participant']);
 
-        $title = $response->formParent?->title ?? 'New Response';
+        $title = $response->parent?->title ?? 'New Response';
 
         return $this->subject($title . ' - New Response Received')
             ->view('emails.event-subform-response-notification', [
