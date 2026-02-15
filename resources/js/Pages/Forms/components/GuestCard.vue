@@ -21,10 +21,7 @@ export default {
     },
     data() {
         return {
-            // v-model on <TabNavigation> expects a reactive property.
-            // Define it so template render won't warn about undefined property.
             activeTab: null,
-            // referenced in beforeDestroy when clearing the interval
             intervalId: null,
             workflowState: null,
             workflowLoading: false,

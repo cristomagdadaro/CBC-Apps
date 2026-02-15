@@ -8,7 +8,7 @@ export default class RentalVenue extends DtoRentalVenue {
         this.api._apiPut = 'api.rental.venues.update';
         this.api._apiDelete = 'api.rental.venues.destroy';
 
-        this.showPage = 'rental-venues.show';
+        //this.showPage = 'rental-venues.show';
     }
 
     createFields(): object {

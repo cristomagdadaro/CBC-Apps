@@ -59,7 +59,7 @@ export default {
         <access-use-header-actions />
     </template>
 
-    <div class="max-w-[90vw] mx-auto sm:px-6 lg:px-8">
+    <div class="default-container pt-5">
         <form v-if="!!form" class="flex gap-2 items-end"  @submit.prevent="searchEvent">
             <div class="grid grid-rows-2 w-full">
                 <div class="w-full flex gap-2 items-end lg:px-0 px-2">

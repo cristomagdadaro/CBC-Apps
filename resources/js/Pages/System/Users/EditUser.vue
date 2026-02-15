@@ -6,6 +6,14 @@ export default {
     name: 'EditUser',
     props: {
         data: { type: Object, required: true },
+        roleOptions: {
+            type: Array,
+            default: () => [],
+        },
+        permissionOptions: {
+            type: Array,
+            default: () => [],
+        },
     },
     data() {
         return {
@@ -17,13 +25,8 @@ export default {
                 password_confirmation: '',
                 is_admin: !!this.data.is_admin,
                 roles: (this.data.roles || []).map((r) => r.name),
+                permissions: this.data.permissions || [],
             },
-            roleOptions: [
-                { value: 'admin', label: 'Admin' },
-                { value: 'laboratory_manager', label: 'Laboratory Manager' },
-                { value: 'ict_manager', label: 'ICT Manager' },
-                { value: 'administrative_assistant', label: 'Administrative Assistant' },
-            ],
             errors: {},
             submitting: false,
             deleting: false,
@@ -32,6 +35,14 @@ export default {
             warning: null,
         }
     },
+    computed: {
+        normalizedRoleOptions() {
+            return this.roleOptions.map((role) => ({
+                value: role,
+                label: this.formatLabel(role),
+            }))
+        },
+    },
     created() {
         const notifier = useNotifier()
         this.success = notifier.success
@@ -39,6 +50,15 @@ export default {
         this.warning = notifier.warning
     },
     methods: {
+        formatLabel(value) {
+            if (!value) return ''
+            return String(value)
+                .replace(/[._]/g, ' ')
+                .split(' ')
+                .filter(Boolean)
+                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ')
+        },
         async submit() {
             this.submitting = true
             this.errors = {}
@@ -101,9 +121,17 @@ export default {
 
                 <div>
                     <p class="text-sm font-medium mb-1">Roles</p>
-                    <label v-for="role in roleOptions" :key="role.value" class="flex items-center gap-2 text-sm mb-1">
+                    <label v-for="role in normalizedRoleOptions" :key="role.value" class="flex items-center gap-2 text-sm mb-1">
                         <input v-model="form.roles" type="checkbox" :value="role.value" />
                         {{ role.label }}
+                    </label>
+                </div>
+
+                <div>
+                    <p class="text-sm font-medium mb-1">Permissions</p>
+                    <label v-for="permission in permissionOptions" :key="permission" class="flex items-center gap-2 text-sm mb-1">
+                        <input v-model="form.permissions" type="checkbox" :value="permission" />
+                        {{ formatLabel(permission) }}
                     </label>
                 </div>
 

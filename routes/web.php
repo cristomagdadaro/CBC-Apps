@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Inventory;
+use App\Enums\Role as RoleEnum;
 use App\Http\Controllers\EventSubformController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\InventoryFormController;
@@ -8,8 +9,6 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LabRequestFormController;
 use App\Http\Controllers\PDFGeneratorController;
 use App\Http\Controllers\PersonnelController;
-use App\Http\Controllers\RequesterController;
-use App\Http\Controllers\RequestFormPivotController;
 use App\Http\Controllers\SupplierController;
 use App\Models\Category;
 use App\Repositories\OptionRepo;
@@ -157,13 +156,17 @@ Route::middleware([
         });
 
         Route::prefix('rentals')->group(function () {
-            Route::get('/', function () {
-                return Inertia::render('Rentals/RentalsIndex');
-            })->name('rentals.index');
+            Route::get('/vehicle', function () {
+                return Inertia::render('Rentals/RentalsVehicleIndex');
+            })->name('rentals.vehicle.index');
+
+            Route::get('/venue', function () {
+                return Inertia::render('Rentals/RentalsVenueIndex');
+            })->name('rentals.venue.index');
 
             Route::get('/calendar', function () {
                 return Inertia::render('Rentals/CalendarModule');
-            })->name('rentals.calendar');
+            })->name('rentals.calendar.index');
         });
 
         Route::prefix('event-forms')->group(function () {
@@ -406,12 +409,17 @@ Route::middleware([
                 })->name('system.users.index');
 
                 Route::get('/create', function () {
-                    return Inertia::render('System/Users/CreateUser');
+                    return Inertia::render('System/Users/CreateUser', [
+                        'roleOptions' => RoleEnum::values(),
+                        'permissionOptions' => config('rbac.permissions', []),
+                    ]);
                 })->name('system.users.create');
 
                 Route::get('/{id}', function () {
                     return Inertia::render('System/Users/EditUser', [
                         'data' => User::query()->with('roles:id,name,label')->findOrFail(request()->route('id')),
+                        'roleOptions' => RoleEnum::values(),
+                        'permissionOptions' => config('rbac.permissions', []),
                     ]);
                 })->name('system.users.show');
             });

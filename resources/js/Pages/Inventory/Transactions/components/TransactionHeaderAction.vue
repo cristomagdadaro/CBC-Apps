@@ -11,17 +11,12 @@ export default {
 </script>
 
 <template>
-    <div class="flex justify-between items-center">
-        <Link :href="route('transactions.index')" class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Transaction History
-        </Link>
-        <div class="flex justify-between items-center gap-1">
-            <IncommingTransactionLink />
-            <OutgoingTransactionLink />
-            <CreatePersonnelLink />
-            <AttachReportLink />
-        </div>
-    </div>
+    <ActionHeaderLayout title="Transaction History" subtitle="Track inventory movements and generate reports." :route-link="route('transactions.index')">
+        <IncommingTransactionLink />
+        <OutgoingTransactionLink />
+        <CreatePersonnelLink />
+        <AttachReportLink />
+    </ActionHeaderLayout>
 </template>
 
 <style scoped>

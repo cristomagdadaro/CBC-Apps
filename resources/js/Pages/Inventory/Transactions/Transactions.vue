@@ -32,7 +32,7 @@ export default {
             <transaction-header-action />
         </template>
 
-        <div class="max-w-[90%] mx-auto sm:px-6 lg:px-8">
+        <div class="default-container pt-5">
             <search-comp
                 :propModel="Transaction"
                 :cardSlot="DataTable"

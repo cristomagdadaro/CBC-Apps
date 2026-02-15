@@ -18,12 +18,20 @@ class RbacService
         }
 
         $permissionsByRole = config('rbac.role_permissions', []);
+        $allowedPermissions = config('rbac.permissions', []);
         $roles = $user->roles()->pluck('name')->all();
 
         $permissions = [];
         foreach ($roles as $role) {
             $permissions = array_merge($permissions, $permissionsByRole[$role] ?? []);
         }
+
+        $directPermissions = collect($user->permissions ?? [])
+            ->filter(static fn ($permission) => is_string($permission) && in_array($permission, $allowedPermissions, true))
+            ->values()
+            ->all();
+
+        $permissions = array_merge($permissions, $directPermissions);
 
         return array_values(array_unique($permissions));
     }

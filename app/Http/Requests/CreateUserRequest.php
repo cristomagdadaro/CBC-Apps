@@ -23,6 +23,8 @@ class CreateUserRequest extends FormRequest
             'is_admin' => ['sometimes', 'boolean'],
             'roles' => ['nullable', 'array'],
             'roles.*' => ['string', Rule::in(RoleEnum::values())],
+            'permissions' => ['nullable', 'array'],
+            'permissions.*' => ['string', Rule::in(config('rbac.permissions', []))],
         ];
     }
 }

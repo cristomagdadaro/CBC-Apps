@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Repositories\OptionRepo;
 use App\Services\RbacService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -46,6 +47,7 @@ class HandleInertiaRequests extends Middleware
                 'roles' => $user?->roles()->pluck('name')->values()->all() ?? [],
                 'permissions' => $rbacService->permissionsFor($user),
             ],
+            'layout_navigation_mode' => (app(OptionRepo::class)->getByKey('layout_navigation_mode') === 'true') ? 'sidebar' : 'top',
         ]);
     }
 }

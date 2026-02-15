@@ -321,29 +321,29 @@ export default {
         </div>
         <div class="flex flex-col p-2">
                 <div class="flex gap-1 justify-center flex-wrap">
-                    <a :href="route('forms.guest.index', formsData.event_id)" target="_blank" class="bg-green-200 text-green-900 w-fit px-2 py-1 rounded flex items-center" title="Preview form">
+                    <a :href="route('forms.guest.index', formsData.event_id)" target="_blank" class="bg-green-200 text-green-900 w-fit px-2 py-1 rounded flex items-center hover:scale-110 duration-200" title="Preview form">
                         <view-icon class="w-4 h-4" />
                     </a>
 
-                    <Link :href="route('forms.scan', formsData.event_id)" class="bg-AA text-white w-fit px-2 py-1 rounded flex items-center" title="Modify details in the form">
+                    <Link :href="route('forms.scan', formsData.event_id)" class="bg-AA text-white w-fit px-2 py-1 rounded flex items-center hover:scale-110 duration-200" title="Scan QR code for on-site registration and attendance">
                         <scan-icon class="w-4 h-4" />
                     </Link>
 
-                    <Link :href="route('forms.update', formsData.event_id)" class="bg-blue-200 text-blue-900 w-fit px-2 py-1 rounded flex items-center" title="Modify details in the form">
+                    <Link :href="route('forms.update', formsData.event_id)" class="bg-blue-200 text-blue-900 w-fit px-2 py-1 rounded flex items-center hover:scale-110 duration-200" title="Modify details in the form">
                         <setting-icon class="w-4 h-4" />
                     </Link>
 
-                    <button class="hidden bg-blue-600 text-blue-100 w-fit px-2 py-1 rounded" title="Manually register poarticipants">
+                    <button class="hidden bg-blue-600 text-blue-100 w-fit px-2 py-1 rounded flex items-center hover:scale-110 duration-200" title="Manually register poarticipants">
                         Registration
                     </button>
 
-                    <button @click.prevent="handleExport(formsData.event_id, `${formsData.title} (${formsData.event_id})`)" class="bg-cyan-200 text-cyan-900 w-fit px-2 py-1 rounded" title="Download form data in csv format">
+                    <button @click.prevent="handleExport(formsData.event_id, `${formsData.title} (${formsData.event_id})`)" class="bg-cyan-200 text-cyan-900 w-fit px-2 py-1 rounded flex items-center hover:scale-110 duration-200" title="Download form data in csv format">
                         <ExportIcon class="w-5 h-5" />
                     </button>
 
                     <suspend-form-btn v-if="!isExpired" :data="formsData" @updated="updatedData = $event" @failedUpdate="errors = $event"/>
 
-                    <button @click="confirmAction"  class="bg-red-200 text-red-900 w-fit px-2 py-1 rounded" title="Permanently remove this form">
+                    <button @click="confirmAction"  class="bg-red-200 text-red-900 w-fit px-2 py-1 rounded flex items-center hover:scale-110 duration-200" title="Permanently remove this form">
                         <DeleteIcon class="w-4 h-4" />
                     </button>
                 </div>

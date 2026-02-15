@@ -1,6 +1,5 @@
-<script setup>
-import { Link, usePage } from '@inertiajs/vue3';
-import { onMounted, watch, ref } from 'vue';
+<script>
+import { Link } from '@inertiajs/vue3';
 import {
     Chart,
     PieController,
@@ -15,238 +14,149 @@ import {
 
 Chart.register(BarController, PieController, BarElement, ArcElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-const page = usePage();
-const stats = page.props.stats || {
-    events: { total: 0, active: 0, upcoming: 0, suspended: 0 , expired: 0 },
-    access_requests: { total: 0, pending: 0, approved: 0, rejected: 0 },
-    inventory: {
-        items: 0,
-        transactions_today: 0,
-        stock_buckets: { empty: 0, low: 0, mid: 0, high: 0 },
+export default {
+    components: { Link },
+    data() {
+        return {
+            eventsChartInstance: null,
+            accessChartInstance: null,
+            inventoryChartInstance: null,
+            eventColors: ['#22c55e', '#0ea5e9', '#eab308', '#ef4444'],
+            accessColors: ['#eab308', '#22c55e', '#ef4444'],
+            invColors: ['#6b7280', '#f97316', '#0ea5e9', '#22c55e'],
+        };
+    },
+    computed: {
+        stats() {
+            return this.$page.props.stats || {
+                events: { total: 0, active: 0, upcoming: 0, suspended: 0, expired: 0 },
+                access_requests: { total: 0, pending: 0, approved: 0, rejected: 0 },
+                inventory: { items: 0, transactions_today: 0, stock_buckets: { empty: 0, low: 0, mid: 0, high: 0 } },
+            };
+        },
+    },
+    methods: {
+        destroyCharts() {
+            if (this.eventsChartInstance) {
+                this.eventsChartInstance.destroy();
+                this.eventsChartInstance = null;
+            }
+            if (this.accessChartInstance) {
+                this.accessChartInstance.destroy();
+                this.accessChartInstance = null;
+            }
+            if (this.inventoryChartInstance) {
+                this.inventoryChartInstance.destroy();
+                this.inventoryChartInstance = null;
+            }
+        },
+        buildCharts() {
+            this.destroyCharts();
+
+            const eventsCanvas = this.$refs.eventsChartCanvas;
+            const accessCanvas = this.$refs.accessChartCanvas;
+            const inventoryCanvas = this.$refs.inventoryChartCanvas;
+
+            if (eventsCanvas) {
+                this.eventsChartInstance = new Chart(eventsCanvas, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Active', 'Upcoming', 'Suspended', 'Expired'],
+                        datasets: [{
+                            label: 'Event Forms',
+                            data: [this.stats.events.active, this.stats.events.upcoming, this.stats.events.suspended, this.stats.events.expired],
+                            backgroundColor: this.eventColors,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false, position: 'bottom', labels: { usePointStyle: true, color: (ctx) => { const index = ctx.dataIndex ?? 0; return this.eventColors[index] || '#6b7280'; } } },
+                            tooltip: { callbacks: { labelColor: (ctx) => { const index = ctx.dataIndex ?? 0; return { borderColor: this.eventColors[index], backgroundColor: this.eventColors[index] }; } } },
+                        },
+                        scales: {},
+                    },
+                });
+            }
+
+            if (accessCanvas) {
+                this.accessChartInstance = new Chart(accessCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Pending', 'Approved', 'Rejected'],
+                        datasets: [{
+                            label: 'Access & Use Requests',
+                            data: [this.stats.access_requests.pending, this.stats.access_requests.approved, this.stats.access_requests.rejected],
+                            backgroundColor: this.accessColors,
+                            borderWidth: 0,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false, position: 'bottom', labels: { usePointStyle: true, color: (ctx) => { const index = ctx.dataIndex ?? 0; return this.accessColors[index] || '#6b7280'; } } },
+                            tooltip: { callbacks: { labelColor: (ctx) => { const index = ctx.dataIndex ?? 0; return { borderColor: this.accessColors[index], backgroundColor: this.accessColors[index] }; } } },
+                        },
+                        scales: {
+                            x: { grid: { display: false, drawBorder: false }, ticks: { color: (ctx) => this.accessColors[ctx.index] || '#6b7280' }, border: { display: false } },
+                            y: { grid: { display: false, drawBorder: false }, ticks: { display: false }, border: { display: false } },
+                        },
+                    },
+                });
+            }
+
+            if (inventoryCanvas) {
+                const buckets = this.stats.inventory.stock_buckets || { empty: 0, low: 0, mid: 0, high: 0 };
+                this.inventoryChartInstance = new Chart(inventoryCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Empty', 'Low', 'Mid', 'High'],
+                        datasets: [{
+                            label: 'Items by Stock Level',
+                            data: [buckets.empty, buckets.low, buckets.mid, buckets.high],
+                            backgroundColor: this.invColors,
+                            borderWidth: 0,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false, position: 'bottom', labels: { usePointStyle: true, color: (ctx) => { const index = ctx.dataIndex ?? 0; return this.invColors[index] || '#6b7280'; } } },
+                            tooltip: { callbacks: { labelColor: (ctx) => { const index = ctx.dataIndex ?? 0; return { borderColor: this.invColors[index], backgroundColor: this.invColors[index] }; } } },
+                        },
+                        scales: {
+                            x: { grid: { display: false, drawBorder: false }, ticks: { color: (ctx) => this.invColors[ctx.index] || '#6b7280' }, border: { display: false } },
+                            y: { grid: { display: false, drawBorder: false }, ticks: { display: false }, border: { display: false } },
+                        },
+                    },
+                });
+            }
+        },
+    },
+    watch: {
+        '$page.props.stats': {
+            handler() {
+                this.buildCharts();
+            },
+            deep: true,
+        },
+    },
+    mounted() {
+        this.buildCharts();
+    },
+    beforeUnmount() {
+        this.destroyCharts();
     },
 };
-
-const eventsChartCanvas = ref(null);
-const accessChartCanvas = ref(null);
-const inventoryChartCanvas = ref(null);
-
-let eventsChartInstance = null;
-let accessChartInstance = null;
-let inventoryChartInstance = null;
-
-const eventColors = ['#22c55e', '#0ea5e9', '#eab308', '#ef4444'];
-const accessColors = ['#eab308', '#22c55e', '#ef4444'];
-const invColors = ['#6b7280', '#f97316', '#0ea5e9', '#22c55e'];
-
-const destroyCharts = () => {
-    if (eventsChartInstance) {
-        eventsChartInstance.destroy();
-        eventsChartInstance = null;
-    }
-    if (accessChartInstance) {
-        accessChartInstance.destroy();
-        accessChartInstance = null;
-    }
-    if (inventoryChartInstance) {
-        inventoryChartInstance.destroy();
-        inventoryChartInstance = null;
-    }
-};
-
-const buildCharts = () => {
-    destroyCharts();
-
-    if (eventsChartCanvas.value) {
-
-        eventsChartInstance = new Chart(eventsChartCanvas.value, {
-            type: 'pie',
-            data: {
-                labels: ['Active', 'Upcoming', 'Suspended', 'Expired'],
-                datasets: [
-                    {
-                        label: 'Event Forms',
-                        data: [
-                            stats.events.active,
-                            stats.events.upcoming,
-                            stats.events.suspended,
-                            stats.events.expired,
-                        ],
-                        backgroundColor: eventColors,
-                    },
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false,
-                        position: 'bottom',
-                        labels: {
-                            usePointStyle: true,
-                            color: (ctx) => {
-                                const index = ctx.dataIndex ?? 0;
-                                return eventColors[index] || '#6b7280';
-                            },
-                        },
-                    },
-                    tooltip: {
-                        callbacks: {
-                            labelColor: (ctx) => {
-                                const index = ctx.dataIndex ?? 0;
-                                return { borderColor: eventColors[index], backgroundColor: eventColors[index] };
-                            },
-                        },
-                    },
-                },
-                scales: {}, // no x/y axes for pie chart
-            },
-        });
-    }
-
-    if (accessChartCanvas.value) {
-
-        accessChartInstance = new Chart(accessChartCanvas.value, {
-            type: 'bar',
-            data: {
-                labels: ['Pending', 'Approved', 'Rejected'],
-                datasets: [
-                    {
-                        label: 'Access & Use Requests',
-                        data: [
-                            stats.access_requests.pending,
-                            stats.access_requests.approved,
-                            stats.access_requests.rejected,
-                        ],
-                        backgroundColor: accessColors,
-                        borderWidth: 0,
-                    },
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false,
-                        position: 'bottom',
-                        labels: {
-                            usePointStyle: true,
-                            color: (ctx) => {
-                                const index = ctx.dataIndex ?? 0;
-                                return accessColors[index] || '#6b7280';
-                            },
-                        },
-                    },
-                    tooltip: {
-                        callbacks: {
-                            labelColor: (ctx) => {
-                                const index = ctx.dataIndex ?? 0;
-                                return { borderColor: accessColors[index], backgroundColor: accessColors[index] };
-                            },
-                        },
-                    },
-                },
-                scales: {
-                    x: {
-                        grid: { display: false, drawBorder: false },
-                        ticks: {
-                            color: (ctx) => accessColors[ctx.index] || '#6b7280',
-                        },
-                        border: { display: false },
-                    },
-                    y: {
-                        grid: { display: false, drawBorder: false },
-                        ticks: { display: false },
-                        border: { display: false },
-                    },
-                },
-            },
-        });
-    }
-
-    if (inventoryChartCanvas.value) {
-        const buckets = stats.inventory.stock_buckets || { empty: 0, low: 0, mid: 0, high: 0 };
-
-        inventoryChartInstance = new Chart(inventoryChartCanvas.value, {
-            type: 'bar',
-            data: {
-                labels: ['Empty', 'Low', 'Mid', 'High'],
-                datasets: [
-                    {
-                        label: 'Items by Stock Level',
-                        data: [
-                            buckets.empty,
-                            buckets.low,
-                            buckets.mid,
-                            buckets.high,
-                        ],
-                        backgroundColor: invColors,
-                        borderWidth: 0,
-                    },
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false,
-                        position: 'bottom',
-                        labels: {
-                            usePointStyle: true,
-                            color: (ctx) => {
-                                const index = ctx.dataIndex ?? 0;
-                                return invColors[index] || '#6b7280';
-                            },
-                        },
-                    },
-                    tooltip: {
-                        callbacks: {
-                            labelColor: (ctx) => {
-                                const index = ctx.dataIndex ?? 0;
-                                return { borderColor: invColors[index], backgroundColor: invColors[index] };
-                            },
-                        },
-                    },
-                },
-                scales: {
-                    x: {
-                        grid: { display: false, drawBorder: false },
-                        ticks: {
-                            color: (ctx) => invColors[ctx.index] || '#6b7280',
-                        },
-                        border: { display: false },
-                    },
-                    y: {
-                        grid: { display: false, drawBorder: false },
-                        ticks: { display: false },
-                        border: { display: false },
-                    },
-                },
-            },
-        });
-    }
-};
-
-onMounted(() => {
-    buildCharts();
-});
-
-watch(
-    () => page.props.stats,
-    () => {
-        buildCharts();
-    }
-);
 </script>
 
 <template>
     <AppLayout title="Dashboard">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                Dashboard
-            </h2>
+            <ActionHeaderLayout title="Dashboard" subtitle="Overview of system statistics and quick access to key sections." :route-link="route('dashboard')" />
         </template>
 
         <div class="py-6">

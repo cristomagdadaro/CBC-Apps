@@ -8,19 +8,14 @@ export default {
 </script>
 
 <template>
-    <div class="flex justify-between items-center">
-        <Link :href="route('forms.index')" class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Event Forms
+    <ActionHeaderLayout title="Event Forms" subtitle="Manage event forms" :route-link="route('forms.index')">
+        <Link :href="route('forms.create')">
+        <add-icon class="h-auto w-5 text-AA dark:text-gray-800 dark:bg-gray-200" />
         </Link>
-        <div class="flex justify-between items-center">
-            <Link :href="route('forms.create')">
-                <add-button  title="Create new form" />
-            </Link>
-            <Link :href="route('forms.scan')">
-                <scan-btn title="Scan QR code" />
-            </Link>
-        </div>
-    </div>
+        <Link :href="route('forms.scan')">
+            <scan-btn class="h-auto w-5 text-AA dark:text-gray-800 dark:bg-gray-200" />
+        </Link>
+    </ActionHeaderLayout>
 </template>
 
 <style scoped>

@@ -21,16 +21,11 @@ export default {
 </script>
 
 <template>
-    <div class="flex justify-between items-center">
-        <Link :href="route('suppEquipReports.index')" class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Report Attachments
-        </Link>
-        <div class="flex justify-between items-center gap-1">
-            <AttachReportLink />
-            <IncommingTransactionLink />
-            <OutgoingTransactionLink />
-        </div>
-    </div>
+    <ActionHeaderLayout title="Report Attachments" subtitle="Manage your report attachments and related actions." :route-link="route('suppEquipReports.index')">
+        <AttachReportLink v-if="showAttachButton" />
+        <IncommingTransactionLink />
+        <OutgoingTransactionLink />
+    </ActionHeaderLayout>
 </template>
 
 <style scoped>

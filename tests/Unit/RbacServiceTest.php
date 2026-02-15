@@ -40,4 +40,18 @@ class RbacServiceTest extends TestCase
         $this->assertTrue($rbac->hasPermission($user, 'event.forms.manage'));
         $this->assertFalse($rbac->hasPermission($user, 'fes.request.approve'));
     }
+
+    public function test_direct_user_permissions_are_applied(): void
+    {
+        $user = User::factory()->create([
+            'is_admin' => false,
+            'permissions' => ['users.manage', 'rental.vehicle.manage'],
+        ]);
+
+        $rbac = app(RbacService::class);
+
+        $this->assertTrue($rbac->hasPermission($user, 'users.manage'));
+        $this->assertTrue($rbac->hasPermission($user, 'rental.vehicle.manage'));
+        $this->assertFalse($rbac->hasPermission($user, 'event.forms.manage'));
+    }
 }

@@ -1,60 +1,58 @@
-<script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue';
-
-const notifications = ref([]);
-let nextId = 1;
-
-const typeStyles = {
-    success: {
-        box: 'bg-green-50 border-green-300 text-green-900',
-        badge: 'bg-green-600',
-        title: 'Success',
+<script>
+export default {
+    name: 'NotificationToast',
+    data() {
+        return {
+            notifications: [],
+            nextId: 1,
+            typeStyles: {
+                success: {
+                    box: 'bg-green-50 border-green-300 text-green-900',
+                    badge: 'bg-green-600',
+                    title: 'Success',
+                },
+                error: {
+                    box: 'bg-red-50 border-red-300 text-red-900',
+                    badge: 'bg-red-600',
+                    title: 'Error',
+                },
+                warning: {
+                    box: 'bg-yellow-50 border-yellow-300 text-yellow-900',
+                    badge: 'bg-yellow-500',
+                    title: 'Warning',
+                },
+            },
+        };
     },
-    error: {
-        box: 'bg-red-50 border-red-300 text-red-900',
-        badge: 'bg-red-600',
-        title: 'Error',
+    methods: {
+        pushNotification(payload = {}) {
+            const id = this.nextId++;
+            const type = ['success', 'error', 'warning'].includes(payload.type) ? payload.type : 'success';
+            const item = {
+                id,
+                type,
+                message: payload.message || 'Notification',
+                duration: Number(payload.duration ?? 10000),
+            };
+            this.notifications.unshift(item);
+            if (item.duration > 0) {
+                window.setTimeout(() => this.removeNotification(id), item.duration);
+            }
+        },
+        removeNotification(id) {
+            this.notifications = this.notifications.filter((n) => n.id !== id);
+        },
+        listener(event) {
+            this.pushNotification(event?.detail || {});
+        },
     },
-    warning: {
-        box: 'bg-yellow-50 border-yellow-300 text-yellow-900',
-        badge: 'bg-yellow-500',
-        title: 'Warning',
+    mounted() {
+        window.addEventListener('cbc:notify', this.listener);
+    },
+    beforeUnmount() {
+        window.removeEventListener('cbc:notify', this.listener);
     },
 };
-
-const pushNotification = (payload = {}) => {
-    const id = nextId++;
-    const type = ['success', 'error', 'warning'].includes(payload.type) ? payload.type : 'success';
-
-    const item = {
-        id,
-        type,
-        message: payload.message || 'Notification',
-        duration: Number(payload.duration ?? 4000),
-    };
-
-    notifications.value.unshift(item);
-
-    if (item.duration > 0) {
-        window.setTimeout(() => removeNotification(id), item.duration);
-    }
-};
-
-const removeNotification = (id) => {
-    notifications.value = notifications.value.filter((n) => n.id !== id);
-};
-
-const listener = (event) => {
-    pushNotification(event?.detail || {});
-};
-
-onMounted(() => {
-    window.addEventListener('cbc:notify', listener);
-});
-
-onBeforeUnmount(() => {
-    window.removeEventListener('cbc:notify', listener);
-});
 </script>
 
 <template>

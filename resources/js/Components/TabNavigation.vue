@@ -1,49 +1,77 @@
-<script setup>
-import { computed } from 'vue';
-
-const props = defineProps({
-    /**
-     * Tabs array: [{ key: string|number, label: string, icon?: component, disabled?: boolean }]
-     */
-    tabs: {
-        type: Array,
-        required: true,
+<script>
+export default {
+    name: 'TabNavigation',
+    props: {
+        tabs: {
+            type: Array,
+            required: true,
+        },
+        modelValue: {
+            type: [String, Number, null],
+            default: null,
+        },
+        size: {
+            type: String,
+            default: 'md',
+        },
     },
-    /**
-     * Currently active tab key.
-     */
-    modelValue: {
-        type: [String, Number, null],
-        default: null,
+    emits: ['update:modelValue', 'change'],
+    data() {
+        return {
+            localActiveKey: null,
+        };
     },
-    /**
-     * Optional size variant: 'sm' | 'md'
-     */
-    size: {
-        type: String,
-        default: 'md',
+    watch: {
+        modelValue(val) {
+            this.localActiveKey = val;
+        },
+        tabs() {
+            // ensure localActiveKey falls back to first tab when tabs change
+            if (this.localActiveKey == null) this.localActiveKey = this.tabs[0]?.key ?? null;
+        }
     },
-});
-
-const emit = defineEmits(['update:modelValue', 'change']);
-
-const activeKey = computed({
-    get: () => props.modelValue ?? props.tabs[0]?.key ?? null,
-    set: (val) => {
-        emit('update:modelValue', val);
-        emit('change', val);
+    computed: {
+        activeKey: {
+            get() {
+                return this.localActiveKey ?? this.modelValue ?? this.tabs[0]?.key ?? null;
+            },
+            set(val) {
+                this.localActiveKey = val;
+                this.$emit('update:modelValue', val);
+                this.$emit('change', val);
+                // Update hash in URL
+                if (val !== null && val !== undefined) {
+                    window.location.hash = `#tab-${val}`;
+                }
+            },
+        },
+        baseClasses() {
+            return this.size === 'sm' ? 'px-3 py-1 text-xs' : 'px-4 py-2 text-sm';
+        },
     },
-});
-
-const baseClasses = computed(() =>
-    props.size === 'sm'
-        ? 'px-3 py-1 text-xs'
-        : 'px-4 py-2 text-sm'
-);
-
-const onTabClick = (tab) => {
-    if (tab.disabled) return;
-    activeKey.value = tab.key;
+    methods: {
+        onTabClick(tab) {
+            if (tab.disabled) return;
+            this.activeKey = tab.key;
+        },
+        setTabFromHash() {
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#tab-')) {
+                const key = hash.replace('#tab-', '');
+                // Only set if the tab exists
+                if (this.tabs.some(tab => String(tab.key) === key)) {
+                    this.activeKey = typeof this.tabs[0].key === 'number' ? Number(key) : key;
+                }
+            }
+        },
+    },
+    mounted() {
+        this.setTabFromHash();
+        window.addEventListener('hashchange', this.setTabFromHash);
+    },
+    beforeUnmount() {
+        window.removeEventListener('hashchange', this.setTabFromHash);
+    },
 };
 </script>
 
@@ -71,9 +99,7 @@ const onTabClick = (tab) => {
                 <span>{{ tab.label }}</span>
             </button>
         </nav>
-        <div>
-            <slot :active-key="activeKey" />
-        </div>
+        <slot :activeKey="activeKey" />
     </div>
 </template>
 

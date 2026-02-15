@@ -22,6 +22,7 @@ class UserRepo extends AbstractRepoService
         $user = $this->create($payload);
 
         $this->syncRoles($user, $data['roles'] ?? []);
+        $this->syncPermissions($user, $data['permissions'] ?? []);
 
         return $user->fresh(['roles:id,name,label']);
     }
@@ -34,6 +35,10 @@ class UserRepo extends AbstractRepoService
 
         if (array_key_exists('roles', $data)) {
             $this->syncRoles($user, $data['roles'] ?? []);
+        }
+
+        if (array_key_exists('permissions', $data)) {
+            $this->syncPermissions($user, $data['permissions'] ?? []);
         }
 
         return $user->fresh(['roles:id,name,label']);
@@ -51,6 +56,10 @@ class UserRepo extends AbstractRepoService
             $payload['is_admin'] = (bool) ($data['is_admin'] ?? false);
         }
 
+        if ($isCreate || array_key_exists('permissions', $data)) {
+            $payload['permissions'] = array_values(array_unique($data['permissions'] ?? []));
+        }
+
         if ($isCreate || !empty($data['password'])) {
             $payload['password'] = Hash::make((string) $data['password']);
         }
@@ -66,5 +75,19 @@ class UserRepo extends AbstractRepoService
             ->all();
 
         $user->roles()->sync($roleIds);
+    }
+
+    protected function syncPermissions(Model $user, array $permissions): void
+    {
+        $allowed = config('rbac.permissions', []);
+
+        $sanitized = collect($permissions)
+            ->filter(static fn ($permission) => is_string($permission) && in_array($permission, $allowed, true))
+            ->values()
+            ->all();
+
+        $user->forceFill([
+            'permissions' => $sanitized,
+        ])->save();
     }
 }

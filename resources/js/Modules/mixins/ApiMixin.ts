@@ -72,12 +72,6 @@ export default {
             this.form.clearErrors();
             return await this.model.api.postIndex(this.form.data()).then(response => {
                 this.resetForm(except);
-                try {
-                    const { success } = useNotifier();
-                    success('Created successfully.');
-                } catch (e) {
-                    // notifier not available, ignore
-                }
                 if (toCast) {
                     return new DtoResponse(response).castDataToModel(this.model.constructor);
                 }
@@ -93,12 +87,6 @@ export default {
             this.form.clearErrors();
             return await this.model.api.putIndex(this.form.data()).then(response => {
                 this.resetForm(except);
-                try {
-                    const { success } = useNotifier();
-                    success('Updated successfully.');
-                } catch (e) {
-                    // notifier not available, ignore
-                }
                 if (toCast) {
                     return new DtoResponse(response).castDataToModel(this.model.constructor);
                 }
@@ -114,12 +102,6 @@ export default {
             this.setFormAction('delete');
             return await this.model.api.deleteApiIndex(this.form.data()).then(response => {
                 this.resetForm();
-                try {
-                    const { success } = useNotifier();
-                    success('Deleted successfully.');
-                } catch (e) {
-                    // notifier not available, ignore
-                }
                 return new DtoResponse(response);
             }).catch(error => {
                 return this.checkError(error);

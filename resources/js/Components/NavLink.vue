@@ -15,7 +15,10 @@ const classes = computed(() => {
 </script>
 
 <template>
-    <Link :href="href" :class="classes">
+    <Link v-if="href" :href="href" :class="classes">
         <slot />
     </Link>
+    <button v-else :class="classes">
+        <slot />
+    </button>
 </template>

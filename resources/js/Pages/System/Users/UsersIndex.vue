@@ -24,6 +24,15 @@ export default {
         this.loadUsers()
     },
     methods: {
+        formatLabel(value) {
+            if (!value) return ''
+            return String(value)
+                .replace(/[._]/g, ' ')
+                .split(' ')
+                .filter(Boolean)
+                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ')
+        },
         async loadUsers() {
             this.loading = true
             try {
@@ -63,15 +72,10 @@ export default {
 <template>
     <AppLayout title="User Management">
         <template #header>
-            <div class="flex items-center justify-between">
-                <h1 class="text-xl font-semibold">User Management</h1>
-                <Link :href="route('system.users.create')" class="px-3 py-2 rounded bg-AB text-white text-sm hover:bg-AC">
-                    Create User
-                </Link>
-            </div>
+            <ActionHeaderLayout title="User Management" subtitle="Manage users and their roles within the system." :route-link="route('system.users.index')" />
         </template>
 
-        <div class="max-w-6xl mx-auto px-4">
+        <div class="default-container pt-5">
             <div class="bg-white rounded-lg shadow p-4">
                 <div class="mb-4 flex gap-2">
                     <input
@@ -94,6 +98,7 @@ export default {
                                 <th class="text-left py-2">Email</th>
                                 <th class="text-left py-2">Employee ID</th>
                                 <th class="text-left py-2">Roles</th>
+                                <th class="text-left py-2">Permissions</th>
                                 <th class="text-left py-2">Actions</th>
                             </tr>
                         </thead>
@@ -104,6 +109,9 @@ export default {
                                 <td class="py-2">{{ user.employee_id || '-' }}</td>
                                 <td class="py-2">
                                     <span class="text-xs">{{ (user.roles || []).map((r) => r.label || r.name).join(', ') || (user.is_admin ? 'Admin' : '-') }}</span>
+                                </td>
+                                <td class="py-2">
+                                    <span class="text-xs">{{ (user.permissions || []).map((p) => formatLabel(p)).join(', ') || '-' }}</span>
                                 </td>
                                 <td class="py-2 flex gap-2">
                                     <Link :href="route('system.users.show', user.id)" class="text-blue-600">Edit</Link>

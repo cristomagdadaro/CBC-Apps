@@ -39,6 +39,7 @@ import DangerButton from "@/Components/DangerButton.vue";
 import NavLink from "@/Components/NavLink.vue";
 import BaseBtn from "@/Components/Buttons/BaseBtn.vue";
 import TagifyInput from "@/Components/Tagify.vue";
+import SwitchBtn from '@/Components/Buttons/SwitchBtn.vue';
 
 // Icon Components
 import AddIcon from "@/Components/Icons/AddIcon.vue";
@@ -117,6 +118,7 @@ import FormSection from "@/Components/FormSection.vue";
 import ActionSection from "@/Components/ActionSection.vue";
 import ActionMessage from "@/Components/ActionMessage.vue";
 import GuestFormPage from "@/Pages/Shared/GuestFormPage.vue";
+import ActionHeaderLayout from "@/Layouts/ActionHeaderLayout.vue";
 
 // Icon & UI Components
 import PaginateBtn from "@/Components/PaginateBtn.vue";
@@ -177,6 +179,7 @@ createInertiaApp({
         vueApp.component('NavLink', NavLink);
         vueApp.component('BaseBtn', BaseBtn);
         vueApp.component('TagifyInput', TagifyInput);
+        vueApp.component('SwitchBtn', SwitchBtn);
 
         // Global Icon Components
         vueApp.component('AddIcon', AddIcon);
@@ -255,6 +258,7 @@ createInertiaApp({
         vueApp.component('ActionSection', ActionSection);
         vueApp.component('ActionMessage', ActionMessage);
         vueApp.component('GuestFormPage', GuestFormPage);
+        vueApp.component('ActionHeaderLayout', ActionHeaderLayout);
 
         // Global Icon & UI Components
         vueApp.component('PaginateBtn', PaginateBtn);

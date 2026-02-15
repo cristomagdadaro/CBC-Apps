@@ -68,19 +68,11 @@ export default {
 <template>
 <app-layout title="System Options">
   <template #header>
-    <div class="flex justify-between items-center">
-        <div>
-          <Link :href="route('system.options.index')" class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-              System Options
-          </Link>
-          <p class="text-sm text-gray-600">Manage system-wide settings and configuration options</p>
-        </div>
-        <div class="flex justify-between items-center">
-            <a :href="route('system.options.create')"  target="_blank">
-                <add-icon class="h-auto w-5 text-AA dark:text-gray-800 dark:bg-gray-200" />
-              </a>
-        </div>
-    </div>
+    <ActionHeaderLayout title="System Options" subtitle="Manage system-wide settings and configuration options" route-link="system.options.index">
+      <a :href="route('system.options.create')"  target="_blank">
+        <add-icon class="h-auto w-5 text-AA dark:text-gray-800 dark:bg-gray-200" />
+      </a>
+    </ActionHeaderLayout>
   </template> 
   <div class="min-h-screen py-5">
     <div class="max-w-[90vw] mx-auto sm:px-6 lg:px-8">

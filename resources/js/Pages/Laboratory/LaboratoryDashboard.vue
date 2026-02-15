@@ -468,7 +468,6 @@ export default {
                 </div>
                 <div v-show="activeTab === 'logs'" class="space-y-6">
                     <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
-                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Equipment Logs</h3>
                         <search-comp
                             :prop-model="LaboratoryEquipmentLog"
                             :card-slot="LaboratoryLogsDataTable"

@@ -61,6 +61,20 @@ export default {
             this.updateToken(key, { mode, value });
         },
         updateToken(key, patch) {
+            // If updating a color value, validate it
+            if (
+                (key.includes('-text-color') || this.fields.find(f => f.key === key)) &&
+                patch.hasOwnProperty('value') &&
+                typeof patch.value === 'string' &&
+                patch.value.startsWith('#')
+            ) {
+                // Only allow valid #RRGGBB hex
+                const hex = patch.value.trim();
+                if (!/^#[0-9a-fA-F]{6}$/.test(hex)) {
+                    // Ignore invalid color
+                    return;
+                }
+            }
             this.localTokens = {
                 ...this.localTokens,
                 [key]: {
