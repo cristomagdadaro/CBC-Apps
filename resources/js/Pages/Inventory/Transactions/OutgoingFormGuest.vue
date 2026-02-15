@@ -143,7 +143,7 @@ export default {
         :delay-ready="delayReady"
     >
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
-            <div class="py-4 flex flex-col md:flex-row gap-3 bg-gray-50 p-4 md:rounded-md w-full md:w-fit h-full md:h-fit">
+            <div class="py-4 flex flex-col md:flex-row gap-3 bg-gray-50 p-4 md:rounded-md  max-w-6xl h-full md:h-fit">
                 <div class="flex flex-col justify-start gap-2 md:mx-auto md:w-full lg:w-[60vw]">
                     <div class="w-full flex gap-2 items-center lg:px-0">
                         <text-input placeholder="Search..." v-model="form.search" @update:model-value="form.filter = null; form.is_exact = false;" />
@@ -159,7 +159,7 @@ export default {
                             <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
                             <camera-scanner class="col-span-3 md:col-span-1" @decoded="searchFromBarcode" />
                         </div>
-                        <div class="w-full max-h-[60vh] overflow-y-auto">
+                        <div class="w-full max-h-[60vh] overflow-y-auto overflow-x-hidden">
                             <div v-show="processing" class="text-center py-3 border border-AB rounded-lg w-full h-full z-50">
                                 <div class="flex items-center justify-center gap-3 py-2 px-4 h-full">
                                     <loader-icon />

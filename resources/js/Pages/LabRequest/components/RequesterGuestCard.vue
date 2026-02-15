@@ -30,6 +30,7 @@ export default {
             ],
             currentStep: 0,
             clientErrors: {},
+            employeeFound: false,
         };
     },
     methods: {
@@ -47,6 +48,7 @@ export default {
             this.form.email = data.email ?? this.form.email;
             this.form.affiliation = data.affiliation;
             this.form.clearErrors('employee_id');
+            this.employeeFound = true;
         },
         handlePersonnelError(error) {
             this.clientErrors[error.field] = error.message;
@@ -254,8 +256,7 @@ export default {
                         I am a non-PhilRice employee/personnel
                     </label>
                 </div>
-
-                <div v-show="isNonPhilRiceEmployee" class="flex flex-col gap-2 pt-2 border-t">
+                <div v-show="isNonPhilRiceEmployee || employeeFound" class="flex flex-col gap-2 pt-2 border-t">
                     <p class="text-sm text-gray-600">Manually enter your information</p>
                     <TextInput id="name" v-model="form.name" required type="text" :error="errMsg('name')" label="Full Name" placeholder="Juan Dela Cruz" autocomplete="name" @input="form.clearErrors('name')" />
                     <TextInput id="position" v-model="form.position" type="text" :error="form.errors.position" label="Position" placeholder="SRS I, Student" autocomplete="position" @input="form.clearErrors('position')" />
