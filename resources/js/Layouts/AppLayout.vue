@@ -6,6 +6,7 @@ import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import SwitchBtn from '@/Components/Buttons/SwitchBtn.vue';
 import { router } from '@inertiajs/vue3'
+import NavigationItems from '@/Components/NavigationItems.vue';
 
 export default {
     name: 'AppLayout',
@@ -15,6 +16,7 @@ export default {
         NotificationToast,
         ResponsiveNavLink,
         SwitchBtn,
+        NavigationItems
     },
     props: {
         title: String,
@@ -125,8 +127,16 @@ export default {
         }
     },
     computed: {
-        isSidebarMode() {
-            return this.$page.props.layout_navigation_mode === 'sidebar';
+        isSidebarModeResponsive() {
+            // Only sidebar mode if layout_navigation_mode is sidebar AND screen is lg+
+            if (typeof window === 'undefined') return false;
+            const isLg = window.matchMedia('(min-width: 1024px)').matches;
+            return this.$page.props.layout_navigation_mode === 'sidebar' && isLg;
+        },
+
+        // expose raw layout mode for child components (desktop top vs sidebar)
+        rawLayoutMode() {
+            return this.$page.props.layout_navigation_mode || 'top';
         },
         visibleServices() {
             return this.services.filter((service) => {
@@ -142,14 +152,36 @@ export default {
             });
         },
         formattedPermissions() {
-            return (this.$page.props.auth?.permissions || []).map(permission => ({
-                name: permission,
-                label: permission
-                    ? this.formatLabel(permission.split('.').slice(0, -1).join(' '))
-                    : ''
-            }));
-        }
-        ,rolesList() {
+            const permissions = this.$page.props.auth?.permissions || [];
+
+            // Super admin case: ['*']
+            if (permissions.length === 1 && permissions[0] === '*') {
+                return [{
+                    name: '*',
+                    label: 'All Permissions',
+                }];
+            }
+
+            return permissions.map(permission => {
+                if (!permission || permission === '*') {
+                    return {
+                        name: permission,
+                        label: 'All Permissions',
+                    };
+                }
+
+                const base = permission
+                    .split('.')
+                    .slice(0, -1)
+                    .join(' ');
+
+                return {
+                    name: permission,
+                    label: this.formatLabel(base),
+                };
+            });
+        },
+        rolesList() {
             return this.$page.props.auth?.roles || [];
         },
         singleRole() {
@@ -214,7 +246,7 @@ export default {
             return false;
         },
         handleMobileMenuToggle() {
-            if (this.isSidebarMode) {
+            if (this.isSidebarModeResponsive) {
                 this.sidebarOpen = !this.sidebarOpen;
                 return;
             }
@@ -229,7 +261,8 @@ export default {
             }
         },
         handleHamburgerClick() {
-            if (!this.isSidebarMode) {
+            // For responsive behavior, use isSidebarModeResponsive
+            if (!this.isSidebarModeResponsive) {
                 this.showingNavigationDropdown = !this.showingNavigationDropdown;
                 return;
             }
@@ -268,42 +301,50 @@ export default {
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900 flex">
             <Transition name="nav-switch" mode="out-in">
                 <aside
-                    v-if="isSidebarMode"
-                    class="hidden lg:flex lg:shrink-0 lg:flex-col bg-white dark:bg-gray-800 border-r border-gray-300 dark:border-gray-700 transition-all duration-300 ease-in-out overflow-hidden"
-                    :class="sidebarCollapsed ? 'lg:w-10 border-e-0' : 'lg:w-72'"
+                    v-if="isSidebarModeResponsive"
+                    class="hidden lg:flex lg:shrink-0 lg:flex-col bg-white dark:bg-gray-800 border-e border-gray-100 dark:border-gray-700 transition-all duration-300 ease-in-out overflow-hidden"
+                    :class="sidebarCollapsed ? 'lg:w-14' : 'lg:w-72'"
                 >
-                    <div class="h-24 px-4 border-b border-gray-100 dark:border-gray-700 flex flex-col itransition-opacity duration-200" :class="sidebarCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'">
-                        <!-- Hamburger -->
-                        <div :class="isSidebarMode ? 'flex items-center justify-end' : '-me-2 flex items-center sm:hidden'">
-                            <button class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out" 
-                                @click="handleHamburgerClick"
+                    <!-- Header with hamburger always visible -->
+                    <div class="h-16 px-2 border-b border-gray-100 dark:border-gray-700 flex items-center justify-center lg:justify-start gap-2 transition-opacity duration-200">
+                        <button
+                            type="button"
+                            class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out"
+                            @click="toggleSidebarCollapse"
+                            :title="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+                        >
+                            <svg
+                                class="h-6 w-6 transition-transform duration-300"
+                                :class="sidebarCollapsed ? 'rotate-180' : 'rotate-0'"
+                                stroke="currentColor"
+                                fill="none"
+                                viewBox="0 0 24 24"
                             >
-                                <hamburger class="w-5 h-5"/>
-                            </button>
-                        </div>
-                        <div class="flex w-full justify-between">
-                            <div class="shrink-0 flex items-center">
-                                <Link :href="route('dashboard')">
-                                    <ApplicationMark class="block h-9 w-auto" />
-                                </Link>
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M15 19l-7-7 7-7"
+                                />
+                            </svg>
+                        </button>
+                        <div class="flex items-center">
+                            <div v-if="$page.props.jetstream.managesProfilePhotos && $page.props.auth?.user" class="shrink-0 me-3">
+                                <img class="h-10 w-10 rounded-full object-cover" :src="$page.props.auth.user.profile_photo_url" :alt="$page.props.auth?.user?.name">
                             </div>
-                            <button v-if="$page.props.jetstream.managesProfilePhotos && $page.props.auth?.user" class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-gray-300 transition">
-                                <img class="h-8 w-8 rounded-full object-cover" :src="$page.props.auth.user.profile_photo_url" :alt="$page.props.auth?.user?.name">
-                            </button>
 
-                            <span v-else class="inline-flex rounded-md">
-                                <button type="button" class="inline-flex items-left p-1 border border-transparent rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
-                                    <div class="flex flex-col leading-4">
-                                        <span class="text-xs font-medium text-left">{{ $page.props.auth?.user?.name || 'Account' }}</span>
-                                        <div v-if="singleRole" class=" text-xs leading-none ">
-                                            {{ singleRoleLabel }}
-                                        </div>
-                                    </div>
-                                </button>
-                            </span>
+                            <div class="leading-none">
+                                <div class="font-medium text-sm text-gray-800 dark:text-gray-200">
+                                    {{ $page.props.auth?.user?.name || 'Account' }}
+                                </div>
+                                <div class="font-medium text-xs text-gray-500">
+                                    {{ $page.props.auth?.user?.email }}
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex overflow-y-auto p-3 space-y-1 transition-opacity duration-200" :class="[sidebarCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100', {'flex-col': isSidebarMode }]">
+                    <!-- Navigation content (hidden when collapsed) -->
+                    <div v-if="!sidebarCollapsed" class="flex flex-col overflow-y-auto p-3 space-y-1 transition-opacity duration-200">
                         <div class="flex flex-col">
                             <div class="ms-3 relative">
                                 <!-- Teams Dropdown -->
@@ -361,24 +402,9 @@ export default {
                                         </div>
                                     </template>
                                 </Dropdown>
-                            </div>   
+                            </div>
                         </div>
-                        <template v-for="service in visibleServices" :key="`desktop-sidebar-${service.label}`">
-                            <template v-if="service.children && visibleChildren(service).length">
-                                <div class="px-3 pt-3 pb-1 text-xs text-gray-400">
-                                    {{ service.label }}
-                                </div>
-                                <NavLink v-if="service.href" :href="route(service.href)" :active="route().current(service.href)">
-                                    {{ service.label }}
-                                </NavLink>
-                                <NavLink v-for="child in visibleChildren(service)" :key="child.label" :href="route(child.href)" :active="route().current(child.href)">
-                                    {{ child.label }}
-                                </NavLink>
-                            </template>
-                            <NavLink v-else :href="route(service.href)" :active="route().current(service.href)">
-                                {{ service.label }}
-                            </NavLink>
-                        </template>
+                        <NavigationItems :services="visibleServices" mode="sidebar" :visibleChildren="visibleChildren" :isServiceActive="isServiceActive" />
                         <div class="px-3 pt-3 pb-1 text-xs text-gray-400">
                             Manage Account
                         </div>
@@ -398,15 +424,28 @@ export default {
             <div class="flex-1 min-w-0">
                 <nav class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
                     <!-- Primary Navigation Menu -->
-                    <div v-if="!isSidebarMode" class="default-container">
+                    <div v-if="!isSidebarModeResponsive" class="default-container">
                         <div class="flex justify-between h-16">
-                            <div class="flex items-center">
+                            <div class="flex items-center justify-between w-full">
                                 <!-- Logo -->
-                                <div v-if="!isSidebarMode" class="shrink-0 flex items-center">
+                                <div class="shrink-0 flex items-center">
                                     <Link :href="route('dashboard')">
                                         <ApplicationMark class="block h-9 w-auto" />
                                     </Link>
                                 </div>
+
+                                <!-- Mobile hamburger (always top on mobile) -->
+                                <button
+                                    @click="showingNavigationDropdown = !showingNavigationDropdown"
+                                    class="lg:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ms-3"
+                                    :aria-expanded="String(showingNavigationDropdown)"
+                                    aria-controls="primary-navigation"
+                                    aria-label="Toggle navigation"
+                                >
+                                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                    </svg>
+                                </button>
 
                                 <!-- Navigation Links -->
                                 <Transition name="nav-fade" mode="out-in">
@@ -447,7 +486,7 @@ export default {
                                 </Transition>
                             </div>
 
-                            <div v-if="!isSidebarMode" class="hidden sm:flex sm:items-center sm:ms-6">
+                            <div v-if="!isSidebarModeResponsive" class="hidden sm:flex sm:items-center sm:ms-6">
                                 <div class="ms-3 relative">
                                     <!-- Teams Dropdown -->
                                     <Dropdown v-if="$page.props.jetstream.hasTeamFeatures" align="right" width="60">
@@ -537,6 +576,15 @@ export default {
                                                 Profile
                                             </DropdownLink>
 
+                                            <div class="block px-4 py-1 text-xs text-gray-400">
+                                                Permissions
+                                            </div>
+                                            <ul class="mb-1">
+                                                <li v-for="permission in formattedPermissions" :key="permission.name" class="block px-6 text-xs text-gray-400">
+                                                    - {{ permission.label }}
+                                                </li>
+                                            </ul>
+
                                             <DropdownLink v-if="$page.props.jetstream.hasApiFeatures" :href="route('api-tokens.index')" :active="route().current('api-tokens.index')">
                                                 API Tokens
                                             </DropdownLink>
@@ -552,91 +600,16 @@ export default {
                                         </template>
                                     </Dropdown>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <div v-if="singleRole">
-                                        <Dropdown align="right" width="48">
-                                            <template #trigger>
-                                                <button class="inline-flex items-center px-2 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
-                                                    Permissions
-                                                    <caret-down class="ms-2 -me-0.5 h-4 w-4" />
-                                                </button>
-                                            </template>
-
-                                            <template #content>
-                                                <div class="block px-4 py-2 text-xs text-gray-400">Permissions</div>
-                                                <DropdownOption v-for="permission in formattedPermissions" :key="permission.name">
-                                                    {{ permission.label }}
-                                                </DropdownOption>
-                                            </template>
-                                        </Dropdown>
-                                    </div>
-
-                                    <div v-else>
-                                        <Dropdown align="right" width="48">
-                                            <template #trigger>
-                                                <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
-                                                    Permissions
-                                                    <caret-down class="ms-2 -me-0.5 h-4 w-4" />
-                                                </button>
-                                            </template>
-
-                                            <template #content>
-                                                <div class="block px-4 py-2 text-xs text-gray-400">Roles</div>
-                                                <div class="px-4 py-2">
-                                                    <div v-for="role in rolesList" :key="role" class="text-sm text-gray-700 dark:text-gray-200">{{ formatLabel(role) }}</div>
-                                                </div>
-
-                                                <div class="border-t border-gray-200 dark:border-gray-600" />
-
-                                                <div class="block px-4 py-2 text-xs text-gray-400">Permissions</div>
-                                                <DropdownOption v-for="permission in formattedPermissions" :key="permission.name">
-                                                    {{ permission.label }}
-                                                </DropdownOption>
-                                            </template>
-                                        </Dropdown>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
                 </nav>
 
                 <!-- Responsive Navigation Menu -->
-                <div v-if="!isSidebarMode" :class="{'block': showingNavigationDropdown, 'hidden': ! showingNavigationDropdown}" class="sm:hidden bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+                <div v-if="!isSidebarModeResponsive" :class="{'block': showingNavigationDropdown, 'hidden': ! showingNavigationDropdown}" id="primary-navigation" class="sm:hidden bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
                     <div class="pt-2 pb-3 space-y-1">
                         <div class="sm:hidden flex flex-col gap-1">
-                            <template v-for="service in visibleServices" :key="service.label">
-                                <div class="flex flex-col">
-                                    <ResponsiveNavLink
-                                        v-if="service.href"
-                                        :href="route(service.href)"
-                                        :active="isServiceActive(service)"
-                                    >
-                                        {{ service.label }}
-                                    </ResponsiveNavLink>
-
-                                    <div
-                                        v-else-if="service.children"
-                                        class="text-base font-medium text-gray-600 dark:text-gray-400 px-4 py-2"
-                                    >
-                                        {{ service.label }}
-                                    </div>
-
-                                    <div
-                                        v-if="service.children"
-                                        class="ms-4 mt-1 flex flex-col gap-1 border-s border-gray-200 dark:border-gray-600 ps-3"
-                                    >
-                                        <ResponsiveNavLink
-                                            v-for="child in visibleChildren(service)"
-                                            :key="child.label"
-                                            :href="route(child.href)"
-                                            :active="route().current(child.href)"
-                                        >
-                                            {{ child.label }}
-                                        </ResponsiveNavLink>
-                                    </div>
-                                </div>
-                            </template>
+                            <NavigationItems :services="visibleServices" mode="mobile" :visibleChildren="visibleChildren" :isServiceActive="isServiceActive" @item-clicked="showingNavigationDropdown = false" />
                         </div>
                     </div>
 
@@ -715,7 +688,7 @@ export default {
                         </div>
                     </div>
                 </div>
-                <div v-if="isSidebarMode && sidebarOpen" class="fixed inset-0 z-40 sm:hidden">
+                <div v-if="isSidebarModeResponsive && sidebarOpen" class="fixed inset-0 z-40 flex lg:hidden">
                     <button type="button" class="absolute inset-0 bg-black/40" @click="closeSidebar" />
                     <aside class="relative h-full w-72 max-w-full bg-white dark:bg-gray-800 border-e border-gray-100 dark:border-gray-700 overflow-y-auto">
                         <div class="h-16 px-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
@@ -725,7 +698,7 @@ export default {
                             </button>
                         </div>
                         <div class="p-3 space-y-1">
-                            <button type="button" class="w-full text-left inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" @click="setNavigationMode('top')">
+                            <button type="button" class="w-full text-left inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
                                 Switch to Top Navigation
                             </button>
                             <template v-for="service in visibleServices" :key="`mobile-sidebar-${service.label}`">
@@ -763,26 +736,3 @@ export default {
         </div>
     </div>
 </template>
-
-<style scoped>
-.nav-switch-enter-active,
-.nav-switch-leave-active {
-    transition: opacity 0.25s ease, transform 0.25s ease;
-}
-
-.nav-switch-enter-from,
-.nav-switch-leave-to {
-    opacity: 0;
-    transform: translateX(-12px);
-}
-
-.nav-fade-enter-active,
-.nav-fade-leave-active {
-    transition: opacity 0.2s ease;
-}
-
-.nav-fade-enter-from,
-.nav-fade-leave-to {
-    opacity: 0;
-}
-</style>
