@@ -1,13 +1,10 @@
 <script>
-import PaginateBtn from "@/Components/PaginateBtn.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
-import SearchBox from  "@/Components/Search/searchBox.vue"; 
 import {defineAsyncComponent} from "vue";
 import DtoResponse from "@/Modules/dto/DtoResponse.js";
 
 export default {
     name: "SearchComp",
-    components: { SearchBox, PaginateBtn },
     mixins: [ApiMixin],
     props: {
         propModel: {

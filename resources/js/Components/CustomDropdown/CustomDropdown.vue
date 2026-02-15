@@ -32,6 +32,7 @@
                 </div>
             </transition-container>
         </div>
+        <p v-if="guide" class="mt-1 text-xs text-gray-500">{{ guide }}</p>
     </div>
 </template>
 <script>
@@ -79,6 +80,7 @@ export default {
             default: false,
         },
         error: String,
+        guide: { type: String, default: null },
     },
     data(){
         return {

@@ -1,16 +1,12 @@
 <script>
-import {Link} from "@inertiajs/vue3";
-import BaseBtn from "@/Components/Buttons/BaseBtn.vue";
-
 export default {
     name: "AccessUseHeaderActions",
-    components: {BaseBtn, Link}
 }
 </script>
 
 <template>
     <div class="flex justify-between items-center">
-        <Link :href="route('suppliers.index')" class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight uppercase">
+        <Link :href="route('suppliers.index')" class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             Facilities, Equipment, and Supplies Request Form
         </Link>
         <div class="flex justify-between items-center">

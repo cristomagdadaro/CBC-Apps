@@ -1,9 +1,6 @@
 <script>
-import BaseBtn from "@/Components/Buttons/BaseBtn.vue";
-
 export default {
     name: "SearchBtn",
-    components: {BaseBtn}
 }
 </script>
 

@@ -1,9 +1,6 @@
 <script>
-import DataTable from '@/Modules/DataTable/presentation/DataTable.vue';
-
 export default {
     name: 'LaboratoryLogsDataTable',
-    components: { DataTable },
     props: {
         apiResponse: {
             type: Object,

@@ -1,11 +1,6 @@
 <script>
-import Dropdown from "@/Components/Dropdown.vue";
-
 export default {
     name: 'CalendarModule',
-    components: {
-        Dropdown,
-    },
     props: {
         title: {
             type: String,

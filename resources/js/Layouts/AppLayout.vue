@@ -68,19 +68,24 @@ export default {
                     ]
                 },
                 {
+                    label: 'System',
+                    href: null,
+                    children: [
+                        {
+                            label: 'Options',
+                            href: 'system.options.index',
+                            roles: ['admin'],
+                        },{
+                            label: 'Users Management',
+                            href: 'system.users.index',
+                            permission: 'users.manage',
+                            roles: ['admin'],
+                        },
+                    ]
+                },
+                {
                     label: 'Manuals & Guides',
                     href: 'manuals.index',
-                },
-                {
-                    label: 'System Options',
-                    href: 'system.options.index',
-                    roles: ['admin'],
-                },
-                {
-                    label: 'Users Management',
-                    href: 'system.users.index',
-                    permission: 'users.manage',
-                    roles: ['admin'],
                 },
             ],
         };
@@ -166,7 +171,7 @@ export default {
                             </div>
                             
                             <!-- Navigation Links -->
-                            <div class="hidden sm:ms-6 sm:flex sm:items-center sm:gap-2 sm:flex-wrap">
+                            <div class="hidden sm:ms-6 sm:flex sm:items-center sm:gap-5 sm:flex-wrap">
                                 <template v-for="service in visibleServices" :key="service.label">
                                     <!-- Show Dropdown if service has children -->
                                     <Dropdown v-if="service.children" align="right" width="60">
@@ -343,11 +348,19 @@ export default {
                                 <!-- Show Dropdown if service has children -->
                                 <div class="flex flex-col">
                                     <ResponsiveNavLink
+                                        v-if="service.href"
                                         :href="route(service.href)"
                                         :active="isServiceActive(service)"
                                     >
                                         {{ service.label }}
                                     </ResponsiveNavLink>
+
+                                    <div
+                                        v-else-if="service.children"
+                                        class="text-base font-medium text-gray-600 dark:text-gray-400 px-4 py-2"
+                                    >
+                                        {{ service.label }}
+                                    </div>
 
                                     <div
                                         v-if="service.children"
@@ -443,7 +456,6 @@ export default {
                     </div>
                 </div>
             </nav>
-{{ $page.props.auth.roles }} {{ $page.props.auth.permissions }}
             <!-- Page Heading -->
             <header v-if="$slots.header" class="bg-white dark:bg-gray-800 shadow">
                 <div class="max-w-[90vw] mx-auto py-2 px-4 sm:px-6 lg:px-8">
@@ -452,7 +464,7 @@ export default {
             </header>
 
             <!-- Page Content -->
-            <main class="py-5">
+            <main>
                 <slot />
             </main>
         </div>

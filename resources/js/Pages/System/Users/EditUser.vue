@@ -1,70 +1,78 @@
-<script setup>
-import AppLayout from '@/Layouts/AppLayout.vue';
-import { Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
-import axios from 'axios';
-import { useNotifier } from '@/Modules/composables/useNotifier';
+<script>
+import axios from 'axios'
+import { useNotifier } from '@/Modules/composables/useNotifier'
 
-const { success, error: notifyError, warning } = useNotifier();
-
-const props = defineProps({
-    data: { type: Object, required: true },
-});
-
-const form = ref({
-    name: props.data.name || '',
-    email: props.data.email || '',
-    employee_id: props.data.employee_id || '',
-    password: '',
-    password_confirmation: '',
-    is_admin: !!props.data.is_admin,
-    roles: (props.data.roles || []).map((r) => r.name),
-});
-
-const roleOptions = [
-    { value: 'admin', label: 'Admin' },
-    { value: 'laboratory_manager', label: 'Laboratory Manager' },
-    { value: 'ict_manager', label: 'ICT Manager' },
-    { value: 'administrative_assistant', label: 'Administrative Assistant' },
-];
-
-const errors = ref({});
-const submitting = ref(false);
-const deleting = ref(false);
-
-const submit = async () => {
-    submitting.value = true;
-    errors.value = {};
-    try {
-        await axios.put(route('api.users.update', props.data.id), form.value);
-        success('User updated successfully.');
-        router.visit(route('system.users.index'));
-    } catch (error) {
-        errors.value = error?.response?.data?.errors || {};
-        if (!Object.keys(errors.value).length) {
-            notifyError('Failed to update user.');
+export default {
+    name: 'EditUser',
+    props: {
+        data: { type: Object, required: true },
+    },
+    data() {
+        return {
+            form: {
+                name: this.data.name || '',
+                email: this.data.email || '',
+                employee_id: this.data.employee_id || '',
+                password: '',
+                password_confirmation: '',
+                is_admin: !!this.data.is_admin,
+                roles: (this.data.roles || []).map((r) => r.name),
+            },
+            roleOptions: [
+                { value: 'admin', label: 'Admin' },
+                { value: 'laboratory_manager', label: 'Laboratory Manager' },
+                { value: 'ict_manager', label: 'ICT Manager' },
+                { value: 'administrative_assistant', label: 'Administrative Assistant' },
+            ],
+            errors: {},
+            submitting: false,
+            deleting: false,
+            success: null,
+            notifyError: null,
+            warning: null,
         }
-    } finally {
-        submitting.value = false;
+    },
+    created() {
+        const notifier = useNotifier()
+        this.success = notifier.success
+        this.notifyError = notifier.error
+        this.warning = notifier.warning
+    },
+    methods: {
+        async submit() {
+            this.submitting = true
+            this.errors = {}
+            try {
+                await axios.put(route('api.users.update', this.data.id), this.form)
+                this.success('User updated successfully.')
+                router.visit(route('system.users.index'))
+            } catch (error) {
+                this.errors = error?.response?.data?.errors || {}
+                if (!Object.keys(this.errors).length) {
+                    this.notifyError('Failed to update user.')
+                }
+            } finally {
+                this.submitting = false
+            }
+        },
+        async destroyUser() {
+            if (!confirm('Delete this user?')) {
+                this.warning('User deletion was cancelled.')
+                return
+            }
+            this.deleting = true
+            try {
+                await axios.delete(route('api.users.destroy', this.data.id))
+                this.success('User deleted successfully.')
+                router.visit(route('system.users.index'))
+            } catch (error) {
+                this.notifyError('Failed to delete user.')
+            } finally {
+                this.deleting = false
+            }
+        }
     }
-};
-
-const destroyUser = async () => {
-    if (!confirm('Delete this user?')) {
-        warning('User deletion was cancelled.');
-        return;
-    }
-    deleting.value = true;
-    try {
-        await axios.delete(route('api.users.destroy', props.data.id));
-        success('User deleted successfully.');
-        router.visit(route('system.users.index'));
-    } catch (error) {
-        notifyError('Failed to delete user.');
-    } finally {
-        deleting.value = false;
-    }
-};
+}
 </script>
 
 <template>

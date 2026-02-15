@@ -1,48 +1,57 @@
-<script setup>
-import AppLayout from '@/Layouts/AppLayout.vue';
-import { Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
-import axios from 'axios';
-import { useNotifier } from '@/Modules/composables/useNotifier';
+<script>
+import axios from 'axios'
+import { useNotifier } from '@/Modules/composables/useNotifier'
 
-const { success, error: notifyError } = useNotifier();
-
-const form = ref({
-    name: '',
-    email: '',
-    employee_id: '',
-    password: '',
-    password_confirmation: '',
-    is_admin: false,
-    roles: [],
-});
-
-const roleOptions = [
-    { value: 'admin', label: 'Admin' },
-    { value: 'laboratory_manager', label: 'Laboratory Manager' },
-    { value: 'ict_manager', label: 'ICT Manager' },
-    { value: 'administrative_assistant', label: 'Administrative Assistant' },
-];
-
-const errors = ref({});
-const submitting = ref(false);
-
-const submit = async () => {
-    submitting.value = true;
-    errors.value = {};
-    try {
-        await axios.post(route('api.users.store'), form.value);
-        success('User created successfully.');
-        router.visit(route('system.users.index'));
-    } catch (error) {
-        errors.value = error?.response?.data?.errors || {};
-        if (!Object.keys(errors.value).length) {
-            notifyError('Failed to create user.');
+export default {
+    name: 'CreateUser',
+    components: { Link },
+    data() {
+        return {
+            form: {
+                name: '',
+                email: '',
+                employee_id: '',
+                password: '',
+                password_confirmation: '',
+                is_admin: false,
+                roles: [],
+            },
+            roleOptions: [
+                { value: 'admin', label: 'Admin' },
+                { value: 'laboratory_manager', label: 'Laboratory Manager' },
+                { value: 'ict_manager', label: 'ICT Manager' },
+                { value: 'administrative_assistant', label: 'Administrative Assistant' },
+            ],
+            errors: {},
+            submitting: false,
+            success: null,
+            notifyError: null,
         }
-    } finally {
-        submitting.value = false;
+    },
+    created() {
+        const notifier = useNotifier()
+        this.success = notifier.success
+        this.notifyError = notifier.error
+    },
+    methods: {
+        async submit() {
+            this.submitting = true
+            this.errors = {}
+            try {
+                await axios.post(route('api.users.store'), this.form)
+                this.success('User created successfully.')
+                router.visit(route('system.users.index'))
+            } catch (error) {
+                this.errors = error?.response?.data?.errors || {}
+                if (!Object.keys(this.errors).length) {
+                    this.notifyError('Failed to create user.')
+                }
+            } finally {
+                this.submitting = false
+            }
+        }
     }
-};
+}
 </script>
 
 <template>

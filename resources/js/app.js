@@ -5,10 +5,9 @@ import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
-import { Head, Link } from '@inertiajs/vue3';
-
+import { Head, Link, router } from '@inertiajs/vue3';
 // Layout
-import AppLayout from './Layouts/AppLayout.vue';
+import AppLayout from '@/Layouts/AppLayout.vue';
 
 // Common Form Components
 import TextInput from "@/Components/TextInput.vue";
@@ -38,65 +37,68 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import DangerButton from "@/Components/DangerButton.vue";
 import NavLink from "@/Components/NavLink.vue";
+import BaseBtn from "@/Components/Buttons/BaseBtn.vue";
+import TagifyInput from "@/Components/Tagify.vue";
 
 // Icon Components
 import AddIcon from "@/Components/Icons/AddIcon.vue";
 import ArrowLeft from "@/Components/Icons/ArrowLeft.vue";
 import ArrowRight from "@/Components/Icons/ArrowRight.vue";
-import BellIcon from './Components/Icons/BellIcon.vue';
-import CaretDown from './Components/Icons/CaretDown.vue';
-import CaretUp from './Components/Icons/CaretUp.vue';
-import CheckallIcon from './Components/Icons/CheckallIcon.vue';
-import CircleOneIcon from './Components/Icons/CircleOneIcon.vue';
-import Close from './Components/Icons/Close.vue';
-import CloseIcon from './Components/Icons/CloseIcon.vue';
-import CollapseIcon from './Components/Icons/CollapseIcon.vue';
-import ConeIcon from './Components/Icons/ConeIcon.vue';
-import DeleteIcon from './Components/Icons/DeleteIcon.vue';
-import DeselectIcon from './Components/Icons/DeselectIcon.vue';
-import DoubleArrowLoaderIcon from './Components/Icons/DoubleArrowLoaderIcon.vue';
-import DownloadIcon from './Components/Icons/DownloadIcon.vue';
-import EditIcon from './Components/Icons/EditIcon.vue';
-import ErrorIcon from './Components/Icons/ErrorIcon.vue';
-import ExclamationCircleIcon from './Components/Icons/ExclamationCircleIcon.vue';
-import ExpandIcon from './Components/Icons/ExpandIcon.vue';
-import ExportIcon from './Components/Icons/ExportIcon.vue';
-import FailedIcon from './Components/Icons/FailedIcon.vue';
-import FilterIcon from './Components/Icons/FilterIcon.vue';
-import FullScreenIcon from './Components/Icons/FullScreenIcon.vue';
-import Hamburger from './Components/Icons/Hamburger.vue';
-import ImportIcon from './Components/Icons/ImportIcon.vue';
-import InfoIcon from './Components/Icons/InfoIcon.vue';
-import LoaderIcon from './Components/Icons/LoaderIcon.vue';
-import Logo from './Components/Icons/Logo.vue';
-import PhilippineMapOutline from './Components/Icons/PhilippineMapOutline.vue';
-import PrinterIcon from './Components/Icons/PrinterIcon.vue';
-import ProfileEmptyIcon from './Components/Icons/ProfileEmptyIcon.vue';
-import RefreshIcon from './Components/Icons/RefreshIcon.vue';
-import SearchIcon from './Components/Icons/SearchIcon.vue';
-import ShareIcon from './Components/Icons/ShareIcon.vue';
-import SpinnerIcon from './Components/Icons/SpinnerIcon.vue';
-import SuccessIcon from './Components/Icons/SuccessIcon.vue';
-import ThreeDotIcon from './Components/Icons/ThreeDotIcon.vue';
-import ToggleOffIcon from './Components/Icons/ToggleOffIcon.vue';
-import ToggleOnIcon from './Components/Icons/ToggleOnIcon.vue';
-import UnviewIcon from './Components/Icons/UnviewIcon.vue';
-import UploadIcon from './Components/Icons/UploadIcon.vue';
-import ViewIcon from './Components/Icons/ViewIcon.vue';
-import WarningIcon from './Components/Icons/WarningIcon.vue';
-import ScanIcon from './Components/Icons/ScanIcon.vue';
-import SettingIcon from './Components/Icons/SettingIcon.vue';
-import BookmarkIcon from './Components/Icons/BookmarkIcon.vue';
-import CalendarIcon from './Components/Icons/CalendarIcon.vue';
-import FesIcon from './Components/Icons/FesIcon.vue';
-import FlagIcon from './Components/Icons/FlagIcon.vue';
-import BoxesIcon from './Components/Icons/BoxesIcon.vue';
-import TruckIcon from './Components/Icons/TruckIcon.vue';
-import BuildingIcon from './Components/Icons/BuildingIcon.vue';
+import BellIcon from '@/Components/Icons/BellIcon.vue';
+import CaretDown from '@/Components/Icons/CaretDown.vue';
+import CaretUp from '@/Components/Icons/CaretUp.vue';
+import CheckallIcon from '@/Components/Icons/CheckallIcon.vue';
+import CircleOneIcon from '@/Components/Icons/CircleOneIcon.vue';
+import Close from '@/Components/Icons/Close.vue';
+import CloseIcon from '@/Components/Icons/CloseIcon.vue';
+import CollapseIcon from '@/Components/Icons/CollapseIcon.vue';
+import ConeIcon from '@/Components/Icons/ConeIcon.vue';
+import DeleteIcon from '@/Components/Icons/DeleteIcon.vue';
+import DeselectIcon from '@/Components/Icons/DeselectIcon.vue';
+import DoubleArrowLoaderIcon from '@/Components/Icons/DoubleArrowLoaderIcon.vue';
+import DownloadIcon from '@/Components/Icons/DownloadIcon.vue';
+import EditIcon from '@/Components/Icons/EditIcon.vue';
+import ErrorIcon from '@/Components/Icons/ErrorIcon.vue';
+import ExclamationCircleIcon from '@/Components/Icons/ExclamationCircleIcon.vue';
+import ExpandIcon from '@/Components/Icons/ExpandIcon.vue';
+import ExportIcon from '@/Components/Icons/ExportIcon.vue';
+import FailedIcon from '@/Components/Icons/FailedIcon.vue';
+import FilterIcon from '@/Components/Icons/FilterIcon.vue';
+import FullScreenIcon from '@/Components/Icons/FullScreenIcon.vue';
+import Hamburger from '@/Components/Icons/Hamburger.vue';
+import ImportIcon from '@/Components/Icons/ImportIcon.vue';
+import InfoIcon from '@/Components/Icons/InfoIcon.vue';
+import LoaderIcon from '@/Components/Icons/LoaderIcon.vue';
+import Logo from '@/Components/Icons/Logo.vue';
+import PhilippineMapOutline from '@/Components/Icons/PhilippineMapOutline.vue';
+import PrinterIcon from '@/Components/Icons/PrinterIcon.vue';
+import ProfileEmptyIcon from '@/Components/Icons/ProfileEmptyIcon.vue';
+import RefreshIcon from '@/Components/Icons/RefreshIcon.vue';
+import SearchIcon from '@/Components/Icons/SearchIcon.vue';
+import ShareIcon from '@/Components/Icons/ShareIcon.vue';
+import SpinnerIcon from '@/Components/Icons/SpinnerIcon.vue';
+import SuccessIcon from '@/Components/Icons/SuccessIcon.vue';
+import ThreeDotIcon from '@/Components/Icons/ThreeDotIcon.vue';
+import ToggleOffIcon from '@/Components/Icons/ToggleOffIcon.vue';
+import ToggleOnIcon from '@/Components/Icons/ToggleOnIcon.vue';
+import UnviewIcon from '@/Components/Icons/UnviewIcon.vue';
+import UploadIcon from '@/Components/Icons/UploadIcon.vue';
+import ViewIcon from '@/Components/Icons/ViewIcon.vue';
+import WarningIcon from '@/Components/Icons/WarningIcon.vue';
+import ScanIcon from '@/Components/Icons/ScanIcon.vue';
+import SettingIcon from '@/Components/Icons/SettingIcon.vue';
+import BookmarkIcon from '@/Components/Icons/BookmarkIcon.vue';
+import CalendarIcon from '@/Components/Icons/CalendarIcon.vue';
+import FesIcon from '@/Components/Icons/FesIcon.vue';
+import FlagIcon from '@/Components/Icons/FlagIcon.vue';
+import BoxesIcon from '@/Components/Icons/BoxesIcon.vue';
+import TruckIcon from '@/Components/Icons/TruckIcon.vue';
+import BuildingIcon from '@/Components/Icons/BuildingIcon.vue';
 
 // Dropdown Components
 import DropdownLink from "@/Components/DropdownLink.vue";
 import Dropdown from "@/Components/Dropdown.vue";
+import DropdownOption from '@/Components/CustomDropdown/Components/DropdownOption.vue';
 import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 import MultiSelectDropdown from '@/Components/MultiSelectDropdown.vue';
 
@@ -124,6 +126,8 @@ import SearchBy from "@/Components/SearchBy.vue";
 import SearchBox from "@/Components/Search/searchBox.vue";
 import LikertScale from "@/Components/LikertScale.vue";
 import GuestCard from "@/Pages/Forms/components/GuestCard.vue";
+import AuthenticationCard from '@/Components/AuthenticationCard.vue';
+import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
 
 // Transitions & Animation
 import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
@@ -171,6 +175,8 @@ createInertiaApp({
         vueApp.component('SecondaryButton', SecondaryButton);
         vueApp.component('DangerButton', DangerButton);
         vueApp.component('NavLink', NavLink);
+        vueApp.component('BaseBtn', BaseBtn);
+        vueApp.component('TagifyInput', TagifyInput);
 
         // Global Icon Components
         vueApp.component('AddIcon', AddIcon);
@@ -230,6 +236,7 @@ createInertiaApp({
         // Global Dropdown Components
         vueApp.component('DropdownLink', DropdownLink);
         vueApp.component('Dropdown', Dropdown);
+        vueApp.component('DropdownOption', DropdownOption);
         vueApp.component('CustomDropdown', CustomDropdown);
         vueApp.component('MultiSelectDropdown', MultiSelectDropdown);
 
@@ -257,6 +264,8 @@ createInertiaApp({
         vueApp.component('SearchBox', SearchBox);
         vueApp.component('LikertScale', LikertScale);
         vueApp.component('GuestCard', GuestCard);
+        vueApp.component('AuthenticationCard', AuthenticationCard);
+        vueApp.component('AuthenticationCardLogo', AuthenticationCardLogo);
 
         // Global Transitions & Animation
         vueApp.component('TransitionContainer', TransitionContainer);

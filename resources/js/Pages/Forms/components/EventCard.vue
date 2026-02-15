@@ -6,7 +6,6 @@ import DtoResponse from "@/Modules/dto/DtoResponse";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import Participant from "@/Modules/domain/Participant";
 import RequirementsManager from "@/Components/Forms/RequirementsManager.vue";
-import ViewIcon from '@/Components/Icons/ViewIcon.vue';
 
 export default {
     name: "EventCard",
@@ -14,7 +13,6 @@ export default {
     components: {
         RequirementsManager,
         SuspendFormBtn,
-        ViewIcon,
     },
 
     mixins: [ApiMixin, DataFormatterMixin],

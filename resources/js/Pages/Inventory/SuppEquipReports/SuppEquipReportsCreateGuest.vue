@@ -1,15 +1,11 @@
 <script>
-import GuestFormPage from '@/Pages/Shared/GuestFormPage.vue';
 import SuppEquipReportForm from "@/Pages/Inventory/SuppEquipReports/components/SuppEquipReportForm.vue";
-import SuccessModal from "@/Components/SuccessModal.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 
 export default {
     name: "SuppEquipReportsCreateGuest",
     components: {
-        GuestFormPage,
         SuppEquipReportForm,
-        SuccessModal,
     },
     mixins: [ApiMixin],
     props: {

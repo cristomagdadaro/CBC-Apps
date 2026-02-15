@@ -1,11 +1,6 @@
 <script>
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
-import NavLink from "@/Components/NavLink.vue";
-import ScanBtn from "@/Components/Buttons/ScanBtn.vue";
-
 export default {
     name: "AttachReportLink",
-    components: {NavLink},
 };
 </script>
 >

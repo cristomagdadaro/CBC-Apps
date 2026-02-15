@@ -15,9 +15,9 @@
       >
         <div class="flex-1 space-y-2">
           <input
-            v-model="option.value"
+            v-model="option.name"
             type="text"
-            placeholder="Value (e.g., option_1)"
+            placeholder="Name (e.g., option_1)"
             class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
           <input

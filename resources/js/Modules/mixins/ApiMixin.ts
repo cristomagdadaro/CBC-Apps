@@ -4,7 +4,7 @@ import ConcreteApiService from "@/Modules/infrastructure/ConcreteApiService";
 import {AxiosError} from "axios";
 import DtoError from "@/Modules/dto/DtoError";
 import DtoResponse from "@/Modules/dto/DtoResponse";
-
+import { useNotifier } from '@/Modules/composables/useNotifier';
 export default {
     props: {
         data: {
@@ -72,6 +72,12 @@ export default {
             this.form.clearErrors();
             return await this.model.api.postIndex(this.form.data()).then(response => {
                 this.resetForm(except);
+                try {
+                    const { success } = useNotifier();
+                    success('Created successfully.');
+                } catch (e) {
+                    // notifier not available, ignore
+                }
                 if (toCast) {
                     return new DtoResponse(response).castDataToModel(this.model.constructor);
                 }
@@ -87,6 +93,12 @@ export default {
             this.form.clearErrors();
             return await this.model.api.putIndex(this.form.data()).then(response => {
                 this.resetForm(except);
+                try {
+                    const { success } = useNotifier();
+                    success('Updated successfully.');
+                } catch (e) {
+                    // notifier not available, ignore
+                }
                 if (toCast) {
                     return new DtoResponse(response).castDataToModel(this.model.constructor);
                 }
@@ -102,6 +114,12 @@ export default {
             this.setFormAction('delete');
             return await this.model.api.deleteApiIndex(this.form.data()).then(response => {
                 this.resetForm();
+                try {
+                    const { success } = useNotifier();
+                    success('Deleted successfully.');
+                } catch (e) {
+                    // notifier not available, ignore
+                }
                 return new DtoResponse(response);
             }).catch(error => {
                 return this.checkError(error);
@@ -232,12 +250,29 @@ export default {
                         this.form.setError(key, dto.data.errors[key].join(''))
                     })
                 }
+                try {
+                    const { error: notifyError } = useNotifier();
+                    if (dto.status === 422) {
+                        notifyError('Please check the form fields and try again.');
+                    } else {
+                        notifyError(dto.message || 'An error occurred while processing the request.');
+                    }
+                } catch (e) {
+                    // notifier may not be available here
+                }
             }
             else {
                 dto = new DtoError({
                     title: error.name,
                     message: error.message
                 })
+            }
+
+            try {
+                const { error: notifyError } = useNotifier();
+                notifyError(dto.message || dto.title || 'An error occurred.');
+            } catch (e) {
+                // ignore notifier failures
             }
 
             return dto;

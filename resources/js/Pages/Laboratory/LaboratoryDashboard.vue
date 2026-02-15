@@ -9,12 +9,7 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import AppLayout from '@/Layouts/AppLayout.vue';
 import CalendarModule from '@/Components/CalendarModule.vue';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownOption from '@/Components/CustomDropdown/Components/DropdownOption.vue';
-import TabNavigation from '@/Components/TabNavigation.vue';
-import SearchComp from '@/Components/Search/SearchComp.vue';
 import LaboratoryEquipmentLog from '@/Modules/domain/LaboratoryEquipmentLog';
 import LaboratoryLogsDataTable from '@/Pages/Laboratory/components/LaboratoryLogsDataTable.vue';
 import LaboratoryLogHeaderAction from '@/Pages/Laboratory/components/LaboratoryLogHeaderAction.vue';
@@ -24,12 +19,7 @@ Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, L
 export default {
     name: 'LaboratoryDashboard',
     components: {
-        AppLayout,
         CalendarModule,
-        Dropdown,
-        DropdownOption,
-        TabNavigation,
-        SearchComp,
         LaboratoryLogHeaderAction,
     },
     data() {

@@ -4,17 +4,9 @@ import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 import DtoResponse from "@/Modules/dto/DtoResponse";
 import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
-import TagifyInput from "@/Components/Tagify.vue";
-import SuccessModal from "@/Components/SuccessModal.vue";
-import PersonnelLookup from "@/Components/PersonnelLookup.vue";
 
 export default {
     name: "RequesterGuestCard",
-    components: {
-        TagifyInput,
-        SuccessModal,
-        PersonnelLookup,
-    },
     props: {
         requestTypeOptions: {
             type: Array,

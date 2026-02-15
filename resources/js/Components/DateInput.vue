@@ -1,33 +1,40 @@
-<script setup>
-import { onMounted, ref, watch } from 'vue';
-import InputError from "@/Components/InputError.vue";
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
-
-const props = defineProps({
-    modelValue: String,
-    placeholder: String,
-    error: String,
-    label: String,
-    required: Boolean,
-});
-
-const emit = defineEmits(['update:modelValue']);
-
-const input = ref(null);
-const isChameleon = ref(props.chameleon); // Local state for toggling
-
-onMounted(() => {
-    if (input.value && input.value.hasAttribute('autofocus')) {
-        input.value.focus();
+<script>
+export default {
+    name: 'DateInput',
+    props: {
+        modelValue: { type: String, default: '' },
+        placeholder: { type: String, default: '' },
+        error: { type: String, default: '' },
+        label: { type: String, default: '' },
+        required: { type: Boolean, default: false },
+        chameleon: { type: Boolean, default: false },
+    },
+    emits: ['update:modelValue'],
+    data() {
+        return {
+            isChameleon: this.chameleon,
+        }
+    },
+    mounted() {
+        const input = this.$refs.input;
+        if (input && input.hasAttribute && input.hasAttribute('autofocus')) {
+            input.focus();
+        }
+    },
+    watch: {
+        chameleon(newVal) {
+            this.isChameleon = newVal;
+        }
+    },
+    methods: {
+        focus() {
+            this.$refs.input?.focus();
+        },
+        onInput(e) {
+            this.$emit('update:modelValue', e.target.value);
+        }
     }
-});
-
-// Watch for changes in the prop and sync it with the local state
-watch(() => props.chameleon, (newVal) => {
-    isChameleon.value = newVal;
-});
-
-defineExpose({ focus: () => input.value?.focus() });
+}
 </script>
 
 <template>

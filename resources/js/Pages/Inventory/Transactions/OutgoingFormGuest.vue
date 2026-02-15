@@ -5,15 +5,15 @@ import RequesterGuestCard from "@/Pages/LabRequest/components/RequesterGuestCard
 import OutgoingForm from "@/Pages/Inventory/Transactions/components/OutgoingForm.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Personnel from "@/Modules/domain/Personnel";
-import GuestFormPage from "@/Pages/Shared/GuestFormPage.vue";
 import CameraScanner from "@/Components/CameraScanner.vue";
 export default {
     name: "OutgoingFormGuest",
     components: {
         CameraScanner,
-        GuestFormPage,
         OutgoingForm,
-        RequesterGuestCard, TransactionHeaderAction},
+        RequesterGuestCard,
+        TransactionHeaderAction
+    },
     mixins: [ApiMixin],
     props: {
         categories: {

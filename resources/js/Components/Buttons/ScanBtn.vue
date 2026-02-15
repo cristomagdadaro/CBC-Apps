@@ -1,9 +1,6 @@
-        <script>
-import BaseBtn from "@/Components/Buttons/BaseBtn.vue";
-
+<script>
 export default {
     name: "ScanBtn",
-    components: {BaseBtn}
 }
 </script>
 

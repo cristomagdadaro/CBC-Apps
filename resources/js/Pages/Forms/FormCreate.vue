@@ -1,15 +1,8 @@
 <script>
 import ListOfForms from "@/Pages/Forms/components/ListOfForms.vue";
-import AddButton from "@/Components/Buttons/AddButton.vue";
-import {Link} from "@inertiajs/vue3";
 import FormsHeaderActions from "@/Pages/Forms/components/FormsHeaderActions.vue";
-import TextInput from "@/Components/TextInput.vue";
-import TextArea from "@/Components/TextArea.vue";
-import DateInput from "@/Components/DateInput.vue";
-import TimeInput from "@/Components/TimeInput.vue";
 import Form from "@/Modules/domain/Form";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
-import GuestCard from "@/Pages/Forms/components/GuestCard.vue";
 import RequirementsManager from "@/Components/Forms/RequirementsManager.vue";
 import FormStyleDesigner from "@/Pages/Forms/components/FormStyleDesigner.vue";
 
@@ -18,8 +11,9 @@ export default {
     components: {
         FormStyleDesigner,
         RequirementsManager,
-        GuestCard,
-        TimeInput, DateInput, TextArea, TextInput, FormsHeaderActions, Link, AddButton, ListOfForms},
+        FormsHeaderActions,
+        ListOfForms
+    },
     mixins: [ApiMixin],
     beforeMount() {
         this.model = new Form();

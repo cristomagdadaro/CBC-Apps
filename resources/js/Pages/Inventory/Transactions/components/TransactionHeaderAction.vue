@@ -1,6 +1,4 @@
 <script>
-import {Link} from "@inertiajs/vue3";
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
 import IncommingTransactionLink from "@/Pages/Inventory/Transactions/components/presentation/IncommingTransactionLink.vue";
 import OutgoingTransactionLink from "@/Pages/Inventory/Transactions/components/presentation/OutgoingTransactionLink.vue";
 import AttachReportLink from "@/Pages/Inventory/Transactions/components/presentation/AttachReportLink.vue";
@@ -8,7 +6,7 @@ import CreatePersonnelLink from "@/Pages/Inventory/Transactions/components/prese
 
 export default {
     name: "TransactionHeaderAction",
-    components: {IncommingTransactionLink, OutgoingTransactionLink, Link, AttachReportLink, CreatePersonnelLink},
+    components: {IncommingTransactionLink, OutgoingTransactionLink, AttachReportLink, CreatePersonnelLink},
 }
 </script>
 

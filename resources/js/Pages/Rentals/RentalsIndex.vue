@@ -27,13 +27,11 @@ export default {
             <rentals-header-action />
         </template>
 
-        <div class="py-5">
-            <div class="max-w-[90%] mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-[90vw] mx-auto sm:px-6 lg:px-8">
                 <search-comp
                     :propModel="RentalVehicle"
                     :cardSlot="DataTable"
                 />
             </div>
-        </div>
     </AppLayout>
 </template>

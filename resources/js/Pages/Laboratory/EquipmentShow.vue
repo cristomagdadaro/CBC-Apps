@@ -1,28 +1,11 @@
 <script>
 import { useForm, usePage } from "@inertiajs/vue3";
-import { router } from "@inertiajs/vue3";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import LaboratoryPersonnelMixin from "@/Modules/mixins/LaboratoryPersonnelMixin";
-import PersonnelLookup from "@/Components/PersonnelLookup.vue";
-import SelectSearchField from "@/Components/SelectSearchField.vue";
-import TextInput from "@/Components/TextInput.vue";
-import SuccessModal from "@/Components/SuccessModal.vue";
-import FlagIcon from '@/Components/Icons/FlagIcon.vue';
-import ArrowRight from '@/Components/Icons/ArrowRight.vue';
-import ErrorIcon from '@/Components/Icons/ErrorIcon.vue';
 
 export default {
     name: "EquipmentShow",
-    components: {
-        PersonnelLookup,
-        SelectSearchField,
-        TextInput,
-        SuccessModal,
-        FlagIcon,
-        ArrowRight,
-        ErrorIcon,
-    },
     mixins: [ApiMixin, DataFormatterMixin, LaboratoryPersonnelMixin],
     props: {
         equipment_id: {

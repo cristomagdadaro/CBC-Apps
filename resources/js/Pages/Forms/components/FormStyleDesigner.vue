@@ -1,10 +1,8 @@
 <script>
-import TextInput from "@/Components/TextInput.vue";
 import { FORM_STYLE_FIELDS, mergeFormStyleTokens } from "@/Modules/shared/formStyleTokens";
 
 export default {
     name: "FormStyleDesigner",
-    components: { TextInput },
     props: {
         modelValue: {
             type: Object,

@@ -1,55 +1,55 @@
-<script setup>
-import { onMounted, ref, watch, nextTick } from 'vue';
-
-const props = defineProps({
-    modelValue: [String, Number],
-    autocomplete: String,
-    placeholder: String,
-    error: String,
-    type: String,
-    classes: String,
-    required: Boolean,
-    id: String,
-    label: String,
-    rows: {
-        type: Number,
-        default: 4,
+<script>
+export default {
+    name: 'TextArea',
+    props: {
+        modelValue: { type: [String, Number], default: '' },
+        autocomplete: { type: String, default: '' },
+        placeholder: { type: String, default: '' },
+        error: { type: String, default: '' },
+        type: { type: String, default: '' },
+        classes: { type: String, default: '' },
+        required: { type: Boolean, default: false },
+        id: { type: String, default: '' },
+        label: { type: String, default: '' },
+        rows: { type: Number, default: 4 },
+        guide: { type: String, default: null },
     },
-});
-
-const emit = defineEmits(['update:modelValue']);
-
-const input = ref(null);
-
-function adjustHeight() {
-    if (!input.value) return;
-    // Calculate minimum height from rows prop
-    const lineHeight = parseFloat(getComputedStyle(input.value).lineHeight) || 20;
-    const minHeight = props.rows * lineHeight;
-    input.value.style.height = 'auto';
-    const newHeight = input.value.scrollHeight;
-    input.value.style.height = `${Math.max(newHeight, minHeight)}px`;
-}
-
-function onInput(e) {
-    emit('update:modelValue', e.target.value);
-    adjustHeight();
-}
-
-onMounted(() => {
-    if (input.value && input.value.hasAttribute('autofocus')) {
-        input.value.focus();
+    emits: ['update:modelValue'],
+    data() {
+        return {
+            // input ref is handled via $refs.input directly
+        }
+    },
+    mounted() {
+        if (this.$refs.input && this.$refs.input.hasAttribute('autofocus')) {
+            this.$refs.input.focus();
+        }
+        this.$nextTick(() => this.adjustHeight());
+    },
+    watch: {
+        modelValue() {
+            this.$nextTick(() => this.adjustHeight());
+        }
+    },
+    methods: {
+        adjustHeight() {
+            const textarea = this.$refs.input;
+            if (!textarea) return;
+            const lineHeight = parseFloat(getComputedStyle(textarea).lineHeight) || 20;
+            const minHeight = this.rows * lineHeight;
+            textarea.style.height = 'auto';
+            const newHeight = textarea.scrollHeight;
+            textarea.style.height = `${Math.max(newHeight, minHeight)}px`;
+        },
+        onInput(e) {
+            this.$emit('update:modelValue', e.target.value);
+            this.adjustHeight();
+        },
+        focus() {
+            this.$refs.input?.focus();
+        }
     }
-    // ensure height adjusts after initial render/value
-    nextTick(adjustHeight);
-});
-
-watch(() => props.modelValue, () => {
-    // adjust when parent updates the value
-    nextTick(adjustHeight);
-});
-
-defineExpose({ focus: () => input.value?.focus(), adjustHeight });
+}
 </script>
 
 <template>
@@ -69,5 +69,6 @@ defineExpose({ focus: () => input.value?.focus(), adjustHeight });
             @input="onInput"
             :style="{ minHeight: rows * 20 + 'px' }"
         />
+        <p v-if="guide" class="mt-1 text-xs text-gray-500">{{ guide }}</p>
     </div>
 </template>

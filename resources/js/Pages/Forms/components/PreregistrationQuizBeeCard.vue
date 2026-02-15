@@ -2,13 +2,9 @@
 import SubformMixin from "@/Modules/mixins/SubformMixin";
 import SubformResponse from "@/Modules/domain/SubformResponse";
 import DtoResponse from "@/Modules/dto/DtoResponse";
-import SelectRegion from "@/Components/SelectRegion.vue";
-import SelectProvince from "@/Components/SelectProvince.vue";
-import SelectCity from "@/Components/SelectCity.vue";
 
 export default {
     name: "PreregistrationQuizBeeCard",
-    components: { SelectRegion, SelectProvince, SelectCity },
     mixins: [SubformMixin],
     props: {
         responseData: {

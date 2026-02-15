@@ -1,10 +1,6 @@
 <script>
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
-import NavLink from "@/Components/NavLink.vue";
-
 export default {
     name: "IncommingTransactionLink",
-    components: {NavLink},
 };
 </script>
 >

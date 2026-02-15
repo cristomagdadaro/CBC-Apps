@@ -1,51 +1,63 @@
-<script setup>
-import AppLayout from '@/Layouts/AppLayout.vue';
-import { Link } from '@inertiajs/vue3';
-import { onMounted, ref } from 'vue';
-import axios from 'axios';
-import { useNotifier } from '@/Modules/composables/useNotifier';
+<script>
+import axios from 'axios'
+import { useNotifier } from '@/Modules/composables/useNotifier'
 
-const { success, error: notifyError, warning } = useNotifier();
+export default {
+    name: 'UsersIndex',
+    data() {
+        return {
+            loading: false,
+            users: [],
+            search: '',
+            success: null,
+            notifyError: null,
+            warning: null,
+        }
+    },
+    created() {
+        const notifier = useNotifier()
+        this.success = notifier.success
+        this.notifyError = notifier.error
+        this.warning = notifier.warning
+    },
+    mounted() {
+        this.loadUsers()
+    },
+    methods: {
+        async loadUsers() {
+            this.loading = true
+            try {
+                const response = await axios.get(route('api.users.index'), {
+                    params: {
+                        search: this.search || undefined,
+                        with: 'roles',
+                        per_page: 20,
+                    },
+                })
 
-const loading = ref(false);
-const users = ref([]);
-const search = ref('');
+                this.users = response?.data?.data?.data ?? response?.data?.data ?? []
+            } catch (error) {
+                this.notifyError('Failed to load users.')
+            } finally {
+                this.loading = false
+            }
+        },
+        async deleteUser(id) {
+            if (!confirm('Delete this user?')) {
+                this.warning('User deletion was cancelled.')
+                return
+            }
 
-const loadUsers = async () => {
-    loading.value = true;
-    try {
-        const response = await axios.get(route('api.users.index'), {
-            params: {
-                search: search.value || undefined,
-                with: 'roles',
-                per_page: 20,
-            },
-        });
-
-        users.value = response?.data?.data?.data ?? response?.data?.data ?? [];
-    } catch (error) {
-        notifyError('Failed to load users.');
-    } finally {
-        loading.value = false;
+            try {
+                await axios.delete(route('api.users.destroy', id))
+                this.success('User deleted successfully.')
+                await this.loadUsers()
+            } catch (error) {
+                this.notifyError('Failed to delete user.')
+            }
+        }
     }
-};
-
-const deleteUser = async (id) => {
-    if (!confirm('Delete this user?')) {
-        warning('User deletion was cancelled.');
-        return;
-    }
-
-    try {
-        await axios.delete(route('api.users.destroy', id));
-        success('User deleted successfully.');
-        await loadUsers();
-    } catch (error) {
-        notifyError('Failed to delete user.');
-    }
-};
-
-onMounted(loadUsers);
+}
 </script>
 
 <template>

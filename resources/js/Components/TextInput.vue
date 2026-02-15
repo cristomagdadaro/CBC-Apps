@@ -1,38 +1,48 @@
-<script setup>
-import { onMounted, ref, watch } from 'vue';
-import InputError from "@/Components/InputError.vue";
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
-
-const props = defineProps({
-    modelValue: [String, Number],
-    autocomplete: String,
-    placeholder: String,
-    error: String,
-    type: String,
-    classes: String,
-    id: String,
-    label: String,
-    required: Boolean,
-    typeInput: String,
-});
-
-const emit = defineEmits(['update:modelValue']);
-
-const input = ref(null);
-const isChameleon = ref(props.chameleon); // Local state for toggling
-
-onMounted(() => {
-    if (input.value && input.value.hasAttribute('autofocus')) {
-        input.value.focus();
+<script>
+export default {
+    name: 'TextInput',
+    props: {
+        modelValue: { type: [String, Number], default: '' },
+        autocomplete: { type: String, default: '' },
+        placeholder: { type: String, default: '' },
+        error: { type: String, default: '' },
+        type: { type: String, default: 'text' },
+        classes: { type: String, default: '' },
+        id: { type: String, default: '' },
+        label: { type: String, default: '' },
+        required: { type: Boolean, default: false },
+        typeInput: { type: String, default: '' },
+        chameleon: { type: Boolean, default: false },
+        guide: { type: String, default: null },
+        datalistId: { type: String, default: null },
+        datalistOptions: { type: Array, default: null },
+    },
+    emits: ['update:modelValue'],
+    data() {
+        return {
+            isChameleon: this.chameleon,
+        }
+    },
+    mounted() {
+        const input = this.$refs.input;
+        if (input && input.hasAttribute && input.hasAttribute('autofocus')) {
+            input.focus();
+        }
+    },
+    watch: {
+        chameleon(newVal) {
+            this.isChameleon = newVal;
+        }
+    },
+    methods: {
+        focus() {
+            this.$refs.input?.focus();
+        },
+        onInput(e) {
+            this.$emit('update:modelValue', e.target.value);
+        }
     }
-});
-
-// Watch for changes in the prop and sync it with the local state
-watch(() => props.chameleon, (newVal) => {
-    isChameleon.value = newVal;
-});
-
-defineExpose({ focus: () => input.value?.focus() });
+}
 </script>
 
 <template>
@@ -54,10 +64,15 @@ defineExpose({ focus: () => input.value?.focus() });
                 :value="modelValue"
                 :placeholder="placeholder"
                 :type="typeInput || type"
+                :list="datalistId"
                 @input="$emit('update:modelValue', $event.target.value)"
             >
             <slot />
+            <datalist v-if="datalistId && datalistOptions && datalistOptions.length" :id="datalistId">
+                <option v-for="opt in datalistOptions" :key="opt" :value="opt" />
+            </datalist>
         </div>
+        <p v-if="guide" class="mt-1 text-xs text-gray-500">{{ guide }}</p>
     </div>
 </template>
 <style scoped>
