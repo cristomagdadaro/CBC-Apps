@@ -399,20 +399,6 @@ export default {
                     </div>
 
                     <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
-                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Top 5 Most-Used Equipment</h3>
-                        <div v-if="mostUsed.length" class="h-72 w-full">
-                            <canvas 
-                                ref="mostUsedChartCanvas"
-                                :key="mostUsed.length"
-                                width="400"
-                                height="300"
-                                style="max-height: 100%; max-width: 100%;"
-                            ></canvas>
-                        </div>
-                        <div v-else class="text-sm text-gray-500">No usage data available.</div>
-                    </div>
-
-                    <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
                         <div class="flex justify-between">
                             <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Usage Heatmap</h3>
 
@@ -451,6 +437,20 @@ export default {
                                 ></div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
+                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Top 5 Most-Used Equipment</h3>
+                        <div v-if="mostUsed.length" class="h-72 w-full">
+                            <canvas 
+                                ref="mostUsedChartCanvas"
+                                :key="mostUsed.length"
+                                width="400"
+                                height="300"
+                                style="max-height: 100%; max-width: 100%;"
+                            ></canvas>
+                        </div>
+                        <div v-else class="text-sm text-gray-500">No usage data available.</div>
                     </div>
                 </div>
 

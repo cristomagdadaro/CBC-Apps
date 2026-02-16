@@ -45,16 +45,13 @@ class TransactionRepo extends AbstractRepoService
             default              => 'items.id',
         };
 
-        $query = $this->model
-            ->newQuery()
-            ->selectRaw(
+        $query = $this->model->newQuery()->selectRaw(
                 'items.name, items.description, items.brand, transactions.unit, items.id as item_id, transactions.barcode, transactions.barcode_prri,' .
                 ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,' .
                 ' SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END) as total_outgoing,' .
                 ' (SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) - ' .
                 '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity'
-            )
-            ->join('items', 'transactions.item_id', '=', 'items.id')
+            )->join('items', 'transactions.item_id', '=', 'items.id')
             ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode', 'transactions.barcode_prri');
 
         if ($filter === 'category' && $filterBy) {
@@ -228,5 +225,15 @@ class TransactionRepo extends AbstractRepoService
                 ];
             })
             ->values();
+    }
+
+    public function getRecentTransactions(int $limit = 5): Collection
+    {
+        return $this->model
+            ->newQuery()
+            ->with(['item', 'personnel'])
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get();
     }
 }

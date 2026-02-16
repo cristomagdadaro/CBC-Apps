@@ -12,16 +12,12 @@ use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\SupplierController;
 use App\Models\Category;
 use App\Repositories\OptionRepo;
-use App\Models\Form;
 use App\Models\Item;
 use App\Models\Personnel;
-use App\Models\Registration;
 use App\Models\Supplier;
 use App\Models\Transaction;
 use App\Models\User;
-use App\Models\RentalVehicle;
-use App\Models\RentalVenue;
-use App\Models\LaboratoryEquipmentLog;
+use App\Http\Controllers\DashboardController;
 use App\Repositories\CategoryRepo;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -89,92 +85,7 @@ Route::prefix('file-report')->group(function () {
 Route::middleware([
     
 ])->group(function () {
-    Route::get('/dashboard', function () {
-        $now = now();
-
-        $stockBaseQuery = Transaction::selectRaw(
-                'items.id as item_id,' .
-                ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,' .
-                ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity WHEN transactions.transac_type = "outgoing" THEN -transactions.quantity ELSE 0 END) as remaining_quantity'
-            )
-            ->join('items', 'transactions.item_id', '=', 'items.id')
-            ->groupBy('items.id');
-
-        $percentageExpr = 'CASE WHEN total_ingoing <> 0 THEN remaining_quantity / total_ingoing ELSE 0 END';
-
-        $emptyStockCount = (clone $stockBaseQuery)
-            ->havingRaw("$percentageExpr <= 0")
-            ->count();
-
-        $lowStockCount = (clone $stockBaseQuery)
-            ->havingRaw("$percentageExpr > 0 AND $percentageExpr <= 0.25")
-            ->count();
-
-        $midStockCount = (clone $stockBaseQuery)
-            ->havingRaw("$percentageExpr > 0.25 AND $percentageExpr <= 0.75")
-            ->count();
-
-        $highStockCount = (clone $stockBaseQuery)
-            ->havingRaw("$percentageExpr > 0.75")
-            ->count();
-
-        $stats = [
-            'events' => [
-                'total'    => Form::count(),
-                'active'   => Form::where('is_suspended', false)->where('is_expired', false)->count(),
-                'upcoming' => Form::whereDate('date_from', '>=', $now->toDateString())->where('is_expired', false)->count(),
-                'suspended'=> Form::where('is_suspended', true)->count(),
-                'expired'  => Form::where('is_expired', true)->count(),
-            ],
-            'access_requests' => [
-                'total'    => \App\Models\RequestFormPivot::count(),
-                'pending'  => \App\Models\RequestFormPivot::where('request_status', 'pending')->count(),
-                'approved' => \App\Models\RequestFormPivot::where('request_status', 'approved')->count(),
-                'rejected' => \App\Models\RequestFormPivot::where('request_status', 'rejected')->count(),
-            ],
-            'inventory' => [
-                'items'              => Item::count(),
-                'transactions_today' => Transaction::whereDate('created_at', $now->toDateString())->count(),
-                'stock_buckets'      => [
-                    'empty' => $emptyStockCount,
-                    'low'   => $lowStockCount,
-                    'mid'   => $midStockCount,
-                    'high'  => $highStockCount,
-                ],
-            ],
-            'vehicle_rentals' => [
-                'total'     => RentalVehicle::count(),
-                'pending'   => RentalVehicle::where('status', 'pending')->count(),
-                'approved'  => RentalVehicle::where('status', 'approved')->count(),
-                'completed' => RentalVehicle::where('status', 'completed')->count(),
-                'rejected'  => RentalVehicle::where('status', 'rejected')->count(),
-            ],
-            'venue_rentals' => [
-                'total'     => RentalVenue::count(),
-                'pending'   => RentalVenue::where('status', 'pending')->count(),
-                'approved'  => RentalVenue::where('status', 'approved')->count(),
-                'completed' => RentalVenue::where('status', 'completed')->count(),
-                'rejected'  => RentalVenue::where('status', 'rejected')->count(),
-            ],
-            'laboratory_equipment' => [
-                'total'   => LaboratoryEquipmentLog::count(),
-                'active'  => LaboratoryEquipmentLog::where('status', 'active')->count(),
-                'overdue' => LaboratoryEquipmentLog::where('status', 'overdue')->count(),
-                'completed' => LaboratoryEquipmentLog::where('status', 'completed')->count(),
-            ],
-        ];
-
-        // 10 recent transactions
-        $recentTransactions = Transaction::with('item', 'personnel')
-            ->orderBy('created_at', 'desc')
-            ->limit(10)
-            ->get();
-
-        return Inertia::render('Dashboard', [
-            'stats' => $stats,
-            'recentTransactions' => $recentTransactions,
-        ]);
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::prefix('apps')->group(function () {
         Route::prefix('manuals')->group(function () {
@@ -341,6 +252,7 @@ Route::middleware([
                                         items.description,
                                         transactions.unit,
                                         transactions.barcode,
+                                        transactions.barcode_prri,
 
                                         SUM(CASE WHEN transactions.transac_type = "incoming"
                                             THEN transactions.quantity ELSE 0 END) AS total_ingoing,
@@ -357,7 +269,7 @@ Route::middleware([
                                         ) AS remaining_quantity')
                                 ->join('items', 'transactions.item_id', '=', 'items.id')
                                 ->where('transactions.item_id', $transaction->item_id)
-                                ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode')
+                                ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode', 'transactions.barcode_prri')
                                 ->first(),
                             'fromUrl' => route('transactions.index'),
                             'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
