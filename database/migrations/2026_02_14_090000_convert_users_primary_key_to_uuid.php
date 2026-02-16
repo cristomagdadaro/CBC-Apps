@@ -19,9 +19,11 @@ return new class extends Migration
             return;
         }
 
-        Schema::table('users', function (Blueprint $table) {
-            $table->uuid('uuid_tmp')->nullable()->after('id');
-        });
+        if (!Schema::hasColumn('users', 'uuid_tmp')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->uuid('uuid_tmp')->nullable()->after('id');
+            });
+        }
 
         DB::table('users')
             ->select('id')
@@ -112,9 +114,11 @@ return new class extends Migration
             return;
         }
 
-        Schema::table($tableName, function (Blueprint $table) use ($column) {
-            $table->uuid("{$column}_tmp")->nullable()->after($column);
-        });
+        if (!Schema::hasColumn($tableName, "{$column}_tmp")) {
+            Schema::table($tableName, function (Blueprint $table) use ($column) {
+                $table->uuid("{$column}_tmp")->nullable()->after($column);
+            });
+        }
 
         DB::statement("UPDATE {$tableName} t JOIN users u ON t.{$column} = u.id SET t.{$column}_tmp = u.uuid_tmp");
 
