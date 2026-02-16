@@ -48,10 +48,11 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/inventory/outgoing', [InventoryFormController::class, 'outgoingForm'])->name('inventory.public.outgoing.index');
+
 Route::prefix('forms')->group(function () {
     Route::get('/event/{event?}', [FormController::class, 'formGuestView'])->name('forms.guest.index');
     Route::get('/request-to-use/{request?}', [LabRequestFormController::class, 'labReqFormGuestView'])->name('labReq.guest.index');
-    Route::get('/inventory/outgoing', [InventoryFormController::class, 'outgoingForm'])->name('inventory.public.outgoing.index');
     Route::get('/{id}/pdf', [PDFGeneratorController::class, 'downloadPdf'])->name('forms.generate.pdf');
     //Route::get('/{id}/pdf', function(){return view('generator.pdf.printable-request-form', ['form' => \App\Models\RequestFormPivot::with(['requester', 'request_form'])->findOrFail(request()->route('id'))]);})->name('forms.generate.pdf');
 });
@@ -74,6 +75,15 @@ Route::prefix('rental')->group(function () {
             'venueOptions' => app(OptionRepo::class)->getEventHalls(),
         ]);
     })->name('rental.venue.guest');
+});
+
+Route::prefix('file-report')->group(function () {
+    Route::get('/create-guest/{barcode?}', function ($barcode = null) {
+        return Inertia::render('Inventory/SuppEquipReports/SuppEquipReportsCreateGuest', [
+            'reportTemplates' => config('suppequipreportforms'),
+            'barcode' => $barcode,
+        ]);
+    })->name('suppEquipReports.create.guest');
 });
 
 Route::middleware([
@@ -211,7 +221,7 @@ Route::middleware([
             Route::get('/update/{event_id?}', [EventSubformController::class, 'show'])->name('forms.update');
         });
 
-        Route::prefix('supply-equipment-reports')->group(function () {
+        Route::prefix('file-report')->group(function () {
             Route::get('/', function () {
                 return Inertia::render('Inventory/SuppEquipReports/SuppEquipReportsIndex');
             })->name('suppEquipReports.index');
@@ -221,13 +231,6 @@ Route::middleware([
                     'reportTemplates' => config('suppequipreportforms'),
                 ]);
             })->name('suppEquipReports.create');
-
-            Route::get('/create/guest/{barcode?}', function ($barcode = null) {
-                return Inertia::render('Inventory/SuppEquipReports/SuppEquipReportsCreateGuest', [
-                    'reportTemplates' => config('suppequipreportforms'),
-                    'barcode' => $barcode,
-                ]);
-            })->name('suppEquipReports.create.guest');
         });
 
         Route::prefix('access-use-requests')->group(function () {
