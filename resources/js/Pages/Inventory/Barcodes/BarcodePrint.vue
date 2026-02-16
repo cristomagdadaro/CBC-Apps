@@ -173,10 +173,7 @@ export default {
 
     <AppLayout title="Barcode Printing">
         <template #header>
-            <div class="no-print flex flex-col gap-2">
-                <h2 class="text-xl font-semibold text-gray-800">Barcode Printing</h2>
-                <p class="text-sm text-gray-500">Select items and print labels in a 5cm x 3cm layout for Intermec PD43.</p>
-            </div>
+            <ActionHeaderLayout title="Barcode Printing" subtitle="Select items and print labels in a 5cm x 3cm layout for Intermec PD43." />
         </template>
 
         <div class="py-8 px-4 max-w-6xl mx-auto space-y-6">

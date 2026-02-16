@@ -122,7 +122,7 @@ export default {
 <template>
     <AppLayout title="System Manuals">
         <template #header>
-            <ActionHeaderLayout title="System Manuals & Guides" subtitle="Comprehensive guides to help you navigate and utilize the system effectively." :route-link="route('manuals.index')" />
+            <ActionHeaderLayout title="System Manuals & Guides" subtitle="Comprehensive guides to help you navigate and utilize the system effectively." />
         </template>
 
         <div class="py-6 px-4 sm:px-6 lg:px-8">
