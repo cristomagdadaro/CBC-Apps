@@ -34,14 +34,16 @@ return new class extends Migration
                 }
             });
 
-        $this->convertForeignKeyColumn('transactions', 'user_id', true, true, true);
-        $this->convertForeignKeyColumn('supp_equip_reports', 'user_id', true, true, true);
-        $this->convertForeignKeyColumn('audit_logs', 'user_id', true, true, true);
-        $this->convertForeignKeyColumn('registrations', 'checked_in_by', true, true, true);
-        $this->convertForeignKeyColumn('event_scan_logs', 'scanned_by', true, true, true);
-        $this->convertForeignKeyColumn('laboratory_equipment_logs', 'checked_in_by', true, true, true);
-        $this->convertForeignKeyColumn('laboratory_equipment_logs', 'checked_out_by', true, true, true);
-        $this->convertForeignKeyColumn('role_user', 'user_id', false, true, false);
+        // Convert FK columns to temporary UUID columns but DO NOT add foreign key
+        // constraints yet because `users.id` is still the old integer type.
+        $this->convertForeignKeyColumn('transactions', 'user_id', true, false, true);
+        $this->convertForeignKeyColumn('supp_equip_reports', 'user_id', true, false, true);
+        $this->convertForeignKeyColumn('audit_logs', 'user_id', true, false, true);
+        $this->convertForeignKeyColumn('registrations', 'checked_in_by', true, false, true);
+        $this->convertForeignKeyColumn('event_scan_logs', 'scanned_by', true, false, true);
+        $this->convertForeignKeyColumn('laboratory_equipment_logs', 'checked_in_by', true, false, true);
+        $this->convertForeignKeyColumn('laboratory_equipment_logs', 'checked_out_by', true, false, true);
+        $this->convertForeignKeyColumn('role_user', 'user_id', false, false, false);
         $this->convertForeignKeyColumn('sessions', 'user_id', true, false, false);
 
         if (Schema::hasTable('personal_access_tokens') && Schema::hasColumn('personal_access_tokens', 'tokenable_id')) {
@@ -86,6 +88,17 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->primary('id');
         });
+
+        // Recreate foreign key constraints now that `users.id` is the UUID column.
+        $this->addUserForeignKey('transactions', 'user_id', true, true);
+        $this->addUserForeignKey('supp_equip_reports', 'user_id', true, true);
+        $this->addUserForeignKey('audit_logs', 'user_id', true, true);
+        $this->addUserForeignKey('registrations', 'checked_in_by', true, true);
+        $this->addUserForeignKey('event_scan_logs', 'scanned_by', true, true);
+        $this->addUserForeignKey('laboratory_equipment_logs', 'checked_in_by', true, true);
+        $this->addUserForeignKey('laboratory_equipment_logs', 'checked_out_by', true, true);
+        $this->addUserForeignKey('role_user', 'user_id', false, false);
+        // sessions.user_id intentionally kept without FK in original migration
     }
 
     public function down(): void
@@ -137,6 +150,31 @@ return new class extends Migration
                     $foreign->cascadeOnUpdate();
                 }
             });
+        }
+    }
+
+    private function addUserForeignKey(string $tableName, string $column, bool $nullable, bool $cascadeOnUpdate): void
+    {
+        if (!Schema::hasTable($tableName) || !Schema::hasColumn($tableName, $column)) {
+            return;
+        }
+
+        try {
+            Schema::table($tableName, function (Blueprint $table) use ($column, $nullable, $cascadeOnUpdate) {
+                $foreign = $table->foreign($column)->references('id')->on('users');
+
+                if ($nullable) {
+                    $foreign->nullOnDelete();
+                } else {
+                    $foreign->cascadeOnDelete();
+                }
+
+                if ($cascadeOnUpdate) {
+                    $foreign->cascadeOnUpdate();
+                }
+            });
+        } catch (\Throwable $e) {
+            // ignore if foreign key cannot be created
         }
     }
 };
