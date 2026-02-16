@@ -19,6 +19,9 @@ use App\Models\Registration;
 use App\Models\Supplier;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Models\RentalVehicle;
+use App\Models\RentalVenue;
+use App\Models\LaboratoryEquipmentLog;
 use App\Repositories\CategoryRepo;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -128,6 +131,26 @@ Route::middleware([
                     'mid'   => $midStockCount,
                     'high'  => $highStockCount,
                 ],
+            ],
+            'vehicle_rentals' => [
+                'total'     => RentalVehicle::count(),
+                'pending'   => RentalVehicle::where('status', 'pending')->count(),
+                'approved'  => RentalVehicle::where('status', 'approved')->count(),
+                'completed' => RentalVehicle::where('status', 'completed')->count(),
+                'rejected'  => RentalVehicle::where('status', 'rejected')->count(),
+            ],
+            'venue_rentals' => [
+                'total'     => RentalVenue::count(),
+                'pending'   => RentalVenue::where('status', 'pending')->count(),
+                'approved'  => RentalVenue::where('status', 'approved')->count(),
+                'completed' => RentalVenue::where('status', 'completed')->count(),
+                'rejected'  => RentalVenue::where('status', 'rejected')->count(),
+            ],
+            'laboratory_equipment' => [
+                'total'   => LaboratoryEquipmentLog::count(),
+                'active'  => LaboratoryEquipmentLog::where('status', 'active')->count(),
+                'overdue' => LaboratoryEquipmentLog::where('status', 'overdue')->count(),
+                'completed' => LaboratoryEquipmentLog::where('status', 'completed')->count(),
             ],
         ];
 
