@@ -349,11 +349,11 @@ export default {
                         </div>
                     </div>
                     <!-- Navigation content (hidden when collapsed) -->
-                    <div v-if="!sidebarCollapsed" class="flex flex-col overflow-y-auto p-3 space-y-1 transition-opacity duration-200">
-                        <div class="flex flex-col">
+                    <div v-if="!sidebarCollapsed" class="flex flex-col overflow-y-auto p-3 transition-opacity duration-200">
+                        <div v-if="$page.props.jetstream.hasTeamFeatures" class="flex flex-col">
                             <div class="ms-3 relative">
                                 <!-- Teams Dropdown -->
-                                <Dropdown v-if="$page.props.jetstream.hasTeamFeatures" align="right" width="60">
+                                <Dropdown align="right" width="60">
                                     <template #trigger>
                                         <span class="inline-flex rounded-md">
                                             <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
@@ -734,7 +734,7 @@ export default {
             </header>
 
             <!-- Page Content -->
-            <main class="overflow-auto">
+            <main>
                 <slot />
             </main>
             </div>

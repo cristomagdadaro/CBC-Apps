@@ -20,7 +20,7 @@ export default {
 </script>
 
 <template>
-    <div class="flex flex-col">
+    <div class="flex flex-col gap-2">
         <template v-for="service in services" :key="service.label">
             <template v-if="mode === 'mobile'">
                 <ResponsiveNavLink
@@ -45,7 +45,7 @@ export default {
 
             <template v-else-if="mode === 'sidebar'">
                 <template v-if="service.children && visibleChildren(service).length">
-                    <div class="px-3 pt-3 pb-1 text-xs text-gray-400">
+                    <div class="pt-3 text-xs text-gray-400">
                         {{ service.label }}
                     </div>
                     <NavLink v-if="service.href" :href="route(service.href)" :active="route().current(service.href)">

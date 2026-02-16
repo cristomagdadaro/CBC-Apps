@@ -38,6 +38,7 @@ class TransactionRepo extends AbstractRepoService
             'brand'              => 'items.brand',
             'unit'               => 'transactions.unit',
             'barcode'            => 'transactions.barcode',
+            'barcode_prri'       => 'transactions.barcode_prri',
             'total_ingoing'      => 'total_ingoing',
             'total_outgoing'     => 'total_outgoing',
             'remaining_quantity' => 'remaining_quantity',
@@ -47,14 +48,14 @@ class TransactionRepo extends AbstractRepoService
         $query = $this->model
             ->newQuery()
             ->selectRaw(
-                'items.name, items.description, items.brand, transactions.unit, items.id as item_id, transactions.barcode,' .
+                'items.name, items.description, items.brand, transactions.unit, items.id as item_id, transactions.barcode, transactions.barcode_prri,' .
                 ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,' .
                 ' SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END) as total_outgoing,' .
                 ' (SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) - ' .
                 '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity'
             )
             ->join('items', 'transactions.item_id', '=', 'items.id')
-            ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode');
+            ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode', 'transactions.barcode_prri');
 
         if ($filter === 'category' && $filterBy) {
             $values = is_array($filterBy) ? $filterBy : [$filterBy];
@@ -125,7 +126,8 @@ class TransactionRepo extends AbstractRepoService
                     $q->where('items.name', $search)
                         ->orWhere('items.brand', $search)
                         ->orWhere('transactions.unit', $search)
-                        ->orWhere('transactions.barcode', $search);
+                        ->orWhere('transactions.barcode', $search)
+                        ->orWhere('transactions.barcode_prri', $search);
                 });
 
                 if (is_numeric($search)) {
@@ -141,7 +143,8 @@ class TransactionRepo extends AbstractRepoService
                     $q->where('items.name', 'like', $like)
                         ->orWhere('items.brand', 'like', $like)
                         ->orWhere('transactions.unit', 'like', $like)
-                        ->orWhere('transactions.barcode', 'like', $like);
+                        ->orWhere('transactions.barcode', 'like', $like)
+                        ->orWhere('transactions.barcode_prri', 'like', $like);
                 });
 
                 if (is_numeric($search)) {

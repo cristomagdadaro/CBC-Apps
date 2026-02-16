@@ -3,10 +3,12 @@ import {Head} from "@inertiajs/vue3";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Transaction from "@/Modules/domain/Transaction";
 import JsBarcode from "jsbarcode";
+import QrcodeVue from "qrcode.vue";
+import Modal from "@/Components/Modal.vue";
 
 export default {
     name: "BarcodePrint",
-    components: {Head},
+    components: {Head, QrcodeVue, Modal},
     mixins: [ApiMixin],
     data() {
         return {
@@ -17,9 +19,99 @@ export default {
             labels: [],
             previewReady: false,
             exporting: false,
+            printMode: "barcode",
+            sizeTemplate: "3x5",
+            customHeightCm: 3,
+            customWidthCm: 5,
+            rotationDeg: 0,
+            flipHorizontal: false,
+            flipVertical: false,
+            showLabelModal: false,
+            selectedLabelForModal: null,
+            orientation: "portrait",
+            customFontSize: 10,
+            customBarcodeHeight: 30,
+            customQRSize: 56,
         };
     },
     computed: {
+        sizeTemplates() {
+            return [
+                { key: "3x5", heightCm: 3, widthCm: 5, label: "3cm x 5cm" },
+                { key: "4.8x5.5", heightCm: 4.8, widthCm: 5.5, label: "4.8cm x 5.5cm" },
+                { key: "8x5", heightCm: 8, widthCm: 5, label: "8cm x 5cm" },
+                { key: "1.5x6", heightCm: 1.5, widthCm: 6, label: "1.5cm x 6cm" },
+                { key: "custom", heightCm: null, widthCm: null, label: "Custom" },
+            ];
+        },
+        isCustomSize() {
+            return this.sizeTemplate === "custom";
+        },
+        baseHeightCm() {
+            if (this.isCustomSize) {
+                return this.normalizeSize(this.customHeightCm, 3);
+            }
+
+            const selected = this.sizeTemplates.find(item => item.key === this.sizeTemplate);
+            return selected?.heightCm ?? 3;
+        },
+        baseWidthCm() {
+            if (this.isCustomSize) {
+                return this.normalizeSize(this.customWidthCm, 5);
+            }
+
+            const selected = this.sizeTemplates.find(item => item.key === this.sizeTemplate);
+            return selected?.widthCm ?? 5;
+        },
+        resolvedHeightCm() {
+            if (this.orientation === "landscape") {
+                return this.baseWidthCm;
+            }
+            return this.baseHeightCm;
+        },
+        resolvedWidthCm() {
+            if (this.orientation === "landscape") {
+                return this.baseHeightCm;
+            }
+            return this.baseWidthCm;
+        },
+        labelFontSize() {
+            return this.normalizeSize(this.customFontSize, 10);
+        },
+        barcodeHeight() {
+            const height = this.normalizeSize(this.customBarcodeHeight, 30);
+            return Math.max(20, Math.min(height, 60));
+        },
+        qrSize() {
+            const size = this.normalizeSize(this.customQRSize, 56);
+            return Math.max(40, Math.min(size, 150));
+        },
+        modalBarcodeHeight() {
+            if (this.printMode === "both") {
+                return this.barcodeHeight * 4;
+            }
+            return this.barcodeHeight * 4;
+        },
+        modalQRSize() {
+            if (this.printMode === "both") {
+                return this.qrSize * 4;
+            }
+            return this.qrSize * 4;
+        },
+        cardStyle() {
+            return {
+                width: `${this.resolvedWidthCm}cm`,
+                height: `${this.resolvedHeightCm}cm`,
+            };
+        },
+        cardInnerStyle() {
+            const scaleX = this.flipHorizontal ? -1 : 1;
+            const scaleY = this.flipVertical ? -1 : 1;
+            return {
+                transform: `rotate(${this.rotationDeg}deg) scale(${scaleX}, ${scaleY})`,
+                transformOrigin: "center center",
+            };
+        },
         filteredItems() {
             const term = this.search?.toLowerCase()?.trim();
             if (!term) return this.items;
@@ -39,6 +131,61 @@ export default {
         },
     },
     methods: {
+        openLabelModal(label) {
+            this.selectedLabelForModal = label;
+            this.showLabelModal = true;
+            this.$nextTick(() => {
+                this.renderModalBarcode();
+            });
+        },
+        closeLabelModal() {
+            this.showLabelModal = false;
+            this.selectedLabelForModal = null;
+        },
+        renderModalBarcode() {
+            if (this.printMode === "qr" || !this.selectedLabelForModal) return;
+            const el = document.getElementById(`modal-barcode-${this.selectedLabelForModal.key}`);
+            if (!el || !this.selectedLabelForModal.item?.barcode) return;
+            JsBarcode(el, this.selectedLabelForModal.item.barcode, {
+                format: "CODE128",
+                displayValue: false,
+                width: 1.7,
+                height: this.modalBarcodeHeight,
+                margin: 0,
+            });
+        },
+        normalizeSize(value, fallback) {
+            const num = Number(value);
+            if (!Number.isFinite(num) || num <= 0) {
+                return fallback;
+            }
+
+            return Math.max(0.5, Number(num.toFixed(2)));
+        },
+        applyPrintPageSize() {
+            if (typeof document === "undefined") return;
+
+            const styleId = "barcode-dynamic-page-size";
+            let styleTag = document.getElementById(styleId);
+
+            if (!styleTag) {
+                styleTag = document.createElement("style");
+                styleTag.id = styleId;
+                document.head.appendChild(styleTag);
+            }
+
+            styleTag.textContent = `@media print { @page { size: ${this.resolvedWidthCm}cm ${this.resolvedHeightCm}cm; margin: 0; } }`;
+        },
+        getEquipmentUrl(barcode) {
+            if (!barcode) return "";
+
+            const path = `/laboratory/equipments/${encodeURIComponent(barcode)}`;
+            if (typeof window === "undefined") {
+                return path;
+            }
+
+            return `${window.location.origin}${path}`;
+        },
         itemKey(item) {
             return `${item.item_id}-${item.barcode}-${item.unit}`;
         },
@@ -101,6 +248,7 @@ export default {
                     labels.push({
                         key: `${key}-${i}`,
                         item,
+                        equipmentUrl: this.getEquipmentUrl(item.barcode),
                     });
                 }
             });
@@ -112,6 +260,8 @@ export default {
             });
         },
         renderBarcodes() {
+            if (this.printMode === "qr") return;
+
             this.labels.forEach(label => {
                 const el = document.getElementById(`barcode-${label.key}`);
                 if (!el || !label.item?.barcode) return;
@@ -119,13 +269,14 @@ export default {
                     format: "CODE128",
                     displayValue: false,
                     width: 1.7,
-                    height: 30,
+                    height: this.printMode === "both" ? this.barcodeHeight * 0.8 : this.barcodeHeight,
                     margin: 0,
                 });
             });
         },
         printLabels() {
             if (!this.previewReady) return;
+            this.applyPrintPageSize();
             window.print();
         },
         async exportPdf() {
@@ -163,6 +314,7 @@ export default {
         },
     },
     mounted() {
+        this.applyPrintPageSize();
         this.loadItems();
     },
 };
@@ -176,7 +328,7 @@ export default {
             <ActionHeaderLayout title="Barcode Printing" subtitle="Select items and print labels in a 5cm x 3cm layout for Intermec PD43." />
         </template>
 
-        <div class="py-8 px-4 max-w-6xl mx-auto space-y-6">
+        <div class="py-8 px-4 mx-auto space-y-6 flex gap-5">
             <div class="no-print bg-white shadow rounded-lg p-4 space-y-4">
                 <div class="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
                     <div class="flex-1">
@@ -185,7 +337,58 @@ export default {
                             placeholder="Search item, brand, or barcode"
                         />
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <label class="text-sm text-gray-600">Mode</label>
+                        <select v-model="printMode" class="px-2 py-2 text-sm rounded border border-gray-300 text-gray-700 bg-white">
+                            <option value="barcode">Barcode</option>
+                            <option value="qr">QR Code</option>
+                            <option value="both">Both</option>
+                        </select>
+
+                        <label class="text-sm text-gray-600">Size</label>
+                        <select v-model="sizeTemplate" class="px-2 py-2 text-sm rounded border border-gray-300 text-gray-700 bg-white">
+                            <option v-for="size in sizeTemplates" :key="size.key" :value="size.key">
+                                {{ size.label }}
+                            </option>
+                        </select>
+
+                        <div v-if="isCustomSize" class="flex items-center gap-2">
+                            <label class="text-xs text-gray-500">H(cm)</label>
+                            <input v-model.number="customHeightCm" type="number" min="0.5" step="0.1" class="w-20 px-2 py-1 border rounded text-sm" />
+                            <label class="text-xs text-gray-500">W(cm)</label>
+                            <input v-model.number="customWidthCm" type="number" min="0.5" step="0.1" class="w-20 px-2 py-1 border rounded text-sm" />
+                        </div>
+
+                        <label class="text-sm text-gray-600">Orientation</label>
+                        <select v-model="orientation" class="px-2 py-2 text-sm rounded border border-gray-300 text-gray-700 bg-white">
+                            <option value="portrait">Portrait</option>
+                            <option value="landscape">Landscape</option>
+                        </select>
+
+                        <label class="text-sm text-gray-600">Rotate</label>
+                        <select v-model.number="rotationDeg" class="px-2 py-2 text-sm rounded border border-gray-300 text-gray-700 bg-white">
+                            <option :value="0">0°</option>
+                            <option :value="90">90°</option>
+                            <option :value="180">180°</option>
+                            <option :value="270">270°</option>
+                        </select>
+
+                        <label class="text-sm text-gray-600">Font Size</label>
+                        <input v-model.number="customFontSize" type="number" min="6" max="20" step="1" class="w-20 px-2 py-1 border rounded text-sm" placeholder="px" />
+
+                        <label class="text-sm text-gray-600">Barcode Height</label>
+                        <input v-model.number="customBarcodeHeight" type="number" min="20" max="60" step="5" class="w-24 px-2 py-1 border rounded text-sm" placeholder="px" />
+
+                        <label class="text-sm text-gray-600">QR Size</label>
+                        <input v-model.number="customQRSize" type="number" min="40" max="150" step="10" class="w-24 px-2 py-1 border rounded text-sm" placeholder="px" />
+
+                        <label class="inline-flex items-center gap-1 text-sm text-gray-600">
+                            <input v-model="flipHorizontal" type="checkbox" /> Flip X
+                        </label>
+                        <label class="inline-flex items-center gap-1 text-sm text-gray-600">
+                            <input v-model="flipVertical" type="checkbox" /> Flip Y
+                        </label>
+
                         <button
                             type="button"
                             class="px-3 py-2 text-sm rounded border border-gray-300 text-gray-700 hover:bg-gray-50"
@@ -215,6 +418,7 @@ export default {
                                 <th class="py-2">Item</th>
                                 <th class="py-2">Brand</th>
                                 <th class="py-2">Barcode</th>
+                                <th class="py-2">PRRI Barcode</th>
                                 <th class="py-2">Unit</th>
                                 <th class="py-2">Remaining</th>
                                 <th class="py-2">Qty to Print</th>
@@ -239,6 +443,10 @@ export default {
                                     <span v-if="item.barcode">{{ item.barcode }}</span>
                                     <span v-else class="text-xs text-red-500">No barcode</span>
                                 </td>
+                                <td class="py-2">
+                                    <span v-if="item.barcode_prri">{{ item.barcode_prri }}</span>
+                                    <span v-else class="text-xs text-red-500">No PRRI barcode</span>
+                                </td>
                                 <td class="py-2">{{ item.unit }}</td>
                                 <td class="py-2">{{ item.remaining_quantity }}</td>
                                 <td class="py-2">
@@ -259,16 +467,73 @@ export default {
 
             <div v-if="previewReady" class="print-area">
                 <div class="label-grid">
-                    <div v-for="label in labels" :key="label.key" class="label-card">
-                        <div class="label-text">
-                            <div class="label-item">{{ label.item.name }} {{ label.item.description ? '(' + label.item.description + ')' : '' }}</div>
-                            <div class="label-brand">{{ label.item.brand }}</div>
+                    <div v-for="label in labels" :key="label.key" class="label-card cursor-pointer" :style="cardStyle" @dblclick="openLabelModal(label)" title="Double-click to enlarge">
+                        <div class="label-card-inner" :style="cardInnerStyle">
+                            <div class="label-text" :style="{ fontSize: `${labelFontSize}px` }">
+                                <div class="label-item">{{ label.item.name }} {{ label.item.description ? '(' + label.item.description + ')' : '' }}</div>
+                                <div class="label-brand">{{ label.item.brand }}</div>
+                            </div>
+                            <svg v-if="printMode !== 'qr'" :id="`barcode-${label.key}`"></svg>
+                            <qrcode-vue
+                                v-if="printMode !== 'barcode'"
+                                :value="label.equipmentUrl"
+                                :size="qrSize"
+                                level="M"
+                                render-as="svg"
+                                class="label-qr"
+                            />
+                            <div v-if="printMode !== 'qr'" class="label-barcode" :style="{ fontSize: `${labelFontSize}px` }">{{ label.item.barcode }}</div>
+                            <div v-else class="label-qr-caption" :style="{ fontSize: `${labelFontSize * 0.9}px` }">{{ label.item.barcode }}</div>
                         </div>
-                        <svg :id="`barcode-${label.key}`"></svg>
-                        <div class="label-barcode">{{ label.item.barcode }}</div>
                     </div>
                 </div>
             </div>
+
+            <Modal :show="showLabelModal" @close="closeLabelModal">
+                <div v-if="selectedLabelForModal" class="p-6 bg-white">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">{{ selectedLabelForModal.item.name }}</h3>
+                        <button @click="closeLabelModal" class="text-gray-500 hover:text-gray-700">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="flex justify-center items-center bg-gray-50 p-8 rounded">
+                        <div
+                            class="enlarged-label-card"
+                            :style="{
+                                width: `${resolvedWidthCm * 4}cm`,
+                                height: `${resolvedHeightCm * 4}cm`,
+                                border: '1px solid #cbd5f5',
+                                borderRadius: '6px',
+                                padding: '40px',
+                                boxSizing: 'border-box',
+                                background: '#ffffff',
+                                overflow: 'hidden',
+                            }"
+                        >
+                            <div class="enlarged-label-card-inner" :style="cardInnerStyle">
+                                <div class="label-text" :style="{ fontSize: `${labelFontSize * 4}px` }">
+                                    <div class="label-item">{{ selectedLabelForModal.item.name }} {{ selectedLabelForModal.item.description ? '(' + selectedLabelForModal.item.description + ')' : '' }}</div>
+                                    <div class="label-brand" :style="{ fontSize: `${labelFontSize * 3.6}px` }">{{ selectedLabelForModal.item.brand }}</div>
+                                </div>
+                                <svg v-if="printMode !== 'qr'" :id="'modal-barcode-' + selectedLabelForModal.key" :style="{ width: '100%', height: `${modalBarcodeHeight}px`, display: 'block' }"></svg>
+                                <qrcode-vue
+                                    v-if="printMode !== 'barcode'"
+                                    :value="selectedLabelForModal.equipmentUrl"
+                                    :size="modalQRSize"
+                                    level="M"
+                                    render-as="svg"
+                                    style="display: flex; justify-content: center; align-items: center; width: 100%;"
+                                />
+                                <div v-if="printMode !== 'qr'" class="label-barcode" :style="{ fontSize: `${labelFontSize * 4}px` }">{{ selectedLabelForModal.item.barcode }}</div>
+                                <div v-else class="label-qr-caption" :style="{ fontSize: `${labelFontSize * 3.6}px` }">{{ selectedLabelForModal.item.barcode }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Modal>
         </div>
     </AppLayout>
 </template>
@@ -281,17 +546,20 @@ export default {
 }
 
 .label-card {
-    width: 5cm;
-    height: 3cm;
     border: 1px dashed #cbd5f5;
     border-radius: 6px;
-    padding: 4px;
+    padding: 10px;
     box-sizing: border-box;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.label-card-inner {
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background: #ffffff;
-    overflow: hidden;
 }
 
 .label-text {
@@ -327,6 +595,22 @@ export default {
     display: block;
 }
 
+.label-qr {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.label-qr-caption {
+    font-size: 9px;
+    text-align: center;
+    color: #1f2937;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 @media print {
     :global(body) {
         margin: 0;
@@ -359,14 +643,7 @@ export default {
         page-break-after: always;
         border: none;
         border-radius: 0;
-        width: 5cm;
-        height: 3cm;
         padding: 0.1cm;
-    }
-
-    @page {
-        size: 5cm 3cm;
-        margin: 0;
     }
 }
 </style>
