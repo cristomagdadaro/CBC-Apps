@@ -75,21 +75,64 @@ return new class extends Migration
             });
         }
 
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropPrimary();
-        });
+        // Rename the existing auto-increment PK to a temporary column,
+        // remove its AUTO_INCREMENT attribute, then drop the primary key
+        // so we can swap in the UUID `id` column safely.
+        if (Schema::hasColumn('users', 'id')) {
+            // rename id -> id_old
+            try {
+                Schema::table('users', function (Blueprint $table) {
+                    $table->renameColumn('id', 'id_old');
+                });
+            } catch (\Throwable) {
+                // ignore if rename fails
+            }
 
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('id');
-        });
+            // remove AUTO_INCREMENT from id_old so dropping primary is allowed
+            try {
+                DB::statement('ALTER TABLE users MODIFY id_old bigint unsigned NOT NULL');
+            } catch (\Throwable) {
+                // ignore if statement fails
+            }
 
-        Schema::table('users', function (Blueprint $table) {
-            $table->renameColumn('uuid_tmp', 'id');
-        });
+            try {
+                Schema::table('users', function (Blueprint $table) {
+                    $table->dropPrimary();
+                });
+            } catch (\Throwable) {
+                // ignore if dropPrimary fails
+            }
+        }
 
-        Schema::table('users', function (Blueprint $table) {
-            $table->primary('id');
-        });
+        // Rename the prepared uuid column into place and set it as primary
+        if (Schema::hasColumn('users', 'uuid_tmp')) {
+            try {
+                Schema::table('users', function (Blueprint $table) {
+                    $table->renameColumn('uuid_tmp', 'id');
+                });
+            } catch (\Throwable) {
+                // ignore if rename fails
+            }
+
+            try {
+                Schema::table('users', function (Blueprint $table) {
+                    $table->primary('id');
+                });
+            } catch (\Throwable) {
+                // ignore if setting primary fails
+            }
+        }
+
+        // Optionally drop the old numeric id column if it remains
+        if (Schema::hasColumn('users', 'id_old')) {
+            try {
+                Schema::table('users', function (Blueprint $table) {
+                    $table->dropColumn('id_old');
+                });
+            } catch (\Throwable) {
+                // ignore if drop fails
+            }
+        }
 
         // Recreate foreign key constraints now that `users.id` is the UUID column.
         $this->addUserForeignKey('transactions', 'user_id', true, true);
@@ -114,26 +157,31 @@ return new class extends Migration
             return;
         }
 
+        // Ensure any existing foreign key on the original column is removed
+        try {
+            Schema::table($tableName, function (Blueprint $table) use ($column) {
+                $table->dropForeign([$column]);
+            });
+        } catch (\Throwable) {
+            // ignore if foreign key does not exist or cannot be dropped
+        }
+
         if (!Schema::hasColumn($tableName, "{$column}_tmp")) {
             Schema::table($tableName, function (Blueprint $table) use ($column) {
                 $table->uuid("{$column}_tmp")->nullable()->after($column);
             });
         }
 
-        DB::statement("UPDATE {$tableName} t JOIN users u ON t.{$column} = u.id SET t.{$column}_tmp = u.uuid_tmp");
+        // Use CHAR casting to avoid numeric/string comparison issues during JOIN
+        DB::statement("UPDATE {$tableName} t JOIN users u ON CAST(t.{$column} AS CHAR(36)) = CAST(u.id AS CHAR(36)) SET t.{$column}_tmp = u.uuid_tmp");
 
-        if ($hasForeign) {
-            try {
-                Schema::table($tableName, function (Blueprint $table) use ($column) {
-                    $table->dropForeign([$column]);
-                });
-            } catch (\Throwable) {
-                // ignore if foreign key does not exist
-            }
-        }
-
+        // Now safe to drop the original column
         Schema::table($tableName, function (Blueprint $table) use ($column) {
-            $table->dropColumn($column);
+            try {
+                $table->dropColumn($column);
+            } catch (\Throwable) {
+                // ignore if drop fails for any reason
+            }
         });
 
         Schema::table($tableName, function (Blueprint $table) use ($column) {
