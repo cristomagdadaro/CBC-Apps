@@ -244,8 +244,11 @@ Route::middleware([
                 ]);
             })->name('inventory.barcodes.print');
 
-            Route::post('/barcodes/pdf', [PDFGeneratorController::class, 'downloadBarcodePdf'])
+            Route::post('/barcodes/pdf', [PDFGeneratorController::class, 'generatePdf'])
                 ->name('inventory.barcodes.pdf');
+            
+            Route::post('/generate-pdf', [PDFGeneratorController::class, 'generatePdf'])
+                ->name('inventory.generate-pdf');
 
             Route::prefix('transactions')->group(function () {
                 Route::get('/', function () {

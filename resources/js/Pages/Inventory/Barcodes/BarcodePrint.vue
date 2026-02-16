@@ -1,14 +1,13 @@
 <script>
-import {Head} from "@inertiajs/vue3";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Transaction from "@/Modules/domain/Transaction";
 import JsBarcode from "jsbarcode";
 import QrcodeVue from "qrcode.vue";
-import Modal from "@/Components/Modal.vue";
+import CustomDropdown from '@/Components/CustomDropdown/CustomDropdown.vue';
 
 export default {
     name: "BarcodePrint",
-    components: {Head, QrcodeVue, Modal},
+    components: { QrcodeVue, CustomDropdown },
     mixins: [ApiMixin],
     data() {
         return {
@@ -37,11 +36,11 @@ export default {
     computed: {
         sizeTemplates() {
             return [
-                { key: "3x5", heightCm: 3, widthCm: 5, label: "3cm x 5cm" },
-                { key: "4.8x5.5", heightCm: 4.8, widthCm: 5.5, label: "4.8cm x 5.5cm" },
-                { key: "8x5", heightCm: 8, widthCm: 5, label: "8cm x 5cm" },
-                { key: "1.5x6", heightCm: 1.5, widthCm: 6, label: "1.5cm x 6cm" },
-                { key: "custom", heightCm: null, widthCm: null, label: "Custom" },
+                { key: "3x5", heightCm: 3, widthCm: 5, label: "3cm x 5cm", name: "3x5" },
+                { key: "4.8x5.5", heightCm: 4.8, widthCm: 5.5, label: "4.8cm x 5.5cm", name: "4.8x5.5" },
+                { key: "8x5", heightCm: 8, widthCm: 5, label: "8cm x 5cm", name: "8x5" },
+                { key: "1.5x6", heightCm: 1.5, widthCm: 6, label: "1.5cm x 6cm", name: "1.5x6" },
+                { key: "custom", heightCm: null, widthCm: null, label: "Custom", name: "custom" },
             ];
         },
         isCustomSize() {
@@ -289,11 +288,20 @@ export default {
                         name: label.item?.name ?? '',
                         brand: label.item?.brand ?? 'N/A',
                         barcode: label.item?.barcode ?? '',
-                        svg: svgEl ? svgEl.outerHTML : '',
+                        svg: this.printMode !== 'qr' && svgEl ? svgEl.outerHTML : null,
+                        qrUrl: this.printMode !== 'barcode' ? label.equipmentUrl : null,
                     };
                 });
 
-                const response = await this.fetchPostApi('inventory.barcodes.pdf', { labels }, {
+                const response = await this.fetchPostApi('inventory.generate-pdf', {
+                    type: 'barcode-labels',
+                    printMode: this.printMode,
+                    paperWidth: this.resolvedWidthCm,
+                    paperHeight: this.resolvedHeightCm,
+                    qrSize: this.qrSize,
+                    barcodeHeight: this.barcodeHeight,
+                    labels,
+                }, {
                     responseType: 'blob',
                 });
 
@@ -330,28 +338,16 @@ export default {
 
         <div class="py-8 px-4 mx-auto space-y-6 flex gap-5">
             <div class="no-print bg-white shadow rounded-lg p-4 space-y-4">
-                <div class="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
-                    <div class="flex-1">
-                        <text-input
-                            v-model="search"
-                            placeholder="Search item, brand, or barcode"
-                        />
-                    </div>
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <label class="text-sm text-gray-600">Mode</label>
-                        <select v-model="printMode" class="px-2 py-2 text-sm rounded border border-gray-300 text-gray-700 bg-white">
-                            <option value="barcode">Barcode</option>
-                            <option value="qr">QR Code</option>
-                            <option value="both">Both</option>
-                        </select>
-
-                        <label class="text-sm text-gray-600">Size</label>
-                        <select v-model="sizeTemplate" class="px-2 py-2 text-sm rounded border border-gray-300 text-gray-700 bg-white">
-                            <option v-for="size in sizeTemplates" :key="size.key" :value="size.key">
-                                {{ size.label }}
-                            </option>
-                        </select>
-
+                <div class="grid grid-cols-5 grid-rows-3 gap-2">
+                        <div class="col-span-5">
+                            <text-input
+                                v-model="search"
+                                placeholder="Search item, brand, or barcode"
+                            />
+                        </div>
+                        <custom-dropdown :value="printMode" @selectedChange="printMode = $event" :options="[{name:'barcode', label:'Barcode'}, {name:'qr', label:'QR Code'}, {name:'both', label:'Both'}]" label="Mode" placeholder="Select a mode" :withAllOption="false" />
+                        <custom-dropdown :value="sizeTemplate" @selectedChange="sizeTemplate = $event" :options="sizeTemplates" label="Size Template" placeholder="Select a size template" :withAllOption="false" />
+                        
                         <div v-if="isCustomSize" class="flex items-center gap-2">
                             <label class="text-xs text-gray-500">H(cm)</label>
                             <input v-model.number="customHeightCm" type="number" min="0.5" step="0.1" class="w-20 px-2 py-1 border rounded text-sm" />
@@ -359,35 +355,22 @@ export default {
                             <input v-model.number="customWidthCm" type="number" min="0.5" step="0.1" class="w-20 px-2 py-1 border rounded text-sm" />
                         </div>
 
-                        <label class="text-sm text-gray-600">Orientation</label>
-                        <select v-model="orientation" class="px-2 py-2 text-sm rounded border border-gray-300 text-gray-700 bg-white">
-                            <option value="portrait">Portrait</option>
-                            <option value="landscape">Landscape</option>
-                        </select>
+                        <custom-dropdown :value="orientation" @selectedChange="orientation = $event" :options="[{name:'portrait', label:'Portrait'}, {name:'landscape', label:'Landscape'}]" label="Orientation" placeholder="Select orientation" :withAllOption="false" />
+                        <custom-dropdown v-if="printMode !== 'qr'" :value="rotationDeg" @selectedChange="rotationDeg = $event" :options="[{name:0, label:'0°'}, {name:90, label:'90°'}, {name:180, label:'180°'}, {name:270, label:'270°'}]" label="Rotate" placeholder="Rotate" :withAllOption="false" />
 
-                        <label class="text-sm text-gray-600">Rotate</label>
-                        <select v-model.number="rotationDeg" class="px-2 py-2 text-sm rounded border border-gray-300 text-gray-700 bg-white">
-                            <option :value="0">0°</option>
-                            <option :value="90">90°</option>
-                            <option :value="180">180°</option>
-                            <option :value="270">270°</option>
-                        </select>
+                        <text-input v-model.number="customFontSize" type="number" min="6" max="20" step="1" label="Font Size" placeholder="Font Size (px)" />
+                        <text-input v-if="printMode !== 'qr'" v-model.number="customBarcodeHeight" type="number" min="20" max="60" step="5" label="Barcode Height (px)" placeholder="Barcode Height (px)" />
 
-                        <label class="text-sm text-gray-600">Font Size</label>
-                        <input v-model.number="customFontSize" type="number" min="6" max="20" step="1" class="w-20 px-2 py-1 border rounded text-sm" placeholder="px" />
+                        <text-input v-model.number="customQRSize" type="number" min="40" max="150" step="10" label="QR Size" placeholder="QR Size (px)" />
 
-                        <label class="text-sm text-gray-600">Barcode Height</label>
-                        <input v-model.number="customBarcodeHeight" type="number" min="20" max="60" step="5" class="w-24 px-2 py-1 border rounded text-sm" placeholder="px" />
-
-                        <label class="text-sm text-gray-600">QR Size</label>
-                        <input v-model.number="customQRSize" type="number" min="40" max="150" step="10" class="w-24 px-2 py-1 border rounded text-sm" placeholder="px" />
-
-                        <label class="inline-flex items-center gap-1 text-sm text-gray-600">
-                            <input v-model="flipHorizontal" type="checkbox" /> Flip X
-                        </label>
-                        <label class="inline-flex items-center gap-1 text-sm text-gray-600">
-                            <input v-model="flipVertical" type="checkbox" /> Flip Y
-                        </label>
+                        <div class="flex gap-5 items-center">
+                            <label class="inline-flex items-center gap-1 text-sm text-gray-600">
+                                <input v-model="flipHorizontal" type="checkbox" /> Flip X
+                            </label>
+                            <label class="inline-flex items-center gap-1 text-sm text-gray-600">
+                                <input v-model="flipVertical" type="checkbox" /> Flip Y
+                            </label>
+                        </div>
 
                         <button
                             type="button"
@@ -406,7 +389,6 @@ export default {
                             Print Labels
                         </submit-btn>
                     </div>
-                </div>
 
                 <div v-if="loading" class="text-sm text-gray-500">Loading items...</div>
 
@@ -479,10 +461,10 @@ export default {
                                 :value="label.equipmentUrl"
                                 :size="qrSize"
                                 level="M"
-                                render-as="svg"
-                                class="label-qr"
+                                render-as="canvas"
+                                class="label-qr mx-auto"
                             />
-                            <div v-if="printMode !== 'qr'" class="label-barcode" :style="{ fontSize: `${labelFontSize}px` }">{{ label.item.barcode }}</div>
+                            <div v-if="printMode !== 'qr'" class="label-barcode mx-auto" :style="{ fontSize: `${labelFontSize}px` }">{{ label.item.barcode }}</div>
                             <div v-else class="label-qr-caption" :style="{ fontSize: `${labelFontSize * 0.9}px` }">{{ label.item.barcode }}</div>
                         </div>
                     </div>
@@ -524,10 +506,11 @@ export default {
                                     :value="selectedLabelForModal.equipmentUrl"
                                     :size="modalQRSize"
                                     level="M"
-                                    render-as="svg"
+                                    render-as="canvas"
+                                    class="mx-auto"
                                     style="display: flex; justify-content: center; align-items: center; width: 100%;"
                                 />
-                                <div v-if="printMode !== 'qr'" class="label-barcode" :style="{ fontSize: `${labelFontSize * 4}px` }">{{ selectedLabelForModal.item.barcode }}</div>
+                                <div v-if="printMode !== 'qr'" class="label-barcode mx-auto" :style="{ fontSize: `${labelFontSize * 4}px` }">{{ selectedLabelForModal.item.barcode }}</div>
                                 <div v-else class="label-qr-caption" :style="{ fontSize: `${labelFontSize * 3.6}px` }">{{ selectedLabelForModal.item.barcode }}</div>
                             </div>
                         </div>
