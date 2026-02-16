@@ -79,7 +79,7 @@ export default {
 <template>
     <AppLayout title="Create User">
         <template #header>
-            <h1 class="text-xl font-semibold">Create User</h1>
+            <ActionHeaderLayout title="Create User" subtitle="Add a new user to the system and assign roles and permissions." :route-link="route('system.users.index')" />
         </template>
 
         <div class="max-w-3xl mx-auto px-4">

@@ -98,7 +98,7 @@ export default {
 <template>
     <AppLayout title="Edit User">
         <template #header>
-            <h1 class="text-xl font-semibold">Edit User</h1>
+            <ActionHeaderLayout title="Edit User" subtitle="Modify the details of an existing user and manage their roles and permissions." :route-link="route('system.users.index')" />
         </template>
 
         <div class="max-w-3xl mx-auto px-4">
