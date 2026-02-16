@@ -60,7 +60,7 @@ export default {
                     permission: 'laboratory.logger.manage',
                 },{
                     label: 'Inventory Management',
-                    href: 'forms.index',
+                    href: null,
                     permission: 'inventory.manage',
                     children: [
                         {
