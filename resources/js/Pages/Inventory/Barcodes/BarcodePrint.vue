@@ -14,11 +14,12 @@ export default {
             items: [],
             loading: false,
             search: "",
+            categoryId: 7, // Default to "Laboratory Equipment" category
             selected: {},
             labels: [],
             previewReady: false,
             exporting: false,
-            printMode: "barcode",
+            printMode: "qr",
             sizeTemplate: "3x5",
             customHeightCm: 3,
             customWidthCm: 5,
@@ -77,24 +78,59 @@ export default {
         labelFontSize() {
             return this.normalizeSize(this.customFontSize, 10);
         },
+        hasBarcodeMode() {
+            return this.printMode !== "qr";
+        },
+        hasQrMode() {
+            return this.printMode !== "barcode";
+        },
+        cardWidthPx() {
+            return this.resolvedWidthCm * 37.795;
+        },
+        cardHeightPx() {
+            return this.resolvedHeightCm * 37.795;
+        },
+        cardUsableWidthPx() {
+            return Math.max(36, this.cardWidthPx - 24);
+        },
+        cardUsableHeightPx() {
+            return Math.max(28, this.cardHeightPx - 24);
+        },
+        textReservePx() {
+            return Math.max(18, this.labelFontSize * 2.8);
+        },
+        captionReservePx() {
+            return this.hasBarcodeMode ? Math.max(14, this.labelFontSize * 1.6) : Math.max(12, this.labelFontSize * 1.4);
+        },
+        graphicsAvailableHeightPx() {
+            return Math.max(16, this.cardUsableHeightPx - this.textReservePx - this.captionReservePx);
+        },
+        maxQrSizePx() {
+            const modeHeightLimit = this.printMode === "both"
+                ? this.graphicsAvailableHeightPx * 0.58
+                : this.graphicsAvailableHeightPx;
+
+            return Math.max(20, Math.floor(Math.min(this.cardUsableWidthPx, modeHeightLimit)));
+        },
+        maxBarcodeHeightPx() {
+            const modeHeightLimit = this.printMode === "both"
+                ? this.graphicsAvailableHeightPx * 0.42
+                : this.graphicsAvailableHeightPx;
+
+            return Math.max(12, Math.floor(modeHeightLimit));
+        },
         barcodeHeight() {
             const height = this.normalizeSize(this.customBarcodeHeight, 30);
-            return Math.max(20, Math.min(height, 60));
+            return Math.max(12, Math.min(height, this.maxBarcodeHeightPx));
         },
         qrSize() {
             const size = this.normalizeSize(this.customQRSize, 56);
-            return Math.max(40, Math.min(size, 150));
+            return Math.max(20, Math.min(size, this.maxQrSizePx));
         },
         modalBarcodeHeight() {
-            if (this.printMode === "both") {
-                return this.barcodeHeight * 4;
-            }
             return this.barcodeHeight * 4;
         },
         modalQRSize() {
-            if (this.printMode === "both") {
-                return this.qrSize * 4;
-            }
             return this.qrSize * 4;
         },
         cardStyle() {
@@ -120,6 +156,9 @@ export default {
                     .some(value => value.toLowerCase().includes(term));
             });
         },
+        categoryOptions() {
+            return this.$page?.props?.categories ?? [];
+        },
         allSelected() {
             const selectable = this.filteredItems.filter(item => !!item.barcode);
             if (!selectable.length) return false;
@@ -127,6 +166,20 @@ export default {
         },
         selectedCount() {
             return Object.values(this.selected).filter(Boolean).length;
+        },
+    },
+    watch: {
+        printMode() {
+            this.$nextTick(() => {
+                this.renderBarcodes();
+                this.renderModalBarcode();
+            });
+        },
+        barcodeHeight() {
+            this.$nextTick(() => {
+                this.renderBarcodes();
+                this.renderModalBarcode();
+            });
         },
     },
     methods: {
@@ -188,6 +241,13 @@ export default {
         itemKey(item) {
             return `${item.item_id}-${item.barcode}-${item.unit}`;
         },
+        onCategoryChange(value) {
+            this.categoryId = value || null;
+            this.selected = {};
+            this.labels = [];
+            this.previewReady = false;
+            this.loadItems();
+        },
         async loadItems() {
             this.loading = true;
             this.model = new Transaction();
@@ -195,6 +255,8 @@ export default {
             this.form.per_page = '*';
             this.form.sort = 'name';
             this.form.order = 'asc';
+            this.form.filter = this.categoryId ? 'category' : null;
+            this.form.filter_by = this.categoryId ? this.categoryId : null;
 
             await this.fetchGetApi('api.inventory.transactions.remaining-stocks', this.form.data())
                 .then((response) => {
@@ -259,7 +321,7 @@ export default {
             });
         },
         renderBarcodes() {
-            if (this.printMode === "qr") return;
+            if (!this.hasBarcodeMode) return;
 
             this.labels.forEach(label => {
                 const el = document.getElementById(`barcode-${label.key}`);
@@ -268,7 +330,7 @@ export default {
                     format: "CODE128",
                     displayValue: false,
                     width: 1.7,
-                    height: this.printMode === "both" ? this.barcodeHeight * 0.8 : this.barcodeHeight,
+                    height: this.barcodeHeight,
                     margin: 0,
                 });
             });
@@ -283,12 +345,10 @@ export default {
             this.exporting = true;
             try {
                 const labels = this.labels.map(label => {
-                    const svgEl = document.getElementById(`barcode-${label.key}`);
                     return {
                         name: label.item?.name ?? '',
                         brand: label.item?.brand ?? 'N/A',
                         barcode: label.item?.barcode ?? '',
-                        svg: this.printMode !== 'qr' && svgEl ? svgEl.outerHTML : null,
                         qrUrl: this.printMode !== 'barcode' ? label.equipmentUrl : null,
                     };
                 });
@@ -338,13 +398,15 @@ export default {
 
         <div class="py-8 px-4 mx-auto space-y-6 flex gap-5">
             <div class="no-print bg-white shadow rounded-lg p-4 space-y-4">
-                <div class="grid grid-cols-5 grid-rows-3 gap-2">
-                        <div class="col-span-5">
+                <p class="text-sm">Note: For Laboratory Logger only Laboratory Equipments will work.</p>
+                <div class="grid grid-cols-6 grid-rows-4 gap-2">
+                        <div class="col-span-6">
                             <text-input
                                 v-model="search"
                                 placeholder="Search item, brand, or barcode"
                             />
                         </div>
+                        <custom-dropdown :value="categoryId" @selectedChange="onCategoryChange($event)" :options="categoryOptions" label="Category" placeholder="Filter by category" :withAllOption="true" />
                         <custom-dropdown :value="printMode" @selectedChange="printMode = $event" :options="[{name:'barcode', label:'Barcode'}, {name:'qr', label:'QR Code'}, {name:'both', label:'Both'}]" label="Mode" placeholder="Select a mode" :withAllOption="false" />
                         <custom-dropdown :value="sizeTemplate" @selectedChange="sizeTemplate = $event" :options="sizeTemplates" label="Size Template" placeholder="Select a size template" :withAllOption="false" />
                         
@@ -356,12 +418,12 @@ export default {
                         </div>
 
                         <custom-dropdown :value="orientation" @selectedChange="orientation = $event" :options="[{name:'portrait', label:'Portrait'}, {name:'landscape', label:'Landscape'}]" label="Orientation" placeholder="Select orientation" :withAllOption="false" />
-                        <custom-dropdown v-if="printMode !== 'qr'" :value="rotationDeg" @selectedChange="rotationDeg = $event" :options="[{name:0, label:'0°'}, {name:90, label:'90°'}, {name:180, label:'180°'}, {name:270, label:'270°'}]" label="Rotate" placeholder="Rotate" :withAllOption="false" />
+                        <custom-dropdown :value="rotationDeg" @selectedChange="rotationDeg = $event" :options="[{name:0, label:'0°'}, {name:90, label:'90°'}, {name:180, label:'180°'}, {name:270, label:'270°'}]" label="Rotate" placeholder="Rotate" :withAllOption="false" />
 
                         <text-input v-model.number="customFontSize" type="number" min="6" max="20" step="1" label="Font Size" placeholder="Font Size (px)" />
-                        <text-input v-if="printMode !== 'qr'" v-model.number="customBarcodeHeight" type="number" min="20" max="60" step="5" label="Barcode Height (px)" placeholder="Barcode Height (px)" />
+                        <text-input v-if="hasBarcodeMode" v-model.number="customBarcodeHeight" type="number" min="12" :max="maxBarcodeHeightPx" step="1" label="Barcode Height (px)" placeholder="Barcode Height (px)" />
 
-                        <text-input v-model.number="customQRSize" type="number" min="40" max="150" step="10" label="QR Size" placeholder="QR Size (px)" />
+                        <text-input v-if="hasQrMode" v-model.number="customQRSize" type="number" min="20" :max="maxQrSizePx" step="1" label="QR Size (px)" placeholder="QR Size (px)" />
 
                         <div class="flex gap-5 items-center">
                             <label class="inline-flex items-center gap-1 text-sm text-gray-600">
@@ -435,7 +497,7 @@ export default {
                                     <input
                                         type="number"
                                         min="1"
-                                        class="w-20 px-2 py-1 border rounded"
+                                        class="w-20 px-2 py-1 border rounded disabled:bg-gray-100 disabled:border-gray-200 disabled:text-gray-500"
                                         :disabled="!selected[itemKey(item)]"
                                         :value="selected[itemKey(item)]?.qty ?? 1"
                                         @input="updateQty(itemKey(item), $event.target.value)"
@@ -458,6 +520,7 @@ export default {
                             <svg v-if="printMode !== 'qr'" :id="`barcode-${label.key}`"></svg>
                             <qrcode-vue
                                 v-if="printMode !== 'barcode'"
+                                :key="`preview-qr-${label.key}-${qrSize}-${printMode}`"
                                 :value="label.equipmentUrl"
                                 :size="qrSize"
                                 level="M"
@@ -503,6 +566,7 @@ export default {
                                 <svg v-if="printMode !== 'qr'" :id="'modal-barcode-' + selectedLabelForModal.key" :style="{ width: '100%', height: `${modalBarcodeHeight}px`, display: 'block' }"></svg>
                                 <qrcode-vue
                                     v-if="printMode !== 'barcode'"
+                                    :key="`modal-qr-${selectedLabelForModal.key}-${modalQRSize}-${printMode}`"
                                     :value="selectedLabelForModal.equipmentUrl"
                                     :size="modalQRSize"
                                     level="M"
@@ -543,6 +607,8 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    overflow: hidden;
+    gap: 2px;
 }
 
 .label-text {
@@ -583,6 +649,16 @@ export default {
     justify-content: center;
     align-items: center;
     width: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    overflow: hidden;
+}
+
+.label-qr :deep(canvas),
+.label-qr :deep(svg) {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
 }
 
 .label-qr-caption {
@@ -620,13 +696,43 @@ export default {
 
     .label-grid {
         gap: 0;
+        display: block;
+        margin: 0;
+        padding: 0;
     }
 
     .label-card {
         page-break-after: always;
+        break-after: page;
+        page-break-inside: avoid;
+        break-inside: avoid-page;
         border: none;
         border-radius: 0;
-        padding: 0.1cm;
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        box-shadow: none;
+    }
+
+    .label-card:last-child {
+        page-break-after: auto;
+        break-after: auto;
+    }
+
+    .label-card-inner {
+        overflow: hidden;
+    }
+
+    .label-text,
+    .label-barcode,
+    .label-qr-caption {
+        flex-shrink: 0;
+    }
+
+    .label-qr {
+        overflow: hidden;
+        max-width: 100%;
+        max-height: 100%;
     }
 }
 </style>

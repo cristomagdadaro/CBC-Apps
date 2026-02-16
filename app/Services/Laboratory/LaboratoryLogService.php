@@ -90,11 +90,13 @@ class LaboratoryLogService
         $equipment = $this->findEligibleEquipment($equipmentId);
 
         if (!$equipment) {
-            return [
-                'equipment' => null,
-                'active_log' => null,
-                'allowed_actions' => [],
-            ];
+            // Check if item exists but is wrong category
+            $item = $this->findEquipmentForValidation($equipmentId);
+            if ($item) {
+                $categoryName = $item->category?->name ?? 'Unknown Category';
+                abort(422, "Sorry, this is a {$categoryName} item. You can only log laboratory equipment.");
+            }
+            abort(404, 'Equipment not found.');
         }
 
         $activeLog = $this->getActiveLog($equipmentId);
@@ -111,7 +113,13 @@ class LaboratoryLogService
     {
         $equipment = $this->findEligibleEquipment($equipmentId);
         if (!$equipment) {
-            abort(404, 'Equipment not found or not eligible for laboratory logs.');
+            // Check if item exists but is wrong category
+            $item = $this->findEquipmentForValidation($equipmentId);
+            if ($item) {
+                $categoryName = $item->category?->name ?? 'Unknown Category';
+                abort(422, "Sorry, this is a {$categoryName} item. You can only log laboratory equipment.");
+            }
+            abort(404, 'Equipment not found.');
         }
 
         return DB::transaction(function () use ($equipmentId, $payload) {
@@ -153,7 +161,13 @@ class LaboratoryLogService
     {
         $equipment = $this->findEligibleEquipment($equipmentId);
         if (!$equipment) {
-            abort(404, 'Equipment not found or not eligible for laboratory logs.');
+            // Check if item exists but is wrong category
+            $item = $this->findEquipmentForValidation($equipmentId);
+            if ($item) {
+                $categoryName = $item->category?->name ?? 'Unknown Category';
+                abort(422, "Sorry, this is a {$categoryName} item. You can only log laboratory equipment.");
+            }
+            abort(404, 'Equipment not found.');
         }
 
         return DB::transaction(function () use ($equipmentId, $payload) {
@@ -355,6 +369,14 @@ class LaboratoryLogService
         }
 
         return null;
+    }
+
+    private function findEquipmentForValidation(string $equipmentId): ?Item
+    {
+        return Item::query()
+            ->with('category')
+            ->where('id', $equipmentId)
+            ->first();
     }
 
     private function findEligibleEquipment(string $equipmentId): ?Item

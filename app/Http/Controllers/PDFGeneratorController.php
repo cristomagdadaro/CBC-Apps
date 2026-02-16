@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Milon\Barcode\DNS1D;
 
 class PDFGeneratorController extends Controller
 {
@@ -181,14 +182,13 @@ class PDFGeneratorController extends Controller
      */
     protected function generateBarcodeLabelsPdf(Request $request, ?string $template = null)
     {
-        // Flexible validation - SVG is optional if QR is present
+        // Render all visual assets on backend for reliable DomPDF output
         $printMode = $request->input('printMode', 'barcode');
         $validated = $request->validate([
             'labels' => ['required', 'array', 'min:1'],
             'labels.*.name' => ['required', 'string'],
             'labels.*.brand' => ['nullable', 'string'],
             'labels.*.barcode' => ['required', 'string'],
-            'labels.*.svg' => ['nullable', 'string'],
             'labels.*.qrUrl' => ['nullable', 'string'],
             'paperWidth' => ['nullable', 'numeric', 'min:1'],
             'paperHeight' => ['nullable', 'numeric', 'min:1'],
@@ -201,6 +201,7 @@ class PDFGeneratorController extends Controller
         $paperHeight = $validated['paperHeight'] ?? 3;
         $qrSize = (int) ($validated['qrSize'] ?? 56);
         $barcodeHeight = (int) ($validated['barcodeHeight'] ?? 30);
+        $barcodeGenerator = new DNS1D();
 
         $qrWriter = new Writer(
             new ImageRenderer(
@@ -209,25 +210,27 @@ class PDFGeneratorController extends Controller
             )
         );
 
-        $labels = array_map(function (array $label) use ($qrWriter, $printMode, $qrSize, $barcodeHeight) {
-            $barcodeSvg = $label['svg'] ?? null;
+        $labels = array_map(function (array $label) use ($barcodeGenerator, $qrWriter, $printMode, $qrSize, $barcodeHeight) {
+            $barcodeValue = (string) ($label['barcode'] ?? '');
             $qrUrl = $label['qrUrl'] ?? null;
 
-            if (is_string($barcodeSvg) && trim($barcodeSvg) !== '') {
-                $barcodeSvg = preg_replace('/<svg\b([^>]*)>/i', '<svg$1 width="100%" height="' . $barcodeHeight . '">', $barcodeSvg, 1);
-                $label['barcodeDataUri'] = 'data:image/svg+xml;base64,' . base64_encode($barcodeSvg);
+            if ($barcodeValue !== '' && $printMode !== 'qr') {
+                $barcodeBase64 = $barcodeGenerator->getBarcodePNG($barcodeValue, 'C128', 2, $barcodeHeight);
+                $label['barcodeDataUri'] = 'data:image/png;base64,' . $barcodeBase64;
             } else {
                 $label['barcodeDataUri'] = null;
             }
 
             if (is_string($qrUrl) && trim($qrUrl) !== '' && $printMode !== 'barcode') {
                 $effectiveQrSize = $printMode === 'both' ? max(24, (int) floor($qrSize * 0.72)) : $qrSize;
-                $qrSvg = (new Writer(
-                    new ImageRenderer(
-                        new RendererStyle($effectiveQrSize),
-                        new SvgImageBackEnd()
-                    )
-                ))->writeString($qrUrl);
+                $qrSvg = $effectiveQrSize === $qrSize
+                    ? $qrWriter->writeString($qrUrl)
+                    : (new Writer(
+                        new ImageRenderer(
+                            new RendererStyle($effectiveQrSize),
+                            new SvgImageBackEnd()
+                        )
+                    ))->writeString($qrUrl);
                 $label['qrSvg'] = $qrSvg;
                 $label['qrSizePx'] = $effectiveQrSize;
             } else {

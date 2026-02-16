@@ -334,7 +334,7 @@ export default {
                                 <p class="text-sm text-gray-500 mb-4">{{ message || 'The equipment you are looking for could not be found.' }}</p>
                                 <Link
                                     :href="route('laboratory.equipments.show')"
-                                    class="px-4 py-2 bg-AB text-white text-sm rounded hover:bg-AB-dark flex items-center gap-2 transition-opacity inline-flex"
+                                    class="px-4 py-2 bg-AB text-white text-sm rounded hover:bg-AB-dark items-center gap-2 transition-opacity inline-flex"
                                     :class="isNavigating ? 'opacity-70 pointer-events-none' : ''"
                                 >
                                     <span v-if="isNavigating" class="inline-flex">

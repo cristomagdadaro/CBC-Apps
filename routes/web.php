@@ -19,6 +19,7 @@ use App\Models\Registration;
 use App\Models\Supplier;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Repositories\CategoryRepo;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -241,6 +242,7 @@ Route::middleware([
             Route::get('/barcodes/print', function () {
                 return Inertia::render('Inventory/Barcodes/BarcodePrint', [
                     'fromUrl' => route('items.index'),
+                    'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
                 ]);
             })->name('inventory.barcodes.print');
 
@@ -254,7 +256,7 @@ Route::middleware([
                 Route::get('/', function () {
                     return Inertia::render('Inventory/Transactions/Transactions', [
                         'fromUrl' => route('dashboard'),
-                        'categories' => Category::select('id as name', 'name as label')->has('items')->get(),
+                        'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
                     ]);
                 })->name('transactions.index');
 
@@ -263,7 +265,7 @@ Route::middleware([
                         'fromUrl' => route('transactions.index'),
                         'items' => Item::get(),
                         'suppliers' => Supplier::withTrashed()->get(),
-                        'categories' => Category::all(),
+                        'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
                         'storage_locations' => app(OptionRepo::class)->getStorageLocations(),
                         'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                     ]);
@@ -274,7 +276,7 @@ Route::middleware([
                         'fromUrl' => url()->previous(),
                         'personnels' => Personnel::selectRaw(expression: 'id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                         'stockLevel' => app(OptionRepo::class)->getStockLevels(),
-                        'categories' => Category::select('id as name', 'name as label')
+                        'categories' => app(CategoryRepo::class)->getInventoryFormCategories()
                 ->has('items')
                 ->get(),
                     ]);
