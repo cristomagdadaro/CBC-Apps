@@ -11,6 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('roles') || Schema::hasTable('role_user')) {
+            return;
+        }
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
