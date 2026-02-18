@@ -11,14 +11,16 @@ export default class Transaction extends DtoTransaction {
         show: 'transactions.show',
     };
 
+    static page = usePage();
+
     constructor(response: DtoTransaction) {
         super(response);
 
-        const page = usePage();
+        
 
         this.api._apiIndex = Transaction.endpoints.index;
         // @ts-ignore
-        this.api._apiPost = (page.props.auth && page.props.auth.user) ? Transaction.endpoints.postAuth : Transaction.endpoints.postGuest;
+        this.api._apiPost = (Transaction.page.props.auth && Transaction.page.props.auth.user) ? Transaction.endpoints.postAuth : Transaction.endpoints.postGuest;
         this.api._apiPut = Transaction.endpoints.put;
         this.api._apiDelete = Transaction.endpoints.delete;
 
@@ -63,7 +65,7 @@ export default class Transaction extends DtoTransaction {
             total_cost: model.total_cost ?? null,
             personnel_id: model.personnel_id ?? null,
             employee_id: model.employee_id ?? null,
-            user_id: model.user_id ?? null,
+            user_id: model.user_id ?? Transaction.page.props.auth.user.id ?? null,
             expiration: model.expiration ?? null,
             remarks: model.remarks ?? null,
             project_code: model.project_code ?? null,
