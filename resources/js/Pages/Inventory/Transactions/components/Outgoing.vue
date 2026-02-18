@@ -91,7 +91,7 @@ export default {
         <template #header>
             <transaction-header-action />
         </template>
-        <div class="py-4">
+        <div class="default-container py-4">
             <div class="flex flex-col justify-between max-w-[90vw] gap-3 mx-auto">
                 <div class="w-full flex gap-2 items-end lg:px-0 px-2">
                     <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />

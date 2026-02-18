@@ -213,9 +213,7 @@ Route::middleware([
                         'fromUrl' => url()->previous(),
                         'personnels' => Personnel::selectRaw(expression: 'id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                         'stockLevel' => app(OptionRepo::class)->getStockLevels(),
-                        'categories' => app(CategoryRepo::class)->getInventoryFormCategories()
-                ->has('items')
-                ->get(),
+                        'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
                     ]);
                 })->name('transactions.outgoing');
 
