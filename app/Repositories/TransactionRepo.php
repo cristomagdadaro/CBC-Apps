@@ -20,7 +20,7 @@ class TransactionRepo extends AbstractRepoService
         $this->appendWith = ['item', 'user','personnel'];
     }
 
-    public function getRemainingStocks(Collection $parameters): Collection
+    public function getRemainingStocks(Collection $parameters, array $consumableCategoryIds = [1, 2, 3, 5, 6]): Collection
     {
         $search   = $parameters->get('search');
         $isExact  = filter_var($parameters->get('is_exact', false), FILTER_VALIDATE_BOOLEAN);
@@ -89,6 +89,9 @@ class TransactionRepo extends AbstractRepoService
             } else {
                 $query->whereRaw('0 = 1');
             }
+        } elseif (!$filter && !empty($consumableCategoryIds)) {
+            // Apply consumable category filter by default
+            $query->whereIn('items.category_id', $consumableCategoryIds);
         } elseif ($filter === 'quantity' && $filterBy) {
             $percentageExpr = 'CASE WHEN total_ingoing <> 0 THEN remaining_quantity / total_ingoing ELSE 0 END';
 
