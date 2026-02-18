@@ -10,12 +10,17 @@ class CategoryRepo extends AbstractRepoService
     {
         parent::__construct($model);
     }
-
-    public function getInventoryFormCategories()
+    
+    /**
+     * Get categories for inventory form, only including those with items and matching the specified category IDs
+     * Default category IDs are 1, 2, 3, 5, and 6 (consumables, non-consumables, chemicals, PPEs, and office supplies)
+    */
+    public function getInventoryFormCategories($categoryIds = [1, 2, 3, 5, 6])
     {
         return $this->model
             ->newQuery()
             ->select('id as name', 'name as label')
+            ->whereIn('id', (array) $categoryIds)
             ->has('items')
             ->get();
     }

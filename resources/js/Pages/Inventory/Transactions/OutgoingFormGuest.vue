@@ -159,6 +159,7 @@ export default {
                             <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
                             <camera-scanner class="col-span-3 md:col-span-1" @decoded="searchFromBarcode" />
                         </div>
+                        <h3>There are {{outgoingFromApi?.data?.length || 0}} items registered</h3>
                         <div class="w-full max-h-[60vh] overflow-y-auto overflow-x-hidden">
                             <div v-show="processing" class="text-center py-3 border border-AB rounded-lg w-full h-full z-50">
                                 <div class="flex items-center justify-center gap-3 py-2 px-4 h-full">
