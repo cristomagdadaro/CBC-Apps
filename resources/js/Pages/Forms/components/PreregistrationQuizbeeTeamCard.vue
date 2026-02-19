@@ -296,7 +296,7 @@ export default {
                     :error="form.errors.participant_1_gradelevel"
                     placeholder="Participant 1 Grade Level*"
                     :withAllOption="false"
-                    :options="[{name: 'Grade 11', label: 'Grade 11'}]"
+                    :options="[{name: 'Grade 11', label: 'Grade 11'}, {name: 'Grade 12', label: 'Grade 12'}]"
                 >
                     <template #icon>
                         <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -310,7 +310,7 @@ export default {
                     :error="form.errors.participant_2_gradelevel"
                     placeholder="Participant 2 Grade Level*"
                     :withAllOption="false"
-                    :options="[{name: 'Grade 12', label: 'Grade 12'}]"
+                    :options="[{name: 'Grade 11', label: 'Grade 11'}, {name: 'Grade 12', label: 'Grade 12'}]"
                 >
                     <template #icon>
                         <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
