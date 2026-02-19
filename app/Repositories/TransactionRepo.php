@@ -51,18 +51,6 @@ class TransactionRepo extends AbstractRepoService
                 ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,' .
                 ' SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END) as total_outgoing,' .
                 ' (SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) - ' .
-<<<<<<< Updated upstream
-                '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity,' .
-                ' transactions.expiration'
-            )->join('items', 'transactions.item_id', '=', 'items.id')
-            ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode', 'transactions.barcode_prri', 'transactions.expiration');
-=======
-<<<<<<< Updated upstream
-                '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity'
-            )
-            ->join('items', 'transactions.item_id', '=', 'items.id')
-            ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode');
-=======
                 '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity,' .
                 ' transactions.expiration,' .
                 ' CASE ' .
@@ -73,8 +61,6 @@ class TransactionRepo extends AbstractRepoService
                 ' END as expiration_priority'
             )->join('items', 'transactions.item_id', '=', 'items.id')
             ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode', 'transactions.barcode_prri', 'transactions.expiration');
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 
         if ($filter === 'category' && $filterBy) {
             $values = is_array($filterBy) ? $filterBy : [$filterBy];
