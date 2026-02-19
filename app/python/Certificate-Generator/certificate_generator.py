@@ -2,9 +2,8 @@
 Certificate Generator CLI
 
 Usage: python certificate_generator.py --template template.pptx --data data.xlsx --outdir out --format png
-    python certificate_generator.py --template template.pptx --data data.csv --outdir out --format pdf
 
-Reads a PPTX template with placeholders in the form <<ColumnName>> and a spreadsheet (XLSX/CSV) where each row is a recipient.
+Reads a PPTX template with placeholders in the form <<ColumnName>> and an Excel file where each row is a recipient.
 Generates a file per row in the requested output format (pptx, pdf, png, jpg). Filename may be customized with a template string
 using column names in braces, e.g. "{Initials}_{Surname}_{date}.png". Default is Fullname_date_timestamp.
 
@@ -13,6 +12,7 @@ Notes:
 - For PDF/PNG/JPG conversion, LibreOffice (soffice) and Poppler may be required. See README.
 """
 import argparse
+import logging
 import os
 import re
 import shutil
@@ -20,7 +20,7 @@ import subprocess
 import sys
 from datetime import datetime
 from tempfile import mkstemp, mkdtemp
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 from copy import deepcopy
 
 import pandas as pd
@@ -230,7 +230,8 @@ def pdf_to_images(pdf_path: str, dpi: int = 200, poppler_path: str = None):
 def generate_for_row(prs_template: Presentation, row: pd.Series, out_dir: str, out_format: str,
                      filename_template: str, slide_indices: Optional[List[int]] = None,
                      soffice_path: str = 'soffice', poppler_path: str = None,
-                     dpi: int = 200):
+                     dpi: int = 200) -> Tuple[bool, str, Optional[Dict]]:
+    """Generate certificate for a row. Returns (success, message, output_paths dict)."""
     date_now = datetime.now()
     filename_base = format_filename(filename_template, row, date_now)
     os.makedirs(out_dir, exist_ok=True)
@@ -275,7 +276,7 @@ def generate_for_row(prs_template: Presentation, row: pd.Series, out_dir: str, o
     out_paths['pptx'] = out_pptx
 
     if out_format == 'pptx':
-        return out_paths
+        return True, f"Generated: {out_paths}", out_paths
 
     # convert to pdf
     tmp_dir = mkdtemp()
@@ -287,14 +288,14 @@ def generate_for_row(prs_template: Presentation, row: pd.Series, out_dir: str, o
             out_paths['pdf'] = out_pdf
         except FileNotFoundError as e:
             # likely soffice not found; warn and skip conversion, keep PPTX only
-            print(f"Warning: PPTX->PDF conversion skipped for '{unique_base}': {e}")
-            return out_paths
+            msg = f"PPTX->PDF conversion skipped for '{unique_base}': {e}"
+            return False, msg, out_paths
         except subprocess.CalledProcessError as e:
-            print(f"Warning: PPTX->PDF conversion failed for '{unique_base}': {e}")
-            return out_paths
+            msg = f"PPTX->PDF conversion failed for '{unique_base}': {e}"
+            return False, msg, out_paths
         except Exception as e:
-            print(f"Warning: Unexpected error during PPTX->PDF conversion for '{unique_base}': {e}")
-            return out_paths
+            msg = f"Unexpected error during PPTX->PDF conversion for '{unique_base}': {e}"
+            return False, msg, out_paths
 
         if out_format in ('png', 'jpg', 'jpeg'):
             images = pdf_to_images(out_pdf, dpi=dpi, poppler_path=poppler_path)
@@ -321,13 +322,13 @@ def generate_for_row(prs_template: Presentation, row: pd.Series, out_dir: str, o
             pass
         shutil.rmtree(tmp_dir, ignore_errors=True)
 
-    return out_paths
+    return True, f"Generated: {out_paths}", out_paths
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description='Generate certificates from a PPTX template and Excel data')
     parser.add_argument('--template', '-t', required=True, help='Path to PPTX template file')
-    parser.add_argument('--data', '-d', required=True, help='Path to data file (.xlsx or .csv)')
+    parser.add_argument('--data', '-d', required=True, help='Path to Excel file (.xlsx)')
     parser.add_argument('--outdir', '-o', required=True, help='Output directory')
     parser.add_argument('--format', '-f', choices=['pptx', 'pdf', 'png', 'jpg'], default='png', help='Export format')
     parser.add_argument('--name-template', '-n', default='', help='Filename template, use {ColumnName}, {date}, and {timestamp}. Default is Fullname_date_timestamp')
@@ -344,15 +345,26 @@ def main(argv=None):
         print('Data file not found:', args.data)
         sys.exit(2)
 
+    # Create date-based subfolder
+    date_str = datetime.now().strftime('%Y-%m-%d')
+    base_outdir = args.outdir
+    args.outdir = os.path.join(base_outdir, date_str)
+    os.makedirs(args.outdir, exist_ok=True)
+
+    # Set up logging for failed items
+    log_file = os.path.join(args.outdir, 'failed_items.log')
+    logging.basicConfig(
+        filename=log_file,
+        level=logging.ERROR,
+        format='%(asctime)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
     # read data: read all sheets into a dict of DataFrames
     try:
-        if args.data.lower().endswith('.csv'):
-            df = pd.read_csv(args.data)
-            sheets = {'Sheet1': df}
-        else:
-            sheets = pd.read_excel(args.data, sheet_name=None)
+        sheets = pd.read_excel(args.data, sheet_name=None)
     except Exception as e:
-        print('Failed to read data file:', e)
+        print('Failed to read Excel file:', e)
         sys.exit(3)
 
     # load template once
@@ -366,6 +378,7 @@ def main(argv=None):
 
     sheet_names = list(sheets.keys())
     total_files = 0
+    failed_count = 0
     print(f'Generating files to "{args.outdir}" in format {args.format}...')
 
     for sheet_idx, sheet_name in enumerate(sheet_names):
@@ -387,15 +400,27 @@ def main(argv=None):
         print(f'Processing sheet "{sheet_name}" with {len(df)} rows using slide indices {slide_indices}')
         for idx, row in df.iterrows():
             try:
-                res = generate_for_row(prs_template, row, args.outdir, args.format, args.name_template,
+                success, message, res = generate_for_row(prs_template, row, args.outdir, args.format, args.name_template,
                                        slide_indices=slide_indices, soffice_path=args.soffice_path,
                                        poppler_path=args.poppler_path, dpi=args.dpi)
-                print('Generated:', res)
-                total_files += 1
+                if success:
+                    print('Generated:', res)
+                    total_files += 1
+                else:
+                    print(f'Warning: {message}')
+                    logging.error(f"Sheet: {sheet_name}, Row: {idx}, Error: {message}")
+                    failed_count += 1
             except Exception as e:
-                print(f'Failed for sheet {sheet_name} row {idx}:', e)
+                error_msg = f'Failed for sheet {sheet_name} row {idx}: {e}'
+                print(error_msg)
+                logging.error(error_msg)
+                failed_count += 1
 
-    print(f'Done. Generated {total_files} files.')
+    summary = f'\nGeneration complete. Generated: {total_files} files, Failed: {failed_count} items.'
+    print(summary)
+    if failed_count > 0:
+        print(f'See "{log_file}" for details on failed items.')
+    logging.error(f'Generation Summary: {total_files} files generated, {failed_count} failed.')
 
 
 if __name__ == '__main__':
