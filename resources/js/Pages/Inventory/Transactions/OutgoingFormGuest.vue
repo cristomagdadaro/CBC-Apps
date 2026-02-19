@@ -66,6 +66,10 @@ export default {
                 }
             });
         },
+        // Override mixin's isExpired to avoid conflicts with item-level expiration checking
+        isExpired() {
+            return null;
+        }
     },
     methods: {
         selectItem(item) {
@@ -89,7 +93,6 @@ export default {
                 this.searchEvent();
                 return;
             }
-
             this.form.filter = filter;
             this.form.filter_by = filter_by;
             this.searchEvent();
@@ -103,21 +106,17 @@ export default {
             this.applyNameSort();
         },
         async searchFromBarcode(barcode) {
-            // Prepare an exact search against the barcode column (assumes 'barcode' is a valid filter column)
             this.form.search = barcode;
             this.form.filter = 'barcode';
             this.form.is_exact = true;
-            // Clear any existing selection while we search
             this.selectedItem = null;
             this.showModel = false;
             await this.searchEvent();
-            // Attempt to auto-select if exactly one exact barcode match returned
             if (this.outgoingFromApi && Array.isArray(this.outgoingFromApi.data)) {
                 const exactMatches = this.outgoingFromApi.data.filter(item => item.barcode === barcode);
                 if (exactMatches.length === 1) {
                     this.selectItem(exactMatches[0]);
                 }
-                // If zero or multiple matches, the list remains visible for manual selection
             }
         },
         applyNameSort() {
@@ -127,32 +126,20 @@ export default {
         },
         getExpirationStatus(expirationDate) {
             if (!expirationDate) return null;
-            
-            // Parse date ensuring consistent timezone handling (treat as UTC)
             const [year, month, day] = expirationDate.split('-').map(Number);
             const expDate = new Date(Date.UTC(year, month - 1, day));
             const today = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()));
-            
             const diffTime = expDate - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
             if (diffDays < 0) {
                 return 'expired';
             } else if (diffDays === 0) {
-                return 'expires-today';
+                return 'expiring_today';
             } else if (diffDays <= 30) {
-                return 'expiring-soon';
+                return 'expiring_soon';
             }
-            
             return null;
-        },
-        isExpired(expirationDate) {
-            return this.getExpirationStatus(expirationDate) === 'expired';
-        },
-        isExpiringSoon(expirationDate) {
-            const status = this.getExpirationStatus(expirationDate);
-            return status === 'expiring-soon' || status === 'expires-today';
-        },
+        }
     }
 }
 </script>
@@ -210,14 +197,14 @@ export default {
                                                         {{ item.name }} {{ item.description ? `(${item.description})` : '' }}
                                                     </span>
                                                 <span v-if="item.expiration" :class="{
-                                                    'text-red-600 font-semibold': isExpired(item.expiration),
-                                                    'text-orange-600 font-semibold': isExpiringSoon(item.expiration),
-                                                    'text-gray-500': !isExpired(item.expiration) && !isExpiringSoon(item.expiration)
+                                                    'text-red-600 font-semibold': getExpirationStatus(item.expiration) === 'expired',
+                                                    'text-orange-600 font-semibold': ['expiring_soon', 'expiring_today'].includes(getExpirationStatus(item.expiration)),
+                                                    'text-gray-500': !getExpirationStatus(item.expiration)
                                                 }" class="text-xs">
                                                     Expiry: {{ formatDate(item.expiration) }}
-                                                    <span v-if="isExpired(item.expiration)" class="ml-1">(Expired)</span>
-                                                    <span v-else-if="getExpirationStatus(item.expiration) === 'expires-today'" class="ml-1">(Expires Today)</span>
-                                                    <span v-else-if="isExpiringSoon(item.expiration)" class="ml-1">(Expiring Soon)</span>
+                                                    <span v-if="getExpirationStatus(item.expiration) === 'expired'" class="ml-1">(Expired)</span>
+                                                    <span v-else-if="getExpirationStatus(item.expiration) === 'expiring_today'" class="ml-1">(Expires Today)</span>
+                                                    <span v-else-if="getExpirationStatus(item.expiration) === 'expiring_soon'" class="ml-1">(Expiring Soon)</span>
                                                 </span>
                                                 <span class="text-xs text-gray-500">{{ item.brand }}</span>
                                             </div>
