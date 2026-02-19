@@ -54,4 +54,21 @@ class RbacServiceTest extends TestCase
         $this->assertTrue($rbac->hasPermission($user, 'rental.vehicle.manage'));
         $this->assertFalse($rbac->hasPermission($user, 'event.forms.manage'));
     }
+
+    public function test_administrative_assistant_has_certificate_permission_only(): void
+    {
+        $role = Role::query()->create([
+            'name' => RoleEnum::ADMINISTRATIVE_ASSISTANT->value,
+            'label' => 'Administrative Assistant',
+            'description' => 'Certificate and rental services access',
+        ]);
+
+        $user = User::factory()->create(['is_admin' => false]);
+        $user->roles()->attach($role->id);
+
+        $rbac = app(RbacService::class);
+
+        $this->assertTrue($rbac->hasPermission($user, 'event.certificates.manage'));
+        $this->assertFalse($rbac->hasPermission($user, 'event.forms.manage'));
+    }
 }

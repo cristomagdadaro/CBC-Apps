@@ -9,6 +9,7 @@ return [
         'inventory.manage',
         'equipment.report.manage',
         'event.forms.manage',
+        'event.certificates.manage',
         'users.manage',
         'rental.vehicle.manage',
         'rental.venue.manage',
@@ -29,9 +30,11 @@ return [
             'inventory.manage',
             'equipment.report.manage',
             'event.forms.manage',
+            'event.certificates.manage',
         ],
 
         Role::ADMINISTRATIVE_ASSISTANT->value => [
+            'event.certificates.manage',
             'rental.vehicle.manage',
             'rental.venue.manage',
             'rental.hostel.manage',

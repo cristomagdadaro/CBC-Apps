@@ -12,8 +12,10 @@ Notes:
 - For PDF/PNG/JPG conversion, LibreOffice (soffice) and Poppler may be required. See README.
 """
 import argparse
+import json
 import logging
 import os
+import pathlib
 import re
 import shutil
 import subprocess
@@ -208,12 +210,113 @@ def format_filename(template: str, row: pd.Series, date_now: datetime):
     return filename
 
 
+def extract_recipient_email(row: pd.Series) -> str:
+    for key, value in row.items():
+        if 'email' in str(key).strip().lower() and not pd.isna(value):
+            return str(value).strip()
+    return ''
+
+
+def pick_primary_output(out_paths: Dict, out_format: str) -> str:
+    preferred = out_paths.get(out_format)
+    if isinstance(preferred, list):
+        return str(preferred[0]) if preferred else ''
+    if preferred:
+        return str(preferred)
+
+    if out_paths.get('pdf'):
+        return str(out_paths['pdf'])
+    if out_paths.get('pptx'):
+        return str(out_paths['pptx'])
+    return ''
+
+
+def resolve_soffice_path(soffice_path: str) -> Optional[str]:
+    candidate = (soffice_path or '').strip()
+    if candidate:
+        expanded = os.path.expandvars(os.path.expanduser(candidate))
+        if expanded.lower().endswith('soffice.com'):
+            alt_exe = expanded[:-4] + '.exe'
+            if os.path.isfile(alt_exe):
+                expanded = alt_exe
+        if os.path.isfile(expanded):
+            return expanded
+
+        resolved = shutil.which(expanded)
+        if resolved:
+            return resolved
+
+    if os.name == 'nt':
+        win_candidates = []
+        for env_key in ('PROGRAMFILES', 'PROGRAMFILES(X86)', 'PROGRAMW6432'):
+            root = os.environ.get(env_key)
+            if root:
+                win_candidates.append(os.path.join(root, 'LibreOffice', 'program', 'soffice.exe'))
+
+        win_candidates.extend([
+            r'C:\Program Files\LibreOffice\program\soffice.exe',
+            r'C:\Program Files (x86)\LibreOffice\program\soffice.exe',
+        ])
+
+        for item in win_candidates:
+            if os.path.isfile(item):
+                return item
+
+        resolved_exe = shutil.which('soffice.exe')
+        if resolved_exe:
+            return resolved_exe
+    else:
+        resolved = shutil.which('soffice')
+        if resolved:
+            return resolved
+
+    return None
+
+
+def to_file_uri(path_value: str) -> str:
+    return pathlib.Path(path_value).resolve().as_uri()
+
+
 def pptx_to_pdf(soffice_path: str, pptx_path: str, out_dir: str) -> str:
     # Convert pptx to pdf using LibreOffice soffice CLI
-    if not shutil.which(soffice_path):
+    resolved_soffice = resolve_soffice_path(soffice_path)
+    if not resolved_soffice:
         raise FileNotFoundError(f"soffice not found at '{soffice_path}'. Please install LibreOffice or provide full path.")
-    cmd = [soffice_path, '--headless', '--convert-to', 'pdf', '--outdir', out_dir, pptx_path]
-    subprocess.run(cmd, check=True)
+
+    normalized_pptx_path = os.path.normpath(os.path.abspath(pptx_path))
+    normalized_out_dir = os.path.normpath(os.path.abspath(out_dir))
+
+    profile_dir = mkdtemp(prefix='lo-profile-')
+    profile_uri = to_file_uri(profile_dir)
+
+    cmd = [
+        resolved_soffice,
+        '--headless',
+        '--nologo',
+        '--nodefault',
+        '--nofirststartwizard',
+        '--norestore',
+        '--nolockcheck',
+        f'-env:UserInstallation={profile_uri}',
+        '--convert-to',
+        'pdf:impress_pdf_Export',
+        '--outdir',
+        normalized_out_dir,
+        normalized_pptx_path,
+    ]
+
+    try:
+        process = subprocess.run(cmd, capture_output=True, text=True)
+        if process.returncode != 0:
+            raise subprocess.CalledProcessError(
+                process.returncode,
+                cmd,
+                output=(process.stdout or '').strip(),
+                stderr=(process.stderr or '').strip(),
+            )
+    finally:
+        shutil.rmtree(profile_dir, ignore_errors=True)
+
     base = os.path.splitext(os.path.basename(pptx_path))[0]
     pdf_path = os.path.join(out_dir, base + '.pdf')
     if not os.path.exists(pdf_path):
@@ -291,7 +394,8 @@ def generate_for_row(prs_template: Presentation, row: pd.Series, out_dir: str, o
             msg = f"PPTX->PDF conversion skipped for '{unique_base}': {e}"
             return False, msg, out_paths
         except subprocess.CalledProcessError as e:
-            msg = f"PPTX->PDF conversion failed for '{unique_base}': {e}"
+            details = (e.stderr or e.output or '').strip()
+            msg = f"PPTX->PDF conversion failed for '{unique_base}': {details or str(e)}"
             return False, msg, out_paths
         except Exception as e:
             msg = f"Unexpected error during PPTX->PDF conversion for '{unique_base}': {e}"
@@ -336,6 +440,7 @@ def main(argv=None):
     parser.add_argument('--soffice-path', default='soffice', help='Path to LibreOffice "soffice" executable (used for pptx->pdf)')
     parser.add_argument('--poppler-path', default=None, help='Optional path to poppler bin folder for pdf2image on Windows')
     parser.add_argument('--dpi', type=int, default=200, help='DPI for image rendering from PDF')
+    parser.add_argument('--manifest', default='', help='Optional path to output JSON manifest for generated rows')
     args = parser.parse_args(argv)
 
     if not os.path.exists(args.template):
@@ -360,11 +465,15 @@ def main(argv=None):
         datefmt='%Y-%m-%d %H:%M:%S'
     )
 
-    # read data: read all sheets into a dict of DataFrames
+    # read data: read all sheets into a dict of DataFrames (or CSV as a single synthetic sheet)
     try:
-        sheets = pd.read_excel(args.data, sheet_name=None)
+        data_extension = os.path.splitext(args.data)[1].lower()
+        if data_extension == '.csv':
+            sheets = {'Responses': pd.read_csv(args.data)}
+        else:
+            sheets = pd.read_excel(args.data, sheet_name=None)
     except Exception as e:
-        print('Failed to read Excel file:', e)
+        print('Failed to read data file:', e)
         sys.exit(3)
 
     # load template once
@@ -379,6 +488,7 @@ def main(argv=None):
     sheet_names = list(sheets.keys())
     total_files = 0
     failed_count = 0
+    manifest_records = []
     print(f'Generating files to "{args.outdir}" in format {args.format}...')
 
     for sheet_idx, sheet_name in enumerate(sheet_names):
@@ -399,6 +509,7 @@ def main(argv=None):
 
         print(f'Processing sheet "{sheet_name}" with {len(df)} rows using slide indices {slide_indices}')
         for idx, row in df.iterrows():
+            recipient_email = extract_recipient_email(row)
             try:
                 success, message, res = generate_for_row(prs_template, row, args.outdir, args.format, args.name_template,
                                        slide_indices=slide_indices, soffice_path=args.soffice_path,
@@ -406,21 +517,61 @@ def main(argv=None):
                 if success:
                     print('Generated:', res)
                     total_files += 1
+                    attachment_path = pick_primary_output(res or {}, args.format)
+                    manifest_records.append({
+                        'sheet_name': sheet_name,
+                        'row_index': int(idx),
+                        'recipient_email': recipient_email,
+                        'status': 'success',
+                        'error_message': None,
+                        'attachment_path': attachment_path,
+                        'filename': os.path.basename(attachment_path) if attachment_path else None,
+                    })
                 else:
                     print(f'Warning: {message}')
                     logging.error(f"Sheet: {sheet_name}, Row: {idx}, Error: {message}")
                     failed_count += 1
+                    fallback_attachment = pick_primary_output(res or {}, args.format)
+                    manifest_records.append({
+                        'sheet_name': sheet_name,
+                        'row_index': int(idx),
+                        'recipient_email': recipient_email,
+                        'status': 'fail',
+                        'error_message': str(message),
+                        'attachment_path': fallback_attachment,
+                        'filename': os.path.basename(fallback_attachment) if fallback_attachment else None,
+                    })
             except Exception as e:
                 error_msg = f'Failed for sheet {sheet_name} row {idx}: {e}'
                 print(error_msg)
                 logging.error(error_msg)
                 failed_count += 1
+                manifest_records.append({
+                    'sheet_name': sheet_name,
+                    'row_index': int(idx),
+                    'recipient_email': recipient_email,
+                    'status': 'fail',
+                    'error_message': str(e),
+                    'attachment_path': None,
+                    'filename': None,
+                })
 
     summary = f'\nGeneration complete. Generated: {total_files} files, Failed: {failed_count} items.'
     print(summary)
     if failed_count > 0:
         print(f'See "{log_file}" for details on failed items.')
     logging.error(f'Generation Summary: {total_files} files generated, {failed_count} failed.')
+
+    if args.manifest:
+        try:
+            manifest_dir = os.path.dirname(args.manifest)
+            if manifest_dir:
+                os.makedirs(manifest_dir, exist_ok=True)
+            with open(args.manifest, 'w', encoding='utf-8') as manifest_file:
+                json.dump(manifest_records, manifest_file, indent=2)
+            print(f'Manifest written: {args.manifest}')
+        except Exception as e:
+            print(f'Warning: failed to write manifest: {e}')
 
 
 if __name__ == '__main__':

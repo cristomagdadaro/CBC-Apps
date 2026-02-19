@@ -86,7 +86,7 @@ export default {
                   />
                 </div>
                 <div class="flex flex-col items-center justify-center">
-                  <label class="text-2xl leading-none font-[1000]">####</label>
+                  <label class="text-2xl leading-none font-[1000]">{{ form.event_id ?? '####' }}</label>
                   <span class="text-[0.6rem] leading-none">Form ID</span>
                 </div>
               </div>

@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\QueueCertificateGenerationRequest;
+use App\Jobs\ProcessCertificateBatchJob;
 use App\Models\EventCertificateTemplate;
 use App\Models\EventSubformResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\Process\Process;
-use ZipArchive;
+use Illuminate\Support\Str;
 
 class EventCertificateController extends Controller
 {
@@ -38,170 +40,303 @@ class EventCertificateController extends Controller
         ], 200);
     }
 
-    public function generate(Request $request, string $event_id)
+    public function generate(QueueCertificateGenerationRequest $request, string $event_id): JsonResponse
     {
-        $request->validate([
-            'format' => ['nullable', 'string', 'in:pptx,pdf,png,jpg'],
-        ]);
+        $validated = $request->validated();
+        $batchId = (string) Str::uuid();
+        $batchDir = "tmp/certificates/{$event_id}/{$batchId}";
 
-        $template = EventCertificateTemplate::where('event_id', $event_id)->firstOrFail();
-        $templatePath = Storage::path($template->template_path);
-
-        $responses = EventSubformResponse::query()
-            ->join('event_subforms', 'event_subform_responses.form_parent_id', '=', 'event_subforms.id')
-            ->where('event_subforms.event_id', $event_id)
-            ->select('event_subform_responses.*')
-            ->get();
-
-        if ($responses->isEmpty()) {
+        try {
+            $templatePath = $this->resolveTemplatePath($request, $event_id, $batchDir);
+            $dataPath = $this->resolveDataPath($request, $event_id, $batchDir, $validated);
+        } catch (\RuntimeException $exception) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'No responses found for this event.',
+                'message' => $exception->getMessage(),
             ], 422);
         }
 
-        $format = $request->input('format', 'pdf');
-        $timestamp = now()->format('YmdHis');
-        $tempDir = storage_path("app/certificates/tmp/{$event_id}/{$timestamp}");
-        $outputDir = storage_path("app/certificates/output/{$event_id}/{$timestamp}");
-        File::makeDirectory($tempDir, 0755, true, true);
-        File::makeDirectory($outputDir, 0755, true, true);
-
-        $csvPath = $tempDir . DIRECTORY_SEPARATOR . 'responses.csv';
-        $this->writeResponsesCsv($csvPath, $responses, $event_id);
-
-        $python = config('services.certificate_generator.python');
-        if (!$python) {
-            $python = PHP_OS_FAMILY === 'Windows' ? 'py' : 'python3';
-        }
-        $scriptPath = base_path('python/Certificate-Generator/certificate_generator.py');
-
-        if (!File::exists($templatePath)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Certificate template file is missing.',
-                'details' => $templatePath,
-            ], 500);
-        }
-
-        if (!File::exists($scriptPath)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Certificate generator script not found.',
-                'details' => $scriptPath,
-            ], 500);
-        }
+        Cache::put($this->cacheKey($batchId), [
+            'event_id' => $event_id,
+            'batch_id' => $batchId,
+            'status' => 'queued',
+            'message' => 'Certificate request queued.',
+            'zip_path' => null,
+            'batch_dir' => $batchDir,
+            'created_at' => now()->toIso8601String(),
+            'updated_at' => now()->toIso8601String(),
+        ], now()->addHours(6));
 
         try {
-            $process = new Process([
-                $python,
-                $scriptPath,
-                '--template', $templatePath,
-                '--data', $csvPath,
-                '--outdir', $outputDir,
-                '--format', $format,
-            ]);
-
-            $process->setTimeout(120);
-            $process->run();
+            ProcessCertificateBatchJob::dispatch(
+                eventId: $event_id,
+                batchId: $batchId,
+                templatePath: $templatePath,
+                dataPath: $dataPath,
+                format: $validated['format'],
+                nameTemplate: $validated['name_template'] ?? null,
+            )->onQueue('default');
         } catch (\Throwable $e) {
-            File::deleteDirectory($tempDir);
-            File::deleteDirectory($outputDir);
+            Storage::delete([$templatePath, $dataPath]);
+            Cache::forget($this->cacheKey($batchId));
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'Unable to execute certificate generator.',
-                'details' => $e->getMessage(),
+                'message' => 'Unable to queue certificate generation.',
+                'error' => $e->getMessage(),
             ], 500);
         }
 
-        if (!$process->isSuccessful()) {
-            File::deleteDirectory($tempDir);
-            File::deleteDirectory($outputDir);
+        return response()->json([
+            'status' => 'queued',
+            'message' => 'Certificate generation queued successfully.',
+            'data' => [
+                'batch_id' => $batchId,
+            ],
+        ], 202);
+    }
 
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Certificate generation failed.',
-                'details' => $process->getErrorOutput() ?: $process->getOutput(),
-            ], 500);
-        }
+    public function columns(string $event_id): JsonResponse
+    {
+        $responses = EventSubformResponse::query()
+            ->whereRelation('parent', 'event_id', $event_id)
+            ->select(['subform_type', 'response_data'])
+            ->latest()
+            ->get();
 
-        $zipPath = $tempDir . DIRECTORY_SEPARATOR . "certificates-{$event_id}.zip";
-        $zip = new ZipArchive();
-        $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+        $columnSet = [];
+        foreach ($responses as $response) {
+            $responseData = is_array($response->response_data) ? $response->response_data : [];
+            foreach (array_keys($responseData) as $key) {
+                if (!is_string($key) || trim($key) === '') {
+                    continue;
+                }
 
-        foreach (File::allFiles($outputDir) as $file) {
-            if ($file->getFilename() === basename($zipPath)) {
-                continue;
+                $trimmed = trim($key);
+                if (!in_array($trimmed, $columnSet, true)) {
+                    $columnSet[] = $trimmed;
+                }
             }
-            $zip->addFile($file->getRealPath(), $file->getFilename());
         }
 
-        $zip->close();
-        File::deleteDirectory($outputDir);
+        $template = EventCertificateTemplate::query()
+            ->where('event_id', $event_id)
+            ->first();
 
-        return response()->download($zipPath)->deleteFileAfterSend(true);
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'columns' => $columnSet,
+                'subform_types' => $responses->pluck('subform_type')->filter()->unique()->values(),
+                'template' => $template,
+            ],
+        ]);
     }
 
-    private function extractRespondentName(array $responseData): string
+    public function status(string $event_id, string $batch_id): JsonResponse
     {
-        return $responseData['name']
-            ?? $responseData['full_name']
-            ?? $responseData['organization']
-            ?? $responseData['school']
-            ?? $responseData['email']
-            ?? 'Participant';
+        $payload = Cache::get($this->cacheKey($batch_id));
+
+        if (!$payload || ($payload['event_id'] ?? null) !== $event_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Certificate batch not found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $payload,
+        ]);
     }
 
-    private function writeResponsesCsv(string $path, $responses, string $eventId): void
+    public function download(string $event_id, string $batch_id)
     {
-        $handle = fopen($path, 'w');
+        $payload = Cache::get($this->cacheKey($batch_id));
 
-        $extraKeys = collect($responses)
-            ->flatMap(function ($response) {
-                $data = $response->response_data ?? [];
-                return array_keys($data);
+        if (!$payload || ($payload['event_id'] ?? null) !== $event_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Certificate batch not found.',
+            ], 404);
+        }
+
+        if (($payload['status'] ?? null) !== 'completed') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Certificate batch is not ready for download.',
+            ], 422);
+        }
+
+        $zipPath = Storage::path((string) ($payload['zip_path'] ?? ''));
+
+        if (!File::exists($zipPath)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'ZIP file not found for this batch.',
+            ], 404);
+        }
+
+        return response()->download($zipPath, "certificates-{$event_id}.zip")->deleteFileAfterSend(false);
+    }
+
+    private function resolveTemplatePath(Request $request, string $eventId, string $batchDir): string
+    {
+        if ($request->hasFile('template')) {
+            $uploadedTemplate = $request->file('template');
+            $batchTemplatePath = $uploadedTemplate->storeAs($batchDir, 'template.pptx');
+
+            $storedTemplatePath = $uploadedTemplate->storeAs("certificates/templates/{$eventId}", 'template.pptx');
+
+            EventCertificateTemplate::updateOrCreate(
+                ['event_id' => $eventId],
+                [
+                    'template_path' => $storedTemplatePath,
+                    'template_name' => $uploadedTemplate->getClientOriginalName(),
+                    'template_mime' => $uploadedTemplate->getClientMimeType(),
+                ]
+            );
+
+            return $batchTemplatePath;
+        }
+
+        $useSavedTemplate = $request->boolean('use_saved_template');
+        if (!$useSavedTemplate) {
+            throw new \RuntimeException('Template file is required unless using the saved event template.');
+        }
+
+        $template = EventCertificateTemplate::query()
+            ->where('event_id', $eventId)
+            ->first();
+
+        if (!$template || !$template->template_path || !Storage::exists($template->template_path)) {
+            throw new \RuntimeException('Saved template not found. Please upload a template first.');
+        }
+
+        $batchTemplatePath = "{$batchDir}/template.pptx";
+        Storage::copy($template->template_path, $batchTemplatePath);
+
+        return $batchTemplatePath;
+    }
+
+    private function resolveDataPath(Request $request, string $eventId, string $batchDir, array $validated): string
+    {
+        if ($request->boolean('use_event_data')) {
+            $rows = $this->collectResponseRows($eventId, $validated['subform_type'] ?? null);
+
+            if (count($rows) === 0) {
+                throw new \RuntimeException('No event response_data rows found for this event.');
+            }
+
+            return $this->buildCsvDataFile(
+                rows: $rows,
+                batchDir: $batchDir,
+                emailColumn: (string) ($validated['email_column'] ?? ''),
+                nameColumn: (string) ($validated['name_column'] ?? ''),
+            );
+        }
+
+        if (!$request->hasFile('data')) {
+            throw new \RuntimeException('Data file is required when not using event response_data.');
+        }
+
+        $extension = strtolower((string) $request->file('data')->getClientOriginalExtension());
+        $filename = $extension === 'csv' ? 'data.csv' : 'data.xlsx';
+
+        return $request->file('data')->storeAs($batchDir, $filename);
+    }
+
+    private function collectResponseRows(string $eventId, ?string $subformType = null): array
+    {
+        $query = EventSubformResponse::query()
+            ->whereRelation('parent', 'event_id', $eventId)
+            ->select(['response_data']);
+
+        if (!empty($subformType)) {
+            $query->where('subform_type', $subformType);
+        }
+
+        return $query
+            ->get()
+            ->map(function (EventSubformResponse $response) {
+                return is_array($response->response_data) ? $response->response_data : [];
             })
-            ->unique()
+            ->filter(fn(array $row) => count($row) > 0)
             ->values()
             ->all();
+    }
 
-        $baseHeaders = [
-            'name',
-            'email',
-            'event_id',
-            'form_type',
-            'date',
-        ];
+    private function buildCsvDataFile(array $rows, string $batchDir, string $emailColumn, string $nameColumn): string
+    {
+        $emailColumn = trim($emailColumn);
+        $nameColumn = trim($nameColumn);
 
-        $headers = array_values(array_unique(array_merge($baseHeaders, $extraKeys)));
-
-        fputcsv($handle, $headers);
-
-        foreach ($responses as $response) {
-            $responseData = $response->response_data ?? [];
-            $name = $this->extractRespondentName($responseData);
-
-            $row = [
-                'name' => $name,
-                'email' => $responseData['email'] ?? '',
-                'event_id' => $eventId,
-                'form_type' => $response->subform_type ?? '',
-                'date' => now()->format('F j, Y'),
-            ];
-
-            foreach ($extraKeys as $key) {
-                $row[$key] = $responseData[$key] ?? '';
+        $columns = [];
+        foreach ($rows as $row) {
+            foreach (array_keys($row) as $key) {
+                $column = is_string($key) ? trim($key) : '';
+                if ($column !== '' && !in_array($column, $columns, true)) {
+                    $columns[] = $column;
+                }
             }
-
-            $orderedRow = [];
-            foreach ($headers as $header) {
-                $orderedRow[] = $row[$header] ?? '';
-            }
-
-            fputcsv($handle, $orderedRow);
         }
 
-        fclose($handle);
+        if (!in_array($emailColumn, $columns, true)) {
+            throw new \RuntimeException('Selected email column was not found in response_data.');
+        }
+
+        if (!in_array($nameColumn, $columns, true)) {
+            throw new \RuntimeException('Selected name column was not found in response_data.');
+        }
+
+        if (!in_array('Email', $columns, true)) {
+            $columns[] = 'Email';
+        }
+
+        if (!in_array('Fullname', $columns, true)) {
+            $columns[] = 'Fullname';
+        }
+
+        $relativePath = "{$batchDir}/data.csv";
+        $absolutePath = Storage::path($relativePath);
+
+        File::ensureDirectoryExists(dirname($absolutePath));
+
+        $stream = fopen($absolutePath, 'wb');
+        if ($stream === false) {
+            throw new \RuntimeException('Unable to create CSV data file for event responses.');
+        }
+
+        fputcsv($stream, $columns);
+
+        foreach ($rows as $row) {
+            $record = [];
+            foreach ($columns as $column) {
+                if ($column === 'Email') {
+                    $value = $row[$emailColumn] ?? '';
+                } elseif ($column === 'Fullname') {
+                    $value = $row[$nameColumn] ?? '';
+                } else {
+                    $value = $row[$column] ?? '';
+                }
+
+                if (is_array($value) || is_object($value)) {
+                    $value = json_encode($value);
+                }
+
+                $record[] = (string) $value;
+            }
+
+            fputcsv($stream, $record);
+        }
+
+        fclose($stream);
+
+        return $relativePath;
+    }
+
+    private function cacheKey(string $batchId): string
+    {
+        return "certificate_batch:{$batchId}";
     }
 }

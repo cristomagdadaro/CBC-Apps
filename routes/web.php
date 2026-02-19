@@ -132,6 +132,12 @@ Route::middleware([
             Route::get('/update/{event_id?}', [EventSubformController::class, 'show'])->name('forms.update');
         });
 
+        Route::prefix('certificates')->group(function () {
+            Route::get('/', function () {
+                return Inertia::render('Certificates/CertificateGenerator');
+            })->name('certificates.index');
+        });
+
         Route::prefix('file-report')->group(function () {
             Route::get('/', function () {
                 return Inertia::render('Inventory/SuppEquipReports/SuppEquipReportsIndex');

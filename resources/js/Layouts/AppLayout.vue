@@ -32,6 +32,10 @@ export default {
                     label: 'Dashboard',
                     href: 'dashboard',
                 },{
+                    label: 'Certificate Generator',
+                    href: 'certificates.index',
+                    permission: 'event.certificates.manage',
+                },{
                     label: 'Event Forms',
                     href: 'forms.index',
                     permission: 'event.forms.manage',
