@@ -51,10 +51,30 @@ class TransactionRepo extends AbstractRepoService
                 ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,' .
                 ' SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END) as total_outgoing,' .
                 ' (SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) - ' .
+<<<<<<< Updated upstream
                 '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity,' .
                 ' transactions.expiration'
             )->join('items', 'transactions.item_id', '=', 'items.id')
             ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode', 'transactions.barcode_prri', 'transactions.expiration');
+=======
+<<<<<<< Updated upstream
+                '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity'
+            )
+            ->join('items', 'transactions.item_id', '=', 'items.id')
+            ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode');
+=======
+                '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity,' .
+                ' transactions.expiration,' .
+                ' CASE ' .
+                '   WHEN transactions.expiration IS NULL THEN 0 ' .
+                '   WHEN transactions.expiration < CURDATE() THEN 3 ' .
+                '   WHEN transactions.expiration <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) THEN 2 ' .
+                '   ELSE 1 ' .
+                ' END as expiration_priority'
+            )->join('items', 'transactions.item_id', '=', 'items.id')
+            ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode', 'transactions.barcode_prri', 'transactions.expiration');
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 
         if ($filter === 'category' && $filterBy) {
             $values = is_array($filterBy) ? $filterBy : [$filterBy];
@@ -158,7 +178,14 @@ class TransactionRepo extends AbstractRepoService
             }
         }
 
-        $query->orderByRaw($orderByRaw . ' ' . $order);
+        // When sorting by name, order by expiration priority first, then name A-Z
+        // Otherwise, apply the standard orderByRaw
+        if ($sort === 'name') {
+            $query->orderByRaw('expiration_priority ASC')
+                  ->orderByRaw('items.name ' . $order);
+        } else {
+            $query->orderByRaw($orderByRaw . ' ' . $order);
+        }
 
         if ($paginate && $perPage !== '*') {
             $data = $query->paginate($perPage, ['*'], 'page', $page);
