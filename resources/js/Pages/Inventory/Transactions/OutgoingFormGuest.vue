@@ -6,6 +6,7 @@ import OutgoingForm from "@/Pages/Inventory/Transactions/components/OutgoingForm
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Personnel from "@/Modules/domain/Personnel";
 import CameraScanner from "@/Components/CameraScanner.vue";
+import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 export default {
     name: "OutgoingFormGuest",
     components: {
@@ -14,7 +15,7 @@ export default {
         RequesterGuestCard,
         TransactionHeaderAction
     },
-    mixins: [ApiMixin],
+    mixins: [ApiMixin, DataFormatterMixin],
     props: {
         categories: {
             type: Array,
@@ -123,7 +124,35 @@ export default {
             if (!this.form) return;
             this.form.sort = 'name';
             this.form.order = 'asc';
-        }
+        },
+        getExpirationStatus(expirationDate) {
+            if (!expirationDate) return null;
+            
+            // Parse date ensuring consistent timezone handling (treat as UTC)
+            const [year, month, day] = expirationDate.split('-').map(Number);
+            const expDate = new Date(Date.UTC(year, month - 1, day));
+            const today = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()));
+            
+            const diffTime = expDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays < 0) {
+                return 'expired';
+            } else if (diffDays === 0) {
+                return 'expires-today';
+            } else if (diffDays <= 30) {
+                return 'expiring-soon';
+            }
+            
+            return null;
+        },
+        isExpired(expirationDate) {
+            return this.getExpirationStatus(expirationDate) === 'expired';
+        },
+        isExpiringSoon(expirationDate) {
+            const status = this.getExpirationStatus(expirationDate);
+            return status === 'expiring-soon' || status === 'expires-today';
+        },
     }
 }
 </script>
@@ -174,15 +203,27 @@ export default {
                                     @click="selectItem(item)"
                                     class="flex flex-col bg-white shadow hover:bg-gray-200 hover:border-gray-500 border rounded active:scale-95 duration-75"
                                 >
-                                    <div class="flex  justify-between items-center gap-5 py-2 px-4">
-                                        <div class="flex flex-col">
-                                                <span class="font-bold text-xs whitespace-nowrap overflow-ellipsis overflow-hidden">
-                                                    {{ item.name }} {{ item.description ? `(${item.description})` : '' }}
+                                    <div class="flex flex-col justify-between py-2 px-4 h-full">
+                                        <div class="flex justify-between items-center gap-5">
+                                            <div class="flex flex-col">
+                                                    <span class="font-bold text-xs whitespace-nowrap overflow-ellipsis overflow-hidden">
+                                                        {{ item.name }} {{ item.description ? `(${item.description})` : '' }}
+                                                    </span>
+                                                <span v-if="item.expiration" :class="{
+                                                    'text-red-600 font-semibold': isExpired(item.expiration),
+                                                    'text-orange-600 font-semibold': isExpiringSoon(item.expiration),
+                                                    'text-gray-500': !isExpired(item.expiration) && !isExpiringSoon(item.expiration)
+                                                }" class="text-xs">
+                                                    Expiry: {{ formatDate(item.expiration) }}
+                                                    <span v-if="isExpired(item.expiration)" class="ml-1">(Expired)</span>
+                                                    <span v-else-if="getExpirationStatus(item.expiration) === 'expires-today'" class="ml-1">(Expires Today)</span>
+                                                    <span v-else-if="isExpiringSoon(item.expiration)" class="ml-1">(Expiring Soon)</span>
                                                 </span>
-                                            <span class="text-xs text-gray-500">{{ item.brand }}</span>
-                                            <span class="text-xs text-gray-500">{{ item.barcode }}</span>
+                                                <span class="text-xs text-gray-500">{{ item.brand }}</span>
+                                            </div>
+                                            <span class="text-right">{{ formatNumber(item.remaining_quantity) }}</span>
                                         </div>
-                                        <span class="text-right">{{ formatNumber(item.remaining_quantity) }}</span>
+                                        <span class="text-xs text-gray-500">{{ item.barcode }}</span>
                                     </div>
                                 </div>
                             </div>

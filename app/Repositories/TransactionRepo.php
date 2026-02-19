@@ -42,6 +42,7 @@ class TransactionRepo extends AbstractRepoService
             'total_ingoing'      => 'total_ingoing',
             'total_outgoing'     => 'total_outgoing',
             'remaining_quantity' => 'remaining_quantity',
+            'expiration'         => 'transactions.expiration',
             default              => 'items.id',
         };
 
@@ -50,9 +51,10 @@ class TransactionRepo extends AbstractRepoService
                 ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,' .
                 ' SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END) as total_outgoing,' .
                 ' (SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) - ' .
-                '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity'
+                '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity,' .
+                ' transactions.expiration'
             )->join('items', 'transactions.item_id', '=', 'items.id')
-            ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode', 'transactions.barcode_prri');
+            ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode', 'transactions.barcode_prri', 'transactions.expiration');
 
         if ($filter === 'category' && $filterBy) {
             $values = is_array($filterBy) ? $filterBy : [$filterBy];
@@ -224,6 +226,7 @@ class TransactionRepo extends AbstractRepoService
                     'barcode' => $row->barcode,
                     'barcode_prri' => $row->barcode_prri ?? null,
                     'unit' => $row->unit,
+                    'expiration' => $row->expiration,
                     'remaining_quantity' => (int) $row->remaining_quantity,
                 ];
             })
