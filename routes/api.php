@@ -32,10 +32,22 @@ require __DIR__.'/guest.php';
 require __DIR__.'/options.php';
 
 // Authenticated routes organized by module
-Route::middleware(['api', 'auth'])->group(function () {
+Route::middleware(['api', 'auth:sanctum'])->group(function () {
     require __DIR__.'/laboratory.php';
-    require __DIR__.'/locations.php';
+
+    Route::middleware(['role.any:admin,laboratory_manager,ict_manager,administrative_assistant'])->group(function () {
+        require __DIR__.'/locations.php';
+    });
+
     require __DIR__.'/forms.php';
+
+    Route::middleware(['can:fes.request.approve', 'role.any:admin'])->group(function () {
+        require __DIR__.'/fes.php';
+    });
+
     require __DIR__.'/inventory.php';
+
     require __DIR__.'/rental.php';
+
+    require __DIR__.'/users.php';
 });

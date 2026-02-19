@@ -1,9 +1,11 @@
 import DtoForm from "@/Modules/dto/DtoForm";
 import { createEmptyFormStyleTokens, mergeFormStyleTokens } from "@/Modules/shared/formStyleTokens";
+import {usePage} from "@inertiajs/vue3";
 
 export default class Form extends DtoForm {
     static endpoints = {
-        index: 'api.form.guest.index',
+        indexGuest: 'api.form.guest.index',
+        indexAuth: 'api.form.index',
         post: 'api.form.post',
         put: 'api.form.put',
         delete: 'api.form.delete',
@@ -11,8 +13,8 @@ export default class Form extends DtoForm {
 
     constructor(response: DtoForm) {
         super(response);
-        
-        this.api._apiIndex = Form.endpoints.index;
+        const page = usePage();
+        this.api._apiIndex = (page.props.auth && page.props.auth.user) ? Form.endpoints.indexAuth : Form.endpoints.indexGuest;
         this.api._apiPost = Form.endpoints.post;
         this.api._apiPut = Form.endpoints.put;
         this.api._apiDelete = Form.endpoints.delete;

@@ -2,8 +2,23 @@
 
 namespace App\Providers;
 
-// use Illuminate\Support\Facades\Gate;
+use App\Models\Form;
+use App\Models\LaboratoryEquipmentLog;
+use App\Models\RentalVehicle;
+use App\Models\RentalVenue;
+use App\Models\RequestFormPivot;
+use App\Models\SuppEquipReport;
+use App\Models\Transaction;
+use App\Policies\FormPolicy;
+use App\Policies\LaboratoryEquipmentLogPolicy;
+use App\Policies\RentalVehiclePolicy;
+use App\Policies\RentalVenuePolicy;
+use App\Policies\RequestFormPivotPolicy;
+use App\Policies\SuppEquipReportPolicy;
+use App\Policies\TransactionPolicy;
+use App\Services\RbacService;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -13,7 +28,13 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        //
+        Form::class => FormPolicy::class,
+        RequestFormPivot::class => RequestFormPivotPolicy::class,
+        Transaction::class => TransactionPolicy::class,
+        SuppEquipReport::class => SuppEquipReportPolicy::class,
+        LaboratoryEquipmentLog::class => LaboratoryEquipmentLogPolicy::class,
+        RentalVehicle::class => RentalVehiclePolicy::class,
+        RentalVenue::class => RentalVenuePolicy::class,
     ];
 
     /**
@@ -21,6 +42,10 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        $rbacService = app(RbacService::class);
+
+        foreach (config('rbac.permissions', []) as $permission) {
+            Gate::define($permission, fn ($user) => $rbacService->hasPermission($user, $permission));
+        }
     }
 }

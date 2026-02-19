@@ -1,27 +1,26 @@
-<script setup>
-import { ref } from 'vue';
-import { Head, useForm } from '@inertiajs/vue3';
-import AuthenticationCard from '@/Components/AuthenticationCard.vue';
-import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+<script>
+import { useForm } from '@inertiajs/vue3';
 
-const form = useForm({
-    password: '',
-});
-
-const passwordInput = ref(null);
-
-const submit = () => {
-    form.post(route('password.confirm'), {
-        onFinish: () => {
-            form.reset();
-
-            passwordInput.value.focus();
+export default {
+    name: 'ConfirmPassword',
+    data() {
+        return {
+            form: useForm({ password: '' }),
+        };
+    },
+    mounted() {
+        this.$refs.passwordInput?.focus();
+    },
+    methods: {
+        submit() {
+            this.form.post(route('password.confirm'), {
+                onFinish: () => {
+                    this.form.reset();
+                    this.$refs.passwordInput?.focus();
+                },
+            });
         },
-    });
+    },
 };
 </script>
 

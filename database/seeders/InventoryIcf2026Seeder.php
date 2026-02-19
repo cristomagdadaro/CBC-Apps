@@ -244,7 +244,7 @@ class InventoryIcf2026Seeder extends Seeder
         return $personnel ? (int) $personnel : 1;
     }
 
-    private function resolveUserId($value): ?int
+    private function resolveUserId($value)
     {
         if ($value === null || $value === '') {
             return null;

@@ -32,13 +32,11 @@ export default {
             <transaction-header-action />
         </template>
 
-        <div class="py-5">
-            <div class="max-w-[90%] mx-auto sm:px-6 lg:px-8">
-                <search-comp
-                    :propModel="Transaction"
-                    :cardSlot="DataTable"
-                />
-            </div>
+        <div class="default-container pt-5">
+            <search-comp
+                :propModel="Transaction"
+                :cardSlot="DataTable"
+            />
         </div>
     </AppLayout>
 </template>

@@ -1,25 +1,26 @@
-<script setup>
-import { Head, Link, useForm } from '@inertiajs/vue3';
-import AuthenticationCard from '@/Components/AuthenticationCard.vue';
-import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
-import Checkbox from '@/Components/Checkbox.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+<script>
+import { useForm } from '@inertiajs/vue3';
 
-const form = useForm({
-    name: '',
-    email: '',
-    password: '',
-    password_confirmation: '',
-    terms: false,
-});
-
-const submit = () => {
-    form.post(route('register'), {
-        onFinish: () => form.reset('password', 'password_confirmation'),
-    });
+export default {
+    name: 'Register',
+    data() {
+        return {
+            form: useForm({
+                name: '',
+                email: '',
+                password: '',
+                password_confirmation: '',
+                terms: false,
+            }),
+        };
+    },
+    methods: {
+        submit() {
+            this.form.post(route('register'), {
+                onFinish: () => this.form.reset('password', 'password_confirmation'),
+            });
+        },
+    },
 };
 </script>
 

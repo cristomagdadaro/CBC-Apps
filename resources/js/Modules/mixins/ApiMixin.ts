@@ -4,7 +4,7 @@ import ConcreteApiService from "@/Modules/infrastructure/ConcreteApiService";
 import {AxiosError} from "axios";
 import DtoError from "@/Modules/dto/DtoError";
 import DtoResponse from "@/Modules/dto/DtoResponse";
-
+import { useNotifier } from '@/Modules/composables/useNotifier';
 export default {
     props: {
         data: {
@@ -232,12 +232,29 @@ export default {
                         this.form.setError(key, dto.data.errors[key].join(''))
                     })
                 }
+                try {
+                    const { error: notifyError } = useNotifier();
+                    if (dto.status === 422) {
+                        notifyError('Please check the form fields and try again.');
+                    } else {
+                        notifyError(dto.message || 'An error occurred while processing the request.');
+                    }
+                } catch (e) {
+                    // notifier may not be available here
+                }
             }
             else {
                 dto = new DtoError({
                     title: error.name,
                     message: error.message
                 })
+            }
+
+            try {
+                const { error: notifyError } = useNotifier();
+                notifyError(dto.message || dto.title || 'An error occurred.');
+            } catch (e) {
+                // ignore notifier failures
             }
 
             return dto;

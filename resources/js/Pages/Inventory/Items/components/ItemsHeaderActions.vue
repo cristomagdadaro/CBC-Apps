@@ -14,19 +14,14 @@ export default {
 </script>
 
 <template>
-    <div class="flex justify-between items-center">
-        <Link :href="route('items.index')" class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            List of Items
-        </Link>
-        <div class="flex justify-between items-center gap-1">
-            <CreateItemLink />
-            <BarcodePrintingLink />
-            <CreatePersonnelLink />
-            <CreateSupplierLink />
-            <IncommingTransactionLink />
-            <OutgoingTransactionLink />
-        </div>
-    </div>
+    <ActionHeaderLayout title="Inventory Items" subtitle="Manage your inventory items and related actions." :route-link="route('items.index')">
+        <CreateItemLink />
+        <BarcodePrintingLink />
+        <CreatePersonnelLink />
+        <CreateSupplierLink />
+        <IncommingTransactionLink />
+        <OutgoingTransactionLink />
+    </ActionHeaderLayout>
 </template>
 
 <style scoped>

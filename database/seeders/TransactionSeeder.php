@@ -9,6 +9,7 @@ use App\Models\NewBarcode;
 use App\Models\Personnel;
 use App\Models\Supplier;
 use App\Models\Transaction;
+use App\Models\User;
 use Database\Factories\TransactionFactory;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -104,7 +105,7 @@ class TransactionSeeder extends Seeder
             }
 
             Transaction::create([
-                'user_id' => 1,    // admin user
+                'user_id' => User::where('is_admin', true)->first()->id,    // admin user
                 'personnel_id' => 1, // initial stock by admin
                 'barcode' => TransactionFactory::generateBarcode(Inventory::BIOINFOROOM->value),
                 'item_id' => $item->id,

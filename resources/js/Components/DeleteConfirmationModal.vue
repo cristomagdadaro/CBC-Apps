@@ -1,11 +1,6 @@
 <script>
-import ConfirmationModal from "@/Components/ConfirmationModal.vue";
-
 export default {
     name: "DeleteConfirmationModal",
-    components: {
-        ConfirmationModal,
-    },
     props: {
         show: {
             type: Boolean,

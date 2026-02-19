@@ -1,10 +1,9 @@
 <script>
 import { QrcodeStream } from 'vue-qrcode-reader';
-import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 
 export default {
     name: 'CameraScanner',
-    components: {CustomDropdown, QrcodeStream },
+    components: { QrcodeStream },
     props: {
         enabled: {
             type: Boolean,

@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Repositories\OptionRepo;
+use App\Services\RbacService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -36,8 +38,16 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        $rbacService = app(RbacService::class);
+
         return array_merge(parent::share($request), [
-            //
+            'auth' => [
+                'user' => $user,
+                'roles' => $user?->roles()->pluck('name')->values()->all() ?? [],
+                'permissions' => $rbacService->permissionsFor($user),
+            ],
+            'layout_navigation_mode' => (app(OptionRepo::class)->getByKey('layout_navigation_mode') === 'true') ? 'sidebar' : 'top',
         ]);
     }
 }

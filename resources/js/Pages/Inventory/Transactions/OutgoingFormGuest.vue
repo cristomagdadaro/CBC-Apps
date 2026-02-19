@@ -5,16 +5,17 @@ import RequesterGuestCard from "@/Pages/LabRequest/components/RequesterGuestCard
 import OutgoingForm from "@/Pages/Inventory/Transactions/components/OutgoingForm.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Personnel from "@/Modules/domain/Personnel";
-import GuestFormPage from "@/Pages/Shared/GuestFormPage.vue";
 import CameraScanner from "@/Components/CameraScanner.vue";
+import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 export default {
     name: "OutgoingFormGuest",
     components: {
         CameraScanner,
-        GuestFormPage,
         OutgoingForm,
-        RequesterGuestCard, TransactionHeaderAction},
-    mixins: [ApiMixin],
+        RequesterGuestCard,
+        TransactionHeaderAction
+    },
+    mixins: [ApiMixin, DataFormatterMixin],
     props: {
         categories: {
             type: Array,
@@ -65,6 +66,10 @@ export default {
                 }
             });
         },
+        // Override mixin's isExpired to avoid conflicts with item-level expiration checking
+        isExpired() {
+            return null;
+        }
     },
     methods: {
         selectItem(item) {
@@ -88,7 +93,6 @@ export default {
                 this.searchEvent();
                 return;
             }
-
             this.form.filter = filter;
             this.form.filter_by = filter_by;
             this.searchEvent();
@@ -102,28 +106,24 @@ export default {
             this.applyNameSort();
         },
         async searchFromBarcode(barcode) {
-            // Prepare an exact search against the barcode column (assumes 'barcode' is a valid filter column)
             this.form.search = barcode;
             this.form.filter = 'barcode';
             this.form.is_exact = true;
-            // Clear any existing selection while we search
             this.selectedItem = null;
             this.showModel = false;
             await this.searchEvent();
-            // Attempt to auto-select if exactly one exact barcode match returned
             if (this.outgoingFromApi && Array.isArray(this.outgoingFromApi.data)) {
                 const exactMatches = this.outgoingFromApi.data.filter(item => item.barcode === barcode);
                 if (exactMatches.length === 1) {
                     this.selectItem(exactMatches[0]);
                 }
-                // If zero or multiple matches, the list remains visible for manual selection
             }
         },
         applyNameSort() {
             if (!this.form) return;
             this.form.sort = 'name';
             this.form.order = 'asc';
-        }
+        },
     }
 }
 </script>
@@ -143,7 +143,7 @@ export default {
         :delay-ready="delayReady"
     >
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
-            <div class="py-4 flex flex-col md:flex-row gap-3 bg-gray-50 p-4 md:rounded-md w-full md:w-fit h-full md:h-fit">
+            <div class="py-4 flex flex-col md:flex-row gap-3 bg-gray-50 p-4 md:rounded-md  max-w-6xl h-full md:h-fit">
                 <div class="flex flex-col justify-start gap-2 md:mx-auto md:w-full lg:w-[60vw]">
                     <div class="w-full flex gap-2 items-center lg:px-0">
                         <text-input placeholder="Search..." v-model="form.search" @update:model-value="form.filter = null; form.is_exact = false;" />
@@ -159,7 +159,8 @@ export default {
                             <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
                             <camera-scanner class="col-span-3 md:col-span-1" @decoded="searchFromBarcode" />
                         </div>
-                        <div class="w-full max-h-[60vh] overflow-y-auto">
+                        <h3>There are {{outgoingFromApi?.data?.length || 0}} items registered</h3>
+                        <div class="w-full max-h-[60vh] overflow-y-auto overflow-x-hidden">
                             <div v-show="processing" class="text-center py-3 border border-AB rounded-lg w-full h-full z-50">
                                 <div class="flex items-center justify-center gap-3 py-2 px-4 h-full">
                                     <loader-icon />
@@ -173,15 +174,27 @@ export default {
                                     @click="selectItem(item)"
                                     class="flex flex-col bg-white shadow hover:bg-gray-200 hover:border-gray-500 border rounded active:scale-95 duration-75"
                                 >
-                                    <div class="flex  justify-between items-center gap-5 py-2 px-4">
-                                        <div class="flex flex-col">
-                                                <span class="font-bold text-xs whitespace-nowrap overflow-ellipsis overflow-hidden">
-                                                    {{ item.name }} {{ item.description ? `(${item.description})` : '' }}
+                                    <div class="flex flex-col justify-between py-2 px-4 h-full">
+                                        <div class="flex justify-between items-center gap-5">
+                                            <div class="flex flex-col">
+                                                    <span class="font-bold text-xs whitespace-nowrap overflow-ellipsis overflow-hidden">
+                                                        {{ item.name }} {{ item.description ? `(${item.description})` : '' }}
+                                                    </span>
+                                                <span v-if="item.expiration" :class="{
+                                                    'text-red-600 font-semibold': getExpirationStatus(item.expiration) === 'expired',
+                                                    'text-orange-600 font-semibold': ['expiring_soon', 'expiring_today'].includes(getExpirationStatus(item.expiration)),
+                                                    'text-gray-500': !getExpirationStatus(item.expiration)
+                                                }" class="text-xs">
+                                                    Expiry: {{ formatDate(item.expiration) }}
+                                                    <span v-if="getExpirationStatus(item.expiration) === 'expired'" class="ml-1">(Expired)</span>
+                                                    <span v-else-if="getExpirationStatus(item.expiration) === 'expiring_today'" class="ml-1">(Expires Today)</span>
+                                                    <span v-else-if="getExpirationStatus(item.expiration) === 'expiring_soon'" class="ml-1">(Expiring Soon)</span>
                                                 </span>
-                                            <span class="text-xs text-gray-500">{{ item.brand }}</span>
-                                            <span class="text-xs text-gray-500">{{ item.barcode }}</span>
+                                                <span class="text-xs text-gray-500">{{ item.brand }}</span>
+                                            </div>
+                                            <span class="text-right">{{ formatNumber(item.remaining_quantity) }}</span>
                                         </div>
-                                        <span class="text-right">{{ formatNumber(item.remaining_quantity) }}</span>
+                                        <span class="text-xs text-gray-500">{{ item.barcode }}</span>
                                     </div>
                                 </div>
                             </div>

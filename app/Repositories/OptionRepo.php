@@ -132,8 +132,9 @@ class OptionRepo extends AbstractRepoService
 
     /**
      * Get all options keyed by stock_levels
+     * Only return stock levels for categories 1, 2, 3, 5, and 6 (consumables, non-consumables, chemicals, PPEs, and office supplies)
      */
-    public function getStockLevels()
+    public function getStockLevels($categoryIds = [1, 2, 3, 5, 6])
     {
         return json_decode($this->getByKey('stock_levels'), true) ?? [];
     }

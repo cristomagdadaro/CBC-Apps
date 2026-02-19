@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
 use App\Repositories\RequestFormPivotRepo;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -9,6 +13,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Milon\Barcode\DNS1D;
 
 class PDFGeneratorController extends Controller
 {
@@ -149,28 +154,122 @@ class PDFGeneratorController extends Controller
     }
 
     /**
-     * Generate a PDF of barcode labels (5cm x 3cm per page) from provided SVGs.
-     * Expects a JSON payload with a labels array.
+     * Unified PDF generator for various document types (forms, labels, reports, etc.)
+     * Accepts type parameter to route to appropriate template and validation.
+     * 
+     * Query/Body params:
+     * - type: 'barcode-labels', 'request-form', etc.
+     * - template: (optional) custom Blade template override
+     * - printMode: (optional) 'barcode', 'qr', 'both' for labels
+     * - paperWidth/paperHeight: (optional) custom paper dimensions in cm
+     * - labels/data: content to render
      */
-    public function downloadBarcodePdf(Request $request)
+    public function generatePdf(Request $request)
     {
+        $type = $request->input('type', 'barcode-labels');
+        $template = $request->input('template');
+        
+        // Route type to appropriate handler
+        return match ($type) {
+            'barcode-labels' => $this->generateBarcodeLabelsPdf($request, $template),
+            default => response()->json(['error' => 'Unknown PDF type'], 400),
+        };
+    }
+
+    /**
+     * Generate barcode/QR label PDFs with flexible layout and content.
+     * Supports barcode-only, QR-only, or mixed mode labels.
+     */
+    protected function generateBarcodeLabelsPdf(Request $request, ?string $template = null)
+    {
+        // Render all visual assets on backend for reliable DomPDF output
+        $printMode = $request->input('printMode', 'barcode');
         $validated = $request->validate([
             'labels' => ['required', 'array', 'min:1'],
             'labels.*.name' => ['required', 'string'],
             'labels.*.brand' => ['nullable', 'string'],
             'labels.*.barcode' => ['required', 'string'],
-            'labels.*.svg' => ['required', 'string'],
+            'labels.*.qrUrl' => ['nullable', 'string'],
+            'paperWidth' => ['nullable', 'numeric', 'min:1'],
+            'paperHeight' => ['nullable', 'numeric', 'min:1'],
+            'qrSize' => ['nullable', 'numeric', 'min:20', 'max:1000'],
+            'barcodeHeight' => ['nullable', 'numeric', 'min:10', 'max:1000'],
         ]);
 
         $labels = $validated['labels'];
+        $paperWidth = $validated['paperWidth'] ?? 5;
+        $paperHeight = $validated['paperHeight'] ?? 3;
+        $qrSize = (int) ($validated['qrSize'] ?? 56);
+        $barcodeHeight = (int) ($validated['barcodeHeight'] ?? 30);
+        $barcodeGenerator = new DNS1D();
 
-        $pdf = Pdf::loadView('generator/pdf/barcode-labels', compact('labels'));
-        // 5cm x 3cm label size in points
-        $pdf->setPaper([0, 0, 141.73, 85.04], 'portrait');
+        $qrWriter = new Writer(
+            new ImageRenderer(
+                new RendererStyle($qrSize),
+                new SvgImageBackEnd()
+            )
+        );
+
+        $labels = array_map(function (array $label) use ($barcodeGenerator, $qrWriter, $printMode, $qrSize, $barcodeHeight) {
+            $barcodeValue = (string) ($label['barcode'] ?? '');
+            $qrUrl = $label['qrUrl'] ?? null;
+
+            if ($barcodeValue !== '' && $printMode !== 'qr') {
+                $barcodeBase64 = $barcodeGenerator->getBarcodePNG($barcodeValue, 'C128', 2, $barcodeHeight);
+                $label['barcodeDataUri'] = 'data:image/png;base64,' . $barcodeBase64;
+            } else {
+                $label['barcodeDataUri'] = null;
+            }
+
+            if (is_string($qrUrl) && trim($qrUrl) !== '' && $printMode !== 'barcode') {
+                $effectiveQrSize = $printMode === 'both' ? max(24, (int) floor($qrSize * 0.72)) : $qrSize;
+                $qrSvg = $effectiveQrSize === $qrSize
+                    ? $qrWriter->writeString($qrUrl)
+                    : (new Writer(
+                        new ImageRenderer(
+                            new RendererStyle($effectiveQrSize),
+                            new SvgImageBackEnd()
+                        )
+                    ))->writeString($qrUrl);
+                $label['qrSvg'] = $qrSvg;
+                $label['qrSizePx'] = $effectiveQrSize;
+            } else {
+                $label['qrSvg'] = null;
+                $label['qrSizePx'] = $qrSize;
+            }
+
+            return $label;
+        }, $labels);
+
+        $template = $template ?? 'generator/pdf/barcode-labels';
+
+        $pdf = Pdf::loadView($template, compact('labels', 'printMode', 'paperWidth', 'paperHeight', 'qrSize', 'barcodeHeight'));
+        
+        // Convert cm to points (1cm = 28.3465 points)
+        $widthPoints = $paperWidth * 28.3465;
+        $heightPoints = $paperHeight * 28.3465;
+        $pdf->setPaper([0, 0, $widthPoints, $heightPoints], 'portrait');
 
         $downloadName = 'barcodes_' . Carbon::now()->format('Ymd_His') . '.pdf';
 
         return $pdf->download($downloadName);
+    }
+
+    /**
+     * Alias for generatePdf() - allows both routes to work
+     */
+    public function downloadGeneratedPdf(Request $request)
+    {
+        return $this->generatePdf($request);
+    }
+
+    /**
+     * Generate a PDF of barcode labels (5cm x 3cm per page) from provided SVGs.
+     * Deprecated: Use generatePdf() with type='barcode-labels' instead.
+     */
+    public function downloadBarcodePdf(Request $request)
+    {
+        return $this->generateBarcodeLabelsPdf($request);
     }
 
     /**

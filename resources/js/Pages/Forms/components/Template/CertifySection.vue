@@ -1,16 +1,6 @@
 <script>
-import Checkbox from '@/Components/Checkbox.vue'
-import InputError from '@/Components/InputError.vue'
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
-
 export default {
     name: 'CertifySection',
-    components: {
-        Checkbox,
-        InputError,
-        TransitionContainer,
-    },
-
     props: {
         agreed_tc: {
             type: [Boolean, String, Number],

@@ -10,11 +10,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
+use Tests\WithTestRoles;
 use App\Models\User;
 
 class EventCertificateApiTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, WithTestRoles;
 
     protected $seeder = \Database\Seeders\DatabaseSeeder::class;
 
@@ -34,7 +35,7 @@ class EventCertificateApiTest extends TestCase
         Storage::fake();
 
         $form = Form::factory()->create();
-        Sanctum::actingAs(User::factory()->create());
+        Sanctum::actingAs($this->createAdminUser());
 
         $file = UploadedFile::fake()->create(
             'template.pptx',
@@ -60,7 +61,7 @@ class EventCertificateApiTest extends TestCase
         Storage::fake();
 
         $form = Form::factory()->create();
-        Sanctum::actingAs(User::factory()->create());
+        Sanctum::actingAs($this->createAdminUser());
 
         $templatePath = "certificates/templates/{$form->event_id}/template.pptx";
         Storage::put($templatePath, 'pptx-binary');

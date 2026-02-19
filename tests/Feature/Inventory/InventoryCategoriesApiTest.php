@@ -7,14 +7,15 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
+use Tests\WithTestRoles;
 
 class InventoryCategoriesApiTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, WithTestRoles;
 
     public function test_categories_index_returns_data(): void
     {
-        Sanctum::actingAs(User::factory()->create());
+        Sanctum::actingAs($this->createAdminUser());
 
         Category::factory()->count(3)->create();
 

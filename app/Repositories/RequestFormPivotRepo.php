@@ -8,6 +8,7 @@ use App\Models\UseRequestForm;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\DB;
+use App\Pipelines\RequestApproval\AuthorizeApprovalAction;
 use App\Pipelines\RequestApproval\PrepareApprovalPayload;
 use App\Pipelines\RequestApproval\PersistApproval;
 
@@ -105,6 +106,7 @@ class RequestFormPivotRepo extends AbstractRepoService
                     'validated' => $validated,
                 ])
                 ->through([
+                    AuthorizeApprovalAction::class,
                     PrepareApprovalPayload::class,
                     PersistApproval::class,
                 ])

@@ -1,39 +1,39 @@
-<script setup>
-import { onMounted, ref, watch } from 'vue';
-import InputError from "@/Components/InputError.vue";
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
-
-const props = defineProps({
-    modelValue: String,
-    placeholder: String,
-    error: String,
-    label: String,
-    required: Boolean,
-});
-
-const emit = defineEmits(['update:modelValue']);
-
-const input = ref(null);
-const isChameleon = ref(props.chameleon); // Local state for toggling
-
-onMounted(() => {
-    if (input.value && input.value.hasAttribute('autofocus')) {
-        input.value.focus();
+<script>
+export default {
+    name: 'TimeInput',
+    props: {
+        modelValue: { type: String, default: '' },
+        placeholder: { type: String, default: '' },
+        error: { type: String, default: '' },
+        label: { type: String, default: '' },
+        required: { type: Boolean, default: false },
+        chameleon: { type: Boolean, default: false },
+    },
+    emits: ['update:modelValue'],
+    data() {
+        return {
+            isChameleon: this.chameleon,
+        };
+    },
+    mounted() {
+        const input = this.$refs.input;
+        if (input && input.hasAttribute && input.hasAttribute('autofocus')) {
+            input.focus();
+        }
+    },
+    watch: {
+        chameleon(newVal) {
+            this.isChameleon = newVal;
+        }
+    },
+    methods: {
+        formatTime(value) {
+            if (!value) return '';
+            const [hours, minutes] = value.split(':');
+            return `${hours}:${minutes}:00`;
+        }
     }
-});
-
-// Watch for changes in the prop and sync it with the local state
-watch(() => props.chameleon, (newVal) => {
-    isChameleon.value = newVal;
-});
-
-// Function to format the time value before emitting
-const formatTime = (value) => {
-    if (!value) return ''; // Handle empty input
-
-    const [hours, minutes] = value.split(':'); // Extract hours and minutes
-    return `${hours}:${minutes}:00`; // Append seconds as 00
-};
+}
 </script>
 
 <template>

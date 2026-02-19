@@ -12,17 +12,12 @@ export default {
 </script>
 
 <template>
-    <div class="flex justify-between items-center">
-        <Link :href="route('suppliers.index')" class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Registered Suppliers
-        </Link>
-        <div class="flex justify-between items-center gap-1">
-            <CreateSupplierLink />
-            <CreatePersonnelLink />
-            <IncommingTransactionLink />
-            <OutgoingTransactionLink />
-        </div>
-    </div>
+    <ActionHeaderLayout title="Registered Suppliers" subtitle="Manage suppliers and track their transactions." :route-link="route('suppliers.index')">
+        <CreateSupplierLink />
+        <CreatePersonnelLink />
+        <IncommingTransactionLink />
+        <OutgoingTransactionLink />
+    </ActionHeaderLayout>
 </template>
 
 <style scoped>

@@ -4,17 +4,9 @@ import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 import DtoResponse from "@/Modules/dto/DtoResponse";
 import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
-import TagifyInput from "@/Components/Tagify.vue";
-import SuccessModal from "@/Components/SuccessModal.vue";
-import PersonnelLookup from "@/Components/PersonnelLookup.vue";
 
 export default {
     name: "RequesterGuestCard",
-    components: {
-        TagifyInput,
-        SuccessModal,
-        PersonnelLookup,
-    },
     props: {
         requestTypeOptions: {
             type: Array,
@@ -38,6 +30,7 @@ export default {
             ],
             currentStep: 0,
             clientErrors: {},
+            employeeFound: false,
         };
     },
     methods: {
@@ -55,6 +48,7 @@ export default {
             this.form.email = data.email ?? this.form.email;
             this.form.affiliation = data.affiliation;
             this.form.clearErrors('employee_id');
+            this.employeeFound = true;
         },
         handlePersonnelError(error) {
             this.clientErrors[error.field] = error.message;
@@ -262,8 +256,7 @@ export default {
                         I am a non-PhilRice employee/personnel
                     </label>
                 </div>
-
-                <div v-show="isNonPhilRiceEmployee" class="flex flex-col gap-2 pt-2 border-t">
+                <div v-show="isNonPhilRiceEmployee || employeeFound" class="flex flex-col gap-2 pt-2 border-t">
                     <p class="text-sm text-gray-600">Manually enter your information</p>
                     <TextInput id="name" v-model="form.name" required type="text" :error="errMsg('name')" label="Full Name" placeholder="Juan Dela Cruz" autocomplete="name" @input="form.clearErrors('name')" />
                     <TextInput id="position" v-model="form.position" type="text" :error="form.errors.position" label="Position" placeholder="SRS I, Student" autocomplete="position" @input="form.clearErrors('position')" />

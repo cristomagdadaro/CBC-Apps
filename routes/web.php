@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Inventory;
+use App\Enums\Role as RoleEnum;
 use App\Http\Controllers\EventSubformController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\InventoryFormController;
@@ -8,17 +9,16 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LabRequestFormController;
 use App\Http\Controllers\PDFGeneratorController;
 use App\Http\Controllers\PersonnelController;
-use App\Http\Controllers\RequesterController;
-use App\Http\Controllers\RequestFormPivotController;
 use App\Http\Controllers\SupplierController;
 use App\Models\Category;
 use App\Repositories\OptionRepo;
-use App\Models\Form;
 use App\Models\Item;
 use App\Models\Personnel;
-use App\Models\Registration;
 use App\Models\Supplier;
 use App\Models\Transaction;
+use App\Models\User;
+use App\Http\Controllers\DashboardController;
+use App\Repositories\CategoryRepo;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -44,10 +44,11 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/inventory/outgoing', [InventoryFormController::class, 'outgoingForm'])->name('inventory.public.outgoing.index');
+
 Route::prefix('forms')->group(function () {
     Route::get('/event/{event?}', [FormController::class, 'formGuestView'])->name('forms.guest.index');
     Route::get('/request-to-use/{request?}', [LabRequestFormController::class, 'labReqFormGuestView'])->name('labReq.guest.index');
-    Route::get('/inventory/outgoing', [InventoryFormController::class, 'outgoingForm'])->name('inventory.public.outgoing.index');
     Route::get('/{id}/pdf', [PDFGeneratorController::class, 'downloadPdf'])->name('forms.generate.pdf');
     //Route::get('/{id}/pdf', function(){return view('generator.pdf.printable-request-form', ['form' => \App\Models\RequestFormPivot::with(['requester', 'request_form'])->findOrFail(request()->route('id'))]);})->name('forms.generate.pdf');
 });
@@ -72,75 +73,19 @@ Route::prefix('rental')->group(function () {
     })->name('rental.venue.guest');
 });
 
+Route::prefix('file-report')->group(function () {
+    Route::get('/create-guest/{barcode?}', function ($barcode = null) {
+        return Inertia::render('Inventory/SuppEquipReports/SuppEquipReportsCreateGuest', [
+            'reportTemplates' => config('suppequipreportforms'),
+            'barcode' => $barcode,
+        ]);
+    })->name('suppEquipReports.create.guest');
+});
+
 Route::middleware([
     
 ])->group(function () {
-    Route::get('/dashboard', function () {
-        $now = now();
-
-        $stockBaseQuery = Transaction::selectRaw(
-                'items.id as item_id,' .
-                ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,' .
-                ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity WHEN transactions.transac_type = "outgoing" THEN -transactions.quantity ELSE 0 END) as remaining_quantity'
-            )
-            ->join('items', 'transactions.item_id', '=', 'items.id')
-            ->groupBy('items.id');
-
-        $percentageExpr = 'CASE WHEN total_ingoing <> 0 THEN remaining_quantity / total_ingoing ELSE 0 END';
-
-        $emptyStockCount = (clone $stockBaseQuery)
-            ->havingRaw("$percentageExpr <= 0")
-            ->count();
-
-        $lowStockCount = (clone $stockBaseQuery)
-            ->havingRaw("$percentageExpr > 0 AND $percentageExpr <= 0.25")
-            ->count();
-
-        $midStockCount = (clone $stockBaseQuery)
-            ->havingRaw("$percentageExpr > 0.25 AND $percentageExpr <= 0.75")
-            ->count();
-
-        $highStockCount = (clone $stockBaseQuery)
-            ->havingRaw("$percentageExpr > 0.75")
-            ->count();
-
-        $stats = [
-            'events' => [
-                'total'    => Form::count(),
-                'active'   => Form::where('is_suspended', false)->where('is_expired', false)->count(),
-                'upcoming' => Form::whereDate('date_from', '>=', $now->toDateString())->where('is_expired', false)->count(),
-                'suspended'=> Form::where('is_suspended', true)->count(),
-                'expired'  => Form::where('is_expired', true)->count(),
-            ],
-            'access_requests' => [
-                'total'    => \App\Models\RequestFormPivot::count(),
-                'pending'  => \App\Models\RequestFormPivot::where('request_status', 'pending')->count(),
-                'approved' => \App\Models\RequestFormPivot::where('request_status', 'approved')->count(),
-                'rejected' => \App\Models\RequestFormPivot::where('request_status', 'rejected')->count(),
-            ],
-            'inventory' => [
-                'items'              => Item::count(),
-                'transactions_today' => Transaction::whereDate('created_at', $now->toDateString())->count(),
-                'stock_buckets'      => [
-                    'empty' => $emptyStockCount,
-                    'low'   => $lowStockCount,
-                    'mid'   => $midStockCount,
-                    'high'  => $highStockCount,
-                ],
-            ],
-        ];
-
-        // 10 recent transactions
-        $recentTransactions = Transaction::with('item', 'personnel')
-            ->orderBy('created_at', 'desc')
-            ->limit(10)
-            ->get();
-
-        return Inertia::render('Dashboard', [
-            'stats' => $stats,
-            'recentTransactions' => $recentTransactions,
-        ]);
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::prefix('apps')->group(function () {
         Route::prefix('manuals')->group(function () {
@@ -156,13 +101,17 @@ Route::middleware([
         });
 
         Route::prefix('rentals')->group(function () {
-            Route::get('/', function () {
-                return Inertia::render('Rentals/RentalsIndex');
-            })->name('rentals.index');
+            Route::get('/vehicle', function () {
+                return Inertia::render('Rentals/RentalsVehicleIndex');
+            })->name('rentals.vehicle.index');
+
+            Route::get('/venue', function () {
+                return Inertia::render('Rentals/RentalsVenueIndex');
+            })->name('rentals.venue.index');
 
             Route::get('/calendar', function () {
                 return Inertia::render('Rentals/CalendarModule');
-            })->name('rentals.calendar');
+            })->name('rentals.calendar.index');
         });
 
         Route::prefix('event-forms')->group(function () {
@@ -183,7 +132,7 @@ Route::middleware([
             Route::get('/update/{event_id?}', [EventSubformController::class, 'show'])->name('forms.update');
         });
 
-        Route::prefix('supply-equipment-reports')->group(function () {
+        Route::prefix('file-report')->group(function () {
             Route::get('/', function () {
                 return Inertia::render('Inventory/SuppEquipReports/SuppEquipReportsIndex');
             })->name('suppEquipReports.index');
@@ -193,13 +142,6 @@ Route::middleware([
                     'reportTemplates' => config('suppequipreportforms'),
                 ]);
             })->name('suppEquipReports.create');
-
-            Route::get('/create/guest/{barcode?}', function ($barcode = null) {
-                return Inertia::render('Inventory/SuppEquipReports/SuppEquipReportsCreateGuest', [
-                    'reportTemplates' => config('suppequipreportforms'),
-                    'barcode' => $barcode,
-                ]);
-            })->name('suppEquipReports.create.guest');
         });
 
         Route::prefix('access-use-requests')->group(function () {
@@ -237,17 +179,21 @@ Route::middleware([
             Route::get('/barcodes/print', function () {
                 return Inertia::render('Inventory/Barcodes/BarcodePrint', [
                     'fromUrl' => route('items.index'),
+                    'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
                 ]);
             })->name('inventory.barcodes.print');
 
-            Route::post('/barcodes/pdf', [PDFGeneratorController::class, 'downloadBarcodePdf'])
+            Route::post('/barcodes/pdf', [PDFGeneratorController::class, 'generatePdf'])
                 ->name('inventory.barcodes.pdf');
+            
+            Route::post('/generate-pdf', [PDFGeneratorController::class, 'generatePdf'])
+                ->name('inventory.generate-pdf');
 
             Route::prefix('transactions')->group(function () {
                 Route::get('/', function () {
                     return Inertia::render('Inventory/Transactions/Transactions', [
                         'fromUrl' => route('dashboard'),
-                        'categories' => Category::select('id as name', 'name as label')->has('items')->get(),
+                        'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
                     ]);
                 })->name('transactions.index');
 
@@ -256,7 +202,7 @@ Route::middleware([
                         'fromUrl' => route('transactions.index'),
                         'items' => Item::get(),
                         'suppliers' => Supplier::withTrashed()->get(),
-                        'categories' => Category::all(),
+                        'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
                         'storage_locations' => app(OptionRepo::class)->getStorageLocations(),
                         'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                     ]);
@@ -267,9 +213,7 @@ Route::middleware([
                         'fromUrl' => url()->previous(),
                         'personnels' => Personnel::selectRaw(expression: 'id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                         'stockLevel' => app(OptionRepo::class)->getStockLevels(),
-                        'categories' => Category::select('id as name', 'name as label')
-                ->has('items')
-                ->get(),
+                        'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
                     ]);
                 })->name('transactions.outgoing');
 
@@ -306,6 +250,7 @@ Route::middleware([
                                         items.description,
                                         transactions.unit,
                                         transactions.barcode,
+                                        transactions.barcode_prri,
 
                                         SUM(CASE WHEN transactions.transac_type = "incoming"
                                             THEN transactions.quantity ELSE 0 END) AS total_ingoing,
@@ -322,7 +267,7 @@ Route::middleware([
                                         ) AS remaining_quantity')
                                 ->join('items', 'transactions.item_id', '=', 'items.id')
                                 ->where('transactions.item_id', $transaction->item_id)
-                                ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode')
+                                ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode', 'transactions.barcode_prri')
                                 ->first(),
                             'fromUrl' => route('transactions.index'),
                             'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
@@ -397,6 +342,27 @@ Route::middleware([
                         'data' => \App\Models\Option::find(request()->route('id')),
                     ]);
                 })->name('system.options.show');
+            });
+
+            Route::middleware(['auth', 'can:users.manage'])->prefix('users')->group(function () {
+                Route::get('/', function () {
+                    return Inertia::render('System/Users/UsersIndex');
+                })->name('system.users.index');
+
+                Route::get('/create', function () {
+                    return Inertia::render('System/Users/CreateUser', [
+                        'roleOptions' => RoleEnum::values(),
+                        'permissionOptions' => config('rbac.permissions', []),
+                    ]);
+                })->name('system.users.create');
+
+                Route::get('/{id}', function () {
+                    return Inertia::render('System/Users/EditUser', [
+                        'data' => User::query()->with('roles:id,name,label')->findOrFail(request()->route('id')),
+                        'roleOptions' => RoleEnum::values(),
+                        'permissionOptions' => config('rbac.permissions', []),
+                    ]);
+                })->name('system.users.show');
             });
         });
     });

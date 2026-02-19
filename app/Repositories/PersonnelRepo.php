@@ -22,7 +22,11 @@ class PersonnelRepo extends AbstractRepoService
             ->get();
     }
 
-    public function getAllForInventoryForm()
+    /**
+     * Get all personnel formatted for inventory form, only including those with transactions and matching the specified category IDs
+     * Default category IDs are 1, 2, 3, 5, and 6 (consumables, non-consumables, chemicals, PPEs, and office supplies
+    */
+    public function getAllForInventoryForm($categoryIds = [1, 2, 3, 5, 6])
     {
         return $this->model->newQuery()->get();
     }

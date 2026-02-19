@@ -57,7 +57,7 @@ export default {
     <div v-if="form" class="flex items-center">
         <!-- Main Toggle Button -->
         <button
-            @click="showConfirm = true"
+            @click.prevent="showConfirm = true"
             :disabled="model.api.processing"
             :title="buttonTooltip"
             :class="{
@@ -65,7 +65,7 @@ export default {
                 'bg-green-500 hover:bg-green-600 text-white': isSuspended && !model.api.processing,
                 'bg-gray-400 text-gray-600 cursor-not-allowed': model.api.processing
             }"
-            class="inline-flex items-center gap-2 px-3 py-2 rounded-md shadow-sm font-medium text-sm transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2"
+            class="inline-flex items-center gap-2 px-3 py-2 rounded-md shadow-sm font-medium text-sm transition ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 hover:scale-110 duration-200"
             :focus-ring-color="isSuspended ? 'focus:ring-green-400' : 'focus:ring-red-400'"
         >
             <!-- Icon -->

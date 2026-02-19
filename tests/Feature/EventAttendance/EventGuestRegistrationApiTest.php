@@ -9,12 +9,13 @@ use App\Models\Registration;
 use App\Models\Participant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\WithTestRoles;
 use Laravel\Sanctum\Sanctum;
 use App\Models\User;
 
 class EventGuestRegistrationApiTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, WithTestRoles;
 
     protected $seeder = \Database\Seeders\DatabaseSeeder::class;
 
@@ -112,7 +113,7 @@ class EventGuestRegistrationApiTest extends TestCase
             'subform_type' => 'registration',
         ]);
 
-        Sanctum::actingAs(User::factory()->create());
+        Sanctum::actingAs($this->createAdminUser());
 
         $response = $this->getJson(route('api.subform.response.index', [
             'event_id' => $formA->event_id,
@@ -147,7 +148,7 @@ class EventGuestRegistrationApiTest extends TestCase
             'subform_type' => 'registration',
         ]);
 
-        Sanctum::actingAs(User::factory()->create());
+        Sanctum::actingAs($this->createAdminUser());
 
         $response = $this->deleteJson(route('api.subform.response.delete', $responseModel->id));
         $response->assertOk();

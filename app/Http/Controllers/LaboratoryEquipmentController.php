@@ -41,12 +41,6 @@ class LaboratoryEquipmentController extends Controller
 
         $details = $this->service->getEquipmentDetails($equipmentId);
 
-        if (!$details['equipment']) {
-            return response()->json([
-                'message' => 'Equipment not found or not eligible for laboratory logs.',
-            ], 404);
-        }
-
         return response()->json([
             'data' => $details,
         ]);

@@ -1,10 +1,6 @@
 <script>
-import InputError from "@/Components/InputError.vue";
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
-
 export default {
     name: "FileInput",
-    components: {TransitionContainer, InputError},
     props: {
         modelValue: [String, Number],
         autocomplete: String,

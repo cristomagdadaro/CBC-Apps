@@ -76,6 +76,14 @@ class OptionSeeder extends Seeder
                 'group' => 'email',
             ],
             [
+                'key' => 'layout_navigation_mode',
+                'value' => 'true',
+                'label' => 'Layout Navigation Mode',
+                'description' => 'Default navigation mode for the layout',
+                'type' => 'boolean',
+                'group' => 'system',
+            ],
+            [
                 'key' => 'email_from_name',
                 'value' => 'CBC Apps',
                 'label' => 'Email From Name',

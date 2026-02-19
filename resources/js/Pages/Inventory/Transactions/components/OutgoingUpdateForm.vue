@@ -99,6 +99,7 @@ export default {
                         </span>
                         <span class="text-sm text-gray-500">{{ summary.brand }}</span>
                         <span class="text-xs text-gray-500 leading-none" :class="{'text-red-600' : !summary.barcode}">{{ data.barcode || 'Warning! NO BARCODE' }}</span>
+                        <span class="text-xs text-gray-500 leading-none" :class="{'text-red-600' : !summary.barcode_prri}">{{ data.barcode_prri }}</span>
                     </div>
                     <div class="flex sm:gap-4 gap-1">
                         <div class="flex flex-col leading-none md:leading-relaxed">

@@ -80,7 +80,7 @@ export default {
             <forms-header-actions />
         </template>
 
-        <div class="max-w-[90vw] mx-auto sm:px-6 lg:px-8">
+        <div class="default-container pt-5">
             <form v-if="!!form" class="flex gap-2 items-end"  @submit.prevent="searchEvent">
                 <div class="grid grid-rows-2 w-full">
                     <div class="w-full flex gap-2 items-end lg:px-0 px-2">
@@ -189,7 +189,7 @@ export default {
                     </div>
                 </div>
             </form>
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg justify-center">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden border border-gray-300 sm:rounded-lg justify-center">
                 <!-- Show forms when available -->
                 <list-of-forms
                     v-if="eventFormFromApi && eventFormFromApi.total > 0 && !model.api.processing"

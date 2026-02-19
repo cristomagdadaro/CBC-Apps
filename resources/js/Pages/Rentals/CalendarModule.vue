@@ -125,12 +125,10 @@ onMounted(() => {
 <template>
     <AppLayout title="Rental Services Calendar">
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                Rental Services Calendar
-            </h2>
+            <ActionHeaderLayout title="Rental Services Calendar" subtitle="Track vehicles and venues across the month." :route-link="route('rentals.vehicle.index')" />
         </template>
 
-        <div class="py-6 px-4 sm:px-6 lg:px-8">
+        <div class="default-container pt-5">
             <div class="max-w-7xl mx-auto space-y-6">
                 <CalendarModule
                     title="Rental Services Calendar"

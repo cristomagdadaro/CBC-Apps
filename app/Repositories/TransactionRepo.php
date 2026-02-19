@@ -20,7 +20,7 @@ class TransactionRepo extends AbstractRepoService
         $this->appendWith = ['item', 'user','personnel'];
     }
 
-    public function getRemainingStocks(Collection $parameters): Collection
+    public function getRemainingStocks(Collection $parameters, array $consumableCategoryIds = [1, 2, 3, 5, 6]): Collection
     {
         $search   = $parameters->get('search');
         $isExact  = filter_var($parameters->get('is_exact', false), FILTER_VALIDATE_BOOLEAN);
@@ -38,23 +38,43 @@ class TransactionRepo extends AbstractRepoService
             'brand'              => 'items.brand',
             'unit'               => 'transactions.unit',
             'barcode'            => 'transactions.barcode',
+            'barcode_prri'       => 'transactions.barcode_prri',
             'total_ingoing'      => 'total_ingoing',
             'total_outgoing'     => 'total_outgoing',
             'remaining_quantity' => 'remaining_quantity',
+            'expiration'         => 'transactions.expiration',
             default              => 'items.id',
         };
 
-        $query = $this->model
-            ->newQuery()
-            ->selectRaw(
-                'items.name, items.description, items.brand, transactions.unit, items.id as item_id, transactions.barcode,' .
+        $query = $this->model->newQuery()->selectRaw(
+                'items.name, items.description, items.brand, transactions.unit, items.id as item_id, transactions.barcode, transactions.barcode_prri,' .
                 ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,' .
                 ' SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END) as total_outgoing,' .
                 ' (SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) - ' .
+<<<<<<< Updated upstream
+                '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity,' .
+                ' transactions.expiration'
+            )->join('items', 'transactions.item_id', '=', 'items.id')
+            ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode', 'transactions.barcode_prri', 'transactions.expiration');
+=======
+<<<<<<< Updated upstream
                 '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity'
             )
             ->join('items', 'transactions.item_id', '=', 'items.id')
             ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode');
+=======
+                '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity,' .
+                ' transactions.expiration,' .
+                ' CASE ' .
+                '   WHEN transactions.expiration IS NULL THEN 0 ' .
+                '   WHEN transactions.expiration < CURDATE() THEN 3 ' .
+                '   WHEN transactions.expiration <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) THEN 2 ' .
+                '   ELSE 1 ' .
+                ' END as expiration_priority'
+            )->join('items', 'transactions.item_id', '=', 'items.id')
+            ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode', 'transactions.barcode_prri', 'transactions.expiration');
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 
         if ($filter === 'category' && $filterBy) {
             $values = is_array($filterBy) ? $filterBy : [$filterBy];
@@ -91,6 +111,9 @@ class TransactionRepo extends AbstractRepoService
             } else {
                 $query->whereRaw('0 = 1');
             }
+        } elseif (!$filter && !empty($consumableCategoryIds)) {
+            // Apply consumable category filter by default
+            $query->whereIn('items.category_id', $consumableCategoryIds);
         } elseif ($filter === 'quantity' && $filterBy) {
             $percentageExpr = 'CASE WHEN total_ingoing <> 0 THEN remaining_quantity / total_ingoing ELSE 0 END';
 
@@ -125,7 +148,8 @@ class TransactionRepo extends AbstractRepoService
                     $q->where('items.name', $search)
                         ->orWhere('items.brand', $search)
                         ->orWhere('transactions.unit', $search)
-                        ->orWhere('transactions.barcode', $search);
+                        ->orWhere('transactions.barcode', $search)
+                        ->orWhere('transactions.barcode_prri', $search);
                 });
 
                 if (is_numeric($search)) {
@@ -141,7 +165,8 @@ class TransactionRepo extends AbstractRepoService
                     $q->where('items.name', 'like', $like)
                         ->orWhere('items.brand', 'like', $like)
                         ->orWhere('transactions.unit', 'like', $like)
-                        ->orWhere('transactions.barcode', 'like', $like);
+                        ->orWhere('transactions.barcode', 'like', $like)
+                        ->orWhere('transactions.barcode_prri', 'like', $like);
                 });
 
                 if (is_numeric($search)) {
@@ -153,7 +178,14 @@ class TransactionRepo extends AbstractRepoService
             }
         }
 
-        $query->orderByRaw($orderByRaw . ' ' . $order);
+        // When sorting by name, order by expiration priority first, then name A-Z
+        // Otherwise, apply the standard orderByRaw
+        if ($sort === 'name') {
+            $query->orderByRaw('expiration_priority ASC')
+                  ->orderByRaw('items.name ' . $order);
+        } else {
+            $query->orderByRaw($orderByRaw . ' ' . $order);
+        }
 
         if ($paginate && $perPage !== '*') {
             $data = $query->paginate($perPage, ['*'], 'page', $page);
@@ -221,9 +253,20 @@ class TransactionRepo extends AbstractRepoService
                     'barcode' => $row->barcode,
                     'barcode_prri' => $row->barcode_prri ?? null,
                     'unit' => $row->unit,
+                    'expiration' => $row->expiration,
                     'remaining_quantity' => (int) $row->remaining_quantity,
                 ];
             })
             ->values();
+    }
+
+    public function getRecentTransactions(int $limit = 5): Collection
+    {
+        return $this->model
+            ->newQuery()
+            ->with(['item', 'personnel'])
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get();
     }
 }

@@ -1,9 +1,6 @@
 <script>
-import BaseBtn from "@/Components/Buttons/BaseBtn.vue";
-
 export default {
     name: "SubmitBtn",
-    components: {BaseBtn},
     props: {
         disabled: Boolean,
     }

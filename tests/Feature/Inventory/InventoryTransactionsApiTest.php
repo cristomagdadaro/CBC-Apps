@@ -12,14 +12,15 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
+use Tests\WithTestRoles;
 
 class InventoryTransactionsApiTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, WithTestRoles;
 
     public function test_transactions_crud_flow(): void
     {
-        $user = User::factory()->create();
+        $user = $this->createAdminUser();
         Sanctum::actingAs($user);
 
         $category = Category::factory()->create();
@@ -63,7 +64,7 @@ class InventoryTransactionsApiTest extends TestCase
 
         $outgoingPayload = [
             'item_id' => $item->id,
-            'barcode' => $barcode,
+            'barcode' => $barcode . '-outgoing',
             'transac_type' => Inventory::OUTGOING->value,
             'quantity' => 2,
             'unit_price' => 100,

@@ -2,30 +2,10 @@
 import SubformMixin from "@/Modules/mixins/SubformMixin";
 import SubformResponse from "@/Modules/domain/SubformResponse";
 import DtoResponse from "@/Modules/dto/DtoResponse";
-import ProgressTabs from "@/Components/ProgressTabs.vue";
-import LikertScale from "@/Components/LikertScale.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
-import InputLabel from "@/Components/InputLabel.vue";
-import InputError from "@/Components/InputError.vue";
-import Checkbox from "@/Components/Checkbox.vue";
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
-import SubmitBtn from "@/Components/Buttons/SubmitBtn.vue";
-import CustomDropdown from "@/Components/CustomDropdown/CustomDropdown.vue";
 
 export default {
     name: "FeedbackCard",
     mixins: [SubformMixin],
-    components: {
-        ProgressTabs,
-        LikertScale,
-        PrimaryButton,
-        InputLabel,
-        InputError,
-        Checkbox,
-        TransitionContainer,
-        SubmitBtn,
-        CustomDropdown,
-    },
     props: {
         responseData: {
             type: Object,

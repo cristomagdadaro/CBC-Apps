@@ -1,29 +1,15 @@
 <script>
-import {Head, Link, useForm} from "@inertiajs/vue3";
-import GuestCard from "@/Pages/Forms/components/GuestCard.vue";
-import TextInput from "@/Components/TextInput.vue";
-import InputLabel from "@/Components/InputLabel.vue";
-import InputError from "@/Components/InputError.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
+import {useForm} from "@inertiajs/vue3";
 import Form from "@/Modules/domain/Form";
-import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
-import SearchBtn from "@/Components/Buttons/SearchBtn.vue";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 import QrcodeVue from 'qrcode.vue';
-import DeleteBtn from "@/Components/Buttons/DeleteBtn.vue";
-import ConfirmationModal from "@/Components/ConfirmationModal.vue";
-import CancelBtn from "@/Components/Buttons/CancelBtn.vue";
-import GuestFormPage from "@/Pages/Shared/GuestFormPage.vue";
 
 export default {
     name: "FormGuest",
     mixins: [FormLocalMixin],
     components: {
-        GuestFormPage,
-        CancelBtn,
-        ConfirmationModal,
-        DeleteBtn,
-        SearchBtn, TransitionContainer, PrimaryButton, InputError, InputLabel, TextInput, GuestCard, Head, Link, QrcodeVue},
+        QrcodeVue
+    },
     props: {
         eventForm: { type: Object },
         quote: String,

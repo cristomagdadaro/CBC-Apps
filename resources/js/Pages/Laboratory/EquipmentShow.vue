@@ -1,28 +1,11 @@
 <script>
-import { useForm, usePage } from "@inertiajs/vue3";
-import { router } from "@inertiajs/vue3";
+import { useForm, usePage, router } from "@inertiajs/vue3";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import LaboratoryPersonnelMixin from "@/Modules/mixins/LaboratoryPersonnelMixin";
-import PersonnelLookup from "@/Components/PersonnelLookup.vue";
-import SelectSearchField from "@/Components/SelectSearchField.vue";
-import TextInput from "@/Components/TextInput.vue";
-import SuccessModal from "@/Components/SuccessModal.vue";
-import FlagIcon from '@/Components/Icons/FlagIcon.vue';
-import ArrowRight from '@/Components/Icons/ArrowRight.vue';
-import ErrorIcon from '@/Components/Icons/ErrorIcon.vue';
 
 export default {
     name: "EquipmentShow",
-    components: {
-        PersonnelLookup,
-        SelectSearchField,
-        TextInput,
-        SuccessModal,
-        FlagIcon,
-        ArrowRight,
-        ErrorIcon,
-    },
     mixins: [ApiMixin, DataFormatterMixin, LaboratoryPersonnelMixin],
     props: {
         equipment_id: {
@@ -351,7 +334,7 @@ export default {
                                 <p class="text-sm text-gray-500 mb-4">{{ message || 'The equipment you are looking for could not be found.' }}</p>
                                 <Link
                                     :href="route('laboratory.equipments.show')"
-                                    class="px-4 py-2 bg-AB text-white text-sm rounded hover:bg-AB-dark flex items-center gap-2 transition-opacity inline-flex"
+                                    class="px-4 py-2 bg-AB text-white text-sm rounded hover:bg-AB-dark items-center gap-2 transition-opacity inline-flex"
                                     :class="isNavigating ? 'opacity-70 pointer-events-none' : ''"
                                 >
                                     <span v-if="isNavigating" class="inline-flex">

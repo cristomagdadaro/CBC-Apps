@@ -9,12 +9,7 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import AppLayout from '@/Layouts/AppLayout.vue';
 import CalendarModule from '@/Components/CalendarModule.vue';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownOption from '@/Components/CustomDropdown/Components/DropdownOption.vue';
-import TabNavigation from '@/Components/TabNavigation.vue';
-import SearchComp from '@/Components/Search/SearchComp.vue';
 import LaboratoryEquipmentLog from '@/Modules/domain/LaboratoryEquipmentLog';
 import LaboratoryLogsDataTable from '@/Pages/Laboratory/components/LaboratoryLogsDataTable.vue';
 import LaboratoryLogHeaderAction from '@/Pages/Laboratory/components/LaboratoryLogHeaderAction.vue';
@@ -24,12 +19,7 @@ Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, L
 export default {
     name: 'LaboratoryDashboard',
     components: {
-        AppLayout,
         CalendarModule,
-        Dropdown,
-        DropdownOption,
-        TabNavigation,
-        SearchComp,
         LaboratoryLogHeaderAction,
     },
     data() {
@@ -409,20 +399,6 @@ export default {
                     </div>
 
                     <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
-                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Top 5 Most-Used Equipment</h3>
-                        <div v-if="mostUsed.length" class="h-72 w-full">
-                            <canvas 
-                                ref="mostUsedChartCanvas"
-                                :key="mostUsed.length"
-                                width="400"
-                                height="300"
-                                style="max-height: 100%; max-width: 100%;"
-                            ></canvas>
-                        </div>
-                        <div v-else class="text-sm text-gray-500">No usage data available.</div>
-                    </div>
-
-                    <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
                         <div class="flex justify-between">
                             <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Usage Heatmap</h3>
 
@@ -462,6 +438,20 @@ export default {
                             </div>
                         </div>
                     </div>
+
+                    <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
+                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Top 5 Most-Used Equipment</h3>
+                        <div v-if="mostUsed.length" class="h-72 w-full">
+                            <canvas 
+                                ref="mostUsedChartCanvas"
+                                :key="mostUsed.length"
+                                width="400"
+                                height="300"
+                                style="max-height: 100%; max-width: 100%;"
+                            ></canvas>
+                        </div>
+                        <div v-else class="text-sm text-gray-500">No usage data available.</div>
+                    </div>
                 </div>
 
                 <div v-show="activeTab === 'calendar'" class="space-y-6">
@@ -478,7 +468,6 @@ export default {
                 </div>
                 <div v-show="activeTab === 'logs'" class="space-y-6">
                     <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
-                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Equipment Logs</h3>
                         <search-comp
                             :prop-model="LaboratoryEquipmentLog"
                             :card-slot="LaboratoryLogsDataTable"

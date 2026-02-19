@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('rental')->group(function () {
     // Vehicle Rentals
-    Route::prefix('vehicles')->group(function () {
+    Route::middleware(['can:rental.vehicle.manage'])->prefix('vehicles')->group(function () {
         Route::get('/', [RentalVehicleController::class, 'index'])->name('api.rental.vehicles.index');
         Route::post('/', [RentalVehicleController::class, 'store'])->name('api.rental.vehicles.store');
         Route::get('/{id}', [RentalVehicleController::class, 'show'])->name('api.rental.vehicles.show');
@@ -17,7 +17,7 @@ Route::prefix('rental')->group(function () {
     });
 
     // Venue Rentals
-    Route::prefix('venues')->group(function () {
+    Route::middleware(['can:rental.venue.manage'])->prefix('venues')->group(function () {
         Route::get('/', [RentalVenueController::class, 'index'])->name('api.rental.venues.index');
         Route::post('/', [RentalVenueController::class, 'store'])->name('api.rental.venues.store');
         Route::get('/{id}', [RentalVenueController::class, 'show'])->name('api.rental.venues.show');

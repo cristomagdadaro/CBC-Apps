@@ -25,9 +25,9 @@ class LaboratoryEquipmentLogSeeder extends Seeder
             Personnel::factory()->count(10)->create();
         }
 
-        LaboratoryEquipmentLog::factory()->count(10)->completed()->create();
-        LaboratoryEquipmentLog::factory()->count(5)->overdue()->create();
-        LaboratoryEquipmentLog::factory()->count(5)->active()->create();
-        LaboratoryEquipmentLog::factory()->count(5)->create();
+        LaboratoryEquipmentLog::factory()->count(count: 1000)->completed()->create();
+        LaboratoryEquipmentLog::factory()->count(256)->overdue()->create();
+        LaboratoryEquipmentLog::factory()->count(3)->active()->create();
+        LaboratoryEquipmentLog::factory()->count(100)->create();
     }
 }
