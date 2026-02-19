@@ -171,7 +171,7 @@ export default {
                     @input="form.clearErrors('phone')"
                 />
             </div>
-            <div class="grid grid-cols-3 gap-2">
+             <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <SelectRegion
                     v-model="form.response_data.region_address"
                     :error="form.errors.region_address"

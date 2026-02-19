@@ -52,7 +52,7 @@ export default {
 </script>
 
 <template>
-    <div class="flex flex-col gap-1 min-w-56">
+    <div class="flex flex-col gap-1">
         <div class="relative">
             <button
                 type="button"
