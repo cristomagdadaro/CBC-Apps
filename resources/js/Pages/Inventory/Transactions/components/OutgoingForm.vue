@@ -3,13 +3,14 @@ import Transaction from "@/Modules/domain/Transaction";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import DtoResponse from "@/Modules/dto/DtoResponse";
 import DtoError from "@/Modules/dto/DtoError";
+import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 
 export default {
     name: "OutgoingForm",
     props: {
         personnels: Object,
     },
-    mixins: [ApiMixin],
+    mixins: [ApiMixin, DataFormatterMixin],
     data() {
         return {
             employee_id: '',
@@ -99,9 +100,19 @@ export default {
     <div class="grid sm:grid-cols-3 grid-cols-1 sm:p-5 p-3 sm:gap-3">
         <div class="flex flex-col col-span-2 gap-1 bg-white rounded">
             <div  v-if="data" class="flex flex-col  justify-between items-center gap-5 py-2 px-1 md:px-4 border-b">
-                <div class="flex flex-col leading-none w-full">
+                <div class="flex flex-col leading-tight w-full">
                     <span class="font-bold text-base md:text-lg whitespace-nowrap overflow-ellipsis overflow-hidden">
                         {{ data.name }} {{ data.description ? `(${data.description})` : '' }}
+                    </span>
+                    <span v-if="data.expiration" :class="{
+                        'text-red-600 font-semibold': getExpirationStatus(data.expiration) === 'expired',
+                        'text-orange-600 font-semibold': ['expiring_soon', 'expiring_today'].includes(getExpirationStatus(data.expiration)),
+                        'text-gray-500': !getExpirationStatus(data.expiration)
+                    }" class="text-xs">
+                        Expiry: {{ formatDate(data.expiration) }}
+                        <span v-if="getExpirationStatus(data.expiration) === 'expired'" class="ml-1">(Expired)</span>
+                        <span v-else-if="getExpirationStatus(data.expiration) === 'expiring_today'" class="ml-1">(Expires Today)</span>
+                        <span v-else-if="getExpirationStatus(data.expiration) === 'expiring_soon'" class="ml-1">(Expiring Soon)</span>
                     </span>
                     <span class="text-sm text-gray-500">{{ data.brand }}</span>
                     <span class="text-xs text-gray-500 leading-none" :class="{'text-red-600' : !data.barcode}">{{ data.barcode || 'Warning! NO BARCODE' }}</span>

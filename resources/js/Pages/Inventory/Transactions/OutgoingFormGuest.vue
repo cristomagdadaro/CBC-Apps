@@ -124,22 +124,6 @@ export default {
             this.form.sort = 'name';
             this.form.order = 'asc';
         },
-        getExpirationStatus(expirationDate) {
-            if (!expirationDate) return null;
-            const [year, month, day] = expirationDate.split('-').map(Number);
-            const expDate = new Date(Date.UTC(year, month - 1, day));
-            const today = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()));
-            const diffTime = expDate - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            if (diffDays < 0) {
-                return 'expired';
-            } else if (diffDays === 0) {
-                return 'expiring_today';
-            } else if (diffDays <= 30) {
-                return 'expiring_soon';
-            }
-            return null;
-        }
     }
 }
 </script>
