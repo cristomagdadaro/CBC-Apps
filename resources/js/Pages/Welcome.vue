@@ -1,6 +1,6 @@
 <script setup>
 import particleMixin from "@/Modules/mixins/ParticleMixin.js";
-import { onMounted } from "vue";
+import { onMounted, ref, computed } from "vue";
 import SocialLinks from "@/Components/SocialLinks.vue";
 import ServiceCard from "@/Components/ServiceCard.vue";
 import CalendarIcon from "@/Components/Icons/CalendarIcon.vue";
@@ -16,6 +16,15 @@ defineProps({
     canRegister: Boolean,
     laravelVersion: String,
     phpVersion: String,
+});
+
+const showNetworkModal = ref(false);
+const isCheckingNetwork = ref(false);
+const localNetworkUrl = "http://192.168.36.10";
+
+const isInternetAccess = computed(() => {
+    // Check if current URL is the internet deployment
+    return window.location.origin.includes("dacbc.philrice.gov.ph");
 });
 
 const services = [
@@ -65,9 +74,49 @@ const services = [
     },
 ];
 
+const testNetworkAndRedirect = async () => {
+    isCheckingNetwork.value = true;
+    try {
+        // Try to fetch from local network with a short timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+        const response = await fetch(`${localNetworkUrl}/`, {
+            method: "HEAD",
+            signal: controller.signal,
+            mode: "no-cors",
+        });
+
+        clearTimeout(timeoutId);
+
+        // If we get here, the local network is reachable
+        window.location.href = localNetworkUrl;
+    } catch (error) {
+        // Network not reachable, dismiss modal and stay on internet version
+        isCheckingNetwork.value = false;
+        showNetworkModal.value = false;
+    }
+};
+
+const dismissNetworkModal = () => {
+    showNetworkModal.value = false;
+    // Remember user's choice for this session
+    sessionStorage.setItem("declinedLocalNetwork", "true");
+};
+
 onMounted(() => {
     particleMixin.methods.createFallingLogos();
-})
+
+    // Show network modal only if:
+    // 1. Accessed from internet URL
+    // 2. Not already declined in this session
+    if (isInternetAccess.value && !sessionStorage.getItem("declinedLocalNetwork")) {
+        // Small delay to let page fully load first
+        setTimeout(() => {
+            showNetworkModal.value = true;
+        }, 500);
+    }
+});
 </script>
 
 
@@ -125,5 +174,39 @@ onMounted(() => {
         </div>
     </div>
     <social-links />
+
+    <!-- PhilRice Network Detection Modal -->
+    <div v-if="showNetworkModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-8 max-w-md mx-4">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">
+                PhilRice Network Detected?
+            </h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-6">
+                We detected you're accessing from the internet. If you're connected to the PhilRice network, we can redirect you to the faster local deployment for better performance.
+            </p>
+            <div class="flex gap-3">
+                <button
+                    @click="dismissNetworkModal"
+                    :disabled="isCheckingNetwork"
+                    class="flex-1 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                    No, Continue Online
+                </button>
+                <button
+                    @click="testNetworkAndRedirect"
+                    :disabled="isCheckingNetwork"
+                    class="flex-1 px-4 py-2 bg-AB dark:bg-green-600 text-white rounded-lg hover:bg-opacity-90 dark:hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                >
+                    <span v-if="isCheckingNetwork">
+                        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </span>
+                    <span v-else>Yes, I'm on PhilRice Network</span>
+                </button>
+            </div>
+        </div>
+    </div>
 </template>
 
