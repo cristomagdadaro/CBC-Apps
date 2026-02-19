@@ -128,4 +128,29 @@ Route::prefix('guest')->group(function () {
     Route::post('/equipments/{identifier}/check-in', [LaboratoryEquipmentController::class, 'checkIn'])->name('api.laboratory.equipments.check-in');
     Route::post('/equipments/{identifier}/check-out', [LaboratoryEquipmentController::class, 'checkOut'])->name('api.laboratory.equipments.check-out');
     Route::get('/equipments', [LaboratoryEquipmentController::class, 'index'])->name('api.laboratory.equipments.index');
+
+    // Network connectivity test for local deployment redirect
+    Route::post('/test-local-network', function () {
+        $localNetworkUrl = '192.168.36.10';
+        $isReachable = false;
+
+        try {
+            $context = stream_context_create([
+                'http' => [
+                    'timeout' => 3,
+                    'method' => 'HEAD',
+                ]
+            ]);
+
+            $response = @fopen("http://{$localNetworkUrl}/", 'r', false, $context);
+            $isReachable = $response !== false;
+            if ($response) {
+                fclose($response);
+            }
+        } catch (\Exception $e) {
+            $isReachable = false;
+        }
+
+        return response()->json(['isReachable' => $isReachable]);
+    })->name('api.test-local-network');
 });

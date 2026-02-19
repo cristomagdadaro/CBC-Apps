@@ -77,22 +77,27 @@ const services = [
 const testNetworkAndRedirect = async () => {
     isCheckingNetwork.value = true;
     try {
-        // Try to fetch from local network with a short timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
-
-        const response = await fetch(`${localNetworkUrl}/`, {
-            method: "HEAD",
-            signal: controller.signal,
-            mode: "no-cors",
+        // Call backend endpoint to test local network connectivity
+        const response = await fetch(route("api.test-local-network"), {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Requested-With": "XMLHttpRequest",
+            },
         });
 
-        clearTimeout(timeoutId);
+        const data = await response.json();
 
-        // If we get here, the local network is reachable
-        window.location.href = localNetworkUrl;
+        if (data.isReachable) {
+            // Local network is reachable, redirect
+            window.location.href = localNetworkUrl;
+        } else {
+            // Local network not reachable
+            isCheckingNetwork.value = false;
+            showNetworkModal.value = false;
+        }
     } catch (error) {
-        // Network not reachable, dismiss modal and stay on internet version
+        // Error testing network, dismiss modal and stay on internet version
         isCheckingNetwork.value = false;
         showNetworkModal.value = false;
     }
