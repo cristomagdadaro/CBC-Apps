@@ -29,7 +29,8 @@ class CreateTransactionRequest extends FormRequest
         return [
             'item_id' => 'required|exists:items,id',
             'barcode' => [
-                'required', 'string', 'unique:transactions,barcode',
+                'required',
+                'string',
                 Rule::when(
                     fn ($input) => $input->transac_type === Inventory::INCOMING->value,
                     ['unique:transactions,barcode']
