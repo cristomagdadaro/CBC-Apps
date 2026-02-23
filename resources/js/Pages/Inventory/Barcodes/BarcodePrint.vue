@@ -156,7 +156,7 @@ export default {
             const term = this.search?.toLowerCase()?.trim();
             if (!term) return this.items;
             return this.items.filter(item => {
-                return [item.name, item.brand, item.description, item.barcode]
+                return [item.name, item.brand, item.description, item.barcode, item.barcode_prri]
                     .filter(Boolean)
                     .some(value => value.toLowerCase().includes(term));
             });
@@ -582,42 +582,7 @@ export default {
                     </table>
                 </div>
             </div>
-            <div v-if="previewReady && layoutMode === 'single'" class="print-area">
-                <div class="label-grid">
-                    <div v-for="label in labels" :key="label.key" class="label-card cursor-pointer" :style="cardStyle" @dblclick="openLabelModal(label)" title="Double-click to enlarge">
-                        <div class="label-card-inner" :style="cardInnerStyle">
-                            <div class="label-text" :style="{ fontSize: `${labelFontSize}px` }">
-                                <div class="label-item">{{ label.item.name }} {{ label.item.description ? '(' + label.item.description + ')' : '' }}</div>
-                                <div class="label-brand">{{ label.item.brand }}</div>
-                            </div>
-                            <svg v-if="printMode !== 'qr'" :id="`barcode-${label.key}`"></svg>
-                            <qrcode-vue v-if="printMode !== 'barcode'" :key="`preview-qr-${label.key}-${qrSize}-${printMode}`" :value="label.equipmentUrl" :size="qrSize" level="M" render-as="canvas" class="label-qr mx-auto" />
-                            <div v-if="printMode !== 'qr'" class="label-barcode mx-auto" :style="{ fontSize: `${labelFontSize}px` }">{{ label.item.barcode }}</div>
-                            <div v-else class="label-qr-caption" :style="{ fontSize: `${labelFontSize * 0.9}px` }">{{ label.item.barcode }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div v-if="previewReady && layoutMode === 'sheet'" class="print-area-sheet">
-                <div v-for="(sheet, sheetIndex) in sheetedLabels" :key="`sheet-${sheetIndex}`" class="sheet-page" :style="{ width: `${sheetDimensions.widthCm}cm`, height: `${sheetDimensions.heightCm}cm`, padding: `${sheetMarginCm}cm` }">
-                    <div class="sheet-grid" :style="{ display: 'grid', gridTemplateColumns: `repeat(${labelsPerRow}, 1fr)`, gap: '0px' }">
-                        <div v-for="label in sheet" :key="label.key" class="label-card cursor-pointer" :style="cardStyle" @dblclick="openLabelModal(label)" title="Double-click to enlarge">
-                            <div class="label-card-inner" :style="cardInnerStyle">
-                                <div class="label-text" :style="{ fontSize: `${labelFontSize}px` }">
-                                    <div class="label-item">{{ label.item.name }} {{ label.item.description ? '(' + label.item.description + ')' : '' }}</div>
-                                    <div class="label-brand">{{ label.item.brand }}</div>
-                                </div>
-                                <svg v-if="printMode !== 'qr'" :id="`barcode-${label.key}`"></svg>
-                                <qrcode-vue v-if="printMode !== 'barcode'" :key="`sheet-qr-${label.key}-${qrSize}-${printMode}`" :value="label.equipmentUrl" :size="qrSize" level="M" render-as="canvas" class="label-qr mx-auto" />
-                                <div v-if="printMode !== 'qr'" class="label-barcode mx-auto" :style="{ fontSize: `${labelFontSize}px` }">{{ label.item.barcode }}</div>
-                                <div v-else class="label-qr-caption" :style="{ fontSize: `${labelFontSize * 0.9}px` }">{{ label.item.barcode }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
+           
             <Teleport to="body">
                 <div v-if="previewReady && layoutMode === 'single'" class="print-area">
                     <div class="label-grid">
