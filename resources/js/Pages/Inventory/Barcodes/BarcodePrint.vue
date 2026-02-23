@@ -4,6 +4,7 @@ import Transaction from "@/Modules/domain/Transaction";
 import JsBarcode from "jsbarcode";
 import QrcodeVue from "qrcode.vue";
 import CustomDropdown from '@/Components/CustomDropdown/CustomDropdown.vue';
+import DialogModal from "@/Components/DialogModal.vue";
 
 export default {
     name: "BarcodePrint",
@@ -31,7 +32,7 @@ export default {
             orientation: "portrait",
             customFontSize: 10,
             customBarcodeHeight: 30,
-            customQRSize: 56,
+            customQRSize: 60,
         };
     },
     computed: {
@@ -110,7 +111,7 @@ export default {
                 ? this.graphicsAvailableHeightPx * 0.58
                 : this.graphicsAvailableHeightPx;
 
-            return Math.max(20, Math.floor(Math.min(this.cardUsableWidthPx, modeHeightLimit)));
+            return Math.max(60, Math.floor(Math.min(this.cardUsableWidthPx, modeHeightLimit)));
         },
         maxBarcodeHeightPx() {
             const modeHeightLimit = this.printMode === "both"
@@ -124,14 +125,14 @@ export default {
             return Math.max(12, Math.min(height, this.maxBarcodeHeightPx));
         },
         qrSize() {
-            const size = this.normalizeSize(this.customQRSize, 56);
+            const size = this.normalizeSize(this.customQRSize, 60);
             return Math.max(20, Math.min(size, this.maxQrSizePx));
         },
         modalBarcodeHeight() {
             return this.barcodeHeight * 4;
         },
         modalQRSize() {
-            return this.qrSize * 4;
+            return this.qrSize * 5;
         },
         cardStyle() {
             return {
@@ -444,7 +445,7 @@ export default {
                         <submit-btn :disabled="selectedCount === 0" @click="buildLabels">
                             Generate Preview ({{ selectedCount }})
                         </submit-btn>
-                        <submit-btn :disabled="!previewReady || exporting" @click="exportPdf">
+                        <submit-btn :disabled="!previewReady || exporting" @click="exportPdf" class="hidden">
                             {{ exporting ? 'Exporting...' : 'Export PDF' }}
                         </submit-btn>
                         <submit-btn :disabled="!previewReady" @click="printLabels">
@@ -508,7 +509,6 @@ export default {
                     </table>
                 </div>
             </div>
-
             <div v-if="previewReady" class="print-area">
                 <div class="label-grid">
                     <div v-for="label in labels" :key="label.key" class="label-card cursor-pointer" :style="cardStyle" @dblclick="openLabelModal(label)" title="Double-click to enlarge">
@@ -533,35 +533,53 @@ export default {
                     </div>
                 </div>
             </div>
-
-            <Modal :show="showLabelModal" @close="closeLabelModal">
-                <div v-if="selectedLabelForModal" class="p-6 bg-white">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold text-gray-900">{{ selectedLabelForModal.item.name }}</h3>
-                        <button @click="closeLabelModal" class="text-gray-500 hover:text-gray-700">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
+            
+            <Teleport to="body">
+                <div v-if="previewReady" class="print-area">
+                    <div class="label-grid">
+                        <div v-for="label in labels" :key="label.key" class="label-card cursor-pointer" :style="cardStyle" @dblclick="openLabelModal(label)" title="Double-click to enlarge">
+                            <div class="label-card-inner" :style="cardInnerStyle">
+                                <div class="label-text" :style="{ fontSize: `${labelFontSize}px` }">
+                                    <div class="label-item">{{ label.item.name }}</div>
+                                    <div class="label-brand">{{ label.item.brand }} {{ label.item.description ? '(' + label.item.description + ')' : '' }}</div>
+                                </div>
+                                <svg v-if="printMode !== 'qr'" :id="`barcode-${label.key}`"></svg>
+                                <qrcode-vue
+                                    v-if="printMode !== 'barcode'"
+                                    :key="`preview-qr-${label.key}-${qrSize}-${printMode}`"
+                                    :value="label.equipmentUrl"
+                                    :size="qrSize"
+                                    level="M"
+                                    render-as="canvas"
+                                    class="label-qr mx-auto"
+                                />
+                                <div v-if="printMode !== 'qr'" class="label-barcode mx-auto" :style="{ fontSize: `${labelFontSize}px` }">{{ label.item.barcode }}</div>
+                                <div v-else class="label-qr-caption" :style="{ fontSize: `${labelFontSize * 0.9}px` }">{{ label.item.barcode }}</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex justify-center items-center bg-gray-50 p-8 rounded">
+                </div>
+            </Teleport>
+
+            <DialogModal :show="showLabelModal" @close="closeLabelModal" >
+                <template #content>
+                    <div class="flex justify-center items-center" v-if="selectedLabelForModal">
                         <div
-                            class="enlarged-label-card"
+                        class="scale-75"
                             :style="{
                                 width: `${resolvedWidthCm * 4}cm`,
                                 height: `${resolvedHeightCm * 4}cm`,
-                                border: '1px solid #cbd5f5',
+                                aspectRatio: `${resolvedWidthCm * 4} / ${resolvedHeightCm * 4}`,
+                                border: '1px solid #000000',
                                 borderRadius: '6px',
-                                padding: '40px',
-                                boxSizing: 'border-box',
+                                padding: '1rem',
                                 background: '#ffffff',
-                                overflow: 'hidden',
                             }"
                         >
-                            <div class="enlarged-label-card-inner" :style="cardInnerStyle">
-                                <div class="label-text" :style="{ fontSize: `${labelFontSize * 4}px` }">
-                                    <div class="label-item">{{ selectedLabelForModal.item.name }} {{ selectedLabelForModal.item.description ? '(' + selectedLabelForModal.item.description + ')' : '' }}</div>
-                                    <div class="label-brand" :style="{ fontSize: `${labelFontSize * 3.6}px` }">{{ selectedLabelForModal.item.brand }}</div>
+                            <div class="justify-between flex flex-col h-full" :style="cardInnerStyle">
+                                <div class="label-text" :style="{ fontSize: `${labelFontSize * 3}px` }">
+                                    <div class="label-item">{{ selectedLabelForModal.item.name }}</div>
+                                    <div class="label-brand" :style="{ fontSize: `${labelFontSize * 2.6}px` }">{{ selectedLabelForModal.item.brand }} {{ selectedLabelForModal.item.description ? '(' + selectedLabelForModal.item.description + ')' : '' }}</div>
                                 </div>
                                 <svg v-if="printMode !== 'qr'" :id="'modal-barcode-' + selectedLabelForModal.key" :style="{ width: '100%', height: `${modalBarcodeHeight}px`, display: 'block' }"></svg>
                                 <qrcode-vue
@@ -575,12 +593,17 @@ export default {
                                     style="display: flex; justify-content: center; align-items: center; width: 100%;"
                                 />
                                 <div v-if="printMode !== 'qr'" class="label-barcode mx-auto" :style="{ fontSize: `${labelFontSize * 4}px` }">{{ selectedLabelForModal.item.barcode }}</div>
-                                <div v-else class="label-qr-caption" :style="{ fontSize: `${labelFontSize * 3.6}px` }">{{ selectedLabelForModal.item.barcode }}</div>
+                                <div v-else class="label-qr-caption" :style="{ fontSize: `${labelFontSize * 2.6}px` }">{{ selectedLabelForModal.item.barcode }}</div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </Modal>
+                </template>
+                <template #footer>
+                    <button @click="closeLabelModal" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
+                        Close
+                    </button>
+                </template>
+            </DialogModal>
         </div>
     </AppLayout>
 </template>
@@ -595,7 +618,7 @@ export default {
 .label-card {
     border: 1px dashed #cbd5f5;
     border-radius: 6px;
-    padding: 10px;
+    padding: 0.2rem;
     box-sizing: border-box;
     background: #ffffff;
     overflow: hidden;
@@ -618,15 +641,16 @@ export default {
 }
 
 .label-item {
-    font-weight: 600;
+    font-weight: 700;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .label-brand {
-    color: #64748b;
+    color: #111827;
     font-size: 9px;
+    font-weight: 600;
 }
 
 .label-barcode {
@@ -663,35 +687,38 @@ export default {
 
 .label-qr-caption {
     font-size: 9px;
+    font-weight: 600;
     text-align: center;
-    color: #1f2937;
+    color: #111827;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 @media print {
-    :global(body) {
-        margin: 0;
+    :global(body), :global(html) {
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
-    :global(body *) {
-        visibility: hidden;
-    }
-
-    .print-area,
-    .print-area * {
-        visibility: visible;
+    /* Hide the entire standard Vue/Inertia App layout */
+    :global(body > *:not(.print-area)) {
+        display: none !important;
     }
 
     .print-area {
         position: absolute;
         left: 0;
         top: 0;
+        margin: 0;
+        padding: 0;
+        /* Ensure it is visible */
+        display: block !important;
+        visibility: visible !important;
     }
 
     .no-print {
-        display: none;
+        display: none !important;
     }
 
     .label-grid {
@@ -706,10 +733,17 @@ export default {
         break-after: page;
         page-break-inside: avoid;
         break-inside: avoid-page;
-        border: none;
+
+        /* OVERRIDE INLINE STYLES to prevent fractional pixel overflow */
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: 100vw !important;
+        max-height: 100vh !important;
+
+        border: none !important;
         border-radius: 0;
-        padding: 0;
-        margin: 0;
+        padding: 0.2rem;
+        margin: 0 !important;
         overflow: hidden;
         box-shadow: none;
     }
@@ -721,6 +755,7 @@ export default {
 
     .label-card-inner {
         overflow: hidden;
+        justify-content: space-between;
     }
 
     .label-text,
