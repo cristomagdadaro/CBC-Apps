@@ -464,8 +464,8 @@ export default {
                         <li class="text-xs text-gray-500">- For Laboratory Logger only Laboratory Equipments will work.</li>
                     </ul>
                 </p>
-                <div class="grid grid-cols-6 grid-rows-4 gap-2">
-                        <div class="col-span-6">
+                <div class="grid grid-cols-4 md:grid-cols-6 grid-rows-4 gap-2">
+                        <div class="col-span-4 md:col-span-6">
                             <text-input
                                 v-model="search"
                                 placeholder="Search item, brand, or barcode"

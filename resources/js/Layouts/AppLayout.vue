@@ -315,7 +315,7 @@ export default {
                     :class="sidebarCollapsed ? 'lg:w-14' : 'lg:w-72'"
                 >
                     <!-- Header with hamburger always visible -->
-                    <div class="px-2 py-2.5 border-b border-AA bg-AA dark:border-gray-700 text-gray-100 drop-shadow-md flex items-center justify-center lg:justify-start gap-2 transition-opacity duration-200">
+                    <div class="px-2 py-2.5 border-b border-AA bg-AA dark:bg-gray-800 dark:border-gray-700 text-gray-100 drop-shadow-md flex items-center justify-center lg:justify-start gap-2 transition-opacity duration-200">
                         <button
                             type="button"
                             class="inline-flex items-center justify-center p-2 rounded-md dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out"
@@ -436,25 +436,27 @@ export default {
                     <div v-if="!isSidebarModeResponsive" class="default-container">
                         <div class="flex justify-between h-16">
                             <div class="flex items-center w-full">
-                                <!-- Logo -->
-                                <div class="shrink-0 flex items-center">
-                                    <Link :href="route('dashboard')">
-                                        <ApplicationMark class="block h-9 w-auto" />
-                                    </Link>
-                                </div>
+                               <div class="flex justify-between w-full">
+                                    <!-- Logo -->
+                                    <div class="shrink-0 flex items-center">
+                                        <Link :href="route('dashboard')">
+                                            <ApplicationMark class="block h-9 w-auto" />
+                                        </Link>
+                                    </div>
 
-                                <!-- Mobile hamburger (always top on mobile) -->
-                                <button
-                                    @click="showingNavigationDropdown = !showingNavigationDropdown"
-                                    class="lg:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ms-3"
-                                    :aria-expanded="String(showingNavigationDropdown)"
-                                    aria-controls="primary-navigation"
-                                    aria-label="Toggle navigation"
-                                >
-                                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                                    </svg>
-                                </button>
+                                    <!-- Mobile hamburger (always top on mobile) -->
+                                    <button
+                                        @click="showingNavigationDropdown = !showingNavigationDropdown"
+                                        class="lg:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ms-3"
+                                        :aria-expanded="String(showingNavigationDropdown)"
+                                        aria-controls="primary-navigation"
+                                        aria-label="Toggle navigation"
+                                    >
+                                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                        </svg>
+                                    </button>
+                               </div>
 
                                 <!-- Navigation Links -->
                                 <Transition name="nav-fade" mode="out-in">
@@ -738,7 +740,7 @@ export default {
             </header>
 
             <!-- Page Content -->
-            <main>
+            <main class="overflow-x-auto">
                 <slot />
             </main>
             </div>
