@@ -5,10 +5,11 @@ import JsBarcode from "jsbarcode";
 import QrcodeVue from "qrcode.vue";
 import CustomDropdown from '@/Components/CustomDropdown/CustomDropdown.vue';
 import DialogModal from "@/Components/DialogModal.vue";
+import TextInput from '@/Components/TextInput.vue';
 
 export default {
     name: "BarcodePrint",
-    components: { QrcodeVue, CustomDropdown },
+    components: { QrcodeVue, CustomDropdown, TextInput },
     mixins: [ApiMixin],
     data() {
         return {
@@ -33,6 +34,9 @@ export default {
             customFontSize: 10,
             customBarcodeHeight: 30,
             customQRSize: 60,
+            layoutMode: "single",
+            sheetSize: "a4",
+            sheetMarginCm: 0.5,
         };
     },
     computed: {
@@ -168,6 +172,36 @@ export default {
         selectedCount() {
             return Object.values(this.selected).filter(Boolean).length;
         },
+        sheetDimensions() {
+            // A4: 21cm x 29.7cm, Folio: 21.6cm x 33cm
+            if (this.sheetSize === "folio") {
+                return { widthCm: 21.6, heightCm: 33 };
+            }
+            return { widthCm: 21, heightCm: 29.7 };
+        },
+        sheetUsableWidthCm() {
+            return this.sheetDimensions.widthCm - (this.sheetMarginCm * 2);
+        },
+        sheetUsableHeightCm() {
+            return this.sheetDimensions.heightCm - (this.sheetMarginCm * 2);
+        },
+        labelsPerRow() {
+            return Math.max(1, Math.floor(this.sheetUsableWidthCm / this.resolvedWidthCm));
+        },
+        labelsPerColumn() {
+            return Math.max(1, Math.floor(this.sheetUsableHeightCm / this.resolvedHeightCm));
+        },
+        labelsPerSheet() {
+            return this.labelsPerRow * this.labelsPerColumn;
+        },
+        sheetedLabels() {
+            if (this.layoutMode === "single") return [];
+            const sheets = [];
+            for (let i = 0; i < this.labels.length; i += this.labelsPerSheet) {
+                sheets.push(this.labels.slice(i, i + this.labelsPerSheet));
+            }
+            return sheets;
+        },
     },
     watch: {
         printMode() {
@@ -227,7 +261,12 @@ export default {
                 document.head.appendChild(styleTag);
             }
 
-            styleTag.textContent = `@media print { @page { size: ${this.resolvedWidthCm}cm ${this.resolvedHeightCm}cm; margin: 0; } }`;
+            let pageSize = `${this.resolvedWidthCm}cm ${this.resolvedHeightCm}cm`;
+            if (this.layoutMode === "sheet") {
+                pageSize = `${this.sheetDimensions.widthCm}cm ${this.sheetDimensions.heightCm}cm`;
+            }
+
+            styleTag.textContent = `@media print { @page { size: ${pageSize}; margin: 0; } }`;
         },
         getEquipmentUrl(barcode) {
             if (!barcode) return "";
@@ -325,15 +364,32 @@ export default {
             if (!this.hasBarcodeMode) return;
 
             this.labels.forEach(label => {
-                const el = document.getElementById(`barcode-${label.key}`);
-                if (!el || !label.item?.barcode) return;
-                JsBarcode(el, label.item.barcode, {
-                    format: "CODE128",
-                    displayValue: false,
-                    width: 1.7,
-                    height: this.barcodeHeight,
-                    margin: 0,
-                });
+                const barcodeValue = label.item?.barcode;
+                if (!barcodeValue) return;
+
+                // 1. Render to On-Screen Preview
+                const previewEl = document.getElementById(`barcode-${label.key}`);
+                if (previewEl) {
+                    JsBarcode(previewEl, barcodeValue, {
+                        format: "CODE128",
+                        displayValue: false,
+                        width: 1.7,
+                        height: this.barcodeHeight,
+                        margin: 0,
+                    });
+                }
+
+                // 2. Render to the Print (Teleport) DOM
+                const printEl = document.getElementById(`print-barcode-${label.key}`);
+                if (printEl) {
+                    JsBarcode(printEl, barcodeValue, {
+                        format: "CODE128",
+                        displayValue: false,
+                        width: 1.7,
+                        height: this.barcodeHeight,
+                        margin: 0,
+                    });
+                }
             });
         },
         printLabels() {
@@ -399,7 +455,15 @@ export default {
 
         <div class="py-8 px-4 mx-auto space-y-6 flex gap-5">
             <div class="no-print bg-white shadow rounded-lg p-4 space-y-4">
-                <p class="text-sm">Note: For Laboratory Logger only Laboratory Equipments will work.</p>
+                <p>
+                    <span class="text-sm text-gray-700">Tips for Intermec PD43 Printer</span>
+                    <ul>
+                        <li class="text-xs text-gray-500">- Always recalibrate the printer after turning it on or changing the label roll. <b>Go to printer Wizards>Calibrate>Media</b>.</li>
+                        <li class="text-xs text-gray-500">- Make sure the selected Size Template matches the actual label size loaded in the printer for best results.</li>
+                        <li class="text-xs text-gray-500">- Use the "Select Filtered" button to quickly select all items that match your search and category filters.</li>
+                        <li class="text-xs text-gray-500">- For Laboratory Logger only Laboratory Equipments will work.</li>
+                    </ul>
+                </p>
                 <div class="grid grid-cols-6 grid-rows-4 gap-2">
                         <div class="col-span-6">
                             <text-input
@@ -407,9 +471,19 @@ export default {
                                 placeholder="Search item, brand, or barcode"
                             />
                         </div>
-                        <custom-dropdown :value="categoryId" @selectedChange="onCategoryChange($event)" :options="categoryOptions" label="Category" placeholder="Filter by category" :withAllOption="true" />
+                        <custom-dropdown :value="categoryId" @selectedChange="onCategoryChange($event)" :options="categoryOptions" label="Category" placeholder="Filter by category" :withAllOption="false" />
                         <custom-dropdown :value="printMode" @selectedChange="printMode = $event" :options="[{name:'barcode', label:'Barcode'}, {name:'qr', label:'QR Code'}, {name:'both', label:'Both'}]" label="Mode" placeholder="Select a mode" :withAllOption="false" />
                         <custom-dropdown :value="sizeTemplate" @selectedChange="sizeTemplate = $event" :options="sizeTemplates" label="Size Template" placeholder="Select a size template" :withAllOption="false" />
+                        <custom-dropdown :value="layoutMode" @selectedChange="layoutMode = $event" :options="[{name:'single', label:'Single Page'}, {name:'sheet', label:'Sheet Layout'}]" label="Layout" placeholder="Select layout mode" :withAllOption="false" />
+                        
+                        <div v-if="layoutMode === 'sheet'" class="flex items-center gap-2">
+                            <custom-dropdown :value="sheetSize" @selectedChange="sheetSize = $event" :options="[{name:'a4', label:'A4 (21×29.7cm)'}, {name:'folio', label:'Folio (21.6×33cm)'}]" label="Sheet Size" placeholder="Select sheet size" :withAllOption="false" />
+                        </div>
+
+                         <div v-if="layoutMode === 'sheet'" class="flex items-center gap-2">
+                            <text-input v-model.number="sheetMarginCm" type="number" min="0" max="2" step="0.1" :label="'Margin(cm) ' + labelsPerRow + ' × ' + labelsPerColumn + ' = ' + labelsPerSheet + '/sheet'" placeholder="Margin (cm)" />
+                            <div class="text-xs text-gray-600 ml-2"></div>
+                        </div>
                         
                         <div v-if="isCustomSize" class="flex items-center gap-2">
                             <label class="text-xs text-gray-500">H(cm)</label>
@@ -452,7 +526,6 @@ export default {
                             Print Labels
                         </submit-btn>
                     </div>
-
                 <div v-if="loading" class="text-sm text-gray-500">Loading items...</div>
 
                 <div v-else class="overflow-x-auto">
@@ -509,7 +582,7 @@ export default {
                     </table>
                 </div>
             </div>
-            <div v-if="previewReady" class="print-area">
+            <div v-if="previewReady && layoutMode === 'single'" class="print-area">
                 <div class="label-grid">
                     <div v-for="label in labels" :key="label.key" class="label-card cursor-pointer" :style="cardStyle" @dblclick="openLabelModal(label)" title="Double-click to enlarge">
                         <div class="label-card-inner" :style="cardInnerStyle">
@@ -518,15 +591,7 @@ export default {
                                 <div class="label-brand">{{ label.item.brand }}</div>
                             </div>
                             <svg v-if="printMode !== 'qr'" :id="`barcode-${label.key}`"></svg>
-                            <qrcode-vue
-                                v-if="printMode !== 'barcode'"
-                                :key="`preview-qr-${label.key}-${qrSize}-${printMode}`"
-                                :value="label.equipmentUrl"
-                                :size="qrSize"
-                                level="M"
-                                render-as="canvas"
-                                class="label-qr mx-auto"
-                            />
+                            <qrcode-vue v-if="printMode !== 'barcode'" :key="`preview-qr-${label.key}-${qrSize}-${printMode}`" :value="label.equipmentUrl" :size="qrSize" level="M" render-as="canvas" class="label-qr mx-auto" />
                             <div v-if="printMode !== 'qr'" class="label-barcode mx-auto" :style="{ fontSize: `${labelFontSize}px` }">{{ label.item.barcode }}</div>
                             <div v-else class="label-qr-caption" :style="{ fontSize: `${labelFontSize * 0.9}px` }">{{ label.item.barcode }}</div>
                         </div>
@@ -534,27 +599,57 @@ export default {
                 </div>
             </div>
             
+            <div v-if="previewReady && layoutMode === 'sheet'" class="print-area-sheet">
+                <div v-for="(sheet, sheetIndex) in sheetedLabels" :key="`sheet-${sheetIndex}`" class="sheet-page" :style="{ width: `${sheetDimensions.widthCm}cm`, height: `${sheetDimensions.heightCm}cm`, padding: `${sheetMarginCm}cm` }">
+                    <div class="sheet-grid" :style="{ display: 'grid', gridTemplateColumns: `repeat(${labelsPerRow}, 1fr)`, gap: '0px' }">
+                        <div v-for="label in sheet" :key="label.key" class="label-card cursor-pointer" :style="cardStyle" @dblclick="openLabelModal(label)" title="Double-click to enlarge">
+                            <div class="label-card-inner" :style="cardInnerStyle">
+                                <div class="label-text" :style="{ fontSize: `${labelFontSize}px` }">
+                                    <div class="label-item">{{ label.item.name }} {{ label.item.description ? '(' + label.item.description + ')' : '' }}</div>
+                                    <div class="label-brand">{{ label.item.brand }}</div>
+                                </div>
+                                <svg v-if="printMode !== 'qr'" :id="`barcode-${label.key}`"></svg>
+                                <qrcode-vue v-if="printMode !== 'barcode'" :key="`sheet-qr-${label.key}-${qrSize}-${printMode}`" :value="label.equipmentUrl" :size="qrSize" level="M" render-as="canvas" class="label-qr mx-auto" />
+                                <div v-if="printMode !== 'qr'" class="label-barcode mx-auto" :style="{ fontSize: `${labelFontSize}px` }">{{ label.item.barcode }}</div>
+                                <div v-else class="label-qr-caption" :style="{ fontSize: `${labelFontSize * 0.9}px` }">{{ label.item.barcode }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <Teleport to="body">
-                <div v-if="previewReady" class="print-area">
+                <div v-if="previewReady && layoutMode === 'single'" class="print-area">
                     <div class="label-grid">
-                        <div v-for="label in labels" :key="label.key" class="label-card cursor-pointer" :style="cardStyle" @dblclick="openLabelModal(label)" title="Double-click to enlarge">
+                        <div v-for="label in labels" :key="label.key" class="label-card" :style="cardStyle">
                             <div class="label-card-inner" :style="cardInnerStyle">
                                 <div class="label-text" :style="{ fontSize: `${labelFontSize}px` }">
                                     <div class="label-item">{{ label.item.name }}</div>
                                     <div class="label-brand">{{ label.item.brand }} {{ label.item.description ? '(' + label.item.description + ')' : '' }}</div>
                                 </div>
-                                <svg v-if="printMode !== 'qr'" :id="`barcode-${label.key}`"></svg>
-                                <qrcode-vue
-                                    v-if="printMode !== 'barcode'"
-                                    :key="`preview-qr-${label.key}-${qrSize}-${printMode}`"
-                                    :value="label.equipmentUrl"
-                                    :size="qrSize"
-                                    level="M"
-                                    render-as="canvas"
-                                    class="label-qr mx-auto"
-                                />
+                                <svg v-if="printMode !== 'qr'" :id="`print-barcode-${label.key}`"></svg>
+                                <qrcode-vue v-if="printMode !== 'barcode'" :key="`print-preview-qr-${label.key}-${qrSize}-${printMode}`" :value="label.equipmentUrl" :size="qrSize" level="M" render-as="canvas" class="label-qr mx-auto" />
                                 <div v-if="printMode !== 'qr'" class="label-barcode mx-auto" :style="{ fontSize: `${labelFontSize}px` }">{{ label.item.barcode }}</div>
                                 <div v-else class="label-qr-caption" :style="{ fontSize: `${labelFontSize * 0.9}px` }">{{ label.item.barcode }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div v-if="previewReady && layoutMode === 'sheet'" class="print-area-sheet">
+                    <div v-for="(sheet, sheetIndex) in sheetedLabels" :key="`print-sheet-${sheetIndex}`" class="sheet-page" :style="{ width: `${sheetDimensions.widthCm}cm`, height: `${sheetDimensions.heightCm}cm`, padding: `${sheetMarginCm}cm` }">
+                        <div class="sheet-grid" :style="{ display: 'grid', gridTemplateColumns: `repeat(${labelsPerRow}, 1fr)`, gap: '0px' }">
+                            <div v-for="label in sheet" :key="label.key" class="label-card" :style="cardStyle">
+                                <div class="label-card-inner" :style="cardInnerStyle">
+                                    <div class="label-text" :style="{ fontSize: `${labelFontSize}px` }">
+                                        <div class="label-item">{{ label.item.name }}</div>
+                                        <div class="label-brand">{{ label.item.brand }} {{ label.item.description ? '(' + label.item.description + ')' : '' }}</div>
+                                    </div>
+                                    <svg v-if="printMode !== 'qr'" :id="`print-barcode-${label.key}`"></svg>
+                                    <qrcode-vue v-if="printMode !== 'barcode'" :key="`print-sheet-qr-${label.key}-${qrSize}-${printMode}`" :value="label.equipmentUrl" :size="qrSize" level="M" render-as="canvas" class="label-qr mx-auto" />
+                                    <div v-if="printMode !== 'qr'" class="label-barcode mx-auto" :style="{ fontSize: `${labelFontSize}px` }">{{ label.item.barcode }}</div>
+                                    <div v-else class="label-qr-caption" :style="{ fontSize: `${labelFontSize * 0.9}px` }">{{ label.item.barcode }}</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -695,24 +790,41 @@ export default {
     white-space: nowrap;
 }
 
+.sheet-page {
+    background: #ffffff;
+    box-sizing: border-box;
+    page-break-after: always;
+    break-after: page;
+}
+
+.sheet-grid {
+    width: 100%;
+    height: 100%;
+}
+
+.print-area-sheet {
+    display: flex;
+    flex-direction: column;
+}
+
 @media print {
     :global(body), :global(html) {
         margin: 0 !important;
         padding: 0 !important;
     }
 
-    /* Hide the entire standard Vue/Inertia App layout */
-    :global(body > *:not(.print-area)) {
+    /* Prevent hiding BOTH single and sheet print areas */
+    :global(body > *:not(.print-area):not(.print-area-sheet)) {
         display: none !important;
     }
 
-    .print-area {
+    /* Absolute positioning locks it to the physical page edges */
+    .print-area, .print-area-sheet {
         position: absolute;
         left: 0;
         top: 0;
         margin: 0;
         padding: 0;
-        /* Ensure it is visible */
         display: block !important;
         visibility: visible !important;
     }
@@ -768,6 +880,50 @@ export default {
         overflow: hidden;
         max-width: 100%;
         max-height: 100%;
+    }
+
+    .print-area-sheet {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .sheet-page {
+        width: 100% !important;
+        height: 100% !important;
+        page-break-after: always;
+        break-after: page;
+        page-break-inside: avoid;
+        break-inside: avoid-page;
+        margin: 0 !important;
+        background: #ffffff;
+        box-sizing: border-box;
+    }
+
+    .sheet-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+    }
+
+    .sheet-grid {
+        width: 100% !important;
+        height: 100% !important;
+        display: grid !important;
+        gap: 0 !important;
+    }
+
+    .sheet-page .label-card {
+        page-break-inside: avoid;
+        break-inside: avoid-page;
+        page-break-after: auto;
+        break-after: auto;
+        border: none !important;
+        border-radius: 0;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        box-sizing: border-box;
     }
 }
 </style>
