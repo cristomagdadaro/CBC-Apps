@@ -300,7 +300,7 @@ export default {
                 <h2>
                     <span class="font-bold uppercase">Equipments: </span><span class="text-sm">Type to SEARCH and press ENTER select</span>
                 </h2>
-                <TagifyInput v-model="form.equipments_to_use" name="equipments_to_use" placeholder="Select available laboratory facilities" api-link="api.inventory.categories.public" :params="{ routeParams: {categoryName: 'ICT Supplies'} }" />
+                <TagifyInput v-model="form.equipments_to_use" name="equipments_to_use" placeholder="Select available laboratory facilities" api-link="api.inventory.categories.public" :params="{ routeParams: {categoryName: 'ICT Equipment'} }" />
             </div>
 
             <!-- Step 5: Laboratory Facilities -->

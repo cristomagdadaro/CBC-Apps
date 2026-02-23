@@ -61,7 +61,7 @@
                         <div v-if="filteredOptions.length === 0" class="text-center text-gray-500 px-4 py-2">
                             No matching options
                         </div>
-                        <label v-for="option in filteredOptions" :key="option.value" class="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                        <label v-for="(option, index) in filteredOptions" :key="`${option.value}-${index}`" class="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 cursor-pointer">
                             <input
                                 type="checkbox"
                                 :checked="isSelected(option.value)"
@@ -124,11 +124,22 @@ export default {
     },
     computed: {
         filteredOptions() {
-            if (!this.search) return this.options;
-            const term = this.search.toLowerCase();
-            return this.options.filter(opt =>
-                opt.label.toLowerCase().includes(term)
-            );
+            if (!this.search || !this.search.trim()) return this.options;
+            
+            // Normalize the search term: lowercase, trim, normalize whitespace
+            const searchTerms = this.search
+                .toLowerCase()
+                .trim()
+                .split(/\s+/)
+                .filter(t => t.length > 0);
+            
+            if (searchTerms.length === 0) return this.options;
+            
+            return this.options.filter(opt => {
+                const label = opt.label.toLowerCase();
+                // Match if ALL search terms are found in the label (case-insensitive)
+                return searchTerms.every(term => label.includes(term));
+            });
         },
         selectedOptions() {
             return this.options.filter(opt => this.selectedValues.includes(opt.value));

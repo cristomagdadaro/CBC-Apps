@@ -226,6 +226,7 @@ class TransactionRepo extends AbstractRepoService
 
                 $baseLabel = trim(
                     $row->name .
+                    ($row->brand ? " - {$row->brand}" : '') .
                     ($row->description ? " ({$row->description})" : '')
                 );
 

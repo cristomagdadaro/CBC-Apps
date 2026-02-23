@@ -81,7 +81,7 @@ class UseRequestForm extends Model
 
         $items = Item::query()
             ->whereIn('id', $ids)
-            ->get(['id', 'name', 'description'])
+            ->get(['id', 'name', 'description', 'brand'])
             ->keyBy('id');
 
         return collect($ids)
@@ -92,7 +92,7 @@ class UseRequestForm extends Model
                     return null;
                 }
 
-                return trim($item->name . ($item->description ? " ({$item->description})" : ''));
+                return trim($item->name . ($item->brand ? " - {$item->brand}" : '') . ($item->description ? " ({$item->description})" : ''));
             })
             ->filter()
             ->values();
@@ -127,7 +127,7 @@ class UseRequestForm extends Model
 
         $items = Item::query()
             ->whereIn('id', $ids)
-            ->get(['id', 'name', 'description'])
+            ->get(['id', 'name', 'description', 'brand'])
             ->keyBy('id');
 
         return collect($ids)
@@ -138,7 +138,7 @@ class UseRequestForm extends Model
                     return null;
                 }
 
-                return trim($item->name . ($item->description ? " ({$item->description})" : ''));
+                return trim($item->name . ($item->brand ? " - {$item->brand}" : '') . ($item->description ? " ({$item->description})" : ''));
             })
             ->filter()
             ->values();
