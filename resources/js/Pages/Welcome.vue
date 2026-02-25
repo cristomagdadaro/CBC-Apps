@@ -55,14 +55,14 @@ const services = [
     {
         title: "Vehicle Rental",
         description: "Reserve and book available vehicles for your research activities",
-        href: "/rental/vehicle",
+        href: route("rental.vehicle.guest"),
         icon: TruckIcon,
         external: true,
     },
     {
         title: "Venue Rental",
         description: "Reserve meeting rooms and event spaces for your activities",
-        href: "/rental/venue",
+        href: route("rental.venue.guest"),
         icon: BuildingIcon,
         external: true,
     },
@@ -70,6 +70,12 @@ const services = [
         title: "File a Report",
         description: "Report incidents, maintenance issues, or equipment damage",
         href: route("suppEquipReports.create.guest"),
+        icon: FlagIcon,
+    },
+    {
+        title: "Experiment Monitoring",
+        description: "Monitor and track ongoing experiments in the laboratory",
+        href: route("laboratory.monitoring.guest"),
         icon: FlagIcon,
     },
 ];

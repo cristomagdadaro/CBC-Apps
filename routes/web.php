@@ -53,11 +53,17 @@ Route::prefix('forms')->group(function () {
     //Route::get('/{id}/pdf', function(){return view('generator.pdf.printable-request-form', ['form' => \App\Models\RequestFormPivot::with(['requester', 'request_form'])->findOrFail(request()->route('id'))]);})->name('forms.generate.pdf');
 });
 
-Route::get('/laboratory/equipments/{equipment_id?}', function ($equipment_id = null) {
-    return Inertia::render('Laboratory/EquipmentShow', [
-        'equipment_id' => $equipment_id,
-    ]);
-})->name('laboratory.equipments.show');
+Route::prefix('/laboratory')->group(function () {
+        Route::get('/equipments/{equipment_id?}', function ($equipment_id = null) {
+            return Inertia::render('Laboratory/EquipmentShow', [
+                'equipment_id' => $equipment_id,
+            ]);
+        })->name('laboratory.equipments.show');
+
+        Route::get('/experiments-monitoring', function () {
+            return Inertia::render('Laboratory/ExperimentsMonitoring/ExperimentsMonitoringGuest');
+        })->name('laboratory.monitoring.guest');
+});
 
 Route::prefix('rental')->group(function () {
     Route::get('/vehicle', function () {

@@ -86,9 +86,11 @@ export default {
                 this.equipmentOptions = list.map((item) => {
                     const name = item.name || "Equipment";
                     const brand = item.brand ? ` (${item.brand})` : "";
+                    const description = item.description ? `  ${item.description}` : "";
+                    const prri = item.barcode ? ` | ${item.barcode}` : "";
                     return {
                         id: item.equipment_id || item.id,
-                        name: `${name}${brand}`,
+                        name: `${name}${brand}${prri}`,
                     };
                 });
             } catch (error) {

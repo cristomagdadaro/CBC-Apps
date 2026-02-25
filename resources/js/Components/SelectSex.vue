@@ -1,7 +1,9 @@
 <script>
 import ApiMixin from "@/Modules/mixins/ApiMixin";
+import LoaderIcon from './Icons/LoaderIcon.vue';
 
 export default {
+  components: { LoaderIcon },
     name: 'SelectSex',
     mixins: [ApiMixin],
     props: {
@@ -52,8 +54,8 @@ export default {
 </script>
 
 <template>
-    <div class="flex flex-col gap-1">
-        <div class="relative">
+    <div class="flex flex-col gap-1 w-fit">
+        <div class="relative w-fit">
             <button
                 type="button"
                 @click="toggleDropdown"
@@ -64,7 +66,7 @@ export default {
                 }"
                 class="inline-flex items-center justify-between px-3 py-3 border border-gray-500 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white w-full dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150"
             >
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 whitespace-nowrap">
                     <svg v-if="selectedOption" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" :class="selectedOption.color" viewBox="0 0 16 16">
                         <g v-if="selectedOption.icon === 'gender-male'">
                             <path fill-rule="evenodd" d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8"/>
@@ -102,9 +104,10 @@ export default {
             >
                 <div
                     v-show="isOpen"
-                    class="absolute right-0 z-50 w-full mt-2 bg-white dark:bg-gray-800 rounded-md shadow-lg ring-1 ring-black ring-opacity-5"
+                    class="absolute right-0 z-50 w-fit mt-2 bg-white dark:bg-gray-800 rounded-md shadow-lg ring-1 ring-black ring-opacity-5"
                 >
-                    <div class="py-1">
+                    <div class="py-1 w-fit">
+                        <loader-icon v-if="processing" class="mx-auto py-2" />
                         <button
                             v-for="option in sex_selections"
                             :key="option.value"
