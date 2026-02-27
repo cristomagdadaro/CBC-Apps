@@ -82,6 +82,11 @@ export default {
             this.proofFileName = file?.name ?? null;
             this.form.clearErrors('proof_of_enrollment');
         },
+        getStoragePath(path) {
+            if (!path) return '';
+            const normalized = String(path).replace(/^[\/\\]+/, '');
+            return `/storage/${normalized}`;
+        },
         buildFormData() {
             const formData = new FormData();
 
@@ -139,6 +144,10 @@ export default {
             this.form.id = this.responseData.id;
             // Ensure all response_data fields are preserved, including address fields
             this.form.response_data = Object.assign({}, this.responseData.response_data || {});
+            const existing = this.form.response_data.proof_of_enrollment;
+            if (existing) {
+                this.proofFileName = String(existing).split('/').pop();
+            }
         } else {
             this.setFormAction('create').response_data = SubformResponse.getSubformFields('preregistration_quizbee');
             this.form.form_parent_id = this.eventId;
@@ -188,7 +197,6 @@ export default {
             </p>
             <label class="text-red-700 uppercase justify-center flex text-sm leading-tight">{{ form.errors.suspended || form.errors.full || form.errors.expired || form.errors.limit }}</label>
         </div>
-
         <div class="flex flex-col gap-3">
             <TextInput
                 id="organization"
@@ -321,17 +329,35 @@ export default {
             </div>
 
             <div class="flex flex-col gap-1">
-                <label class="text-xs text-gray-600">Proof of Enrollment (PDF)*</label>
+                <div class="flex justify-between">
+                    <label class="text-xs text-gray-600">Proof of Enrollment (PDF)<span class="text-red-500">*</span></label>
+                    <transition-container type="slide-bottom">
+                        <InputError
+                            v-show="!!form.errors.proof_of_enrollment"
+                            :message="form.errors.proof_of_enrollment"
+                        />
+                    </transition-container>
+                </div>
                 <input
                     type="file"
                     accept="application/pdf"
-                    class="text-xs"
                     @change="handleFileChange"
                 />
-                <span v-if="proofFileName" class="text-[11px] text-gray-500">Selected: {{ proofFileName }}</span>
-                <transition-container type="slide-bottom">
-                    <InputError v-show="!!form.errors.proof_of_enrollment" :message="form.errors.proof_of_enrollment" />
-                </transition-container>
+                <!-- show current file when editing -->
+                <div
+                    v-if="isEditMode && form.response_data.proof_of_enrollment"
+                    class="text-[11px] text-gray-500"
+                >
+                    Current file:
+                    <a
+                        :href="getStoragePath(form.response_data.proof_of_enrollment)"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-blue-600 hover:text-blue-800 hover:underline"
+                    >
+                        {{ proofFileName || String(form.response_data.proof_of_enrollment).split('/').pop() }}
+                    </a>
+                </div>
             </div>
 
             <div class="grid grid-cols-2 gap-2">
@@ -368,7 +394,6 @@ export default {
                 {{ Object.values(form.errors).join(',') }}
             </div>
             <CertifySection :agreed_tc="form.response_data.agreed_tc" :agreed_updates="form.response_data.agreed_updates" :errors="form.errors" @update:agreed_tc="form.response_data.agreed_tc = $event" @update:agreed_updates="form.response_data.agreed_updates = $event" />
-
             <submit-btn :disabled="model.api.processing" :processing="model.api.processing">
                 <span v-if="!model.api.processing">{{ isEditMode ? 'Update' : 'Submit' }}</span>
                 <span v-else>{{ isEditMode ? 'Updating' : 'Submitting' }}</span>
