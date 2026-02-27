@@ -195,7 +195,7 @@ export default {
         },
         checkError(error) {
             let dto = null;
-            console.error(error);
+            
             if (error instanceof TypeError)
             {
                 dto = new DtoError({

@@ -89,7 +89,8 @@ Route::prefix('file-report')->group(function () {
 });
 
 Route::middleware([
-    
+    'auth:sanctum',
+    'verified',
 ])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

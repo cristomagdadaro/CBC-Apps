@@ -268,6 +268,43 @@ export default {
             }
             return null;
         },
+        isHttpUrl(value) {
+            if (!value || typeof value !== 'string') {
+                return false;
+            }
+            return /^https?:\/\//i.test(value.trim());
+        },
+        isStorageFilePath(value) {
+            if (!value || typeof value !== 'string') {
+                return false;
+            }
+            const v = value.trim();
+            if (v.startsWith('quizbee/')) {
+                return true;
+            }
+            // Heuristic: looks like a path with an extension
+            return /\/.+\.[a-z0-9]+$/i.test(v);
+        },
+        getFileDownloadUrl(path) {
+            if (!path) {
+                return '#';
+            }
+            if (this.isHttpUrl(path)) {
+                return path;
+            }
+            let normalized = String(path).trim().replace(/^\/+/, '');
+            if (normalized.startsWith('storage/')) {
+                return `/${normalized}`;
+            }
+            return `/storage/${normalized}`;
+        },
+        getFileName(path) {
+            if (!path) {
+                return 'Download file';
+            }
+            const name = String(path).split('/').pop();
+            return name || 'Download file';
+        },
         getFormCardComponent(formType) {
             const components = {
                 'preregistration': 'PreregistrationCard',
@@ -1087,7 +1124,7 @@ export default {
             <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
                 <TabNavigation v-model="activeFormType" :tabs="responseTabs">
                     <template #default>
-                        <div class="mt-4 overflow-x-auto" v-if="activeGroup">
+                        <div class="mt-4" v-if="activeGroup">
                             <div class="flex items-center justify-between mb-3">
                                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">
                                     <span class="uppercase">{{ activeGroup.label }}</span>
@@ -1102,50 +1139,84 @@ export default {
                                     Export CSV
                                 </button>
                             </div>
-                            <table class="min-w-full text-sm text-left">
-                                <thead class="text-xs uppercase text-gray-500 dark:text-gray-400 border-b">
-                                    <tr>
-                                        <th class="px-4 py-2">Submitted On</th>
-                                        <th
-                                            v-for="col in activeGroup.dataColumns"
-                                            :key="col"
-                                            class="px-4 py-2"
-                                        >
-                                            {{ col.replace(/_/g, ' ') }}ss
-                                        </th>
-                                        <th class="px-4 py-2 text-center">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="item in activeGroup.items" :key="item.id" class="border-b">
-                                        <td class="px-4 py-2 text-gray-700 dark:text-gray-200">{{ formatDateTime(item.created_at) }}</td>
-                                        <td
-                                            v-for="col in activeGroup.dataColumns"
-                                            :key="col"
-                                            class="px-4 py-2 text-gray-700 dark:text-gray-200"
-                                        >
-                                            {{ formatValue(item.response_data?.[col]) }}
-                                        </td>
-                                        <td class="px-4 py-2 text-center">
-                                            <button
-                                                @click="openResponseModal(item, activeGroup.form_type)"
-                                                class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded transition-colors"
-                                                title="Edit this response"
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full text-sm text-left">
+                                    <thead class="text-xs uppercase text-gray-500 dark:text-gray-400 border-b">
+                                        <tr>
+                                            <th class="px-4 py-2">Submitted On</th>
+                                            <th
+                                                v-for="col in activeGroup.dataColumns"
+                                                :key="col"
+                                                class="px-4 py-2"
                                             >
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                </svg>
-                                                Edit
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr v-if="!activeGroup.items.length">
-                                        <td :colspan="3 + activeGroup.dataColumns.length" class="px-4 py-3 text-center text-gray-500 dark:text-gray-400">
-                                            No responses available.
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                                {{ col.replace(/_/g, ' ') }}
+                                            </th>
+                                            <th class="px-4 py-2 text-center">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="item in activeGroup.items" :key="item.id" class="border-b">
+                                            <td class="px-4 py-2 text-gray-700 dark:text-gray-200">{{ formatDateTime(item.created_at) }}</td>
+                                            <td
+                                                v-for="col in activeGroup.dataColumns"
+                                                :key="col"
+                                                class="px-4 py-2 text-gray-700 dark:text-gray-200"
+                                            >
+                                                <template v-if="col === 'proof_of_enrollment' && item.response_data?.[col]">
+                                                    <a
+                                                        :href="getFileDownloadUrl(item.response_data?.[col])"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        class="text-blue-600 hover:text-blue-800 hover:underline"
+                                                    >
+                                                        {{ getFileName(item.response_data?.[col]) }}
+                                                    </a>
+                                                </template>
+                                                <template v-else-if="isHttpUrl(item.response_data?.[col])">
+                                                    <a
+                                                        :href="item.response_data?.[col]"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        class="text-blue-600 hover:text-blue-800 hover:underline"
+                                                    >
+                                                        {{ formatValue(item.response_data?.[col]) }}
+                                                    </a>
+                                                </template>
+                                                <template v-else-if="isStorageFilePath(item.response_data?.[col])">
+                                                    <a
+                                                        :href="getFileDownloadUrl(item.response_data?.[col])"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        class="text-blue-600 hover:text-blue-800 hover:underline"
+                                                    >
+                                                        {{ getFileName(item.response_data?.[col]) }}
+                                                    </a>
+                                                </template>
+                                                <template v-else>
+                                                    {{ formatValue(item.response_data?.[col]) }}
+                                                </template>
+                                            </td>
+                                            <td class="px-4 py-2 text-center">
+                                                <button
+                                                    @click="openResponseModal(item, activeGroup.form_type)"
+                                                    class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded transition-colors"
+                                                    title="Edit this response"
+                                                >
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                    </svg>
+                                                    Edit
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr v-if="!activeGroup.items.length">
+                                            <td :colspan="3 + activeGroup.dataColumns.length" class="px-4 py-3 text-center text-gray-500 dark:text-gray-400">
+                                                No responses available.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         <div v-else class="py-6 text-center text-sm text-gray-500 dark:text-gray-400">
                             No responses available.

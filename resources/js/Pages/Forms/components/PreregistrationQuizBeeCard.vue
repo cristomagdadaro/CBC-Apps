@@ -218,6 +218,9 @@ export default {
                         <InputError v-show="!!form.errors.join_quiz_bee" class="absolute -top-1 left-3" :message="form.errors.join_quiz_bee" />
                     </transition-container>
                 </div>
+                <div v-if="form.hasErrors" class="flex gap-2 text-red-600 text-sm leading-tight">
+                    {{ Object.values(form.errors).join(',') }}
+                </div>
                 <CertifySection :agreed_tc="form.response_data.agreed_tc" :agreed_updates="form.response_data.agreed_updates" :errors="form.errors" @update:agreed_tc="form.response_data.agreed_tc = $event" @update:agreed_updates="form.response_data.agreed_updates = $event" />
             </div>
             <submit-btn :disabled="model.api.processing" :processing="model.api.processing">
