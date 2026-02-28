@@ -1,5 +1,6 @@
 <script>
 import { toRaw } from 'vue'
+import axios from 'axios'
 
 export default {
     name: 'RequirementsManager',
@@ -22,6 +23,8 @@ export default {
             localErrors: {},
             successMessage: null,
             successTimeout: null,
+            customTemplates: [],
+            loadingTemplates: false,
         }
     },
 
@@ -38,16 +41,28 @@ export default {
             })
         },
 
-        formTypeOptions() {
+        systemFormTypeOptions() {
             return [
-                { value: 'preregistration', label: 'Pre-registration' },
-                { value: 'preregistration_biotech', label: 'Pre-registration + Quiz Bee' },
-                { value: 'preregistration_quizbee', label: 'Pre-registration Quiz Bee' },
-                { value: 'registration', label: 'Registration / Attendance' },
-                { value: 'pretest', label: 'Pre-test' },
-                { value: 'posttest', label: 'Post-test' },
-                { value: 'feedback', label: 'Feedback / Evaluation' },
+                { value: 'preregistration', label: 'Pre-registration', isSystem: true },
+                { value: 'preregistration_biotech', label: 'Pre-registration + Quiz Bee', isSystem: true },
+                { value: 'preregistration_quizbee', label: 'Pre-registration Quiz Bee', isSystem: true },
+                { value: 'registration', label: 'Registration / Attendance', isSystem: true },
+                { value: 'pretest', label: 'Pre-test', isSystem: true },
+                { value: 'posttest', label: 'Post-test', isSystem: true },
+                { value: 'feedback', label: 'Feedback / Evaluation', isSystem: true },
             ]
+        },
+        customFormTypeOptions() {
+            return this.customTemplates.map(t => ({
+                value: `custom:${t.id}`,
+                label: `${t.icon || '📝'} ${t.name}`,
+                templateId: t.id,
+                isCustom: true,
+                fieldCount: t.field_definitions_count || 0,
+            }))
+        },
+        formTypeOptions() {
+            return [...this.systemFormTypeOptions, ...this.customFormTypeOptions]
         },
         limitFieldOptions() {
             return [
@@ -80,6 +95,14 @@ export default {
 
         emitUpdate(list) {
             this.$emit('update:modelValue', list)
+        },
+
+        /**
+         * Map sorted index to actual index in requirements array
+         */
+        getActualIndex(sortedIndex) {
+            const sorted = this.sortedRequirements[sortedIndex]
+            return this.requirements.indexOf(sorted)
         },
 
         setError(field, message) {
@@ -172,37 +195,82 @@ export default {
             this.showSuccess('Form removed')
         },
 
-        handleTypeChange(index, value) {
+        handleTypeChange(sortedIndex, value) {
             if (!value) {
-                this.setError(`req_${index}_type`, 'Form type is required')
+                this.setError(`req_${sortedIndex}_type`, 'Form type is required')
                 return
             }
+
+            const actualIndex = this.getActualIndex(sortedIndex)
+            if (actualIndex === -1) return
 
             const copy = this.cloneRequirements()
 
-            if (copy.some((r, i) => i !== index && r.form_type === value)) {
-                this.setError(`req_${index}_type`, `Form type "${value}" already used`)
+            if (copy.some((r, i) => i !== actualIndex && r.form_type === value)) {
+                this.setError(`req_${sortedIndex}_type`, `Form type "${value}" already used`)
                 return
             }
 
-            copy[index] = {
-                ...copy[index],
-                form_type: value,
-                step_type: copy[index].step_type ?? value,
+            // Check if this is a custom template
+            const isCustom = value.startsWith('custom:')
+            const templateId = isCustom ? value.replace('custom:', '') : null
+            const formType = isCustom ? 'custom' : value
+
+            copy[actualIndex] = {
+                ...copy[actualIndex],
+                form_type: formType,
+                form_type_template_id: templateId,
+                step_type: copy[actualIndex].step_type ?? formType,
                 id: null,
-                config: copy[index].config ?? { limits: [] },
+                config: copy[actualIndex].config ?? { limits: [] },
             }
 
-            this.clearError(`req_${index}_type`)
+            this.clearError(`req_${sortedIndex}_type`)
             this.emitUpdate(this.normalize(copy))
             this.showSuccess('Form type updated')
         },
 
-        toggleRequired(index) {
+        /**
+         * Load custom templates from API
+         */
+        async loadCustomTemplates() {
+            this.loadingTemplates = true
+            try {
+                const response = await axios.get(route('api.form-builder.templates.index'))
+                this.customTemplates = (response.data?.data || []).filter(t => !t.is_system)
+            } catch (err) {
+                console.error('Failed to load custom templates:', err)
+            } finally {
+                this.loadingTemplates = false
+            }
+        },
+
+        /**
+         * Get the display value for form type select
+         */
+        getFormTypeValue(req) {
+            if (req.form_type === 'custom' && req.form_type_template_id) {
+                return `custom:${req.form_type_template_id}`
+            }
+            return req.form_type || ''
+        },
+
+        /**
+         * Get template info for a requirement
+         */
+        getTemplateInfo(req) {
+            if (req.form_type !== 'custom' || !req.form_type_template_id) return null
+            return this.customTemplates.find(t => t.id === req.form_type_template_id)
+        },
+
+        toggleRequired(sortedIndex) {
+            const actualIndex = this.getActualIndex(sortedIndex)
+            if (actualIndex === -1) return
+
             const copy = this.cloneRequirements()
-            copy[index].is_required = !copy[index].is_required
+            copy[actualIndex].is_required = !copy[actualIndex].is_required
             this.emitUpdate(copy)
-            this.showSuccess(copy[index].is_required ? 'Form marked as required' : 'Form marked as optional')
+            this.showSuccess(copy[actualIndex].is_required ? 'Form marked as required' : 'Form marked as optional')
         },
 
         toggleEnabled(index) {
@@ -216,79 +284,100 @@ export default {
             this.showSuccess(copy[actualIndex].is_enabled ? 'Form enabled' : 'Form disabled')
         },
 
-        updateMaxSlots(index, value) {
+        updateMaxSlots(sortedIndex, value) {
+            const actualIndex = this.getActualIndex(sortedIndex)
+            if (actualIndex === -1) return
+
             const num = value ? parseInt(value) : null
             if (num != null && num < 0) return
 
             const copy = this.cloneRequirements()
-            copy[index].max_slots = num
+            copy[actualIndex].max_slots = num
             this.emitUpdate(copy)
             this.showSuccess('Max slots updated')
         },
 
-        updateOpenFrom(index, value) {
+        updateOpenFrom(sortedIndex, value) {
+            const actualIndex = this.getActualIndex(sortedIndex)
+            if (actualIndex === -1) return
+
             const copy = this.cloneRequirements()
-            copy[index].open_from = value || null
+            copy[actualIndex].open_from = value || null
             this.emitUpdate(copy)
             this.showSuccess('Open from date updated')
         },
 
-        updateOpenTo(index, value) {
+        updateOpenTo(sortedIndex, value) {
+            const actualIndex = this.getActualIndex(sortedIndex)
+            if (actualIndex === -1) return
+
             const copy = this.cloneRequirements()
-            copy[index].open_to = value || null
+            copy[actualIndex].open_to = value || null
             this.emitUpdate(copy)
             this.showSuccess('Open to date updated')
         },
 
-        addLimit(index) {
+        addLimit(sortedIndex) {
+            const actualIndex = this.getActualIndex(sortedIndex)
+            if (actualIndex === -1) return
+
             const copy = this.cloneRequirements()
-            if (!copy[index].config) {
-                copy[index].config = { limits: [] }
+            if (!copy[actualIndex].config) {
+                copy[actualIndex].config = { limits: [] }
             }
-            if (!Array.isArray(copy[index].config.limits)) {
-                copy[index].config.limits = []
+            if (!Array.isArray(copy[actualIndex].config.limits)) {
+                copy[actualIndex].config.limits = []
             }
-            copy[index].config.limits.push({ field: '', max: 1 })
+            copy[actualIndex].config.limits.push({ field: '', max: 1 })
             this.emitUpdate(copy)
         },
 
-        removeLimit(index, limitIndex) {
+        removeLimit(sortedIndex, limitIndex) {
+            const actualIndex = this.getActualIndex(sortedIndex)
+            if (actualIndex === -1) return
+
             const copy = this.cloneRequirements()
-            const limits = copy[index]?.config?.limits || []
+            const limits = copy[actualIndex]?.config?.limits || []
             limits.splice(limitIndex, 1)
-            copy[index].config.limits = limits
+            copy[actualIndex].config.limits = limits
             this.emitUpdate(copy)
         },
 
-        updateLimitField(index, limitIndex, value) {
+        updateLimitField(sortedIndex, limitIndex, value) {
+            const actualIndex = this.getActualIndex(sortedIndex)
+            if (actualIndex === -1) return
+
             const copy = this.cloneRequirements()
-            if (!copy[index].config) {
-                copy[index].config = { limits: [] }
+            if (!copy[actualIndex].config) {
+                copy[actualIndex].config = { limits: [] }
             }
-            if (!Array.isArray(copy[index].config.limits)) {
-                copy[index].config.limits = []
+            if (!Array.isArray(copy[actualIndex].config.limits)) {
+                copy[actualIndex].config.limits = []
             }
-            if (!copy[index].config.limits[limitIndex]) {
-                copy[index].config.limits[limitIndex] = { field: '', max: 1 }
+            if (!copy[actualIndex].config.limits[limitIndex]) {
+                copy[actualIndex].config.limits[limitIndex] = { field: '', max: 1 }
             }
-            copy[index].config.limits[limitIndex].field = value
+            copy[actualIndex].config.limits[limitIndex].field = value
             this.emitUpdate(copy)
         },
 
-        updateLimitMax(index, limitIndex, value) {
+        updateLimitMax(sortedIndex, limitIndex, value) {
+            const actualIndex = this.getActualIndex(sortedIndex)
+            if (actualIndex === -1) return
+
             const max = value ? parseInt(value) : null
             if (max != null && max < 1) return
             const copy = this.cloneRequirements()
-            if (!copy[index].config) {
-                copy[index].config = { limits: [] }
+            if (!copy[actualIndex].config) {
+                copy[actualIndex].config = { limits: [] }
             }
-            if (!Array.isArray(copy[index].config.limits)) {
-                copy[index].config.limits = []
+            if (!Array.isArray(copy[actualIndex].config.limits)) {
+                copy[actualIndex].config.limits = []
             }
-            if (!copy[index].config.limits[limitIndex]) {
-                copy[index].config.limits[limitIndex] = { field: '', max: 1 }
+            if (!copy[actualIndex].config.limits[limitIndex]) {
+                copy[actualIndex].config.limits[limitIndex] = { field: '', max: 1 }
             }
-            copy[index].config.limits[limitIndex].max = max
+            copy[actualIndex].config.limits[limitIndex].max = max
             this.emitUpdate(copy)
         },
 
@@ -319,7 +408,13 @@ export default {
             const sorted = this.sortedRequirements[index]
             const used = this.requirements
                 .filter(r => r !== sorted)
-                .map(r => r.form_type)
+                .map(r => {
+                    // Handle custom templates
+                    if (r.form_type === 'custom' && r.form_type_template_id) {
+                        return `custom:${r.form_type_template_id}`
+                    }
+                    return r.form_type
+                })
                 .filter(Boolean)
 
             return this.formTypeOptions.filter(o => !used.includes(o.value))
@@ -328,6 +423,7 @@ export default {
 
     mounted() {
         this.emitUpdate(this.normalize(this.cloneRequirements()))
+        this.loadCustomTemplates()
     },
 
     beforeUnmount() {
@@ -425,20 +521,34 @@ export default {
                                 <select
                                     class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 rounded-md shadow-sm text-xs py-0.5 px-2 transition"
                                     :class="{ 'border-red-500': localErrors[`req_${index}_type`] }"
-                                    :value="req.form_type || ''"
-                                    :disabled="!req?.is_enabled"
+                                    :value="getFormTypeValue(req)"
+                                    :disabled="!req?.is_enabled || loadingTemplates"
                                     @change="handleTypeChange(index, $event.target.value)"
                                     title="Select the type of form"
                                 >
-                                    <option value="" disabled>Select form type...</option>
-                                    <option
-                                        v-for="opt in availableFormTypeOptions(index)"
-                                        :key="opt.value"
-                                        :value="opt.value"
-                                    >
-                                        {{ opt.label }}
-                                    </option>
+                                    <option value="" disabled>{{ loadingTemplates ? 'Loading...' : 'Select form type...' }}</option>
+                                    <optgroup label="System Forms">
+                                        <option
+                                            v-for="opt in availableFormTypeOptions(index).filter(o => o.isSystem)"
+                                            :key="opt.value"
+                                            :value="opt.value"
+                                        >
+                                            {{ opt.label }}
+                                        </option>
+                                    </optgroup>
+                                    <optgroup v-if="customFormTypeOptions.length" label="Custom Templates">
+                                        <option
+                                            v-for="opt in availableFormTypeOptions(index).filter(o => o.isCustom)"
+                                            :key="opt.value"
+                                            :value="opt.value"
+                                        >
+                                            {{ opt.label }} ({{ opt.fieldCount }} fields)
+                                        </option>
+                                    </optgroup>
                                 </select>
+                                <div v-if="getTemplateInfo(req)" class="text-[10px] text-blue-600 dark:text-blue-400">
+                                    Custom: {{ getTemplateInfo(req)?.name }}
+                                </div>
                                 <transition name="slide-down">
                                     <InputError 
                                         v-if="localErrors[`req_${index}_type`]" 

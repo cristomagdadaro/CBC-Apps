@@ -145,31 +145,54 @@ class FormRepo extends AbstractRepoService
             ->where('event_id', $eventId)
             ->firstOrFail();
 
-        $incomingFormTypes = collect($requirements)
-            ->pluck('form_type')
-            ->filter()
-            ->values()
-            ->all();
+        // Collect incoming form identifiers (form_type + template_id for custom forms)
+        $incomingIdentifiers = collect($requirements)->map(function ($req) {
+            if ($req['form_type'] === 'custom' && !empty($req['form_type_template_id'])) {
+                return 'custom:' . $req['form_type_template_id'];
+            }
+            return $req['form_type'];
+        })->filter()->values()->all();
 
-        if (!empty($incomingFormTypes)) {
-            EventSubform::where('event_id', $form->event_id)
-                ->whereNotIn('form_type', $incomingFormTypes)
-                ->delete();
-        } else {
-            EventSubform::where('event_id', $form->event_id)->delete();
+        // Get existing subforms to determine which to keep/delete
+        $existingSubforms = EventSubform::where('event_id', $form->event_id)->get();
+        
+        foreach ($existingSubforms as $existing) {
+            $identifier = $existing->form_type;
+            if ($existing->form_type === 'custom' && $existing->form_type_template_id) {
+                $identifier = 'custom:' . $existing->form_type_template_id;
+            }
+            
+            if (!in_array($identifier, $incomingIdentifiers)) {
+                $existing->delete();
+            }
         }
 
         foreach ($requirements as $index => $req) {
-            $subform = EventSubform::withTrashed()->firstOrNew([
-                'event_id' => $form->event_id,
-                'form_type' => $req['form_type'], // use form_type as unique key
-            ]);
+            // Build query for finding existing subform
+            $query = EventSubform::withTrashed()
+                ->where('event_id', $form->event_id)
+                ->where('form_type', $req['form_type']);
+            
+            // For custom forms, also match by template ID
+            if ($req['form_type'] === 'custom' && !empty($req['form_type_template_id'])) {
+                $query->where('form_type_template_id', $req['form_type_template_id']);
+            }
+
+            $subform = $query->first();
+            
+            if (!$subform) {
+                $subform = new EventSubform([
+                    'event_id' => $form->event_id,
+                    'form_type' => $req['form_type'],
+                ]);
+            }
 
             if ($subform->trashed()) {
                 $subform->restore();
             }
 
             $subform->fill([
+                'form_type_template_id' => $req['form_type_template_id'] ?? null,
                 'step_type' => $req['step_type'] ?? $req['form_type'],
                 'step_order' => $req['step_order'] ?? ($index + 1),
                 'is_enabled' => $req['is_enabled'] ?? true,

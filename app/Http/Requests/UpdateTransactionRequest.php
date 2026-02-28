@@ -26,6 +26,8 @@ class UpdateTransactionRequest extends FormRequest
      */
     public function rules(): array
     {
+        $id = $this->route('id');
+        
         return [
             'item_id' => 'required|exists:items,id',
             'barcode' => [
@@ -33,14 +35,14 @@ class UpdateTransactionRequest extends FormRequest
                 'string',
                 Rule::when(
                     fn ($input) => $input->transac_type === Inventory::INCOMING->value,
-                    ['unique:transactions,barcode,' . $this->id]
+                    [Rule::unique('transactions', 'barcode')->where('transac_type', Inventory::INCOMING->value)->ignore($id)]
                 ),
                 Rule::when(
                     fn ($input) => $input->transac_type === Inventory::OUTGOING->value,
                     ['exists:transactions,barcode']
                 ),
             ],
-            'barcode_prri' => 'nullable|string|unique:transactions,barcode_prri,' . $this->id,
+            'barcode_prri' => 'nullable|string|unique:transactions,barcode_prri,' . $id,
             'transac_type' => [
                 'required',
                 'string',
@@ -66,7 +68,7 @@ class UpdateTransactionRequest extends FormRequest
             'remarks' => 'string|nullable',
             'project_code' => 'nullable|string',
             'personnel_id' => 'nullable|exists:personnels,id',
-            'par_no' => 'nullable|string|unique:transactions,par_no,' . $this->id,
+            'par_no' => 'nullable|string|unique:transactions,par_no,' . $id,
             'condition' => 'nullable|string',
         ];
     }

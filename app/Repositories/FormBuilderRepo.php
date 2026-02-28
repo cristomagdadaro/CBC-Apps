@@ -139,7 +139,7 @@ class FormBuilderRepo extends AbstractRepoService
      * Duplicate a template
      * @return FormTypeTemplate
      */
-    public function duplicateTemplate(FormTypeTemplate $template, ?int $userId = null): FormTypeTemplate
+    public function duplicateTemplate(FormTypeTemplate $template, ?string $userId = null): FormTypeTemplate
     {
         /** @var FormTypeTemplate $newTemplate */
         $newTemplate = $this->model->create([

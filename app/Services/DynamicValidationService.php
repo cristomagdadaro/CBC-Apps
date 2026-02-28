@@ -9,6 +9,7 @@ class DynamicValidationService
 {
     /**
      * Build Laravel validation rules from a field schema array
+     * Returns rules keyed by field_key directly (without response_data. prefix)
      */
     public function buildRulesFromSchema(array $fieldSchema): array
     {
@@ -20,7 +21,7 @@ class DynamicValidationService
                 continue;
             }
 
-            $rules['response_data.' . $fieldKey] = $this->buildFieldRules($field);
+            $rules[$fieldKey] = $this->buildFieldRules($field);
         }
 
         return $rules;
@@ -176,17 +177,15 @@ class DynamicValidationService
                 continue;
             }
 
-            $prefix = 'response_data.' . $fieldKey;
-
             // Custom required message
             if (!empty($validationConfig['required'])) {
                 $customMessage = $validationConfig['required_message'] ?? null;
-                $messages[$prefix . '.required'] = $customMessage ?? "The {$label} field is required.";
+                $messages[$fieldKey . '.required'] = $customMessage ?? "The {$label} field is required.";
             }
 
             // Custom format messages
             if (!empty($validationConfig['custom_message'])) {
-                $messages[$prefix . '.*'] = $validationConfig['custom_message'];
+                $messages[$fieldKey . '.*'] = $validationConfig['custom_message'];
             }
         }
 
@@ -205,7 +204,7 @@ class DynamicValidationService
             $label = $field['label'] ?? null;
 
             if ($fieldKey && $label) {
-                $attributes['response_data.' . $fieldKey] = $label;
+                $attributes[$fieldKey] = $label;
             }
         }
 

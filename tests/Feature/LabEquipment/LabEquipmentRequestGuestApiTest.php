@@ -10,6 +10,8 @@ class LabEquipmentRequestGuestApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected $seeder = \Database\Seeders\DatabaseSeeder::class;
+
     public function test_guest_can_create_request_form_pivot(): void
     {
         $payload = [
@@ -18,7 +20,7 @@ class LabEquipmentRequestGuestApiTest extends TestCase
             'email' => 'guest.requester@example.com',
             'position' => 'Research Assistant',
             'phone' => '09170000003',
-            'request_type' => ['Supplies', 'Laboratory Access'],
+            'request_type' => ['Office Supplies', 'Laboratory Access'],
             'request_details' => 'Need access to lab equipment.',
             'request_purpose' => 'Research activity',
             'project_title' => 'Genome Study',

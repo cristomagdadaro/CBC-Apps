@@ -235,7 +235,7 @@ class EventGuestRegistrationApiTest extends TestCase
         // Assert total responses = requirements × participants (2)
         $this->assertEquals(
             $requirements->count() * 2,
-            EventSubformResponse::count()
+            EventSubformResponse::whereIn('form_parent_id', $requirements->pluck('id'))->count()
         );
 
         // Assert each requirement has exactly 2 unique participant responses
@@ -251,7 +251,7 @@ class EventGuestRegistrationApiTest extends TestCase
         });
 
         // login as admin
-        Sanctum::actingAs(User::factory()->create());
+        Sanctum::actingAs($this->createAdminUser());
 
         $response = $this->getJson(route('api.subform.response.index', [
             'is_exact' => 'false',

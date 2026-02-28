@@ -18,10 +18,15 @@ class UseRequestFormFactory extends Factory
     public function definition(): array
     {
         $types = app(OptionRepo::class)->getRequestTypes()->pluck('label')->toArray();
+        
+        // Use default request types if options table is empty
+        if (empty($types)) {
+            $types = ['Office Supplies', 'Laboratory Access', 'ICT Equipment'];
+        }
 
         return [
             'id' => $this->faker->uuid(),
-            'request_type' => $this->faker->randomElements($types, rand(1, 2)),
+            'request_type' => $this->faker->randomElements($types, rand(1, min(2, count($types)))),
             'request_details' => $this->faker->sentence(),
             'request_purpose' => $this->faker->sentence(),
             'project_title' => $this->faker->sentence(),

@@ -18,6 +18,8 @@ class InventorySuppEquipReportsApiTest extends TestCase
 {
     use RefreshDatabase, WithTestRoles;
 
+    protected $seeder = \Database\Seeders\DatabaseSeeder::class;
+
     public function test_supp_equip_report_crud_flow(): void
     {
         $user = $this->createAdminUser();

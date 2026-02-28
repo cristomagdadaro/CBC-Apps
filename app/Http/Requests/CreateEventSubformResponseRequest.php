@@ -39,6 +39,8 @@ class CreateEventSubformResponseRequest extends FormRequest
 
     /**
      * Check if this request uses dynamic field schema
+     * Only returns true for actual dynamic schemas (custom templates or field_schema column)
+     * NOT for legacy config-derived schemas
      */
     protected function usesDynamicSchema(): bool
     {
@@ -47,8 +49,15 @@ class CreateEventSubformResponseRequest extends FormRequest
             return false;
         }
         
-        $fieldSchema = $subform->resolved_field_schema;
-        return !empty($fieldSchema) && is_array($fieldSchema);
+        if (!empty($subform->field_schema)) {
+            return true;
+        }
+        
+        if (!empty($subform->form_type_template_id)) {
+            return true;
+        }
+        
+        return false;
     }
 
     /**

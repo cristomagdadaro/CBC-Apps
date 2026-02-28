@@ -119,6 +119,10 @@ export default {
                 provinces: [],
                 cities: [],
             },
+            // Skip logic state
+            currentSectionIndex: 0,
+            skipToSubmit: false,
+            skippedSections: new Set(),
         };
     },
     computed: {
@@ -139,24 +143,62 @@ export default {
          */
         fieldSections() {
             const sections = [];
-            let currentSection = { header: null, fields: [] };
+            let currentSection = { header: null, fields: [], index: 0 };
 
             for (const field of this.sortedFields) {
                 if (field.field_type === 'section_header') {
                     if (currentSection.fields.length > 0 || currentSection.header) {
                         sections.push(currentSection);
                     }
-                    currentSection = { header: field, fields: [] };
+                    currentSection = { header: field, fields: [], index: sections.length };
                 } else {
                     currentSection.fields.push(field);
                 }
             }
             
             if (currentSection.fields.length > 0 || currentSection.header) {
+                currentSection.index = sections.length;
                 sections.push(currentSection);
             }
 
-            return sections.length > 0 ? sections : [{ header: null, fields: this.sortedFields }];
+            return sections.length > 0 ? sections : [{ header: null, fields: this.sortedFields, index: 0 }];
+        },
+        /**
+         * Check if form has any skip logic configured
+         */
+        hasSkipLogic() {
+            return this.sortedFields.some(field => {
+                if (!field.options || !Array.isArray(field.options)) return false;
+                return field.options.some(opt => opt.skipTo);
+            });
+        },
+        /**
+         * Get visible sections based on skip logic
+         */
+        visibleSections() {
+            if (!this.hasSkipLogic) {
+                return this.fieldSections;
+            }
+            // When skip logic is active, show only current section
+            return this.fieldSections.filter((section, index) => {
+                // Always show sections up to current if not skipped
+                if (index <= this.currentSectionIndex && !this.skippedSections.has(index)) {
+                    return true;
+                }
+                return false;
+            });
+        },
+        /**
+         * Check if there are more sections after the current one
+         */
+        hasNextSection() {
+            return this.currentSectionIndex < this.fieldSections.length - 1 && !this.skipToSubmit;
+        },
+        /**
+         * Check if currently on last visible section
+         */
+        isLastSection() {
+            return this.currentSectionIndex >= this.fieldSections.length - 1 || this.skipToSubmit;
         },
     },
     watch: {
@@ -228,6 +270,81 @@ export default {
             if (this.form?.clearErrors) {
                 this.form.clearErrors(fieldKey);
             }
+        },
+
+        /**
+         * Handle field value change and check for skip logic
+         */
+        handleFieldChange(fieldKey, value, field) {
+            this.clearFieldError(fieldKey);
+            
+            // Check for skip logic on choice fields
+            if (field && field.options && Array.isArray(field.options)) {
+                const selectedOption = field.options.find(opt => opt.value === value);
+                if (selectedOption?.skipTo) {
+                    this.handleSkipLogic(selectedOption.skipTo);
+                }
+            }
+        },
+
+        /**
+         * Execute skip logic based on target
+         */
+        handleSkipLogic(targetKey) {
+            if (targetKey === '__submit__') {
+                // Skip to submit - mark all remaining sections as skipped
+                this.skipToSubmit = true;
+                return;
+            }
+
+            // Find the target section by field_key
+            const targetIndex = this.fieldSections.findIndex(
+                section => section.header?.field_key === targetKey
+            );
+
+            if (targetIndex !== -1 && targetIndex > this.currentSectionIndex) {
+                // Mark sections between current and target as skipped
+                for (let i = this.currentSectionIndex + 1; i < targetIndex; i++) {
+                    this.skippedSections.add(i);
+                }
+                this.currentSectionIndex = targetIndex;
+            }
+        },
+
+        /**
+         * Move to next section
+         */
+        goToNextSection() {
+            if (this.hasNextSection) {
+                let nextIndex = this.currentSectionIndex + 1;
+                // Skip any sections that were marked as skipped
+                while (this.skippedSections.has(nextIndex) && nextIndex < this.fieldSections.length) {
+                    nextIndex++;
+                }
+                this.currentSectionIndex = nextIndex;
+            }
+        },
+
+        /**
+         * Move to previous section
+         */
+        goToPreviousSection() {
+            if (this.currentSectionIndex > 0) {
+                let prevIndex = this.currentSectionIndex - 1;
+                // Skip any sections that were marked as skipped (going backwards)
+                while (this.skippedSections.has(prevIndex) && prevIndex > 0) {
+                    prevIndex--;
+                }
+                this.currentSectionIndex = prevIndex;
+                this.skipToSubmit = false; // Reset submit flag when going back
+            }
+        },
+
+        /**
+         * Check if a field supports skip logic
+         */
+        fieldSupportsSkipLogic(field) {
+            return ['select', 'radio'].includes(field.field_type);
         },
 
         /**
@@ -403,9 +520,25 @@ export default {
             </label>
         </div>
 
+        <!-- Section Progress (when skip logic is active) -->
+        <div v-if="hasSkipLogic && fieldSections.length > 1" class="mb-4">
+            <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+                <span>Section {{ currentSectionIndex + 1 }} of {{ fieldSections.length }}</span>
+                <span v-if="skippedSections.size > 0" class="text-blue-600">
+                    ({{ skippedSections.size }} section{{ skippedSections.size > 1 ? 's' : '' }} skipped)
+                </span>
+            </div>
+            <div class="h-1 bg-gray-200 rounded-full overflow-hidden">
+                <div 
+                    class="h-full bg-AB transition-all duration-300"
+                    :style="{ width: `${((currentSectionIndex + 1) / fieldSections.length) * 100}%` }"
+                ></div>
+            </div>
+        </div>
+
         <!-- Dynamic Fields -->
         <div class="flex flex-col gap-3">
-            <template v-for="section in fieldSections" :key="section.header?.field_key || 'default'">
+            <template v-for="section in visibleSections" :key="section.header?.field_key || 'default'">
                 <!-- Section Header -->
                 <component 
                     v-if="section.header"
@@ -424,14 +557,36 @@ export default {
                         :regions="locationRegions"
                         :provinces="locationProvinces"
                         :cities="locationCities"
-                        @update:modelValue="clearFieldError(field.field_key)"
+                        @update:modelValue="handleFieldChange(field.field_key, $event, field)"
                     />
                 </template>
             </template>
         </div>
 
+        <!-- Section Navigation (when skip logic is active) -->
+        <div v-if="hasSkipLogic && fieldSections.length > 1" class="mt-4 flex items-center justify-between gap-2">
+            <button
+                v-if="currentSectionIndex > 0"
+                type="button"
+                @click="goToPreviousSection"
+                class="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 transition"
+            >
+                ← Previous
+            </button>
+            <div v-else></div>
+            
+            <button
+                v-if="hasNextSection && !isLastSection"
+                type="button"
+                @click="goToNextSection"
+                class="px-4 py-2 text-sm bg-AB text-white rounded-md hover:bg-AB/90 transition"
+            >
+                Next →
+            </button>
+        </div>
+
         <!-- Submit Button -->
-        <div class="mt-4">
+        <div class="mt-4" v-if="!hasSkipLogic || isLastSection">
             <FormButton 
                 :loading="isSubmitting || form.processing"
                 type="submit"

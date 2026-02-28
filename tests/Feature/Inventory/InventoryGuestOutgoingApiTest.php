@@ -17,17 +17,22 @@ class InventoryGuestOutgoingApiTest extends TestCase
 {
     use RefreshDatabase, WithTestRoles;
 
+    protected $seeder = \Database\Seeders\DatabaseSeeder::class;
+
     public function test_guest_outgoing_and_remaining_stocks(): void
     {
         $user = $this->createAdminUser();
 
-        $category = Category::factory()->create();
-        $supplier = Supplier::factory()->create();
+        // Consumable category names that are included in remaining-stocks query (IDs 1,2,3,5,6)
+        $consumableCategoryNames = ['Office Supplies', 'IEC Materials', 'Tokens', 'ICT Supplies', 'Laboratory Consumables'];
+        $category = Category::query()->whereIn('name', $consumableCategoryNames)->first() 
+            ?? Category::factory()->create(['name' => 'Office Supplies']);
+        $supplier = Supplier::query()->first() ?? Supplier::factory()->create();
         $item = Item::factory()->create([
             'category_id' => $category->id,
             'supplier_id' => $supplier->id,
         ]);
-        $personnel = Personnel::factory()->create([
+        $personnel = Personnel::query()->first() ?? Personnel::factory()->create([
             'employee_id' => 'EMP-GUEST',
         ]);
 

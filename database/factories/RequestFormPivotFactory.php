@@ -19,20 +19,17 @@ class RequestFormPivotFactory extends Factory
      */
     public function definition(): array
     {
-        $requester = Requester::all()->random()->id;
-        $form =  UseRequestForm::all()->random()->id;
-
         return [
             'id' => $this->faker->uuid(),
-            'requester_id' => $requester,
-            'form_id' => $form,
+            'requester_id' => Requester::factory(),
+            'form_id' => UseRequestForm::factory(),
             'request_status' => $this->faker->randomElement(['pending', 'approved', 'rejected']),
             'agreed_clause_1' => $this->faker->boolean(),
             'agreed_clause_2' => $this->faker->boolean(),
             'agreed_clause_3' => $this->faker->boolean(),
             'approval_constraint' => $this->faker->sentence(),
             'disapproved_remarks' => $this->faker->sentence(),
-            'approved_by' => app(OptionRepo::class)->getApprovingOfficers(),
+            'approved_by' => $this->faker->name(),
         ];
     }
 }

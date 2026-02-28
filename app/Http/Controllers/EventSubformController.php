@@ -31,7 +31,7 @@ class EventSubformController extends BaseController
                     ->orderByRaw('step_order IS NULL, step_order ASC, created_at ASC'),
             ])
             ->firstOrFail();
-        $requirements         = EventSubform::where('event_id', $id)->withCount('responses')->get();
+        $requirements         = EventSubform::where('event_id', $id)->withCount('responses')->withTrashed()->get();
         $eventResponsesByType = EventSubformResponse::whereRelation('parent', 'event_id', $id)
             ->latest()
             ->get()

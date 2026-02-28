@@ -15,6 +15,8 @@ class InventoryItemsApiTest extends TestCase
 {
     use RefreshDatabase, WithTestRoles;
 
+    protected $seeder = \Database\Seeders\DatabaseSeeder::class;
+
     public function test_item_crud_flow(): void
     {
         Sanctum::actingAs($this->createAdminUser());

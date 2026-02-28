@@ -85,7 +85,9 @@ class QuizbeePreregistrationTest extends TestCase
 
         $response->assertStatus(201);
 
-        $saved = EventSubformResponse::query()->first();
+        $saved = EventSubformResponse::query()
+            ->where('form_parent_id', $subform->id)
+            ->first();
         $this->assertNotNull($saved);
         $this->assertEquals(Subform::PREREGISTRATION_QUIZBEE->value, $saved->subform_type);
         $this->assertArrayHasKey('proof_of_enrollment', $saved->response_data);

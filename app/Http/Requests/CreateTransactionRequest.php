@@ -33,7 +33,7 @@ class CreateTransactionRequest extends FormRequest
                 'string',
                 Rule::when(
                     fn ($input) => $input->transac_type === Inventory::INCOMING->value,
-                    ['unique:transactions,barcode']
+                    [Rule::unique('transactions', 'barcode')->where('transac_type', Inventory::INCOMING->value)]
                 ),
                 Rule::when(
                     fn ($input) => $input->transac_type === Inventory::OUTGOING->value,

@@ -258,10 +258,10 @@ export default {
                 </div>
                 <p class="text-sm leading-none line-clamp-3 break-all">{{ formsData.details }}</p>
             </div>
-            <div class="flex flex-col border-t bg-AA text-white rounded-md">
+            <div class="flex flex-col text-white gap-1">
                 <div v-if="isExpired" class="px-1 flex w-full">
                     <div v-show="isExpired" class="relative w-full min-w-full">
-                        <div class="flex flex-col border-t p-2 bg-gray-600 w-full text-white" >
+                        <div class="flex flex-col p-2 bg-gray-600 w-full text-red-600" >
                             <span class="font-bold uppercase leading-none text-center">This Form is expired</span>
                             <span class="leading-none text-xs text-center">adjust date or time to reopen</span>
                         </div>
@@ -270,7 +270,7 @@ export default {
                 <div v-else class="flex w-full">
                     <transition-container type="slide-right" :duration="1000">
                         <div v-show="formsData.is_suspended" v-if="formsData.is_suspended" class="relative w-full min-w-full bg-yellow-300 rounded-md">
-                            <div class="flex flex-col border-t p-2" >
+                            <div class="flex flex-col p-2 text-red-600" >
                                 <span class="font-bold uppercase leading-none text-center">This Form is suspended</span>
                                 <span class="leading-none text-xs text-center">unable to accept request</span>
                             </div>
@@ -279,7 +279,7 @@ export default {
                         <span v-else class="font-bold uppercase text-center text-sm p-2 mx-auto">No Responses</span>
                     </transition-container>
                 </div>
-                <div class="flex gap-1 justify-center flex-wrap w-full overflow-x-auto">
+                <div class="flex gap-1 justify-center flex-wrap w-full overflow-x-auto bg-AA rounded-md">
                     <template v-for="item in visibleResponseTypes" :key="item.key">
                         <div
                             v-if="item.key === 'registration'"

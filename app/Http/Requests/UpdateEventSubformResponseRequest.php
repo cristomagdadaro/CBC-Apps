@@ -5,15 +5,103 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use App\Enums\Subform;
+use App\Models\EventSubform;
+use App\Models\EventSubformResponse;
+use App\Services\DynamicValidationService;
 
 class UpdateEventSubformResponseRequest extends FormRequest
 {
+    /**
+     * Cached event subform model
+     */
+    protected ?EventSubform $eventSubform = null;
+
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
         return true;
+    }
+
+    /**
+     * Get the EventSubform model for the current request
+     */
+    protected function getEventSubform(): ?EventSubform
+    {
+        if ($this->eventSubform === null) {
+            // Try to get from input first
+            $formParentId = $this->input('form_parent_id');
+            if ($formParentId) {
+                $this->eventSubform = EventSubform::find($formParentId);
+            }
+            
+            // Fall back to route model binding (subform_response -> form_parent_id)
+            if ($this->eventSubform === null) {
+                $response = $this->route('subform_response');
+                if ($response instanceof EventSubformResponse) {
+                    $this->eventSubform = $response->eventSubform;
+                } elseif (is_string($response)) {
+                    $responseModel = EventSubformResponse::find($response);
+                    if ($responseModel) {
+                        $this->eventSubform = $responseModel->eventSubform;
+                    }
+                }
+            }
+        }
+        return $this->eventSubform;
+    }
+
+    /**
+     * Check if this request uses dynamic field schema
+     * Only returns true for actual dynamic schemas (custom templates or field_schema column)
+     * NOT for legacy config-derived schemas
+     */
+    protected function usesDynamicSchema(): bool
+    {
+        $subform = $this->getEventSubform();
+        if (!$subform) {
+            return false;
+        }
+        
+        if (!empty($subform->field_schema)) {
+            return true;
+        }
+        
+        if (!empty($subform->form_type_template_id)) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
+     * Make rules nullable for partial updates
+     */
+    protected function makeRulesNullable(array $rules): array
+    {
+        $nullableRules = [];
+        
+        foreach ($rules as $field => $fieldRules) {
+            if (is_string($fieldRules)) {
+                // Remove 'required' from the rule string
+                $ruleString = str_replace('required|', '', $fieldRules);
+                $ruleString = str_replace('|required', '', $ruleString);
+                $ruleString = preg_replace('/^required$/', '', $ruleString);
+                $ruleString = trim($ruleString, '|');
+                
+                $nullableRules[$field] = 'nullable' . ($ruleString ? '|' . $ruleString : '');
+            } elseif (is_array($fieldRules)) {
+                // Remove 'required' from the array and add 'nullable'
+                $filtered = array_filter($fieldRules, fn($rule) => $rule !== 'required');
+                array_unshift($filtered, 'nullable');
+                $nullableRules[$field] = array_values($filtered);
+            } else {
+                $nullableRules[$field] = $fieldRules;
+            }
+        }
+        
+        return $nullableRules;
     }
 
     /**
@@ -24,34 +112,36 @@ class UpdateEventSubformResponseRequest extends FormRequest
     public function rules(): array
     {
         $subform = $this->input('subform_type') ?? optional($this->route('subform_response'))->subform_type;
-        
-        $formFields = config("subformtypes.$subform", []);
-        if (!is_array($formFields)) {
-            $formFields = [];
-        }
 
         $rules = [
             'response_data' => ['required', 'array'],
         ];
 
-        // For update, only validate the fields being updated
-        // Make individual fields optional since it's a partial update
-        foreach ($formFields as $field => $type) {
-            // Start with nullable since it's an update
-            $fieldRules = ['nullable'];
+        // Check for dynamic field schema first
+        if ($this->usesDynamicSchema()) {
+            $eventSubform = $this->getEventSubform();
+            $dynamicService = app(DynamicValidationService::class);
+            $dynamicRules = $dynamicService->buildRulesFromSchema($eventSubform->resolved_field_schema);
             
-            // Remove 'required' from the rule string
-            $ruleString = str_replace('required|', '', $type);
-            $ruleString = str_replace('|required', '', $ruleString);
-            $ruleString = trim($ruleString, '|');
+            // Make rules nullable for partial updates
+            $dynamicRules = $this->makeRulesNullable($dynamicRules);
             
-            // Split remaining rules and add them to the array
-            if (!empty($ruleString)) {
-                $individualRules = explode('|', $ruleString);
-                $fieldRules = array_merge($fieldRules, $individualRules);
+            foreach ($dynamicRules as $field => $fieldRules) {
+                $rules["response_data.$field"] = $fieldRules;
             }
+        } else {
+            // Fall back to legacy config-based validation
+            $formFields = config("subformtypes.$subform", []);
+            if (!is_array($formFields)) {
+                $formFields = [];
+            }
+
+            // Make rules nullable for partial updates
+            $formFields = $this->makeRulesNullable($formFields);
             
-            $rules["response_data.$field"] = $fieldRules;
+            foreach ($formFields as $field => $type) {
+                $rules["response_data.$field"] = $type;
+            }
         }
 
         return $rules;
@@ -64,6 +154,20 @@ class UpdateEventSubformResponseRequest extends FormRequest
             'response_data.array' => 'Response data must be a structured array.',
         ];
 
+        // Add dynamic messages if using dynamic schema
+        if ($this->usesDynamicSchema()) {
+            $eventSubform = $this->getEventSubform();
+            $dynamicService = app(DynamicValidationService::class);
+            $dynamicMessages = $dynamicService->buildMessagesFromSchema($eventSubform->resolved_field_schema);
+            
+            foreach ($dynamicMessages as $key => $message) {
+                $messages["response_data.$key"] = $message;
+            }
+            
+            return $messages;
+        }
+
+        // Legacy messages for feedback fields
         $subform = $this->input('subform_type') ?? optional($this->route('subform_response'))->subform_type;
         $feedbackFields = config('subformtypes.' . $subform, []);
         

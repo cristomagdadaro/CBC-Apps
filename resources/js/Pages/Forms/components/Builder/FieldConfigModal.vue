@@ -18,6 +18,13 @@ export default {
             type: Object,
             default: () => FIELD_TYPES,
         },
+        /**
+         * All sections in the form (for skip logic targeting)
+         */
+        sections: {
+            type: Array,
+            default: () => [],
+        },
     },
     emits: ['save', 'cancel'],
     data() {
@@ -42,6 +49,22 @@ export default {
         },
         isLikertOrLinear() {
             return ['likert_scale', 'linear_scale'].includes(this.editedField.field_type);
+        },
+        supportsSkipLogic() {
+            return this.fieldTypeConfig.supportsSkipLogic || false;
+        },
+        skipLogicTargets() {
+            // Available targets: sections + special actions
+            const targets = [
+                { value: '', label: 'Continue to next' },
+                { value: '__submit__', label: 'Submit form' },
+            ];
+            // Add all sections as targets
+            this.sections.forEach((section, index) => {
+                const label = section.label || `Section ${index + 1}`;
+                targets.push({ value: section.field_key, label: `Go to: ${label}` });
+            });
+            return targets;
         },
     },
     methods: {
@@ -102,6 +125,15 @@ export default {
         updateOptionLabel(index, newLabel) {
             this.editedField.options[index].label = newLabel;
             this.editedField.options[index].value = newLabel.toLowerCase().replace(/\s+/g, '_');
+        },
+
+        updateOptionSkipTo(index, targetKey) {
+            if (!this.editedField.options[index]) return;
+            this.editedField.options[index].skipTo = targetKey || null;
+        },
+
+        getOptionSkipTo(index) {
+            return this.editedField.options[index]?.skipTo || '';
         },
 
         moveOptionUp(index) {
@@ -215,44 +247,68 @@ export default {
                 <div v-if="hasOptions" class="space-y-4">
                     <h4 class="font-medium text-gray-700 border-b pb-2">Options</h4>
                     
+                    <!-- Skip Logic Info -->
+                    <div v-if="supportsSkipLogic && sections.length > 0" class="text-xs text-gray-500 bg-blue-50 p-2 rounded">
+                        <strong>Skip Logic:</strong> You can configure each option to jump to a specific section when selected.
+                    </div>
+                    
                     <div class="space-y-2">
                         <div 
                             v-for="(option, index) in editedField.options" 
                             :key="index"
-                            class="flex items-center gap-2"
+                            class="flex flex-col gap-1 p-2 bg-gray-50 rounded-md"
                         >
-                            <input
-                                :value="option.label"
-                                @input="updateOptionLabel(index, $event.target.value)"
-                                type="text"
-                                class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-AB focus:border-AB text-sm"
-                            />
-                            <button 
-                                @click="moveOptionUp(index)"
-                                :disabled="index === 0"
-                                class="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-30"
-                            >
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-                                </svg>
-                            </button>
-                            <button 
-                                @click="moveOptionDown(index)"
-                                :disabled="index === editedField.options.length - 1"
-                                class="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-30"
-                            >
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                            <button 
-                                @click="removeOption(index)"
-                                class="p-1.5 text-red-400 hover:text-red-600"
-                            >
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
+                            <div class="flex items-center gap-2">
+                                <input
+                                    :value="option.label"
+                                    @input="updateOptionLabel(index, $event.target.value)"
+                                    type="text"
+                                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-AB focus:border-AB text-sm"
+                                    placeholder="Option label"
+                                />
+                                <button 
+                                    @click="moveOptionUp(index)"
+                                    :disabled="index === 0"
+                                    class="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-30"
+                                    title="Move up"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                    </svg>
+                                </button>
+                                <button 
+                                    @click="moveOptionDown(index)"
+                                    :disabled="index === editedField.options.length - 1"
+                                    class="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-30"
+                                    title="Move down"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                <button 
+                                    @click="removeOption(index)"
+                                    class="p-1.5 text-red-400 hover:text-red-600"
+                                    title="Remove option"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <!-- Skip Logic Dropdown -->
+                            <div v-if="supportsSkipLogic && sections.length > 0" class="flex items-center gap-2 ml-2">
+                                <label class="text-xs text-gray-500 whitespace-nowrap">Go to:</label>
+                                <select
+                                    :value="getOptionSkipTo(index)"
+                                    @change="updateOptionSkipTo(index, $event.target.value)"
+                                    class="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:ring-AB focus:border-AB"
+                                >
+                                    <option v-for="target in skipLogicTargets" :key="target.value" :value="target.value">
+                                        {{ target.label }}
+                                    </option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 

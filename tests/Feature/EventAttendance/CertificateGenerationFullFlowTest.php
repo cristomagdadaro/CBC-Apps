@@ -10,6 +10,7 @@ use App\Models\Form;
 use App\Models\Participant;
 use App\Models\Registration;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
@@ -18,7 +19,9 @@ use Tests\WithTestRoles;
 
 class CertificateGenerationFullFlowTest extends TestCase
 {
-    use WithTestRoles;
+    use RefreshDatabase, WithTestRoles;
+
+    protected $seeder = \Database\Seeders\DatabaseSeeder::class;
 
     protected User $user;
     protected Form $form;

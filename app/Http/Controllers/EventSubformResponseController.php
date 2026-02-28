@@ -26,9 +26,9 @@ class EventSubformResponseController extends BaseController
 
     public function index(GetEventSubformRequest $request, string $event_id = null): JsonResponse
     {
-        $validated = new Collection($request->validated());
+        $parameters = new Collection($request->query());
         $resolvedEventId = $event_id ?? $request->input('event_id');
-        $data = $this->repo()->searchResponses($validated, $resolvedEventId);
+        $data = $this->repo()->searchResponses($parameters, $resolvedEventId);
 
         return response()->json($data, 200);
     }

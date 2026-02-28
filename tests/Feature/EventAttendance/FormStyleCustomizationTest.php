@@ -11,6 +11,8 @@ class FormStyleCustomizationTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected $seeder = \Database\Seeders\DatabaseSeeder::class;
+
     /** @test */
     public function guest_forms_include_persisted_style_tokens(): void
     {

@@ -18,6 +18,8 @@ class InventoryTransactionsApiTest extends TestCase
 {
     use RefreshDatabase, WithTestRoles;
 
+    protected $seeder = \Database\Seeders\DatabaseSeeder::class;
+
     public function test_transactions_crud_flow(): void
     {
         $user = $this->createAdminUser();
@@ -64,7 +66,7 @@ class InventoryTransactionsApiTest extends TestCase
 
         $outgoingPayload = [
             'item_id' => $item->id,
-            'barcode' => $barcode . '-outgoing',
+            'barcode' => $barcode,
             'transac_type' => Inventory::OUTGOING->value,
             'quantity' => 2,
             'unit_price' => 100,

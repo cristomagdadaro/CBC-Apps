@@ -86,26 +86,40 @@ export default {
                   />
                 </div>
                 <div class="flex flex-col items-center justify-center">
-                  <label class="text-2xl leading-none font-[1000]">{{ form.event_id ?? '####' }}</label>
+                  <label class="text-2xl leading-none font-[1000]">{{
+                    form.event_id ?? "####"
+                  }}</label>
                   <span class="text-[0.6rem] leading-none">Form ID</span>
                 </div>
               </div>
               <div class="grid grid-cols-2 grid-rows-2 px-1 gap-2">
                 <div>
                   <span class="font-bold uppercase">Start Date: </span>
-                  <date-input v-model="form.date_from" :error="form.errors.date_from" />
+                  <date-input
+                    v-model="form.date_from"
+                    :error="form.errors.date_from"
+                  />
                 </div>
                 <div>
                   <span class="font-bold uppercase">End Date: </span>
-                  <date-input v-model="form.date_to" :error="form.errors.date_to" />
+                  <date-input
+                    v-model="form.date_to"
+                    :error="form.errors.date_to"
+                  />
                 </div>
                 <div>
                   <span class="font-bold uppercase">Start Time: </span>
-                  <time-input v-model="form.time_from" :error="form.errors.time_from" />
+                  <time-input
+                    v-model="form.time_from"
+                    :error="form.errors.time_from"
+                  />
                 </div>
                 <div>
                   <span class="font-bold uppercase">End Time: </span>
-                  <time-input v-model="form.time_to" :error="form.errors.time_to" />
+                  <time-input
+                    v-model="form.time_to"
+                    :error="form.errors.time_to"
+                  />
                 </div>
               </div>
               <div class="px-1 flex flex-col gap-1">
@@ -127,7 +141,7 @@ export default {
                     :error="form.errors.details"
                   />
                 </div>
-              </div>
+              </div><pre>{{ form.requirements }}</pre>
               <div class="px-1 flex flex-col gap-1">
                 <requirements-manager
                   v-model="form.requirements"
@@ -153,7 +167,10 @@ export default {
       </form>
     </div>
     <div class="px-1 flex flex-col gap-1">
-      <form-style-designer v-model="form.style_tokens" :error="styleTokensError" />
+      <form-style-designer
+        v-model="form.style_tokens"
+        :error="styleTokensError"
+      />
     </div>
     <div class="flex flex-col w-fit">
       <div class="flex justify-between text-sm">

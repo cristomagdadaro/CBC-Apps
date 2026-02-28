@@ -9,14 +9,17 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
+use Tests\WithTestRoles;
 
 class LabEquipmentRequestApprovalApiTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, WithTestRoles;
+
+    protected $seeder = \Database\Seeders\DatabaseSeeder::class;
 
     public function test_authenticated_user_can_update_request_approval(): void
     {
-        Sanctum::actingAs(User::factory()->create());
+        Sanctum::actingAs($this->createAdminUser());
 
         $requester = Requester::factory()->create();
         $form = UseRequestForm::factory()->create();

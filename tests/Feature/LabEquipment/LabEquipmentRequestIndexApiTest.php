@@ -9,14 +9,17 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
+use Tests\WithTestRoles;
 
 class LabEquipmentRequestIndexApiTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, WithTestRoles;
+
+    protected $seeder = \Database\Seeders\DatabaseSeeder::class;
 
     public function test_authenticated_user_can_list_request_forms(): void
     {
-        Sanctum::actingAs(User::factory()->create());
+        Sanctum::actingAs($this->createAdminUser());
 
         $requester = Requester::factory()->create();
         $form = UseRequestForm::factory()->create();
@@ -26,7 +29,11 @@ class LabEquipmentRequestIndexApiTest extends TestCase
             'form_id' => $form->id,
         ]);
 
-        $response = $this->getJson(route('api.requestFormPivot.index', ['per_page' => 'all']));
+        $response = $this->getJson(route('api.requestFormPivot.index', [
+            'per_page' => 'all',
+            'filter_by_parent_column' => 'requester_id',
+            'filter_by_parent_id' => $requester->id,
+        ]));
 
         $response->assertOk()
             ->assertJsonStructure(['data']);

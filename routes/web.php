@@ -130,6 +130,12 @@ Route::middleware([
                 return Inertia::render('Forms/FormCreate');
             })->name('forms.create');
 
+            Route::get('/builder/{templateId?}', function ($templateId = null) {
+                return Inertia::render('Forms/FormBuilder', [
+                    'templateId' => $templateId,
+                ]);
+            })->name('forms.builder');
+
             Route::get('/scan/{event_id?}', function ($event_id = null) {
                 return Inertia::render('Forms/FormScan', [
                     'event_id' => $event_id,

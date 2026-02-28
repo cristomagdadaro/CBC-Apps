@@ -6,6 +6,26 @@
  */
 
 export const FIELD_TYPES = {
+    // Layout Types 
+    section_header: {
+        label: 'Section Header',
+        icon: 'bars-3',
+        component: 'FormFieldSectionHeader',
+        category: 'layout',
+        supportedValidations: [],
+        defaultConfig: {},
+        isDecorative: true,
+    },
+    
+    paragraph: {
+        label: 'Paragraph',
+        icon: 'document-text',
+        component: 'FormFieldParagraph',
+        category: 'layout',
+        supportedValidations: [],
+        defaultConfig: {},
+        isDecorative: true,
+    },
     // Basic Input Types
     text: {
         label: 'Short Text',
@@ -88,6 +108,7 @@ export const FIELD_TYPES = {
         supportedValidations: ['required'],
         defaultConfig: { placeholder: 'Choose an option' },
         hasOptions: true,
+        supportsSkipLogic: true,
     },
     
     radio: {
@@ -98,6 +119,7 @@ export const FIELD_TYPES = {
         supportedValidations: ['required'],
         defaultConfig: { layout: 'vertical' },
         hasOptions: true,
+        supportsSkipLogic: true,
     },
     
     checkbox: {
@@ -219,37 +241,16 @@ export const FIELD_TYPES = {
         supportedValidations: ['required'],
         defaultConfig: {},
     },
-
-    // Layout Types
-    section_header: {
-        label: 'Section Header',
-        icon: 'bars-3',
-        component: 'FormFieldSectionHeader',
-        category: 'layout',
-        supportedValidations: [],
-        defaultConfig: {},
-        isDecorative: true,
-    },
-    
-    paragraph: {
-        label: 'Paragraph',
-        icon: 'document-text',
-        component: 'FormFieldParagraph',
-        category: 'layout',
-        supportedValidations: [],
-        defaultConfig: {},
-        isDecorative: true,
-    },
 };
 
 export const FIELD_CATEGORIES = {
+    layout: { label: 'Layout Elements', icon: 'squares-2x2' },
     basic: { label: 'Basic Fields', icon: 'pencil-square' },
     choice: { label: 'Choice Fields', icon: 'list-bullet' },
     scale: { label: 'Scale Fields', icon: 'star' },
     grid: { label: 'Grid Fields', icon: 'table-cells' },
     location: { label: 'Location Fields', icon: 'map' },
     special: { label: 'Special Fields', icon: 'sparkles' },
-    layout: { label: 'Layout Elements', icon: 'squares-2x2' },
 };
 
 export const VALIDATION_TYPES = {

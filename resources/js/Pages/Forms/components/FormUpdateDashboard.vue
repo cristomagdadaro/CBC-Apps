@@ -1219,7 +1219,7 @@ export default {
                             </div>
                         </div>
                         <div v-else class="py-6 text-center text-sm text-gray-500 dark:text-gray-400">
-                            No responses available.
+                            No responses available.s
                         </div>
                     </template>
                     <template #icon="{ tab }">

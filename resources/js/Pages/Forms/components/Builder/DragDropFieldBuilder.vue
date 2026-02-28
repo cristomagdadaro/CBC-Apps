@@ -53,17 +53,65 @@ export default {
             fieldCategories: FIELD_CATEGORIES,
             fieldTypes: FIELD_TYPES,
             expandedCategories: ['basic', 'choice'],
+            fieldSearch: '',
         };
     },
     computed: {
         fieldsByCategory() {
             return getFieldsByCategory();
         },
+        /**
+         * Filtered fields based on search query
+         */
+        filteredFieldsByCategory() {
+            if (!this.fieldSearch.trim()) {
+                return this.fieldsByCategory;
+            }
+            
+            const search = this.fieldSearch.toLowerCase().trim();
+            const filtered = {};
+            
+            for (const [categoryKey, fields] of Object.entries(this.fieldsByCategory)) {
+                const matchingFields = fields.filter(field => 
+                    field.label.toLowerCase().includes(search) ||
+                    field.key.toLowerCase().includes(search)
+                );
+                if (matchingFields.length > 0) {
+                    filtered[categoryKey] = matchingFields;
+                }
+            }
+            
+            return filtered;
+        },
+        /**
+         * Whether search is active
+         */
+        isSearching() {
+            return this.fieldSearch.trim().length > 0;
+        },
+        /**
+         * Total results count when searching
+         */
+        searchResultsCount() {
+            if (!this.isSearching) return 0;
+            return Object.values(this.filteredFieldsByCategory).reduce((sum, fields) => sum + fields.length, 0);
+        },
         isValid() {
             return this.template.name.trim() !== '' && this.fields.length > 0;
         },
         canEdit() {
             return !this.isSystemTemplate;
+        },
+        /**
+         * Get all section_header fields for skip logic targeting
+         */
+        sectionHeaders() {
+            return this.fields
+                .filter(f => f.field_type === 'section_header')
+                .map(f => ({
+                    field_key: f.field_key,
+                    label: f.label,
+                }));
         },
     },
     methods: {
@@ -80,6 +128,10 @@ export default {
         },
         
         isCategoryExpanded(categoryKey) {
+            // Auto-expand all categories when searching
+            if (this.isSearching) {
+                return true;
+            }
             return this.expandedCategories.includes(categoryKey);
         },
 
@@ -256,8 +308,35 @@ export default {
                 <p class="text-xs text-gray-500 mt-1">Drag fields to the form area</p>
             </div>
             
+            <!-- Search Input -->
+            <div class="p-2 border-b border-gray-200">
+                <div class="relative">
+                    <input
+                        v-model="fieldSearch"
+                        type="text"
+                        placeholder="Search fields..."
+                        class="w-full pl-8 pr-8 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-AB focus:border-AB"
+                    />
+                    <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <button 
+                        v-if="fieldSearch" 
+                        @click="fieldSearch = ''"
+                        class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div v-if="isSearching" class="mt-1 text-xs text-gray-500">
+                    {{ searchResultsCount }} field{{ searchResultsCount !== 1 ? 's' : '' }} found
+                </div>
+            </div>
+            
             <div class="p-2">
-                <template v-for="(fields, categoryKey) in fieldsByCategory" :key="categoryKey">
+                <template v-for="(fields, categoryKey) in filteredFieldsByCategory" :key="categoryKey">
                     <div class="mb-2">
                         <button 
                             @click="toggleCategory(categoryKey)"
@@ -452,6 +531,7 @@ export default {
             v-if="showFieldConfig && editingFieldIndex !== null"
             :field="fields[editingFieldIndex]"
             :field-types="fieldTypes"
+            :sections="sectionHeaders"
             @save="saveFieldConfig"
             @cancel="cancelFieldConfig"
         />

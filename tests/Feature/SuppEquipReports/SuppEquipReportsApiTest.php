@@ -18,6 +18,8 @@ class SuppEquipReportsApiTest extends TestCase
 {
     use RefreshDatabase, WithTestRoles;
 
+    protected $seeder = \Database\Seeders\DatabaseSeeder::class;
+
     public function test_supp_equip_report_endpoints(): void
     {
         $user = $this->createAdminUser();
