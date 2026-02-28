@@ -23,6 +23,8 @@ export default {
         return {
             activeTab: null,
             intervalId: null,
+            formCountdownIntervalId: null,
+            formCountdownNow: Date.now(),
             workflowState: null,
             workflowLoading: false,
             workflowError: null,
@@ -37,21 +39,11 @@ export default {
             return this.workflowState?.steps || [];
         },
         workflowTabs() {
-            const labelMap = {
-                preregistration: 'Pre-Registration',
-                preregistration_biotech: 'Pre-Registration + Quiz Bee',
-                preregistration_quizbee: 'Pre-Registration Quiz Bee',
-                registration: 'Registration',
-                pre_test: 'Pre-test',
-                post_test: 'Post-test',
-                feedback: 'Feedback',
-            };
-
             return this.workflowSteps
                 .filter((step) => step.status !== 'hidden')
-                .map((step) => ({
+                .map((step, index) => ({
                     key: step.form_type,
-                    label: labelMap[step.form_type] ?? step.form_type,
+                    label: `Step ${index + 1}`,
                     disabled: step.status !== 'available',
                 }));
         },
@@ -84,6 +76,7 @@ export default {
     },
     mounted() {
         this.startCountdown();
+        this.startFormCountdownTicker();
         this.selectedParticipantHash = this.participantHashes?.slice(-1)?.[0] ?? null;
         this.loadWorkflow();
     },
@@ -100,8 +93,78 @@ export default {
     },
     beforeDestroy() {
         clearInterval(this.intervalId);
+        clearInterval(this.formCountdownIntervalId);
     },
     methods: {
+        startFormCountdownTicker() {
+            this.formCountdownNow = Date.now();
+            this.formCountdownIntervalId = setInterval(() => {
+                this.formCountdownNow = Date.now();
+            }, 1000);
+        },
+        parseDateTimeValue(value) {
+            if (!value) {
+                return null;
+            }
+
+            const parsed = new Date(value);
+            if (!Number.isNaN(parsed.getTime())) {
+                return parsed;
+            }
+
+            if (typeof value === 'string') {
+                const fallback = new Date(value.replace(' ', 'T'));
+                if (!Number.isNaN(fallback.getTime())) {
+                    return fallback;
+                }
+            }
+
+            return null;
+        },
+        formatCountdownDuration(milliseconds) {
+            if (!milliseconds || milliseconds <= 0) {
+                return '0d 0h 0m 0s';
+            }
+
+            const totalSeconds = Math.floor(milliseconds / 1000);
+            const days = Math.floor(totalSeconds / 86400);
+            const hours = Math.floor((totalSeconds % 86400) / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        },
+        getStepCountdownMeta(step) {
+            if (!step) {
+                return null;
+            }
+
+            const now = this.formCountdownNow;
+            const openFrom = this.parseDateTimeValue(step.open_from ?? step.config?.open_from);
+            const openTo = this.parseDateTimeValue(step.open_to ?? step.config?.open_to);
+
+            if (step.status === 'not_yet_open' && openFrom) {
+                const remaining = openFrom.getTime() - now;
+                if (remaining > 0) {
+                    return {
+                        label: 'Opens in',
+                        value: this.formatCountdownDuration(remaining),
+                    };
+                }
+            }
+
+            if (step.status === 'available' && openTo) {
+                const remaining = openTo.getTime() - now;
+                if (remaining > 0) {
+                    return {
+                        label: 'Closes in',
+                        value: this.formatCountdownDuration(remaining),
+                    };
+                }
+            }
+
+            return null;
+        },
         onParticipantHashChange(value) {
             this.selectedParticipantHash = value;
             this.loadWorkflow();
@@ -345,6 +408,18 @@ export default {
                 :tabs="workflowTabs"
             >
                 <template #default="{ activeKey }">
+                    <div
+                        v-if="getStepCountdownMeta(getStep(activeKey))"
+                        class="bg-white px-3 pt-3 flex items-center justify-between"
+                    >
+                        <span class="text-xs uppercase text-gray-600">
+                            {{ getStepCountdownMeta(getStep(activeKey)).label }}
+                        </span>
+                        <span class="text-xs" :class="{ 'text-red-600': getStepCountdownMeta(getStep(activeKey)).label === 'Closes in' }">
+                            {{ getStepCountdownMeta(getStep(activeKey)).value }}
+                        </span>
+                    </div>
+
                     <div v-if="activeKey === 'preregistration'">
                         <preregistration-card
                             v-if="activeStep?.status === 'available'"

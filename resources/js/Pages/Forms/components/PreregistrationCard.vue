@@ -1,17 +1,33 @@
 <script>
+import BaseFormCard from "@/Pages/Forms/components/Template/BaseFormCard.vue";
 import SubformMixin from "@/Modules/mixins/SubformMixin";
 import LocationMixin from "@/Modules/mixins/LocationMixin";
 import SubformResponse from "@/Modules/domain/SubformResponse";
-import DtoResponse from "@/Modules/dto/DtoResponse";
 
 export default {
     name: "PreregistrationCard",
+    components: {
+        BaseFormCard,
+    },
     mixins: [SubformMixin, LocationMixin],
     props: {
         responseData: {
             type: Object,
             default: null,
         },
+        eventId: {
+            type: String,
+            default: null,
+        },
+        config: {
+            type: Object,
+            default: null,
+        },
+    },
+    data() {
+        return {
+            showSuccess: false,
+        };
     },
     computed: {
         isEditMode() {
@@ -40,9 +56,17 @@ export default {
                 await this.handleCreate();
             }
         },
+        async handleCreate() {
+            const response = await this.submitCreate();
+            if (response?.status === 201) {
+                this.model.response = response.data;
+                this.showSuccess = true;
+                this.$emit('createdModel', response.data);
+            }
+        },
         async handleUpdate() {
             const response = await this.submitUpdate(null, 'response_data');
-            if (response instanceof DtoResponse) {
+            if (response?.status === 200) {
                 this.showSuccess = true;
                 this.$emit('updatedModel', response.data);
             }
@@ -53,7 +77,6 @@ export default {
         if (this.isEditMode) {
             this.setFormAction('update');
             this.form.id = this.responseData.id;
-            // Ensure all response_data fields are preserved, including address fields
             this.form.response_data = Object.assign({}, this.responseData.response_data || {});
         } else {
             this.setFormAction('create').response_data = SubformResponse.getSubformFields('preregistration');
@@ -75,7 +98,7 @@ export default {
 </script>
 
 <template>
-    <form v-if="form" @submit.prevent="handleSubmit()" class="py-3  relative bg-white px-3 border-t" :class="{'border border-red-600 rounded-md': form.hasErrors}">
+    <form v-if="form" @submit.prevent="handleSubmit()" class="py-3 relative bg-white px-3" :class="{'border border-red-600 rounded-md': form.hasErrors}">
         <transition-container type="slide-top">
             <div v-show="showSuccess" class="absolute flex top-0 left-0 bg-AB w-full h-full z-50 text-white text-xl font-medium justify-center items-center rounded-b-md shadow">
                 <button @click.prevent="showSuccess = false" class="absolute top-0 right-0 p-2">
