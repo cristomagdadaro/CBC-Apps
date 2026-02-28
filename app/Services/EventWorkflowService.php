@@ -39,6 +39,7 @@ class EventWorkflowService
                 'responses_count' => $step->responses_count ?? 0,
                 'visibility_rules' => $step->visibility_rules ?? [],
                 'completion_rules' => $step->completion_rules ?? [],
+                'field_schema' => $step->resolved_field_schema ?? [],
                 'status' => $status,
             ];
         })->values();
@@ -55,6 +56,7 @@ class EventWorkflowService
 
     public function submit(array $validated): array
     {
+        /** @var EventSubform $step */
         $step = EventSubform::query()->findOrFail($validated['form_parent_id']);
         $participantId = Arr::get($validated, 'participant_id');
 

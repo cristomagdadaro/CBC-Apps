@@ -5,15 +5,50 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use App\Enums\Subform;
+use App\Models\EventSubform;
+use App\Services\DynamicValidationService;
 
 class CreateEventSubformResponseRequest extends FormRequest
 {
+    /**
+     * Cached event subform model
+     */
+    protected ?EventSubform $eventSubform = null;
+
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
         return true;
+    }
+
+    /**
+     * Get the EventSubform model for the current request
+     */
+    protected function getEventSubform(): ?EventSubform
+    {
+        if ($this->eventSubform === null) {
+            $formParentId = $this->input('form_parent_id');
+            if ($formParentId) {
+                $this->eventSubform = EventSubform::find($formParentId);
+            }
+        }
+        return $this->eventSubform;
+    }
+
+    /**
+     * Check if this request uses dynamic field schema
+     */
+    protected function usesDynamicSchema(): bool
+    {
+        $subform = $this->getEventSubform();
+        if (!$subform) {
+            return false;
+        }
+        
+        $fieldSchema = $subform->resolved_field_schema;
+        return !empty($fieldSchema) && is_array($fieldSchema);
     }
 
     /**
@@ -25,11 +60,6 @@ class CreateEventSubformResponseRequest extends FormRequest
     {
         $subform = $this->input('subform_type');
 
-        $formFields = config("subformtypes.$subform", []);
-        if (!is_array($formFields)) {
-            $formFields = [];
-        }
-
         $participantExempt = [
             Subform::PREREGISTRATION->value,
             Subform::PREREGISTRATION_BIOTECH->value,
@@ -37,7 +67,7 @@ class CreateEventSubformResponseRequest extends FormRequest
         ];
         
         $rules = [
-            'subform_type' => ['required', 'string', Rule::in(array_keys(config('subformtypes') ?? []))],
+            'subform_type' => ['required', 'string'],
             'form_parent_id' => ['required', 'string', 'exists:event_subforms,id'],
             'participant_id' => [
                 'required_unless:subform_type,'.implode(',', $participantExempt),
@@ -48,8 +78,25 @@ class CreateEventSubformResponseRequest extends FormRequest
             'response_data' => ['required', 'array'],
         ];
 
-        foreach ($formFields as $field => $type) {
-            $rules["response_data.$field"] = $type;
+        // Check for dynamic field schema first
+        if ($this->usesDynamicSchema()) {
+            $eventSubform = $this->getEventSubform();
+            $dynamicService = app(DynamicValidationService::class);
+            $dynamicRules = $dynamicService->buildRulesFromSchema($eventSubform->resolved_field_schema);
+            
+            foreach ($dynamicRules as $field => $fieldRules) {
+                $rules["response_data.$field"] = $fieldRules;
+            }
+        } else {
+            // Fall back to legacy config-based validation
+            $formFields = config("subformtypes.$subform", []);
+            if (!is_array($formFields)) {
+                $formFields = [];
+            }
+
+            foreach ($formFields as $field => $type) {
+                $rules["response_data.$field"] = $type;
+            }
         }
 
         return $rules;
@@ -67,6 +114,20 @@ class CreateEventSubformResponseRequest extends FormRequest
             'response_data.array' => 'Feedback payload must be a structured array.',
         ];
 
+        // Add dynamic messages if using dynamic schema
+        if ($this->usesDynamicSchema()) {
+            $eventSubform = $this->getEventSubform();
+            $dynamicService = app(DynamicValidationService::class);
+            $dynamicMessages = $dynamicService->buildMessagesFromSchema($eventSubform->resolved_field_schema);
+            
+            foreach ($dynamicMessages as $key => $message) {
+                $messages["response_data.$key"] = $message;
+            }
+            
+            return $messages;
+        }
+
+        // Legacy messages for feedback fields
         $feedbackFields = config('subformtypes.' . Subform::FEEDBACK->value, []);
         $friendly = [
             'clarity_objective' => 'Please rate the clarity of the objective.',

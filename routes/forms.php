@@ -4,6 +4,7 @@ use App\Http\Controllers\EventCertificateController;
 use App\Http\Controllers\EventSubformController;
 use App\Http\Controllers\EventSubformResponseController;
 use App\Http\Controllers\EventWorkflowController;
+use App\Http\Controllers\FormBuilderController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\FormScanController;
 use Illuminate\Support\Facades\Route;
@@ -18,6 +19,35 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('forms')->group(function () {
+
+    // Form Builder API (templates & field types)
+    Route::prefix('builder')->middleware(['can:event.forms.manage'])->group(function () {
+        // Field types (public reference)
+        Route::get('/field-types', [FormBuilderController::class, 'fieldTypes'])
+            ->name('api.form-builder.field-types');
+
+        // Templates CRUD
+        Route::get('/templates', [FormBuilderController::class, 'indexTemplates'])
+            ->name('api.form-builder.templates.index');
+
+        Route::get('/templates/slug/{slug}', [FormBuilderController::class, 'showTemplateBySlug'])
+            ->name('api.form-builder.templates.by-slug');
+
+        Route::get('/templates/{id}', [FormBuilderController::class, 'showTemplate'])
+            ->name('api.form-builder.templates.show');
+
+        Route::post('/templates', [FormBuilderController::class, 'storeTemplate'])
+            ->name('api.form-builder.templates.store');
+
+        Route::put('/templates/{id}', [FormBuilderController::class, 'updateTemplate'])
+            ->name('api.form-builder.templates.update');
+
+        Route::delete('/templates/{id}', [FormBuilderController::class, 'destroyTemplate'])
+            ->name('api.form-builder.templates.destroy');
+
+        Route::post('/templates/{id}/duplicate', [FormBuilderController::class, 'duplicateTemplate'])
+            ->name('api.form-builder.templates.duplicate');
+    });
     // Event forms
     Route::prefix('event')->group(function () {
         Route::middleware(['can:event.forms.manage'])->group(function () {

@@ -2,6 +2,7 @@
 import PreregistrationCard from "@/Pages/Forms/components/PreregistrationCard.vue";
 import PreregistrationQuizBeeCard from "@/Pages/Forms/components/PreregistrationQuizBeeCard.vue";
 import PreregistrationQuizbeeTeamCard from "@/Pages/Forms/components/PreregistrationQuizbeeTeamCard.vue";
+import DynamicFormRenderer from "@/Pages/Forms/components/Dynamic/DynamicFormRenderer.vue";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import RegistrationCard from "@/Pages/Forms/components/RegistrationCard.vue";
 import FeedbackCard from "@/Pages/Forms/components/FeedbackCard.vue";
@@ -11,7 +12,7 @@ import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 
 export default {
     name: "GuestCard",
-    components: { FeedbackCard, RegistrationCard, PreregistrationCard, PreregistrationQuizBeeCard, PreregistrationQuizbeeTeamCard },
+    components: { FeedbackCard, RegistrationCard, PreregistrationCard, PreregistrationQuizBeeCard, PreregistrationQuizbeeTeamCard, DynamicFormRenderer },
     mixins: [ApiMixin, FormLocalMixin, DataFormatterMixin],
     props: {
         data: {
@@ -308,6 +309,50 @@ export default {
                 return dateString;
             }
         },
+        /**
+         * Check if a step has a dynamic field schema
+         */
+        hasDynamicSchema(step) {
+            return step?.field_schema && Array.isArray(step.field_schema) && step.field_schema.length > 0;
+        },
+        /**
+         * Get the field schema for a step
+         */
+        getFieldSchema(formType) {
+            const step = this.getStep(formType);
+            return step?.field_schema || [];
+        },
+        /**
+         * Get step title for dynamic form
+         */
+        getStepTitle(formType) {
+            const step = this.getStep(formType);
+            if (!step) return '';
+            
+            // Try to get a human-readable title
+            const titles = {
+                'preregistration': 'Pre-register Now!',
+                'registration': 'Registration',
+                'feedback': 'Feedback Form',
+                'pretest': 'Pre-Test',
+                'posttest': 'Post-Test',
+            };
+            
+            return titles[formType] || step.name || formType.replace(/_/g, ' ');
+        },
+        /**
+         * Check if form type should use legacy hardcoded component
+         */
+        useLegacyComponent(formType) {
+            // Use legacy components only if no dynamic schema is available
+            const step = this.getStep(formType);
+            if (this.hasDynamicSchema(step)) {
+                return false;
+            }
+            // Legacy form types that have hardcoded Vue components
+            const legacyTypes = ['preregistration', 'preregistration_biotech', 'preregistration_quizbee', 'registration', 'feedback'];
+            return legacyTypes.includes(formType);
+        },
     }
 }
 </script>
@@ -421,69 +466,139 @@ export default {
                     </div>
 
                     <div v-if="activeKey === 'preregistration'">
-                        <preregistration-card
-                            v-if="activeStep?.status === 'available'"
-                            :event-id="getRequirementFormId('preregistration')"
-                            :config="getStep('preregistration')"
-                            @createdModel="handleCreatedModel"
-                        />
+                        <template v-if="activeStep?.status === 'available'">
+                            <DynamicFormRenderer
+                                v-if="hasDynamicSchema(activeStep)"
+                                :field-schema="getFieldSchema('preregistration')"
+                                :event-id="getRequirementFormId('preregistration')"
+                                :subform-type="'preregistration'"
+                                :config="getStep('preregistration')"
+                                :title="getStepTitle('preregistration')"
+                                @createdModel="handleCreatedModel"
+                            />
+                            <preregistration-card
+                                v-else
+                                :event-id="getRequirementFormId('preregistration')"
+                                :config="getStep('preregistration')"
+                                @createdModel="handleCreatedModel"
+                            />
+                        </template>
                         <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
                             {{ getStepMessage(getStep('preregistration')) }}
                         </div>
                     </div>
 
                     <div v-if="activeKey === 'preregistration_biotech'">
-                        <preregistration-quiz-bee-card
-                            v-if="activeStep?.status === 'available'"
-                            :event-id="getRequirementFormId('preregistration_biotech')"
-                            :config="getStep('preregistration_biotech')"
-                            @createdModel="handleCreatedModel"
-                        />
+                        <template v-if="activeStep?.status === 'available'">
+                            <DynamicFormRenderer
+                                v-if="hasDynamicSchema(activeStep)"
+                                :field-schema="getFieldSchema('preregistration_biotech')"
+                                :event-id="getRequirementFormId('preregistration_biotech')"
+                                :subform-type="'preregistration_biotech'"
+                                :config="getStep('preregistration_biotech')"
+                                :title="getStepTitle('preregistration_biotech')"
+                                @createdModel="handleCreatedModel"
+                            />
+                            <preregistration-quiz-bee-card
+                                v-else
+                                :event-id="getRequirementFormId('preregistration_biotech')"
+                                :config="getStep('preregistration_biotech')"
+                                @createdModel="handleCreatedModel"
+                            />
+                        </template>
                         <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
                             {{ getStepMessage(getStep('preregistration_biotech')) }}
                         </div>
                     </div>
 
                     <div v-if="activeKey === 'preregistration_quizbee'">
-                        <preregistration-quizbee-team-card
-                            v-if="activeStep?.status === 'available'"
-                            :event-id="getRequirementFormId('preregistration_quizbee')"
-                            :config="getStep('preregistration_quizbee')"
-                            @createdModel="handleCreatedModel"
-                        />
+                        <template v-if="activeStep?.status === 'available'">
+                            <DynamicFormRenderer
+                                v-if="hasDynamicSchema(activeStep)"
+                                :field-schema="getFieldSchema('preregistration_quizbee')"
+                                :event-id="getRequirementFormId('preregistration_quizbee')"
+                                :subform-type="'preregistration_quizbee'"
+                                :config="getStep('preregistration_quizbee')"
+                                :title="getStepTitle('preregistration_quizbee')"
+                                @createdModel="handleCreatedModel"
+                            />
+                            <preregistration-quizbee-team-card
+                                v-else
+                                :event-id="getRequirementFormId('preregistration_quizbee')"
+                                :config="getStep('preregistration_quizbee')"
+                                @createdModel="handleCreatedModel"
+                            />
+                        </template>
                         <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
                             {{ getStepMessage(getStep('preregistration_quizbee')) }}
                         </div>
                     </div>
 
                     <div v-if="activeKey === 'registration'">
-                        <registration-card
-                            v-if="activeStep?.status === 'available'"
-                            :event-id="getRequirementFormId('registration')"
-                            :participant-id="selectedParticipantHash"
-                            :config="getStep('registration')"
-                            @createdModel="handleCreatedModel"
-                        />
+                        <template v-if="activeStep?.status === 'available'">
+                            <DynamicFormRenderer
+                                v-if="hasDynamicSchema(activeStep)"
+                                :field-schema="getFieldSchema('registration')"
+                                :event-id="getRequirementFormId('registration')"
+                                :subform-type="'registration'"
+                                :participant-id="selectedParticipantHash"
+                                :config="getStep('registration')"
+                                :title="getStepTitle('registration')"
+                                @createdModel="handleCreatedModel"
+                            />
+                            <registration-card
+                                v-else
+                                :event-id="getRequirementFormId('registration')"
+                                :participant-id="selectedParticipantHash"
+                                :config="getStep('registration')"
+                                @createdModel="handleCreatedModel"
+                            />
+                        </template>
                         <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
                             {{ getStepMessage(getStep('registration')) }}
                         </div>
                     </div>
 
                     <div v-if="activeKey === 'feedback'">
-                        <feedback-card
-                            v-if="activeStep?.status === 'available'"
-                            :event-id="getRequirementFormId('feedback')"
-                            :participant-id="selectedParticipantHash"
-                            :config="getStep('feedback')"
-                            @createdModel="handleCreatedModel"
-                        />
+                        <template v-if="activeStep?.status === 'available'">
+                            <DynamicFormRenderer
+                                v-if="hasDynamicSchema(activeStep)"
+                                :field-schema="getFieldSchema('feedback')"
+                                :event-id="getRequirementFormId('feedback')"
+                                :subform-type="'feedback'"
+                                :participant-id="selectedParticipantHash"
+                                :config="getStep('feedback')"
+                                :title="getStepTitle('feedback')"
+                                @createdModel="handleCreatedModel"
+                            />
+                            <feedback-card
+                                v-else
+                                :event-id="getRequirementFormId('feedback')"
+                                :participant-id="selectedParticipantHash"
+                                :config="getStep('feedback')"
+                                @createdModel="handleCreatedModel"
+                            />
+                        </template>
                         <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
                             {{ getStepMessage(getStep('feedback')) }}
                         </div>
                     </div>
+
+                    <!-- Dynamic fallback for any other form types with field_schema -->
                     <div v-if="['preregistration', 'preregistration_biotech', 'preregistration_quizbee', 'registration', 'feedback'].indexOf(activeKey) === -1">
-                        <div class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
-                            This step type is not yet supported in the guest UI.
+                        <template v-if="activeStep?.status === 'available' && hasDynamicSchema(activeStep)">
+                            <DynamicFormRenderer
+                                :field-schema="getFieldSchema(activeKey)"
+                                :event-id="getRequirementFormId(activeKey)"
+                                :subform-type="activeKey"
+                                :participant-id="selectedParticipantHash"
+                                :config="getStep(activeKey)"
+                                :title="getStepTitle(activeKey)"
+                                @createdModel="handleCreatedModel"
+                            />
+                        </template>
+                        <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
+                            {{ getStepMessage(getStep(activeKey)) || 'This step type is not yet supported in the guest UI.' }}
                         </div>
                     </div>
                 </template>
