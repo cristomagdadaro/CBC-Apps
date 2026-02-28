@@ -129,7 +129,7 @@ export default {
         isEditMode() {
             return !!this.responseData?.id;
         },
-        registrationIDHashed() {
+        participantIdHash() {
             return this.model?.response?.participant_hash ?? null;
         },
         /**
@@ -488,10 +488,10 @@ export default {
                     </svg>
                 </button>
                 <div class="flex flex-col text-center w-full gap-0.5">
-                    <div v-if="registrationIDHashed" class="text-xl w-full flex flex-col gap-1 justify-center mb-1 py-2">
-                        {{ registrationIDHashed }}
+                    <div v-if="participantIdHash" class="text-xl w-full flex flex-col gap-1 justify-center mb-1 py-2">
+                        {{ participantIdHash }}
                         <qrcode-vue
-                            :value="registrationIDHashed"
+                            :value="participantIdHash"
                             :size="200"
                             level="H"
                             render-as="canvas"
@@ -587,13 +587,23 @@ export default {
 
         <!-- Submit Button -->
         <div class="mt-4" v-if="!hasSkipLogic || isLastSection">
-            <FormButton 
-                :loading="isSubmitting || form.processing"
+            <button 
+                :disabled="isSubmitting || form.processing"
                 type="submit"
-                class="w-full"
+                class="w-full px-4 py-2 bg-AB text-white font-semibold rounded-md hover:bg-AB/90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
+                <svg 
+                    v-if="isSubmitting || form.processing" 
+                    class="animate-spin h-4 w-4" 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    fill="none" 
+                    viewBox="0 0 24 24"
+                >
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
                 {{ isEditMode ? 'Update' : 'Submit' }}
-            </FormButton>
+            </button>
         </div>
     </form>
 </template>

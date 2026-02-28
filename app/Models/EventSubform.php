@@ -58,6 +58,8 @@ class EventSubform extends BaseModel
         'completion_rules' => 'array',
     ];
 
+    protected $appends = ['resolved_field_schema'];
+
     protected array $searchable = [
         'event_id',
         'form_type',

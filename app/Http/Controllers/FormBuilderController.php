@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Repositories\FormBuilderRepo;
 use App\Models\FormTypeTemplate;
 use App\Models\FormFieldDefinition;
+use App\Models\EventSubform;
+use App\Services\DynamicValidationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -36,6 +38,30 @@ class FormBuilderController extends Controller
     }
 
     /**
+     * Get templates for dropdown selection (lightweight)
+     */
+    public function templatesForSelect(Request $request): JsonResponse
+    {
+        $templates = FormTypeTemplate::query()
+            ->select(['id', 'slug', 'name', 'description', 'icon', 'is_system'])
+            ->withCount('fieldDefinitions')
+            ->orderBy('is_system', 'desc')
+            ->orderBy('name')
+            ->get()
+            ->map(fn ($t) => [
+                'value' => $t->id,
+                'label' => $t->name,
+                'slug' => $t->slug,
+                'description' => $t->description,
+                'icon' => $t->icon,
+                'is_system' => $t->is_system,
+                'field_count' => $t->field_definitions_count,
+            ]);
+
+        return response()->json(['data' => $templates]);
+    }
+
+    /**
      * Get a single template with all field definitions
      */
     public function showTemplate(string $id): JsonResponse
@@ -45,6 +71,88 @@ class FormBuilderController extends Controller
         return response()->json([
             'data' => $template,
             'field_schema' => $template->field_schema,
+        ]);
+    }
+
+    /**
+     * Preview validation rules and messages for a template
+     */
+    public function previewValidation(Request $request, string $id): JsonResponse
+    {
+        $template = FormTypeTemplate::with('fieldDefinitions')->findOrFail($id);
+        $dynamicService = app(DynamicValidationService::class);
+        
+        $schema = $template->field_schema;
+        $rules = $dynamicService->buildRulesFromSchema($schema);
+        $messages = $dynamicService->buildMessagesFromSchema($schema);
+
+        return response()->json([
+            'template_id' => $template->id,
+            'template_name' => $template->name,
+            'field_count' => count($schema),
+            'validation_rules' => $rules,
+            'validation_messages' => $messages,
+            'schema' => $schema,
+        ]);
+    }
+
+    /**
+     * Assign a template to an event subform
+     */
+    public function assignToEvent(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'event_subform_id' => 'required|uuid|exists:event_subforms,id',
+            'template_id' => 'nullable|uuid|exists:form_type_templates,id',
+            'copy_schema' => 'boolean',
+        ]);
+
+        $subform = EventSubform::findOrFail($validated['event_subform_id']);
+        $templateId = $validated['template_id'];
+        $copySchema = $validated['copy_schema'] ?? false;
+
+        if ($copySchema && $templateId) {
+            // Copy the template's schema to the subform (allows customization)
+            $template = FormTypeTemplate::findOrFail($templateId);
+            $subform->update([
+                'form_type_template_id' => null,
+                'field_schema' => $template->field_schema,
+            ]);
+        } else {
+            // Link to template (schema resolved dynamically)
+            $subform->update([
+                'form_type_template_id' => $templateId,
+                'field_schema' => null,
+            ]);
+        }
+
+        return response()->json([
+            'message' => $templateId 
+                ? ($copySchema ? 'Template schema copied to event form' : 'Template assigned to event form')
+                : 'Template removed from event form',
+            'data' => $subform->fresh(['template']),
+        ]);
+    }
+
+    /**
+     * Get the resolved schema for an event subform
+     */
+    public function eventSubformSchema(string $subformId): JsonResponse
+    {
+        $subform = EventSubform::with('template')->findOrFail($subformId);
+
+        return response()->json([
+            'subform_id' => $subform->id,
+            'event_id' => $subform->event_id,
+            'form_type' => $subform->form_type,
+            'template_id' => $subform->form_type_template_id,
+            'has_custom_schema' => !empty($subform->field_schema),
+            'schema' => $subform->resolved_field_schema,
+            'template' => $subform->template ? [
+                'id' => $subform->template->id,
+                'name' => $subform->template->name,
+                'slug' => $subform->template->slug,
+            ] : null,
         ]);
     }
 

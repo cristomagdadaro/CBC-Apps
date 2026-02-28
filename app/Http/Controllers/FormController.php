@@ -91,6 +91,7 @@ class FormController extends BaseController
         $validated = $request->validate([
             'requirements' => ['array'],
             'requirements.*.form_type' => ['required', 'string'],
+            'requirements.*.form_type_template_id' => ['nullable', 'uuid', 'exists:form_type_templates,id'],
             'requirements.*.step_type' => ['nullable', 'string'],
             'requirements.*.step_order' => ['nullable', 'integer', 'min:1'],
             'requirements.*.is_enabled' => ['boolean'],
@@ -102,6 +103,14 @@ class FormController extends BaseController
             'requirements.*.config.limits' => ['nullable', 'array'],
             'requirements.*.config.limits.*.field' => ['required_with:requirements.*.config.limits.*.max', 'string'],
             'requirements.*.config.limits.*.max' => ['required_with:requirements.*.config.limits.*.field', 'integer', 'min:1'],
+            'requirements.*.field_schema' => ['nullable', 'array'],
+            'requirements.*.field_schema.*.field_key' => ['required_with:requirements.*.field_schema', 'string'],
+            'requirements.*.field_schema.*.field_type' => ['required_with:requirements.*.field_schema', 'string'],
+            'requirements.*.field_schema.*.label' => ['required_with:requirements.*.field_schema', 'string'],
+            'requirements.*.field_schema.*.validation_rules' => ['nullable', 'array'],
+            'requirements.*.field_schema.*.options' => ['nullable', 'array'],
+            'requirements.*.field_schema.*.display_config' => ['nullable', 'array'],
+            'requirements.*.field_schema.*.field_config' => ['nullable', 'array'],
             'requirements.*.visibility_rules' => ['nullable', 'array'],
             'requirements.*.completion_rules' => ['nullable', 'array'],
         ]);

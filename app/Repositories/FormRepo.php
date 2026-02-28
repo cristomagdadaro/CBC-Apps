@@ -40,7 +40,8 @@ class FormRepo extends AbstractRepoService
             ->where('event_id', $eventId)
             ->withCount('participants')
             ->with(['requirements' => function ($query) {
-                $query->withCount('responses')
+                $query->with('template')
+                    ->withCount('responses')
                     ->orderByRaw('CASE WHEN step_order IS NULL THEN 1 ELSE 0 END')
                     ->orderBy('step_order')
                     ->orderBy('created_at');
@@ -94,7 +95,8 @@ class FormRepo extends AbstractRepoService
             ->newQuery()
             ->where('event_id', $eventId)
             ->with(['requirements' => function ($query) {
-                $query->withCount('responses')
+                $query->with('template')
+                    ->withCount('responses')
                     ->orderByRaw('CASE WHEN step_order IS NULL THEN 1 ELSE 0 END')
                     ->orderBy('step_order')
                     ->orderBy('created_at');
@@ -201,6 +203,7 @@ class FormRepo extends AbstractRepoService
                 'is_required' => $req['is_required'] ?? true,
                 'max_slots' => array_key_exists('max_slots', $req) ? $req['max_slots'] : null,
                 'config' => $req['config'] ?? [],
+                'field_schema' => $req['field_schema'] ?? null,
                 'visibility_rules' => $req['visibility_rules'] ?? null,
                 'completion_rules' => $req['completion_rules'] ?? null,
             ]);

@@ -459,10 +459,10 @@ export default {
                 :class="{ 'border-red-400': localErrors[`req_${index}`] }"
             >
                 <!-- Step Header -->
-                <div class="flex w-full justify-between">
+                <div class="flex w-full justify-between items-center">
                     <span class="text-xs font-semibold">STEP {{ req.step_order ?? index + 1 }}</span>
                     <div class="flex gap-1">
-                        <div class="flex items-center gap-1 text-xs border p-0.5 bg-gray-50 dark:bg-gray-800 rounded opacity-100">
+                        <div class="flex items-center gap-1 text-xs border p-0.5 px-2 bg-gray-50 dark:bg-gray-800 rounded opacity-100">
                             <input 
                                 type="checkbox" 
                                 :checked="req.is_enabled !== false" 
@@ -471,6 +471,17 @@ export default {
                                 title="Enable/disable this form"
                             />
                             <span>{{ req.is_enabled !== false ? 'Enabled' : 'Disabled' }}</span>
+                        </div>
+                        <div class="flex items-center gap-1 text-xs border p-0.5 px-2 bg-gray-50 dark:bg-gray-800 rounded opacity-100">
+                            <input 
+                                type="checkbox" 
+                                :checked="req.is_required" 
+                                @change="toggleRequired(index)" 
+                                class="rounded-full"
+                                :disabled="!req?.is_enabled"
+                                title="Mark as required for completion"
+                            />
+                            <span>{{ req.is_required ? 'Required' : 'Optional' }}</span>
                         </div>
                         <div class="flex items-center gap-1 text-xs" :class="{'opacity-50': req.is_enabled === false}">
                             <button 
@@ -502,6 +513,15 @@ export default {
                                 <add-icon class="w-3 h-3" />
                                 Add Limit
                             </button>
+                            <button
+                                type="button"
+                                class="text-xs text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900 px-2 py-1 rounded transition"
+                                @click="removeRequirement(index)"
+                                :disabled="!req?.is_enabled"
+                                title="Remove this form"
+                            >
+                                ✕
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -513,10 +533,10 @@ export default {
 
                 <!-- Form Fields -->
                 <div class="flex flex-col gap-1" :class="{'opacity-50': req.is_enabled === false}">
-                    <div class="grid grid-cols-3 justify-center items-center gap-2">
+                    <div class="grid grid-cols-3 grid-rows-2 justify-center items-center gap-2">
                         <!-- Left Column: Form Type and Max Slots -->
-                        <div class="grid grid-rows-2 gap-2">
-                            <div class="flex flex-col gap-1">
+                        <div class="flex gap-2 col-span-3">
+                            <div class="flex flex-col gap-1 w-full">
                                 <label class="text-[11px] text-gray-500">Form Type *</label>
                                 <select
                                     class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 rounded-md shadow-sm text-xs py-0.5 px-2 transition"
@@ -557,31 +577,10 @@ export default {
                                     />
                                 </transition>
                             </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="text-[11px] text-gray-500">Max Slots (optional)</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    placeholder="No limit"
-                                    :value="req.max_slots || ''"
-                                    :disabled="!req?.is_enabled"
-                                    @change="updateMaxSlots(index, $event.target.value)"
-                                    class="text-xs p-0 px-2 rounded-md border border-gray-300 dark:border-gray-700 dark:bg-gray-900 transition"
-                                    :class="{ 'border-red-500': localErrors[`req_${index}_slots`] }"
-                                    title="Maximum number of participants allowed"
-                                />
-                                <transition name="slide-down">
-                                    <InputError 
-                                        v-if="localErrors[`req_${index}_slots`]" 
-                                        :message="localErrors[`req_${index}_slots`]" 
-                                        class="text-xs" 
-                                    />
-                                </transition>
-                            </div>
                         </div>
 
                         <!-- Middle Column: Open/Close Times -->
-                        <div class="grid grid-rows-2 items-center gap-2 text-[11px] mt-1 w-full">
+                        <div class="flex flex-col items-start gap-1 text-[11px] mt-1 w-full">
                             <div class="flex flex-col items-start gap-1">
                                 <span class="text-gray-500">Open:</span>
                                 <input
@@ -601,6 +600,8 @@ export default {
                                     />
                                 </transition>
                             </div>
+                        </div>
+                        <div class="flex flex-col items-start gap-1 text-[11px] mt-1 w-full">
                             <div class="flex flex-col items-start gap-1">
                                 <span class="text-gray-500">Close:</span>
                                 <input
@@ -621,29 +622,26 @@ export default {
                                 </transition>
                             </div>
                         </div>
-
-                        <!-- Right Column: Required and Remove -->
-                        <div class="flex items-end justify-center gap-1 flex-col">
-                            <div class="flex items-center gap-1 text-xs bg-gray-50 dark:bg-gray-800 p-2 rounded">
-                                <input 
-                                    type="checkbox" 
-                                    :checked="req.is_required" 
-                                    @change="toggleRequired(index)" 
-                                    class="rounded-full"
-                                    :disabled="!req?.is_enabled"
-                                    title="Mark as required for completion"
-                                />
-                                <span>{{ req.is_required ? 'Required' : 'Optional' }}</span>
-                            </div>
-                            <button
-                                type="button"
-                                class="text-xs text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900 px-2 py-1 rounded transition mt-1"
-                                @click="removeRequirement(index)"
+                        <div class="flex flex-col items-start gap-1 text-[11px] mt-1 w-full">
+                            <span class="text-gray-500">Max Slots (optional)</span>
+                            <input
+                                type="number"
+                                min="0"
+                                placeholder="No limit"
+                                :value="req.max_slots || ''"
                                 :disabled="!req?.is_enabled"
-                                title="Remove this form"
-                            >
-                                ✕ Remove
-                            </button>
+                                @change="updateMaxSlots(index, $event.target.value)"
+                                class="text-xs py-0.5 px-2 rounded-md border border-gray-300 dark:border-gray-700 dark:bg-gray-900 transition"
+                                :class="{ 'border-red-500': localErrors[`req_${index}_slots`] }"
+                                title="Maximum number of participants allowed"
+                            />
+                            <transition name="slide-down">
+                                <InputError 
+                                    v-if="localErrors[`req_${index}_slots`]" 
+                                    :message="localErrors[`req_${index}_slots`]" 
+                                    class="text-xs" 
+                                />
+                            </transition>
                         </div>
                     </div>
 

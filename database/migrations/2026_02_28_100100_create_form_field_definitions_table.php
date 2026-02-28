@@ -13,8 +13,8 @@ return new class extends Migration
             $table->foreignUuid('form_type_template_id')->nullable()->constrained('form_type_templates')->cascadeOnDelete();
             $table->string('field_key');
             $table->string('field_type'); // text, number, email, select, checkbox, textarea, date, time, file, likert, rating, address, rich_text, multiple_choice_grid, linear_scale, section_header, radio
-            $table->string('label');
-            $table->string('placeholder')->nullable();
+            $table->string('label', 1024);
+            $table->string('placeholder', 1024)->nullable();
             $table->text('description')->nullable();
             $table->json('validation_rules')->nullable(); // {required: true, min: 1, max: 255, pattern: null, custom_message: null}
             $table->json('options')->nullable(); // [{value: 'opt1', label: 'Option 1'}, ...] for select/radio/checkbox

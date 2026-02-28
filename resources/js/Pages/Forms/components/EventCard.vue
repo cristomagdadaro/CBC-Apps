@@ -275,8 +275,8 @@ export default {
                                 <span class="leading-none text-xs text-center">unable to accept request</span>
                             </div>
                         </div>
-                        <span v-else-if="visibleResponseTypes.length" class="font-bold uppercase text-center pt-2 text-sm mx-auto">Statistics</span>
-                        <span v-else class="font-bold uppercase text-center text-sm p-2 mx-auto">No Responses</span>
+                        <span v-else-if="visibleResponseTypes.length" class="font-bold uppercase text-center pt-2 text-sm mx-auto text-gray-800">Statistics</span>
+                        <span v-else class="font-bold uppercase text-center text-sm p-2 mx-auto text-gray-800">No Responses</span>
                     </transition-container>
                 </div>
                 <div class="flex gap-1 justify-center flex-wrap w-full overflow-x-auto bg-AA rounded-md">

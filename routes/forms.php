@@ -47,6 +47,22 @@ Route::prefix('forms')->group(function () {
 
         Route::post('/templates/{id}/duplicate', [FormBuilderController::class, 'duplicateTemplate'])
             ->name('api.form-builder.templates.duplicate');
+
+        // Template selection for dropdowns (lightweight)
+        Route::get('/templates-select', [FormBuilderController::class, 'templatesForSelect'])
+            ->name('api.form-builder.templates.select');
+
+        // Preview validation rules for a template
+        Route::get('/templates/{id}/preview-validation', [FormBuilderController::class, 'previewValidation'])
+            ->name('api.form-builder.templates.preview-validation');
+
+        // Assign template to event subform
+        Route::post('/assign-template', [FormBuilderController::class, 'assignToEvent'])
+            ->name('api.form-builder.assign-template');
+
+        // Get resolved schema for event subform
+        Route::get('/subform-schema/{subformId}', [FormBuilderController::class, 'eventSubformSchema'])
+            ->name('api.form-builder.subform-schema');
     });
     // Event forms
     Route::prefix('event')->group(function () {

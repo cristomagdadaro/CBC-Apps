@@ -141,7 +141,7 @@ export default {
                     :error="form.errors.details"
                   />
                 </div>
-              </div><pre>{{ form.requirements }}</pre>
+              </div>
               <div class="px-1 flex flex-col gap-1">
                 <requirements-manager
                   v-model="form.requirements"
