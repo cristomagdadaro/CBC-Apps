@@ -28,6 +28,7 @@ export default {
     <TextInput
         :id="field.field_key"
         v-model="inputValue"
+        :required="required"
         type="tel"
         :error="error"
         :placeholder="placeholder"

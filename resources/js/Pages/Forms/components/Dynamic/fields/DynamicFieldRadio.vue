@@ -44,6 +44,7 @@ export default {
                     type="radio"
                     :name="field.field_key"
                     :value="option.value"
+                    :required="required"
                     v-model="inputValue"
                     class="w-4 h-4 text-AB focus:ring-AB border-gray-300"
                 />

@@ -39,7 +39,7 @@ class LocationController extends Controller
         $province = $request->query('province');
         $region = $request->query('region');
 
-        $query = LocCity::query()->select('city', 'province', 'region', 'latitude', 'longitude');
+        $query = LocCity::query()->select('city');
 
         if ($region) {
             $query->where('region', $region);
@@ -49,7 +49,7 @@ class LocationController extends Controller
             $query->where('province', $province);
         }
 
-        $cities = $query->orderBy('city')->get();
+        $cities = $query->orderBy('city')->pluck('city');
 
         return response()->json(['data' => $cities]);
     }

@@ -29,6 +29,7 @@ export default {
         <Checkbox 
             :id="field.field_key" 
             v-model="inputValue" 
+            :required="required"
             :checked="inputValue"
         />
         <label :for="field.field_key" class="text-sm cursor-pointer">

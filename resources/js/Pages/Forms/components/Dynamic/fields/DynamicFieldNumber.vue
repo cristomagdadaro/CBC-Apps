@@ -37,6 +37,7 @@ export default {
     <TextInput
         :id="field.field_key"
         v-model="inputValue"
+        :required="required"
         type="number"
         :error="error"
         :placeholder="placeholder"

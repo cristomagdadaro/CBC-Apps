@@ -31,6 +31,7 @@ export default {
     >
         <Checkbox 
             :id="field.field_key" 
+            :required="required"
             v-model="inputValue" 
             :checked="inputValue"
             class="mt-0.5"

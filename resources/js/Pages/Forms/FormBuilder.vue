@@ -7,10 +7,12 @@
  */
 import DragDropFieldBuilder from "@/Pages/Forms/components/Builder/DragDropFieldBuilder.vue";
 import FormsHeaderActions from "@/Pages/Forms/components/FormsHeaderActions.vue";
-import axios from "axios";
+import ApiMixin from "@/Modules/mixins/ApiMixin";
+import ConcreteApiService from "@/Modules/infrastructure/ConcreteApiService";
 
 export default {
     name: "FormBuilder",
+    mixins: [ApiMixin],
     components: {
         DragDropFieldBuilder,
         FormsHeaderActions,
@@ -34,6 +36,7 @@ export default {
             isCreatingNew: false,
             saving: false,
             error: null,
+            api: new ConcreteApiService(),
         };
     },
     computed: {
@@ -57,8 +60,8 @@ export default {
             this.loadingTemplates = true;
             this.error = null;
             try {
-                const response = await axios.get(route('api.form-builder.templates.index'));
-                this.templates = response.data.data || [];
+                const response = await this.fetchGetApi('api.form-builder.templates.index');
+                this.templates = response.data || [];
             } catch (err) {
                 this.error = 'Failed to load templates';
                 console.error('Error loading templates:', err);
@@ -69,8 +72,8 @@ export default {
 
         async selectTemplate(template) {
             try {
-                const response = await axios.get(route('api.form-builder.templates.show', { id: template.id }));
-                this.selectedTemplate = response.data.data;
+                const response = await this.fetchGetApi('api.form-builder.templates.show', { routeParams: { id: template.id } });
+                this.selectedTemplate = response.data;
                 this.isEditing = true;
                 this.isCreatingNew = false;
                 this.activeTab = "builder";
@@ -89,7 +92,7 @@ export default {
 
         async duplicateTemplate(template) {
             try {
-                await axios.post(route('api.form-builder.templates.duplicate', { id: template.id }));
+                await this.fetchPostApi('api.form-builder.templates.duplicate', {}, { routeParams: { id: template.id } });
                 await this.loadTemplates();
             } catch (err) {
                 this.error = 'Failed to duplicate template';
@@ -101,7 +104,7 @@ export default {
             if (!confirm(`Are you sure you want to delete "${template.name}"?`)) return;
             
             try {
-                await axios.delete(route('api.form-builder.templates.destroy', { id: template.id }));
+                await this.api.delete('api.form-builder.templates.destroy', { id: template.id });
                 await this.loadTemplates();
             } catch (err) {
                 this.error = 'Failed to delete template';
@@ -113,21 +116,18 @@ export default {
             this.saving = true;
             this.error = null;
             
+            const payload = {
+                name: data.template.name,
+                description: data.template.description,
+                icon: data.template.icon,
+                fields: data.fields,
+            };
+            
             try {
                 if (this.isCreatingNew) {
-                    await axios.post(route('api.form-builder.templates.store'), {
-                        name: data.template.name,
-                        description: data.template.description,
-                        icon: data.template.icon,
-                        fields: data.fields,
-                    });
-                } else if (this.selectedTemplate) {
-                    await axios.put(route('api.form-builder.templates.update', { id: this.selectedTemplate.id }), {
-                        name: data.template.name,
-                        description: data.template.description,
-                        icon: data.template.icon,
-                        fields: data.fields,
-                    });
+                    await this.fetchPostApi('api.form-builder.templates.store', payload);
+                } else if (this.selectedTemplate) { console.log(this.selectedTemplate.id)
+                    await this.api.put('api.form-builder.templates.update', this.selectedTemplate.id, payload);
                 }
                 
                 await this.loadTemplates();

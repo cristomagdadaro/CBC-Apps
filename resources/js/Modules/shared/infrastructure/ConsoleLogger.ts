@@ -64,7 +64,7 @@ class ConsoleLoggerService {
      */
     error(...args: unknown[]): void {
         if (this.isEnabled) {
-            console.error(`[${this.getTimestamp()}] ❌ ERROR:`, ...args);
+            console.error(`[${this.getTimestamp()}] ERROR:`, ...args);
         }
     }
 
@@ -73,7 +73,7 @@ class ConsoleLoggerService {
      */
     warn(...args: unknown[]): void {
         if (this.isEnabled) {
-            console.warn(`[${this.getTimestamp()}] ⚠️ WARNING:`, ...args);
+            console.warn(`[${this.getTimestamp()}] WARNING:`, ...args);
         }
     }
 
@@ -82,7 +82,7 @@ class ConsoleLoggerService {
      */
     info(...args: unknown[]): void {
         if (this.isEnabled) {
-            console.info(`[${this.getTimestamp()}] ℹ️ INFO:`, ...args);
+            console.info(`[${this.getTimestamp()}] INFO:`, ...args);
         }
     }
 
@@ -91,7 +91,7 @@ class ConsoleLoggerService {
      */
     debug(...args: unknown[]): void {console.debug(this.isEnabled);
         if (this.isEnabled) {
-            console.debug(`[${this.getTimestamp()}] 🐛 DEBUG:`, ...args);
+            console.debug(`[${this.getTimestamp()}] DEBUG:`, ...args);
         }
     }
 

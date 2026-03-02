@@ -58,6 +58,7 @@ export default {
                 <input
                     type="checkbox"
                     :value="option.value"
+                    :required="required"
                     :checked="isChecked(option.value)"
                     @change="toggleOption(option.value)"
                     class="w-4 h-4 text-AB focus:ring-AB border-gray-300 rounded"

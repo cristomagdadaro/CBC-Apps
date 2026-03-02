@@ -348,6 +348,13 @@ export default {
         },
 
         /**
+         * Check if a field is a location field type
+         */
+        isLocationField(field) {
+            return ['location_city', 'location_province', 'location_region'].includes(field.field_type);
+        },
+
+        /**
          * Initialize form data based on schema
          */
         initializeFormData() {
@@ -556,9 +563,8 @@ export default {
                         :label="field.label"
                         :placeholder="field.placeholder"
                         :required="isFieldRequired(field)"
-                        :regions="locationRegions"
-                        :provinces="locationProvinces"
-                        :cities="locationCities"
+                        :label="field.label"
+                        v-bind="isLocationField(field) ? { regions: locationRegions, provinces: locationProvinces, cities: locationCities } : {}"
                         @update:modelValue="handleFieldChange(field.field_key, $event, field)"
                     />
                 </template>

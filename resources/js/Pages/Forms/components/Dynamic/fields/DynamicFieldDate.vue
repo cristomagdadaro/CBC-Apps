@@ -38,6 +38,7 @@ export default {
             :id="field.field_key"
             v-model="inputValue"
             :type="inputType"
+            :required="required"
             :placeholder="placeholder"
             class="w-full px-3 py-2 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-AB focus:border-transparent"
             :class="{'border-red-500': error}"

@@ -33,6 +33,7 @@ export default {
         v-model="inputValue"
         type="text"
         :error="error"
+        :required="required"
         :placeholder="placeholder"
         :maxlength="maxLength"
         :autocomplete="field.field_key"

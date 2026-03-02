@@ -171,13 +171,18 @@ export default abstract class ApiService {
         try {
             ConsoleLogger.debug('PUT Parameters:', params);
             // @ts-ignore
-            const response = await axios.put(`${route(url)}/${id}`, params);
+            let response = '';
+            if (!id) {
+               response = await axios.put(`${route(url)}`, params);
+            } else {
+               response = await axios.put(`${route(url, id)}`, params);
+            }
             this.processing = false;
             ConsoleLogger.debug('PUT Response Data:', response.data);
             this.notifySuccess('Data updated successfully.');
             return response;
         } catch (error) {
-            this.processing = false;
+            this.processing = false; console.log(error);
             ConsoleLogger.error('PUT Error:', error);
             this.notifyError(error, 'Failed to update data.');
             throw error;

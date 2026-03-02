@@ -34,6 +34,7 @@ export default {
         <select
             :id="field.field_key"
             v-model="inputValue"
+            :required="required"
             class="w-full px-3 py-2 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-AB focus:border-transparent bg-white"
             :class="{'border-red-500': error}"
         >

@@ -37,6 +37,7 @@ export default {
             v-model="inputValue"
             :placeholder="placeholder"
             :rows="rows"
+            :required="required"
             :maxlength="maxLength"
             class="w-full px-3 py-2 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-AB focus:border-transparent resize-y"
             :class="{'border-red-500': error}"
