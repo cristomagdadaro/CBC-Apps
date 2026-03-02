@@ -553,6 +553,8 @@ export default {
                         v-model="form.response_data[field.field_key]"
                         :field="field"
                         :error="getFieldError(field.field_key)"
+                        :label="field.label"
+                        :placeholder="field.placeholder"
                         :required="isFieldRequired(field)"
                         :regions="locationRegions"
                         :provinces="locationProvinces"

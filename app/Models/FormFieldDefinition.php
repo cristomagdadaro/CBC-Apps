@@ -118,6 +118,9 @@ class FormFieldDefinition extends BaseModel
             case 'time':
                 $rules[] = 'date_format:H:i';
                 break;
+            case 'datetime':
+                $rules[] = 'date_format:Y-m-d H:i';
+                break;
             case 'file':
                 $rules[] = 'file';
                 if (!empty($config['max_size'])) {
@@ -128,16 +131,23 @@ class FormFieldDefinition extends BaseModel
                 }
                 break;
             case 'checkbox':
+            case 'checkbox_agreement':
                 $rules[] = 'boolean';
+                break;
+            case 'checkbox_group':
+            case 'checkbox_grid':
+                $rules[] = 'array';
                 break;
             case 'select':
             case 'radio':
+            case 'radio_grid':
                 if (!empty($this->options)) {
                     $values = collect($this->options)->pluck('value')->implode(',');
                     $rules[] = 'in:' . $values;
                 }
                 break;
             case 'likert':
+            case 'likert_scale':
             case 'linear_scale':
                 $rules[] = 'integer';
                 $fieldConfig = $this->field_config ?? [];
@@ -145,6 +155,15 @@ class FormFieldDefinition extends BaseModel
                 $max = $fieldConfig['max'] ?? 5;
                 $rules[] = "between:{$min},{$max}";
                 break;
+            case 'location_city':
+            case 'location_province':
+            case 'location_region':
+                $rules[] = 'string';
+                break;
+            case 'section_header':
+            case 'paragraph':
+                // These are non-input fields, so they shouldn't be validated
+                return [];
             default:
                 $rules[] = 'string';
         }
@@ -175,16 +194,26 @@ class FormFieldDefinition extends BaseModel
         'select' => ['label' => 'Dropdown', 'has_options' => true, 'icon' => 'dropdown'],
         'radio' => ['label' => 'Multiple Choice', 'has_options' => true, 'icon' => 'radio'],
         'checkbox' => ['label' => 'Checkbox', 'has_options' => false, 'icon' => 'checkbox'],
+        'checkbox_group' => ['label' => 'Checkbox Group', 'has_options' => true, 'icon' => 'checkboxes'],
+        'checkbox_agreement' => ['label' => 'Agreement Checkbox', 'has_options' => false, 'icon' => 'checkbox'],
         'checkboxes' => ['label' => 'Checkboxes (Multiple)', 'has_options' => true, 'icon' => 'checkboxes'],
         'date' => ['label' => 'Date', 'has_options' => false, 'icon' => 'calendar'],
         'time' => ['label' => 'Time', 'has_options' => false, 'icon' => 'clock'],
+        'datetime' => ['label' => 'Date & Time', 'has_options' => false, 'icon' => 'datetimepicker'],
         'file' => ['label' => 'File Upload', 'has_options' => false, 'icon' => 'upload'],
         'likert' => ['label' => 'Likert Scale', 'has_options' => true, 'icon' => 'scale'],
+        'likert_scale' => ['label' => 'Likert Scale', 'has_options' => true, 'icon' => 'scale'],
         'linear_scale' => ['label' => 'Linear Scale', 'has_options' => false, 'icon' => 'slider'],
         'rating' => ['label' => 'Star Rating', 'has_options' => false, 'icon' => 'star'],
+        'checkbox_grid' => ['label' => 'Checkbox Grid', 'has_options' => true, 'icon' => 'grid'],
+        'radio_grid' => ['label' => 'Radio Grid', 'has_options' => true, 'icon' => 'grid'],
         'address' => ['label' => 'Address (PH)', 'has_options' => false, 'icon' => 'location'],
+        'location_city' => ['label' => 'City Selection', 'has_options' => false, 'icon' => 'location'],
+        'location_province' => ['label' => 'Province Selection', 'has_options' => false, 'icon' => 'location'],
+        'location_region' => ['label' => 'Region Selection', 'has_options' => false, 'icon' => 'location'],
         'multiple_choice_grid' => ['label' => 'Multiple Choice Grid', 'has_options' => true, 'icon' => 'grid'],
         'section_header' => ['label' => 'Section Title', 'has_options' => false, 'icon' => 'heading'],
+        'paragraph' => ['label' => 'Paragraph Text', 'has_options' => false, 'icon' => 'richtext'],
         'rich_text' => ['label' => 'Rich Text Editor', 'has_options' => false, 'icon' => 'richtext'],
     ];
 

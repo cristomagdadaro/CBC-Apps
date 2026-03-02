@@ -101,10 +101,11 @@ class FormBuilderRepo extends AbstractRepoService
 
         foreach ($fields as $index => $fieldData) {
             $fieldId = $fieldData['id'] ?? null;
+            $fieldKey = $fieldData['field_key'];
 
             $attributes = [
                 'form_type_template_id' => $template->id,
-                'field_key' => $fieldData['field_key'],
+                'field_key' => $fieldKey,
                 'field_type' => $fieldData['field_type'],
                 'label' => $fieldData['label'],
                 'placeholder' => $fieldData['placeholder'] ?? null,
@@ -118,13 +119,24 @@ class FormBuilderRepo extends AbstractRepoService
             ];
 
             if ($fieldId && in_array($fieldId, $existingIds)) {
-                // Update existing field
+                // Update existing field by ID
                 FormFieldDefinition::where('id', $fieldId)->update($attributes);
                 $incomingIds[] = $fieldId;
             } else {
-                // Create new field
-                $newField = FormFieldDefinition::create($attributes);
-                $incomingIds[] = $newField->id;
+                // Check if a field with this key already exists
+                $existingField = FormFieldDefinition::where('form_type_template_id', $template->id)
+                    ->where('field_key', $fieldKey)
+                    ->first();
+
+                if ($existingField) {
+                    // Update existing field by field_key
+                    $existingField->update($attributes);
+                    $incomingIds[] = $existingField->id;
+                } else {
+                    // Create new field
+                    $newField = FormFieldDefinition::create($attributes);
+                    $incomingIds[] = $newField->id;
+                }
             }
         }
 
