@@ -15,6 +15,7 @@ export default {
         return {
             fileName: null,
             isDragging: false,
+            localError: null,
         };
     },
     computed: {
@@ -37,19 +38,40 @@ export default {
         },
     },
     methods: {
+        validateFile(file) {
+            this.localError = null;
+
+            if (!file) {
+                return false;
+            }
+
+            const maxBytes = Number(this.maxSize || 0) * 1024;
+            if (maxBytes > 0 && file.size > maxBytes) {
+                this.localError = `File is too large. Maximum allowed size is ${this.maxSizeFormatted}.`;
+                return false;
+            }
+
+            return true;
+        },
         handleFileChange(event) {
             const file = event.target.files[0];
-            if (file) {
+            if (file && this.validateFile(file)) {
                 this.fileName = file.name;
                 this.$emit('update:modelValue', file);
+            } else {
+                this.fileName = null;
+                this.$emit('update:modelValue', null);
             }
         },
         handleDrop(event) {
             this.isDragging = false;
             const file = event.dataTransfer.files[0];
-            if (file) {
+            if (file && this.validateFile(file)) {
                 this.fileName = file.name;
                 this.$emit('update:modelValue', file);
+            } else {
+                this.fileName = null;
+                this.$emit('update:modelValue', null);
             }
         },
         handleDragOver(event) {
@@ -60,6 +82,7 @@ export default {
         },
         clearFile() {
             this.fileName = null;
+            this.localError = null;
             this.$emit('update:modelValue', null);
         },
     },
@@ -120,7 +143,7 @@ export default {
         
         <div v-if="field.description" class="text-xs text-gray-600 dark:text-gray-400 mt-1">{{ field.description }}</div>
         <transition-container type="slide-bottom">
-            <InputError v-show="!!error" class="mt-1" :message="error" />
+            <InputError v-show="!!(localError || error)" class="mt-1" :message="localError || error" />
         </transition-container>
     </div>
 </template>

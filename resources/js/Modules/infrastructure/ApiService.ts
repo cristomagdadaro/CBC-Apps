@@ -159,6 +159,8 @@ export default abstract class ApiService {
                     ? 'Access denied for this action.'
                     : status === 404
                         ? 'Requested resource was not found.'
+                        : status === 413
+                            ? 'Upload is too large for the server. Please reduce file size and try again.'
                         : status === 422
                             ? 'Some fields are invalid. Please review your input.'
                             : responseMessage || fallbackMessage;
