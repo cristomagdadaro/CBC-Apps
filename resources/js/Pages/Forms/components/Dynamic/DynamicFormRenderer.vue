@@ -9,6 +9,7 @@ import SubformMixin from "@/Modules/mixins/SubformMixin";
 import LocationMixin from "@/Modules/mixins/LocationMixin";
 import SubformResponse from "@/Modules/domain/SubformResponse";
 import { FIELD_TYPES } from "@/Modules/Events/Config/FormFieldTypes";
+import html2canvas from "html2canvas";
 
 // Field Components
 import DynamicFieldText from "./fields/DynamicFieldText.vue";
@@ -116,6 +117,7 @@ export default {
         return {
             showSuccess: false,
             isSubmitting: false,
+            isDownloadingImage: false,
             locationData: {
                 regions: [],
                 provinces: [],
@@ -132,7 +134,24 @@ export default {
             return !!this.responseData?.id;
         },
         participantIdHash() {
-            return this.model?.response?.participant_hash ?? null;
+            return this.model?.response?.participant_hash
+                ?? this.model?.response?.registration?.id
+                ?? this.model?.response?.data?.participant_hash
+                ?? this.model?.response?.data?.id
+                ?? this.model?.response?.id
+                ?? null;
+        },
+        successEventTitle() {
+            return this.config?.event_title
+                ?? this.config?.event?.title
+                ?? this.config?.title
+                ?? 'Event';
+        },
+        successEventId() {
+            return this.config?.event_id ?? this.eventId;
+        },
+        successSubformTitle() {
+            return this.title || this.config?.title || this.resolvedSubformType;
         },
         /**
          * Fields sorted by sort_order
@@ -226,6 +245,17 @@ export default {
         selectedProvinceValue() {
             if (!this.form || !this.provinceFieldKey) return null;
             return this.form.response_data?.[this.provinceFieldKey] ?? null;
+        },
+        resolvedSubformType() {
+            if (typeof this.subformType === 'string' && !this.subformType.includes('-')) {
+                return this.subformType;
+            }
+
+            if (typeof this.config?.form_type === 'string' && this.config.form_type.trim() !== '') {
+                return this.config.form_type;
+            }
+
+            return this.subformType;
         },
     },
     watch: {
@@ -533,6 +563,48 @@ export default {
         dismissSuccess() {
             this.showSuccess = false;
         },
+        buildSuccessImageName() {
+            const eventPart = String(this.successEventId || 'event').trim();
+            const subformPart = String(this.successSubformTitle || 'subform').trim();
+            const hashPart = String(this.participantIdHash || 'reference').trim();
+            return [eventPart, subformPart, hashPart]
+                .join('-')
+                .toLowerCase()
+                .replace(/[^a-z0-9-]+/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^-|-$/g, '');
+        },
+        async downloadSuccessAsPng() {
+            if (this.isDownloadingImage) {
+                return;
+            }
+
+            const target = this.$refs.successOverlay;
+            if (!target) {
+                return;
+            }
+
+            this.isDownloadingImage = true;
+            try {
+                const computedBackgroundColor = window.getComputedStyle(target).backgroundColor;
+                const canvas = await html2canvas(target, {
+                    backgroundColor: computedBackgroundColor,
+                    scale: Math.max(window.devicePixelRatio || 1, 2),
+                    useCORS: true,
+                });
+
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `${this.buildSuccessImageName() || 'submission'}-success.png`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            } catch (error) {
+                this.$emit('error', error);
+            } finally {
+                this.isDownloadingImage = false;
+            }
+        },
     },
     beforeMount() {
         this.model = new SubformResponse();
@@ -548,7 +620,7 @@ export default {
             this.form.response_data.event_id = this.config?.event_id ?? this.eventId;
         }
         
-        this.form.subform_type = this.subformType;
+        this.form.subform_type = this.resolvedSubformType;
         
         if (this.participantId) {
             this.form.participant_id = this.participantId;
@@ -584,6 +656,8 @@ export default {
         <transition-container type="slide-top">
             <div 
                 v-show="showSuccess" 
+                ref="successOverlay"
+                :id="`success-${successEventId}-${participantIdHash}`"
                 class="absolute flex top-0 left-0 bg-AB w-full h-full z-50 text-white text-xl font-medium justify-center items-center rounded-b-md shadow"
             >
                 <button @click.prevent="dismissSuccess" class="absolute top-0 right-0 p-2">
@@ -591,19 +665,31 @@ export default {
                         <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
                     </svg>
                 </button>
-                <div class="flex flex-col text-center w-full gap-0.5">
-                    <div v-if="participantIdHash" class="text-xl w-full flex flex-col gap-1 justify-center mb-1 py-2">
-                        {{ participantIdHash }}
+                <div ref="successCapture" class="flex flex-col text-center w-full gap-0.5 px-3">
+                    <div class="text-sm leading-tight opacity-95 mb-1">
+                        <div>{{ successEventId }} - {{ successSubformTitle }}</div>
+                    </div>
+                    <div v-if="participantIdHash" class="text-sm w-full flex flex-col gap-1 justify-center mb-1 py-2">
                         <qrcode-vue
                             :value="participantIdHash"
-                            :size="200"
+                            :size="300"
                             level="H"
                             render-as="canvas"
                             class="mx-auto border-4 shadow"
                         />
+                        {{ participantIdHash }}
                     </div>
-                    <span class="drop-shadow leading-none font-light">Submission Successful!</span>
-                    <span class="drop-shadow leading-none text-sm">Check your email or take a screenshot</span>
+                    <span class="drop-shadow leading-none text-sm">DA-Crop Biotechnology Center</span>
+                    <span class="drop-shadow leading-none text-sm font-light">cropbiotechcenter@gmail.com</span>
+                    <button
+                        type="button"
+                        data-html2canvas-ignore="true"
+                        class="mx-auto mt-3 px-3 py-1 text-sm rounded-md border border-white/80 hover:bg-white/15 disabled:opacity-60"
+                        :disabled="isDownloadingImage"
+                        @click.prevent="downloadSuccessAsPng"
+                    >
+                        {{ isDownloadingImage ? 'Preparing PNG...' : 'Save this QR for your next step' }}
+                    </button>
                 </div>
             </div>
         </transition-container>

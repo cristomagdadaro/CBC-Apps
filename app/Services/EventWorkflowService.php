@@ -24,6 +24,7 @@ class EventWorkflowService
 
         $resolved = $steps->map(function (EventSubform $step, int $index) use ($steps, $states, $participantId) {
             $status = $this->resolveStepStatus($step, $steps, $states, $participantId);
+            $requiresParticipantContext = $this->requiresParticipantContext($step);
 
             return [
                 'id' => $step->id,
@@ -45,11 +46,13 @@ class EventWorkflowService
                 'form_config' => is_array($step->template?->form_config)
                     ? $step->template->form_config
                     : (is_array(Arr::get($step->config, 'form_config')) ? Arr::get($step->config, 'form_config') : []),
+                'requires_participant_context' => $requiresParticipantContext,
+                'requires_interactive_verification' => data_get($step->template?->form_config, 'require_participant_verification', true) !== false,
                 'status' => $status,
             ];
         })->values();
 
-        $currentStep = $resolved->firstWhere('status', ParticipantStepState::STATUS_AVAILABLE);
+        $currentStep = $this->resolvePreferredStep($resolved);
 
         return [
             'event_id' => $eventId,
@@ -265,9 +268,7 @@ class EventWorkflowService
         }
 
         if (!$participantId) {
-            return $this->isFirstStep($step)
-                ? ParticipantStepState::STATUS_AVAILABLE
-                : ParticipantStepState::STATUS_LOCKED;
+            return ParticipantStepState::STATUS_AVAILABLE;
         }
 
         $previous = $this->getPreviousStep($step);
@@ -289,6 +290,7 @@ class EventWorkflowService
     {
         $steps = $this->getOrderedSteps($step->event_id);
         $index = $steps->search(fn ($item) => $item->id === $step->id);
+        $currentType = strtolower((string) ($step->step_type ?? $step->form_type ?? ''));
 
         if ($index === false || $index === 0) {
             return null;
@@ -297,6 +299,12 @@ class EventWorkflowService
         for ($i = $index - 1; $i >= 0; $i--) {
             $candidate = $steps[$i] ?? null;
             if ($candidate && $candidate->is_enabled) {
+                $candidateType = strtolower((string) ($candidate->step_type ?? $candidate->form_type ?? ''));
+
+                if ($currentType === 'registration' && $candidateType === 'registration' && $this->isAfterOpenTo($candidate)) {
+                    continue;
+                }
+
                 return $candidate;
             }
         }
@@ -469,5 +477,63 @@ class EventWorkflowService
         throw ValidationException::withMessages([
             $field => $message,
         ]);
+    }
+
+    protected function resolvePreferredStep(Collection $resolved): ?array
+    {
+        $available = $resolved
+            ->filter(fn (array $step) => ($step['status'] ?? null) === ParticipantStepState::STATUS_AVAILABLE)
+            ->values();
+
+        if ($available->isEmpty()) {
+            return null;
+        }
+
+        return $available
+            ->sort(function (array $a, array $b) {
+                $priorityComparison = $this->stepPriority($a) <=> $this->stepPriority($b);
+                if ($priorityComparison !== 0) {
+                    return $priorityComparison;
+                }
+
+                $aOpen = !empty($a['open_from']) ? Carbon::parse($a['open_from'])->timestamp : PHP_INT_MIN;
+                $bOpen = !empty($b['open_from']) ? Carbon::parse($b['open_from'])->timestamp : PHP_INT_MIN;
+                if ($aOpen !== $bOpen) {
+                    return $bOpen <=> $aOpen;
+                }
+
+                return ($a['step_order'] ?? PHP_INT_MAX) <=> ($b['step_order'] ?? PHP_INT_MAX);
+            })
+            ->first();
+    }
+
+    protected function stepPriority(array $step): int
+    {
+        $type = strtolower((string) ($step['step_type'] ?? $step['form_type'] ?? ''));
+
+        if (str_contains($type, 'registration') && !str_contains($type, 'preregistration')) {
+            return 1;
+        }
+
+        if (str_contains($type, 'feedback')) {
+            return 2;
+        }
+
+        if (str_contains($type, 'preregistration')) {
+            return 3;
+        }
+
+        return 4;
+    }
+
+    protected function requiresParticipantContext(EventSubform $step): bool
+    {
+        $type = strtolower((string) ($step->step_type ?? $step->form_type ?? ''));
+
+        if (str_contains($type, 'preregistration')) {
+            return false;
+        }
+
+        return true;
     }
 }

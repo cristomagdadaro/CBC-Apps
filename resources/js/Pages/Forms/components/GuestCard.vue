@@ -48,13 +48,13 @@ export default {
             return this.workflowSteps
                 .filter((step) => step.status !== 'hidden')
                 .map((step, index) => ({
-                    key: step.form_type,
-                    label: `Step ${index + 1}`,
+                    key: step.id,
+                    label: step.name || `Step ${index + 1}`,
                     disabled: step.status !== 'available',
                 }));
         },
         activeStep() {
-            return this.workflowSteps.find((step) => step.form_type === this.activeTab) || null;
+            return this.workflowSteps.find((step) => step.id === this.activeTab) || null;
         },
         currentRequirement() {
             if (this.activeStep) {
@@ -83,7 +83,7 @@ export default {
     mounted() {
         this.startCountdown();
         this.startFormCountdownTicker();
-        this.selectedParticipantHash = this.participantHashes?.slice(-1)?.[0] ?? null;
+        this.initializeParticipantContext();
         this.hydrateParticipantLookupEmail();
         this.loadWorkflow();
     },
@@ -97,12 +97,71 @@ export default {
                 }
             },
         },
+        selectedParticipantHash(newValue) {
+            this.persistParticipantContext(newValue);
+        },
     },
     beforeDestroy() {
         clearInterval(this.intervalId);
         clearInterval(this.formCountdownIntervalId);
     },
     methods: {
+        normalizeParticipantHash(value) {
+            if (!value || typeof value !== 'string') {
+                return null;
+            }
+
+            const normalized = value.trim();
+            return normalized !== '' ? normalized : null;
+        },
+        getParticipantHashFromUrl() {
+            if (typeof window === 'undefined') {
+                return null;
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            return this.normalizeParticipantHash(
+                params.get('participant') || params.get('participant_id') || params.get('participant_hash')
+            );
+        },
+        getParticipantHashFromSession() {
+            if (!this.data?.event_id || typeof sessionStorage === 'undefined') {
+                return null;
+            }
+
+            return this.normalizeParticipantHash(sessionStorage.getItem(`event_participant_hash_${this.data.event_id}`));
+        },
+        persistParticipantContext(hash) {
+            if (!this.data?.event_id || typeof window === 'undefined') {
+                return;
+            }
+
+            const normalizedHash = this.normalizeParticipantHash(hash);
+
+            if (typeof sessionStorage !== 'undefined') {
+                const sessionKey = `event_participant_hash_${this.data.event_id}`;
+                if (normalizedHash) {
+                    sessionStorage.setItem(sessionKey, normalizedHash);
+                } else {
+                    sessionStorage.removeItem(sessionKey);
+                }
+            }
+
+            const url = new URL(window.location.href);
+            if (normalizedHash) {
+                url.searchParams.set('participant', normalizedHash);
+            } else {
+                url.searchParams.delete('participant');
+            }
+            window.history.replaceState({}, '', url.toString());
+        },
+        initializeParticipantContext() {
+            const urlHash = this.getParticipantHashFromUrl();
+            const sessionHash = this.getParticipantHashFromSession();
+            const localHash = this.participantHashes?.slice(-1)?.[0] ?? null;
+
+            this.selectedParticipantHash = urlHash || sessionHash || localHash || null;
+        },
         startFormCountdownTicker() {
             this.formCountdownNow = Date.now();
             this.formCountdownIntervalId = setInterval(() => {
@@ -182,6 +241,11 @@ export default {
         },
         requiresParticipant(formType) {
             const step = formType ? this.getStep(formType) : this.activeStep;
+
+            if (step?.requires_participant_context === true) {
+                return true;
+            }
+
             const explicitToggle = step?.form_config?.require_participant_verification;
 
             if (typeof explicitToggle === 'boolean') {
@@ -198,6 +262,9 @@ export default {
 
             return !!this.selectedParticipantHash;
         },
+        getParticipantIdForStep(stepIdentifier) {
+            return this.requiresParticipant(stepIdentifier) ? this.selectedParticipantHash : null;
+        },
         getAvailablePreregistrationStep() {
             const preregTypes = ['preregistration', 'preregistration_biotech', 'preregistration_quizbee'];
             return this.workflowSteps.find((step) => preregTypes.includes(step.form_type)) || null;
@@ -207,7 +274,7 @@ export default {
             this.participantLookupSuccess = null;
             const step = this.getAvailablePreregistrationStep();
             if (step) {
-                this.activeTab = step.form_type;
+                this.activeTab = step.id;
 
                 if (step.status !== 'available') {
                     this.participantLookupError = `Preregistration is currently ${step.status?.replace('_', ' ') || 'unavailable'}. ${this.getStepMessage(step)}`;
@@ -405,18 +472,21 @@ export default {
                 return;
             }
 
+            const preferred = this.workflowState?.current_step_id
+                ? this.workflowSteps.find((step) => step.id === this.workflowState.current_step_id)
+                : null;
             const available = this.workflowSteps.find((step) => step.status === 'available');
-            this.activeTab = available?.form_type ?? this.workflowSteps[0]?.form_type ?? null;
+            this.activeTab = preferred?.id ?? available?.id ?? this.workflowSteps[0]?.id ?? null;
         },
         whatForm(formType) {
             if (!this.data || !Array.isArray(this.data.requirements) || this.data.requirements.length <= 0) return null;
             return this.data.requirements.find((requirement) => requirement.form_type === formType) || null;
         },
-        getStep(formType) {
-            return this.workflowSteps.find((step) => step.form_type === formType) || null;
+        getStep(identifier) {
+            return this.workflowSteps.find((step) => step.id === identifier || step.form_type === identifier) || null;
         },
-        getRequirementFormId(formType) {
-            const step = this.getStep(formType) ?? this.whatForm(formType);
+        getRequirementFormId(identifier) {
+            const step = this.getStep(identifier) ?? this.whatForm(identifier);
             return step ? step.id : null;
         },
         isFormOpen(form) {
@@ -523,15 +593,15 @@ export default {
         /**
          * Get the field schema for a step
          */
-        getFieldSchema(formType) {
-            const step = this.getStep(formType);
+        getFieldSchema(identifier) {
+            const step = this.getStep(identifier);
             return step?.field_schema || [];
         },
         /**
          * Get step title for dynamic form
          */
-        getStepTitle(formType) {
-            const step = this.getStep(formType);
+        getStepTitle(identifier) {
+            const step = this.getStep(identifier);
             if (!step) return '';
             
             // Try to get a human-readable title
@@ -542,10 +612,10 @@ export default {
                 'pretest': 'Pre-Test',
                 'posttest': 'Post-Test',
             };
-            return titles[formType] || step.name || formType.replace(/_/g, ' ');
+            return titles[step.form_type] || step.name || step.form_type.replace(/_/g, ' ');
         },
-        getDescription(formType) {
-            const step = this.getStep(formType);
+        getDescription(identifier) {
+            const step = this.getStep(identifier);
             return step?.description || '';
         },
         /**
@@ -731,133 +801,133 @@ export default {
                             {{ getStepCountdownMeta(getStep(activeKey)).value }}
                         </span>
                     </div>
-                    <div v-if="activeKey === 'preregistration'">
+                    <div v-if="getStep(activeKey)?.form_type === 'preregistration'">
                         <template v-if="activeStep?.status === 'available'">
                             <DynamicFormRenderer
                                 v-if="hasDynamicSchema(activeStep)"
-                                :field-schema="getFieldSchema('preregistration')"
-                                :event-id="getRequirementFormId('preregistration')"
-                                :subform-type="'preregistration'"
-                                :config="getStep('preregistration')"
-                                :title="getStepTitle('preregistration')"
+                                :field-schema="getFieldSchema(activeKey)"
+                                :event-id="getRequirementFormId(activeKey)"
+                                :subform-type="getStep(activeKey)?.form_type || 'preregistration'"
+                                :config="getStep(activeKey)"
+                                :title="getStepTitle(activeKey)"
                                 @createdModel="handleCreatedModel"
                             />
                             <preregistration-card
                                 v-else
-                                :event-id="getRequirementFormId('preregistration')"
-                                :config="getStep('preregistration')"
+                                :event-id="getRequirementFormId(activeKey)"
+                                :config="getStep(activeKey)"
                                 @createdModel="handleCreatedModel"
                             />
                         </template>
                         <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
-                            {{ getStepMessage(getStep('preregistration')) }}
+                            {{ getStepMessage(getStep(activeKey)) }}
                         </div>
                     </div>
 
-                    <div v-if="activeKey === 'preregistration_biotech'">
+                    <div v-if="getStep(activeKey)?.form_type === 'preregistration_biotech'">
                         <template v-if="activeStep?.status === 'available'">
                             <DynamicFormRenderer
                                 v-if="hasDynamicSchema(activeStep)"
-                                :field-schema="getFieldSchema('preregistration_biotech')"
-                                :event-id="getRequirementFormId('preregistration_biotech')"
-                                :subform-type="'preregistration_biotech'"
-                                :config="getStep('preregistration_biotech')"
-                                :title="getStepTitle('preregistration_biotech')"
+                                :field-schema="getFieldSchema(activeKey)"
+                                :event-id="getRequirementFormId(activeKey)"
+                                :subform-type="getStep(activeKey)?.form_type || 'preregistration_biotech'"
+                                :config="getStep(activeKey)"
+                                :title="getStepTitle(activeKey)"
                                 @createdModel="handleCreatedModel"
                             />
                             <preregistration-quiz-bee-card
                                 v-else
-                                :event-id="getRequirementFormId('preregistration_biotech')"
-                                :config="getStep('preregistration_biotech')"
+                                :event-id="getRequirementFormId(activeKey)"
+                                :config="getStep(activeKey)"
                                 @createdModel="handleCreatedModel"
                             />
                         </template>
                         <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
-                            {{ getStepMessage(getStep('preregistration_biotech')) }}
+                            {{ getStepMessage(getStep(activeKey)) }}
                         </div>
                     </div>
 
-                    <div v-if="activeKey === 'preregistration_quizbee'">
+                    <div v-if="getStep(activeKey)?.form_type === 'preregistration_quizbee'">
                         <template v-if="activeStep?.status === 'available'">
                             <DynamicFormRenderer
                                 v-if="hasDynamicSchema(activeStep)"
-                                :field-schema="getFieldSchema('preregistration_quizbee')"
-                                :event-id="getRequirementFormId('preregistration_quizbee')"
-                                :subform-type="'preregistration_quizbee'"
-                                :config="getStep('preregistration_quizbee')"
-                                :title="getStepTitle('preregistration_quizbee')"
+                                :field-schema="getFieldSchema(activeKey)"
+                                :event-id="getRequirementFormId(activeKey)"
+                                :subform-type="getStep(activeKey)?.form_type || 'preregistration_quizbee'"
+                                :config="getStep(activeKey)"
+                                :title="getStepTitle(activeKey)"
                                 @createdModel="handleCreatedModel"
                             />
                             <preregistration-quizbee-team-card
                                 v-else
-                                :event-id="getRequirementFormId('preregistration_quizbee')"
-                                :config="getStep('preregistration_quizbee')"
+                                :event-id="getRequirementFormId(activeKey)"
+                                :config="getStep(activeKey)"
                                 @createdModel="handleCreatedModel"
                             />
                         </template>
                         <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
-                            {{ getStepMessage(getStep('preregistration_quizbee')) }}
+                            {{ getStepMessage(getStep(activeKey)) }}
                         </div>
                     </div>
 
-                    <div v-if="activeKey === 'registration'">
-                        <template v-if="activeStep?.status === 'available' && canRenderForm('registration')">
+                    <div v-if="getStep(activeKey)?.form_type === 'registration'">
+                        <template v-if="activeStep?.status === 'available' && canRenderForm(activeKey)">
                             <DynamicFormRenderer
                                 v-if="hasDynamicSchema(activeStep)"
-                                :field-schema="getFieldSchema('registration')"
-                                :event-id="getRequirementFormId('registration')"
-                                :subform-type="'registration'"
-                                :participant-id="selectedParticipantHash"
-                                :config="getStep('registration')"
-                                :title="getStepTitle('registration')"
+                                :field-schema="getFieldSchema(activeKey)"
+                                :event-id="getRequirementFormId(activeKey)"
+                                :subform-type="getStep(activeKey)?.form_type || 'registration'"
+                                :participant-id="getParticipantIdForStep(activeKey)"
+                                :config="getStep(activeKey)"
+                                :title="getStepTitle(activeKey)"
                                 @createdModel="handleCreatedModel"
                             />
                             <registration-card
                                 v-else
-                                :event-id="getRequirementFormId('registration')"
-                                :participant-id="selectedParticipantHash"
-                                :config="getStep('registration')"
+                                :event-id="getRequirementFormId(activeKey)"
+                                :participant-id="getParticipantIdForStep(activeKey)"
+                                :config="getStep(activeKey)"
                                 @createdModel="handleCreatedModel"
                             />
                         </template>
                         <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
-                            {{ activeStep?.status === 'available' ? 'Select or verify your participant profile to continue.' : getStepMessage(getStep('registration')) }}
+                            {{ activeStep?.status === 'available' ? 'Select or verify your participant profile to continue.' : getStepMessage(getStep(activeKey)) }}
                         </div>
                     </div>
 
-                    <div v-if="activeKey === 'feedback'">
-                        <template v-if="activeStep?.status === 'available' && canRenderForm('feedback')">
+                    <div v-if="getStep(activeKey)?.form_type === 'feedback'">
+                        <template v-if="activeStep?.status === 'available' && canRenderForm(activeKey)">
                             <DynamicFormRenderer
                                 v-if="hasDynamicSchema(activeStep)"
-                                :field-schema="getFieldSchema('feedback')"
-                                :event-id="getRequirementFormId('feedback')"
-                                :subform-type="'feedback'"
-                                :participant-id="selectedParticipantHash"
-                                :config="getStep('feedback')"
-                                :title="getStepTitle('feedback')"
+                                :field-schema="getFieldSchema(activeKey)"
+                                :event-id="getRequirementFormId(activeKey)"
+                                :subform-type="getStep(activeKey)?.form_type || 'feedback'"
+                                :participant-id="getParticipantIdForStep(activeKey)"
+                                :config="getStep(activeKey)"
+                                :title="getStepTitle(activeKey)"
                                 @createdModel="handleCreatedModel"
                             />
                             <feedback-card
                                 v-else
-                                :event-id="getRequirementFormId('feedback')"
-                                :participant-id="selectedParticipantHash"
-                                :config="getStep('feedback')"
+                                :event-id="getRequirementFormId(activeKey)"
+                                :participant-id="getParticipantIdForStep(activeKey)"
+                                :config="getStep(activeKey)"
                                 @createdModel="handleCreatedModel"
                             />
                         </template>
                         <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
-                            {{ activeStep?.status === 'available' ? 'Select or verify your participant profile to continue.' : getStepMessage(getStep('feedback')) }}
+                            {{ activeStep?.status === 'available' ? 'Select or verify your participant profile to continue.' : getStepMessage(getStep(activeKey)) }}
                         </div>
                     </div>
 
                     <!-- Dynamic fallback for any other form types with field_schema -->
-                    <div v-if="['preregistration', 'preregistration_biotech', 'preregistration_quizbee', 'registration', 'feedback'].indexOf(activeKey) === -1">
+                    <div v-if="['preregistration', 'preregistration_biotech', 'preregistration_quizbee', 'registration', 'feedback'].indexOf(getStep(activeKey)?.form_type) === -1">
                         <template v-if="activeStep?.status === 'available' && hasDynamicSchema(activeStep) && canRenderForm(activeKey)">
                             <DynamicFormRenderer
                                 :field-schema="getFieldSchema(activeKey)"
                                 :event-id="getRequirementFormId(activeKey)"
-                                :subform-type="activeKey"
-                                :participant-id="selectedParticipantHash"
+                                :subform-type="getStep(activeKey)?.form_type || activeKey"
+                                :participant-id="getParticipantIdForStep(activeKey)"
                                 :config="getStep(activeKey)"
                                 :title="getStepTitle(activeKey)"
                                 :description="getDescription(activeKey)"

@@ -40,67 +40,14 @@ export default {
                 pre_registration: "Pre-registration",
                 pre_registration_biotech: "Pre-registration + Quiz Bee",
                 pre_registration_quizbee: "Pre-registration Quiz Bee",
+                preregistration: "Pre-registration",
+                preregistration_biotech: "Pre-registration + Quiz Bee",
                 preregistration_quizbee: "Pre-registration Quiz Bee",
                 registration: "Registration",
                 pre_test: "Pre-test",
                 post_test: "Post-test",
                 feedback: "Feedback",
             };
-        },
-        requirementByType() {
-            if (!Array.isArray(this.formsData?.requirements)) {
-                return {};
-            }
-
-            return this.formsData.requirements.reduce((acc, req) => {
-                acc[req.form_type] = req;
-                return acc;
-            }, {});
-        },
-        responseCountByType() {
-            const result = {
-                registration: 0,
-                feedback: 0,
-                preregistration: 0,
-                preregistration_biotech: 0,
-                preregistration_quizbee: 0,
-                pretest: 0,
-                posttest: 0,
-            };
-
-            if (!Array.isArray(this.formsData?.requirements)) {
-                return result;
-            }
-
-            this.formsData.requirements.forEach(req => {
-                if (!req?.form_type) return;
-
-                switch (req.form_type) {
-                    case "registration":
-                        result.registration = req.responses_count ?? 0;
-                        break;
-                    case "feedback":
-                        result.feedback = req.responses_count ?? 0;
-                        break;
-                    case "preregistration":
-                        result.preregistration = req.responses_count ?? 0;
-                        break;
-                    case "preregistration_biotech":
-                        result.preregistration_biotech = req.responses_count ?? 0;
-                        break;
-                    case "preregistration_quizbee":
-                        result.preregistration_quizbee = req.responses_count ?? 0;
-                        break;
-                    case "pre_test":
-                        result.pretest = req.responses_count ?? 0;
-                        break;
-                    case "post_test":
-                        result.posttest = req.responses_count ?? 0;
-                        break;
-                }
-            });
-
-            return result;
         },
         styles() {
             return {
@@ -114,7 +61,36 @@ export default {
                 timeToText: this.resolveStyle('form-time-to-text-color', 'text'),
             };
         },
+        requirementStats() {
+            if (!Array.isArray(this.formsData?.requirements)) {
+                return [];
+            }
+
+            return this.formsData.requirements
+                .filter(req => !!req)
+                .map((req, index) => {
+                    const formType = req.form_type || `custom_${index}`;
+                    const count = req.responses_count ?? 0;
+                    const maxSlots = Number(req.max_slots ?? 0);
+
+                    return {
+                        key: req.id || formType,
+                        form_type: formType,
+                        label: req.name || req.title || this.getFormTypeLabel(formType),
+                        count,
+                        isFull: maxSlots > 0 && count >= maxSlots,
+                    };
+                });
+        },
         responsesByType() {
+            if (this.requirementStats.length) {
+                return this.requirementStats.map(item => ({
+                    form_type: item.form_type,
+                    label: item.label,
+                    count: item.count,
+                }));
+            }
+
             if (!this.formsData?.responses_by_type) {
                 return [];
             }
@@ -122,21 +98,13 @@ export default {
             return Object.entries(this.formsData.responses_by_type).map(
                 ([key, count]) => ({
                     form_type: key,
-                    label: this.formTypeLabels[key] || key.replace(/_/g, " "),
+                    label: this.getFormTypeLabel(key),
                     count: count ?? 0,
                 })
             );
         },
         visibleResponseTypes() {
-            return [
-                { key: 'registration', label: 'Registrations' },
-                { key: 'feedback', label: 'Feedback' },
-                { key: 'preregistration', label: 'Pre-registration' },
-                { key: 'preregistration_biotech', label: 'Pre-registration + Quiz Bee' },
-                { key: 'preregistration_quizbee', label: 'Pre-registration Quiz Bee' },
-                { key: 'pretest', label: 'Pre-test' },
-                { key: 'posttest', label: 'Post-test' },
-            ].filter(item => this.responseCountByType[item.key] > 0);
+            return this.requirementStats.filter(item => item.count > 0);
         },
         hasRightBorder() {
             return (index) => index < this.visibleResponseTypes.length - 1;
@@ -179,6 +147,20 @@ export default {
             await this.exportCSV(response.data, filename);
 
             this.model = new Form();
+        },
+        getFormTypeLabel(formType) {
+            if (!formType) {
+                return "Form";
+            }
+
+            const normalized = String(formType).trim();
+            if (this.formTypeLabels[normalized]) {
+                return this.formTypeLabels[normalized];
+            }
+
+            return normalized
+                .replace(/_/g, " ")
+                .replace(/\b\w/g, char => char.toUpperCase());
         },
 
         resolveStyle(tokenKey, type = 'background') {
@@ -282,76 +264,15 @@ export default {
                 <div class="flex gap-1 justify-center flex-wrap w-full overflow-x-auto bg-AA rounded-md">
                     <template v-for="item in visibleResponseTypes" :key="item.key">
                         <div
-                            v-if="item.key === 'registration'"
                             :class="[
                                 'flex flex-col items-center px-2 py-1 flex-shrink-0',
-                                requirementByType.registration?.max_slots > 0 && responseCountByType.registration >= requirementByType.registration.max_slots ? 'text-red-600' : ''
+                                item.isFull ? 'text-red-600' : ''
                             ]"
                         >
-                            <label class="text-lg md:text-xl font-[1000]">{{ responseCountByType.registration }}</label>
-                            <span class="text-[0.55rem] md:text-[0.6rem] text-center">Registrations</span>
-                        </div>
-                        <div
-                            v-else-if="item.key === 'feedback'"
-                            class="flex flex-col items-center px-2 py-1 flex-shrink-0"
-                        >
-                            <label class="text-lg md:text-xl font-[1000]">{{ responseCountByType.feedback }}</label>
-                            <span class="text-[0.55rem] md:text-[0.6rem] text-center">Feedback</span>
-                        </div>
-                        <div
-                            v-else-if="item.key === 'preregistration'"
-                            class="flex flex-col items-center px-2 py-1 flex-shrink-0"
-                        >
-                            <label class="text-lg md:text-xl font-[1000]">{{ responseCountByType.preregistration }}</label>
-                            <span class="text-[0.55rem] md:text-[0.6rem] text-center">Pre-registration</span>
-                        </div>
-                        <div
-                            v-else-if="item.key === 'preregistration_biotech'"
-                            class="flex flex-col items-center px-2 py-1 flex-shrink-0"
-                        >
-                            <label class="text-lg md:text-xl font-[1000]">{{ responseCountByType.preregistration_biotech }}</label>
-                            <span class="text-[0.5rem] md:text-[0.6rem] text-center line-clamp-2">Pre-reg + Quiz Bee</span>
-                        </div>
-                        <div
-                            v-else-if="item.key === 'preregistration_quizbee'"
-                            class="flex flex-col items-center px-2 py-1 flex-shrink-0"
-                        >
-                            <label class="text-lg md:text-xl font-[1000]">{{ responseCountByType.preregistration_quizbee }}</label>
-                            <span class="text-[0.5rem] md:text-[0.6rem] text-center line-clamp-2">Pre-reg Quiz Bee</span>
-                        </div>
-                        <div
-                            v-else-if="item.key === 'pretest'"
-                            class="flex flex-col items-center px-2 py-1 flex-shrink-0"
-                        >
-                            <label class="text-lg md:text-xl font-[1000]">{{ responseCountByType.pretest }}</label>
-                            <span class="text-[0.55rem] md:text-[0.6rem] text-center">Pre-test</span>
-                        </div>
-                        <div
-                            v-else-if="item.key === 'posttest'"
-                            class="flex flex-col items-center px-2 py-1 flex-shrink-0"
-                        >
-                            <label class="text-lg md:text-xl font-[1000]">{{ responseCountByType.posttest }}</label>
-                            <span class="text-[0.55rem] md:text-[0.6rem] text-center">Post-test</span>
+                            <label class="text-lg md:text-xl font-[1000]">{{ item.count }}</label>
+                            <span class="text-[0.55rem] md:text-[0.6rem] text-center line-clamp-2">{{ item.label }}</span>
                         </div>
                     </template>
-                </div>
-                <div v-if="responsesByType?.length" class="mt-3 pt-3 border-t">
-                    <div class="text-xs font-bold uppercase text-center mb-2">
-                        Responses by Form Type
-                    </div>
-
-                    <div class="flex flex-wrap gap-2 justify-center w-full">
-                        <div
-                            v-for="item in responsesByType"
-                            :key="item.form_type"
-                            class="flex flex-col items-center bg-white rounded px-2 py-1 border border-gray-300 flex-shrink-0 min-w-max"
-                        >
-                            <label class="text-xs md:text-sm font-bold">{{ item.count }}</label>
-                            <span class="text-[0.5rem] md:text-[0.6rem] text-center line-clamp-2">
-                                {{ item.label }}
-                            </span>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
