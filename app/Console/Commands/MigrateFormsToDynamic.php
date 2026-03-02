@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\FormTypeTemplate;
 use App\Models\FormFieldDefinition;
+use App\Models\EventSubform;
 use App\Enums\Subform;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -98,48 +99,52 @@ class MigrateFormsToDynamic extends Command
         }
 
         $created = 0;
+        $updated = 0;
         $skipped = 0;
 
         foreach ($subformtypes as $slug => $rules) {
             $existingTemplate = FormTypeTemplate::where('slug', $slug)->first();
 
-            if ($existingTemplate && !$this->option('force')) {
-                $this->warn("⏭️  Skipping '{$slug}' - already exists (use --force to overwrite)");
-                $skipped++;
+            if ($this->option('dry-run')) {
+                $this->info(($existingTemplate ? "Would update template" : "Would create template") . ": {$slug}");
+                $this->displayFieldsTable($slug, $rules);
                 continue;
             }
 
-            if ($this->option('dry-run')) {
-                $this->info("Would create template: {$slug}");
-                $this->displayFieldsTable($slug, $rules);
+            if ($existingTemplate && !$this->option('force')) {
+                $this->warn("⏭️  Skipping '{$slug}' schema sync - template exists (use --force to refresh fields)");
+                $skipped++;
                 continue;
             }
 
             try {
                 DB::transaction(function () use ($slug, $rules, $existingTemplate) {
-                    // Delete existing if forcing
-                    if ($existingTemplate) {
-                        $existingTemplate->fieldDefinitions()->delete();
-                        $existingTemplate->delete();
-                    }
-
-                    // Create template
                     $templateMeta = $this->templateNames[$slug] ?? [
                         'name' => ucwords(str_replace('_', ' ', $slug)),
                         'icon' => 'document',
                         'description' => null,
                     ];
 
-                    $template = FormTypeTemplate::create([
-                        'slug' => $slug,
-                        'name' => $templateMeta['name'],
-                        'description' => $templateMeta['description'],
-                        'icon' => $templateMeta['icon'],
-                        'is_system' => true,
-                        'created_by' => null,
-                    ]);
+                    $template = $existingTemplate;
+                    if (!$template) {
+                        $template = FormTypeTemplate::create([
+                            'slug' => $slug,
+                            'name' => $templateMeta['name'],
+                            'description' => $templateMeta['description'],
+                            'icon' => $templateMeta['icon'],
+                            'is_system' => true,
+                            'created_by' => null,
+                        ]);
+                    } else {
+                        $template->update([
+                            'name' => $templateMeta['name'],
+                            'description' => $templateMeta['description'],
+                            'icon' => $templateMeta['icon'],
+                        ]);
+                    }
 
-                    // Create field definitions
+                    $template->fieldDefinitions()->delete();
+
                     $sortOrder = 0;
                     foreach ($rules as $fieldKey => $validationRule) {
                         $fieldMeta = $this->fieldMetadata[$fieldKey] ?? [];
@@ -162,19 +167,69 @@ class MigrateFormsToDynamic extends Command
                     }
                 });
 
-                $this->info("✅ Created template: {$slug}");
-                $created++;
+                if ($existingTemplate) {
+                    $this->info("🔄 Updated template: {$slug}");
+                    $updated++;
+                } else {
+                    $this->info("✅ Created template: {$slug}");
+                    $created++;
+                }
             } catch (\Exception $e) {
                 $this->error("❌ Failed to create {$slug}: " . $e->getMessage());
             }
         }
 
+        $linked = $this->linkEventSubformsToTemplates((bool) $this->option('dry-run'), (bool) $this->option('force'));
+
         $this->newLine();
         if (!$this->option('dry-run')) {
-            $this->info("Migration complete: {$created} created, {$skipped} skipped");
+            $this->info("Migration complete: {$created} created, {$updated} updated, {$skipped} skipped, {$linked} event steps linked");
+        } else {
+            $this->info("Dry run complete: would link {$linked} event steps to templates");
         }
 
         return 0;
+    }
+
+    protected function linkEventSubformsToTemplates(bool $dryRun = false, bool $forceRebase = false): int
+    {
+        $templatesBySlug = FormTypeTemplate::query()
+            ->pluck('id', 'slug');
+
+        $linked = 0;
+
+        foreach ($templatesBySlug as $slug => $templateId) {
+            $subforms = EventSubform::query()
+                ->where('form_type', $slug)
+                ->get();
+
+            foreach ($subforms as $subform) {
+                $hasCustomSchema = !empty($subform->field_schema);
+                if ($hasCustomSchema && !$forceRebase) {
+                    continue;
+                }
+
+                if ($subform->form_type_template_id === $templateId && !($forceRebase && $hasCustomSchema)) {
+                    continue;
+                }
+
+                $linked++;
+
+                if (!$dryRun) {
+                    $payload = [
+                        'form_type_template_id' => $templateId,
+                    ];
+
+                    if ($forceRebase) {
+                        $payload['field_schema'] = null;
+                    }
+
+                    $subform->update($payload);
+                }
+            }
+        }
+
+        return $linked;
     }
 
     /**

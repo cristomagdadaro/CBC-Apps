@@ -34,12 +34,14 @@ class FormTypeTemplate extends BaseModel
         'name',
         'description',
         'icon',
+        'form_config',
         'is_system',
         'created_by',
     ];
 
     protected $casts = [
         'id' => 'string',
+        'form_config' => 'array',
         'is_system' => 'boolean',
     ];
 

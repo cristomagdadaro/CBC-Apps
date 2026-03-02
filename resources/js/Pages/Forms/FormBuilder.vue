@@ -120,6 +120,7 @@ export default {
                 name: data.template.name,
                 description: data.template.description,
                 icon: data.template.icon,
+                form_config: data.template.form_config || {},
                 fields: data.fields,
             };
             
@@ -211,6 +212,7 @@ export default {
                             <!-- System Templates -->
                             <div v-if="systemTemplates.length" class="mb-8">
                                 <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-4">System Templates</h3>
+                                <p class="my-3 text-sm text-gray-600">Note: Kindly duplicate system templates to attach them to your event form.</p>
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div 
                                         v-for="template in systemTemplates" 
@@ -220,12 +222,12 @@ export default {
                                         <div class="flex items-start justify-between">
                                             <div class="flex-1">
                                                 <div class="flex items-center gap-2">
-                                                    <span v-if="template.icon" class="text-xl">{{ template.icon }}</span>
                                                     <h4 class="font-semibold text-gray-800 dark:text-gray-200">{{ template.name }}</h4>
                                                     <span class="px-2 py-0.5 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded">System</span>
                                                 </div>
-                                                <p v-if="template.description" class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ template.description }}</p>
-                                                <p class="text-xs text-gray-500 dark:text-gray-500 mt-2">{{ template.field_definitions_count || 0 }} fields</p>
+                                                <span class="text-xs opacity-50">ID: {{ template.id }}</span>
+                                                <p v-if="template.description" class="text-sm text-gray-600 dark:text-gray-400">{{ template.description }}</p>
+                                                <p class="text-xs text-gray-500 dark:text-gray-500">{{ template.field_definitions_count || 0 }} fields</p>
                                             </div>
                                         </div>
                                         <div class="mt-4 flex gap-2">
@@ -233,7 +235,7 @@ export default {
                                                 @click="selectTemplate(template)"
                                                 class="px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
                                             >
-                                                View
+                                                Edit
                                             </button>
                                             <button 
                                                 @click="duplicateTemplate(template)"
@@ -258,11 +260,11 @@ export default {
                                         <div class="flex items-start justify-between">
                                             <div class="flex-1">
                                                 <div class="flex items-center gap-2">
-                                                    <span v-if="template.icon" class="text-xl">{{ template.icon }}</span>
                                                     <h4 class="font-semibold text-gray-800 dark:text-gray-200">{{ template.name }}</h4>
                                                 </div>
-                                                <p v-if="template.description" class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ template.description }}</p>
-                                                <p class="text-xs text-gray-500 dark:text-gray-500 mt-2">{{ template.field_definitions_count || 0 }} fields</p>
+                                                <span class="text-xs opacity-50">ID: {{ template.id }}</span>
+                                                <p v-if="template.description" class="text-sm text-gray-600 dark:text-gray-400">{{ template.description }}</p>
+                                                <p class="text-xs text-gray-500 dark:text-gray-500">{{ template.field_definitions_count || 0 }} fields</p>
                                             </div>
                                         </div>
                                         <div class="mt-4 flex gap-2">
@@ -305,8 +307,9 @@ export default {
                                 name: selectedTemplate?.name || '',
                                 description: selectedTemplate?.description || '',
                                 icon: selectedTemplate?.icon || null,
+                                form_config: selectedTemplate?.form_config || {},
                             }"
-                            :is-system-template="selectedTemplate?.is_system || false"
+                            :is-system-template="false"
                             @save="handleSave"
                             @cancel="handleCancel"
                         />

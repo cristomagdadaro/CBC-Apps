@@ -26,7 +26,7 @@ export default {
          */
         templateData: {
             type: Object,
-            default: () => ({ name: '', description: '', icon: null }),
+            default: () => ({ name: '', description: '', icon: null, form_config: {} }),
         },
         /**
          * Whether the template is a system template (read-only mode)
@@ -43,6 +43,12 @@ export default {
                 name: this.templateData.name || '',
                 description: this.templateData.description || '',
                 icon: this.templateData.icon || null,
+                form_config: {
+                    require_participant_verification:
+                        typeof this.templateData?.form_config?.require_participant_verification === 'boolean'
+                            ? this.templateData.form_config.require_participant_verification
+                            : true,
+                },
             },
             fields: [...this.initialSchema],
             draggedFieldType: null,
@@ -397,6 +403,20 @@ export default {
                         class="w-full text-sm text-gray-600 border-0 border-b border-gray-100 focus:border-AB focus:ring-0 px-0 resize-none"
                         :disabled="!canEdit"
                     ></textarea>
+                    <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                        <div>
+                            <p class="text-sm font-medium text-gray-700">Require participant verification</p>
+                            <p class="text-xs text-gray-500">When enabled, users must verify/select an existing participant before submitting this step.</p>
+                        </div>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input
+                                v-model="template.form_config.require_participant_verification"
+                                type="checkbox"
+                                class="h-4 w-4 rounded border-gray-300 text-AB focus:ring-AB"
+                                :disabled="!canEdit"
+                            />
+                        </label>
+                    </div>
                 </div>
             </div>
 

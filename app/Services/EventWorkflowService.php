@@ -28,6 +28,8 @@ class EventWorkflowService
             return [
                 'id' => $step->id,
                 'event_id' => $step->event_id,
+                'name' => $step->template?->name ?? $step->form_type,
+                'description' => $step->template?->description ?? null,
                 'form_type' => $step->form_type,
                 'step_type' => $step->step_type ?? $step->form_type,
                 'step_order' => $step->step_order,
@@ -40,6 +42,9 @@ class EventWorkflowService
                 'visibility_rules' => $step->visibility_rules ?? [],
                 'completion_rules' => $step->completion_rules ?? [],
                 'field_schema' => $step->resolved_field_schema ?? [],
+                'form_config' => is_array($step->template?->form_config)
+                    ? $step->template->form_config
+                    : (is_array(Arr::get($step->config, 'form_config')) ? Arr::get($step->config, 'form_config') : []),
                 'status' => $status,
             ];
         })->values();
@@ -206,6 +211,7 @@ class EventWorkflowService
     {
         return EventSubform::query()
             ->where('event_id', $eventId)
+            ->with('template')
             ->withCount('responses')
             ->orderByRaw('CASE WHEN step_order IS NULL THEN 1 ELSE 0 END')
             ->orderBy('step_order')

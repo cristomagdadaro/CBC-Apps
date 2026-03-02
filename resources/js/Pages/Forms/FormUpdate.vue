@@ -1,6 +1,5 @@
 <script>
 import FormsHeaderActions from "@/Pages/Forms/components/FormsHeaderActions.vue";
-import Form from "@/Modules/domain/Form";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Participant from "@/Modules/domain/Participant";
 import FormUpdateDashboard from "@/Pages/Forms/components/FormUpdateDashboard.vue";

@@ -181,6 +181,13 @@ export default {
             this.loadWorkflow();
         },
         requiresParticipant(formType) {
+            const step = formType ? this.getStep(formType) : this.activeStep;
+            const explicitToggle = step?.form_config?.require_participant_verification;
+
+            if (typeof explicitToggle === 'boolean') {
+                return explicitToggle;
+            }
+
             const exempt = ['preregistration', 'preregistration_biotech', 'preregistration_quizbee'];
             return !exempt.includes(formType);
         },
@@ -535,8 +542,11 @@ export default {
                 'pretest': 'Pre-Test',
                 'posttest': 'Post-Test',
             };
-            
             return titles[formType] || step.name || formType.replace(/_/g, ' ');
+        },
+        getDescription(formType) {
+            const step = this.getStep(formType);
+            return step?.description || '';
         },
         /**
          * Check if form type should use legacy hardcoded component
@@ -721,7 +731,6 @@ export default {
                             {{ getStepCountdownMeta(getStep(activeKey)).value }}
                         </span>
                     </div>
-
                     <div v-if="activeKey === 'preregistration'">
                         <template v-if="activeStep?.status === 'available'">
                             <DynamicFormRenderer
@@ -746,7 +755,7 @@ export default {
                     </div>
 
                     <div v-if="activeKey === 'preregistration_biotech'">
-                        <template v-if="activeStep?.status === 'available'"><pre>{{ getFieldSchema('preregistration_biotech') }}</pre>
+                        <template v-if="activeStep?.status === 'available'">
                             <DynamicFormRenderer
                                 v-if="hasDynamicSchema(activeStep)"
                                 :field-schema="getFieldSchema('preregistration_biotech')"
@@ -851,9 +860,9 @@ export default {
                                 :participant-id="selectedParticipantHash"
                                 :config="getStep(activeKey)"
                                 :title="getStepTitle(activeKey)"
+                                :description="getDescription(activeKey)"
                                 @createdModel="handleCreatedModel"
                             />
-                            {{  }}
                         </template>
                         <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
                             {{ activeStep?.status === 'available' ? 'Select or verify your participant profile to continue.' : (getStepMessage(getStep(activeKey)) || 'This step type is not yet supported in the guest UI.') }}

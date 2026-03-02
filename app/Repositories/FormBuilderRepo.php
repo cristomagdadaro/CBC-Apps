@@ -63,6 +63,7 @@ class FormBuilderRepo extends AbstractRepoService
             'name' => $data['name'],
             'description' => $data['description'] ?? null,
             'icon' => $data['icon'] ?? null,
+            'form_config' => is_array($data['form_config'] ?? null) ? $data['form_config'] : [],
             'is_system' => $data['is_system'] ?? false,
             'created_by' => $data['created_by'] ?? null,
         ]);
@@ -83,6 +84,7 @@ class FormBuilderRepo extends AbstractRepoService
             'name' => $data['name'] ?? $template->name,
             'description' => $data['description'] ?? $template->description,
             'icon' => $data['icon'] ?? $template->icon,
+            'form_config' => is_array($data['form_config'] ?? null) ? $data['form_config'] : ($template->form_config ?? []),
         ]);
 
         $this->syncFields($template, $fields);
@@ -159,6 +161,7 @@ class FormBuilderRepo extends AbstractRepoService
             'name' => $template->name . ' (Copy)',
             'description' => $template->description,
             'icon' => $template->icon,
+            'form_config' => is_array($template->form_config ?? null) ? $template->form_config : [],
             'is_system' => false,
             'created_by' => $userId,
         ]);

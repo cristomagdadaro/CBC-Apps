@@ -43,7 +43,7 @@ class FormBuilderController extends Controller
     public function templatesForSelect(Request $request): JsonResponse
     {
         $templates = FormTypeTemplate::query()
-            ->select(['id', 'slug', 'name', 'description', 'icon', 'is_system'])
+            ->select(['id', 'slug', 'name', 'description', 'icon', 'form_config', 'is_system'])
             ->withCount('fieldDefinitions')
             ->orderBy('is_system', 'desc')
             ->orderBy('name')
@@ -54,6 +54,7 @@ class FormBuilderController extends Controller
                 'slug' => $t->slug,
                 'description' => $t->description,
                 'icon' => $t->icon,
+                'form_config' => is_array($t->form_config) ? $t->form_config : [],
                 'is_system' => $t->is_system,
                 'field_count' => $t->field_definitions_count,
             ]);
@@ -165,6 +166,7 @@ class FormBuilderController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
             'icon' => 'nullable|string|max:50',
+            'form_config' => 'nullable|array',
             'fields' => 'required|array|min:1',
             'fields.*.field_key' => 'required|string|max:100',
             'fields.*.field_type' => 'required|string|in:' . implode(',', array_keys(FormFieldDefinition::FIELD_TYPES)),
@@ -182,6 +184,7 @@ class FormBuilderController extends Controller
                 'name' => $validated['name'],
                 'description' => $validated['description'] ?? null,
                 'icon' => $validated['icon'] ?? null,
+                'form_config' => is_array($validated['form_config'] ?? null) ? $validated['form_config'] : [],
                 'is_system' => false,
                 'created_by' => Auth::id(),
             ],
@@ -201,17 +204,11 @@ class FormBuilderController extends Controller
     {
         $template = FormTypeTemplate::findOrFail($id);
 
-        // Prevent editing system templates (they can be duplicated instead)
-        if ($template->is_system && !$request->user()?->hasRole('admin')) {
-            return response()->json([
-                'message' => 'System templates cannot be edited. Duplicate it to create a custom version.',
-            ], 403);
-        }
-
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
             'description' => 'nullable|string|max:1000',
             'icon' => 'nullable|string|max:50',
+            'form_config' => 'nullable|array',
             'fields' => 'sometimes|array|min:1',
             'fields.*.id' => 'nullable|uuid',
             'fields.*.field_key' => 'required|string|max:100',

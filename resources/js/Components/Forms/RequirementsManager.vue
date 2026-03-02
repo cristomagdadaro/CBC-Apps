@@ -55,7 +55,7 @@ export default {
         customFormTypeOptions() {
             return this.customTemplates.map(t => ({
                 value: `custom:${t.id}`,
-                label: `${t.icon || '📝'} ${t.name}`,
+                label: `${t.name}`,
                 templateId: t.id,
                 isCustom: true,
                 fieldCount: t.field_definitions_count || 0,
@@ -382,18 +382,15 @@ export default {
         },
 
         moveRequirement(index, direction) {
-            const sorted = this.sortedRequirements
-            const current = sorted[index]
-            const target = sorted[index + direction]
-            
-            if (!current || !target) return
+            const targetSortedIndex = index + direction
+            if (targetSortedIndex < 0 || targetSortedIndex >= this.sortedRequirements.length) return
 
-            const copy = this.cloneRequirements()
-
-            const currentIndex = copy.findIndex(r => r === current)
-            const targetIndex = copy.findIndex(r => r === target)
+            const currentIndex = this.getActualIndex(index)
+            const targetIndex = this.getActualIndex(targetSortedIndex)
 
             if (currentIndex === -1 || targetIndex === -1) return
+
+            const copy = this.cloneRequirements()
 
             // 🔑 Swap step_order values
             const temp = copy[currentIndex].step_order

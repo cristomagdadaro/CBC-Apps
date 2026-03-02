@@ -2,11 +2,26 @@
 import axios from "axios";
 import CameraScanner from "@/Components/CameraScanner.vue";
 import FormsHeaderActions from "@/Pages/Forms/components/FormsHeaderActions.vue";
+import DataTable from "@/Modules/DataTable/presentation/DataTable.vue";
+
+class FormScanRecentRowModel {
+    static getColumns() {
+        return [
+            { title: 'Name', key: 'name', db_key: 'name', align: 'text-left', sortable: false, visible: true },
+            { title: 'Email', key: 'email', db_key: 'email', align: 'text-left', sortable: false, visible: true },
+            { title: 'Organization', key: 'organization', db_key: 'organization', align: 'text-left', sortable: false, visible: true },
+            { title: 'Scan Type', key: 'scan_type', db_key: 'scan_type', align: 'text-center', sortable: false, visible: true },
+            { title: 'Status', key: 'status', db_key: 'status', align: 'text-center', sortable: false, visible: true },
+            { title: 'Scanned At', key: 'scanned_at', db_key: 'scanned_at', align: 'text-center', sortable: false, visible: true },
+        ];
+    }
+}
 
 export default {
     components: {
         CameraScanner,
         FormsHeaderActions,
+        DataTable,
     },
     props: {
         event_id: {
@@ -25,6 +40,9 @@ export default {
             status: "idle",
             statusMessage: "Ready to scan",
             statusDetail: "",
+            recentScanSearch: "",
+            recentScanTypeFilter: "all",
+            recentScanModel: FormScanRecentRowModel,
         };
     },
     computed: {
@@ -45,6 +63,54 @@ export default {
         },
         scanTypeLabel() {
             return this.scanType.charAt(0).toUpperCase() + this.scanType.slice(1);
+        },
+        scanTypeFilterOptions() {
+            return [
+                { label: 'All types', value: 'all' },
+                { label: 'Check-in', value: 'checkin' },
+                { label: 'Breakfast', value: 'breakfast' },
+                { label: 'Lunch', value: 'lunch' },
+                { label: 'Dinner', value: 'dinner' },
+                { label: 'Certificate', value: 'certificate' },
+                { label: 'Snack (AM)', value: 'snack_am' },
+                { label: 'Snack (PM)', value: 'snack_pm' },
+            ];
+        },
+        filteredRecentScans() {
+            const search = (this.recentScanSearch || '').trim().toLowerCase();
+
+            return this.recentScans.filter((scan) => {
+                if (this.recentScanTypeFilter !== 'all' && scan.scan_type !== this.recentScanTypeFilter) {
+                    return false;
+                }
+
+                if (!search) {
+                    return true;
+                }
+
+                const name = (scan.registration?.name || '').toLowerCase();
+                const email = (scan.registration?.email || '').toLowerCase();
+                const organization = (scan.registration?.organization || '').toLowerCase();
+                const registrationId = (scan.registration?.id || '').toLowerCase();
+                const scanType = (scan.scan_type || '').toLowerCase();
+                const status = (scan.status || '').toLowerCase();
+
+                return [name, email, organization, registrationId, scanType, status].some((entry) => entry.includes(search));
+            });
+        },
+        recentScansTableResponse() {
+            return {
+                from: 1,
+                data: this.filteredRecentScans.map((scan) => ({
+                    id: `${scan.scanned_at}-${scan.registration?.id || scan.status}`,
+                    name: scan.registration?.name || 'Unknown',
+                    email: scan.registration?.email || '-',
+                    organization: scan.registration?.organization || '-',
+                    scan_type: scan.scan_type,
+                    status: scan.status,
+                    scanned_at: scan.scanned_at,
+                })),
+            };
         },
     },
     methods: {
@@ -145,10 +211,12 @@ export default {
                                 <label class="text-xs uppercase tracking-[0.3em] text-slate-400">Scan Type</label>
                                 <select v-model="scanType" class="mt-1 rounded-xl border border-slate-200 px-3 py-2 text-sm">
                                     <option value="checkin">Check-in</option>
+                                    <option value="breakfast">Breakfast</option>
+                                    <option value="lunch">Lunch</option>
+                                     <option value="dinner">Dinner</option>
                                     <option value="certificate">Certificate</option>
-                                    <option value="meal">Meal</option>
-                                    <option value="quiz">Quiz</option>
-                                    <option value="workshop">Workshop</option>
+                                    <option value="snack_am">Snack (AM)</option>
+                                    <option value="snack_pm">Snack (PM)</option>
                                 </select>
                             </div>
                         </div>
@@ -191,27 +259,43 @@ export default {
                 </div>
 
                 <div class="bg-white rounded-2xl shadow border border-slate-100 p-5">
-                    <div class="flex items-center justify-between">
-                        <p class="text-sm font-semibold text-slate-600">Recent Scans</p>
-                        <p class="text-xs text-slate-400">{{ recentScans.length }} / 8</p>
-                    </div>
-                    <div class="mt-3 space-y-2">
-                        <div
-                            v-for="scan in recentScans"
-                            :key="scan.scanned_at + scan.registration?.id"
-                            class="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-2"
-                        >
-                            <div>
-                                <p class="text-sm font-semibold text-slate-700">
-                                    {{ scan.registration?.name || "Unknown" }}
-                                </p>
-                                <p class="text-xs text-slate-400">
-                                    {{ scan.scan_type }} • {{ scan.status }}
-                                </p>
-                            </div>
-                            <span class="text-xs text-slate-400">{{ scan.scanned_at }}</span>
+                    <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                        <div>
+                            <p class="text-sm font-semibold text-slate-600">Recent Scans</p>
+                            <p class="text-xs text-slate-400">Search participants and filter by scan type</p>
                         </div>
-                        <p v-if="!recentScans.length" class="text-sm text-slate-400">No scans yet.</p>
+                        <p class="text-xs text-slate-400">{{ filteredRecentScans.length }} / {{ recentScans.length }}</p>
+                    </div>
+                    <div class="mt-4 grid gap-3 md:grid-cols-[2fr,1fr]">
+                        <input
+                            v-model="recentScanSearch"
+                            type="text"
+                            class="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                            placeholder="Search by name, email, organization, status"
+                        />
+                        <select
+                            v-model="recentScanTypeFilter"
+                            class="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                        >
+                            <option
+                                v-for="option in scanTypeFilterOptions"
+                                :key="option.value"
+                                :value="option.value"
+                            >
+                                {{ option.label }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="mt-3">
+                        <data-table
+                            :api-response="recentScansTableResponse"
+                            :processing="false"
+                            :model="recentScanModel"
+                            :append-actions="false"
+                        />
+                        <div v-if="!filteredRecentScans.length" class="text-sm text-slate-400 mt-2">
+                            No matching scans.
+                        </div>
                     </div>
                 </div>
             </div>

@@ -79,7 +79,9 @@ class FormScanController extends Controller
                 return $this->buildResponse($event_id, $registrationId, $scanType, $status, $message, $payloadHash, $signature, $terminalId, $reason, $checks, $registration);
             }
 
-            if ($registration->event_id !== $event_id) {
+            $registrationEventId = $this->resolveRegistrationEventId($registration);
+
+            if ($registrationEventId !== null && $registrationEventId !== $event_id) {
                 $status = 'wrong_event';
                 $message = 'Registration does not belong to this event.';
                 $reason = 'Registration event mismatch.';
@@ -175,6 +177,7 @@ class FormScanController extends Controller
             'scanned_at' => $log->scanned_at,
             'registration' => $registration ? [
                 'id' => $registration->id,
+                'event_id' => $this->resolveRegistrationEventId($registration),
                 'participant_id' => $registration->participant_id,
                 'name' => $registration->participant?->name,
                 'email' => $registration->participant?->email,
@@ -269,8 +272,16 @@ class FormScanController extends Controller
             ];
         }
 
-        $requirement = EventSubform::where('event_id', $eventId)
-            ->where('form_type', 'registration')
+        $requirement = EventSubform::query()
+            ->where('event_id', $eventId)
+            ->where('is_enabled', true)
+            ->where(function ($query) {
+                $query->where('form_type', 'registration')
+                    ->orWhere('step_type', 'registration');
+            })
+            ->orderByRaw('CASE WHEN step_order IS NULL THEN 1 ELSE 0 END')
+            ->orderBy('step_order')
+            ->orderBy('created_at')
             ->first();
 
         $maxSlots = $requirement?->max_slots;
@@ -308,9 +319,20 @@ class FormScanController extends Controller
             ];
         }
 
-        $required = EventSubform::where('event_id', $eventId)
+        $required = EventSubform::query()
+            ->where('event_id', $eventId)
             ->where('is_required', true)
-            ->whereNotIn('form_type', ['registration'])
+            ->where('is_enabled', true)
+            ->where(function ($query) {
+                $query->where('form_type', '!=', 'registration')
+                    ->where(function ($inner) {
+                        $inner->whereNull('step_type')
+                            ->orWhere('step_type', '!=', 'registration');
+                    });
+            })
+            ->orderByRaw('CASE WHEN step_order IS NULL THEN 1 ELSE 0 END')
+            ->orderBy('step_order')
+            ->orderBy('created_at')
             ->get(['id', 'form_type']);
 
         $missing = [];
@@ -324,6 +346,7 @@ class FormScanController extends Controller
             if (!$completed) {
                 $legacy = EventSubformResponse::where('form_parent_id', $requirement->id)
                     ->where('participant_id', $registrationId)
+                    ->where('status', 'submitted')
                     ->exists();
 
                 if ($legacy) {
@@ -350,5 +373,24 @@ class FormScanController extends Controller
             'status' => empty($missing) ? 'ok' : 'ineligible',
             'missing' => $missing,
         ];
+    }
+
+    private function resolveRegistrationEventId(Registration $registration): ?string
+    {
+        $eventSubformId = $registration->event_subform_id;
+
+        if (!$eventSubformId) {
+            return null;
+        }
+
+        $subform = EventSubform::query()
+            ->select(['id', 'event_id'])
+            ->find($eventSubformId);
+
+        if ($subform?->event_id) {
+            return (string) $subform->event_id;
+        }
+
+        return (string) $eventSubformId;
     }
 }

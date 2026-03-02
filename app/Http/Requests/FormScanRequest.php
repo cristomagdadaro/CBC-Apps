@@ -23,7 +23,7 @@ class FormScanRequest extends FormRequest
     {
         return [
             'payload' => ['required', 'string', 'min:5'],
-            'scan_type' => ['required', 'string', 'in:checkin,certificate,meal,quiz,workshop'],
+            'scan_type' => ['required', 'string', 'in:checkin,certificate,meal,breakfast,lunch,dinner,snack_am,snack_pm,quiz,workshop'],
             'terminal_id' => ['nullable', 'string', 'max:255'],
         ];
     }

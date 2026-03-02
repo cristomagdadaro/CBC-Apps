@@ -65,13 +65,20 @@ class EventWorkflowController extends Controller
             ->first();
 
         if (!$registration) {
+            $registration = Registration::create([
+                'event_subform_id' => $event_id,
+                'participant_id' => $participant->id,
+                'attendance_type' => null,
+            ]);
+
             return response()->json([
                 'status' => 'success',
                 'data' => [
-                    'found' => false,
+                    'found' => true,
                     'profile_found' => true,
+                    'participant_hash' => $registration->id,
                     'participant' => $participant,
-                    'message' => 'Profile found, but no registration exists for this event yet. Please complete preregistration first.',
+                    'message' => 'Profile found. Registration has been created automatically for this event.',
                 ],
             ], 200);
         }

@@ -32,18 +32,32 @@ class EventSubformController extends BaseController
             ])
             ->firstOrFail();
         $requirements         = EventSubform::where('event_id', $id)->withCount('responses')->withTrashed()->get();
-        $eventResponsesByType = EventSubformResponse::whereRelation('parent', 'event_id', $id)
+
+        $responsesQuery = EventSubformResponse::query()
+            ->whereHas('parent', function ($query) use ($id) {
+                $query->withTrashed()->where('event_id', $id);
+            });
+
+        $eventResponsesByType = (clone $responsesQuery)
             ->latest()
             ->get()
             ->groupBy('subform_type')
             ->map->values();
+
+        $responsesByType = (clone $responsesQuery)
+            ->selectRaw('subform_type, COUNT(*) as aggregate')
+            ->groupBy('subform_type')
+            ->pluck('aggregate', 'subform_type');
+
+        $responsesTotal = (int) $responsesByType->sum();
+
         return Inertia::render('Forms/FormUpdate', [
             'data'                 => $form,
             'responsesCount'       => $formRepo->getResponsesCountByEventId($id),
             'subformRequirements'  => $requirements->map(fn($r) => ['name' => $r->id, 'label' => $r->form_type]),
             'eventStats'           => [
-                'responses_total'    => $requirements->sum('responses_count'),
-                'responses_by_type'  => $requirements->pluck('responses_count', 'form_type'),
+                'responses_total'    => $responsesTotal,
+                'responses_by_type'  => $responsesByType,
                 'requirements_total' => $requirements->count(),
             ],
             'eventResponsesByType' => $eventResponsesByType,
