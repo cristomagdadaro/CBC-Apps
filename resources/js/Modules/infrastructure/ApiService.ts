@@ -31,6 +31,85 @@ export default abstract class ApiService {
         };
     }
 
+    private isBinaryValue(value: any): boolean {
+        return value instanceof File || value instanceof Blob;
+    }
+
+    private hasBinaryValue(payload: any): boolean {
+        if (payload == null) {
+            return false;
+        }
+
+        if (this.isBinaryValue(payload)) {
+            return true;
+        }
+
+        if (payload instanceof FormData) {
+            let containsBinary = false;
+            payload.forEach((value) => {
+                if (this.isBinaryValue(value)) {
+                    containsBinary = true;
+                }
+            });
+            return containsBinary;
+        }
+
+        if (Array.isArray(payload)) {
+            return payload.some((entry) => this.hasBinaryValue(entry));
+        }
+
+        if (typeof payload === 'object') {
+            return Object.values(payload).some((entry) => this.hasBinaryValue(entry));
+        }
+
+        return false;
+    }
+
+    private appendToFormData(formData: FormData, key: string, value: any) {
+        if (value === undefined) {
+            return;
+        }
+
+        if (value === null) {
+            formData.append(key, '');
+            return;
+        }
+
+        if (this.isBinaryValue(value)) {
+            formData.append(key, value);
+            return;
+        }
+
+        if (Array.isArray(value)) {
+            value.forEach((item, index) => {
+                this.appendToFormData(formData, `${key}[${index}]`, item);
+            });
+            return;
+        }
+
+        if (typeof value === 'object') {
+            Object.entries(value).forEach(([childKey, childValue]) => {
+                this.appendToFormData(formData, `${key}[${childKey}]`, childValue);
+            });
+            return;
+        }
+
+        if (typeof value === 'boolean') {
+            formData.append(key, value ? '1' : '0');
+            return;
+        }
+
+        formData.append(key, String(value));
+    }
+
+    private buildFormData(payload: Record<string, any>): FormData {
+        const formData = new FormData();
+        Object.entries(payload || {}).forEach(([key, value]) => {
+            this.appendToFormData(formData, key, value);
+        });
+        return formData;
+    }
+
     private notifyError(error: unknown, fallbackMessage: string = 'Request failed. Please try again.') {
         if (typeof window === 'undefined') {
             return;
@@ -146,12 +225,24 @@ export default abstract class ApiService {
             if (cleanConfig && Object.prototype.hasOwnProperty.call(cleanConfig, 'routeParams')) {
                 delete cleanConfig.routeParams;
             }
+
+            const shouldUseMultipart = !(params instanceof FormData) && this.hasBinaryValue(params);
+            const payload = shouldUseMultipart ? this.buildFormData(params || {}) : params;
+            const requestConfig = shouldUseMultipart
+                ? {
+                    ...cleanConfig,
+                    headers: {
+                        ...(cleanConfig?.headers || {}),
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }
+                : cleanConfig;
             // @ts-ignore
             const response = await this.axiosInstance.post(
                 // @ts-ignore
                 routeParams !== undefined ? route(url, routeParams) : route(url),
-                params,
-                cleanConfig
+                payload,
+                requestConfig
             );
             this.processing = false;
             this.notifySuccess('Data submitted successfully.');
@@ -172,7 +263,25 @@ export default abstract class ApiService {
             ConsoleLogger.debug('PUT Parameters:', params);
             // @ts-ignore
             let response = '';
-            if (!id) {
+            const shouldUseMultipart = !(params instanceof FormData) && this.hasBinaryValue(params);
+
+            if (shouldUseMultipart) {
+                const formData = this.buildFormData(params || {});
+                formData.append('_method', 'PUT');
+                if (!id) {
+                    response = await axios.post(`${route(url)}`, formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    });
+                } else {
+                    response = await axios.post(`${route(url, id)}`, formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    });
+                }
+            } else if (!id) {
                response = await axios.put(`${route(url)}`, params);
             } else {
                response = await axios.put(`${route(url, id)}`, params);

@@ -118,6 +118,7 @@ export default {
             showSuccess: false,
             isSubmitting: false,
             isDownloadingImage: false,
+            pendingCreatedModel: null,
             locationData: {
                 regions: [],
                 provinces: [],
@@ -540,8 +541,8 @@ export default {
             const response = await this.submitCreate();
             if (response?.status === 201) {
                 this.model.response = response.data;
+                this.pendingCreatedModel = response.data;
                 this.showSuccess = true;
-                this.$emit('createdModel', response.data);
             } else if (response?.status >= 400) {
                 this.$emit('error', response);
             }
@@ -562,6 +563,11 @@ export default {
          */
         dismissSuccess() {
             this.showSuccess = false;
+
+            if (this.pendingCreatedModel) {
+                this.$emit('createdModel', this.pendingCreatedModel);
+                this.pendingCreatedModel = null;
+            }
         },
         buildSuccessImageName() {
             const eventPart = String(this.successEventId || 'event').trim();
@@ -730,7 +736,7 @@ export default {
             <template v-for="section in visibleSections" :key="section.header?.field_key || 'default'">
                 <!-- Section Header -->
                 <component 
-                    v-if="section.header"
+                    v-if="section.header && !hasSectionHeaders"
                     :is="getFieldComponent(section.header.field_type)"
                     :field="section.header"
                 />
