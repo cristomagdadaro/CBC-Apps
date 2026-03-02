@@ -6,9 +6,11 @@
  * Handles label, placeholder, validation rules, options, etc.
  */
 import { FIELD_TYPES, VALIDATION_TYPES, supportsValidation } from "@/Modules/Events/Config/FormFieldTypes";
+import ApiMixin from "@/Modules/mixins/ApiMixin";
 
 export default {
     name: "FieldConfigModal",
+    mixins: [ApiMixin],
     props: {
         field: {
             type: Object,
@@ -32,6 +34,31 @@ export default {
             editedField: JSON.parse(JSON.stringify(this.field)),
             validationTypes: VALIDATION_TYPES,
             newOption: '',
+            locationRegions: [],
+            locationProvinces: [],
+            locationCities: [],
+            countryOptions: [
+                'Philippines',
+                'Brunei',
+                'Cambodia',
+                'Indonesia',
+                'Laos',
+                'Malaysia',
+                'Myanmar',
+                'Singapore',
+                'Thailand',
+                'Vietnam',
+                'Japan',
+                'South Korea',
+                'China',
+                'India',
+                'United States',
+                'Canada',
+                'Australia',
+                'United Kingdom',
+                'Germany',
+                'France',
+            ],
         };
     },
     computed: {
@@ -46,6 +73,61 @@ export default {
         },
         supportedValidations() {
             return this.fieldTypeConfig.supportedValidations || [];
+        },
+        canConfigureDefaultValue() {
+            return !this.isDecorative && this.editedField.field_type !== 'file';
+        },
+        defaultValueInputType() {
+            if (['number', 'likert_scale', 'linear_scale'].includes(this.editedField.field_type)) {
+                return 'number';
+            }
+            if (['email'].includes(this.editedField.field_type)) {
+                return 'email';
+            }
+            if (['phone'].includes(this.editedField.field_type)) {
+                return 'tel';
+            }
+            if (['date'].includes(this.editedField.field_type)) {
+                return 'date';
+            }
+            if (['datetime'].includes(this.editedField.field_type)) {
+                return 'datetime-local';
+            }
+            if (['time'].includes(this.editedField.field_type)) {
+                return 'time';
+            }
+            return 'text';
+        },
+        usesOptionDefault() {
+            return ['select', 'radio'].includes(this.editedField.field_type);
+        },
+        usesLocationDefault() {
+            return ['location_region', 'location_province', 'location_city'].includes(this.editedField.field_type);
+        },
+        isCountryLikeField() {
+            const haystack = `${this.editedField.field_key || ''} ${this.editedField.label || ''} ${this.editedField.placeholder || ''}`.toLowerCase();
+            return haystack.includes('country');
+        },
+        usesCountryDefault() {
+            return !this.usesOptionDefault && (this.editedField.field_type === 'location_country' || this.isCountryLikeField);
+        },
+        locationDefaultOptions() {
+            if (this.editedField.field_type === 'location_region') {
+                return this.locationRegions;
+            }
+            if (this.editedField.field_type === 'location_province') {
+                return this.locationProvinces;
+            }
+            if (this.editedField.field_type === 'location_city') {
+                return this.locationCities;
+            }
+            return [];
+        },
+        usesBooleanDefault() {
+            return ['checkbox', 'checkbox_agreement'].includes(this.editedField.field_type);
+        },
+        usesArrayDefault() {
+            return this.editedField.field_type === 'checkbox_group';
         },
         isLikertOrLinear() {
             return ['likert_scale', 'linear_scale'].includes(this.editedField.field_type);
@@ -68,6 +150,19 @@ export default {
         },
     },
     methods: {
+        async loadLocationDefaults() {
+            if (!this.usesLocationDefault) return;
+
+            const [regionsResponse, provincesResponse, citiesResponse] = await Promise.all([
+                this.fetchGetApi('api.locations.regions'),
+                this.fetchGetApi('api.locations.provinces'),
+                this.fetchGetApi('api.locations.cities', { region: null, province: null }),
+            ]);
+
+            this.locationRegions = regionsResponse?.data ?? [];
+            this.locationProvinces = provincesResponse?.data ?? [];
+            this.locationCities = citiesResponse?.data ?? [];
+        },
         // ====================
         // Validation Rules
         // ====================
@@ -159,6 +254,38 @@ export default {
             }
             this.editedField.field_config[key] = value;
         },
+        ensureFieldConfig() {
+            if (!this.editedField.field_config) {
+                this.editedField.field_config = {};
+            }
+        },
+        isFieldChangeable() {
+            return this.editedField.field_config?.changeable !== false;
+        },
+        setFieldChangeable(value) {
+            this.ensureFieldConfig();
+            this.editedField.field_config.changeable = value;
+        },
+        getDefaultValue() {
+            return this.editedField.field_config?.defaultValue;
+        },
+        setDefaultValue(value) {
+            this.ensureFieldConfig();
+            this.editedField.field_config.defaultValue = value;
+        },
+        toggleArrayDefaultOption(value, checked) {
+            const current = Array.isArray(this.getDefaultValue()) ? [...this.getDefaultValue()] : [];
+            const index = current.indexOf(value);
+
+            if (checked && index === -1) {
+                current.push(value);
+            }
+            if (!checked && index !== -1) {
+                current.splice(index, 1);
+            }
+
+            this.setDefaultValue(current);
+        },
 
         // ====================
         // Save & Cancel
@@ -170,6 +297,9 @@ export default {
         handleCancel() {
             this.$emit('cancel');
         },
+    },
+    mounted() {
+        this.loadLocationDefaults();
     },
 };
 </script>
@@ -207,7 +337,7 @@ export default {
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">Field Type</label>
                             <div class="px-3 py-2 bg-gray-100 rounded-md text-sm text-gray-700">
-                                {{ fieldTypeConfig.label || editedField.field_type }}
+                                {{ editedField.field_type }}
                             </div>
                         </div>
                     </div>
@@ -240,6 +370,85 @@ export default {
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-AB focus:border-AB resize-none"
                             placeholder="Optional help text shown below the field"
                         ></textarea>
+                    </div>
+
+                    <div v-if="canConfigureDefaultValue" class="space-y-3 border border-gray-200 rounded-md p-3 bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Default Value</label>
+                                <p class="text-xs text-gray-500">Sets the pre-filled value when this field loads.</p>
+                            </div>
+                        </div>
+
+                        <div v-if="usesOptionDefault || usesLocationDefault || usesCountryDefault">
+                            <select
+                                :value="getDefaultValue() ?? ''"
+                                @change="setDefaultValue($event.target.value || null)"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-AB focus:border-AB"
+                            >
+                                <option value="">No default</option>
+                                <option
+                                    v-for="option in (usesLocationDefault
+                                        ? locationDefaultOptions.map(value => ({ value, label: value }))
+                                        : usesCountryDefault
+                                            ? countryOptions.map(value => ({ value, label: value }))
+                                            : (editedField.options || []))"
+                                    :key="option.value"
+                                    :value="option.value"
+                                >
+                                    {{ option.label }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div v-else-if="usesBooleanDefault" class="flex items-center gap-3">
+                            <label class="flex items-center gap-2 text-sm">
+                                <input
+                                    type="checkbox"
+                                    :checked="!!getDefaultValue()"
+                                    @change="setDefaultValue($event.target.checked)"
+                                    class="w-4 h-4 text-AB focus:ring-AB border-gray-300 rounded"
+                                />
+                                Checked by default
+                            </label>
+                        </div>
+
+                        <div v-else-if="usesArrayDefault" class="space-y-2">
+                            <label class="block text-sm text-gray-600">Default selected options</label>
+                            <label
+                                v-for="option in editedField.options || []"
+                                :key="option.value"
+                                class="flex items-center gap-2 text-sm"
+                            >
+                                <input
+                                    type="checkbox"
+                                    :checked="(getDefaultValue() || []).includes(option.value)"
+                                    @change="toggleArrayDefaultOption(option.value, $event.target.checked)"
+                                    class="w-4 h-4 text-AB focus:ring-AB border-gray-300 rounded"
+                                />
+                                {{ option.label }}
+                            </label>
+                        </div>
+
+                        <div v-else>
+                            <input
+                                :value="getDefaultValue() ?? ''"
+                                @input="setDefaultValue($event.target.value === '' ? null : $event.target.value)"
+                                :type="defaultValueInputType"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-AB focus:border-AB"
+                                placeholder="Set default value"
+                            />
+                        </div>
+
+                        <label class="flex items-center gap-2 text-sm text-gray-700">
+                            <input
+                                type="checkbox"
+                                :checked="isFieldChangeable()"
+                                @change="setFieldChangeable($event.target.checked)"
+                                class="w-4 h-4 text-AB focus:ring-AB border-gray-300 rounded"
+                            />
+                            Allow respondents to change this value
+                        </label>
                     </div>
                 </div>
 

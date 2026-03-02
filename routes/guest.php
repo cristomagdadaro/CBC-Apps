@@ -122,6 +122,8 @@ Route::prefix('guest')->group(function () {
     // Event workflow
     Route::get('/forms/event/{event_id}/workflow', [EventWorkflowController::class, 'state'])
         ->name('api.event.workflow.state.guest');
+    Route::get('/forms/event/{event_id}/participant-lookup', [EventWorkflowController::class, 'resolveParticipantByEmail'])
+        ->name('api.event.participant.lookup.guest');
 
     Route::get('/equipments/active/{employee_id?}', [LaboratoryEquipmentController::class, 'activeEquipments'])->name('api.laboratory.equipments.active');
     Route::get('/equipments/{identifier}', [LaboratoryEquipmentController::class, 'show'])->name('api.laboratory.equipments.show');

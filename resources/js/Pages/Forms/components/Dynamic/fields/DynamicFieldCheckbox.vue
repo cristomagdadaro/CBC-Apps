@@ -22,7 +22,7 @@ export default {
 
 <template>
     <div 
-        class="w-full relative p-2 flex text-center leading-none items-center gap-2 bg-white rounded-md border cursor-pointer hover:bg-gray-50"
+        class="w-full relative p-2 flex text-center leading-none items-center gap-2 bg-white rounded-md cursor-pointer hover:bg-gray-50"
         :class="{'border-red-500': error, 'border-gray-600': !error}"
         @click.prevent="inputValue = !inputValue"
     >

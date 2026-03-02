@@ -16,6 +16,11 @@ class UpdateEventSubformResponseRequest extends FormRequest
      */
     protected ?EventSubform $eventSubform = null;
 
+    protected function prepareForValidation(): void
+    {
+        $this->applyFieldDefaults();
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -73,6 +78,56 @@ class UpdateEventSubformResponseRequest extends FormRequest
         }
         
         return false;
+    }
+
+    protected function applyFieldDefaults(): void
+    {
+        if (!$this->usesDynamicSchema()) {
+            return;
+        }
+
+        $eventSubform = $this->getEventSubform();
+        if (!$eventSubform) {
+            return;
+        }
+
+        $responseData = $this->input('response_data', []);
+        if (!is_array($responseData)) {
+            $responseData = [];
+        }
+
+        foreach ($eventSubform->resolved_field_schema as $field) {
+            $fieldKey = $field['field_key'] ?? null;
+            $fieldType = $field['field_type'] ?? null;
+            $fieldConfig = $field['field_config'] ?? [];
+
+            if (!$fieldKey || in_array($fieldType, ['section_header', 'paragraph'], true)) {
+                continue;
+            }
+
+            $changeable = $fieldConfig['changeable'] ?? true;
+            $defaultExists = array_key_exists('defaultValue', $fieldConfig) || array_key_exists('default', $fieldConfig);
+            if (!$defaultExists) {
+                continue;
+            }
+
+            $defaultValue = $fieldConfig['defaultValue'] ?? $fieldConfig['default'];
+            $hasSubmittedValue = array_key_exists($fieldKey, $responseData);
+            $submittedValue = $responseData[$fieldKey] ?? null;
+
+            if ($changeable === false) {
+                $responseData[$fieldKey] = $defaultValue;
+                continue;
+            }
+
+            if (!$hasSubmittedValue || $submittedValue === null || $submittedValue === '') {
+                $responseData[$fieldKey] = $defaultValue;
+            }
+        }
+
+        $this->merge([
+            'response_data' => $responseData,
+        ]);
     }
 
     /**

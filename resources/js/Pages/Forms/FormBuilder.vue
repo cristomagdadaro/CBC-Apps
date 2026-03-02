@@ -156,9 +156,9 @@ export default {
                 placeholder: field.placeholder,
                 description: field.description,
                 validation_rules: field.validation_rules || {},
-                options: field.options || {},
-                display_config: field.display_config || {},
-                field_config: field.field_config || {},
+                options: Array.isArray(field.options) ? field.options : [],
+                display_config: field.display_config && !Array.isArray(field.display_config) ? field.display_config : {},
+                field_config: field.field_config && !Array.isArray(field.field_config) ? field.field_config : {},
             }));
         },
     },

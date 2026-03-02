@@ -194,8 +194,15 @@ export default {
         // ====================
         addFieldAtIndex(fieldTypeKey, index) {
             const fieldConfig = FIELD_TYPES[fieldTypeKey];
+            const defaultLocationKeys = {
+                location_region: 'region_address',
+                location_province: 'province_address',
+                location_city: 'city_address',
+            };
+            const preferredKey = defaultLocationKeys[fieldTypeKey] || null;
+            const hasPreferredKey = preferredKey ? this.fields.some(field => field.field_key === preferredKey) : false;
             const newField = {
-                field_key: this.generateFieldKey(fieldTypeKey),
+                field_key: (preferredKey && !hasPreferredKey) ? preferredKey : this.generateFieldKey(fieldTypeKey),
                 field_type: fieldTypeKey,
                 label: fieldConfig.label,
                 placeholder: '',
@@ -203,7 +210,7 @@ export default {
                 validation_rules: {},
                 options: fieldConfig.hasOptions ? [{ value: 'option1', label: 'Option 1' }] : [],
                 display_config: {},
-                field_config: { ...fieldConfig.defaultConfig },
+                field_config: { ...fieldConfig.defaultConfig, changeable: true },
                 sort_order: index,
             };
 
@@ -363,7 +370,7 @@ export default {
                                 class="flex items-center gap-2 p-2 text-sm bg-gray-50 hover:bg-gray-100 rounded cursor-grab active:cursor-grabbing"
                             >
                                 <span class="text-gray-500">✦</span>
-                                <span>{{ fieldType.label }}</span>
+                                <span>{{ fieldType.title }}</span>
                             </div>
                         </div>
                     </div>
@@ -446,7 +453,7 @@ export default {
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center gap-2 mb-1">
                                             <span class="text-xs px-2 py-0.5 bg-gray-100 rounded text-gray-600">
-                                                {{ getFieldTypeConfig(field.field_type).label }}
+                                                {{ getFieldTypeConfig(field.field_type).title }}
                                             </span>
                                             <span v-if="field.validation_rules?.required" class="text-red-500 text-xs">Required</span>
                                         </div>

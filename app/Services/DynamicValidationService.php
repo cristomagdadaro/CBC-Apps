@@ -265,7 +265,7 @@ class DynamicValidationService
                     ];
                     break;
                 default:
-                    $defaults[$fieldKey] = $fieldConfig['default'] ?? null;
+                    $defaults[$fieldKey] = $fieldConfig['defaultValue'] ?? ($fieldConfig['default'] ?? null);
             }
         }
 

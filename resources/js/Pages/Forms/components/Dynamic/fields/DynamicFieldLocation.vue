@@ -10,6 +10,7 @@ export default {
         field: { type: Object, required: true },
         error: { type: String, default: null },
         required: { type: Boolean, default: false },
+        disabled: { type: Boolean, default: false },
         regions: { type: Array, default: () => [] },
         provinces: { type: Array, default: () => [] },
         cities: { type: Array, default: () => [] },
@@ -40,6 +41,32 @@ export default {
             }
         },
     },
+    watch: {
+        options: {
+            immediate: true,
+            handler() {
+                this.applyConfiguredDefaultIfMissing();
+            },
+        },
+    },
+    methods: {
+        applyConfiguredDefaultIfMissing() {
+            const currentValue = this.modelValue;
+            if (currentValue !== null && currentValue !== undefined && currentValue !== '') {
+                return;
+            }
+
+            const configuredDefault = this.field?.field_config?.defaultValue;
+            if (configuredDefault === null || configuredDefault === undefined || configuredDefault === '') {
+                return;
+            }
+
+            const hasMatchingOption = this.options.some(option => option.value === configuredDefault);
+            if (hasMatchingOption) {
+                this.$emit('update:modelValue', configuredDefault);
+            }
+        },
+    },
 };
 </script>
 
@@ -52,6 +79,7 @@ export default {
             :id="field.field_key"
             v-model="inputValue"
             :required="required"
+            :disabled="disabled"
             class="w-full px-3 py-2 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-AB focus:border-transparent bg-white"
             :class="{'border-red-500': error}"
         >

@@ -6,6 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use App\Enums\Subform;
 use App\Models\EventSubform;
+use App\Models\Registration;
 use App\Services\DynamicValidationService;
 
 class CreateEventSubformResponseRequest extends FormRequest
@@ -14,6 +15,112 @@ class CreateEventSubformResponseRequest extends FormRequest
      * Cached event subform model
      */
     protected ?EventSubform $eventSubform = null;
+
+    protected function prepareForValidation(): void
+    {
+        $this->resolveParticipantFromEmail();
+        $this->applyFieldDefaults();
+    }
+
+    protected function resolveParticipantFromEmail(): void
+    {
+        if ($this->filled('participant_id') || !$this->filled('participant_email')) {
+            return;
+        }
+
+        $formParentId = $this->input('form_parent_id');
+        if (!$formParentId) {
+            return;
+        }
+
+        $currentStep = EventSubform::query()
+            ->select(['id', 'event_id'])
+            ->find($formParentId);
+
+        if (!$currentStep) {
+            return;
+        }
+
+        $email = strtolower(trim((string) $this->input('participant_email')));
+        if ($email === '') {
+            return;
+        }
+
+        $stepIds = EventSubform::query()
+            ->where('event_id', $currentStep->event_id)
+            ->pluck('id');
+
+        $registration = Registration::query()
+            ->whereHas('participant', function ($query) use ($email) {
+                $query->whereRaw('LOWER(email) = ?', [$email]);
+            })
+            ->where(function ($query) use ($currentStep, $stepIds) {
+                $query->where('event_subform_id', $currentStep->event_id);
+
+                if ($stepIds->isNotEmpty()) {
+                    $query->orWhereIn('event_subform_id', $stepIds->toArray());
+                }
+            })
+            ->latest('created_at')
+            ->first();
+
+        if ($registration) {
+            $this->merge([
+                'participant_id' => $registration->id,
+                'participant_email' => $email,
+            ]);
+        }
+    }
+
+    protected function applyFieldDefaults(): void
+    {
+        if (!$this->usesDynamicSchema()) {
+            return;
+        }
+
+        $eventSubform = $this->getEventSubform();
+        if (!$eventSubform) {
+            return;
+        }
+
+        $responseData = $this->input('response_data', []);
+        if (!is_array($responseData)) {
+            $responseData = [];
+        }
+
+        foreach ($eventSubform->resolved_field_schema as $field) {
+            $fieldKey = $field['field_key'] ?? null;
+            $fieldType = $field['field_type'] ?? null;
+            $fieldConfig = $field['field_config'] ?? [];
+
+            if (!$fieldKey || in_array($fieldType, ['section_header', 'paragraph'], true)) {
+                continue;
+            }
+
+            $changeable = $fieldConfig['changeable'] ?? true;
+            $defaultExists = array_key_exists('defaultValue', $fieldConfig) || array_key_exists('default', $fieldConfig);
+            if (!$defaultExists) {
+                continue;
+            }
+
+            $defaultValue = $fieldConfig['defaultValue'] ?? $fieldConfig['default'];
+            $hasSubmittedValue = array_key_exists($fieldKey, $responseData);
+            $submittedValue = $responseData[$fieldKey] ?? null;
+
+            if ($changeable === false) {
+                $responseData[$fieldKey] = $defaultValue;
+                continue;
+            }
+
+            if (!$hasSubmittedValue || $submittedValue === null || $submittedValue === '') {
+                $responseData[$fieldKey] = $defaultValue;
+            }
+        }
+
+        $this->merge([
+            'response_data' => $responseData,
+        ]);
+    }
 
     /**
      * Determine if the user is authorized to make this request.
@@ -78,6 +185,7 @@ class CreateEventSubformResponseRequest extends FormRequest
         $rules = [
             'subform_type' => ['required', 'string'],
             'form_parent_id' => ['required', 'string', 'exists:event_subforms,id'],
+            'participant_email' => ['nullable', 'email'],
             'participant_id' => [
                 'required_unless:subform_type,'.implode(',', $participantExempt),
                 'nullable',
@@ -119,6 +227,7 @@ class CreateEventSubformResponseRequest extends FormRequest
             'participant_id.required' => 'A participant must be specified.',
             'participant_id.exists' => 'Participant record not found for this event.',
             'participant_id.unique' => 'This participant already submitted feedback for this event.',
+            'participant_email.email' => 'Please provide a valid email address.',
             'response_data.required' => 'Feedback content is required.',
             'response_data.array' => 'Feedback payload must be a structured array.',
         ];

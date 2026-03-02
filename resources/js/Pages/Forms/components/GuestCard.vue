@@ -30,6 +30,11 @@ export default {
             workflowLoading: false,
             workflowError: null,
             selectedParticipantHash: null,
+            participantFlowChoice: null,
+            participantLookupEmail: '',
+            participantLookupLoading: false,
+            participantLookupError: null,
+            participantLookupSuccess: null,
         };
     },
     computed: {
@@ -79,6 +84,7 @@ export default {
         this.startCountdown();
         this.startFormCountdownTicker();
         this.selectedParticipantHash = this.participantHashes?.slice(-1)?.[0] ?? null;
+        this.hydrateParticipantLookupEmail();
         this.loadWorkflow();
     },
     watch: {
@@ -168,7 +174,179 @@ export default {
         },
         onParticipantHashChange(value) {
             this.selectedParticipantHash = value;
+            this.participantFlowChoice = null;
+            this.participantLookupError = null;
+            this.participantLookupSuccess = null;
+            this.hydrateParticipantLookupEmail();
             this.loadWorkflow();
+        },
+        requiresParticipant(formType) {
+            const exempt = ['preregistration', 'preregistration_biotech', 'preregistration_quizbee'];
+            return !exempt.includes(formType);
+        },
+        canRenderForm(formType) {
+            if (!this.requiresParticipant(formType)) {
+                return true;
+            }
+
+            return !!this.selectedParticipantHash;
+        },
+        getAvailablePreregistrationStep() {
+            const preregTypes = ['preregistration', 'preregistration_biotech', 'preregistration_quizbee'];
+            return this.workflowSteps.find((step) => preregTypes.includes(step.form_type)) || null;
+        },
+        goToPreregistrationStep() {
+            this.participantLookupError = null;
+            this.participantLookupSuccess = null;
+            const step = this.getAvailablePreregistrationStep();
+            if (step) {
+                this.activeTab = step.form_type;
+
+                if (step.status !== 'available') {
+                    this.participantLookupError = `Preregistration is currently ${step.status?.replace('_', ' ') || 'unavailable'}. ${this.getStepMessage(step)}`;
+                }
+                return;
+            }
+
+            this.participantLookupError = 'No preregistration step is configured for this event. Please contact the event organizer.';
+        },
+        setParticipantFlowChoice(choice) {
+            this.participantFlowChoice = choice;
+            this.participantLookupError = null;
+            this.participantLookupSuccess = null;
+
+            if (choice === 'yes') {
+                this.hydrateParticipantLookupEmail();
+            }
+        },
+        normalizeEmail(value) {
+            if (!value || typeof value !== 'string') {
+                return null;
+            }
+
+            const normalized = value.trim().toLowerCase();
+            const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized);
+
+            return isValid ? normalized : null;
+        },
+        getStoredParticipantByHash(hash) {
+            if (!hash) {
+                return null;
+            }
+
+            return this.storedLocalHashedIds.find((item) => item?.participant_hash === hash) || null;
+        },
+        rememberParticipantLookupEmail(email) {
+            const normalized = this.normalizeEmail(email);
+            if (!normalized) {
+                return;
+            }
+
+            this.participantLookupEmail = normalized;
+            localStorage.setItem('participant_lookup_email', normalized);
+        },
+        getRememberedParticipantLookupEmail() {
+            return this.normalizeEmail(localStorage.getItem('participant_lookup_email'));
+        },
+        hydrateParticipantLookupEmail() {
+            const selectedEmail = this.normalizeEmail(this.getStoredParticipantByHash(this.selectedParticipantHash)?.participant?.email);
+            const rememberedEmail = this.getRememberedParticipantLookupEmail();
+
+            const preferredEmail = selectedEmail || rememberedEmail;
+            if (preferredEmail) {
+                this.participantLookupEmail = preferredEmail;
+            }
+        },
+        inferEmailFromPayload(payload) {
+            const directEmail = this.normalizeEmail(payload?.participant?.email);
+            if (directEmail) {
+                return directEmail;
+            }
+
+            const responseData = payload?.data?.response_data ?? payload?.response_data ?? {};
+            const entries = Object.entries(responseData);
+
+            for (const [key, rawValue] of entries) {
+                if (typeof rawValue !== 'string') {
+                    continue;
+                }
+
+                const maybeEmail = this.normalizeEmail(rawValue);
+                if (!maybeEmail) {
+                    continue;
+                }
+
+                if (key.toLowerCase().includes('email')) {
+                    return maybeEmail;
+                }
+            }
+
+            for (const [, rawValue] of entries) {
+                if (typeof rawValue !== 'string') {
+                    continue;
+                }
+
+                const maybeEmail = this.normalizeEmail(rawValue);
+                if (maybeEmail) {
+                    return maybeEmail;
+                }
+            }
+
+            return null;
+        },
+        extractParticipantHash(payload) {
+            return payload?.participant_hash
+                || payload?.data?.participant_hash
+                || payload?.registration?.id
+                || null;
+        },
+        extractParticipant(payload) {
+            return payload?.participant
+                || payload?.data?.participant
+                || null;
+        },
+        async lookupRegisteredParticipant() {
+            this.participantLookupError = null;
+            this.participantLookupSuccess = null;
+
+            const normalizedEmail = this.normalizeEmail(this.participantLookupEmail);
+
+            if (!normalizedEmail) {
+                this.participantLookupError = 'Please enter your registered email address.';
+                return;
+            }
+
+            this.rememberParticipantLookupEmail(normalizedEmail);
+
+            this.participantLookupLoading = true;
+            try {
+                const response = await this.fetchGetApi('api.event.participant.lookup.guest', {
+                    routeParams: this.data.event_id,
+                    email: normalizedEmail,
+                });
+
+                const data = response?.data ?? {};
+
+                if (!data?.found || !data?.participant_hash) {
+                    this.participantLookupError = data?.message || 'No registration found. Please complete preregistration first.';
+                    return;
+                }
+
+                this.selectedParticipantHash = data.participant_hash;
+                this.participantLookupSuccess = 'Registration found. Continuing with your saved participant profile.';
+                this.rememberParticipantLookupEmail(data?.participant?.email || normalizedEmail);
+
+                this.saveLocalHashedIds({
+                    participant_hash: data.participant_hash,
+                    participant: data.participant,
+                });
+
+                await this.loadWorkflow();
+            } catch (error) {
+                this.participantLookupError = 'Unable to validate your registration right now. Please try again.';
+            } finally {
+                this.participantLookupLoading = false;
+            }
         },
         async loadWorkflow() {
             if (!this.data?.event_id) {
@@ -192,6 +370,26 @@ export default {
             }
         },
         handleCreatedModel(payload) {
+            const inferredEmail = this.inferEmailFromPayload(payload);
+            if (inferredEmail) {
+                this.rememberParticipantLookupEmail(inferredEmail);
+            }
+
+            const participantHash = this.extractParticipantHash(payload);
+            const participant = this.extractParticipant(payload);
+
+            if (participantHash) {
+                this.selectedParticipantHash = participantHash;
+
+                this.saveLocalHashedIds({
+                    participant_hash: participantHash,
+                    participant: participant || {
+                        name: payload?.data?.response_data?.name || payload?.response_data?.name || 'Participant',
+                        email: inferredEmail || null,
+                    },
+                });
+            }
+
             this.$emit('createdModel', payload);
             this.loadWorkflow();
         },
@@ -444,6 +642,65 @@ export default {
                     </template>
                 </custom-dropdown>
             </div>
+            <div
+                v-if="activeStep?.status === 'available' && requiresParticipant(activeTab) && !selectedParticipantHash"
+                class="px-3 py-3 bg-white rounded-md border flex flex-col gap-2"
+            >
+                <label class="text-xs font-semibold uppercase text-gray-600">Participant verification</label>
+                <p class="text-sm text-gray-700 leading-snug">
+                    This step requires a registered participant. Have you used this form system before?
+                </p>
+                <div class="flex gap-2">
+                    <button
+                        type="button"
+                        class="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+                        @click="setParticipantFlowChoice('yes')"
+                    >
+                        Yes, I used this before
+                    </button>
+                    <button
+                        type="button"
+                        class="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+                        @click="setParticipantFlowChoice('no')"
+                    >
+                        No, I’m new here
+                    </button>
+                </div>
+
+                <div v-if="participantFlowChoice === 'yes'" class="flex flex-col gap-2">
+                    <p class="text-xs text-gray-600">Enter the email you used before. We’ll check it against participant records.</p>
+                    <div class="flex gap-2">
+                        <input
+                            v-model="participantLookupEmail"
+                            type="email"
+                            class="w-full rounded-md border-gray-300 text-sm"
+                            placeholder="Enter your registered email"
+                        />
+                        <button
+                            type="button"
+                            class="px-3 py-1.5 text-sm bg-AB text-white rounded-md hover:bg-AB/90 disabled:opacity-50"
+                            :disabled="participantLookupLoading"
+                            @click="lookupRegisteredParticipant"
+                        >
+                            {{ participantLookupLoading ? 'Searching...' : 'Find' }}
+                        </button>
+                    </div>
+                </div>
+
+                <div v-if="participantFlowChoice === 'no'" class="flex items-center justify-between gap-2">
+                    <p class="text-xs text-gray-600">Complete preregistration first to continue this step.</p>
+                    <button
+                        type="button"
+                        class="px-3 py-1.5 text-xs bg-AB text-white rounded-md hover:bg-AB/90"
+                        @click="goToPreregistrationStep"
+                    >
+                        Go to preregistration
+                    </button>
+                </div>
+
+                <p v-if="participantLookupSuccess" class="text-xs text-green-700">{{ participantLookupSuccess }}</p>
+                <p v-if="participantLookupError" class="text-xs text-red-600">{{ participantLookupError }}</p>
+            </div>
             <div v-if="workflowLoading" class="text-sm text-gray-500 px-2 text-center w-full flex gap-1 justify-center"><LoaderIcon /> Loading Attached Forms</div>
             <div v-if="workflowError" class="text-sm text-red-600 px-2 text-center w-full">{{ workflowError }}</div>
 
@@ -489,7 +746,7 @@ export default {
                     </div>
 
                     <div v-if="activeKey === 'preregistration_biotech'">
-                        <template v-if="activeStep?.status === 'available'">
+                        <template v-if="activeStep?.status === 'available'"><pre>{{ getFieldSchema('preregistration_biotech') }}</pre>
                             <DynamicFormRenderer
                                 v-if="hasDynamicSchema(activeStep)"
                                 :field-schema="getFieldSchema('preregistration_biotech')"
@@ -535,7 +792,7 @@ export default {
                     </div>
 
                     <div v-if="activeKey === 'registration'">
-                        <template v-if="activeStep?.status === 'available'">
+                        <template v-if="activeStep?.status === 'available' && canRenderForm('registration')">
                             <DynamicFormRenderer
                                 v-if="hasDynamicSchema(activeStep)"
                                 :field-schema="getFieldSchema('registration')"
@@ -555,12 +812,12 @@ export default {
                             />
                         </template>
                         <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
-                            {{ getStepMessage(getStep('registration')) }}
+                            {{ activeStep?.status === 'available' ? 'Select or verify your participant profile to continue.' : getStepMessage(getStep('registration')) }}
                         </div>
                     </div>
 
                     <div v-if="activeKey === 'feedback'">
-                        <template v-if="activeStep?.status === 'available'">
+                        <template v-if="activeStep?.status === 'available' && canRenderForm('feedback')">
                             <DynamicFormRenderer
                                 v-if="hasDynamicSchema(activeStep)"
                                 :field-schema="getFieldSchema('feedback')"
@@ -580,13 +837,13 @@ export default {
                             />
                         </template>
                         <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
-                            {{ getStepMessage(getStep('feedback')) }}
+                            {{ activeStep?.status === 'available' ? 'Select or verify your participant profile to continue.' : getStepMessage(getStep('feedback')) }}
                         </div>
                     </div>
 
                     <!-- Dynamic fallback for any other form types with field_schema -->
                     <div v-if="['preregistration', 'preregistration_biotech', 'preregistration_quizbee', 'registration', 'feedback'].indexOf(activeKey) === -1">
-                        <template v-if="activeStep?.status === 'available' && hasDynamicSchema(activeStep)">
+                        <template v-if="activeStep?.status === 'available' && hasDynamicSchema(activeStep) && canRenderForm(activeKey)">
                             <DynamicFormRenderer
                                 :field-schema="getFieldSchema(activeKey)"
                                 :event-id="getRequirementFormId(activeKey)"
@@ -596,9 +853,10 @@ export default {
                                 :title="getStepTitle(activeKey)"
                                 @createdModel="handleCreatedModel"
                             />
+                            {{  }}
                         </template>
                         <div v-else class="bg-AB text-white p-3 rounded-md shadow leading-none uppercase text-center">
-                            {{ getStepMessage(getStep(activeKey)) || 'This step type is not yet supported in the guest UI.' }}
+                            {{ activeStep?.status === 'available' ? 'Select or verify your participant profile to continue.' : (getStepMessage(getStep(activeKey)) || 'This step type is not yet supported in the guest UI.') }}
                         </div>
                     </div>
                 </template>

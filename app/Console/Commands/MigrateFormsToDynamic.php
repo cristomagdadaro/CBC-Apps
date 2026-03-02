@@ -41,8 +41,8 @@ class MigrateFormsToDynamic extends Command
         'country_address' => ['label' => 'Country', 'type' => 'text', 'placeholder' => 'Philippines'],
         'attendance_type' => ['label' => 'Attendance Type', 'type' => 'radio', 'options' => ['Online', 'In-person']],
         'agreed_tc' => ['label' => 'I hereby certify that the information provided is true, correct, and complete. I authorize the Department of Agriculture – Crop Biotechnology Center (DA-CBC) to collect, process, store, update, and manage my personal data in accordance with Republic Act No. 10173 (Data Privacy Act of 2012) for legitimate purposes related to its programs and web applications.', 'type' => 'checkbox_agreement'],
-        'agreed_updates' => ['label' => 'I consent to receive official updates, announcements, and program-related communications from the DA–Crop Biotechnology Center through my registered email address, mobile number, and/or messaging applications.', 'type' => 'checkbox'],
-        'join_quiz_bee' => ['label' => 'I want to join the Quiz Bee', 'type' => 'checkbox'],
+        'agreed_updates' => ['label' => 'I consent to receive official updates, announcements, and program-related communications from the DA–Crop Biotechnology Center through my registered email address, mobile number, and/or messaging applications.', 'type' => 'checkbox_updates'],
+        'join_quiz_bee' => ['label' => 'Do you want to join the Biotech Quiz Bee tomorrow (March 6, 2026)?', 'type' => 'checkbox'],
         'team_name' => ['label' => 'Team Name', 'type' => 'text', 'placeholder' => 'Enter your team name'],
         'coach_name' => ['label' => 'Coach Name', 'type' => 'text', 'placeholder' => 'Coach full name'],
         'coach_email' => ['label' => 'Coach Email', 'type' => 'email', 'placeholder' => 'coach.email@example.com'],
@@ -226,6 +226,9 @@ class MigrateFormsToDynamic extends Command
         if (str_contains($validationRule, 'boolean') || str_contains($validationRule, 'accepted')) {
             if (str_contains($fieldKey, 'agreed')) {
                 return 'checkbox_agreement';
+            }
+            if (str_contains($fieldKey, 'updates')) {
+                return 'checkbox_updates';
             }
             return 'checkbox';
         }

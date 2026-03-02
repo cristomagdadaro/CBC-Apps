@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EventSubform;
+use App\Models\Participant;
+use App\Models\Registration;
 use App\Services\EventWorkflowService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -18,6 +21,69 @@ class EventWorkflowController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $state,
+        ], 200);
+    }
+
+    public function resolveParticipantByEmail(Request $request, string $event_id): JsonResponse
+    {
+        $validated = $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        $email = strtolower(trim($validated['email']));
+        $participant = Participant::query()
+            ->whereRaw('LOWER(email) = ?', [$email])
+            ->latest('created_at')
+            ->first();
+
+        if (!$participant) {
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'found' => false,
+                    'profile_found' => false,
+                    'message' => 'No participant profile found for this email. Please complete preregistration first.',
+                ],
+            ], 200);
+        }
+
+        $stepIds = EventSubform::query()
+            ->where('event_id', $event_id)
+            ->pluck('id');
+
+        $registration = Registration::query()
+            ->with('participant')
+            ->where('participant_id', $participant->id)
+            ->where(function ($query) use ($event_id, $stepIds) {
+                $query->where('event_subform_id', $event_id);
+
+                if ($stepIds->isNotEmpty()) {
+                    $query->orWhereIn('event_subform_id', $stepIds->toArray());
+                }
+            })
+            ->latest('created_at')
+            ->first();
+
+        if (!$registration) {
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'found' => false,
+                    'profile_found' => true,
+                    'participant' => $participant,
+                    'message' => 'Profile found, but no registration exists for this event yet. Please complete preregistration first.',
+                ],
+            ], 200);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'found' => true,
+                'profile_found' => true,
+                'participant_hash' => $registration->id,
+                'participant' => $registration->participant,
+            ],
         ], 200);
     }
 }

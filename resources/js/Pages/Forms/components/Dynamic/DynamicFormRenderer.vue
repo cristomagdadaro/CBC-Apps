@@ -22,6 +22,7 @@ import DynamicFieldRadio from "./fields/DynamicFieldRadio.vue";
 import DynamicFieldCheckbox from "./fields/DynamicFieldCheckbox.vue";
 import DynamicFieldCheckboxGroup from "./fields/DynamicFieldCheckboxGroup.vue";
 import DynamicFieldAgreement from "./fields/DynamicFieldAgreement.vue";
+import DynamicFieldAgreeUpdates from "./fields/DynamicFieldAgreeUpdates.vue";
 import DynamicFieldLikertScale from "./fields/DynamicFieldLikertScale.vue";
 import DynamicFieldLinearScale from "./fields/DynamicFieldLinearScale.vue";
 import DynamicFieldFile from "./fields/DynamicFieldFile.vue";
@@ -44,6 +45,7 @@ export default {
         DynamicFieldCheckbox,
         DynamicFieldCheckboxGroup,
         DynamicFieldAgreement,
+        DynamicFieldAgreeUpdates,
         DynamicFieldLikertScale,
         DynamicFieldLinearScale,
         DynamicFieldFile,
@@ -200,19 +202,58 @@ export default {
         isLastSection() {
             return this.currentSectionIndex >= this.fieldSections.length - 1 || this.skipToSubmit;
         },
+        regionFieldKey() {
+            return this.fieldSchema.find(f => f.field_type === 'location_region')?.field_key ?? null;
+        },
+        provinceFieldKey() {
+            return this.fieldSchema.find(f => f.field_type === 'location_province')?.field_key ?? null;
+        },
+        cityFieldKey() {
+            return this.fieldSchema.find(f => f.field_type === 'location_city')?.field_key ?? null;
+        },
+        selectedRegionValue() {
+            if (!this.form || !this.regionFieldKey) return null;
+            return this.form.response_data?.[this.regionFieldKey] ?? null;
+        },
+        selectedProvinceValue() {
+            if (!this.form || !this.provinceFieldKey) return null;
+            return this.form.response_data?.[this.provinceFieldKey] ?? null;
+        },
     },
     watch: {
-        'form.response_data.region_address'(value) {
-            if (!this.form || !value) return;
-            this.form.response_data.province_address = null;
-            this.form.response_data.city_address = null;
+        selectedRegionValue(value, oldValue) {
+            if (!this.form) return;
+
+            if (!value) {
+                this.locationProvinces = [];
+                this.locationCities = [];
+                if (this.provinceFieldKey) this.form.response_data[this.provinceFieldKey] = null;
+                if (this.cityFieldKey) this.form.response_data[this.cityFieldKey] = null;
+                return;
+            }
+
+            if (oldValue !== undefined && value !== oldValue) {
+                if (this.provinceFieldKey) this.form.response_data[this.provinceFieldKey] = null;
+                if (this.cityFieldKey) this.form.response_data[this.cityFieldKey] = null;
+                this.locationCities = [];
+            }
+
             this.loadProvinces(value);
-            this.locationCities = [];
         },
-        'form.response_data.province_address'(value) {
-            if (!this.form || !value) return;
-            this.form.response_data.city_address = null;
-            this.loadCities(value, this.form.response_data.region_address);
+        selectedProvinceValue(value, oldValue) {
+            if (!this.form) return;
+
+            if (!value) {
+                this.locationCities = [];
+                if (this.cityFieldKey) this.form.response_data[this.cityFieldKey] = null;
+                return;
+            }
+
+            if (oldValue !== undefined && value !== oldValue && this.cityFieldKey) {
+                this.form.response_data[this.cityFieldKey] = null;
+            }
+
+            this.loadCities(value, this.selectedRegionValue);
         },
     },
     methods: {
@@ -234,6 +275,7 @@ export default {
                 checkbox: 'DynamicFieldCheckbox',
                 checkbox_group: 'DynamicFieldCheckboxGroup',
                 checkbox_agreement: 'DynamicFieldAgreement',
+                checkbox_updates: 'DynamicFieldAgreeUpdates',
                 likert_scale: 'DynamicFieldLikertScale',
                 linear_scale: 'DynamicFieldLinearScale',
                 checkbox_grid: 'DynamicFieldCheckboxGroup', // Fallback for now
@@ -246,6 +288,30 @@ export default {
                 paragraph: 'DynamicFieldParagraph',
             };
             return componentMap[fieldType] || 'DynamicFieldText';
+        },
+        isFieldChangeable(field) {
+            return field?.field_config?.changeable !== false;
+        },
+        isFieldLocked(field) {
+            return !this.isFieldChangeable(field);
+        },
+        getFieldDefaultValue(field) {
+            return field?.field_config?.defaultValue;
+        },
+        applyLockedDefaults(formData = {}) {
+            const updated = { ...formData };
+
+            for (const field of this.fieldSchema) {
+                if (field.field_type === 'section_header' || field.field_type === 'paragraph') continue;
+                if (!this.isFieldLocked(field)) continue;
+
+                const defaultValue = this.getFieldDefaultValue(field);
+                if (defaultValue !== undefined) {
+                    updated[field.field_key] = defaultValue;
+                }
+            }
+
+            return updated;
         },
 
         /**
@@ -276,6 +342,14 @@ export default {
          * Handle field value change and check for skip logic
          */
         handleFieldChange(fieldKey, value, field) {
+            if (this.isFieldLocked(field)) {
+                const defaultValue = this.getFieldDefaultValue(field);
+                if (defaultValue !== undefined) {
+                    this.form.response_data[fieldKey] = defaultValue;
+                }
+                return;
+            }
+
             this.clearFieldError(fieldKey);
             
             // Check for skip logic on choice fields
@@ -366,7 +440,7 @@ export default {
                 const defaultValue = this.getDefaultValueForType(field);
                 data[field.field_key] = this.responseData?.response_data?.[field.field_key] ?? defaultValue;
             }
-            return data;
+            return this.applyLockedDefaults(data);
         },
 
         /**
@@ -379,6 +453,7 @@ export default {
             switch (type) {
                 case 'checkbox':
                 case 'checkbox_agreement':
+                case 'checkbox_updates':
                     return false;
                 case 'checkbox_group':
                     return [];
@@ -443,7 +518,7 @@ export default {
         if (this.isEditMode) {
             this.setFormAction('update');
             this.form.id = this.responseData.id;
-            this.form.response_data = Object.assign({}, this.responseData.response_data || {});
+            this.form.response_data = this.applyLockedDefaults(Object.assign({}, this.responseData.response_data || {}));
         } else {
             this.setFormAction('create');
             this.form.response_data = this.initializeFormData();
@@ -465,11 +540,11 @@ export default {
         
         if (hasLocationFields) {
             this.loadRegions();
-            if (this.form?.response_data?.region_address) {
-                this.loadProvinces(this.form.response_data.region_address);
+            if (this.selectedRegionValue) {
+                this.loadProvinces(this.selectedRegionValue);
             }
-            if (this.form?.response_data?.province_address) {
-                this.loadCities(this.form.response_data.province_address, this.form.response_data.region_address);
+            if (this.selectedProvinceValue) {
+                this.loadCities(this.selectedProvinceValue, this.selectedRegionValue);
             }
         }
     },
@@ -555,18 +630,20 @@ export default {
 
                 <!-- Section Fields -->
                 <template v-for="field in section.fields" :key="field.field_key">
-                    <component
-                        :is="getFieldComponent(field.field_type)"
-                        v-model="form.response_data[field.field_key]"
-                        :field="field"
-                        :error="getFieldError(field.field_key)"
-                        :label="field.label"
-                        :placeholder="field.placeholder"
-                        :required="isFieldRequired(field)"
-                        :label="field.label"
-                        v-bind="isLocationField(field) ? { regions: locationRegions, provinces: locationProvinces, cities: locationCities } : {}"
-                        @update:modelValue="handleFieldChange(field.field_key, $event, field)"
-                    />
+                    <div :class="isFieldLocked(field) ? 'opacity-80 pointer-events-none cursor-not-allowed' : 'cursor-text'" :title="isFieldLocked(field) ? 'Default value is locked for this field.' : ''">
+                        <component
+                            :is="getFieldComponent(field.field_type)"
+                            v-model="form.response_data[field.field_key]"
+                            :field="field"
+                            :error="getFieldError(field.field_key)"
+                            :label="field.label"
+                            :placeholder="field.placeholder"
+                            :required="isFieldRequired(field)"
+                            :disabled="isFieldLocked(field)"
+                            v-bind="isLocationField(field) ? { regions: locationRegions, provinces: locationProvinces, cities: locationCities } : {}"
+                            @update:modelValue="handleFieldChange(field.field_key, $event, field)"
+                        />
+                    </div>
                 </template>
             </template>
         </div>

@@ -132,6 +132,7 @@ class FormFieldDefinition extends BaseModel
                 break;
             case 'checkbox':
             case 'checkbox_agreement':
+            case 'checkbox_updates':
                 $rules[] = 'boolean';
                 break;
             case 'checkbox_group':
@@ -196,6 +197,7 @@ class FormFieldDefinition extends BaseModel
         'checkbox' => ['label' => 'Checkbox', 'has_options' => false, 'icon' => 'checkbox'],
         'checkbox_group' => ['label' => 'Checkbox Group', 'has_options' => true, 'icon' => 'checkboxes'],
         'checkbox_agreement' => ['label' => 'Agreement Checkbox', 'has_options' => false, 'icon' => 'checkbox'],
+        'checkbox_updates' => ['label' => 'Agree to Updates Checkbox', 'has_options' => false, 'icon' => 'checkbox'],
         'checkboxes' => ['label' => 'Checkboxes (Multiple)', 'has_options' => true, 'icon' => 'checkboxes'],
         'date' => ['label' => 'Date', 'has_options' => false, 'icon' => 'calendar'],
         'time' => ['label' => 'Time', 'has_options' => false, 'icon' => 'clock'],

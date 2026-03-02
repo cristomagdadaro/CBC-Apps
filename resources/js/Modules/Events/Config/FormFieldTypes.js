@@ -9,6 +9,7 @@ export const FIELD_TYPES = {
     // Layout Types 
     section_header: {
         label: 'Section Header',
+        title: 'Section Header',
         icon: 'bars-3',
         component: 'FormFieldSectionHeader',
         category: 'layout',
@@ -19,6 +20,7 @@ export const FIELD_TYPES = {
     
     paragraph: {
         label: 'Paragraph',
+        title: 'Paragraph',
         icon: 'document-text',
         component: 'FormFieldParagraph',
         category: 'layout',
@@ -29,6 +31,7 @@ export const FIELD_TYPES = {
     // Basic Input Types
     text: {
         label: 'Short Text',
+        title: 'Short Text',
         icon: 'text',
         component: 'FormFieldText',
         category: 'basic',
@@ -38,6 +41,7 @@ export const FIELD_TYPES = {
     
     textarea: {
         label: 'Long Text',
+        title: 'Long Text',
         icon: 'document-text',
         component: 'FormFieldTextarea',
         category: 'basic',
@@ -47,6 +51,7 @@ export const FIELD_TYPES = {
     
     number: {
         label: 'Number',
+        title: 'Number',
         icon: 'hashtag',
         component: 'FormFieldNumber',
         category: 'basic',
@@ -56,6 +61,7 @@ export const FIELD_TYPES = {
     
     email: {
         label: 'Email',
+        title: 'Email',
         icon: 'envelope',
         component: 'FormFieldEmail',
         category: 'basic',
@@ -65,6 +71,7 @@ export const FIELD_TYPES = {
     
     phone: {
         label: 'Phone',
+        title: 'Phone',
         icon: 'phone',
         component: 'FormFieldPhone',
         category: 'basic',
@@ -74,6 +81,7 @@ export const FIELD_TYPES = {
     
     date: {
         label: 'Date',
+        title: 'Date',
         icon: 'calendar',
         component: 'FormFieldDate',
         category: 'basic',
@@ -83,6 +91,7 @@ export const FIELD_TYPES = {
     
     time: {
         label: 'Time',
+        title: 'Time',
         icon: 'clock',
         component: 'FormFieldTime',
         category: 'basic',
@@ -92,6 +101,7 @@ export const FIELD_TYPES = {
     
     datetime: {
         label: 'Date & Time',
+        title: 'Date & Time',
         icon: 'calendar-days',
         component: 'FormFieldDateTime',
         category: 'basic',
@@ -102,6 +112,7 @@ export const FIELD_TYPES = {
     // Choice Types
     select: {
         label: 'Dropdown',
+        title: 'Dropdown',
         icon: 'chevron-down',
         component: 'FormFieldSelect',
         category: 'choice',
@@ -113,6 +124,7 @@ export const FIELD_TYPES = {
     
     radio: {
         label: 'Radio Buttons',
+        title: 'Radio Buttons',
         icon: 'radio-button',
         component: 'FormFieldRadio',
         category: 'choice',
@@ -124,6 +136,7 @@ export const FIELD_TYPES = {
     
     checkbox: {
         label: 'Checkbox',
+        title: 'Checkbox',
         icon: 'check-square',
         component: 'FormFieldCheckbox',
         category: 'choice',
@@ -133,6 +146,7 @@ export const FIELD_TYPES = {
     
     checkbox_group: {
         label: 'Checkbox Group',
+        title: 'Checkbox Group',
         icon: 'list-bullet',
         component: 'FormFieldCheckboxGroup',
         category: 'choice',
@@ -142,7 +156,8 @@ export const FIELD_TYPES = {
     },
     
     checkbox_agreement: {
-        label: 'Agreement Checkbox',
+        label: 'I hereby certify that the information provided is true, correct, and complete. I authorize the Department of Agriculture – Crop Biotechnology Center (DA-CBC) to collect, process, store, update, and manage my personal data in accordance with Republic Act No. 10173 (Data Privacy Act of 2012) for legitimate purposes related to its programs and web applications.',
+        title: 'Agreement Checkbox',
         icon: 'shield-check',
         component: 'FormFieldAgreement',
         category: 'choice',
@@ -150,9 +165,20 @@ export const FIELD_TYPES = {
         defaultConfig: { agreementText: 'I agree to the terms and conditions' },
     },
 
+    checkbox_updates: {
+        label: 'I consent to receive official updates, announcements, and program-related communications from the DA–Crop Biotechnology Center through my registered email address, mobile number, and/or messaging applications.',
+        title: 'Agree to Updates Checkbox',
+        icon: 'shield-check',
+        component: 'FormFieldAgreeUpdates',
+        category: 'choice',
+        supportedValidations: ['required'],
+        defaultConfig: { agreementText: 'I agree to receive updates and communications from the DA–Crop Biotechnology Center' },
+    },
+
     // Scale Types
     likert_scale: {
         label: 'Likert Scale',
+        title: 'Likert Scale',
         icon: 'star',
         component: 'FormFieldLikertScale',
         category: 'scale',
@@ -166,6 +192,7 @@ export const FIELD_TYPES = {
     
     linear_scale: {
         label: 'Linear Scale',
+        title: 'Linear Scale',
         icon: 'chart-bar',
         component: 'FormFieldLinearScale',
         category: 'scale',
@@ -181,6 +208,7 @@ export const FIELD_TYPES = {
     // Grid Types
     checkbox_grid: {
         label: 'Checkbox Grid',
+        title: 'Checkbox Grid',
         icon: 'table-cells',
         component: 'FormFieldCheckboxGrid',
         category: 'grid',
@@ -192,6 +220,7 @@ export const FIELD_TYPES = {
     
     radio_grid: {
         label: 'Radio Grid',
+        title: 'Radio Grid',
         icon: 'table-cells',
         component: 'FormFieldRadioGrid',
         category: 'grid',
@@ -204,6 +233,7 @@ export const FIELD_TYPES = {
     // Special Types
     file: {
         label: 'File Upload',
+        title: 'File Upload',
         icon: 'paper-clip',
         component: 'FormFieldFile',
         category: 'special',
@@ -217,6 +247,7 @@ export const FIELD_TYPES = {
     // Location Types
     location_city: {
         label: 'City (PH)',
+        title: 'City (PH)',
         icon: 'map-pin',
         component: 'FormFieldLocationCity',
         category: 'location',
@@ -226,6 +257,7 @@ export const FIELD_TYPES = {
     
     location_province: {
         label: 'Province (PH)',
+        title: 'Province (PH)',
         icon: 'map',
         component: 'FormFieldLocationProvince',
         category: 'location',
@@ -235,6 +267,7 @@ export const FIELD_TYPES = {
     
     location_region: {
         label: 'Region (PH)',
+        title: 'Region (PH)',
         icon: 'globe-asia-australia',
         component: 'FormFieldLocationRegion',
         category: 'location',
