@@ -72,9 +72,12 @@ export default {
 
 <template>
     <div class="relative">
-        <label v-if="field.label" class="block text-sm font-medium text-gray-700 mb-1">
-            {{ field.label }}<span v-if="required" class="text-red-600">*</span>
-        </label>
+        <div v-if="field.label" class="text-xs text-gray-700 dark:text-gray-200 flex items-center justify-between">
+            <span class="flex gap-0.5 whitespace-nowrap">{{ field.label }} <b v-if="required" class="text-red-500 ">*</b></span>
+            <transition-container type="slide-bottom">
+                <InputError v-show="!!error" class="" :message="error" />
+            </transition-container>
+        </div>
         <select
             :id="field.field_key"
             v-model="inputValue"
@@ -93,8 +96,6 @@ export default {
             </option>
         </select>
         <div v-if="field.description" class="text-xs text-gray-500 mt-1">{{ field.description }}</div>
-        <transition-container type="slide-bottom">
-            <InputError v-show="!!error" class="mt-1" :message="error" />
-        </transition-container>
+        
     </div>
 </template>

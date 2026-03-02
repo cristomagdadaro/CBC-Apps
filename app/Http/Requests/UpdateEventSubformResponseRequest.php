@@ -170,6 +170,8 @@ class UpdateEventSubformResponseRequest extends FormRequest
 
         $rules = [
             'response_data' => ['required', 'array'],
+            'skipped_field_keys' => ['nullable', 'array'],
+            'skipped_field_keys.*' => ['string'],
         ];
 
         // Check for dynamic field schema first
@@ -177,11 +179,18 @@ class UpdateEventSubformResponseRequest extends FormRequest
             $eventSubform = $this->getEventSubform();
             $dynamicService = app(DynamicValidationService::class);
             $dynamicRules = $dynamicService->buildRulesFromSchema($eventSubform->resolved_field_schema);
+            $skippedFieldKeys = collect($this->input('skipped_field_keys', []))
+                ->filter(fn ($value) => is_string($value) && trim($value) !== '')
+                ->values()
+                ->all();
             
             // Make rules nullable for partial updates
             $dynamicRules = $this->makeRulesNullable($dynamicRules);
             
             foreach ($dynamicRules as $field => $fieldRules) {
+                if (in_array($field, $skippedFieldKeys, true)) {
+                    continue;
+                }
                 $rules["response_data.$field"] = $fieldRules;
             }
         } else {

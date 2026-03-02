@@ -41,17 +41,17 @@ export default {
 
 <template>
     <div class="relative">
-        <label v-if="field.label" class="block text-sm font-medium text-gray-700 mb-2">
-            {{ field.label }}<span v-if="required" class="text-red-600">*</span>
+        <label v-if="field.label" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            {{ field.label }}<span v-if="required" class="text-red-600 dark:text-red-400">*</span>
         </label>
-        <div v-if="field.description" class="text-xs text-gray-500 mb-2">{{ field.description }}</div>
+        <div v-if="field.description" class="text-xs text-gray-600 dark:text-gray-400 mb-2">{{ field.description }}</div>
         
-        <div class="p-2 bg-gray-50 rounded-md" :class="{'border border-red-500': error}">
+        <div class="p-2 bg-gray-50 dark:bg-gray-800 rounded-md transition-colors" :class="{'border border-red-500 dark:border-red-600': error, 'border border-gray-200 dark:border-gray-700': !error}">
             <div class="flex items-center justify-between mb-1">
-                <span v-if="minLabel" class="text-xs text-gray-600">{{ minLabel }}</span>
-                <span v-if="maxLabel" class="text-xs text-gray-600 ml-auto">{{ maxLabel }}</span>
+                <span v-if="minLabel" class="text-xs text-gray-600 dark:text-gray-400">{{ minLabel }}</span>
+                <span v-if="maxLabel" class="text-xs text-gray-600 dark:text-gray-400 ml-auto">{{ maxLabel }}</span>
             </div>
-            <div class="flex items-center gap-1 justify-center overflow-x-auto py-1">
+            <div class="flex items-center gap-1 justify-evenly overflow-x-auto py-1">
                 <label 
                     v-for="value in scaleValues" 
                     :key="value"
@@ -65,10 +65,10 @@ export default {
                         class="sr-only"
                     />
                     <span 
-                        class="w-7 h-7 flex items-center justify-center rounded-full border-2 transition-all text-sm"
+                        class="w-7 h-7 flex items-center justify-center rounded-full border-2 transition-all text-sm font-semibold"
                         :class="{
                             'bg-AB text-white border-AB': inputValue === value,
-                            'bg-white border-gray-300 group-hover:border-AB': inputValue !== value
+                            'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 group-hover:border-AB dark:group-hover:border-blue-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20': inputValue !== value
                         }"
                     >
                         {{ value }}

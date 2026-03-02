@@ -2,7 +2,6 @@
 import ApplicationMark from '@/Components/ApplicationMark.vue';
 import Banner from '@/Components/Banner.vue';
 import NotificationToast from '@/Components/NotificationToast.vue';
-import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import SwitchBtn from '@/Components/Buttons/SwitchBtn.vue';
 import { router } from '@inertiajs/vue3'

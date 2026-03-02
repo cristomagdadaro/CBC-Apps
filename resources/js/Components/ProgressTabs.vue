@@ -82,7 +82,7 @@ export default {
                     <div v-if="idx === current"
                          class="ml-2 text-xs leading-none whitespace-nowrap"
                          :class="{
-                 'text-blue-700 font-medium': stepStatus(idx) === 'active',
+                 'text-blue-700 dark:text-blue-100 font-medium': stepStatus(idx) === 'active',
                  'text-gray-700': stepStatus(idx) === 'done',
                }"
                     >
@@ -104,7 +104,7 @@ export default {
             <div class="w-full bg-gray-200 h-2 rounded">
                 <div class="bg-blue-600 h-2 rounded transition-all" :style="{ width: percent + '%' }"/>
             </div>
-            <div class="text-right text-xs text-gray-500 mt-1">{{ percent }}% complete</div>
+            <div class="text-right text-xs text-gray-500 dark:text-gray-300 mt-1">{{ percent }}% complete</div>
         </div>
     </div>
 </template>

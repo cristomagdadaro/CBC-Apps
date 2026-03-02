@@ -43,6 +43,7 @@ export default class SubformResponse extends DtoSubformResponse {
             form_parent_id: null,
             participant_id: null,
             response_data: {},
+            skipped_field_keys: [],
         }
     }
 
@@ -54,6 +55,7 @@ export default class SubformResponse extends DtoSubformResponse {
             form_parent_id: data?.form_parent_id,
             participant_id: data?.participant_id,
             response_data: data?.response_data,
+            skipped_field_keys: [],
         }
     }
 

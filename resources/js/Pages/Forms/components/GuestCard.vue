@@ -35,6 +35,7 @@ export default {
             participantLookupLoading: false,
             participantLookupError: null,
             participantLookupSuccess: null,
+            isInitialized: false,
         };
     },
     computed: {
@@ -86,6 +87,7 @@ export default {
         this.initializeParticipantContext();
         this.hydrateParticipantLookupEmail();
         this.loadWorkflow();
+        this.isInitialized = true;
     },
     watch: {
         participantHashes: {
@@ -98,7 +100,9 @@ export default {
             },
         },
         selectedParticipantHash(newValue) {
-            this.persistParticipantContext(newValue);
+            if (this.isInitialized) {
+                this.persistParticipantContext(newValue);
+            }
         },
     },
     beforeDestroy() {
@@ -157,10 +161,10 @@ export default {
         },
         initializeParticipantContext() {
             const urlHash = this.getParticipantHashFromUrl();
-            const sessionHash = this.getParticipantHashFromSession();
             const localHash = this.participantHashes?.slice(-1)?.[0] ?? null;
 
-            this.selectedParticipantHash = urlHash || sessionHash || localHash || null;
+            // Only restore from URL params, not sessionStorage (prevents auto-restore on reload)
+            this.selectedParticipantHash = urlHash || localHash || null;
         },
         startFormCountdownTicker() {
             this.formCountdownNow = Date.now();
@@ -237,6 +241,22 @@ export default {
             this.participantLookupError = null;
             this.participantLookupSuccess = null;
             this.hydrateParticipantLookupEmail();
+            this.loadWorkflow();
+        },
+        clearParticipant() {
+            this.selectedParticipantHash = null;
+            this.participantFlowChoice = null;
+            this.participantLookupError = null;
+            this.participantLookupSuccess = null;
+            this.persistParticipantContext(null);
+            this.loadWorkflow();
+        },
+        clearParticipant() {
+            this.selectedParticipantHash = null;
+            this.participantFlowChoice = null;
+            this.participantLookupError = null;
+            this.participantLookupSuccess = null;
+            this.persistParticipantContext(null);
             this.loadWorkflow();
         },
         requiresParticipant(formType) {
@@ -434,7 +454,7 @@ export default {
                 const response = await this.fetchGetApi('api.event.workflow.state.guest', {
                     routeParams: this.data.event_id,
                     participant_id: this.selectedParticipantHash,
-                });
+                }); console.log(response);
                 this.workflowState = response?.data ?? null;
                 this.setActiveTabFromWorkflow();
             } catch (error) {
@@ -443,7 +463,7 @@ export default {
                 this.workflowLoading = false;
             }
         },
-        handleCreatedModel(payload) {
+        async handleCreatedModel(payload) {
             const inferredEmail = this.inferEmailFromPayload(payload);
             if (inferredEmail) {
                 this.rememberParticipantLookupEmail(inferredEmail);
@@ -465,7 +485,7 @@ export default {
             }
 
             this.$emit('createdModel', payload);
-            this.loadWorkflow();
+            await this.loadWorkflow();
         },
         setActiveTabFromWorkflow() {
             if (!this.workflowSteps?.length) {
@@ -636,7 +656,7 @@ export default {
 </script>
 
 <template>
-    <div v-if="!!data" id="form-background" class="border p-2 rounded-md flex flex-col gap-2 bg-gray-100 max-w-xl drop-shadow-lg mx-4 lg:mx-0 my-4 md:mt-0" :style="styleFor('form-background')">
+    <div v-if="!!data" id="form-background" class="border border-gray-300 dark:border-gray-700 p-2 rounded-md flex flex-col gap-2 bg-gray-100 dark:bg-gray-800 max-w-xl drop-shadow-lg dark:drop-shadow-dark mx-4 lg:mx-0 my-4 md:mt-0 transition-colors" :style="styleFor('form-background')">
         <div id="form-header-box" class="flex flex-row bg-AB gap-2 text-white p-2 rounded-md justify-between shadow py-4" :style="styleFor('form-header-box')">
             <div class="flex flex-col justify-center drop-shadow">
                 <label class="leading-tight font-semibold text-2xl">{{ data.title }}</label>
@@ -650,13 +670,13 @@ export default {
             </div>
         </div>
 
-        <div class="flex flex-col items-center justify-center p-2 rounded-md  drop-shadow">
-            <span v-if="isExpired" class="text-sm uppercase leading-none text-red-600">Event has ended</span>
-            <span v-else class="text-sm uppercase leading-none">Event starts in </span>
-            <label class="leading-none font-bold text-4xl" :class="{'text-red-600' : isExpired}">{{ countdownDisplay }}</label>
+        <div class="flex flex-col items-center justify-center p-2 rounded-md bg-white dark:bg-gray-700 transition-colors">
+            <span v-if="isExpired" class="text-sm uppercase leading-none text-red-600 dark:text-red-400">Event has ended</span>
+            <span v-else class="text-sm uppercase leading-none text-gray-600 dark:text-gray-300">Event starts in </span>
+            <label class="leading-none font-bold text-4xl text-gray-900 dark:text-white" :class="{'text-red-600 dark:text-red-400' : isExpired}">{{ countdownDisplay }}</label>
         </div>
 
-        <div class="flex relative items-center drop-shadow">
+        <div class="flex relative items-center">
             <div id="form-time-from" class="bg-AA text-center py-3 text-white rounded-md flex flex-col leading-none w-full" :style="styleFor('form-time-from')">
                 <label class="font-bold">{{ formatTime(data.time_from) }} {{ formatDate(data.date_from) }}</label>
                 <span class="text-xs">Start</span>
@@ -670,35 +690,35 @@ export default {
             </div>
         </div>
 
-        <div  class="px-1">
+        <div class="px-1 py-3 text-gray-700 dark:text-gray-200 transition-colors space-y-2 text-sm">
             <div v-if="data.venue">
                 <span class="font-bold uppercase">Venue: </span>
                 <label class="break-all overflow-ellipsis">{{ data.venue }}</label>
             </div>
-            <p v-if="data.venue" class="text-justify break-all">{{ data.details }}</p>
+            <p v-if="data.venue" class="text-justify break-all text-sm">{{ data.details }}</p>
         </div>
-        <div v-if="currentMaxSlots && currentMaxSlots > 0" class="px-1 flex gap-2 justify-between">
+        <div v-if="currentMaxSlots && currentMaxSlots > 0" class="px-1 flex gap-2 justify-between text-gray-700 dark:text-gray-200 transition-colors">
             <div>
                 <span class="font-bold uppercase">Max Slots: </span>
                 <label>{{ currentMaxSlots }}</label>
             </div>
             <div>
                 <span class="font-bold uppercase">Slots Available: </span>
-                <span v-if="isFormFull(activeTab)" class="text-red-600">FULL</span>
+                <span v-if="isFormFull(activeTab)" class="text-red-600 dark:text-red-400">FULL</span>
                 <label v-else>{{ slotsAvailable }}</label>
             </div>
         </div>
-        <div v-show="data.is_suspended" v-if="data.is_suspended" class="flex flex-col border-t p-2 bg-yellow-300 w-full min-w-full rounded-md min-h-[3rem]">
-            <span class="font-bold uppercase leading-none text-center">This Form is suspended</span>
-            <span class="leading-none text-xs text-center">unable to accept registration</span>
+        <div v-show="data.is_suspended" v-if="data.is_suspended" class="flex flex-col border-t p-2 bg-yellow-200 dark:bg-yellow-900/30 dark:border-yellow-700 w-full min-w-full rounded-md min-h-[3rem] transition-colors">
+            <span class="font-bold uppercase leading-none text-center text-yellow-800 dark:text-yellow-200">This Form is suspended</span>
+            <span class="leading-none text-xs text-center text-yellow-700 dark:text-yellow-300">unable to accept registration</span>
         </div>
-        <div v-show="isExpired" v-else-if="isExpired" class="flex flex-col border-t p-2 bg-yellow-300 w-full min-w-full rounded-md min-h-[3rem]">
-            <span class="font-bold uppercase leading-none text-center">This Form has expired</span>
-            <span class="leading-none text-xs text-center">unable to accept registration</span>
+        <div v-show="isExpired" v-else-if="isExpired" class="flex flex-col border-t p-2 bg-yellow-200 dark:bg-yellow-900/30 dark:border-yellow-700 w-full min-w-full rounded-md min-h-[3rem] transition-colors">
+            <span class="font-bold uppercase leading-none text-center text-yellow-800 dark:text-yellow-200">This Form has expired</span>
+            <span class="leading-none text-xs text-center text-yellow-700 dark:text-yellow-300">unable to accept registration</span>
         </div>
         <div v-else class="flex flex-col gap-1">
-            <div v-if="participantHashes?.length" class="flex items-center gap-2 px-2 py-2 bg-white rounded-md border">
-                <label class="text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">Continue as</label>
+            <div v-if="participantHashes?.length" class="flex items-center gap-2 px-2 py-2 bg-white dark:bg-gray-800 rounded-md border dark:border-gray-800">
+                <label class="text-xs font-semibold text-gray-500 dark:text-gray-100 uppercase whitespace-nowrap">Continue as</label>
                 <custom-dropdown
                     @selectedChange="onParticipantHashChange"
                     :value="selectedParticipantHash"
@@ -721,6 +741,15 @@ export default {
                         </svg>
                     </template>
                 </custom-dropdown>
+                <button
+                    v-if="selectedParticipantHash"
+                    type="button"
+                    @click="clearParticipant"
+                    class="px-2 py-1 text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 border border-red-200 dark:border-red-800 rounded-md transition-colors"
+                    title="Clear participant selection"
+                >
+                    Clear
+                </button>
             </div>
             <div
                 v-if="activeStep?.status === 'available' && requiresParticipant(activeTab) && !selectedParticipantHash"
@@ -781,8 +810,8 @@ export default {
                 <p v-if="participantLookupSuccess" class="text-xs text-green-700">{{ participantLookupSuccess }}</p>
                 <p v-if="participantLookupError" class="text-xs text-red-600">{{ participantLookupError }}</p>
             </div>
-            <div v-if="workflowLoading" class="text-sm text-gray-500 px-2 text-center w-full flex gap-1 justify-center"><LoaderIcon /> Loading Attached Forms</div>
-            <div v-if="workflowError" class="text-sm text-red-600 px-2 text-center w-full">{{ workflowError }}</div>
+            <div v-if="workflowLoading" class="text-sm text-gray-500 dark:text-gray-400 px-2 text-center w-full flex gap-1 justify-center transition-colors"><LoaderIcon /> Loading Attached Forms</div>
+            <div v-if="workflowError" class="text-sm text-red-600 dark:text-red-400 px-2 text-center w-full transition-colors">{{ workflowError }}</div>
 
             <TabNavigation
                 v-if="workflowTabs.length"
@@ -792,12 +821,12 @@ export default {
                 <template #default="{ activeKey }">
                     <div
                         v-if="getStepCountdownMeta(getStep(activeKey))"
-                        class="bg-white px-3 pt-3 flex items-center justify-between"
+                        class="bg-white dark:bg-gray-800 px-3 py-2 flex items-center justify-between border-b border-gray-200 dark:border-gray-700 transition-colors"
                     >
-                        <span class="text-xs uppercase text-gray-600">
+                        <span class="text-xs uppercase text-gray-600 dark:text-gray-300">
                             {{ getStepCountdownMeta(getStep(activeKey)).label }}
                         </span>
-                        <span class="text-xs" :class="{ 'text-red-600': getStepCountdownMeta(getStep(activeKey)).label === 'Closes in' }">
+                        <span class="text-xs text-gray-700 dark:text-gray-200" :class="{ 'text-red-600 dark:text-red-500': getStepCountdownMeta(getStep(activeKey)).label === 'Closes in' }">
                             {{ getStepCountdownMeta(getStep(activeKey)).value }}
                         </span>
                     </div>

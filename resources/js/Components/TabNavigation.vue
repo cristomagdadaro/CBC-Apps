@@ -76,7 +76,7 @@ export default {
 </script>
 
 <template>
-    <div class="border-b border-gray-200 dark:border-gray-700">
+    <div class="bg-white dark:bg-gray-700 border-b border-gray-200 dark:border-gray-700 transition-colors">
         <nav class="flex space-x-4" aria-label="Tabs">
             <button
                 v-for="tab in tabs"
@@ -89,8 +89,8 @@ export default {
                     tab.disabled
                         ? 'text-gray-400 dark:text-gray-500 cursor-not-allowed border-transparent'
                         : activeKey === tab.key
-                            ? 'text-blue-600 dark:text-blue-400 border-blue-500 bg-blue-50/60 dark:bg-gray-800'
-                            : 'text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/40',
+                            ? 'text-blue-600 dark:text-blue-400 border-blue-500 bg-blue-50/60 dark:bg-blue-950/40'
+                            : 'text-gray-600 dark:text-gray-300 border-transparent hover:text-gray-700 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50',
                 ]"
             >
                 <slot name="icon" :tab="tab" v-if="tab.icon">

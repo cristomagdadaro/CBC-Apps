@@ -125,6 +125,7 @@ class DynamicValidationService
                 break;
 
             case 'likert':
+            case 'likert_scale':
             case 'linear_scale':
             case 'rating':
                 $rules[] = 'integer';
@@ -151,10 +152,10 @@ class DynamicValidationService
         }
 
         // Generic constraints
-        if (isset($validationConfig['min']) && !in_array($fieldType, ['likert', 'linear_scale', 'rating'])) {
+        if (isset($validationConfig['min']) && !in_array($fieldType, ['likert', 'likert_scale', 'linear_scale', 'rating'])) {
             $rules[] = 'min:' . $validationConfig['min'];
         }
-        if (isset($validationConfig['max']) && !in_array($fieldType, ['likert', 'linear_scale', 'rating'])) {
+        if (isset($validationConfig['max']) && !in_array($fieldType, ['likert', 'likert_scale', 'linear_scale', 'rating'])) {
             $rules[] = 'max:' . $validationConfig['max'];
         }
         if (!empty($validationConfig['pattern']) && $fieldType !== 'phone') {

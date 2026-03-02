@@ -44,8 +44,18 @@
         }
     }
 
+    :root {
+        --gradient-start: #42C2FF;
+        --gradient-end: #EC8305;
+    }
+
+    .dark {
+        --gradient-start: #0F172A;
+        --gradient-end: #334155;
+    }
+
     .bg-gradient-radial {
-        background: radial-gradient(circle, #42C2FF, #EC8305);
+        background: radial-gradient(circle, var(--gradient-start), var(--gradient-end));
         background-size: 200% 200%;
         position: absolute;
         width: 300%;

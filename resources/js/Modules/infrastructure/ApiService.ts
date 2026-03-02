@@ -5,6 +5,7 @@ import ConsoleLogger from "@/Modules/shared/infrastructure/ConsoleLogger";
 export default abstract class ApiService {
     public axiosInstance: any;
     public processing: boolean = false;
+    private csrfReady: boolean = false;
 
     public _apiIndex: string;
     public _apiPost: string;
@@ -18,7 +19,22 @@ export default abstract class ApiService {
     private _SearchFields: object = {};
 
     protected constructor() {
-        this.axiosInstance = axios.create({});
+        this.axiosInstance = axios.create({
+            withCredentials: true,
+            xsrfCookieName: 'XSRF-TOKEN',
+            xsrfHeaderName: 'X-XSRF-TOKEN',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+
+        if (typeof document !== 'undefined') {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (csrfToken) {
+                this.axiosInstance.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
+                this.csrfReady = true;
+            }
+        }
 
         // default search fields
         this._SearchFields = {
@@ -29,6 +45,23 @@ export default abstract class ApiService {
             page: 1,
             per_page: 10
         };
+    }
+
+    private async ensureCsrfProtection(): Promise<void> {
+        if (this.csrfReady) {
+            return;
+        }
+
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        try {
+            await this.axiosInstance.get('/sanctum/csrf-cookie');
+            this.csrfReady = true;
+        } catch (error) {
+            ConsoleLogger.warn('Unable to prefetch CSRF cookie, proceeding with current headers.', error);
+        }
     }
 
     private isBinaryValue(value: any): boolean {
@@ -219,6 +252,7 @@ export default abstract class ApiService {
     async post(url: string, params?: any, config?: any) {
         this.processing = true;
         try {
+            await this.ensureCsrfProtection();
             ConsoleLogger.debug('POST Parameters:', params);
             const routeParams = config?.routeParams;
             const cleanConfig = config ? { ...config } : undefined;
@@ -249,7 +283,7 @@ export default abstract class ApiService {
             ConsoleLogger.debug('POST Response Data:', response.data);
             return response;
         } catch (error) {
-            this.processing = false;
+            this.processing = false; console.log(error);
             ConsoleLogger.error('POST Error:', error);
             this.notifyError(error, 'Failed to submit data.');
             throw error;
@@ -260,31 +294,31 @@ export default abstract class ApiService {
 
         this.processing = true;
         try {
+            await this.ensureCsrfProtection();
             ConsoleLogger.debug('PUT Parameters:', params);
-            // @ts-ignore
-            let response = '';
+            let response: any = null;
             const shouldUseMultipart = !(params instanceof FormData) && this.hasBinaryValue(params);
 
             if (shouldUseMultipart) {
                 const formData = this.buildFormData(params || {});
                 formData.append('_method', 'PUT');
                 if (!id) {
-                    response = await axios.post(`${route(url)}`, formData, {
+                    response = await this.axiosInstance.post(`${route(url)}`, formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data',
                         },
                     });
                 } else {
-                    response = await axios.post(`${route(url, id)}`, formData, {
+                    response = await this.axiosInstance.post(`${route(url, id)}`, formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data',
                         },
                     });
                 }
             } else if (!id) {
-               response = await axios.put(`${route(url)}`, params);
+               response = await this.axiosInstance.put(`${route(url)}`, params);
             } else {
-               response = await axios.put(`${route(url, id)}`, params);
+               response = await this.axiosInstance.put(`${route(url, id)}`, params);
             }
             this.processing = false;
             ConsoleLogger.debug('PUT Response Data:', response.data);
@@ -301,9 +335,10 @@ export default abstract class ApiService {
     async delete(url: string, id: any) {
         this.processing = true;
         try {
+            await this.ensureCsrfProtection();
             ConsoleLogger.debug('DELETE Parameters:', id);
             // @ts-ignore
-            const response = await axios.delete(route(url, id), id);
+            const response = await this.axiosInstance.delete(route(url, id), id);
             this.processing = false;
             ConsoleLogger.debug('DELETE Response Data:', response.data);
             this.notifyWarning('Data deleted successfully.');

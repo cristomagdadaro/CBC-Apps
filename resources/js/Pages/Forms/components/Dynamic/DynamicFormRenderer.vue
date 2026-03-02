@@ -128,6 +128,7 @@ export default {
             currentSectionIndex: 0,
             skipToSubmit: false,
             skippedSections: new Set(),
+            minAccessibleSectionIndex: 0,
         };
     },
     computed: {
@@ -184,6 +185,21 @@ export default {
             }
 
             return sections.length > 0 ? sections : [{ header: null, fields: this.sortedFields, index: 0 }];
+        },
+        /**
+         * Get all field keys from skipped sections
+         */
+        skippedFieldKeys() {
+            const keys = new Set();
+            for (let i = 0; i < this.fieldSections.length; i++) {
+                if (this.skippedSections.has(i)) {
+                    const section = this.fieldSections[i];
+                    section.fields.forEach(field => {
+                        keys.add(field.field_key);
+                    });
+                }
+            }
+            return keys;
         },
         /**
          * Check if form has any skip logic configured
@@ -362,6 +378,17 @@ export default {
         },
 
         /**
+         * Check if a field is required and cannot be skipped
+         */
+        isFieldActuallyRequired(field) {
+            // If the field is in a skipped section, it's not required (can be skipped)
+            if (this.skippedFieldKeys.has(field.field_key)) {
+                return false;
+            }
+            return this.isFieldRequired(field);
+        },
+
+        /**
          * Get error message for a field
          */
         getFieldError(fieldKey) {
@@ -407,6 +434,12 @@ export default {
             if (targetKey === '__submit__') {
                 // Skip to submit - mark all remaining sections as skipped
                 this.skipToSubmit = true;
+                // Mark all sections from currentSectionIndex to end as skipped
+                for (let i = this.currentSectionIndex + 1; i < this.fieldSections.length; i++) {
+                    this.skippedSections.add(i);
+                }
+                // Keep earlier sections accessible; only skipped sections are blocked
+                this.minAccessibleSectionIndex = 0;
                 return;
             }
 
@@ -420,8 +453,26 @@ export default {
                 for (let i = this.currentSectionIndex + 1; i < targetIndex; i++) {
                     this.skippedSections.add(i);
                 }
+                // Keep origin and earlier sections accessible; skipped range remains blocked
+                this.minAccessibleSectionIndex = 0;
                 this.currentSectionIndex = targetIndex;
             }
+        },
+
+        canAccessSection(index) {
+            if (!this.hasSectionHeaders) {
+                return true;
+            }
+
+            if (index < 0 || index >= this.fieldSections.length) {
+                return false;
+            }
+
+            if (this.skippedSections.has(index)) {
+                return false;
+            }
+
+            return index >= this.minAccessibleSectionIndex;
         },
 
         /**
@@ -442,22 +493,22 @@ export default {
          * Move to previous section
          */
         goToPreviousSection() {
-            if (this.currentSectionIndex > 0) {
+            if (this.currentSectionIndex > this.minAccessibleSectionIndex) {
                 let prevIndex = this.currentSectionIndex - 1;
                 // Skip any sections that were marked as skipped (going backwards)
-                while (this.skippedSections.has(prevIndex) && prevIndex > 0) {
+                while (this.skippedSections.has(prevIndex) && prevIndex > this.minAccessibleSectionIndex) {
                     prevIndex--;
                 }
-                this.currentSectionIndex = prevIndex;
-                this.skipToSubmit = false; // Reset submit flag when going back
+                
+                // Only allow going back if we haven't reached the minimum accessible index
+                if (prevIndex >= this.minAccessibleSectionIndex) {
+                    this.currentSectionIndex = prevIndex;
+                    this.skipToSubmit = false; // Reset submit flag when going back
+                }
             }
         },
         onSectionTabChange(index) {
-            if (!this.hasSectionHeaders) {
-                return;
-            }
-
-            if (index < 0 || index >= this.fieldSections.length) {
+            if (!this.canAccessSection(index)) {
                 return;
             }
 
@@ -524,6 +575,13 @@ export default {
          */
         async handleSubmit() {
             if (this.isSubmitting) return;
+
+            this.form.skipped_field_keys = Array.from(this.skippedFieldKeys);
+            
+            // Remove validation errors for skipped fields before submission
+            this.skippedFieldKeys.forEach(fieldKey => {
+                this.clearFieldError(fieldKey);
+            });
             
             this.isSubmitting = true;
             try {
@@ -541,8 +599,9 @@ export default {
             const response = await this.submitCreate();
             if (response?.status === 201) {
                 this.model.response = response.data;
-                this.pendingCreatedModel = response.data;
+                this.pendingCreatedModel = null;
                 this.showSuccess = true;
+                this.$emit('createdModel', response.data);
             } else if (response?.status >= 400) {
                 this.$emit('error', response);
             }
@@ -563,11 +622,6 @@ export default {
          */
         dismissSuccess() {
             this.showSuccess = false;
-
-            if (this.pendingCreatedModel) {
-                this.$emit('createdModel', this.pendingCreatedModel);
-                this.pendingCreatedModel = null;
-            }
         },
         buildSuccessImageName() {
             const eventPart = String(this.successEventId || 'event').trim();
@@ -619,11 +673,13 @@ export default {
             this.setFormAction('update');
             this.form.id = this.responseData.id;
             this.form.response_data = this.applyLockedDefaults(Object.assign({}, this.responseData.response_data || {}));
+            this.form.skipped_field_keys = [];
         } else {
             this.setFormAction('create');
             this.form.response_data = this.initializeFormData();
             this.form.form_parent_id = this.eventId;
             this.form.response_data.event_id = this.config?.event_id ?? this.eventId;
+            this.form.skipped_field_keys = [];
         }
         
         this.form.subform_type = this.resolvedSubformType;
@@ -655,8 +711,8 @@ export default {
     <form 
         v-if="form" 
         @submit.prevent="handleSubmit()" 
-        class="py-3 relative bg-white px-3" 
-        :class="{'border border-red-600 rounded-md': form.hasErrors}"
+        class="py-3 relative bg-white dark:bg-gray-800 px-3 transition-colors" 
+        :class="{'border border-red-600 dark:border-red-600 rounded-md': form.hasErrors}"
     >
         <!-- Success Overlay -->
         <transition-container type="slide-top">
@@ -702,10 +758,10 @@ export default {
 
         <!-- Form Header -->
         <div class="pb-3 pt-1">
-            <h3 v-if="title" class="text-lg leading-tight uppercase font-extrabold">
+            <h3 v-if="title" class="text-lg leading-tight uppercase font-extrabold text-gray-900 dark:text-gray-200">
                 {{ isEditMode ? `Update ${title}` : title }}
             </h3>
-            <p v-if="description" class="text-sm leading-none">
+            <p v-if="description" class="text-sm leading-none text-gray-900 dark:text-gray-200">
                 {{ description }}
             </p>
             <label 
@@ -715,7 +771,6 @@ export default {
                 {{ form.errors.suspended || form.errors.full || form.errors.expired || form.errors.limit }}
             </label>
         </div>
-
         <!-- Section Progress -->
         <div v-if="hasSectionHeaders" class="mb-4">
             <ProgressTabs
@@ -723,16 +778,13 @@ export default {
                 :current="currentSectionIndex"
                 :clickable="true"
                 :showProgress="true"
-                @update:current="onSectionTabChange"
+                @update:current="(index) => index >= minAccessibleSectionIndex && onSectionTabChange(index)"
             />
-            <div v-if="hasSkipLogic && skippedSections.size > 0" class="text-xs text-blue-600 mt-1 text-right">
-                {{ skippedSections.size }} section{{ skippedSections.size > 1 ? 's' : '' }} skipped
-            </div>
         </div>
 
         <!-- Dynamic Fields -->
         <transition name="section-slide" mode="out-in">
-        <div class="flex flex-col gap-3" :key="hasSectionHeaders ? `section-${currentSectionIndex}` : 'single-section'">
+        <div class="flex flex-col gap-5 md:gap-10" :key="hasSectionHeaders ? `section-${currentSectionIndex}` : 'single-section'">
             <template v-for="section in visibleSections" :key="section.header?.field_key || 'default'">
                 <!-- Section Header -->
                 <component 
@@ -751,7 +803,7 @@ export default {
                             :error="getFieldError(field.field_key)"
                             :label="field.label"
                             :placeholder="field.placeholder"
-                            :required="isFieldRequired(field)"
+                            :required="isFieldActuallyRequired(field)"
                             :disabled="isFieldLocked(field)"
                             v-bind="isLocationField(field) ? { regions: locationRegions, provinces: locationProvinces, cities: locationCities } : {}"
                             @update:modelValue="handleFieldChange(field.field_key, $event, field)"
@@ -761,14 +813,13 @@ export default {
             </template>
         </div>
         </transition>
-
         <!-- Section Navigation -->
         <div v-if="hasSectionHeaders" class="mt-4 flex items-center justify-between gap-2">
             <button
-                v-if="currentSectionIndex > 0"
+                v-if="currentSectionIndex > minAccessibleSectionIndex"
                 type="button"
                 @click="goToPreviousSection"
-                class="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 transition"
+                class="px-4 py-2 text-sm border text-gray-900 dark:text-gray-200 border-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition"
             >
                 ← Previous
             </button>

@@ -209,6 +209,8 @@ class CreateEventSubformResponseRequest extends FormRequest
             'subform_type' => ['required', 'string'],
             'form_parent_id' => ['required', 'string', 'exists:event_subforms,id'],
             'participant_email' => ['nullable', 'email'],
+            'skipped_field_keys' => ['nullable', 'array'],
+            'skipped_field_keys.*' => ['string'],
             'participant_id' => array_values(array_filter([
                 $requiresParticipantVerification ? 'required' : 'nullable',
                 'uuid',
@@ -222,8 +224,15 @@ class CreateEventSubformResponseRequest extends FormRequest
             $eventSubform = $this->getEventSubform();
             $dynamicService = app(DynamicValidationService::class);
             $dynamicRules = $dynamicService->buildRulesFromSchema($eventSubform->resolved_field_schema);
+            $skippedFieldKeys = collect($this->input('skipped_field_keys', []))
+                ->filter(fn ($value) => is_string($value) && trim($value) !== '')
+                ->values()
+                ->all();
             
             foreach ($dynamicRules as $field => $fieldRules) {
+                if (in_array($field, $skippedFieldKeys, true)) {
+                    continue;
+                }
                 $rules["response_data.$field"] = $fieldRules;
             }
         } else {

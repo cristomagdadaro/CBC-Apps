@@ -47,7 +47,7 @@ const services = [
         icon: BookmarkIcon,
     },
     {
-        title: "Inventory Checkout",
+        title: "Supplies Checkout",
         description: "Check out and track supplies and equipment from our inventory",
         href: route("inventory.public.outgoing.index"),
         icon: BoxesIcon,
