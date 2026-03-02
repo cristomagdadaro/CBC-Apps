@@ -8,6 +8,7 @@ use App\Enums\Subform;
 use App\Models\EventSubform;
 use App\Models\Registration;
 use App\Services\DynamicValidationService;
+use Illuminate\Support\Arr;
 
 class CreateEventSubformResponseRequest extends FormRequest
 {
@@ -138,10 +139,36 @@ class CreateEventSubformResponseRequest extends FormRequest
         if ($this->eventSubform === null) {
             $formParentId = $this->input('form_parent_id');
             if ($formParentId) {
-                $this->eventSubform = EventSubform::find($formParentId);
+                $this->eventSubform = EventSubform::with('template')->find($formParentId);
             }
         }
         return $this->eventSubform;
+    }
+
+    protected function requiresParticipantVerification(): bool
+    {
+        $subform = $this->getEventSubform();
+        if (!$subform) {
+            return true;
+        }
+
+        $templateToggle = data_get($subform->template?->form_config, 'require_participant_verification');
+        if (is_bool($templateToggle)) {
+            return $templateToggle;
+        }
+
+        $configToggle = Arr::get($subform->config ?? [], 'form_config.require_participant_verification');
+        if (is_bool($configToggle)) {
+            return $configToggle;
+        }
+
+        $participantExempt = [
+            Subform::PREREGISTRATION->value,
+            Subform::PREREGISTRATION_BIOTECH->value,
+            Subform::PREREGISTRATION_QUIZBEE->value,
+        ];
+
+        return !in_array($subform->form_type, $participantExempt, true);
     }
 
     /**
@@ -176,22 +203,17 @@ class CreateEventSubformResponseRequest extends FormRequest
     {
         $subform = $this->input('subform_type');
 
-        $participantExempt = [
-            Subform::PREREGISTRATION->value,
-            Subform::PREREGISTRATION_BIOTECH->value,
-            Subform::PREREGISTRATION_QUIZBEE->value,
-        ];
-        
+        $requiresParticipantVerification = $this->requiresParticipantVerification();
+
         $rules = [
             'subform_type' => ['required', 'string'],
             'form_parent_id' => ['required', 'string', 'exists:event_subforms,id'],
             'participant_email' => ['nullable', 'email'],
-            'participant_id' => [
-                'required_unless:subform_type,'.implode(',', $participantExempt),
-                'nullable',
+            'participant_id' => array_values(array_filter([
+                $requiresParticipantVerification ? 'required' : 'nullable',
                 'uuid',
                 'exists:registrations,id',
-            ],
+            ])),
             'response_data' => ['required', 'array'],
         ];
 

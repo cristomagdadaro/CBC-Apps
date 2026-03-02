@@ -415,6 +415,18 @@ class EventWorkflowService
 
     protected function canStartWithoutParticipant(EventSubform $step): bool
     {
+        $step->loadMissing('template');
+
+        $templateToggle = data_get($step->template?->form_config, 'require_participant_verification');
+        if (is_bool($templateToggle)) {
+            return $templateToggle === false;
+        }
+
+        $subformConfigToggle = data_get($step->config, 'form_config.require_participant_verification');
+        if (is_bool($subformConfigToggle)) {
+            return $subformConfigToggle === false;
+        }
+
         $allowed = [
             Subform::PREREGISTRATION->value,
             Subform::PREREGISTRATION_BIOTECH->value,

@@ -88,6 +88,23 @@ class DynamicValidationService
                 $rules[] = 'boolean';
                 break;
 
+            case 'checkbox_agreement':
+                if (!empty($validationConfig['required']) || !empty($validationConfig['accepted'])) {
+                    $rules = array_filter($rules, fn($rule) => !in_array($rule, ['nullable', 'required']));
+                    $rules[] = 'accepted';
+                } else {
+                    $rules[] = 'boolean';
+                }
+                break;
+
+            case 'checkbox_updates':
+                $rules[] = 'boolean';
+                break;
+
+            case 'checkbox_group':
+                $rules[] = 'array';
+                break;
+
             case 'checkboxes':
                 $rules[] = 'array';
                 if (!empty($field['options'])) {

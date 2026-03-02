@@ -174,21 +174,29 @@ export default {
                 return field.options.some(opt => opt.skipTo);
             });
         },
+        hasSectionHeaders() {
+            return this.sortedFields.some(field => field.field_type === 'section_header') && this.fieldSections.length > 1;
+        },
+        progressSteps() {
+            if (!this.hasSectionHeaders) {
+                return [];
+            }
+
+            return this.fieldSections.map((section, index) => {
+                const headerLabel = section.header?.label || section.header?.placeholder;
+                return headerLabel || `Section ${index + 1}`;
+            });
+        },
         /**
          * Get visible sections based on skip logic
          */
         visibleSections() {
-            if (!this.hasSkipLogic) {
-                return this.fieldSections;
+            if (this.hasSectionHeaders) {
+                const active = this.fieldSections[this.currentSectionIndex] || null;
+                return active ? [active] : [];
             }
-            // When skip logic is active, show only current section
-            return this.fieldSections.filter((section, index) => {
-                // Always show sections up to current if not skipped
-                if (index <= this.currentSectionIndex && !this.skippedSections.has(index)) {
-                    return true;
-                }
-                return false;
-            });
+
+            return this.fieldSections;
         },
         /**
          * Check if there are more sections after the current one
@@ -413,6 +421,20 @@ export default {
                 this.skipToSubmit = false; // Reset submit flag when going back
             }
         },
+        onSectionTabChange(index) {
+            if (!this.hasSectionHeaders) {
+                return;
+            }
+
+            if (index < 0 || index >= this.fieldSections.length) {
+                return;
+            }
+
+            this.currentSectionIndex = index;
+            if (index < this.fieldSections.length - 1) {
+                this.skipToSubmit = false;
+            }
+        },
 
         /**
          * Check if a field supports skip logic
@@ -602,24 +624,23 @@ export default {
             </label>
         </div>
 
-        <!-- Section Progress (when skip logic is active) -->
-        <div v-if="hasSkipLogic && fieldSections.length > 1" class="mb-4">
-            <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
-                <span>Section {{ currentSectionIndex + 1 }} of {{ fieldSections.length }}</span>
-                <span v-if="skippedSections.size > 0" class="text-blue-600">
-                    ({{ skippedSections.size }} section{{ skippedSections.size > 1 ? 's' : '' }} skipped)
-                </span>
-            </div>
-            <div class="h-1 bg-gray-200 rounded-full overflow-hidden">
-                <div 
-                    class="h-full bg-AB transition-all duration-300"
-                    :style="{ width: `${((currentSectionIndex + 1) / fieldSections.length) * 100}%` }"
-                ></div>
+        <!-- Section Progress -->
+        <div v-if="hasSectionHeaders" class="mb-4">
+            <ProgressTabs
+                :steps="progressSteps"
+                :current="currentSectionIndex"
+                :clickable="true"
+                :showProgress="true"
+                @update:current="onSectionTabChange"
+            />
+            <div v-if="hasSkipLogic && skippedSections.size > 0" class="text-xs text-blue-600 mt-1 text-right">
+                {{ skippedSections.size }} section{{ skippedSections.size > 1 ? 's' : '' }} skipped
             </div>
         </div>
 
         <!-- Dynamic Fields -->
-        <div class="flex flex-col gap-3">
+        <transition name="section-slide" mode="out-in">
+        <div class="flex flex-col gap-3" :key="hasSectionHeaders ? `section-${currentSectionIndex}` : 'single-section'">
             <template v-for="section in visibleSections" :key="section.header?.field_key || 'default'">
                 <!-- Section Header -->
                 <component 
@@ -647,9 +668,10 @@ export default {
                 </template>
             </template>
         </div>
+        </transition>
 
-        <!-- Section Navigation (when skip logic is active) -->
-        <div v-if="hasSkipLogic && fieldSections.length > 1" class="mt-4 flex items-center justify-between gap-2">
+        <!-- Section Navigation -->
+        <div v-if="hasSectionHeaders" class="mt-4 flex items-center justify-between gap-2">
             <button
                 v-if="currentSectionIndex > 0"
                 type="button"
@@ -671,7 +693,7 @@ export default {
         </div>
 
         <!-- Submit Button -->
-        <div class="mt-4" v-if="!hasSkipLogic || isLastSection">
+        <div class="mt-4" v-if="!hasSectionHeaders || isLastSection">
             <button 
                 :disabled="isSubmitting || form.processing"
                 type="submit"
@@ -694,4 +716,18 @@ export default {
 </template>
 
 <style scoped>
+.section-slide-enter-active,
+.section-slide-leave-active {
+    transition: all 0.25s ease;
+}
+
+.section-slide-enter-from {
+    opacity: 0;
+    transform: translateX(22px);
+}
+
+.section-slide-leave-to {
+    opacity: 0;
+    transform: translateX(-22px);
+}
 </style>
