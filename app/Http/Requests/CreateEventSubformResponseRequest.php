@@ -105,7 +105,9 @@ class CreateEventSubformResponseRequest extends FormRequest
                 continue;
             }
 
-            $defaultValue = $fieldConfig['defaultValue'] ?? $fieldConfig['default'];
+            $defaultValue = array_key_exists('defaultValue', $fieldConfig)
+                ? $fieldConfig['defaultValue']
+                : $fieldConfig['default'];
             $hasSubmittedValue = array_key_exists($fieldKey, $responseData);
             $submittedValue = $responseData[$fieldKey] ?? null;
 

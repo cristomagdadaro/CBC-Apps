@@ -1144,13 +1144,17 @@ export default {
                                     <thead class="text-xs uppercase text-gray-500 dark:text-gray-400 border-b">
                                         <tr>
                                             <th class="px-4 py-2">Submitted On</th>
+
                                             <th
                                                 v-for="col in activeGroup.dataColumns"
                                                 :key="col"
-                                                class="px-4 py-2"
+                                                class="px-4 py-2 max-w-[180px]"
                                             >
-                                                {{ col.replace(/_/g, ' ') }}
+                                                <span class="block truncate">
+                                                    {{ activeGroup.dataColumnLabels?.[col] || humanizeColumn(col) }}
+                                                </span>
                                             </th>
+
                                             <th class="px-4 py-2 text-center">Actions</th>
                                         </tr>
                                     </thead>
@@ -1265,7 +1269,7 @@ export default {
                     <div>
                         <label class="text-xs text-gray-500 dark:text-gray-400">Column</label>
                         <select v-model="selectedChartColumn" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
-                            <option v-for="column in selectedFormColumns" :key="column" :value="column">{{ column.replace(/_/g, ' ') }}</option>
+                            <option v-for="column in selectedFormColumns" :key="column" :value="column">{{ getColumnLabel(selectedChartFormType, column) }}</option>
                         </select>
                     </div>
                     <div>
@@ -1291,7 +1295,7 @@ export default {
             </div>
 
             <div v-if="dynamicChartConfigs.length" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                <div v-for="(chart, index) in dynamicChartConfigs" :key="chart.id" class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
+                <div v-for="chart in dynamicChartConfigs" :key="chart.id" class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
                     <div class="flex items-start justify-between gap-3">
                         <div>
                             <h4 class="text-sm font-medium text-gray-700 dark:text-gray-200">{{ getChartTitle(chart) }}</h4>
@@ -1309,7 +1313,7 @@ export default {
                         <div>
                             <label class="text-xs text-gray-500 dark:text-gray-400">Column</label>
                             <select v-model="chart.column" @change="updateDynamicChart(chart)" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
-                                <option v-for="column in getColumnsForFormType(chart.formType)" :key="column" :value="column">{{ column.replace(/_/g, ' ') }}</option>
+                                <option v-for="column in getColumnsForFormType(chart.formType)" :key="column" :value="column">{{ getColumnLabel(chart.formType, column) }}</option>
                             </select>
                         </div>
                         <div>

@@ -61,6 +61,7 @@ export default {
             <form-update-dashboard
               :stats="$page.props.eventStats"
               :responses-by-type="$page.props.eventResponsesByType"
+              :config="$page.props.data"
             />
           </div>
 
