@@ -199,7 +199,7 @@ export default {
 </script>
 
 <template>
-    <div class="border p-2 md:rounded-md flex flex-col gap-2 bg-white w-full drop-shadow-lg max-w-3xl mx-auto">
+    <div class="border p-2 md:rounded-md flex flex-col gap-2 bg-white w-full drop-shadow-lg mx-auto">
         <SuccessModal
             :show="showSuccessModal"
             title="Request submitted"

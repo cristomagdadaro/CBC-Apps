@@ -81,7 +81,7 @@ class PDFGeneratorController extends Controller
 
         if ($needsGenerate) {
             try {
-                $pdfBinary = Pdf::loadView($template, compact('form'))->output();
+                $pdfBinary = Pdf::loadView($template, compact('form') + ['forPdf' => true])->output();
 
                 if (!$pdfBinary) {
                     return response()->json([

@@ -65,19 +65,21 @@
     $approverName  = strtoupper($form->approved_by ?? '');
     $centerChief   = app(OptionRepo::class)->getCenterChief();
 
-    $logos = [
-        'cbc'     => public_path('imgs/logo-black.png'),
-        'overlay' => public_path('imgs/Overlay.png'),
-        'da'      => public_path('imgs/da_bpo.png'),
-        'bp'      => public_path('imgs/bagong_pilipinas.png'),
-    ];
+    $forPdf = $forPdf ?? true; // Default to PDF context for DomPDF generator
 
-    /*  $logos = [
-        'cbc'     => '/imgs/logo-black.png',
-        'overlay' => '/imgs/Overlay.png',
-        'da'      => '/imgs/da_bpo.png',
-        'bp'      => '/imgs/bagong_pilipinas.png',
-    ]; */
+    $getImagePath = function($path) use ($forPdf) {
+        if ($forPdf) {
+            return public_path($path);
+        }
+        return '/' . ltrim($path, '/');
+    };
+
+    $logos = [
+        'cbc'     => $getImagePath('imgs/logo-black.png'),
+        'overlay' => $getImagePath('imgs/Overlay.png'),
+        'da'      => $getImagePath('imgs/da_bpo.png'),
+        'bp'      => $getImagePath('imgs/bagong_pilipinas.png'),
+    ];
 @endphp
 
 
@@ -235,7 +237,11 @@
                     </tr>
                 </table>
             </footer>
-
+            
+            @if ($copy === 'REQUESTOR\'S COPY')
+                <!-- Cutting guide line -->
+                <td style="width:2mm;border:none;border-right:2px dashed #d0d0d0; padding: 0; margin: 0;"></td>
+            @endif
         </td>
     @endforeach
     </tr>

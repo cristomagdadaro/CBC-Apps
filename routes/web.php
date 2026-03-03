@@ -51,7 +51,7 @@ Route::prefix('forms')->group(function () {
     Route::get('/event/{event?}', [FormController::class, 'formGuestView'])->name('forms.guest.index');
     Route::get('/request-to-use/{request?}', [LabRequestFormController::class, 'labReqFormGuestView'])->name('labReq.guest.index');
     Route::get('/{id}/pdf', [PDFGeneratorController::class, 'downloadPdf'])->name('forms.generate.pdf');
-    //Route::get('/{id}/pdf', function(){return view('generator.pdf.printable-request-form', ['form' => \App\Models\RequestFormPivot::with(['requester', 'request_form'])->findOrFail(request()->route('id'))]);})->name('forms.generate.pdf');
+    //Route::get('/{id}/pdf', function(){ return view('generator.pdf.printable-request-form', [ 'form' => \App\Models\RequestFormPivot::with(['requester', 'request_form'])->findOrFail(request()->route('id')), 'forPdf' => false ]);})->name('forms.generate.pdf');
 });
 
 Route::prefix('/laboratory')->group(function () {

@@ -77,9 +77,22 @@ export default {
 
             // Fetch from API if provided
             if (this.apiLink) {
-                const apiData = await this.fetchGetApi(this.apiLink, this.params);
-                console.log('Fetched Tagify options:', apiData);
-                this.options = [...this.options, ...apiData];
+                try {
+                    const params = {
+                        filter: 'name',
+                        per_page: '*',
+                        ...this.params,
+                    };
+                    
+                    const response = await this.fetchGetApi(this.apiLink, params);
+                    const payload = response?.data ?? response;
+                    const list = Array.isArray(payload) ? payload : payload?.data ?? [];
+                    const apiOptions = this.normalizeWhitelist(list);
+                    
+                    this.options = [...this.options, ...apiOptions];
+                } catch (error) {
+                    console.error('Failed to fetch Tagify options:', error);
+                }
             }
 
             // Initialize selected values

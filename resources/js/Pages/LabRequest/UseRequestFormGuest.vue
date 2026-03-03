@@ -18,7 +18,7 @@ export default {
         return {
             delayReady: false,
             title: 'Facilities, Equipment, and Supplies Request Form',
-            subtitle: 'This form is intended for requesting access to and use of the facilities, equipment, and services provided by the DA-Crop Biotechnology Center. Please provide accurate and complete information to ensure a smooth processing of your request.',
+            subtitle: 'This form is intended for requesting access and/or use of the facilities and equipment provided by the DA-CBC.',
         }
     },
     mounted() {
@@ -35,6 +35,7 @@ export default {
         :title="title"
         :subtitle="subtitle"
         :delay-ready="delayReady"
+        max-width="max-w-3xl"
     >
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
             <div class="flex gap-5 flex-col w-full">
