@@ -89,7 +89,7 @@ export default class Transaction extends DtoTransaction {
                 visible: false,
             },{
                 title: 'Item',
-                key: 'item.fullName',
+                key: 'item.name',
                 db_key: 'item',
                 align: 'dataColor',
                 sortable: true,

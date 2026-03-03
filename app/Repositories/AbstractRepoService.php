@@ -124,15 +124,28 @@ abstract class AbstractRepoService {
 
         // Apply search to a specific column if filter is provided
         if ($filter) {
+            // Handle relationship-based searches with dot notation (e.g., item.name)
             if (str_contains($filter, '.')) {
-                $filter = explode('.', $filter)[1]; // Extract the column name if filter contains a relation
+                [$relation, $column] = explode('.', $filter, 2);
+                $operator = $is_exact ? '=' : 'like';
+                $value = $is_exact ? $search : "%{$search}%";
+                
+                // Use whereHas to search in related table
+                $query->whereHas($relation, function ($subQuery) use ($column, $operator, $value) {
+                    $subQuery->where($column, $operator, $value);
+                });
+                return;
             }
-            $query->where($filter, 'like', "%{$search}%");
+            
+            $operator = $is_exact ? '=' : 'like';
+            $value = $is_exact ? $search : "%{$search}%";
+            $query->where($filter, $operator, $value);
             return;
         }
 
-        // Retrieve searchable columns
+        // Retrieve searchable columns from main model
         $columns = collect($query->getModel()->getSearchable());
+        
         if ($columns->isEmpty()) {
             return;
         }
@@ -144,12 +157,12 @@ abstract class AbstractRepoService {
         }
 
         // Handle specific "name" column search
-        if ($filter === 'name') {
+        if (request()->has('filter') && request('filter') === 'name') {
             $query->where('name', 'like', "%{$search}%");
             return;
         }
 
-        // Apply search to all searchable columns
+        // Apply search to all searchable columns in main model
         $query->where(function ($subQuery) use ($columns, $search, $is_exact) {
             foreach ($columns as $column) {
                 $operator = $is_exact ? '=' : 'like';

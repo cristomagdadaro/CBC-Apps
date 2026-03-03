@@ -209,16 +209,17 @@ export default abstract class ApiService {
 
     async get(url: string, params?: any, model?: DtoBaseClass) {
         this.processing = true;
+        let routeUrl: string | null = null;
+        let cleanedParams: any = params ? { ...params } : undefined;
         try {
             const routeParams = params?.routeParams;
-            const cleanedParams = params ? { ...params } : undefined;
             if (cleanedParams && Object.prototype.hasOwnProperty.call(cleanedParams, 'routeParams')) {
                 delete cleanedParams.routeParams;
             }
             
             const id = model ? model.apiGet : null;
             // @ts-ignore
-            const routeUrl = id
+            routeUrl = id
                 ? route(url, id)
                 : routeParams !== undefined
                     // @ts-ignore
@@ -264,17 +265,19 @@ export default abstract class ApiService {
 
     async post(url: string, params?: any, config?: any) {
         this.processing = true;
+        const routeParams = config?.routeParams;
+        const cleanConfig = config ? { ...config } : undefined;
+        if (cleanConfig && Object.prototype.hasOwnProperty.call(cleanConfig, 'routeParams')) {
+            delete cleanConfig.routeParams;
+        }
+        // @ts-ignore
+        const postUrl = routeParams !== undefined ? route(url, routeParams) : route(url);
         try {
             await this.ensureCsrfProtection();
             ConsoleLogger.debug({
                 tag: 'API_POST',
                 params: params,
             });
-            const routeParams = config?.routeParams;
-            const cleanConfig = config ? { ...config } : undefined;
-            if (cleanConfig && Object.prototype.hasOwnProperty.call(cleanConfig, 'routeParams')) {
-                delete cleanConfig.routeParams;
-            }
 
             const shouldUseMultipart = !(params instanceof FormData) && this.hasBinaryValue(params);
             const payload = shouldUseMultipart ? this.buildFormData(params || {}) : params;
@@ -290,7 +293,7 @@ export default abstract class ApiService {
             // @ts-ignore
             const response = await this.axiosInstance.post(
                 // @ts-ignore
-                routeParams !== undefined ? route(url, routeParams) : route(url),
+                postUrl,
                 payload,
                 requestConfig
             );
@@ -306,7 +309,7 @@ export default abstract class ApiService {
             this.processing = false;
             ConsoleLogger.error({
                 tag: 'API_POST_ERROR',
-                url: routeParams !== undefined ? route(url, routeParams) : route(url),
+                url: postUrl,
                 params: params,
                 error: error,
             });

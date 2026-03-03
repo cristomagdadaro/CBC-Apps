@@ -18,17 +18,19 @@
 export default {
     props: {
         options: {
-            type: Object,
+            type: Array,
             required: false,
-            default: null,
+            default: () => [],
         },
         isExact: {
             type: Boolean,
             required: false,
+            default: false,
         },
         value: {
-            type: String,
+            type: [String, Number],
             required: false,
+            default: null,
         },
     },
     data(){

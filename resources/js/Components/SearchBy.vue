@@ -20,16 +20,19 @@ export default {
     name: "SearchBy",
     props: {
         options: {
-            type: Object,
+            type: Array,
             required: false,
+            default: () => [],
         },
         isExact: {
             type: Boolean,
             required: false,
+            default: false,
         },
         value: {
-            type: String|Number,
+            type: [String, Number],
             required: false,
+            default: null,
         },
     },
     data(){
