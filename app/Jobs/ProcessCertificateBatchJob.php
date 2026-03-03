@@ -144,6 +144,7 @@ class ProcessCertificateBatchJob implements ShouldQueue
         foreach ($records as $record) {
             $status = strtolower((string) ($record['status'] ?? 'fail')) === 'success' ? 'success' : 'fail';
             $recipientEmail = $record['recipient_email'] ?? null;
+            $recipientName = $record['recipient_name'] ?? null;
             $attachmentPath = $record['attachment_path'] ?? null;
             $filename = $record['filename'] ?? ($attachmentPath ? basename((string) $attachmentPath) : null);
             $error = $record['error_message'] ?? null;
@@ -164,7 +165,11 @@ class ProcessCertificateBatchJob implements ShouldQueue
 
             if ($status === 'success' && $recipientEmail && $attachmentPath && File::exists($attachmentPath)) {
                 Mail::to($recipientEmail)->queue(
-                    new GeneratedCertificateMail($attachmentPath, $filename ?? basename($attachmentPath), $this->eventId)
+                    (new GeneratedCertificateMail(
+                        $attachmentPath,
+                        $filename ?? basename($attachmentPath),
+                        $this->eventId
+                    ))->withRecipientName($recipientName)
                 );
             }
         }

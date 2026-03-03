@@ -241,6 +241,29 @@ def extract_recipient_email(row: pd.Series) -> str:
     return ''
 
 
+def extract_recipient_name(row: pd.Series) -> str:
+    preferred_keys = ['fullname', 'full name', 'name']
+    normalized = {str(k).strip().lower(): v for k, v in row.items()}
+
+    for key in preferred_keys:
+        value = normalized.get(key)
+        try:
+            if value is not None and not pd.isna(value) and str(value).strip() != '':
+                return str(value).strip()
+        except Exception:
+            continue
+
+    for key, value in normalized.items():
+        if 'name' in key and 'file' not in key:
+            try:
+                if value is not None and not pd.isna(value) and str(value).strip() != '':
+                    return str(value).strip()
+            except Exception:
+                continue
+
+    return ''
+
+
 def pick_primary_output(out_paths: Dict, out_format: str) -> str:
     preferred = out_paths.get(out_format)
     if isinstance(preferred, list):
@@ -614,6 +637,7 @@ def main(argv=None):
         print(f'Processing sheet "{sheet_name}" with {len(df)} rows using slide indices {slide_indices}')
         for idx, row in df.iterrows():
             recipient_email = extract_recipient_email(row)
+            recipient_name = extract_recipient_name(row)
             try:
                 success, message, res = generate_for_row(prs_template, row, args.outdir, args.format, args.name_template,
                                        slide_indices=slide_indices, soffice_path=args.soffice_path,
@@ -626,6 +650,7 @@ def main(argv=None):
                         'sheet_name': sheet_name,
                         'row_index': int(idx),
                         'recipient_email': recipient_email,
+                        'recipient_name': recipient_name,
                         'status': 'success',
                         'error_message': None,
                         'attachment_path': attachment_path,
@@ -640,6 +665,7 @@ def main(argv=None):
                         'sheet_name': sheet_name,
                         'row_index': int(idx),
                         'recipient_email': recipient_email,
+                        'recipient_name': recipient_name,
                         'status': 'fail',
                         'error_message': str(message),
                         'attachment_path': fallback_attachment,
@@ -654,6 +680,7 @@ def main(argv=None):
                     'sheet_name': sheet_name,
                     'row_index': int(idx),
                     'recipient_email': recipient_email,
+                    'recipient_name': recipient_name,
                     'status': 'fail',
                     'error_message': str(e),
                     'attachment_path': None,
