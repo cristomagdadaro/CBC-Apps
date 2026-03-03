@@ -18,25 +18,22 @@ class UniqueFullName implements ValidationRule
 
     /**
      * Run the validation rule.
+     * Validates uniqueness of fname + lname combination matching database constraint.
      *
      * @param Closure(string): PotentiallyTranslatedString $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $fname = request('fname');
-        $mname = request('mname');
         $lname = request('lname');
-        $suffix = request('suffix');
 
         $query = Personnel::where('fname', $fname)
-            ->where('mname', $mname)
-            ->where('lname', $lname)
-            ->where('suffix', $suffix);
+            ->where('lname', $lname);
 
         if($this->id)
             $query->where('id', '!=', $this->id);
 
         if ($query->exists())
-            $fail('Personnel already exists');
+            $fail('Already exists');
     }
 }

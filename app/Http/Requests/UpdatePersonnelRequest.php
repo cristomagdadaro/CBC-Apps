@@ -25,13 +25,13 @@ class UpdatePersonnelRequest extends FormRequest
     {
         return [
             'fname' => ['required' , 'string', new UniqueFullName($this->id)],
-            'mname' => 'string|nullable',
-            'lname' => ['required' , 'string', new UniqueFullName($this->id)],
-            'suffix' => 'string|nullable',
+            'mname' => ['string', 'nullable', new UniqueFullName($this->id)],
+            'lname' =>  ['required', 'string', new UniqueFullName($this->id)],
+            'suffix' => ['string', 'nullable', new UniqueFullName($this->id)],
             'position' => 'required|string',
             'phone' => 'string|nullable',
             'address' => 'string|nullable',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:personnels,email,' . $this->id,
         ];
     }
 
@@ -44,6 +44,7 @@ class UpdatePersonnelRequest extends FormRequest
             'lname.unique' => 'Already been taken',
             'position.required' => 'Required field',
             'email.email' => 'Invalid email format',
+            'email.unique' => 'Already been taken',
         ];
     }
 }
