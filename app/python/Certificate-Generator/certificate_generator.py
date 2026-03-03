@@ -235,10 +235,10 @@ def resolve_soffice_path(soffice_path: str) -> Optional[str]:
     candidate = (soffice_path or '').strip()
     if candidate:
         expanded = os.path.expandvars(os.path.expanduser(candidate))
-        if expanded.lower().endswith('soffice.com'):
-            alt_exe = expanded[:-4] + '.exe'
-            if os.path.isfile(alt_exe):
-                expanded = alt_exe
+        if os.name == 'nt' and expanded.lower().endswith('soffice.exe'):
+            alt_com = expanded[:-4] + '.com'
+            if os.path.isfile(alt_com):
+                expanded = alt_com
         if os.path.isfile(expanded):
             return expanded
 
@@ -251,16 +251,23 @@ def resolve_soffice_path(soffice_path: str) -> Optional[str]:
         for env_key in ('PROGRAMFILES', 'PROGRAMFILES(X86)', 'PROGRAMW6432'):
             root = os.environ.get(env_key)
             if root:
+                win_candidates.append(os.path.join(root, 'LibreOffice', 'program', 'soffice.com'))
                 win_candidates.append(os.path.join(root, 'LibreOffice', 'program', 'soffice.exe'))
 
         win_candidates.extend([
+            r'C:\Program Files\LibreOffice\program\soffice.com',
             r'C:\Program Files\LibreOffice\program\soffice.exe',
+            r'C:\Program Files (x86)\LibreOffice\program\soffice.com',
             r'C:\Program Files (x86)\LibreOffice\program\soffice.exe',
         ])
 
         for item in win_candidates:
             if os.path.isfile(item):
                 return item
+
+        resolved_com = shutil.which('soffice.com')
+        if resolved_com:
+            return resolved_com
 
         resolved_exe = shutil.which('soffice.exe')
         if resolved_exe:
@@ -277,6 +284,11 @@ def to_file_uri(path_value: str) -> str:
     return pathlib.Path(path_value).resolve().as_uri()
 
 
+def to_lo_user_installation_uri(path_value: str) -> str:
+    normalized = pathlib.Path(path_value).resolve().as_posix()
+    return f'file:///{normalized}'
+
+
 def pptx_to_pdf(soffice_path: str, pptx_path: str, out_dir: str) -> str:
     # Convert pptx to pdf using LibreOffice soffice CLI
     resolved_soffice = resolve_soffice_path(soffice_path)
@@ -287,7 +299,7 @@ def pptx_to_pdf(soffice_path: str, pptx_path: str, out_dir: str) -> str:
     normalized_out_dir = os.path.normpath(os.path.abspath(out_dir))
 
     profile_dir = mkdtemp(prefix='lo-profile-')
-    profile_uri = to_file_uri(profile_dir)
+    profile_uri = to_lo_user_installation_uri(profile_dir)
 
     cmd = [
         resolved_soffice,
@@ -305,20 +317,21 @@ def pptx_to_pdf(soffice_path: str, pptx_path: str, out_dir: str) -> str:
         normalized_pptx_path,
     ]
 
+    process_env = os.environ.copy()
+    process_env.pop('PYTHONHOME', None)
+    process_env.pop('PYTHONPATH', None)
+    process_env['TEMP'] = profile_dir
+    process_env['TMP'] = profile_dir
+
     try:
-        process = subprocess.run(cmd, capture_output=True, text=True)
-        if process.returncode != 0:
-            raise subprocess.CalledProcessError(
-                process.returncode,
-                cmd,
-                output=(process.stdout or '').strip(),
-                stderr=(process.stderr or '').strip(),
-            )
+        subprocess.run(cmd, check=True, env=process_env, timeout=120)
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(f'LibreOffice conversion timed out after 120 seconds for: {pptx_path}') from exc
     finally:
         shutil.rmtree(profile_dir, ignore_errors=True)
 
     base = os.path.splitext(os.path.basename(pptx_path))[0]
-    pdf_path = os.path.join(out_dir, base + '.pdf')
+    pdf_path = os.path.abspath(os.path.join(out_dir, base + '.pdf'))
     if not os.path.exists(pdf_path):
         raise FileNotFoundError('PDF conversion failed; expected output not found: ' + pdf_path)
     return pdf_path
@@ -382,12 +395,12 @@ def generate_for_row(prs_template: Presentation, row: pd.Series, out_dir: str, o
         return True, f"Generated: {out_paths}", out_paths
 
     # convert to pdf
-    tmp_dir = mkdtemp()
     try:
         try:
-            pdf_path = pptx_to_pdf(soffice_path, out_pptx, tmp_dir)
             out_pdf = os.path.join(out_dir, unique_base + '.pdf')
-            shutil.move(pdf_path, out_pdf)
+            pdf_path = pptx_to_pdf(soffice_path, out_pptx, out_dir)
+            if os.path.abspath(pdf_path) != os.path.abspath(out_pdf):
+                shutil.move(pdf_path, out_pdf)
             out_paths['pdf'] = out_pdf
         except FileNotFoundError as e:
             # likely soffice not found; warn and skip conversion, keep PPTX only
@@ -424,7 +437,6 @@ def generate_for_row(prs_template: Presentation, row: pd.Series, out_dir: str, o
             os.remove(tmp_pptx)
         except Exception:
             pass
-        shutil.rmtree(tmp_dir, ignore_errors=True)
 
     return True, f"Generated: {out_paths}", out_paths
 
