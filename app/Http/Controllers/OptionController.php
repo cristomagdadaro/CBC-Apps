@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Generic\GetRequest;
 use App\Http\Requests\CreateOptionRequest;
-use App\Http\Requests\DeleteRequest;
 use App\Http\Requests\UpdateOptionRequest;
+use App\Http\Requests\DeleteOptionRequest;
 use App\Repositories\OptionRepo;
 use App\Repositories\CategoryRepo;
 use App\Repositories\EventSubformRepo;
@@ -76,7 +76,7 @@ class OptionController extends BaseController
     /**
      * Delete an option
      */
-    public function destroy(DeleteRequest $request, string $id)
+    public function destroy(DeleteOptionRequest $request, string $id)
     {
         return parent::_destroy($id);
     }

@@ -1,5 +1,4 @@
 <script>
-import axios from 'axios'
 import { useNotifier } from '@/Modules/composables/useNotifier'
 import ApiMixin from '@/Modules/mixins/ApiMixin'
 import Options from '@/Modules/domain/Options'
@@ -16,8 +15,6 @@ export default {
   data() {
     return {
       optionsFromApi: null,
-      success: null,
-      notifyError: null,
       workflowToggles: {
         event_workflow_enabled: true,
         participant_workflow_enabled: true,
@@ -28,9 +25,6 @@ export default {
     }
   },
   created() {
-    const notifier = useNotifier()
-    this.success = notifier.success
-    this.notifyError = notifier.error
   },
   beforeMount() {
     this.model = new Options();
@@ -45,15 +39,15 @@ export default {
     async loadWorkflowToggles() {
       this.workflowToggleLoading = true
       try {
-        const response = await axios.get(route('api.options.workflow-toggles'))
-        const data = response?.data?.data || {}
+        const response = await this.fetchGetApi('api.options.workflow-toggles')
+        const data = response?.data || {}
         this.workflowToggles = {
           event_workflow_enabled: data.event_workflow_enabled !== false,
           participant_workflow_enabled: data.participant_workflow_enabled !== false,
           participant_verification_enabled: data.participant_verification_enabled !== false,
         }
       } catch (error) {
-        this.notifyError('Failed to load workflow toggles.')
+        // ApiService handles error notification
       } finally {
         this.workflowToggleLoading = false
       }
@@ -67,16 +61,15 @@ export default {
           participant_verification_enabled: !!this.workflowToggles.participant_verification_enabled,
         }
 
-        const response = await axios.put(route('api.options.workflow-toggles.update'), payload)
+        const response = await this.fetchPutApi('api.options.workflow-toggles.update', null, payload)
         const data = response?.data?.data || payload
         this.workflowToggles = {
           event_workflow_enabled: data.event_workflow_enabled !== false,
           participant_workflow_enabled: data.participant_workflow_enabled !== false,
           participant_verification_enabled: data.participant_verification_enabled !== false,
         }
-        this.success('Workflow toggles updated successfully.')
       } catch (error) {
-        this.notifyError('Failed to update workflow toggles.')
+        // ApiService handles error notification
       } finally {
         this.workflowToggleSaving = false
       }
@@ -85,12 +78,10 @@ export default {
       const id = row?.identifier?.()?.id ?? row?.id
       if (!id) return
       try {
-        await axios.delete(route('api.options.destroy', id))
-        this.success('Option deleted successfully.')
+        await this.fetchDeleteApi('api.options.destroy', id)
         await this.searchOptions()
       } catch (err) {
-        console.error('Error deleting option:', err)
-        this.notifyError('Failed to delete option.')
+        // ApiService handles error notification
       }
     },
     async searchOptions() {

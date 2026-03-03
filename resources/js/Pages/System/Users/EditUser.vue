@@ -30,9 +30,6 @@ export default {
             errors: {},
             submitting: false,
             deleting: false,
-            success: null,
-            notifyError: null,
-            warning: null,
         }
     },
     computed: {
@@ -42,12 +39,6 @@ export default {
                 label: this.formatLabel(role),
             }))
         },
-    },
-    created() {
-        const notifier = useNotifier()
-        this.success = notifier.success
-        this.notifyError = notifier.error
-        this.warning = notifier.warning
     },
     methods: {
         formatLabel(value) {
@@ -64,29 +55,23 @@ export default {
             this.errors = {}
             try {
                 await axios.put(route('api.users.update', this.data.id), this.form)
-                this.success('User updated successfully.')
                 router.visit(route('system.users.index'))
             } catch (error) {
                 this.errors = error?.response?.data?.errors || {}
-                if (!Object.keys(this.errors).length) {
-                    this.notifyError('Failed to update user.')
-                }
             } finally {
                 this.submitting = false
             }
         },
         async destroyUser() {
             if (!confirm('Delete this user?')) {
-                this.warning('User deletion was cancelled.')
                 return
             }
             this.deleting = true
             try {
                 await axios.delete(route('api.users.destroy', this.data.id))
-                this.success('User deleted successfully.')
                 router.visit(route('system.users.index'))
             } catch (error) {
-                this.notifyError('Failed to delete user.')
+                // ApiService handles error notification
             } finally {
                 this.deleting = false
             }

@@ -55,44 +55,176 @@ class ConsoleLoggerService {
      */
     log(...args: unknown[]): void {
         if (this.isEnabled) {
-            console.log(`[${this.getTimestamp()}]`, ...args);
+            console.log(args);
         }
     }
 
     /**
      * Error level logging
+     * Enhanced to display AxiosError details clearly
      */
     error(...args: unknown[]): void {
-        if (this.isEnabled) {
-            console.error(`[${this.getTimestamp()}] ERROR:`, ...args);
-        }
+        if (!this.isEnabled) return;
+
+        args.forEach(arg => {
+            // Handle context objects with nested error
+            if (arg && typeof arg === 'object' && 'error' in arg && this.isAxiosError((arg as any).error)) {
+                const context = arg as any;
+                const { config, response, message, code } = context.error;
+                
+                console.error({
+                    tag: context.tag || 'AxiosError',
+                    url: context.url || config?.url,
+                    method: config?.method?.toUpperCase(),
+                    status: response?.status || 'No Response',
+                    message: message,
+                    code: code,
+                    params: context.params,
+                    id: context.id,
+                    responseData: response?.data,
+                });
+            } else if (this.isAxiosError(arg)) {
+                const { config, response, message, code } = arg;
+
+                console.error({
+                    tag: 'AxiosError',
+                    method: config?.method?.toUpperCase(),
+                    url: config?.url,
+                    status: response?.status || 'No Response',
+                    message: message,
+                    code: code,
+                    responseData: response?.data,
+                });
+            } else {
+                console.error({ tag: 'Error', details: arg });
+            }
+        });
     }
 
+    private isAxiosError(arg: any): arg is any {
+        return !!(arg && arg.isAxiosError);
+    }
     /**
      * Warning level logging
+     * Enhanced to display AxiosError details clearly
      */
     warn(...args: unknown[]): void {
-        if (this.isEnabled) {
-            console.warn(`[${this.getTimestamp()}] WARNING:`, ...args);
-        }
+        if (!this.isEnabled) return;
+
+        args.forEach(arg => {
+            if (arg && typeof arg === 'object' && 'error' in arg && this.isAxiosError((arg as any).error)) {
+                const context = arg as any;
+                const { config, response, message, code } = context.error;
+
+                console.warn({
+                    tag: context.tag || 'AxiosError',
+                    url: context.url || config?.url,
+                    method: config?.method?.toUpperCase(),
+                    status: response?.status || 'No Response',
+                    message: message,
+                    code: code,
+                    params: context.params,
+                    id: context.id,
+                    responseData: response?.data,
+                });
+            } else if (this.isAxiosError(arg)) {
+                const { config, response, message, code } = arg;
+
+                console.warn({
+                    tag: 'AxiosError',
+                    method: config?.method?.toUpperCase(),
+                    url: config?.url,
+                    status: response?.status || 'No Response',
+                    message: message,
+                    code: code,
+                    responseData: response?.data,
+                });
+            } else {
+                console.warn(`[${this.getTimestamp()}] WARNING:`, arg);
+            }
+        });
     }
 
     /**
      * Info level logging
+     * Enhanced to display AxiosError details clearly
      */
     info(...args: unknown[]): void {
-        if (this.isEnabled) {
-            console.info(`[${this.getTimestamp()}] INFO:`, ...args);
-        }
+        if (!this.isEnabled) return;
+
+        args.forEach(arg => {
+            if (arg && typeof arg === 'object' && 'error' in arg && this.isAxiosError((arg as any).error)) {
+                const context = arg as any;
+                const { config, response, message, code } = context.error;
+
+                console.info({
+                    tag: context.tag || 'AxiosError',
+                    url: context.url || config?.url,
+                    method: config?.method?.toUpperCase(),
+                    status: response?.status || 'No Response',
+                    message: message,
+                    code: code,
+                    params: context.params,
+                    id: context.id,
+                    responseData: response?.data,
+                });
+            } else if (this.isAxiosError(arg)) {
+                const { config, response, message, code } = arg;
+
+                console.info({
+                    tag: 'AxiosError',
+                    method: config?.method?.toUpperCase(),
+                    url: config?.url,
+                    status: response?.status || 'No Response',
+                    message: message,
+                    code: code,
+                    responseData: response?.data,
+                });
+            } else {
+                console.info(`[${this.getTimestamp()}] INFO:`, arg);
+            }
+        });
     }
 
     /**
      * Debug level logging
+     * Enhanced to display AxiosError details clearly
      */
-    debug(...args: unknown[]): void {console.debug(this.isEnabled);
-        if (this.isEnabled) {
-            console.debug(`[${this.getTimestamp()}] DEBUG:`, ...args);
-        }
+    debug(...args: unknown[]): void {
+        if (!this.isEnabled) return;
+
+        args.forEach(arg => {
+            if (arg && typeof arg === 'object' && 'error' in arg && this.isAxiosError((arg as any).error)) {
+                const context = arg as any;
+                const { config, response, message, code } = context.error;
+
+                console.debug({
+                    tag: context.tag || 'AxiosError',
+                    url: context.url || config?.url,
+                    method: config?.method?.toUpperCase(),
+                    status: response?.status || 'No Response',
+                    message: message,
+                    code: code,
+                    params: context.params,
+                    id: context.id,
+                    responseData: response?.data,
+                });
+            } else if (this.isAxiosError(arg)) {
+                const { config, response, message, code } = arg;
+
+                console.debug({
+                    tag: 'AxiosError',
+                    method: config?.method?.toUpperCase(),
+                    url: config?.url,
+                    status: response?.status || 'No Response',
+                    message: message,
+                    code: code,
+                    responseData: response?.data,
+                });
+            } else {
+                console.debug(`[${this.getTimestamp()}] DEBUG:`, arg);
+            }
+        });
     }
 
     /**

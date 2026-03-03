@@ -7,30 +7,12 @@ import ItemsHeaderActions from "@/Pages/Inventory/Items/components/ItemsHeaderAc
 import AuditInfoCard from "@/Components/AuditInfoCard.vue";
 
 export default defineComponent({
+    name: "EditItemForm",
     components: { AuditInfoCard, ItemsHeaderActions },
     mixins: [ApiMixin],
     beforeMount() {
         this.model = new Item();
         this.setFormAction('update');
-    },
-    computed: {
-        suppliers() {
-            return this.$page.props.suppliers.map(supplier => {
-                return {
-                    name: supplier.id,
-                    label: supplier.name,
-                }
-            });
-        },
-        categories() {
-            return this.$page.props.categories.map(categories => {
-                return {
-                    name: categories.id,
-                    label: categories.name,
-                }
-            });
-        },
-
     },
 })
 </script>
@@ -40,12 +22,11 @@ export default defineComponent({
         <template #header>
             <items-header-actions />
         </template>
-
         <form v-if="!!form" @submit.prevent="submitUpdate" class="py-12 max-w-xl mx-auto">
             <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
                 <div class="flex flex-col">
-                    <h2 class="font-bold uppercase leading-none py-2 mb-1 border-b">Consumable Item Form</h2>
-                    <p>Use this form to modify consumable item information.</p>
+                    <h2 class="font-bold uppercase leading-none py-2 mb-1 border-b">Update Item Form</h2>
+                    <p>Use this form to modify item information.</p>
                 </div>
                 <text-input required label="Name" v-model="form.name" :error="form.errors.name" />
                 <text-input label="Brand" v-model="form.brand" :error="form.errors.brand" />

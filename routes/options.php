@@ -13,18 +13,14 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('options')->group(function () {
-    Route::get('/', [OptionController::class, 'index'])
-        ->name('api.options.index');
-    
-    Route::post('/', [OptionController::class, 'store'])
-        ->name('api.options.store');
-    
-    Route::put('/{id}', [OptionController::class, 'update'])
-        ->name('api.options.update');
-    
-    Route::delete('/{id}', [OptionController::class, 'destroy'])
-        ->name('api.options.destroy');
-    
+    // Specific named routes must come before generic {id} routes to prevent conflicts
+    Route::get('/workflow-toggles', [OptionController::class, 'getWorkflowToggles'])
+        ->name('api.options.workflow-toggles');
+
+    Route::put('/workflow-toggles', [OptionController::class, 'updateWorkflowToggles'])
+        ->middleware(['auth:sanctum', 'can:event.forms.manage'])
+        ->name('api.options.workflow-toggles.update');
+
     // Get options by group
     Route::get('/group/{group}', [OptionController::class, 'getByGroup'])
         ->name('api.options.group');
@@ -49,10 +45,16 @@ Route::prefix('options')->group(function () {
     Route::get('/select/{type}', [OptionController::class, 'getOptionsForSelect'])
         ->name('api.options.select');
 
-    Route::get('/workflow-toggles', [OptionController::class, 'getWorkflowToggles'])
-        ->name('api.options.workflow-toggles');
-
-    Route::put('/workflow-toggles', [OptionController::class, 'updateWorkflowToggles'])
-        ->middleware(['auth:sanctum', 'can:event.forms.manage'])
-        ->name('api.options.workflow-toggles.update');
+    // Generic CRUD routes with {id} parameter (must come last to avoid conflicts with named routes)
+    Route::get('/', [OptionController::class, 'index'])
+        ->name('api.options.index');
+    
+    Route::post('/', [OptionController::class, 'store'])
+        ->name('api.options.store');
+    
+    Route::put('/{id}', [OptionController::class, 'update'])
+        ->name('api.options.update');
+    
+    Route::delete('/{id}', [OptionController::class, 'destroy'])
+        ->name('api.options.destroy');
 });

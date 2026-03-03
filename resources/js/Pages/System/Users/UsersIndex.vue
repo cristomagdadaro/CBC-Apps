@@ -9,16 +9,9 @@ export default {
             loading: false,
             users: [],
             search: '',
-            success: null,
-            notifyError: null,
-            warning: null,
         }
     },
     created() {
-        const notifier = useNotifier()
-        this.success = notifier.success
-        this.notifyError = notifier.error
-        this.warning = notifier.warning
     },
     mounted() {
         this.loadUsers()
@@ -46,23 +39,21 @@ export default {
 
                 this.users = response?.data?.data?.data ?? response?.data?.data ?? []
             } catch (error) {
-                this.notifyError('Failed to load users.')
+                // ApiService handles error notification
             } finally {
                 this.loading = false
             }
         },
         async deleteUser(id) {
             if (!confirm('Delete this user?')) {
-                this.warning('User deletion was cancelled.')
                 return
             }
 
             try {
                 await axios.delete(route('api.users.destroy', id))
-                this.success('User deleted successfully.')
                 await this.loadUsers()
             } catch (error) {
-                this.notifyError('Failed to delete user.')
+                // ApiService handles error notification
             }
         }
     }

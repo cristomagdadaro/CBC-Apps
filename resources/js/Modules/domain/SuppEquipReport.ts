@@ -7,7 +7,7 @@ export default class SuppEquipReport extends DtoSuppEquipReport {
 
         const page = usePage();
         this.api._apiIndex = (!!page.props.auth?.user) ? 'api.inventory.supp_equip_reports.index':'api.inventory.transactions.index.public';
-        console.log(this.api._apiIndex);
+
         this.api._apiPost = 'api.inventory.supp_equip_reports.store' ;
         this.api._apiPut = 'api.inventory.supp_equip_reports.update';
         this.api._apiDelete = 'api.inventory.supp_equip_reports.destroy';

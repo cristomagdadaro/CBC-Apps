@@ -76,7 +76,7 @@ export default {
       } else {
         await this.submitCreate();
       }
-      router.push(route("system.options.index"));
+      router.visit(route("system.options.index"));
     },
   },
 };

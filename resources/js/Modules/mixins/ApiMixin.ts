@@ -5,6 +5,7 @@ import {AxiosError} from "axios";
 import DtoError from "@/Modules/dto/DtoError";
 import DtoResponse from "@/Modules/dto/DtoResponse";
 import { useNotifier } from '@/Modules/composables/useNotifier';
+
 export default {
     props: {
         data: {
@@ -20,6 +21,14 @@ export default {
             confirmDelete: false,
             processing: false,
         }
+    },
+    computed: {
+        suppliers() {
+            return this.$page.props.suppliers;
+        },
+        categories() {
+            return this.$page.props.categories;
+        },
     },
     methods: {
         setFormAction(action: string) {
@@ -64,6 +73,20 @@ export default {
             this.processing = true;
             const api = new ConcreteApiService();
             return await api.post(url, params, config).finally(() => {
+                this.processing = false;
+            });
+        },
+        async fetchPutApi(url: string, id?: any, params?: object) {
+            this.processing = true;
+            const api = new ConcreteApiService();
+            return await api.put(url, id, params).finally(() => {
+                this.processing = false;
+            });
+        },
+        async fetchDeleteApi(url: string, id?: any) {
+            this.processing = true;
+            const api = new ConcreteApiService();
+            return await api.delete(url, id).finally(() => {
                 this.processing = false;
             });
         },

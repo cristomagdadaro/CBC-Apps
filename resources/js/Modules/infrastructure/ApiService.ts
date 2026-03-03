@@ -59,8 +59,10 @@ export default abstract class ApiService {
         try {
             await this.axiosInstance.get('/sanctum/csrf-cookie');
             this.csrfReady = true;
+            ConsoleLogger.debug('CSRF cookie prefetched successfully.');
         } catch (error) {
-            ConsoleLogger.warn('Unable to prefetch CSRF cookie, proceeding with current headers.', error);
+            ConsoleLogger.warn(error);
+            ConsoleLogger.log('Proceeding with current headers.');
         }
     }
 
@@ -235,17 +237,26 @@ export default abstract class ApiService {
                         : {})
                 }
             }).then((response: AxiosResponse) => {
-                ConsoleLogger.debug('API GET Response:', response);
+                ConsoleLogger.debug({
+                    tag: 'API_GET',
+                    status: response.status,
+                    data: response.data,
+                });
                 if (model) {
                     response.data.data = this.castToModel(response.data.data, model);
                 }
                 return response;
             });
             this.processing = false;
-            ConsoleLogger.debug('GET Response Data:', response.data);
             return response.data;
         } catch (error) {
             this.processing = false;
+            ConsoleLogger.error({
+                tag: 'API_GET_ERROR',
+                url: routeUrl,
+                params: cleanedParams,
+                error: error,
+            });
             this.notifyError(error, 'Failed to load data.');
             throw error;
         }
@@ -255,7 +266,10 @@ export default abstract class ApiService {
         this.processing = true;
         try {
             await this.ensureCsrfProtection();
-            ConsoleLogger.debug('POST Parameters:', params);
+            ConsoleLogger.debug({
+                tag: 'API_POST',
+                params: params,
+            });
             const routeParams = config?.routeParams;
             const cleanConfig = config ? { ...config } : undefined;
             if (cleanConfig && Object.prototype.hasOwnProperty.call(cleanConfig, 'routeParams')) {
@@ -281,12 +295,21 @@ export default abstract class ApiService {
                 requestConfig
             );
             this.processing = false;
+            ConsoleLogger.log({
+                tag: 'API_POST_RESPONSE',
+                status: response.status,
+                data: response.data,
+            });
             this.notifySuccess('Data submitted successfully.');
-            ConsoleLogger.debug('POST Response Data:', response.data);
             return response;
         } catch (error) {
-            this.processing = false; console.log(error);
-            ConsoleLogger.error('POST Error:', error);
+            this.processing = false;
+            ConsoleLogger.error({
+                tag: 'API_POST_ERROR',
+                url: routeParams !== undefined ? route(url, routeParams) : route(url),
+                params: params,
+                error: error,
+            });
             this.notifyError(error, 'Failed to submit data.');
             throw error;
         }
@@ -297,7 +320,11 @@ export default abstract class ApiService {
         this.processing = true;
         try {
             await this.ensureCsrfProtection();
-            ConsoleLogger.debug('PUT Parameters:', params);
+            ConsoleLogger.debug({
+                tag: 'API_PUT',
+                id: id,
+                params: params,
+            });
             let response: any = null;
             const shouldUseMultipart = !(params instanceof FormData) && this.hasBinaryValue(params);
 
@@ -323,12 +350,22 @@ export default abstract class ApiService {
                response = await this.axiosInstance.put(`${route(url, id)}`, params);
             }
             this.processing = false;
-            ConsoleLogger.debug('PUT Response Data:', response.data);
+            ConsoleLogger.log({
+                tag: 'API_PUT_RESPONSE',
+                status: response.status,
+                data: response.data,
+            });
             this.notifySuccess('Data updated successfully.');
             return response;
         } catch (error) {
-            this.processing = false; console.log(error);
-            ConsoleLogger.error('PUT Error:', error);
+            this.processing = false;
+            ConsoleLogger.error({
+                tag: 'API_PUT_ERROR',
+                url: !id ? route(url) : route(url, id),
+                id: id,
+                params: params,
+                error: error,
+            });
             this.notifyError(error, 'Failed to update data.');
             throw error;
         }
@@ -338,16 +375,28 @@ export default abstract class ApiService {
         this.processing = true;
         try {
             await this.ensureCsrfProtection();
-            ConsoleLogger.debug('DELETE Parameters:', id);
+            ConsoleLogger.debug({
+                tag: 'API_DELETE',
+                id: id,
+            });
             // @ts-ignore
             const response = await this.axiosInstance.delete(route(url, id), id);
             this.processing = false;
-            ConsoleLogger.debug('DELETE Response Data:', response.data);
+            ConsoleLogger.log({
+                tag: 'API_DELETE_RESPONSE',
+                status: response.status,
+                data: response.data,
+            });
             this.notifyWarning('Data deleted successfully.');
             return response;
         } catch (error) {
             this.processing = false;
-            ConsoleLogger.error('DELETE Error:', error);
+            ConsoleLogger.error({
+                tag: 'API_DELETE_ERROR',
+                url: route(url, id),
+                id: id,
+                error: error,
+            });
             this.notifyError(error, 'Failed to delete data.');
             throw error;
         }
@@ -400,8 +449,9 @@ export default abstract class ApiService {
     public async getIndex(params: any, model?: DtoBaseClass)
     {
         if (!this._apiIndex){
-            console.error('API for index not found');
-            this.notifyError(new Error('API for index not found'), 'API for index not found.');
+            const error = new Error('API for index not found');
+            ConsoleLogger.error(error);
+            this.notifyError(error, 'API for index not found.');
             return null;
         }
         return await this.get(this._apiIndex, params, model);
@@ -447,8 +497,9 @@ export default abstract class ApiService {
     async putIndex(params: any)
     {
         if (!this._apiPut){
-            console.error('API for update not found');
-            this.notifyError(new Error('API for update not found'), 'API for update not found.');
+            const error = new Error('API for update not found');
+            ConsoleLogger.error(error);
+            this.notifyError(error, 'API for update not found.');
             return null;
         }
         return await this.put(this._apiPut, this.getIdentifier(params), params);
@@ -457,8 +508,9 @@ export default abstract class ApiService {
     async postIndex(params: any)
     {
         if (!this._apiPost){
-            console.error('API for create not found');
-            this.notifyError(new Error('API for create not found'), 'API for create not found.');
+            const error = new Error('API for create not found');
+            ConsoleLogger.error(error);
+            this.notifyError(error, 'API for create not found.');
             return null;
         }
         return await this.post(this._apiPost, params);
@@ -467,8 +519,9 @@ export default abstract class ApiService {
     async deleteApiIndex(params: any)
     {
         if (!this._apiDelete){
-            console.error('API for delete not found');
-            this.notifyError(new Error('API for delete not found'), 'API for delete not found.');
+            const error = new Error('API for delete not found');
+            ConsoleLogger.error(error);
+            this.notifyError(error, 'API for delete not found.');
             return null;
         }
         return await this.delete(this._apiDelete, this.getIdentifier(params));

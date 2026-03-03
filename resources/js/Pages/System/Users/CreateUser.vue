@@ -29,8 +29,6 @@ export default {
             },
             errors: {},
             submitting: false,
-            success: null,
-            notifyError: null,
         }
     },
     computed: {
@@ -40,11 +38,6 @@ export default {
                 label: this.formatLabel(role),
             }))
         },
-    },
-    created() {
-        const notifier = useNotifier()
-        this.success = notifier.success
-        this.notifyError = notifier.error
     },
     methods: {
         formatLabel(value) {
@@ -61,13 +54,9 @@ export default {
             this.errors = {}
             try {
                 await axios.post(route('api.users.store'), this.form)
-                this.success('User created successfully.')
                 router.visit(route('system.users.index'))
             } catch (error) {
                 this.errors = error?.response?.data?.errors || {}
-                if (!Object.keys(this.errors).length) {
-                    this.notifyError('Failed to create user.')
-                }
             } finally {
                 this.submitting = false
             }

@@ -19,6 +19,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Http\Controllers\DashboardController;
 use App\Repositories\CategoryRepo;
+use App\Repositories\SupplierRepo;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -178,9 +179,9 @@ Route::middleware([
                 })->name('items.index');
 
                 Route::get('/create', function () {
-                    return Inertia::render('Inventory/Items/components/CreateItem', [
+                    return Inertia::render('Inventory/Items/components/CreateItemForm', [
                         'fromUrl' => url()->previous(),
-                        'suppliers' => Supplier::withTrashed()->get(),
+                        'suppliers' => app(SupplierRepo::class)->getOptions(),
                         'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
                     ]);
                 })->name('items.create');
@@ -188,7 +189,7 @@ Route::middleware([
                 Route::get('/{id}', [ItemController::class, function () {
                     return Inertia::render('Inventory/Items/components/EditItemForm', [
                         'data' => Item::find(request()->route('id')),
-                        'suppliers' => Supplier::withTrashed()->get(),
+                        'suppliers' => app(SupplierRepo::class)->getOptions(),
                         'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
                         'fromUrl' => url()->previous(),
                     ]);
@@ -220,7 +221,7 @@ Route::middleware([
                     return Inertia::render('Inventory/Transactions/components/Incoming', [
                         'fromUrl' => route('transactions.index'),
                         'items' => Item::get(),
-                        'suppliers' => Supplier::withTrashed()->get(),
+                        'suppliers' => app(SupplierRepo::class)->getOptions(),
                         'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
                         'storage_locations' => app(OptionRepo::class)->getStorageLocations(),
                         'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
