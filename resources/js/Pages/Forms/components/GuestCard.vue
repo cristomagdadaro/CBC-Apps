@@ -42,6 +42,19 @@ export default {
         resolvedStyleTokens() {
             return mergeFormStyleTokens(this.data?.style_tokens);
         },
+        workflowFeatureToggles() {
+            return this.workflowState?.feature_toggles || {
+                event_workflow_enabled: true,
+                participant_workflow_enabled: true,
+                participant_verification_enabled: true,
+            };
+        },
+        participantWorkflowEnabled() {
+            return this.workflowFeatureToggles.participant_workflow_enabled !== false;
+        },
+        participantVerificationEnabled() {
+            return this.workflowFeatureToggles.participant_verification_enabled !== false;
+        },
         workflowSteps() {
             return this.workflowState?.steps || [];
         },
@@ -260,6 +273,14 @@ export default {
             this.loadWorkflow();
         },
         requiresParticipant(formType) {
+            if (!this.participantWorkflowEnabled) {
+                return false;
+            }
+
+            if (!this.participantVerificationEnabled) {
+                return false;
+            }
+
             const step = formType ? this.getStep(formType) : this.activeStep;
 
             if (step?.requires_participant_context === true) {
@@ -276,6 +297,10 @@ export default {
             return !exempt.includes(formType);
         },
         canRenderForm(formType) {
+            if (!this.participantWorkflowEnabled) {
+                return true;
+            }
+
             if (!this.requiresParticipant(formType)) {
                 return true;
             }
@@ -283,6 +308,10 @@ export default {
             return !!this.selectedParticipantHash;
         },
         getParticipantIdForStep(stepIdentifier) {
+            if (!this.participantWorkflowEnabled) {
+                return null;
+            }
+
             return this.requiresParticipant(stepIdentifier) ? this.selectedParticipantHash : null;
         },
         getAvailablePreregistrationStep() {
@@ -752,7 +781,7 @@ export default {
                 </button>
             </div>
             <div
-                v-if="activeStep?.status === 'available' && requiresParticipant(activeTab) && !selectedParticipantHash"
+                v-if="activeStep?.status === 'available' && participantWorkflowEnabled && participantVerificationEnabled && requiresParticipant(activeTab) && !selectedParticipantHash"
                 class="px-3 py-3 bg-white rounded-md border flex flex-col gap-2"
             >
                 <label class="text-xs font-semibold uppercase text-gray-600">Participant verification</label>

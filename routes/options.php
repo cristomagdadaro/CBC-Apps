@@ -48,4 +48,11 @@ Route::prefix('options')->group(function () {
     // Get options for select fields by type (unified endpoint)
     Route::get('/select/{type}', [OptionController::class, 'getOptionsForSelect'])
         ->name('api.options.select');
+
+    Route::get('/workflow-toggles', [OptionController::class, 'getWorkflowToggles'])
+        ->name('api.options.workflow-toggles');
+
+    Route::put('/workflow-toggles', [OptionController::class, 'updateWorkflowToggles'])
+        ->middleware(['auth:sanctum', 'can:event.forms.manage'])
+        ->name('api.options.workflow-toggles.update');
 });

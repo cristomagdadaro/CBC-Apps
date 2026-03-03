@@ -76,7 +76,7 @@ export default {
 </script>
 
 <template>
-    <div class="bg-white dark:bg-gray-700 border-b border-gray-200 dark:border-gray-700 transition-colors">
+    <div class="bg-white dark:bg-gray-700 border-b border-gray-200 dark:border-gray-700 transition-colors p-3">
         <nav class="flex space-x-4" aria-label="Tabs">
             <button
                 v-for="tab in tabs"
@@ -99,7 +99,7 @@ export default {
                 <span>{{ tab.label }}</span>
             </button>
         </nav>
-        <slot :activeKey="activeKey" />
+        <slot :activeKey="activeKey"/>
     </div>
 </template>
 

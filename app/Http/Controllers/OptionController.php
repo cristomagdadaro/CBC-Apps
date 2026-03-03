@@ -15,14 +15,38 @@ use App\Repositories\LaboratoryEquipmentLogRepo;
 use App\Repositories\ParticipantRepo;
 use App\Repositories\PersonnelRepo;
 use App\Repositories\SupplierRepo;
+use App\Services\EventWorkflowFeatureService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 class OptionController extends BaseController
 {
+    protected array $workflowToggleMetadata = [
+        EventWorkflowFeatureService::KEY_EVENT_WORKFLOW => [
+            'label' => 'Event Workflow Enabled',
+            'description' => 'Enable or disable event workflow sequence logic.',
+            'group' => 'forms',
+        ],
+        EventWorkflowFeatureService::KEY_PARTICIPANT_WORKFLOW => [
+            'label' => 'Participant Workflow Enabled',
+            'description' => 'Enable or disable participant-dependent step progression logic.',
+            'group' => 'forms',
+        ],
+        EventWorkflowFeatureService::KEY_PARTICIPANT_VERIFICATION => [
+            'label' => 'Participant Verification Enabled',
+            'description' => 'Enable or disable participant verification requirements in event forms.',
+            'group' => 'forms',
+        ],
+    ];
+
     public function __construct(OptionRepo $repository)
     {
         $this->service = $repository;
+    }
+
+    protected function repo(): OptionRepo
+    {
+        return $this->service;
     }
 
     /**
@@ -62,7 +86,7 @@ class OptionController extends BaseController
      */
     public function getByGroup(Request $request, $group)
     {
-        $options = $this->service->getByGroup($group);
+        $options = $this->repo()->getByGroup($group);
         return new Collection($options);
     }
 
@@ -71,7 +95,7 @@ class OptionController extends BaseController
      */
     public function getByKey(Request $request, $key)
     {
-        $value = $this->service->getByKey($key);
+        $value = $this->repo()->getByKey($key);
         
         // Try to decode if JSON, otherwise leave as string
         $decoded = @json_decode($value, true);
@@ -90,7 +114,7 @@ class OptionController extends BaseController
      */
     public function getAllGrouped(Request $request)
     {
-        $options = $this->service->getAllGrouped();
+        $options = $this->repo()->getAllGrouped();
         return new Collection($options);
     }
 
@@ -100,7 +124,7 @@ class OptionController extends BaseController
     public function getForDropdown(Request $request)
     {
         $group = $request->query('group');
-        $options = $this->service->getForDropdown($group);
+        $options = $this->repo()->getForDropdown($group);
         return new Collection($options);
     }
 
@@ -110,7 +134,7 @@ class OptionController extends BaseController
     public function getWithMetadata(Request $request)
     {
         $group = $request->query('group');
-        $options = $this->service->getWithMetadata($group);
+        $options = $this->repo()->getWithMetadata($group);
         return new Collection($options);
     }
 
@@ -149,5 +173,43 @@ class OptionController extends BaseController
 
         $options = $repository->getOptions();
         return new Collection($options);
+    }
+
+    public function getWorkflowToggles(EventWorkflowFeatureService $workflowFeatures)
+    {
+        return response()->json([
+            'status' => 'success',
+            'data' => $workflowFeatures->toggles(),
+            'keys' => [
+                'event_workflow_enabled' => EventWorkflowFeatureService::KEY_EVENT_WORKFLOW,
+                'participant_workflow_enabled' => EventWorkflowFeatureService::KEY_PARTICIPANT_WORKFLOW,
+                'participant_verification_enabled' => EventWorkflowFeatureService::KEY_PARTICIPANT_VERIFICATION,
+            ],
+        ]);
+    }
+
+    public function updateWorkflowToggles(Request $request, EventWorkflowFeatureService $workflowFeatures)
+    {
+        $validated = $request->validate([
+            'event_workflow_enabled' => ['required', 'boolean'],
+            'participant_workflow_enabled' => ['required', 'boolean'],
+            'participant_verification_enabled' => ['required', 'boolean'],
+        ]);
+
+        $mapping = [
+            EventWorkflowFeatureService::KEY_EVENT_WORKFLOW => (bool) $validated['event_workflow_enabled'],
+            EventWorkflowFeatureService::KEY_PARTICIPANT_WORKFLOW => (bool) $validated['participant_workflow_enabled'],
+            EventWorkflowFeatureService::KEY_PARTICIPANT_VERIFICATION => (bool) $validated['participant_verification_enabled'],
+        ];
+
+        foreach ($mapping as $key => $value) {
+            $this->repo()->upsertBooleanOption($key, $value, $this->workflowToggleMetadata[$key] ?? []);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Workflow toggles updated successfully.',
+            'data' => $workflowFeatures->toggles(),
+        ]);
     }
 }

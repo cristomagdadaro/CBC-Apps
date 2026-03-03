@@ -18,6 +18,13 @@ export default {
       optionsFromApi: null,
       success: null,
       notifyError: null,
+      workflowToggles: {
+        event_workflow_enabled: true,
+        participant_workflow_enabled: true,
+        participant_verification_enabled: true,
+      },
+      workflowToggleLoading: false,
+      workflowToggleSaving: false,
     }
   },
   created() {
@@ -30,10 +37,50 @@ export default {
     this.setFormAction('get');
   },
   mounted() {
+    this.loadWorkflowToggles();
     this.searchOptions();
   },
 
   methods: {
+    async loadWorkflowToggles() {
+      this.workflowToggleLoading = true
+      try {
+        const response = await axios.get(route('api.options.workflow-toggles'))
+        const data = response?.data?.data || {}
+        this.workflowToggles = {
+          event_workflow_enabled: data.event_workflow_enabled !== false,
+          participant_workflow_enabled: data.participant_workflow_enabled !== false,
+          participant_verification_enabled: data.participant_verification_enabled !== false,
+        }
+      } catch (error) {
+        this.notifyError('Failed to load workflow toggles.')
+      } finally {
+        this.workflowToggleLoading = false
+      }
+    },
+    async saveWorkflowToggles() {
+      this.workflowToggleSaving = true
+      try {
+        const payload = {
+          event_workflow_enabled: !!this.workflowToggles.event_workflow_enabled,
+          participant_workflow_enabled: !!this.workflowToggles.participant_workflow_enabled,
+          participant_verification_enabled: !!this.workflowToggles.participant_verification_enabled,
+        }
+
+        const response = await axios.put(route('api.options.workflow-toggles.update'), payload)
+        const data = response?.data?.data || payload
+        this.workflowToggles = {
+          event_workflow_enabled: data.event_workflow_enabled !== false,
+          participant_workflow_enabled: data.participant_workflow_enabled !== false,
+          participant_verification_enabled: data.participant_verification_enabled !== false,
+        }
+        this.success('Workflow toggles updated successfully.')
+      } catch (error) {
+        this.notifyError('Failed to update workflow toggles.')
+      } finally {
+        this.workflowToggleSaving = false
+      }
+    },
     async handleDeleteRecord(row) {
       const id = row?.identifier?.()?.id ?? row?.id
       if (!id) return
@@ -76,6 +123,41 @@ export default {
   </template> 
   <div class="min-h-screen py-5">
     <div class="max-w-[90vw] mx-auto sm:px-6 lg:px-8">
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4">
+        <div class="flex items-start justify-between gap-4 mb-3">
+          <div>
+            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Form Workflow Toggles</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-300">Enable or disable event, participant, and participant verification logic from frontend to backend.</p>
+          </div>
+          <button
+            type="button"
+            class="rounded-lg bg-AB px-4 py-2 text-sm font-medium text-white hover:bg-AB/90 disabled:opacity-60"
+            :disabled="workflowToggleLoading || workflowToggleSaving"
+            @click="saveWorkflowToggles"
+          >
+            {{ workflowToggleSaving ? 'Saving...' : 'Save Toggles' }}
+          </button>
+        </div>
+
+        <div v-if="workflowToggleLoading" class="text-sm text-gray-500 dark:text-gray-400">Loading workflow toggles...</div>
+        <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <label class="flex items-center justify-between rounded-md border border-gray-200 dark:border-gray-700 p-3">
+            <span class="text-sm font-medium text-gray-800 dark:text-gray-200">Event Workflow</span>
+            <input type="checkbox" v-model="workflowToggles.event_workflow_enabled" class="rounded border-gray-300 text-AB focus:ring-AB" />
+          </label>
+
+          <label class="flex items-center justify-between rounded-md border border-gray-200 dark:border-gray-700 p-3">
+            <span class="text-sm font-medium text-gray-800 dark:text-gray-200">Participant Workflow</span>
+            <input type="checkbox" v-model="workflowToggles.participant_workflow_enabled" class="rounded border-gray-300 text-AB focus:ring-AB" />
+          </label>
+
+          <label class="flex items-center justify-between rounded-md border border-gray-200 dark:border-gray-700 p-3">
+            <span class="text-sm font-medium text-gray-800 dark:text-gray-200">Participant Verification</span>
+            <input type="checkbox" v-model="workflowToggles.participant_verification_enabled" class="rounded border-gray-300 text-AB focus:ring-AB" />
+          </label>
+        </div>
+      </div>
+
       <form v-if="!!form" class="flex gap-2 items-end" @submit.prevent="searchOptions">
         <div class="grid grid-rows-2 w-full">
           <div class="w-full flex gap-2 items-end lg:px-0 px-2">

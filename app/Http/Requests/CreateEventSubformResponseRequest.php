@@ -8,6 +8,7 @@ use App\Enums\Subform;
 use App\Models\EventSubform;
 use App\Models\Registration;
 use App\Services\DynamicValidationService;
+use App\Services\EventWorkflowFeatureService;
 use Illuminate\Support\Arr;
 
 class CreateEventSubformResponseRequest extends FormRequest
@@ -147,6 +148,11 @@ class CreateEventSubformResponseRequest extends FormRequest
 
     protected function requiresParticipantVerification(): bool
     {
+        $globalVerificationEnabled = app(EventWorkflowFeatureService::class)->isParticipantVerificationEnabled();
+        if (!$globalVerificationEnabled) {
+            return false;
+        }
+
         $subform = $this->getEventSubform();
         if (!$subform) {
             return true;

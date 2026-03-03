@@ -6,6 +6,7 @@ use App\Models\EventSubform;
 use App\Models\Participant;
 use App\Models\Registration;
 use App\Services\EventWorkflowService;
+use App\Services\EventWorkflowFeatureService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -24,8 +25,20 @@ class EventWorkflowController extends Controller
         ], 200);
     }
 
-    public function resolveParticipantByEmail(Request $request, string $event_id): JsonResponse
+    public function resolveParticipantByEmail(Request $request, string $event_id, EventWorkflowFeatureService $features): JsonResponse
     {
+        if (!$features->isParticipantVerificationEnabled()) {
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'found' => false,
+                    'profile_found' => false,
+                    'feature_disabled' => true,
+                    'message' => 'Participant verification is currently disabled for this form workflow.',
+                ],
+            ], 200);
+        }
+
         $validated = $request->validate([
             'email' => ['required', 'email'],
         ]);

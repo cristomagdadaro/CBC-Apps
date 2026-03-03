@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Option;
+use Illuminate\Support\Arr;
 
 class OptionRepo extends AbstractRepoService
 {
@@ -32,6 +33,54 @@ class OptionRepo extends AbstractRepoService
             ->newQuery()
             ->where('key', $key)
             ->first()?->value;
+    }
+
+    public function getBooleanByKey(string $key, bool $default = false): bool
+    {
+        $value = $this->getByKey($key);
+
+        if ($value === null) {
+            return $default;
+        }
+
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value)) {
+            return $value === 1;
+        }
+
+        if (is_string($value)) {
+            $normalized = strtolower(trim($value));
+
+            if (in_array($normalized, ['1', 'true', 'yes', 'on'], true)) {
+                return true;
+            }
+
+            if (in_array($normalized, ['0', 'false', 'no', 'off'], true)) {
+                return false;
+            }
+        }
+
+        return $default;
+    }
+
+    public function upsertBooleanOption(string $key, bool $value, array $meta = []): Option
+    {
+        return $this->model
+            ->newQuery()
+            ->updateOrCreate(
+                ['key' => $key],
+                [
+                    'value' => $value ? 'true' : 'false',
+                    'label' => Arr::get($meta, 'label', $key),
+                    'description' => Arr::get($meta, 'description'),
+                    'type' => 'boolean',
+                    'group' => Arr::get($meta, 'group', 'forms'),
+                    'options' => Arr::get($meta, 'options'),
+                ]
+            );
     }
 
     /**

@@ -17,14 +17,20 @@ use Illuminate\Validation\ValidationException;
 
 class EventWorkflowService
 {
+    public function __construct(protected EventWorkflowFeatureService $featureService)
+    {
+    }
+
     public function getWorkflowState(string $eventId, ?string $participantId = null): array
     {
+        $toggles = $this->featureService->toggles();
         $steps = $this->getOrderedSteps($eventId);
         $states = $this->getParticipantStates($eventId, $participantId);
 
-        $resolved = $steps->map(function (EventSubform $step, int $index) use ($steps, $states, $participantId) {
-            $status = $this->resolveStepStatus($step, $steps, $states, $participantId);
-            $requiresParticipantContext = $this->requiresParticipantContext($step);
+        $resolved = $steps->map(function (EventSubform $step, int $index) use ($steps, $states, $participantId, $toggles) {
+            $status = $this->resolveStepStatus($step, $steps, $states, $participantId, $toggles);
+            $requiresParticipantContext = ($toggles['participant_workflow_enabled'] ?? true)
+                && $this->requiresParticipantContext($step);
 
             return [
                 'id' => $step->id,
@@ -47,16 +53,18 @@ class EventWorkflowService
                     ? $step->template->form_config
                     : (is_array(Arr::get($step->config, 'form_config')) ? Arr::get($step->config, 'form_config') : []),
                 'requires_participant_context' => $requiresParticipantContext,
-                'requires_interactive_verification' => data_get($step->template?->form_config, 'require_participant_verification', true) !== false,
+                'requires_interactive_verification' => ($toggles['participant_verification_enabled'] ?? true)
+                    && data_get($step->template?->form_config, 'require_participant_verification', true) !== false,
                 'status' => $status,
             ];
         })->values();
 
-        $currentStep = $this->resolvePreferredStep($resolved);
+        $currentStep = $this->resolvePreferredStep($resolved, $toggles);
 
         return [
             'event_id' => $eventId,
             'participant_id' => $participantId,
+            'feature_toggles' => $toggles,
             'current_step_id' => $currentStep['id'] ?? null,
             'steps' => $resolved,
         ];
@@ -67,10 +75,11 @@ class EventWorkflowService
         /** @var EventSubform $step */
         $step = EventSubform::query()->findOrFail($validated['form_parent_id']);
         $participantId = Arr::get($validated, 'participant_id');
+        $toggles = $this->featureService->toggles();
 
-        $this->assertCanSubmit($step, $participantId, Arr::get($validated, 'subform_type'), Arr::get($validated, 'response_data', []));
+        $this->assertCanSubmit($step, $participantId, Arr::get($validated, 'subform_type'), Arr::get($validated, 'response_data', []), $toggles);
 
-        return DB::transaction(function () use ($validated, $step, $participantId) {
+        return DB::transaction(function () use ($validated, $step, $participantId, $toggles) {
             $context = app(Pipeline::class)
                 ->send([
                     'validated' => $validated,
@@ -86,11 +95,12 @@ class EventWorkflowService
             $validated = $context['validated'] ?? $validated;
             $participantId = Arr::get($validated, 'participant_id', $participantId);
 
-            if (!$participantId && !$this->canStartWithoutParticipant($step)) {
+            $participantWorkflowEnabled = $toggles['participant_workflow_enabled'] ?? true;
+            if ($participantWorkflowEnabled && !$participantId && !$this->canStartWithoutParticipant($step, $toggles)) {
                 $this->throwWorkflowError('participant_id', 'Participant is required to continue this step.');
             }
 
-            if ($participantId) {
+            if ($participantWorkflowEnabled && $participantId) {
                 $existing = EventSubformResponse::query()
                     ->where('form_parent_id', $step->id)
                     ->where('participant_id', $participantId)
@@ -127,7 +137,7 @@ class EventWorkflowService
 
             $response = $context['subformResponse'];
 
-            if ($participantId) {
+            if (($toggles['participant_workflow_enabled'] ?? true) && $participantId) {
                 $this->ensureStepState($step, $participantId, $completionHash, 'submitted');
             }
 
@@ -140,8 +150,12 @@ class EventWorkflowService
         });
     }
 
-    public function assertCanSubmit(EventSubform $step, ?string $participantId, ?string $subformType = null, array $responseData = []): void
+    public function assertCanSubmit(EventSubform $step, ?string $participantId, ?string $subformType = null, array $responseData = [], ?array $toggles = null): void
     {
+        $toggles = $toggles ?? $this->featureService->toggles();
+        $eventWorkflowEnabled = $toggles['event_workflow_enabled'] ?? true;
+        $participantWorkflowEnabled = $toggles['participant_workflow_enabled'] ?? true;
+
         if ($subformType && $subformType !== $step->form_type) {
             $this->throwWorkflowError('subform_type', 'This step does not match the submitted form type.');
         }
@@ -153,21 +167,29 @@ class EventWorkflowService
             $this->throwWorkflowError('step', 'This step is outside the allowed time window.');
         }
 
-        if (!$this->isVisible($step, $participantId)) {
+        if ($eventWorkflowEnabled && !$this->isVisible($step, $participantId, $toggles)) {
             $this->throwWorkflowError('step', 'This step is not available based on current conditions.');
         }
 
         $this->assertConditionalLimits($step, $responseData);
+
+        if (!$eventWorkflowEnabled) {
+            return;
+        }
 
         if (!$participantId) {
             if (!$this->isFirstStep($step)) {
                 $this->throwWorkflowError('step', 'You must complete the prior steps before starting this one.');
             }
 
-            if (!$this->canStartWithoutParticipant($step)) {
+            if ($participantWorkflowEnabled && !$this->canStartWithoutParticipant($step, $toggles)) {
                 $this->throwWorkflowError('participant_id', 'Participant is required for this step.');
             }
 
+            return;
+        }
+
+        if (!$participantWorkflowEnabled) {
             return;
         }
 
@@ -235,13 +257,16 @@ class EventWorkflowService
             ->keyBy('event_subform_id');
     }
 
-    protected function resolveStepStatus(EventSubform $step, Collection $steps, Collection $states, ?string $participantId): string
+    protected function resolveStepStatus(EventSubform $step, Collection $steps, Collection $states, ?string $participantId, array $toggles): string
     {
+        $eventWorkflowEnabled = $toggles['event_workflow_enabled'] ?? true;
+        $participantWorkflowEnabled = $toggles['participant_workflow_enabled'] ?? true;
+
         if (!$step->is_enabled) {
             return ParticipantStepState::STATUS_DISABLED;
         }
 
-        if (!$this->isVisible($step, $participantId)) {
+        if ($eventWorkflowEnabled && !$this->isVisible($step, $participantId, $toggles)) {
             return ParticipantStepState::STATUS_HIDDEN;
         }
 
@@ -259,7 +284,7 @@ class EventWorkflowService
         }
 
         // Check completion status after time constraints
-        if ($participantId && $this->isStepCompleted($step, $participantId)) {
+        if ($participantWorkflowEnabled && $participantId && $this->isStepCompleted($step, $participantId)) {
             return ParticipantStepState::STATUS_COMPLETED;
         }
 
@@ -268,6 +293,10 @@ class EventWorkflowService
         }
 
         if (!$participantId) {
+            return ParticipantStepState::STATUS_AVAILABLE;
+        }
+
+        if (!$eventWorkflowEnabled || !$participantWorkflowEnabled) {
             return ParticipantStepState::STATUS_AVAILABLE;
         }
 
@@ -421,8 +450,17 @@ class EventWorkflowService
         return hash('sha256', $participantId . '|' . $stepId . '|' . json_encode($payload));
     }
 
-    protected function canStartWithoutParticipant(EventSubform $step): bool
+    protected function canStartWithoutParticipant(EventSubform $step, ?array $toggles = null): bool
     {
+        $toggles = $toggles ?? $this->featureService->toggles();
+        if (($toggles['participant_workflow_enabled'] ?? true) === false) {
+            return true;
+        }
+
+        if (($toggles['participant_verification_enabled'] ?? true) === false) {
+            return true;
+        }
+
         $step->loadMissing('template');
 
         $templateToggle = data_get($step->template?->form_config, 'require_participant_verification');
@@ -445,8 +483,14 @@ class EventWorkflowService
         return in_array($type, $allowed, true);
     }
 
-    protected function isVisible(EventSubform $step, ?string $participantId): bool
+    protected function isVisible(EventSubform $step, ?string $participantId, ?array $toggles = null): bool
     {
+        $toggles = $toggles ?? $this->featureService->toggles();
+
+        if (($toggles['event_workflow_enabled'] ?? true) === false) {
+            return true;
+        }
+
         $rules = $step->visibility_rules ?? [];
 
         if (!$rules) {
@@ -479,8 +523,15 @@ class EventWorkflowService
         ]);
     }
 
-    protected function resolvePreferredStep(Collection $resolved): ?array
+    protected function resolvePreferredStep(Collection $resolved, ?array $toggles = null): ?array
     {
+        $toggles = $toggles ?? $this->featureService->toggles();
+
+        if (($toggles['event_workflow_enabled'] ?? true) === false) {
+            return $resolved
+                ->first(fn (array $step) => ($step['status'] ?? null) === ParticipantStepState::STATUS_AVAILABLE);
+        }
+
         $available = $resolved
             ->filter(fn (array $step) => ($step['status'] ?? null) === ParticipantStepState::STATUS_AVAILABLE)
             ->values();
