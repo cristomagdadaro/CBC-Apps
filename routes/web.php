@@ -181,7 +181,7 @@ Route::middleware([
                     return Inertia::render('Inventory/Items/components/CreateItem', [
                         'fromUrl' => url()->previous(),
                         'suppliers' => Supplier::withTrashed()->get(),
-                        'categories' => Category::all(),
+                        'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
                     ]);
                 })->name('items.create');
 
@@ -189,7 +189,7 @@ Route::middleware([
                     return Inertia::render('Inventory/Items/components/EditItemForm', [
                         'data' => Item::find(request()->route('id')),
                         'suppliers' => Supplier::withTrashed()->get(),
-                        'categories' => Category::all(),
+                        'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
                         'fromUrl' => url()->previous(),
                     ]);
                 }])->name('items.show');
@@ -198,7 +198,7 @@ Route::middleware([
             Route::get('/barcodes/print', function () {
                 return Inertia::render('Inventory/Barcodes/BarcodePrint', [
                     'fromUrl' => route('items.index'),
-                    'categories' => app(CategoryRepo::class)->getInventoryFormCategories([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+                    'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
                 ]);
             })->name('inventory.barcodes.print');
 

@@ -13,10 +13,14 @@ class CategoryRepo extends AbstractRepoService
     
     /**
      * Get categories for inventory form, only including those with items and matching the specified category IDs
-     * Default category IDs are 1, 2, 3, 5, and 6 (consumables, non-consumables, chemicals, PPEs, and office supplies)
     */
-    public function getInventoryFormCategories($categoryIds = [1, 2, 3, 5, 6])
+    public function getInventoryFormCategories($categoryIds = [])
     {
+        //if empty, default to all
+        if (empty($categoryIds)) {
+           return $this->model->newQuery()->select('id as name', 'name as label')->has('items')->get();
+        }
+
         return $this->model
             ->newQuery()
             ->select('id as name', 'name as label')
