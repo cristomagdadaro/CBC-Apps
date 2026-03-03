@@ -105,15 +105,15 @@ class InventoryIcf2026Seeder extends Seeder
                 : null;
             $fallbackCategory = Category::where('name', 'Office Supplies')->first();
 
-            // Use only name and brand for uniqueness (matches the DB constraint)
+            // Match item records at a finer level to avoid collapsing distinct assets
             $item = Item::firstOrCreate(
                 [
                     'name' => $itemName,
                     'brand' => $brand,
-                ],
-                [
                     'description' => $description,
                     'specifications' => $specifications,
+                ],
+                [
                     'category_id' => $category?->id ?? $fallbackCategory?->id,
                     'supplier_id' => $supplier->id,
                 ]
@@ -132,14 +132,10 @@ class InventoryIcf2026Seeder extends Seeder
             }
 
             $barcodePrri = $this->nullableTrim($data['barcode_prri'] ?? null);
-            $storageOptions = Option::where('label', $row[18])->first();
-            $storage = $storageOptions ? $storageOptions->value : null;
-            $barcode = TransactionFactory::generateBarcode($storage ?? '00');
 
             try {
-                $transaction = Transaction::factory()->create([
+                $transactionPayload = [
                     'item_id' => $item->id,
-                    'barcode' => $barcode,
                     'barcode_prri' => $barcodePrri,
                     'transac_type' => $transacType,
                     'quantity' => $this->toNumeric($data['quantity'] ?? null),
@@ -153,7 +149,26 @@ class InventoryIcf2026Seeder extends Seeder
                     'remarks' => $this->nullableTrim($data['remarks'] ?? null),
                     'par_no' => $this->nullableTrim($data['par_no'] ?? null),
                     'condition' => $this->nullableTrim($data['condition'] ?? null),
-                ]);
+                ];
+
+                $existingTransaction = null;
+                if ($barcodePrri && $transacType === Inventory::INCOMING->value) {
+                    $existingTransaction = Transaction::query()
+                        ->where('barcode_prri', $barcodePrri)
+                        ->where('transac_type', Inventory::INCOMING->value)
+                        ->first();
+                }
+
+                if ($existingTransaction) {
+                    $existingTransaction->fill($transactionPayload)->save();
+                    $transaction = $existingTransaction;
+                } else {
+                    $storageOptions = Option::where('label', $row[18])->first();
+                    $storage = $storageOptions ? $storageOptions->value : null;
+                    $transactionPayload['barcode'] = TransactionFactory::generateBarcode($storage ?? '00');
+
+                    $transaction = Transaction::factory()->create($transactionPayload);
+                }
 
                 $createdAt = $this->parseDate($data['created_at'] ?? null);
                 if ($createdAt) {
