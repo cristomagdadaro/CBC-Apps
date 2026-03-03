@@ -86,7 +86,7 @@ export default {
     },
     computed: {
         responseLabels() {
-            return Object.keys(this.stats?.responses_by_type || {}).map((key) => this.labelMap[key] || key);
+            return Object.keys(this.stats?.responses_by_type || {}).map((key) => this.getFormTypeDisplayLabel(key));
         },
         responseValues() {
             return Object.values(this.stats?.responses_by_type || {});
@@ -95,7 +95,7 @@ export default {
             const entries = Object.entries(this.stats?.responses_by_type || {});
             return entries.map(([key, value]) => ({
                 form_type: key,
-                label: this.labelMap[key] || key,
+                label: this.getFormTypeDisplayLabel(key),
                 count: value ?? 0,
             }));
         },
@@ -109,11 +109,20 @@ export default {
                         Object.keys(item.response_data).forEach(k => uniqueKeys.add(k));
                     }
                 });
+
+                const dataColumns = Array.from(uniqueKeys).sort();
+                const schemaLabels = this.getFieldLabelMapForFormType(key);
+                const dataColumnLabels = dataColumns.reduce((acc, column) => {
+                    acc[column] = schemaLabels[column] || this.humanizeColumn(column);
+                    return acc;
+                }, {});
+
                 return {
                     form_type: key,
-                    label: this.labelMap[key] || key,
+                    label: this.getFormTypeDisplayLabel(key),
                     items: itemsArray,
-                    dataColumns: Array.from(uniqueKeys).sort(),
+                    dataColumns,
+                    dataColumnLabels,
                 };
             });
         },
@@ -239,6 +248,86 @@ export default {
         },
     },
     methods: {
+        getRequirementForFormType(formType) {
+            const requirements = this.config?.requirements;
+            if (!Array.isArray(requirements)) {
+                return null;
+            }
+
+            const formTypeKey = String(formType || '');
+            const [baseType, templateId] = formTypeKey.split(':');
+
+            const directMatch = requirements.find((item) => {
+                if (!item) return false;
+                if (templateId) {
+                    return item?.form_type === baseType && item?.form_type_template_id === templateId;
+                }
+                return item?.form_type === formTypeKey || item?.step_type === formTypeKey;
+            });
+
+            if (directMatch) {
+                return directMatch;
+            }
+
+            if (baseType === 'custom') {
+                return requirements.find((item) => item?.form_type === 'custom') || null;
+            }
+
+            return null;
+        },
+        getFormTypeDisplayLabel(formType) {
+            const requirement = this.getRequirementForFormType(formType);
+            const templateName = requirement?.template?.name
+                || requirement?.form_type_template?.name
+                || requirement?.form_type_template_name
+                || requirement?.template_name;
+
+            if (templateName) {
+                return templateName;
+            }
+
+            return this.labelMap[formType] || this.humanizeColumn(formType);
+        },
+        humanizeColumn(column) {
+            return String(column || '')
+                .replace(/_/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        },
+        getFieldLabelMapForFormType(formType) {
+            const requirements = this.config?.requirements;
+            if (!Array.isArray(requirements)) {
+                return {};
+            }
+
+            const requirement = requirements.find((item) => item?.form_type === formType);
+            const schema = requirement?.resolved_field_schema || requirement?.field_schema || [];
+
+            if (!Array.isArray(schema)) {
+                return {};
+            }
+
+            return schema.reduce((acc, field) => {
+                const fieldKey = field?.field_key;
+                const title = field?.title;
+                const label = field?.label;
+                const preferred = title || label;
+
+                if (fieldKey && preferred) {
+                    acc[fieldKey] = preferred;
+                }
+
+                return acc;
+            }, {});
+        },
+        getColumnLabel(formType, column) {
+            const group = this.responseDataGroups.find((g) => g.form_type === formType);
+            if (group?.dataColumnLabels?.[column]) {
+                return group.dataColumnLabels[column];
+            }
+
+            return this.humanizeColumn(column);
+        },
         normalizeText(value) {
             if (value === null || value === undefined) {
                 return null;
@@ -503,8 +592,8 @@ export default {
             return { labels, data };
         },
         getChartTitle(config) {
-            const label = this.labelMap[config.formType] || config.formType;
-            return `${label} · ${config.column.replace(/_/g, ' ')}`;
+            const label = this.getFormTypeDisplayLabel(config.formType);
+            return `${label} · ${this.getColumnLabel(config.formType, config.column)}`;
         },
         addDynamicChart() {
             if (!this.selectedChartFormType || !this.selectedChartColumn || !this.selectedChartType) return;
@@ -764,7 +853,7 @@ export default {
             return str;
         },
         exportToCSV(group) {
-            const headers = ['Submitted On', 'Respondent', ...group.dataColumns.map(col => col.replace(/_/g, ' '))];
+            const headers = ['Submitted On', 'Respondent', ...group.dataColumns.map(col => group.dataColumnLabels?.[col] || this.humanizeColumn(col))];
             const rows = group.items.map(item => [
                 item.created_at,
                 item.response_data?.name || item.response_data?.full_name || item.response_data?.email || 'N/A',
@@ -1126,8 +1215,8 @@ export default {
                     <template #default>
                         <div class="mt-4" v-if="activeGroup">
                             <div class="flex items-center justify-between mb-3">
-                                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    <span class="uppercase">{{ activeGroup.label }}</span>
+                                <h3 v-if="activeGroup?.items?.length" class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <span>There are a total of {{ activeGroup.items.length }} responses</span>
                                 </h3>
                                 <button
                                     @click="exportToCSV(activeGroup)"

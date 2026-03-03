@@ -27,7 +27,8 @@ class EventSubformController extends BaseController
         $id   = $event_id ?: $request->validated('event_id') ?: request('event_id');
         $form = Form::where('event_id', $id)
             ->with([
-                'requirements' => fn($q) => $q->withCount('responses')
+                'requirements' => fn($q) => $q->with('template:id,name')
+                    ->withCount('responses')
                     ->orderByRaw('step_order IS NULL, step_order ASC, created_at ASC'),
             ])
             ->firstOrFail();
