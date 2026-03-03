@@ -7,6 +7,7 @@ import ItemsHeaderActions from "@/Pages/Inventory/Items/components/ItemsHeaderAc
 import CreateItemForm from "@/Pages/Inventory/Items/components/CreateItemForm.vue";
 
 export default defineComponent({
+    name: "CreateItem",
     components: { ItemsHeaderActions, CreateItemForm },
     mixins: [ApiMixin],
     beforeMount() {

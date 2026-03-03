@@ -6,6 +6,7 @@ import Item from "@/Modules/domain/Item";
 import ItemsHeaderActions from "@/Pages/Inventory/Items/components/ItemsHeaderActions.vue";
 
 export default defineComponent({
+    name: "CreateItemForm",
     components: { ItemsHeaderActions },
     mixins: [ApiMixin],
     beforeMount() {
@@ -25,7 +26,7 @@ export default defineComponent({
             return this.$page.props.categories.map(categories => {
                 return {
                     name: categories.id,
-                    label: categories.name,
+                    label: categories.label,
                 }
             });
         },
