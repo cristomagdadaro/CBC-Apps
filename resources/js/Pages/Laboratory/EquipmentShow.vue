@@ -16,7 +16,7 @@ export default {
     data() {
         return {
             delayReady: false,
-            title: "Laboratory Equipment Log",
+            title: "Equipment Logger",
             subtitle: "Scan-based tracking for equipment usage",
             selectedEquipmentId: this.equipment_id,
             equipmentOptions: [],

@@ -12,6 +12,7 @@ export default {
         label: { type: String, default: '' },
         required: { type: Boolean, default: false },
         typeInput: { type: String, default: '' },
+        disabled: { type: Boolean, default: false },
         chameleon: { type: Boolean, default: false },
         guide: { type: String, default: null },
         datalistId: { type: String, default: null },
@@ -64,6 +65,7 @@ export default {
                 :value="modelValue"
                 :placeholder="placeholder"
                 :type="typeInput || type"
+                :disabled="disabled"
                 :list="datalistId"
                 @input="$emit('update:modelValue', $event.target.value)"
             >

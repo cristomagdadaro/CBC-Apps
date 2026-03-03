@@ -93,6 +93,8 @@ export default {
                 defaults[field] = this.form.report_data?.[field] ?? null;
             });
             this.form.report_data = defaults;
+            //now
+            this.form.report_data.incident_date = this.form.report_data?.incident_date ?? new Date().toISOString().split('T')[0];
         },
         formatOptionLabel(label) {
             if (!label) return '';
@@ -224,6 +226,7 @@ export default {
                 <text-input
                     label="Reported At"
                     :required="true"
+                    disabled
                     type-input="date"
                     v-model="form.reported_at"
                     :error="form.errors.reported_at"

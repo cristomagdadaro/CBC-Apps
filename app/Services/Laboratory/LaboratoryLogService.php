@@ -379,6 +379,11 @@ class LaboratoryLogService
             ->first();
     }
 
+    /**
+     * Determines if the given equipment ID corresponds to an eligible laboratory equipment item.
+     * Only laboratory (7) and ICT (4) equipment categories are eligible, and the item must have at least one transaction record.
+     * @param string $equipmentId
+     */
     private function findEligibleEquipment(string $equipmentId): ?Item
     {
         return Item::query()
@@ -390,7 +395,7 @@ class LaboratoryLogService
             )
             ->where('items.id', $equipmentId)
             ->whereHas('category', function (Builder $query) {
-                $query->where('categories.id', 7)
+                $query->whereIn('categories.id', [4,7])
                     ->orWhere('categories.name', 'Laboratory Equipment');
             })
             ->whereHas('transactions')

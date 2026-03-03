@@ -4,6 +4,7 @@ import {usePage} from "@inertiajs/vue3";
 export default class Transaction extends DtoTransaction {
     static endpoints = {
         index: 'api.inventory.transactions.index',
+        indexGuest: 'api.inventory.transactions.index.public',
         postAuth: 'api.inventory.transactions.store',
         postGuest: 'api.inventory.transactions.store.public',
         put: 'api.inventory.transactions.update',
@@ -15,10 +16,9 @@ export default class Transaction extends DtoTransaction {
 
     constructor(response: DtoTransaction) {
         super(response);
-
         
-
-        this.api._apiIndex = Transaction.endpoints.index;
+        // @ts-ignore
+        this.api._apiIndex = (Transaction.page.props.auth && Transaction.page.props.auth.user) ? Transaction.endpoints.index : Transaction.endpoints.indexGuest;
         // @ts-ignore
         this.api._apiPost = (Transaction.page.props.auth && Transaction.page.props.auth.user) ? Transaction.endpoints.postAuth : Transaction.endpoints.postGuest;
         this.api._apiPut = Transaction.endpoints.put;

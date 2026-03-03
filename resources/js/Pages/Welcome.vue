@@ -41,8 +41,8 @@ const services = [
         icon: FesIcon,
     },
     {
-        title: "Lab Equipment Logger",
-        description: "Access and track laboratory equipment availability and usage logs",
+        title: "Equipment Logger",
+        description: "Access and track laboratory an ICT equipment availability and usage logs",
         href: route("laboratory.equipments.show"),
         icon: BookmarkIcon,
     },
