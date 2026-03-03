@@ -18,7 +18,7 @@ class CategoryRepo extends AbstractRepoService
     {
         //if empty, default to all
         if (empty($categoryIds)) {
-           return $this->model->newQuery()->select('id as name', 'name as label')->has('items')->get();
+           return $this->model->newQuery()->select('id as name', 'name as label')->get();
         }
 
         return $this->model

@@ -19,11 +19,12 @@ class InventoryCategorySeeder extends Seeder
             ['name' => 'Tokens', 'description' => 'Various tokens or promotional materials'],
             ['name' => 'ICT Equipment', 'description' => 'Different types of equipment'],
             ['name' => 'ICT Supplies', 'description' => 'Different types of supplies'],
-            ['name' => 'Laboratory Consumables', 'description' => 'Disposable items used in laboratories such as tubes, pipette tips, etc.'],
+            ['name' => 'Laboratory Chemicals', 'description' => 'Various chemicals used in laboratories'],
             ['name' => 'Laboratory Equipment', 'description' => 'Various equipment used in laboratories like beakers, graduated cylinders, etc.'],
             ['name' => 'Vehicles', 'description' => 'Different types of vehicles used for transportation and logistics'],
             ['name' => 'Furniture and Fixtures', 'description' => 'Various types of furniture and fixtures used in offices and other settings'],
             ['name' => 'Agricultural Equipment', 'description' => 'Equipment used in agriculture such as tractors, chainsaws, etc.'],
+            ['name' => 'Laboratory Consumables', 'description' => 'Disposable items used in laboratories such as tubes, pipette tips, etc.'],
         ];
 
         foreach ($categories as $category) {
