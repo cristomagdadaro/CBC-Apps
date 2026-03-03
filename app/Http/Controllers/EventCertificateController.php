@@ -15,6 +15,8 @@ use Illuminate\Support\Str;
 
 class EventCertificateController extends Controller
 {
+    private const DEFAULT_TEMPLATE_RELATIVE_PATH = 'app/python/Certificate-Generator/multi_template.pptx';
+
     public function uploadTemplate(Request $request, string $event_id): JsonResponse
     {
         $validated = $request->validate([
@@ -123,6 +125,18 @@ class EventCertificateController extends Controller
             ->where('event_id', $event_id)
             ->first();
 
+        if (!$template || !$template->template_path || !Storage::exists($template->template_path)) {
+            $defaultTemplatePath = $this->defaultTemplateAbsolutePath();
+            if ($defaultTemplatePath && File::exists($defaultTemplatePath)) {
+                $template = [
+                    'template_path' => self::DEFAULT_TEMPLATE_RELATIVE_PATH,
+                    'template_name' => basename(self::DEFAULT_TEMPLATE_RELATIVE_PATH),
+                    'template_mime' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                    'is_default' => true,
+                ];
+            }
+        }
+
         return response()->json([
             'status' => 'success',
             'data' => [
@@ -209,14 +223,22 @@ class EventCertificateController extends Controller
             ->where('event_id', $eventId)
             ->first();
 
-        if (!$template || !$template->template_path || !Storage::exists($template->template_path)) {
-            throw new \RuntimeException('Saved template not found. Please upload a template first.');
+        if ($template && $template->template_path && Storage::exists($template->template_path)) {
+            $batchTemplatePath = "{$batchDir}/template.pptx";
+            Storage::copy($template->template_path, $batchTemplatePath);
+
+            return $batchTemplatePath;
         }
 
-        $batchTemplatePath = "{$batchDir}/template.pptx";
-        Storage::copy($template->template_path, $batchTemplatePath);
+        $defaultTemplateAbsolutePath = $this->defaultTemplateAbsolutePath();
+        if ($defaultTemplateAbsolutePath && File::exists($defaultTemplateAbsolutePath)) {
+            $batchTemplatePath = "{$batchDir}/template.pptx";
+            Storage::put($batchTemplatePath, File::get($defaultTemplateAbsolutePath));
 
-        return $batchTemplatePath;
+            return $batchTemplatePath;
+        }
+
+        throw new \RuntimeException('No saved template found and default template is missing. Please upload a template first.');
     }
 
     private function resolveDataPath(Request $request, string $eventId, string $batchDir, array $validated): string
@@ -338,5 +360,10 @@ class EventCertificateController extends Controller
     private function cacheKey(string $batchId): string
     {
         return "certificate_batch:{$batchId}";
+    }
+
+    private function defaultTemplateAbsolutePath(): string
+    {
+        return base_path(self::DEFAULT_TEMPLATE_RELATIVE_PATH);
     }
 }

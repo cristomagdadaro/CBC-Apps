@@ -64,6 +64,16 @@ export default {
                 }
             },
         },
+        useSavedTemplate(value) {
+            if (value) {
+                this.templateFile = null;
+            }
+        },
+        useEventData(value) {
+            if (value) {
+                this.dataFile = null;
+            }
+        },
     },
     beforeUnmount() {
         this.stopPolling();
@@ -160,6 +170,10 @@ export default {
                 return error?.message || fallback;
             }
 
+            if (error?.response?.status === 413) {
+                return 'Request is too large. Use Saved Template/Event Data to avoid uploading files, or reduce file size and server upload limits.';
+            }
+
             if (error?.response?.status === 422) {
                 return error?.response?.data?.message || 'Validation failed. Please review your files and fields.';
             }
@@ -205,7 +219,9 @@ export default {
 
             this.resetMessages();
             this.uploadProgress = 0;
-            const hasFileUpload = !!this.templateFile || (!this.useEventData && !!this.dataFile);
+            const shouldUploadTemplate = !this.useSavedTemplate && !!this.templateFile;
+            const shouldUploadData = !this.useEventData && !!this.dataFile;
+            const hasFileUpload = shouldUploadTemplate || shouldUploadData;
             this.uploading = hasFileUpload;
 
             if (!hasFileUpload) {
@@ -220,11 +236,11 @@ export default {
                 if (hasFileUpload) {
                     const formData = new FormData();
 
-                    if (this.templateFile) {
+                    if (shouldUploadTemplate) {
                         formData.append('template', this.templateFile);
                     }
 
-                    if (!this.useEventData && this.dataFile) {
+                    if (shouldUploadData) {
                         formData.append('data', this.dataFile);
                     }
 
@@ -368,7 +384,7 @@ export default {
                 <p v-if="hasSavedTemplate" class="mt-1 text-xs text-gray-600 dark:text-gray-400">
                     Saved template: {{ savedTemplateName }}
                 </p>
-                <p v-else class="mt-1 text-xs text-amber-600">No saved template found yet. Upload one below.</p>
+                <p v-else class="mt-1 text-xs text-amber-600">No event-specific template found. The system default template will be used unless you upload a new one.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
