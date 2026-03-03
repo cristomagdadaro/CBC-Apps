@@ -47,6 +47,9 @@ export default {
         savedTemplateName() {
             return this.savedTemplate?.template_name || 'template.pptx';
         },
+        hasSelectedTemplateFile() {
+            return !!this.templateFile;
+        },
     },
     watch: {
         eventId: {
@@ -122,6 +125,25 @@ export default {
             this.resetMessages();
             const file = event.target.files?.[0] || null;
             this.setFile(type, file);
+        },
+        viewSavedTemplate() {
+            if (!this.eventId) {
+                this.errorMessage = 'Event ID is missing.';
+                return;
+            }
+
+            const url = route('api.event.certificates.template.view', [this.eventId]);
+            window.open(url, '_blank');
+        },
+        viewSelectedTemplate() {
+            if (!this.templateFile) {
+                this.errorMessage = 'Select a template file first.';
+                return;
+            }
+
+            const objectUrl = URL.createObjectURL(this.templateFile);
+            window.open(objectUrl, '_blank');
+            window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
         },
         async fetchResponseColumns() {
             if (!this.eventId) {
@@ -372,12 +394,6 @@ export default {
     <div class="space-y-6">
         <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
             <h3 class="text-normal font-bold text-gray-500 dark:text-gray-400">Bulk Certificate Generator</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                You can only generate using the http://192.168.36.10/ since this is a DA-CBC local server.
-            </p>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Generate certificates using either uploaded Excel data or event response_data fields, then process in the background queue.
-            </p>
             
             <div class="mt-4 p-3 border border-gray-200 rounded bg-gray-50 dark:bg-gray-900/20">
                 <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
@@ -387,6 +403,14 @@ export default {
                 <p v-if="hasSavedTemplate" class="mt-1 text-xs text-gray-600 dark:text-gray-400">
                     Saved template: {{ savedTemplateName }}
                 </p>
+                <div v-if="hasSavedTemplate" class="mt-2">
+                    <button
+                        class="text-xs px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white"
+                        @click="viewSavedTemplate"
+                    >
+                        View Saved Template
+                    </button>
+                </div>
                 <p v-else class="mt-1 text-xs text-amber-600">No event-specific template found. The system default template will be used unless you upload a new one.</p>
             </div>
 
@@ -401,6 +425,14 @@ export default {
                     <p class="text-xs text-gray-500 mt-1">Upload a new template to replace the saved event template (optional).</p>
                     <input type="file" accept=".pptx" class="mt-3 w-full" @change="onFileInput('template', $event)" />
                     <p v-if="templateFile" class="mt-2 text-xs text-gray-600">{{ templateFile.name }}</p>
+                    <div v-if="hasSelectedTemplateFile" class="mt-2">
+                        <button
+                            class="text-xs px-3 py-1 rounded bg-slate-600 hover:bg-slate-700 text-white"
+                            @click="viewSelectedTemplate"
+                        >
+                            View Selected Template
+                        </button>
+                    </div>
                 </div>
 
                 <div
@@ -516,5 +548,20 @@ export default {
         <div v-if="errorMessage" class="text-red-600 text-sm">
             {{ errorMessage }}
         </div>
+        <section>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                Brief: Template Formatting Rules
+            </h3>
+            <div class="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+                <ul class="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
+                    <li>Generate certificates using either uploaded Excel data or event response_data fields, then process in the background queue.</li>
+                    <li>Use placeholder format <strong>&lt;&lt;COLUMN_NAME&gt;&gt;</strong> inside text boxes or table cells.</li>
+                    <li>Use the exact selected column key from the UI whenever possible (example: <code>fullname_8647</code>).</li>
+                    <li><strong>&lt;&lt;NAME&gt;&gt;</strong> can resolve to fullname-style fields, but exact keys are most reliable.</li>
+                    <li>Avoid putting placeholder brackets in separate text boxes; keep each placeholder in one text element.</li>
+                    <li>Save template as <strong>.pptx</strong> only.</li>
+                </ul>
+            </div>
+        </section>
     </div>
 </template>

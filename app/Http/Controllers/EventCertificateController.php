@@ -147,6 +147,36 @@ class EventCertificateController extends Controller
         ]);
     }
 
+    public function downloadTemplate(string $event_id)
+    {
+        $template = EventCertificateTemplate::query()
+            ->where('event_id', $event_id)
+            ->first();
+
+        if ($template && $template->template_path && Storage::exists($template->template_path)) {
+            $absolutePath = Storage::path($template->template_path);
+            $downloadName = $template->template_name ?: 'template.pptx';
+
+            return response()->download($absolutePath, $downloadName, [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            ]);
+        }
+
+        $defaultTemplateAbsolutePath = $this->defaultTemplateAbsolutePath();
+        if ($defaultTemplateAbsolutePath && File::exists($defaultTemplateAbsolutePath)) {
+            return response()->download(
+                $defaultTemplateAbsolutePath,
+                basename(self::DEFAULT_TEMPLATE_RELATIVE_PATH),
+                ['Content-Type' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation']
+            );
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Template file not found.',
+        ], 404);
+    }
+
     public function status(string $event_id, string $batch_id): JsonResponse
     {
         $payload = Cache::get($this->cacheKey($batch_id));

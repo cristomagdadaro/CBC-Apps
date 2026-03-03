@@ -12,6 +12,7 @@ import ProfilePasswordTopic from './Topics/ProfilePasswordTopic.vue';
 import ConsoleLoggerTopic from './Topics/ConsoleLoggerTopic.vue';
 import RentalServicesTopic from './Topics/RentalServicesTopic.vue';
 import SystemOptionsTopic from './Topics/SystemOptionsTopic.vue';
+import CertificateGeneratorTopic from './Topics/CertificateGeneratorTopic.vue';
 
 export default {
     name: 'ManualsIndex',
@@ -28,6 +29,7 @@ export default {
         ConsoleLoggerTopic,
         RentalServicesTopic,
         SystemOptionsTopic,
+        CertificateGeneratorTopic,
     },
     setup() {
         const activeSection = ref('overview');
@@ -93,6 +95,11 @@ export default {
                 icon: '⚙️',
                 component: SystemOptionsTopic,
             },
+            certificateGenerator: {
+                title: 'How to use Certificate Generator',
+                icon: '🎓',
+                component: CertificateGeneratorTopic,
+            },
         };
 
         const menuItems = [
@@ -108,6 +115,7 @@ export default {
             { id: 'profilePassword', label: 'How to update Profile and Password', icon: '👤' },
             { id: 'consoleLogger', label: 'Console Logger (Development)', icon: '🖥️' },
             { id: 'systemOptions', label: 'How to use System Options', icon: '⚙️' },
+            { id: 'certificateGenerator', label: 'How to use Certificate Generator', icon: '🎓' },
         ];
 
         return {

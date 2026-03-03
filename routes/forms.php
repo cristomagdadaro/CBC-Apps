@@ -117,6 +117,9 @@ Route::prefix('forms')->group(function () {
             Route::post('/certificates/{event_id}/template', [EventCertificateController::class, 'uploadTemplate'])
                 ->name('api.event.certificates.template.upload');
 
+            Route::get('/certificates/{event_id}/template', [EventCertificateController::class, 'downloadTemplate'])
+                ->name('api.event.certificates.template.view');
+
             Route::post('/certificates/{event_id}/generate', [EventCertificateController::class, 'generate'])
                 ->name('api.event.certificates.generate');
 

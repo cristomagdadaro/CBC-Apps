@@ -118,29 +118,66 @@ def ensure_unique_basename(out_dir: str, base: str, ext: str) -> str:
         i += 1
 
 
+def resolve_placeholder_value(mapping: Dict[str, object], key: str) -> Tuple[bool, object]:
+    normalized_key = str(key or '').strip().lower()
+    if normalized_key in mapping:
+        return True, mapping.get(normalized_key, '')
+
+    alias_map = {
+        'name': ['fullname', 'full name'],
+        'fullname': ['name', 'full name'],
+        'full name': ['fullname', 'name'],
+    }
+
+    for alias in alias_map.get(normalized_key, []):
+        if alias in mapping:
+            return True, mapping.get(alias, '')
+
+    return False, ''
+
+
+def replace_placeholders_in_text(text: str, mapping: Dict[str, object]) -> str:
+    if not text:
+        return text
+
+    def _replacement(match):
+        raw_key = match.group(1)
+        found, value = resolve_placeholder_value(mapping, raw_key)
+        if not found:
+            return match.group(0)
+        try:
+            if pd.isna(value):
+                value = ''
+        except Exception:
+            pass
+        return str(value)
+
+    return PLACEHOLDER_RE.sub(_replacement, text)
+
+
+def replace_placeholders_in_paragraph(paragraph, mapping: Dict[str, object]) -> None:
+    runs = list(paragraph.runs)
+    if not runs:
+        paragraph.text = replace_placeholders_in_text(paragraph.text, mapping)
+        return
+
+    original_text = ''.join(run.text or '' for run in runs)
+    replaced_text = replace_placeholders_in_text(original_text, mapping)
+    if replaced_text == original_text:
+        return
+
+    runs[0].text = replaced_text
+    for run in runs[1:]:
+        run.text = ''
+
+
 def find_and_replace_in_shape(shape, mapping):
     # Replace placeholders in text frames
     if not shape.has_text_frame:
         return
     text_frame = shape.text_frame
     for p in text_frame.paragraphs:
-        for run in p.runs:
-            if not run.text:
-                continue
-            original = run.text
-            new_text = original
-            for match in PLACEHOLDER_RE.findall(original):
-                key = match.strip().lower()
-                value = mapping.get(key, "")
-                # mapping values may be numpy types; handle NaN
-                try:
-                    if pd.isna(value):
-                        value = ""
-                except Exception:
-                    pass
-                new_text = new_text.replace(f"<<{match}>>", str(value))
-            if new_text != original:
-                run.text = new_text
+        replace_placeholders_in_paragraph(p, mapping)
 
 
 def replace_placeholders(prs: Presentation, mapping: dict):
@@ -159,20 +196,7 @@ def replace_placeholders(prs: Presentation, mapping: dict):
                     for c in range(len(table.columns)):
                         cell = table.cell(r, c)
                         for p in cell.text_frame.paragraphs:
-                            for run in p.runs:
-                                original = run.text
-                                new_text = original
-                                for match in PLACEHOLDER_RE.findall(original):
-                                    key = match.strip().lower()
-                                    value = mapping.get(key, "")
-                                    try:
-                                        if pd.isna(value):
-                                            value = ""
-                                    except Exception:
-                                        pass
-                                    new_text = new_text.replace(f"<<{match}>>", str(value))
-                                if new_text != original:
-                                    run.text = new_text
+                            replace_placeholders_in_paragraph(p, mapping)
 
 
 def format_filename(template: str, row: pd.Series, date_now: datetime):
@@ -337,6 +361,48 @@ def pptx_to_pdf(soffice_path: str, pptx_path: str, out_dir: str) -> str:
     return pdf_path
 
 
+def pptx_to_images_with_soffice(soffice_path: str, pptx_path: str, out_dir: str) -> List[str]:
+    resolved_soffice = resolve_soffice_path(soffice_path)
+    if not resolved_soffice:
+        raise FileNotFoundError(f"soffice not found at '{soffice_path}'. Please install LibreOffice or provide full path.")
+
+    normalized_pptx_path = os.path.normpath(os.path.abspath(pptx_path))
+    normalized_out_dir = os.path.normpath(os.path.abspath(out_dir))
+    profile_dir = mkdtemp(prefix='lo-profile-')
+    profile_uri = to_lo_user_installation_uri(profile_dir)
+
+    cmd = [
+        resolved_soffice,
+        '--headless',
+        '--nologo',
+        '--nodefault',
+        '--nofirststartwizard',
+        '--norestore',
+        '--nolockcheck',
+        f'-env:UserInstallation={profile_uri}',
+        '--convert-to',
+        'png',
+        '--outdir',
+        normalized_out_dir,
+        normalized_pptx_path,
+    ]
+
+    process_env = os.environ.copy()
+    process_env.pop('PYTHONHOME', None)
+    process_env.pop('PYTHONPATH', None)
+    process_env['TEMP'] = profile_dir
+    process_env['TMP'] = profile_dir
+
+    try:
+        subprocess.run(cmd, check=True, env=process_env, timeout=120)
+    finally:
+        shutil.rmtree(profile_dir, ignore_errors=True)
+
+    base = os.path.splitext(os.path.basename(pptx_path))[0]
+    generated = sorted(pathlib.Path(out_dir).glob(f'{base}*.png'))
+    return [str(path) for path in generated]
+
+
 def pdf_to_images(pdf_path: str, dpi: int = 200, poppler_path: str = None):
     # returns list of PIL Images (one per page)
     images = convert_from_path(pdf_path, dpi=dpi, poppler_path=poppler_path)
@@ -415,23 +481,49 @@ def generate_for_row(prs_template: Presentation, row: pd.Series, out_dir: str, o
             return False, msg, out_paths
 
         if out_format in ('png', 'jpg', 'jpeg'):
-            images = pdf_to_images(out_pdf, dpi=dpi, poppler_path=poppler_path)
-            # take first page by default; if multiple slides exist, return numbered files
-            if len(images) == 1:
-                img = images[0]
-                img_format = 'PNG' if out_format == 'png' else 'JPEG'
-                out_img_path = os.path.join(out_dir, unique_base + ('.png' if out_format == 'png' else '.jpg'))
-                img.save(out_img_path, img_format)
-                out_paths[out_format] = out_img_path
-            else:
-                # save numbered
-                saved = []
-                for i, img in enumerate(images, start=1):
-                    ext = '.png' if out_format == 'png' else '.jpg'
-                    out_img_path = os.path.join(out_dir, f"{unique_base}_page{i}{ext}")
-                    img.save(out_img_path, 'PNG' if out_format == 'png' else 'JPEG')
-                    saved.append(out_img_path)
-                out_paths[out_format] = saved
+            try:
+                generated_png_paths = pptx_to_images_with_soffice(soffice_path, out_pptx, out_dir)
+
+                if not generated_png_paths:
+                    raise FileNotFoundError('LibreOffice image conversion did not produce PNG output.')
+
+                if out_format == 'png':
+                    if len(generated_png_paths) == 1:
+                        source_path = generated_png_paths[0]
+                        target_path = os.path.join(out_dir, unique_base + '.png')
+                        if os.path.abspath(source_path) != os.path.abspath(target_path):
+                            shutil.move(source_path, target_path)
+                        out_paths['png'] = target_path
+                    else:
+                        saved = []
+                        for index, source_path in enumerate(generated_png_paths, start=1):
+                            target_path = os.path.join(out_dir, f"{unique_base}_page{index}.png")
+                            if os.path.abspath(source_path) != os.path.abspath(target_path):
+                                shutil.move(source_path, target_path)
+                            saved.append(target_path)
+                        out_paths['png'] = saved
+                else:
+                    saved = []
+                    for index, source_path in enumerate(generated_png_paths, start=1):
+                        img = Image.open(source_path)
+                        target_path = os.path.join(
+                            out_dir,
+                            unique_base + '.jpg' if len(generated_png_paths) == 1 else f"{unique_base}_page{index}.jpg"
+                        )
+                        img.convert('RGB').save(target_path, 'JPEG')
+                        saved.append(target_path)
+                        try:
+                            os.remove(source_path)
+                        except Exception:
+                            pass
+
+                    out_paths['jpg'] = saved[0] if len(saved) == 1 else saved
+            except Exception as image_error:
+                msg = (
+                    f"PPTX->image conversion failed for '{unique_base}': {image_error}. "
+                    "If using legacy PDF-to-image fallback, install Poppler and add it to PATH."
+                )
+                return False, msg, out_paths
     finally:
         try:
             os.remove(tmp_pptx)
