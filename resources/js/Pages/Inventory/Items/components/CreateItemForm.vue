@@ -25,7 +25,7 @@ export default defineComponent({
         categories() {
             return this.$page.props.categories.map(categories => {
                 return {
-                    name: categories.id,
+                    name: categories.name,
                     label: categories.label,
                 }
             });
