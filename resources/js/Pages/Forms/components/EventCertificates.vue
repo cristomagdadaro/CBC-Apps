@@ -373,6 +373,9 @@ export default {
         <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
             <h3 class="text-normal font-bold text-gray-500 dark:text-gray-400">Bulk Certificate Generator</h3>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                You can only generate using the http://192.168.36.10/ since this is a DA-CBC local server.
+            </p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                 Generate certificates using either uploaded Excel data or event response_data fields, then process in the background queue.
             </p>
             

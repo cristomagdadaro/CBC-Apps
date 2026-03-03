@@ -57,15 +57,10 @@ class ProcessCertificateBatchJob implements ShouldQueue
             'updated_at' => now()->toIso8601String(),
         ], now()->addHours(6));
 
-        $pythonPath = config('services.certificate_generator.python_path')
-            ?: config('services.certificate_generator.python')
-            ?: (PHP_OS_FAMILY === 'Windows' ? 'py' : 'python3');
-
         $libreOfficePath = config('services.certificate_generator.libreoffice_path', 'soffice');
         $scriptPath = base_path('app/python/Certificate-Generator/certificate_generator.py');
 
-        $command = [
-            $pythonPath,
+        $baseArgs = [
             $scriptPath,
             '--template', Storage::path($this->templatePath),
             '--data', Storage::path($this->dataPath),
@@ -76,14 +71,12 @@ class ProcessCertificateBatchJob implements ShouldQueue
         ];
 
         if (!empty($this->nameTemplate)) {
-            $command[] = '--name-template';
-            $command[] = $this->nameTemplate;
+            $baseArgs[] = '--name-template';
+            $baseArgs[] = $this->nameTemplate;
         }
 
         try {
-            $process = new Process($command, base_path());
-            $process->setTimeout(0);
-            $process->mustRun();
+            $this->runGeneratorProcess($baseArgs);
         } catch (ProcessFailedException $exception) {
             $message = trim($exception->getProcess()->getErrorOutput() ?: $exception->getProcess()->getOutput()) ?: $exception->getMessage();
             $this->recordFailure($message);
@@ -223,5 +216,62 @@ class ProcessCertificateBatchJob implements ShouldQueue
     private function cacheKey(): string
     {
         return "certificate_batch:{$this->batchId}";
+    }
+
+    private function runGeneratorProcess(array $baseArgs): void
+    {
+        $lastException = null;
+
+        foreach ($this->resolvePythonCandidates() as $pythonExecutable) {
+            $command = array_merge([$pythonExecutable], $baseArgs);
+
+            try {
+                $process = new Process($command, base_path());
+                $process->setTimeout(0);
+                $process->mustRun();
+                return;
+            } catch (ProcessFailedException $exception) {
+                $lastException = $exception;
+                $message = trim($exception->getProcess()->getErrorOutput() ?: $exception->getProcess()->getOutput()) ?: $exception->getMessage();
+
+                if ($this->isMissingExecutableError($message)) {
+                    continue;
+                }
+
+                throw $exception;
+            }
+        }
+
+        if ($lastException instanceof ProcessFailedException) {
+            throw $lastException;
+        }
+
+        throw new \RuntimeException('Unable to resolve a working Python executable for certificate generation.');
+    }
+
+    private function resolvePythonCandidates(): array
+    {
+        $configured = [
+            (string) config('services.certificate_generator.python_path', ''),
+            (string) config('services.certificate_generator.python', ''),
+        ];
+
+        $defaults = PHP_OS_FAMILY === 'Windows'
+            ? ['py', 'python', 'python3']
+            : ['python3', 'python'];
+
+        $candidates = array_merge($configured, $defaults);
+
+        return array_values(array_filter(array_unique(array_map('trim', $candidates)), fn ($value) => $value !== ''));
+    }
+
+    private function isMissingExecutableError(string $message): bool
+    {
+        $normalized = strtolower($message);
+
+        return str_contains($normalized, 'not recognized as an internal or external command')
+            || str_contains($normalized, 'is not recognized as an internal or external command')
+            || str_contains($normalized, 'no such file or directory')
+            || str_contains($normalized, 'could not be found');
     }
 }

@@ -33,7 +33,7 @@ return [
 
     'certificate_generator' => [
         'python' => env('CERTIFICATE_GENERATOR_PYTHON'),
-        'python_path' => env('PYTHON_PATH', env('CERTIFICATE_GENERATOR_PYTHON', PHP_OS_FAMILY === 'Windows' ? 'python' : 'python3')),
+        'python_path' => env('PYTHON_PATH', env('CERTIFICATE_GENERATOR_PYTHON', PHP_OS_FAMILY === 'Windows' ? 'py' : 'python3')),
         'libreoffice_path' => env('LIBREOFFICE_PATH', 'soffice'),
     ],
 
