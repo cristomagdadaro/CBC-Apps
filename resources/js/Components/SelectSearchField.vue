@@ -167,8 +167,8 @@ export default {
             this.currentSearch = searchValue;
             this.resetPagination();
             
-            // If we have local options (from props), search offline
-            if (this.options && this.options.length > 0) {
+            // If we have local options (from props) OR fetched options in local mode, search offline
+            if ((this.options && this.options.length > 0) || (this.isUsingLocalOptions && this.formattedOptions.length > 0)) {
                 this.searchLocalOptions(searchValue);
             } else if (this.apiLink) {
                 // Otherwise search via API
@@ -181,13 +181,55 @@ export default {
                 // If no search, show all options
                 this.filteredOptions = [...this.formattedOptions];
             } else {
-                // Filter options by label or value
-                const searchLower = searchValue.toLowerCase();
-                this.filteredOptions = this.formattedOptions.filter(option => {
-                    const labelMatch = String(option.label).toLowerCase().includes(searchLower);
-                    const valueMatch = String(option.value).toLowerCase().includes(searchLower);
-                    return labelMatch || valueMatch;
-                });
+                const searchLower = searchValue.toLowerCase().trim();
+                const searchTerms = searchLower.split(/\s+/).filter(t => t.length > 0); // Split into individual terms, filter empty
+
+                // Score and filter options
+                const scored = this.formattedOptions
+                    .map(option => {
+                        // Trim and normalize both label and value
+                        const label = String(option.label).toLowerCase().trim();
+                        const value = String(option.value).toLowerCase().trim();
+                        const combinedText = `${label} ${value}`;
+
+                        let score = 0;
+
+                        // Exact match on full label (highest priority)
+                        if (label === searchLower) {
+                            score += 1000;
+                        }
+                        // Exact match on full value
+                        else if (value === searchLower) {
+                            score += 900;
+                        }
+                        // Label starts with search term (prefix match)
+                        else if (label.startsWith(searchLower)) {
+                            score += 500;
+                        }
+                        // All search terms appear in label (word match)
+                        else if (searchTerms.length > 0 && searchTerms.every(term => label.includes(term))) {
+                            score += 400;
+                        }
+                        // All search terms appear in combined text
+                        else if (searchTerms.length > 0 && searchTerms.every(term => combinedText.includes(term))) {
+                            score += 300;
+                        }
+                        // Search term appears anywhere in label
+                        else if (label.includes(searchLower)) {
+                            score += 200;
+                        }
+                        // Search term appears anywhere in combined text
+                        else if (combinedText.includes(searchLower)) {
+                            score += 100;
+                        }
+
+                        return { option, score };
+                    })
+                    .filter(({ score }) => score > 0)
+                    .sort((a, b) => b.score - a.score)
+                    .map(({ option }) => option);
+
+                this.filteredOptions = scored;
             }
         },
 

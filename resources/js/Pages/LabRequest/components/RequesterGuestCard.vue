@@ -23,9 +23,23 @@ export default {
                 { key: 'request_type', label: 'Request Type' },
                 { key: 'requestor', label: 'Requestor Info' },
                 { key: 'details', label: 'Request Details' },
-                { key: 'supplies', label: 'Supplies' },
-                { key: 'equipments', label: 'Equipments' },
-                { key: 'labs', label: 'Laboratory Facilities' },
+                { key: 'biofreezer', label: 'Biofreezer' },
+                { key: 'field_experimental_space', label: 'Field Experimental Space' },
+                { key: 'ict_equipment', label: 'ICT Equipment' },
+                { key: 'ict_supplies', label: 'ICT Supplies' },
+                { key: 'iec_materials', label: 'IEC Materials' },
+                { key: 'laboratory_access', label: 'Laboratory Access' },
+                { key: 'laboratory_consumables', label: 'Laboratory Consumables' },
+                { key: 'laboratory_equipment', label: 'Laboratory Equipment' },
+                { key: 'medicool', label: 'Medicool' },
+                { key: 'office_space', label: 'Office Space' },
+                { key: 'office_supplies', label: 'Office Supplies' },
+                { key: 'parking_space', label: 'Parking Space' },
+                { key: 'plant_growth_chamber', label: 'Plant Growth Chamber' },
+                { key: 'screenhouse_space', label: 'Screenhouse Space' },
+                { key: 'storage_space', label: 'Storage Space' },
+                { key: 'tokens', label: 'Tokens' },
+                { key: 'utility_space', label: 'Utility Space' },
                 { key: 'terms', label: 'Terms & Conditions' },
             ],
             currentStep: 0,
@@ -60,12 +74,12 @@ export default {
                 if (!f[field]) this.clientErrors[field] = `${label} is required`;
             };
             const stepKey = this.filteredSteps[index]?.key;
+            
             if (stepKey === 'request_type') {
                 if (!Array.isArray(this.form?.request_type) || !this.form?.request_type?.length) {
                     this.clientErrors['request_type'] = 'Select at least one request type';
                 }
             } else if (stepKey === 'requestor') {
-                // If non-PhilRice employee, validate manual entry fields
                 if (this.employee_id && !this.form.name) {
                     document.getElementById('personnel-lookip-btn') ? document.getElementById('personnel-lookip-btn').click() : this.clientErrors['employee_id'] = 'Please search for your PhilRice ID'
                     this.clientErrors['employee_id'] = 'Please wait for personnel data to load';
@@ -76,11 +90,9 @@ export default {
                     required('phone', 'Contact number');
                     required('email', 'Email');
                 } else {
-                    // If PhilRice employee, validate that they selected someone from PersonnelLookup
                     if (!this.employee_id) {
                         this.clientErrors['employee_id'] = 'Please search for and select your PhilRice ID';
                     }
-                    // Also check if name was populated from PersonnelLookup
                     if (!f.name) {
                         this.clientErrors['name'] = 'Could not find personnel. Please try again or mark as non-PhilRice employee';
                     }
@@ -93,6 +105,40 @@ export default {
                     required('date_of_use_end', 'End date of use');
                     required('time_of_use_end', 'End time of use');
                 }
+            } else if (stepKey === 'biofreezer') {
+                if (!f.biofreezers?.length) this.clientErrors['biofreezers'] = 'Please select at least one biofreezer';
+            } else if (stepKey === 'field_experimental_space') {
+                if (!f.field_spaces?.length) this.clientErrors['field_spaces'] = 'Please select at least one field space';
+            } else if (stepKey === 'ict_equipment') {
+                if (!f.ict_equipments?.length) this.clientErrors['ict_equipments'] = 'Please select at least one ICT equipment';
+            } else if (stepKey === 'ict_supplies') {
+                if (!f.ict_supplies?.length) this.clientErrors['ict_supplies'] = 'Please select at least one ICT supply';
+            } else if (stepKey === 'iec_materials') {
+                if (!f.iec_materials?.length) this.clientErrors['iec_materials'] = 'Please select at least one IEC material';
+            } else if (stepKey === 'laboratory_access') {
+                if (!f.laboratory_access?.length) this.clientErrors['laboratory_access'] = 'Please select at least one laboratory';
+            } else if (stepKey === 'laboratory_consumables') {
+                if (!f.laboratory_consumables?.length) this.clientErrors['laboratory_consumables'] = 'Please select at least one consumable';
+            } else if (stepKey === 'laboratory_equipment') {
+                if (!f.laboratory_equipments?.length) this.clientErrors['laboratory_equipments'] = 'Please select at least one laboratory equipment';
+            } else if (stepKey === 'medicool') {
+                if (!f.medicool_units?.length) this.clientErrors['medicool_units'] = 'Please select at least one Medicool unit';
+            } else if (stepKey === 'office_space') {
+                if (!f.office_spaces?.length) this.clientErrors['office_spaces'] = 'Please select at least one office space';
+            } else if (stepKey === 'office_supplies') {
+                if (!f.office_supplies?.length) this.clientErrors['office_supplies'] = 'Please select at least one office supply';
+            } else if (stepKey === 'parking_space') {
+                if (!f.parking_spaces?.length) this.clientErrors['parking_spaces'] = 'Please select at least one parking space';
+            } else if (stepKey === 'plant_growth_chamber') {
+                if (!f.plant_growth_chambers?.length) this.clientErrors['plant_growth_chambers'] = 'Please select at least one plant growth chamber';
+            } else if (stepKey === 'screenhouse_space') {
+                if (!f.screenhouse_spaces?.length) this.clientErrors['screenhouse_spaces'] = 'Please select at least one screenhouse space';
+            } else if (stepKey === 'storage_space') {
+                if (!f.storage_spaces?.length) this.clientErrors['storage_spaces'] = 'Please select at least one storage space';
+            } else if (stepKey === 'tokens') {
+                if (!f.tokens?.length) this.clientErrors['tokens'] = 'Please select at least one token type';
+            } else if (stepKey === 'utility_space') {
+                if (!f.utility_spaces?.length) this.clientErrors['utility_spaces'] = 'Please select at least one utility space';
             } else if (stepKey === 'terms') {
                 if (!f.agreed_clause_1) this.clientErrors['agreed_clause_1'] = 'You must agree to this clause';
                 if (!f.agreed_clause_2) this.clientErrors['agreed_clause_2'] = 'You must agree to this clause';
@@ -114,7 +160,6 @@ export default {
                 this.currentStep = target;
                 return;
             }
-            // Attempt to move forward if current step is valid
             if (this.validateStep(this.currentStep)) {
                 this.currentStep = target;
             }
@@ -134,32 +179,33 @@ export default {
             return [type].filter(Boolean);
         },
         filteredSteps() {
-            const types = new Set(this.selectedRequestTypes);
+            const types = new Set(this.selectedRequestTypes.map(t => t.name || t));
             return this.steps.filter(step => {
                 // Common steps always shown
                 if (['request_type', 'requestor', 'details', 'terms'].includes(step.key)) return true;
                 
-                // Supplies step: show if any type contains "Supplies"
-                if (step.key === 'supplies') {
-                    return Array.from(types).some(type => type.toLowerCase().includes('supplies'));
-                }
+                // Map step keys to request type names
+                const stepToTypeMap = {
+                    'biofreezer': 'Biofreezer',
+                    'field_experimental_space': 'Field Experimental Space',
+                    'ict_equipment': 'ICT Equipment',
+                    'ict_supplies': 'ICT Supplies',
+                    'iec_materials': 'IEC Materials',
+                    'laboratory_access': 'Laboratory Access',
+                    'laboratory_consumables': 'Laboratory Consumables',
+                    'laboratory_equipment': 'Laboratory Equipment',
+                    'medicool': 'Medicool',
+                    'office_space': 'Office Space',
+                    'office_supplies': 'Office Supplies',
+                    'parking_space': 'Parking Space',
+                    'plant_growth_chamber': 'Plant Growth Chamber',
+                    'screenhouse_space': 'Screenhouse Space',
+                    'storage_space': 'Storage Space',
+                    'tokens': 'Tokens',
+                    'utility_space': 'Utility Space',
+                };
                 
-                // Equipments step: show if any type contains "Equipment"
-                if (step.key === 'equipments') {
-                    return Array.from(types).some(type => type.toLowerCase().includes('equipment'));
-                }
-                
-                // Labs step: show if any type contains "Laboratory" or "Space" or "Lab"
-                if (step.key === 'labs') {
-                    return Array.from(types).some(type => {
-                        const lowerType = type.toLowerCase();
-                        return lowerType.includes('laboratory') || 
-                               lowerType.includes('lab') || 
-                               lowerType.includes('space');
-                    });
-                }
-                
-                return false;
+                return types.has(stepToTypeMap[step.key]);
             });
         },
         stepLabels() {
@@ -169,12 +215,22 @@ export default {
             return this.filteredSteps[this.currentStep]?.key;
         },
         requiresEndTime() {
-            return Array.from(this.selectedRequestTypes).some(type => {
-                const lowerType = type.toLowerCase();
-                return lowerType.includes('equipment') || 
-                       lowerType.includes('laboratory') || 
-                       lowerType.includes('lab') || 
-                       lowerType.includes('space');
+            const equipmentTypes = [
+                'Biofreezer',
+                'ICT Equipment', 
+                'Laboratory Equipment',
+                'Medicool',
+                'Plant Growth Chamber',
+                'Laboratory Access',
+                'Field Experimental Space',
+                'Screenhouse Space',
+                'Office Space',
+                'Storage Space',
+                'Utility Space'
+            ];
+            return this.selectedRequestTypes.some(type => {
+                const typeName = type.name || type;
+                return equipmentTypes.includes(typeName);
             });
         }
     },
@@ -210,6 +266,7 @@ export default {
             <ProgressTabs :steps="stepLabels" :current="currentStep" @update:current="handleStepChange" />
         </div>
         <form v-if="form" @submit.prevent="handleCreate()" class="px-2 py-0  md:rounded-md flex flex-col gap-4 bg-white">
+            
             <!-- Step 0: Request Type -->
             <div v-show="currentStepKey === 'request_type'" class="flex flex-col gap-2 w-full">
                 <p class="text-sm text-gray-600">Select the type(s) of resources or facilities you need. You can choose multiple options if your request requires different types of support.</p>
@@ -285,34 +342,279 @@ export default {
                 </div>
             </div>
 
-            <!-- Step 3: Supplies -->
-            <div v-show="currentStepKey === 'supplies'" class="flex flex-col gap-2">
-                <p class="text-sm text-gray-600">Search and select the supplies or consumables you need for your project. Start typing to find available items.</p>
+            <!-- Biofreezer Section -->
+            <div v-show="currentStepKey === 'biofreezer'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Select the biofreezer units you need for sample storage. Start typing to find available units.</p>
                 <h2>
-                    <span class="font-bold uppercase">Supplies: </span><span class="text-sm">Type to SEARCH and press ENTER select</span>
+                    <span class="font-bold uppercase">Biofreezer Units: </span><span class="text-sm">Type to SEARCH and press ENTER to select</span>
                 </h2>
-                <TagifyInput v-model="form.consumables_to_use" name="consumables_to_use" placeholder="Select available supplies" api-link="api.inventory.categories.public" :params="{ routeParams: {categoryName: 'Office Supplies'} }" />
+                <TagifyInput 
+                    v-model="form.biofreezers" 
+                    name="biofreezers" 
+                    placeholder="Select available biofreezers" 
+                    api-link="api.inventory.categories.public" 
+                    :params="{ routeParams: {categoryName: 'Biofreezer'} }" 
+                />
+                <InputError v-if="hasErr('biofreezers')" :message="errMsg('biofreezers')" />
             </div>
 
-            <!-- Step 4: Equipments -->
-            <div v-show="currentStepKey === 'equipments'" class="flex flex-col gap-2">
-                <p class="text-sm text-gray-600">Select the equipment you'll need for your research or project. Search by typing the equipment name.</p>
+            <!-- Field Experimental Space Section -->
+            <div v-show="currentStepKey === 'field_experimental_space'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Select the field experimental spaces you need. Start typing to find available spaces.</p>
                 <h2>
-                    <span class="font-bold uppercase">Equipments: </span><span class="text-sm">Type to SEARCH and press ENTER select</span>
+                    <span class="font-bold uppercase">Field Experimental Spaces: </span><span class="text-sm">Type to SEARCH and press ENTER to select</span>
                 </h2>
-                <TagifyInput v-model="form.equipments_to_use" name="equipments_to_use" placeholder="Select available laboratory facilities" api-link="api.inventory.categories.public" :params="{ routeParams: {categoryName: 'ICT Equipment'} }" />
+                <TagifyInput 
+                    v-model="form.field_spaces" 
+                    name="field_spaces" 
+                    placeholder="Select available field spaces" 
+                    api-link="api.inventory.categories.public" 
+                    :params="{ routeParams: {categoryName: 'Field Experimental Space'} }" 
+                />
+                <InputError v-if="hasErr('field_spaces')" :message="errMsg('field_spaces')" />
             </div>
 
-            <!-- Step 5: Laboratory Facilities -->
-            <div v-show="currentStepKey === 'labs'" class="flex flex-col gap-2">
-                <p class="text-sm text-gray-600">Choose the laboratory or lab facilities you'll be using. Search to find the available labs that match your needs.</p>
+            <!-- ICT Equipment Section -->
+            <div v-show="currentStepKey === 'ict_equipment'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Select the ICT equipment you'll need. Search by typing the equipment name.</p>
                 <h2>
-                    <span class="font-bold uppercase">Laboratory Facilities: </span><span class="text-sm">Type to SEARCH and press ENTER select</span>
+                    <span class="font-bold uppercase">ICT Equipment: </span><span class="text-sm">Type to SEARCH and press ENTER to select</span>
                 </h2>
-                <TagifyInput v-model="form.labs_to_use" name="labs_to_use" placeholder="Select available laboratory facilities" api-link="api.inventory.laboratories.public" :params="{ routeParams: {group: 'laboratories'} }" />
+                <TagifyInput 
+                    v-model="form.ict_equipments" 
+                    name="ict_equipments" 
+                    placeholder="Select available ICT equipment" 
+                    api-link="api.inventory.categories.public" 
+                    :params="{ routeParams: {categoryName: 'ICT Equipment'} }" 
+                />
+                <InputError v-if="hasErr('ict_equipments')" :message="errMsg('ict_equipments')" />
             </div>
 
-            <!-- Step 6: Terms & Conditions -->
+            <!-- ICT Supplies Section -->
+            <div v-show="currentStepKey === 'ict_supplies'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Select the ICT supplies or consumables you need. Start typing to find available items.</p>
+                <h2>
+                    <span class="font-bold uppercase">ICT Supplies: </span><span class="text-sm">Type to SEARCH and press ENTER to select</span>
+                </h2>
+                <TagifyInput 
+                    v-model="form.ict_supplies" 
+                    name="ict_supplies" 
+                    placeholder="Select available ICT supplies" 
+                    api-link="api.inventory.categories.public" 
+                    :params="{ routeParams: {categoryName: 'ICT Supplies'} }" 
+                />
+                <InputError v-if="hasErr('ict_supplies')" :message="errMsg('ict_supplies')" />
+            </div>
+
+            <!-- IEC Materials Section -->
+            <div v-show="currentStepKey === 'iec_materials'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Select the IEC (Information, Education, Communication) materials you need.</p>
+                <h2>
+                    <span class="font-bold uppercase">IEC Materials: </span><span class="text-sm">Type to SEARCH and press ENTER to select</span>
+                </h2>
+                <TagifyInput 
+                    v-model="form.iec_materials" 
+                    name="iec_materials" 
+                    placeholder="Select available IEC materials" 
+                    api-link="api.inventory.categories.public" 
+                    :params="{ routeParams: {categoryName: 'IEC Materials'} }" 
+                />
+                <InputError v-if="hasErr('iec_materials')" :message="errMsg('iec_materials')" />
+            </div>
+
+            <!-- Laboratory Access Section -->
+            <div v-show="currentStepKey === 'laboratory_access'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Choose the laboratory facilities you'll be accessing. Search to find available labs.</p>
+                <h2>
+                    <span class="font-bold uppercase">Laboratory Access: </span><span class="text-sm">Type to SEARCH and press ENTER to select</span>
+                </h2>
+                <TagifyInput 
+                    v-model="form.laboratory_access" 
+                    name="laboratory_access" 
+                    placeholder="Select available laboratories" 
+                    api-link="api.inventory.laboratories.public" 
+                    :params="{ routeParams: {group: 'laboratories'} }" 
+                />
+                <InputError v-if="hasErr('laboratory_access')" :message="errMsg('laboratory_access')" />
+            </div>
+
+            <!-- Laboratory Consumables Section -->
+            <div v-show="currentStepKey === 'laboratory_consumables'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Select the laboratory consumables you need for your experiments.</p>
+                <h2>
+                    <span class="font-bold uppercase">Laboratory Consumables: </span><span class="text-sm">Type to SEARCH and press ENTER to select</span>
+                </h2>
+                <TagifyInput 
+                    v-model="form.laboratory_consumables" 
+                    name="laboratory_consumables" 
+                    placeholder="Select available consumables" 
+                    api-link="api.inventory.categories.public" 
+                    :params="{ routeParams: {categoryName: 'Laboratory Consumables'} }" 
+                />
+                <InputError v-if="hasErr('laboratory_consumables')" :message="errMsg('laboratory_consumables')" />
+            </div>
+
+            <!-- Laboratory Equipment Section -->
+            <div v-show="currentStepKey === 'laboratory_equipment'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Select the laboratory equipment you'll need for your research.</p>
+                <h2>
+                    <span class="font-bold uppercase">Laboratory Equipment: </span><span class="text-sm">Type to SEARCH and press ENTER to select</span>
+                </h2>
+                <TagifyInput 
+                    v-model="form.laboratory_equipments" 
+                    name="laboratory_equipments" 
+                    placeholder="Select available laboratory equipment" 
+                    api-link="api.inventory.categories.public" 
+                    :params="{ routeParams: {categoryName: 'Laboratory Equipment'} }" 
+                />
+                <InputError v-if="hasErr('laboratory_equipments')" :message="errMsg('laboratory_equipments')" />
+            </div>
+
+            <!-- Medicool Section -->
+            <div v-show="currentStepKey === 'medicool'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Select the Medicool units you need for temperature-controlled storage.</p>
+                <h2>
+                    <span class="font-bold uppercase">Medicool Units: </span><span class="text-sm">Type to SEARCH and press ENTER to select</span>
+                </h2>
+                <TagifyInput 
+                    v-model="form.medicool_units" 
+                    name="medicool_units" 
+                    placeholder="Select available Medicool units" 
+                    api-link="api.inventory.categories.public" 
+                    :params="{ routeParams: {categoryName: 'Medicool'} }" 
+                />
+                <InputError v-if="hasErr('medicool_units')" :message="errMsg('medicool_units')" />
+            </div>
+
+            <!-- Office Space Section -->
+            <div v-show="currentStepKey === 'office_space'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Select the office spaces you need for your work.</p>
+                <h2>
+                    <span class="font-bold uppercase">Office Spaces: </span><span class="text-sm">Type to SEARCH and press ENTER to select</span>
+                </h2>
+                <TagifyInput 
+                    v-model="form.office_spaces" 
+                    name="office_spaces" 
+                    placeholder="Select available office spaces" 
+                    api-link="api.inventory.categories.public" 
+                    :params="{ routeParams: {categoryName: 'Office Space'} }" 
+                />
+                <InputError v-if="hasErr('office_spaces')" :message="errMsg('office_spaces')" />
+            </div>
+
+            <!-- Office Supplies Section -->
+            <div v-show="currentStepKey === 'office_supplies'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Select the office supplies you need for your project.</p>
+                <h2>
+                    <span class="font-bold uppercase">Office Supplies: </span><span class="text-sm">Type to SEARCH and press ENTER to select</span>
+                </h2>
+                <TagifyInput 
+                    v-model="form.office_supplies" 
+                    name="office_supplies" 
+                    placeholder="Select available office supplies" 
+                    api-link="api.inventory.categories.public" 
+                    :params="{ routeParams: {categoryName: 'Office Supplies'} }" 
+                />
+                <InputError v-if="hasErr('office_supplies')" :message="errMsg('office_supplies')" />
+            </div>
+
+            <!-- Parking Space Section -->
+            <div v-show="currentStepKey === 'parking_space'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Select the parking spaces you need during your visit.</p>
+                <h2>
+                    <span class="font-bold uppercase">Parking Spaces: </span><span class="text-sm">Type to SEARCH and press ENTER to select</span>
+                </h2>
+                <TagifyInput 
+                    v-model="form.parking_spaces" 
+                    name="parking_spaces" 
+                    placeholder="Select available parking spaces" 
+                    api-link="api.inventory.categories.public" 
+                    :params="{ routeParams: {categoryName: 'Parking Space'} }" 
+                />
+                <InputError v-if="hasErr('parking_spaces')" :message="errMsg('parking_spaces')" />
+            </div>
+
+            <!-- Plant Growth Chamber Section -->
+            <div v-show="currentStepKey === 'plant_growth_chamber'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Select the plant growth chambers you need for your research.</p>
+                <h2>
+                    <span class="font-bold uppercase">Plant Growth Chambers: </span><span class="text-sm">Type to SEARCH and press ENTER to select</span>
+                </h2>
+                <TagifyInput 
+                    v-model="form.plant_growth_chambers" 
+                    name="plant_growth_chambers" 
+                    placeholder="Select available plant growth chambers" 
+                    api-link="api.inventory.categories.public" 
+                    :params="{ routeParams: {categoryName: 'Plant Growth Chamber'} }" 
+                />
+                <InputError v-if="hasErr('plant_growth_chambers')" :message="errMsg('plant_growth_chambers')" />
+            </div>
+
+            <!-- Screenhouse Space Section -->
+            <div v-show="currentStepKey === 'screenhouse_space'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Select the screenhouse spaces you need for plant experiments.</p>
+                <h2>
+                    <span class="font-bold uppercase">Screenhouse Spaces: </span><span class="text-sm">Type to SEARCH and press ENTER to select</span>
+                </h2>
+                <TagifyInput 
+                    v-model="form.screenhouse_spaces" 
+                    name="screenhouse_spaces" 
+                    placeholder="Select available screenhouse spaces" 
+                    api-link="api.inventory.categories.public" 
+                    :params="{ routeParams: {categoryName: 'Screenhouse Space'} }" 
+                />
+                <InputError v-if="hasErr('screenhouse_spaces')" :message="errMsg('screenhouse_spaces')" />
+            </div>
+
+            <!-- Storage Space Section -->
+            <div v-show="currentStepKey === 'storage_space'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Select the storage spaces you need for your materials or equipment.</p>
+                <h2>
+                    <span class="font-bold uppercase">Storage Spaces: </span><span class="text-sm">Type to SEARCH and press ENTER to select</span>
+                </h2>
+                <TagifyInput 
+                    v-model="form.storage_spaces" 
+                    name="storage_spaces" 
+                    placeholder="Select available storage spaces" 
+                    api-link="api.inventory.categories.public" 
+                    :params="{ routeParams: {categoryName: 'Storage Space'} }" 
+                />
+                <InputError v-if="hasErr('storage_spaces')" :message="errMsg('storage_spaces')" />
+            </div>
+
+            <!-- Tokens Section -->
+            <div v-show="currentStepKey === 'tokens'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Select the tokens you need for facility access or services.</p>
+                <h2>
+                    <span class="font-bold uppercase">Tokens: </span><span class="text-sm">Type to SEARCH and press ENTER to select</span>
+                </h2>
+                <TagifyInput 
+                    v-model="form.tokens" 
+                    name="tokens" 
+                    placeholder="Select available tokens" 
+                    api-link="api.inventory.categories.public" 
+                    :params="{ routeParams: {categoryName: 'Tokens'} }" 
+                />
+                <InputError v-if="hasErr('tokens')" :message="errMsg('tokens')" />
+            </div>
+
+            <!-- Utility Space Section -->
+            <div v-show="currentStepKey === 'utility_space'" class="flex flex-col gap-2">
+                <p class="text-sm text-gray-600">Select the utility spaces you need for your activities.</p>
+                <h2>
+                    <span class="font-bold uppercase">Utility Spaces: </span><span class="text-sm">Type to SEARCH and press ENTER to select</span>
+                </h2>
+                <TagifyInput 
+                    v-model="form.utility_spaces" 
+                    name="utility_spaces" 
+                    placeholder="Select available utility spaces" 
+                    api-link="api.inventory.categories.public" 
+                    :params="{ routeParams: {categoryName: 'Utility Space'} }" 
+                />
+                <InputError v-if="hasErr('utility_spaces')" :message="errMsg('utility_spaces')" />
+            </div>
+
+            <!-- Terms & Conditions -->
             <div v-show="currentStepKey === 'terms'" class="flex flex-col gap-3 text-sm leading-tight text-justify">
                 <p class="text-sm text-gray-600">Please read and agree to all terms and conditions below to complete your request. By checking the boxes, you acknowledge your responsibilities as a resource user.</p>
                 <h2>
@@ -332,7 +634,7 @@ export default {
                 </div>
                 <div class="flex items-center gap-1" title="Require guests to pre-register">
                     <input type="checkbox" @change="form.agreed_clause_3 = $event.target.checked">
-                    <span>I agree that the Center shall not be held liable for the quality, accuracy, reliability, or completeness of any data generated by the Requestor using the lab’s facilities, equipment, or resources. The Requestor assumes full responsibility for the design, execution, and interpretation of the experiments and the data derived therefrom. The Center makes no warranties, express or implied, regarding the outcomes of the Requestor’s research activities.
+                    <span>I agree that the Center shall not be held liable for the quality, accuracy, reliability, or completeness of any data generated by the Requestor using the lab's facilities, equipment, or resources. The Requestor assumes full responsibility for the design, execution, and interpretation of the experiments and the data derived therefrom. The Center makes no warranties, express or implied, regarding the outcomes of the Requestor's research activities.
                         <span v-if="hasErr('agreed_clause_3')" class="text-red-500">{{ errMsg('agreed_clause_3') }}</span>
                     </span>
                 </div>
