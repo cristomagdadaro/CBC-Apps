@@ -68,25 +68,36 @@ export default {
             return page.props.auth?.user?.is_admin ?? false;
         },
         filteredActiveEquipments() {
-            if (!this.filterActiveByPersonnel || !this.savedLaboratoryPersonnel?.employee_id) {
+            if (
+                !this.filterActiveByPersonnel ||
+                !this.savedLaboratoryPersonnel?.employee_id
+            ) {
                 return this.activeEquipments;
             }
             return this.activeEquipments.filter(
-                (item) => item.personnel?.employee_id === this.savedLaboratoryPersonnel.employee_id
+                (item) =>
+                    item.personnel?.employee_id ===
+                    this.savedLaboratoryPersonnel.employee_id,
             );
         },
     },
     methods: {
         async loadEquipmentOptions() {
             try {
-                const response = await this.fetchGetApi("api.laboratory.equipments.index");
+                const response = await this.fetchGetApi(
+                    "api.laboratory.equipments.index",
+                );
                 const payload = response?.data ?? response;
-                const list = Array.isArray(payload) ? payload : payload?.data ?? [];
+                const list = Array.isArray(payload)
+                    ? payload
+                    : (payload?.data ?? []);
 
                 this.equipmentOptions = list.map((item) => {
                     const name = item.name || "Equipment";
                     const brand = item.brand ? ` (${item.brand})` : "";
-                    const description = item.description ? `  ${item.description}` : "";
+                    const description = item.description
+                        ? `  ${item.description}`
+                        : "";
                     const prri = item.barcode ? ` | ${item.barcode}` : "";
                     return {
                         id: item.equipment_id || item.id,
@@ -100,9 +111,13 @@ export default {
         async loadActiveEquipments() {
             this.loadingActiveEquipments = true;
             try {
-                const response = await this.fetchGetApi("api.laboratory.equipments.active");
+                const response = await this.fetchGetApi(
+                    "api.laboratory.equipments.active",
+                );
                 const payload = response?.data ?? response;
-                this.activeEquipments = Array.isArray(payload) ? payload : payload?.data ?? [];
+                this.activeEquipments = Array.isArray(payload)
+                    ? payload
+                    : (payload?.data ?? []);
             } catch (error) {
                 this.activeEquipments = [];
             } finally {
@@ -116,9 +131,12 @@ export default {
             this.loading = true;
             this.notFound = false;
             try {
-                const response = await this.fetchGetApi("api.laboratory.equipments.show", {
-                    routeParams: this.equipmentId,
-                });
+                const response = await this.fetchGetApi(
+                    "api.laboratory.equipments.show",
+                    {
+                        routeParams: this.equipmentId,
+                    },
+                );
                 const details = response?.data ?? response;
 
                 this.equipment = details?.equipment ?? null;
@@ -127,7 +145,9 @@ export default {
                 this.maxEndUseHours = details?.max_end_use_hours ?? 24;
             } catch (error) {
                 this.messageType = "error";
-                this.message = error?.response?.data?.message || "Unable to load equipment details.";
+                this.message =
+                    error?.response?.data?.message ||
+                    "Unable to load equipment details.";
                 this.notFound = true;
             } finally {
                 this.loading = false;
@@ -148,23 +168,30 @@ export default {
             });
         },
         handlePersonnelSwitch() {
-            this.isRotating = true
+            this.isRotating = true;
 
             setTimeout(() => {
-                this.isRotating = false
-            }, 300)
+                this.isRotating = false;
+            }, 300);
 
-            this.searchDifferentPersonnel()
+            this.searchDifferentPersonnel();
         },
         handlePersonnelError(error) {
-            this.checkInErrors = { ...this.checkInErrors, [error.field]: error.message };
+            this.checkInErrors = {
+                ...this.checkInErrors,
+                [error.field]: error.message,
+            };
         },
         searchDifferentPersonnel() {
             this.checkOutErrors = {};
             this.showPhilRiceField = !this.showPhilRiceField;
 
-            if (this.showPhilRiceField && this.savedLaboratoryPersonnel?.employee_id) {
-                this.checkOutForm.employee_id = this.savedLaboratoryPersonnel.employee_id;
+            if (
+                this.showPhilRiceField &&
+                this.savedLaboratoryPersonnel?.employee_id
+            ) {
+                this.checkOutForm.employee_id =
+                    this.savedLaboratoryPersonnel.employee_id;
                 return;
             }
 
@@ -190,9 +217,13 @@ export default {
             };
 
             try {
-                await this.fetchPostApi("api.laboratory.equipments.check-in", payload, {
-                    routeParams: this.equipmentId,
-                });
+                await this.fetchPostApi(
+                    "api.laboratory.equipments.check-in",
+                    payload,
+                    {
+                        routeParams: this.equipmentId,
+                    },
+                );
                 this.messageType = "success";
                 this.message = "Check-in recorded successfully.";
                 this.showSuccessModal = true;
@@ -201,9 +232,15 @@ export default {
             } catch (error) {
                 this.messageType = "error";
                 if (error?.response?.status === 422) {
-                    this.checkInErrors = error.response.data.errors || { base: error.response.data.message };
+                    this.checkInErrors = error.response.data.errors || {
+                        base: error.response.data.message,
+                    };
                 } else {
-                    this.checkInErrors = { base: error?.response?.data?.message || "Check-in failed." };
+                    this.checkInErrors = {
+                        base:
+                            error?.response?.data?.message ||
+                            "Check-in failed.",
+                    };
                 }
             }
         },
@@ -217,9 +254,13 @@ export default {
             };
 
             try {
-                await this.fetchPostApi("api.laboratory.equipments.check-out", payload, {
-                    routeParams: this.equipmentId,
-                });
+                await this.fetchPostApi(
+                    "api.laboratory.equipments.check-out",
+                    payload,
+                    {
+                        routeParams: this.equipmentId,
+                    },
+                );
                 this.messageType = "success";
                 this.message = "Check-out recorded successfully.";
                 this.showSuccessModal = true;
@@ -228,15 +269,26 @@ export default {
             } catch (error) {
                 this.messageType = "error";
                 if (error?.response?.status === 422) {
-                    this.checkOutErrors = error.response.data.errors || { base: error.response.data.message };
+                    this.checkOutErrors = error.response.data.errors || {
+                        base: error.response.data.message,
+                    };
                 } else {
-                    this.checkOutErrors = { base: error?.response?.data?.message || "Check-out failed." };
+                    this.checkOutErrors = {
+                        base:
+                            error?.response?.data?.message ||
+                            "Check-out failed.",
+                    };
                 }
             }
         },
         formatPersonnelName(personnel) {
             if (!personnel) return "-";
-            const parts = [personnel.fname, personnel.mname, personnel.lname, personnel.suffix]
+            const parts = [
+                personnel.fname,
+                personnel.mname,
+                personnel.lname,
+                personnel.suffix,
+            ]
                 .filter(Boolean)
                 .map((value) => String(value).trim())
                 .filter(Boolean);
@@ -244,7 +296,11 @@ export default {
         },
         getErrorMessage(error) {
             if (!error) return null;
-            return typeof error === 'string' ? error : Array.isArray(error) ? error[0] : error;
+            return typeof error === "string"
+                ? error
+                : Array.isArray(error)
+                  ? error[0]
+                  : error;
         },
     },
     watch: {
@@ -270,16 +326,23 @@ export default {
         // Auto-fill check-out form with saved personnel
         if (this.savedLaboratoryPersonnel?.employee_id) {
             this.showPhilRiceField = true;
-            this.checkOutForm.employee_id = this.savedLaboratoryPersonnel.employee_id;
+            this.checkOutForm.employee_id =
+                this.savedLaboratoryPersonnel.employee_id;
         }
         setTimeout(() => {
             this.delayReady = true;
         }, 200);
 
         // Setup Inertia router events for navigation loading
-        const unsubscribeStart = router.on('start', () => this.isNavigating = true);
-        const unsubscribeFinish = router.on('finish', () => this.isNavigating = false);
-        
+        const unsubscribeStart = router.on(
+            "start",
+            () => (this.isNavigating = true),
+        );
+        const unsubscribeFinish = router.on(
+            "finish",
+            () => (this.isNavigating = false),
+        );
+
         this.unsubscribeRouterEvents = () => {
             unsubscribeStart();
             unsubscribeFinish();
@@ -301,21 +364,45 @@ export default {
         :title="message"
         @close="showSuccessModal = false"
     />
-    <GuestFormPage :title="title" :subtitle="subtitle" :delay-ready="delayReady">
+    <GuestFormPage
+        :title="title"
+        :subtitle="subtitle"
+        :delay-ready="delayReady"
+    >
         <!-- Loading Overlay -->
         <transition name="fade">
-            <div v-if="processing" class="fixed top-0 left-0 w-full h-full z-[60] flex items-center justify-center bg-black bg-opacity-30">
-                <div class="flex flex-col items-center gap-3 bg-white rounded-lg p-6 shadow-lg">
-                    <div class="animate-spin rounded-full h-10 w-10 border-4 border-gray-300 border-t-AB"></div>
-                    <p class="text-sm text-gray-600 font-medium">Processing request...</p>
+            <div
+                v-if="processing"
+                class="fixed top-0 left-0 w-full h-full z-[60] flex items-center justify-center bg-black bg-opacity-30"
+            >
+                <div
+                    class="flex flex-col items-center gap-3 p-6 bg-white rounded-lg shadow-lg"
+                >
+                    <div
+                        class="w-10 h-10 border-4 border-gray-300 rounded-full animate-spin border-t-AB"
+                    ></div>
+                    <p class="text-sm font-medium text-gray-600">
+                        Processing request...
+                    </p>
                 </div>
             </div>
         </transition>
 
-        <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
-            <div class="flex flex-col lg:flex-row gap-4 w-full max-w-6xl mx-auto p-2 bg-gray-100 md:rounded-md h-full md:h-fit">
-                <div class="flex-1 flex flex-col gap-4" :class="{'my-auto' : notFound}">
-                    <div class="flex flex-col gap-2 border rounded-lg bg-white p-4 shadow-sm">
+        <transition-container
+            v-show="delayReady"
+            :duration="1000"
+            type="slide-bottom"
+        >
+            <div
+                class="grid grid-cols-1 md:grid-cols-3 w-full h-full max-w-6xl gap-4 p-2 mx-auto bg-gray-100 md:rounded-md md:h-fit"
+            >
+                <div
+                    class="flex flex-col flex-1 gap-4 col-span-2"
+                    :class="{ 'my-auto': notFound }"
+                >
+                    <div
+                        class="flex flex-col gap-2 p-4 bg-white border rounded-lg shadow-sm"
+                    >
                         <div v-if="!hasEquipment" class="mt-3">
                             <SelectSearchField
                                 id="equipment_selector"
@@ -324,74 +411,146 @@ export default {
                                 :options="equipmentOptions"
                                 v-model="selectedEquipmentId"
                             />
-                            <p class="text-xs text-gray-500 mt-2">
-                                Scan the QR code if available, or search and select equipment from the list.
+                            <p class="mt-2 text-xs text-gray-500">
+                                Scan the QR code if available, or search and
+                                select equipment from the list.
                             </p>
                         </div>
-                        <div v-else-if="loading" class="text-sm text-gray-500">Loading equipment details...</div>
-                        <div v-else-if="notFound" class="flex flex-col items-center justify-center py-8">
+                        <div v-else-if="loading" class="text-sm text-gray-500">
+                            Loading equipment details...
+                        </div>
+                        <div
+                            v-else-if="notFound"
+                            class="flex flex-col items-center justify-center py-8"
+                        >
                             <div class="text-center">
-                                <error-icon class="w-12 h-12 text-red-500 mx-auto mb-3" />
-                                <h3 class="text-lg font-semibold text-gray-800 mb-2">Equipment Not Found</h3>
-                                <p class="text-sm text-gray-500 mb-4">{{ message || 'The equipment you are looking for could not be found.' }}</p>
+                                <error-icon
+                                    class="w-12 h-12 mx-auto mb-3 text-red-500"
+                                />
+                                <h3
+                                    class="mb-2 text-lg font-semibold text-gray-800"
+                                >
+                                    Equipment Not Found
+                                </h3>
+                                <p class="mb-4 text-sm text-gray-500">
+                                    {{
+                                        message ||
+                                        "The equipment you are looking for could not be found."
+                                    }}
+                                </p>
                                 <Link
                                     :href="route('laboratory.equipments.show')"
-                                    class="px-4 py-2 bg-AB text-white text-sm rounded hover:bg-AB-dark items-center gap-2 transition-opacity inline-flex"
-                                    :class="isNavigating ? 'opacity-70 pointer-events-none' : ''"
+                                    class="inline-flex items-center gap-2 px-4 py-2 text-sm text-white transition-opacity rounded bg-AB hover:bg-AB-dark"
+                                    :class="
+                                        isNavigating
+                                            ? 'opacity-70 pointer-events-none'
+                                            : ''
+                                    "
                                 >
-                                    <span v-if="isNavigating" class="inline-flex">
-                                        <loader-icon class="animate-spin h-4 w-4 flex-shrink-0" />
+                                    <span
+                                        v-if="isNavigating"
+                                        class="inline-flex"
+                                    >
+                                        <loader-icon
+                                            class="flex-shrink-0 w-4 h-4 animate-spin"
+                                        />
                                     </span>
                                     <span>Browse all equipment</span>
                                 </Link>
                             </div>
                         </div>
-                        
-                        <div v-else-if="equipment" class="grid grid-cols-1 md:grid-cols-2 gap-1">
-                            <div class="col-span-2 flex justify-between pb-1 leading-none">
-                                <h1 class="text-xl font-bold uppercase">{{ equipment.name }}</h1>
-                                <button v-if="!equipment_id" @click="selectedEquipmentId = null">
+
+                        <div
+                            v-else-if="equipment"
+                            class="grid grid-cols-1 gap-5 md:grid-cols-2"
+                        >
+                            <div
+                                class="flex justify-between col-span-2 pb-1 leading-none"
+                            >
+                                <h1 class="text-xl font-bold uppercase">
+                                    {{ equipment.name }}
+                                </h1>
+                                <button
+                                    v-if="!equipment_id"
+                                    @click="selectedEquipmentId = null"
+                                >
                                     <close-icon class="w-6 h-6 text-red-600" />
                                 </button>
                             </div>
                             <div class="flex flex-col gap-1">
-                                <span class="text-xs uppercase text-gray-500">Brand</span>
-                                <span class="font-semibold">{{ equipment.brand || '-' }}</span>
+                                <span class="text-xs text-gray-500 uppercase"
+                                    >Brand</span
+                                >
+                                <span class="font-semibold">{{
+                                    equipment.brand || "-"
+                                }}</span>
                             </div>
                             <div class="flex flex-col gap-1">
-                                <span class="text-xs uppercase text-gray-500">Description</span>
-                                <span class="font-semibold">{{ equipment.description || '-' }}</span>
+                                <span class="text-xs text-gray-500 uppercase"
+                                    >Description</span
+                                >
+                                <span class="font-semibold">{{
+                                    equipment.description || "-"
+                                }}</span>
                             </div>
                             <div class="flex flex-col gap-1">
-                                <span class="text-xs uppercase text-gray-500">PhilRice Property No.</span>
-                                <span class="font-semibold">{{ equipment.barcode_prri || '-' }}</span>
+                                <span class="text-xs text-gray-500 uppercase"
+                                    >PhilRice Property No.</span
+                                >
+                                <span class="font-semibold">{{
+                                    equipment.barcode_prri || "-"
+                                }}</span>
                             </div>
                             <div class="flex flex-col gap-1">
-                                <span class="text-xs uppercase text-gray-500">CBC Barcode</span>
-                                <span class="font-semibold">{{ equipment.barcode || '-' }}</span>
+                                <span class="text-xs text-gray-500 uppercase"
+                                    >CBC Barcode</span
+                                >
+                                <span class="font-semibold">{{
+                                    equipment.barcode || "-"
+                                }}</span>
                             </div>
                         </div>
                     </div>
 
-                    <div v-if="hasEquipment && !notFound" class="grid grid-cols-1 gap-4">
-                        <div class="border rounded-lg bg-white p-4 shadow-sm">
-                            <h2 class="text-base font-semibold mb-2 uppercase">Current Status</h2>
-                            <div v-if="activeLog" class="flex flex-col gap-1 text-sm">
+                    <div
+                        v-if="hasEquipment && !notFound"
+                        class="grid grid-cols-1 gap-4"
+                    >
+                        <div class="p-4 bg-white border rounded-lg shadow-sm">
+                            <h2 class="mb-2 text-base font-semibold uppercase">
+                                Current Status
+                            </h2>
+                            <div
+                                v-if="activeLog"
+                                class="flex flex-col gap-1 text-sm"
+                            >
                                 <div class="flex justify-between gap-1">
                                     <span class="text-gray-500">Status</span>
-                                    <span class="font-semibold uppercase">{{ activeLog.status }}</span>
+                                    <span class="font-semibold uppercase">{{
+                                        activeLog.status
+                                    }}</span>
                                 </div>
                                 <div class="flex justify-between gap-1">
-                                    <span class="text-gray-500">Checked in at</span>
-                                    <span>{{ formatDateTime(activeLog.started_at) }}</span>
+                                    <span class="text-gray-500"
+                                        >Checked in at</span
+                                    >
+                                    <span>{{
+                                        formatDateTime(activeLog.started_at)
+                                    }}</span>
                                 </div>
                                 <div class="flex justify-between gap-1">
-                                    <span class="text-gray-500">Expected end</span>
-                                    <span>{{ formatDateTime(activeLog.end_use_at) }}</span>
+                                    <span class="text-gray-500"
+                                        >Expected end</span
+                                    >
+                                    <span>{{
+                                        formatDateTime(activeLog.end_use_at)
+                                    }}</span>
                                 </div>
                                 <div class="flex justify-between gap-1">
                                     <span class="text-gray-500">User</span>
-                                    <span>{{ formatPersonnelName(activeLog.personnel) }}</span>
+                                    <span>{{
+                                        formatPersonnelName(activeLog.personnel)
+                                    }}</span>
                                 </div>
                             </div>
                             <div v-else class="text-sm text-gray-500">
@@ -400,25 +559,38 @@ export default {
                         </div>
                     </div>
 
-                    <div v-if="hasEquipment && !notFound && canCheckIn" class="border rounded-lg bg-white p-4 shadow-sm">
-                    <div class="grid grid-cols-1 md:grid-cols-2 mb-3 gap-2">
-                        <h2 class="text-base font-bold uppercase">Check-in Equipment</h2>
-                        <p class="text-sm text-gray-500">Lookup your PhilRice ID to auto-fill details.</p>
-                    </div>
-
-                    <div class="flex flex-col gap-1">
-                        <PersonnelLookup
-                            v-model="checkInForm.employee_id"
-                            @found="handlePersonnelFound"
-                            @error="handlePersonnelError"
-                        />
-                        <div v-if="personnelPreview" class="text-center w-full text-xs text-AC">Hi! {{ personnelPreview.fullName }}</div>
-                        <div v-if="getErrorMessage(checkInErrors.employee_id)" class="text-center w-full text-xs text-red-600">
-                            {{ getErrorMessage(checkInErrors.employee_id) }}
+                    <div
+                        v-if="hasEquipment && !notFound && canCheckIn"
+                        class="p-4 bg-white border rounded-lg shadow-sm"
+                    >
+                        <div class="grid grid-cols-1 gap-2 mb-3">
+                            <h2 class="text-base font-bold uppercase">
+                                Check-in Equipment
+                            </h2>
                         </div>
-                    </div>
 
-                    <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div class="flex flex-col gap-1">
+                            <PersonnelLookup
+                                v-model="checkInForm.employee_id"
+                                @found="handlePersonnelFound"
+                                @error="handlePersonnelError"
+                            />
+                            <div
+                                v-if="personnelPreview"
+                                class="w-full text-xs text-center text-AC"
+                            >
+                                Hi! {{ personnelPreview.fullName }}
+                            </div>
+                            <div
+                                v-if="
+                                    getErrorMessage(checkInErrors.employee_id)
+                                "
+                                class="w-full text-xs text-center text-red-600"
+                            >
+                                {{ getErrorMessage(checkInErrors.employee_id) }}
+                            </div>
+                        </div>
+
                         <TextInput
                             id="end_use_at"
                             v-model="checkInForm.end_use_at"
@@ -428,62 +600,86 @@ export default {
                             @keydown.enter.prevent="submitCheckIn"
                             required
                         />
-                        <TextInput
+                        <p class="text-xs text-gray-800">
+                            End of use must be within {{ maxEndUseHours }} hours
+                            from now.
+                        </p>
+                        <TextArea
                             id="purpose"
                             v-model="checkInForm.purpose"
                             label="Purpose (optional)"
                             :error="getErrorMessage(checkInErrors.purpose)"
                             @keydown.enter.prevent="submitCheckIn"
                         />
+
+                        <div
+                            v-if="checkInErrors.base"
+                            class="mt-2 text-sm text-red-600"
+                        >
+                            {{ checkInErrors.base }}
+                        </div>
+
+                        <button
+                            type="button"
+                            class="w-full px-4 py-2 mt-3 text-sm text-white rounded bg-AB hover:bg-AB-dark"
+                            @click="submitCheckIn"
+                        >
+                            Check In Equipment
+                        </button>
                     </div>
-                    <p class="text-xs text-gray-500 mt-2">
-                        End of use must be within {{ maxEndUseHours }} hours from now.
-                    </p>
 
-                    <div v-if="checkInErrors.base" class="text-sm text-red-600 mt-2">{{ checkInErrors.base }}</div>
-
-                    <button
-                        type="button"
-                        class="mt-3 px-4 py-2 rounded bg-AB text-white text-sm hover:bg-AB-dark w-full"
-                        @click="submitCheckIn"
+                    <div
+                        v-if="hasEquipment && !notFound && canCheckOut"
+                        class="flex flex-col justify-end gap-2 p-4 bg-white border rounded-lg shadow-sm"
                     >
-                        Check In Equipment
-                    </button>
-                    </div>
-
-                    <div v-if="hasEquipment && !notFound && canCheckOut" class="border rounded-lg bg-white p-4 shadow-sm flex flex-col justify-end gap-2">
-                        <div class="flex justify-between gap-5 items-center px-2">
-                            <h2 class="text-base font-bold w-fit uppercase">Check-out Equipment</h2>
+                        <div
+                            class="flex items-center justify-between gap-5 px-2"
+                        >
+                            <h2 class="text-base font-bold uppercase w-fit">
+                                Check-out Equipment
+                            </h2>
                             <a
-                                :href="route('suppEquipReports.create.guest', equipment.barcode)"
+                                :href="
+                                    route(
+                                        'suppEquipReports.create.guest',
+                                        equipment.barcode,
+                                    )
+                                "
                                 target="_blank"
                                 title="Report an issue with this equipment"
                                 rel="noopener noreferrer"
-                                class="flex flex-row items-center gap-1 text-red-600 p-1 px-2 w-fit text-xs rounded-full"
+                                class="flex flex-row items-center gap-1 p-1 px-2 text-xs text-red-600 rounded-full w-fit"
                             >
-                                <flag-icon class="h-5 w-3" />
+                                <flag-icon class="w-3 h-5" />
                                 Report
                             </a>
                         </div>
 
                         <transition-container :duration="100" type="slide-left">
                             <div
-                                v-if="savedLaboratoryPersonnel && showPhilRiceField"
+                                v-if="
+                                    savedLaboratoryPersonnel &&
+                                    showPhilRiceField
+                                "
                                 key="saved-personnel"
-                                class="flex gap-2 justify-between items-center px-2 py-3"
+                                class="flex items-center justify-between gap-2 px-2 py-3"
                             >
                                 <div class="text-gray-600">
                                     As:
                                     <span class="font-semibold">
                                         {{ savedLaboratoryPersonnel.fullName }}
-                                        ( {{ savedLaboratoryPersonnel.employee_id }} )
+                                        (
+                                        {{
+                                            savedLaboratoryPersonnel.employee_id
+                                        }}
+                                        )
                                     </span>
                                 </div>
 
                                 <button
                                     type="button"
                                     title="Switch Personnel"
-                                    class="px-2 py-1 bg-gray-200 rounded h-fit active:scale-90 duration-200"
+                                    class="px-2 py-1 duration-200 bg-gray-200 rounded h-fit active:scale-90"
                                     @click="handlePersonnelSwitch"
                                 >
                                     <svg
@@ -493,7 +689,7 @@ export default {
                                         fill="currentColor"
                                         :class="[
                                             'transition-transform duration-300',
-                                            isRotating ? 'rotate-[360deg]' : ''
+                                            isRotating ? 'rotate-[360deg]' : '',
                                         ]"
                                         viewBox="0 0 16 16"
                                     >
@@ -504,22 +700,36 @@ export default {
                                 </button>
                             </div>
 
-                            <div v-else key="manual-personnel" class="flex gap-0.5 flex-col">
-                                <label for="checkout_employee_id" class="text-xs text-gray-500 px-3">Enter your PhilRice ID</label>
-                                <div class="flex gap-2 items-center px-2">
+                            <div
+                                v-else
+                                key="manual-personnel"
+                                class="flex gap-0.5 flex-col"
+                            >
+                                <label
+                                    for="checkout_employee_id"
+                                    class="px-3 text-xs text-gray-500"
+                                    >Enter your PhilRice ID</label
+                                >
+                                <div class="flex items-center gap-2 px-2">
                                     <div class="flex-1">
                                         <TextInput
                                             id="checkout_employee_id"
                                             v-model="checkOutForm.employee_id"
-                                            :error="getErrorMessage(checkOutErrors.employee_id)"
-                                            @keydown.enter.prevent="submitCheckOut"
+                                            :error="
+                                                getErrorMessage(
+                                                    checkOutErrors.employee_id,
+                                                )
+                                            "
+                                            @keydown.enter.prevent="
+                                                submitCheckOut
+                                            "
                                         />
                                     </div>
 
                                     <button
                                         type="button"
                                         title="Switch Personnel"
-                                        class="px-2 py-1 bg-gray-200 rounded h-fit active:scale-90 duration-200"
+                                        class="px-2 py-1 duration-200 bg-gray-200 rounded h-fit active:scale-90"
                                         @click="handlePersonnelSwitch"
                                     >
                                         <svg
@@ -529,7 +739,9 @@ export default {
                                             fill="currentColor"
                                             :class="[
                                                 'transition-transform duration-300',
-                                                isRotating ? 'rotate-[360deg]' : ''
+                                                isRotating
+                                                    ? 'rotate-[360deg]'
+                                                    : '',
                                             ]"
                                             viewBox="0 0 16 16"
                                         >
@@ -542,16 +754,33 @@ export default {
                             </div>
                         </transition-container>
 
-                        <div v-if="getErrorMessage(checkOutErrors.base)" class="text-sm text-red-600 mt-2">{{ getErrorMessage(checkOutErrors.base) }}</div>
+                        <div
+                            v-if="getErrorMessage(checkOutErrors.base)"
+                            class="mt-2 text-sm text-red-600"
+                        >
+                            {{ getErrorMessage(checkOutErrors.base) }}
+                        </div>
 
                         <div class="flex flex-col gap-1">
-                            <div v-if="isAdmin" class="flex items-center gap-2 w-fit justify-end px-2">
-                                <input id="admin_override" v-model="checkOutForm.admin_override" type="checkbox" class="rounded-full" />
-                                <label for="admin_override" class="text-xs leading-none">Admin Override</label>
+                            <div
+                                v-if="isAdmin"
+                                class="flex items-center justify-end gap-2 px-2 w-fit"
+                            >
+                                <input
+                                    id="admin_override"
+                                    v-model="checkOutForm.admin_override"
+                                    type="checkbox"
+                                    class="rounded-full"
+                                />
+                                <label
+                                    for="admin_override"
+                                    class="text-xs leading-none"
+                                    >Admin Override</label
+                                >
                             </div>
                             <button
                                 type="button"
-                                class="px-4 py-2 rounded bg-AB text-white text-sm hover:bg-AA w-full"
+                                class="w-full px-4 py-2 text-sm text-white rounded bg-AB hover:bg-AA"
                                 @click="submitCheckOut"
                             >
                                 Check Out Equipment
@@ -561,42 +790,103 @@ export default {
                 </div>
 
                 <!-- Active Equipments Sidebar -->
-                <div class="w-full lg:w-80 flex flex-col gap-4">
-                    <div class="border rounded-lg bg-white p-4 shadow-sm h-full relative">
+                <div class="flex flex-col w-full gap-4">
+                    <div
+                        class="relative h-full p-4 bg-white border rounded-lg shadow-sm"
+                    >
                         <div class="flex items-center justify-between mb-3">
                             <h2 class="text-sm font-bold uppercase">
                                 Currently Active
                             </h2>
-                            <span class="text-xs bg-AB text-white px-2 py-1 rounded-full font-semibold">{{ filteredActiveEquipments.length }}</span>
+                            <span
+                                class="px-2 py-1 text-xs font-semibold text-white rounded-full bg-AB"
+                                >{{ filteredActiveEquipments.length }}</span
+                            >
                         </div>
                         <button
                             v-if="savedLaboratoryPersonnel"
-                            @click="filterActiveByPersonnel = !filterActiveByPersonnel"
+                            @click="
+                                filterActiveByPersonnel =
+                                    !filterActiveByPersonnel
+                            "
                             :class="[
                                 'w-full mb-3 px-3 py-1.5 rounded text-xs font-semibold transition-colors',
                                 filterActiveByPersonnel
                                     ? 'bg-AB text-white'
-                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                            ]">
-                            {{ filterActiveByPersonnel ? 'My Equipment' : 'All Equipment' }}
+                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300',
+                            ]"
+                        >
+                            {{
+                                filterActiveByPersonnel
+                                    ? "My Equipment"
+                                    : "All Equipment"
+                            }}
                         </button>
-                        <div v-if="loadingActiveEquipments" class="text-sm text-gray-500 text-center py-4">Loading...</div>
-                        <div v-else-if="filteredActiveEquipments.length === 0" class="text-sm text-gray-500 text-center py-4">No active equipments</div>
-                        <div v-else class="flex flex-col gap-2 max-h-[29rem] h-fit overflow-y-auto overflow-x-hidden">
+                        <div
+                            v-if="loadingActiveEquipments"
+                            class="py-4 text-sm text-center text-gray-500"
+                        >
+                            Loading...
+                        </div>
+                        <div
+                            v-else-if="filteredActiveEquipments.length === 0"
+                            class="py-4 text-sm text-center text-gray-500"
+                        >
+                            No active equipments
+                        </div>
+                        <div
+                            v-else
+                            class="flex flex-col gap-2 max-h-[29rem] h-fit overflow-y-auto overflow-x-hidden"
+                        >
                             <Link
                                 v-for="item in filteredActiveEquipments"
                                 :key="item.id"
-                                class="border-l-4 border-AB rounded p-3 bg-gray-50 hover:bg-gray-200 transition-colors cursor-default leading-tight flex items-start justify-between gap-2 relative "
-                                :class="{ 'opacity-70 pointer-events-none' : isNavigating, 'pointer-events-none bg-gray-500 left-2 border-AA' : equipment?.id === item.equipment_id }"
-                                :href="route('laboratory.equipments.show', item.equipment_id)"
+                                class="relative flex items-start justify-between gap-2 p-3 leading-tight transition-colors border-l-4 rounded cursor-default border-AB bg-gray-50 hover:bg-gray-200"
+                                :class="{
+                                    'opacity-70 pointer-events-none':
+                                        isNavigating,
+                                    'pointer-events-none bg-gray-500 left-2 border-AA':
+                                        equipment?.id === item.equipment_id,
+                                }"
+                                :href="
+                                    route(
+                                        'laboratory.equipments.show',
+                                        item.equipment_id,
+                                    )
+                                "
                             >
-                                <div class="flex-1 min-w-0" :class="equipment?.id === item.equipment_id ? 'text-white' : 'text-gray-600'">
-                                    <h3 class="font-semibold text-sm truncate">{{ item.equipment?.name }} {{ '(' + item.equipment?.brand + ')' }}</h3>
-                                    <p class="text-xs truncate">Checked in at <b>{{ formatDateTime(item.started_at) }}</b></p>
-                                    <p class="text-xs truncate">Expected end at <b>{{ formatDateTime(item.end_use_at) }}</b></p>
-                                    <div class="text-xs space-y-1">
+                                <div
+                                    class="flex-1 min-w-0"
+                                    :class="
+                                        equipment?.id === item.equipment_id
+                                            ? 'text-white'
+                                            : 'text-gray-600'
+                                    "
+                                >
+                                    <h3 class="text-sm font-semibold truncate">
+                                        {{ item.equipment?.name }}
+                                        {{ "(" + item.equipment?.brand + ")" }}
+                                    </h3>
+                                    <p class="text-xs truncate">
+                                        Checked in at
+                                        <b>{{
+                                            formatDateTime(item.started_at)
+                                        }}</b>
+                                    </p>
+                                    <p class="text-xs truncate">
+                                        Expected end at
+                                        <b>{{
+                                            formatDateTime(item.end_use_at)
+                                        }}</b>
+                                    </p>
+                                    <div class="space-y-1 text-xs">
                                         <div v-if="item.personnel">
-                                            <span>User:</span> <b>{{ formatPersonnelName(item.personnel) }}</b>
+                                            <span>User:</span>
+                                            <b>{{
+                                                formatPersonnelName(
+                                                    item.personnel,
+                                                )
+                                            }}</b>
                                         </div>
                                     </div>
                                 </div>
