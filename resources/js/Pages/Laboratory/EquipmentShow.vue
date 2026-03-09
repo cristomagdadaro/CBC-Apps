@@ -286,8 +286,9 @@ export default {
             if (minutes === 0) {
                 if (!this.activeLog?.end_use_at) return;
 
-                this.updateEndUseForm.end_use_at =
-                    this.formatForDatetimeLocal(this.activeLog.end_use_at);
+                this.updateEndUseForm.end_use_at = this.formatForDatetimeLocal(
+                    this.activeLog.end_use_at,
+                );
                 return;
             }
 
@@ -701,60 +702,62 @@ export default {
                                     currentLocation?.label || "Unknown Location"
                                 }}</span>
                             </div>
-                            <div
-                                v-if="shouldShowLocationSurvey"
-                                class="flex flex-col gap-2 md:col-span-2"
-                            >
-                               <div>
-                                 <span class="font-bold text-gray-800 uppercase">
+                        </div>
+                        <div
+                            v-if="shouldShowLocationSurvey"
+                            class="flex flex-col gap-2 md:col-span-2"
+                        >
+                            <div>
+                                <span class="font-bold text-gray-800 uppercase">
                                     Temporary Location Survey
                                 </span>
-                                 <p class="text-sm text-gray-500">
-                                    Report the current location if different from
-                                    the known location. This helps us keep track
-                                    of equipment whereabouts.
+                                <p class="text-xs text-gray-500 leading-tight">
+                                    Report the current location if different
+                                    from the known location. This helps us keep
+                                    track of equipment whereabouts.
                                 </p>
-                               </div>
-                                <TextInput
-                                    id="survey_location_employee_id"
-                                    v-model="locationSurveyForm.employee_id"
-                                    label="PhilRice ID (Location Survey)"
-                                    :error="
-                                        getErrorMessage(
-                                            locationSurveyErrors.employee_id,
-                                        )
-                                    "
-                                    @keydown.enter.prevent="submitLocationSurvey"
-                                    required
-                                />
-                                <TextInput
-                                    id="survey_location_label"
-                                    v-model="locationSurveyForm.location_label"
-                                    label="Temporary Current Location"
-                                    :datalist-id="'storage-location-suggestions'"
-                                    :datalist-options="storageLocationOptions"
-                                    :error="
-                                        getErrorMessage(
-                                            locationSurveyErrors.location_label,
-                                        )
-                                    "
-                                    @keydown.enter.prevent="submitLocationSurvey"
-                                    required
-                                />
-                                <div
-                                    v-if="getErrorMessage(locationSurveyErrors.base)"
-                                    class="text-sm text-red-600"
-                                >
-                                    {{ getErrorMessage(locationSurveyErrors.base) }}
-                                </div>
-                                <button
-                                    type="button"
-                                    class="w-full px-4 py-2 text-sm text-white rounded bg-AB hover:bg-AB-dark"
-                                    @click="submitLocationSurvey"
-                                >
-                                    Save Temporary Location
-                                </button>
                             </div>
+                            <TextInput
+                                id="survey_location_employee_id"
+                                v-model="locationSurveyForm.employee_id"
+                                label="PhilRice ID"
+                                :error="
+                                    getErrorMessage(
+                                        locationSurveyErrors.employee_id,
+                                    )
+                                "
+                                @keydown.enter.prevent="submitLocationSurvey"
+                                required
+                            />
+                            <TextInput
+                                id="survey_location_label"
+                                v-model="locationSurveyForm.location_label"
+                                label="Temporary Current Location"
+                                :datalist-id="'storage-location-suggestions'"
+                                :datalist-options="storageLocationOptions"
+                                :error="
+                                    getErrorMessage(
+                                        locationSurveyErrors.location_label,
+                                    )
+                                "
+                                @keydown.enter.prevent="submitLocationSurvey"
+                                required
+                            />
+                            <div
+                                v-if="
+                                    getErrorMessage(locationSurveyErrors.base)
+                                "
+                                class="text-sm text-red-600"
+                            >
+                                {{ getErrorMessage(locationSurveyErrors.base) }}
+                            </div>
+                            <button
+                                type="button"
+                                class="w-full px-4 py-2 text-sm text-white rounded bg-AB hover:bg-AB-dark"
+                                @click="submitLocationSurvey"
+                            >
+                                Save Temporary Location
+                            </button>
                         </div>
                     </div>
 
