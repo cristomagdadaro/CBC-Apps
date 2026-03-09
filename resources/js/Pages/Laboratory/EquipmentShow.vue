@@ -647,7 +647,7 @@ export default {
 
                         <div
                             v-else-if="equipment"
-                            class="grid grid-cols-1 gap-5 md:grid-cols-2"
+                            class="grid grid-cols-1 gap-3 md:grid-cols-2"
                         >
                             <div
                                 class="flex justify-between col-span-2 pb-1 leading-none"
@@ -694,7 +694,7 @@ export default {
                                     equipment.barcode || "-"
                                 }}</span>
                             </div>
-                            <div class="flex flex-col gap-1">
+                            <div class="flex flex-col gap-1 col-span-2">
                                 <span class="text-xs text-gray-500 uppercase"
                                     >Current Location</span
                                 >
