@@ -7,4 +7,5 @@ interface IPersonnel extends IBaseClass {
     phone: string;
     address: string;
     email: string;
+    employee_id: string;
 }

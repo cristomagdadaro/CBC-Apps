@@ -9,6 +9,7 @@ export default class DtoPersonnel extends DtoBaseClass implements IPersonnel {
     phone: string;
     address: string;
     email: string;
+    employee_id: string;
 
     constructor(data: IPersonnel) {
         super(data);
@@ -21,5 +22,6 @@ export default class DtoPersonnel extends DtoBaseClass implements IPersonnel {
         this.phone = data?.phone;
         this.address = data?.address;
         this.email = data?.email;
+        this.employee_id = data?.employee_id;
     }
 }

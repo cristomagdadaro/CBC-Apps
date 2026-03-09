@@ -22,6 +22,7 @@ export default class Personnel extends DtoPersonnel {
             phone: null,
             address: null,
             email: null,
+            employee_id: null,
         }
     }
 
@@ -37,6 +38,7 @@ export default class Personnel extends DtoPersonnel {
             phone: data?.phone,
             address: data?.address,
             email: data?.email,
+            employee_id: data?.employee_id,
         }
     }
 
@@ -113,6 +115,14 @@ export default class Personnel extends DtoPersonnel {
                 align: 'text-center',
                 sortable: true,
                 visible: false,
+            },
+            {
+                title: 'PhilRice ID',
+                key: 'employee_id',
+                db_key: 'employee_id',
+                align: 'text-center',
+                sortable: true,
+                visible: true,
             },
         ]
     }

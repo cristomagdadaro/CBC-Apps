@@ -32,6 +32,7 @@ class CreatePersonnelRequest extends FormRequest
             'phone' => 'string|nullable',
             'address' => 'string|nullable',
             'email' => 'required|email|unique:personnels,email',
+            'employee_id' => 'required|string|max:32|unique:personnels,employee_id',
         ];
     }
 
@@ -45,6 +46,8 @@ class CreatePersonnelRequest extends FormRequest
             'position.required' => 'Required field',
             'email.email' => 'Invalid email format',
             'email.unique' => 'Already been taken',
+            'employee_id.required' => 'Required field',
+            'employee_id.unique' => 'Already been taken',
         ];
     }
 }
