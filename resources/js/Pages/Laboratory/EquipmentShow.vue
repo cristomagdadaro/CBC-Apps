@@ -15,12 +15,22 @@ export default {
             type: String,
             default: null,
         },
+        logger_type: {
+            type: String,
+            default: "laboratory",
+        },
     },
     data() {
         return {
             delayReady: false,
-            title: "Equipment Logger",
-            subtitle: "Scan-based tracking for equipment usage",
+            title:
+                this.logger_type === "ict"
+                    ? "ICT Equipment Logger"
+                    : "Lab Equipment Logger",
+            subtitle:
+                this.logger_type === "ict"
+                    ? "Scan-based tracking for ICT equipment usage"
+                    : "Scan-based tracking for equipment usage",
             selectedEquipmentId: this.equipment_id,
             equipmentOptions: [],
             equipment: null,
@@ -71,6 +81,15 @@ export default {
         equipmentId() {
             return this.selectedEquipmentId || this.equipment_id || null;
         },
+        loggerType() {
+            return this.logger_type === "ict" ? "ict" : "laboratory";
+        },
+        apiRoutePrefix() {
+            return `api.${this.loggerType}.equipments`;
+        },
+        showPageRoute() {
+            return `${this.loggerType}.equipments.show`;
+        },
         hasEquipment() {
             return !!this.equipmentId;
         },
@@ -105,7 +124,7 @@ export default {
         async loadEquipmentOptions() {
             try {
                 const response = await this.fetchGetApi(
-                    "api.laboratory.equipments.index",
+                    `${this.apiRoutePrefix}.index`,
                 );
                 const payload = response?.data ?? response;
                 const list = Array.isArray(payload)
@@ -132,7 +151,7 @@ export default {
             this.loadingActiveEquipments = true;
             try {
                 const response = await this.fetchGetApi(
-                    "api.laboratory.equipments.active",
+                    `${this.apiRoutePrefix}.active`,
                 );
                 const payload = response?.data ?? response;
                 this.activeEquipments = Array.isArray(payload)
@@ -152,7 +171,7 @@ export default {
             this.notFound = false;
             try {
                 const response = await this.fetchGetApi(
-                    "api.laboratory.equipments.show",
+                    `${this.apiRoutePrefix}.show`,
                     {
                         routeParams: this.equipmentId,
                     },
@@ -313,7 +332,7 @@ export default {
 
             try {
                 await this.fetchPostApi(
-                    "api.laboratory.equipments.check-in",
+                    `${this.apiRoutePrefix}.check-in`,
                     payload,
                     {
                         routeParams: this.equipmentId,
@@ -350,7 +369,7 @@ export default {
 
             try {
                 await this.fetchPostApi(
-                    "api.laboratory.equipments.check-out",
+                    `${this.apiRoutePrefix}.check-out`,
                     payload,
                     {
                         routeParams: this.equipmentId,
@@ -387,7 +406,7 @@ export default {
 
             try {
                 await this.fetchPostApi(
-                    "api.laboratory.equipments.update-end-use",
+                    `${this.apiRoutePrefix}.update-end-use`,
                     payload,
                     {
                         routeParams: this.equipmentId,
@@ -423,7 +442,7 @@ export default {
 
             try {
                 await this.fetchPostApi(
-                    "api.laboratory.equipments.report-location",
+                    `${this.apiRoutePrefix}.report-location`,
                     payload,
                     {
                         routeParams: this.equipmentId,
@@ -624,7 +643,7 @@ export default {
                                     }}
                                 </p>
                                 <Link
-                                    :href="route('laboratory.equipments.show')"
+                                    :href="route(showPageRoute)"
                                     class="inline-flex items-center gap-2 px-4 py-2 text-sm text-white transition-opacity rounded bg-AB hover:bg-AB-dark"
                                     :class="
                                         isNavigating
@@ -704,7 +723,7 @@ export default {
                             </div>
                         </div>
                         <div
-                            v-if="shouldShowLocationSurvey"
+                            v-if="shouldShowLocationSurvey && hasEquipment"
                             class="flex flex-col gap-2 md:col-span-2"
                         >
                             <div>
@@ -1236,7 +1255,7 @@ export default {
                                 }"
                                 :href="
                                     route(
-                                        'laboratory.equipments.show',
+                                        showPageRoute,
                                         item.equipment_id,
                                     )
                                 "

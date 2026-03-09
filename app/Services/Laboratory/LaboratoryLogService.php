@@ -51,8 +51,10 @@ class LaboratoryLogService
     }
 
 
-    public function listEligibleEquipment(?string $search = null): Collection
+    public function listEligibleEquipment(?string $search = null, string $equipmentType = 'laboratory'): Collection
     {
+        $categoryIds = $this->categoryIdsForType($equipmentType);
+
         $query = Transaction::query()
             ->select([
                 'items.id as equipment_id',
@@ -66,9 +68,12 @@ class LaboratoryLogService
             ])
             ->join('items', 'transactions.item_id', '=', 'items.id')
             ->join('categories', 'items.category_id', '=', 'categories.id')
-            ->where(function (Builder $query) {
-                $query->where('categories.id', 7)
-                    ->orWhere('categories.name', 'Laboratory Equipment');
+            ->where(function (Builder $query) use ($categoryIds, $equipmentType) {
+                $query->whereIn('categories.id', $categoryIds);
+
+                if ($equipmentType === 'laboratory') {
+                    $query->orWhere('categories.name', 'Laboratory Equipment');
+                }
             });
 
         if ($search) {
@@ -86,16 +91,16 @@ class LaboratoryLogService
             ->get();
     }
 
-    public function getEquipmentDetails(string $equipmentId): array
+    public function getEquipmentDetails(string $equipmentId, string $equipmentType = 'laboratory'): array
     {
-        $equipment = $this->findEligibleEquipment($equipmentId);
+        $equipment = $this->findEligibleEquipment($equipmentId, $equipmentType);
 
         if (!$equipment) {
             // Check if item exists but is wrong category
             $item = $this->findEquipmentForValidation($equipmentId);
             if ($item) {
                 $categoryName = $item->category?->name ?? 'Unknown Category';
-                abort(422, "Sorry, this is a {$categoryName} item. You can only log laboratory equipment.");
+                abort(422, "Sorry, this is a {$categoryName} item. You can only log {$this->equipmentLabel($equipmentType)}.");
             }
             abort(404, 'Equipment not found.');
         }
@@ -114,15 +119,15 @@ class LaboratoryLogService
         ];
     }
 
-    public function checkIn(string $equipmentId, array $payload): LaboratoryEquipmentLog
+    public function checkIn(string $equipmentId, array $payload, string $equipmentType = 'laboratory'): LaboratoryEquipmentLog
     {
-        $equipment = $this->findEligibleEquipment($equipmentId);
+        $equipment = $this->findEligibleEquipment($equipmentId, $equipmentType);
         if (!$equipment) {
             // Check if item exists but is wrong category
             $item = $this->findEquipmentForValidation($equipmentId);
             if ($item) {
                 $categoryName = $item->category?->name ?? 'Unknown Category';
-                abort(422, "Sorry, this is a {$categoryName} item. You can only log laboratory equipment.");
+                abort(422, "Sorry, this is a {$categoryName} item. You can only log {$this->equipmentLabel($equipmentType)}.");
             }
             abort(404, 'Equipment not found.');
         }
@@ -162,15 +167,15 @@ class LaboratoryLogService
         });
     }
 
-    public function checkOut(string $equipmentId, array $payload): LaboratoryEquipmentLog
+    public function checkOut(string $equipmentId, array $payload, string $equipmentType = 'laboratory'): LaboratoryEquipmentLog
     {
-        $equipment = $this->findEligibleEquipment($equipmentId);
+        $equipment = $this->findEligibleEquipment($equipmentId, $equipmentType);
         if (!$equipment) {
             // Check if item exists but is wrong category
             $item = $this->findEquipmentForValidation($equipmentId);
             if ($item) {
                 $categoryName = $item->category?->name ?? 'Unknown Category';
-                abort(422, "Sorry, this is a {$categoryName} item. You can only log laboratory equipment.");
+                abort(422, "Sorry, this is a {$categoryName} item. You can only log {$this->equipmentLabel($equipmentType)}.");
             }
             abort(404, 'Equipment not found.');
         }
@@ -209,14 +214,14 @@ class LaboratoryLogService
         });
     }
 
-    public function updateEndUse(string $equipmentId, array $payload): LaboratoryEquipmentLog
+    public function updateEndUse(string $equipmentId, array $payload, string $equipmentType = 'laboratory'): LaboratoryEquipmentLog
     {
-        $equipment = $this->findEligibleEquipment($equipmentId);
+        $equipment = $this->findEligibleEquipment($equipmentId, $equipmentType);
         if (!$equipment) {
             $item = $this->findEquipmentForValidation($equipmentId);
             if ($item) {
                 $categoryName = $item->category?->name ?? 'Unknown Category';
-                abort(422, "Sorry, this is a {$categoryName} item. You can only log laboratory equipment.");
+                abort(422, "Sorry, this is a {$categoryName} item. You can only log {$this->equipmentLabel($equipmentType)}.");
             }
             abort(404, 'Equipment not found.');
         }
@@ -243,14 +248,14 @@ class LaboratoryLogService
         });
     }
 
-    public function reportTemporaryLocation(string $equipmentId, array $payload): LaboratoryEquipmentLocationSurvey
+    public function reportTemporaryLocation(string $equipmentId, array $payload, string $equipmentType = 'laboratory'): LaboratoryEquipmentLocationSurvey
     {
-        $equipment = $this->findEligibleEquipment($equipmentId);
+        $equipment = $this->findEligibleEquipment($equipmentId, $equipmentType);
         if (!$equipment) {
             $item = $this->findEquipmentForValidation($equipmentId);
             if ($item) {
                 $categoryName = $item->category?->name ?? 'Unknown Category';
-                abort(422, "Sorry, this is a {$categoryName} item. You can only log laboratory equipment.");
+                abort(422, "Sorry, this is a {$categoryName} item. You can only log {$this->equipmentLabel($equipmentType)}.");
             }
             abort(404, 'Equipment not found.');
         }
@@ -285,10 +290,19 @@ class LaboratoryLogService
             ]);
     }
 
-    public function getActiveEquipment($employee_id = null): Collection
+    public function getActiveEquipment($employee_id = null, string $equipmentType = 'laboratory'): Collection
     {
+        $categoryIds = $this->categoryIdsForType($equipmentType);
+
         $query = LaboratoryEquipmentLog::with(['equipment', 'personnel'])
             ->where('status', 'active')
+            ->whereHas('equipment.category', function (Builder $builder) use ($categoryIds, $equipmentType) {
+                $builder->whereIn('categories.id', $categoryIds);
+
+                if ($equipmentType === 'laboratory') {
+                    $builder->orWhere('categories.name', 'Laboratory Equipment');
+                }
+            })
             ->orderBy('started_at');
 
         if ($employee_id) {
@@ -467,8 +481,10 @@ class LaboratoryLogService
      * Only laboratory (7) and ICT (4) equipment categories are eligible, and the item must have at least one transaction record.
      * @param string $equipmentId
      */
-    private function findEligibleEquipment(string $equipmentId): ?Item
+    private function findEligibleEquipment(string $equipmentId, string $equipmentType = 'laboratory'): ?Item
     {
+        $categoryIds = $this->categoryIdsForType($equipmentType);
+
         return Item::query()
             ->with('category')
             ->select('items.*')
@@ -477,12 +493,25 @@ class LaboratoryLogService
                 DB::raw('(SELECT MAX(t.barcode_prri) FROM transactions t WHERE t.item_id = items.id AND t.barcode_prri IS NOT NULL) as barcode_prri')
             )
             ->where('items.id', $equipmentId)
-            ->whereHas('category', function (Builder $query) {
-                $query->whereIn('categories.id', [4,7])
-                    ->orWhere('categories.name', 'Laboratory Equipment');
+            ->whereHas('category', function (Builder $query) use ($categoryIds, $equipmentType) {
+                $query->whereIn('categories.id', $categoryIds);
+
+                if ($equipmentType === 'laboratory') {
+                    $query->orWhere('categories.name', 'Laboratory Equipment');
+                }
             })
             ->whereHas('transactions')
             ->first();
+    }
+
+    private function categoryIdsForType(string $equipmentType): array
+    {
+        return $equipmentType === 'ict' ? [4] : [7];
+    }
+
+    private function equipmentLabel(string $equipmentType): string
+    {
+        return $equipmentType === 'ict' ? 'ICT equipment' : 'laboratory equipment';
     }
 
     private function getActiveLog(string $equipmentId): ?LaboratoryEquipmentLog

@@ -8,6 +8,7 @@ use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\RequestFormPivotController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\ICTEquipmentController;
 use App\Repositories\OptionRepo;
 use App\Http\Controllers\LaboratoryEquipmentController;
 use Illuminate\Support\Facades\Route;
@@ -133,6 +134,14 @@ Route::prefix('guest')->group(function () {
     Route::post('/equipments/{identifier}/update-end-use', [LaboratoryEquipmentController::class, 'updateEndUse'])->name('api.laboratory.equipments.update-end-use');
     Route::post('/equipments/{identifier}/report-location', [LaboratoryEquipmentController::class, 'reportLocation'])->name('api.laboratory.equipments.report-location');
     Route::get('/equipments', [LaboratoryEquipmentController::class, 'index'])->name('api.laboratory.equipments.index');
+
+    Route::get('/ict/equipments/active/{employee_id?}', [ICTEquipmentController::class, 'activeEquipments'])->name('api.ict.equipments.active');
+    Route::get('/ict/equipments/{identifier}', [ICTEquipmentController::class, 'show'])->name('api.ict.equipments.show');
+    Route::post('/ict/equipments/{identifier}/check-in', [ICTEquipmentController::class, 'checkIn'])->name('api.ict.equipments.check-in');
+    Route::post('/ict/equipments/{identifier}/check-out', [ICTEquipmentController::class, 'checkOut'])->name('api.ict.equipments.check-out');
+    Route::post('/ict/equipments/{identifier}/update-end-use', [ICTEquipmentController::class, 'updateEndUse'])->name('api.ict.equipments.update-end-use');
+    Route::post('/ict/equipments/{identifier}/report-location', [ICTEquipmentController::class, 'reportLocation'])->name('api.ict.equipments.report-location');
+    Route::get('/ict/equipments', [ICTEquipmentController::class, 'index'])->name('api.ict.equipments.index');
 
     // Network connectivity test for local deployment redirect
     Route::post('/test-local-network', function () {

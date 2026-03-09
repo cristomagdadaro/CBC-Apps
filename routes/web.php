@@ -58,12 +58,22 @@ Route::prefix('/laboratory')->group(function () {
         Route::get('/equipments/{equipment_id?}', function ($equipment_id = null) {
             return Inertia::render('Laboratory/EquipmentShow', [
                 'equipment_id' => $equipment_id,
+                'logger_type' => 'laboratory',
             ]);
         })->name('laboratory.equipments.show');
 
         Route::get('/experiments-monitoring', function () {
             return Inertia::render('Laboratory/ExperimentsMonitoring/ExperimentsMonitoringGuest');
         })->name('laboratory.monitoring.guest');
+});
+
+Route::prefix('/ict')->group(function () {
+        Route::get('/equipments/{equipment_id?}', function ($equipment_id = null) {
+            return Inertia::render('Laboratory/EquipmentShow', [
+                'equipment_id' => $equipment_id,
+                'logger_type' => 'ict',
+            ]);
+        })->name('ict.equipments.show');
 });
 
 Route::prefix('rental')->group(function () {
