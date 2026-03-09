@@ -2,11 +2,11 @@
 
 namespace App\Http\Requests\Laboratory;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
-use Carbon\Carbon;
 
-class LaboratoryCheckInRequest extends FormRequest
+class LaboratoryUpdateEndUseRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -18,7 +18,6 @@ class LaboratoryCheckInRequest extends FormRequest
         return [
             'employee_id' => ['required', 'string', 'max:32'],
             'end_use_at' => ['required', 'date'],
-            'purpose' => ['nullable', 'string', 'max:1000'],
         ];
     }
 

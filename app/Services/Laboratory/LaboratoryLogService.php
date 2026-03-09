@@ -105,6 +105,7 @@ class LaboratoryLogService
             'equipment' => $equipment,
             'active_log' => $activeLog,
             'allowed_actions' => $activeLog ? ['check-out'] : ['check-in'],
+            'purpose_suggestions' => $this->getPurposeSuggestions($equipmentId),
             'max_end_use_hours' => (int) config('laboratory.max_end_use_hours', 24),
         ];
     }
@@ -198,6 +199,40 @@ class LaboratoryLogService
             $activeLog->actual_end_at = Carbon::now();
             $activeLog->active_lock = false;
             $activeLog->checked_out_by = optional(auth()->user())->id;
+            $activeLog->save();
+
+            return $activeLog->fresh(['personnel', 'equipment']);
+        });
+    }
+
+    public function updateEndUse(string $equipmentId, array $payload): LaboratoryEquipmentLog
+    {
+        $equipment = $this->findEligibleEquipment($equipmentId);
+        if (!$equipment) {
+            $item = $this->findEquipmentForValidation($equipmentId);
+            if ($item) {
+                $categoryName = $item->category?->name ?? 'Unknown Category';
+                abort(422, "Sorry, this is a {$categoryName} item. You can only log laboratory equipment.");
+            }
+            abort(404, 'Equipment not found.');
+        }
+
+        return DB::transaction(function () use ($equipmentId, $payload) {
+            $activeLog = $this->lockActiveLog($equipmentId);
+            if (!$activeLog) {
+                abort(409, 'No active log found for this equipment.');
+            }
+
+            $personnel = Personnel::where('employee_id', $payload['employee_id'])->first();
+            if (!$personnel) {
+                abort(422, 'Personnel not found for the provided PhilRice ID.');
+            }
+
+            if ($personnel->id !== $activeLog->personnel_id) {
+                abort(403, 'Only the original check-in personnel can update estimated end of use.');
+            }
+
+            $activeLog->end_use_at = Carbon::parse($payload['end_use_at']);
             $activeLog->save();
 
             return $activeLog->fresh(['personnel', 'equipment']);
@@ -417,5 +452,21 @@ class LaboratoryLogService
             ->whereIn('status', ['active', 'overdue'])
             ->lockForUpdate()
             ->first();
+    }
+
+    private function getPurposeSuggestions(): array
+    {
+        return LaboratoryEquipmentLog::query()
+            ->whereNotNull('purpose')
+            ->where('purpose', '!=', '')
+            ->orderByDesc('created_at')
+            ->limit(50)
+            ->pluck('purpose')
+            ->map(fn (string $purpose) => trim($purpose))
+            ->filter()
+            ->unique()
+            ->take(10)
+            ->values()
+            ->all();
     }
 }

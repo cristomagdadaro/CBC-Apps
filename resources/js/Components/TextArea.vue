@@ -13,6 +13,8 @@ export default {
         label: { type: String, default: '' },
         rows: { type: Number, default: 4 },
         guide: { type: String, default: null },
+        datalistId: { type: String, default: null },
+        datalistOptions: { type: Array, default: null },
     },
     emits: ['update:modelValue'],
     data() {
@@ -68,7 +70,11 @@ export default {
             :placeholder="placeholder"
             @input="onInput"
             :style="{ minHeight: rows * 20 + 'px' }"
+            :list="datalistId"
         />
+        <datalist v-if="datalistId && datalistOptions && datalistOptions.length" :id="datalistId">
+            <option v-for="opt in datalistOptions" :key="opt" :value="opt" />
+        </datalist>
         <p v-if="guide" class="mt-1 text-xs text-gray-500">{{ guide }}</p>
     </div>
 </template>

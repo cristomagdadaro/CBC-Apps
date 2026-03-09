@@ -3,8 +3,11 @@ import { useForm, usePage, router } from "@inertiajs/vue3";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import LaboratoryPersonnelMixin from "@/Modules/mixins/LaboratoryPersonnelMixin";
+import EditIcon from "@/Components/Icons/EditIcon.vue";
+import DialogModal from "@/Components/DialogModal.vue";
 
 export default {
+    components: { EditIcon },
     name: "EquipmentShow",
     mixins: [ApiMixin, DataFormatterMixin, LaboratoryPersonnelMixin],
     props: {
@@ -24,6 +27,7 @@ export default {
             activeLog: null,
             allowedActions: [],
             maxEndUseHours: 24,
+            purposeSuggestions: [],
             loading: false,
             loadingActiveEquipments: false,
             activeEquipments: [],
@@ -33,6 +37,7 @@ export default {
             personnelPreview: null,
             checkInErrors: {},
             checkOutErrors: {},
+            updateEndUseErrors: {},
             checkInForm: useForm({
                 employee_id: "",
                 end_use_at: "",
@@ -42,12 +47,17 @@ export default {
                 employee_id: "",
                 admin_override: false,
             }),
+            updateEndUseForm: useForm({
+                employee_id: "",
+                end_use_at: "",
+            }),
             showPhilRiceField: false,
             isRotating: false,
             filterActiveByPersonnel: false,
             notFound: false,
             isNavigating: false,
             unsubscribeRouterEvents: null,
+            showEstimatedEndUseModal: false,
         };
     },
     computed: {
@@ -142,7 +152,21 @@ export default {
                 this.equipment = details?.equipment ?? null;
                 this.activeLog = details?.active_log ?? null;
                 this.allowedActions = details?.allowed_actions ?? [];
+                this.purposeSuggestions = details?.purpose_suggestions ?? [];
                 this.maxEndUseHours = details?.max_end_use_hours ?? 24;
+
+                if (this.activeLog?.end_use_at) {
+                    this.updateEndUseForm.end_use_at =
+                        this.formatForDatetimeLocal(this.activeLog.end_use_at);
+                }
+
+                if (
+                    this.savedLaboratoryPersonnel?.employee_id &&
+                    !this.updateEndUseForm.employee_id
+                ) {
+                    this.updateEndUseForm.employee_id =
+                        this.savedLaboratoryPersonnel.employee_id;
+                }
             } catch (error) {
                 this.messageType = "error";
                 this.message =
@@ -205,6 +229,42 @@ export default {
         resetCheckOut() {
             this.checkOutForm.reset();
             this.checkOutErrors = {};
+        },
+        resetUpdateEndUse() {
+            this.updateEndUseErrors = {};
+
+            if (this.activeLog?.end_use_at) {
+                this.updateEndUseForm.end_use_at = this.formatForDatetimeLocal(
+                    this.activeLog.end_use_at,
+                );
+            }
+
+            if (this.savedLaboratoryPersonnel?.employee_id) {
+                this.updateEndUseForm.employee_id =
+                    this.savedLaboratoryPersonnel.employee_id;
+            } else {
+                this.updateEndUseForm.employee_id = "";
+            }
+        },
+        addMinutes(minutes) {
+            if (minutes === 0) {
+                // Reset to default end_use_at based on started_at + maxEndUseHours
+                if (!this.activeLog?.started_at) return;
+
+                const startedAt = new Date(this.activeLog.started_at);
+                startedAt.setHours(startedAt.getHours() + this.maxEndUseHours);
+                this.updateEndUseForm.end_use_at =
+                    startedAt.toISOString().slice(0, 16);
+                return;
+            }
+            
+            let baseTime = this.updateEndUseForm.end_use_at
+                ? new Date(this.updateEndUseForm.end_use_at)
+                : new Date();
+
+            baseTime.setMinutes(baseTime.getMinutes() + minutes);
+
+            this.updateEndUseForm.end_use_at = baseTime.toISOString().slice(0, 16);
         },
         async submitCheckIn() {
             this.checkInErrors = {};
@@ -281,6 +341,42 @@ export default {
                 }
             }
         },
+        async submitUpdateEndUse() {
+            this.updateEndUseErrors = {};
+            this.message = null;
+
+            const payload = {
+                employee_id: this.updateEndUseForm.employee_id,
+                end_use_at: this.updateEndUseForm.end_use_at,
+            };
+
+            try {
+                await this.fetchPostApi(
+                    "api.laboratory.equipments.update-end-use",
+                    payload,
+                    {
+                        routeParams: this.equipmentId,
+                    },
+                );
+                this.messageType = "success";
+                this.message = "Estimated end of use updated successfully.";
+                this.showSuccessModal = true;
+                await this.loadEquipment();
+            } catch (error) {
+                this.messageType = "error";
+                if (error?.response?.status === 422) {
+                    this.updateEndUseErrors = error.response.data.errors || {
+                        base: error.response.data.message,
+                    };
+                } else {
+                    this.updateEndUseErrors = {
+                        base:
+                            error?.response?.data?.message ||
+                            "Failed to update estimated end of use.",
+                    };
+                }
+            }
+        },
         formatPersonnelName(personnel) {
             if (!personnel) return "-";
             const parts = [
@@ -293,6 +389,19 @@ export default {
                 .map((value) => String(value).trim())
                 .filter(Boolean);
             return parts.length ? parts.join(" ") : "-";
+        },
+        formatForDatetimeLocal(value) {
+            if (!value) return "";
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return "";
+
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+            const hours = String(date.getHours()).padStart(2, "0");
+            const minutes = String(date.getMinutes()).padStart(2, "0");
+
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
         },
         getErrorMessage(error) {
             if (!error) return null;
@@ -327,6 +436,8 @@ export default {
         if (this.savedLaboratoryPersonnel?.employee_id) {
             this.showPhilRiceField = true;
             this.checkOutForm.employee_id =
+                this.savedLaboratoryPersonnel.employee_id;
+            this.updateEndUseForm.employee_id =
                 this.savedLaboratoryPersonnel.employee_id;
         }
         setTimeout(() => {
@@ -517,18 +628,39 @@ export default {
                         class="grid grid-cols-1 gap-4"
                     >
                         <div class="p-4 bg-white border rounded-lg shadow-sm">
-                            <h2 class="mb-2 text-base font-semibold uppercase">
-                                Current Status
-                            </h2>
+                            <div class="flex justify-between items-center">
+                                <h2
+                                    class="mb-2 text-base font-semibold uppercase"
+                                >
+                                    Current Status
+                                </h2>
+                                <button
+                                    v-if="activeLog"
+                                    @click.prevent="
+                                        showEstimatedEndUseModal =
+                                            !showEstimatedEndUseModal
+                                    "
+                                    title="Edit Estimated time of use"
+                                >
+                                    <edit-icon
+                                        class="w-4 h-4 text-yellow-500"
+                                    />
+                                </button>
+                            </div>
                             <div
                                 v-if="activeLog"
                                 class="flex flex-col gap-1 text-sm"
                             >
                                 <div class="flex justify-between gap-1">
                                     <span class="text-gray-500">Status</span>
-                                    <span class="font-semibold uppercase">{{
-                                        activeLog.status
-                                    }}</span>
+                                    <span
+                                        class="font-semibold uppercase flex items-center gap-2"
+                                    >
+                                        <div
+                                            class="p-1 shadow-md bg-lime-500 animate-pulse rounded-full w-2 h-2"
+                                        ></div>
+                                        {{ activeLog.status }}</span
+                                    >
                                 </div>
                                 <div class="flex justify-between gap-1">
                                     <span class="text-gray-500"
@@ -556,12 +688,130 @@ export default {
                             <div v-else class="text-sm text-gray-500">
                                 No active user for this equipment
                             </div>
+
+                            <DialogModal
+                                :show="showEstimatedEndUseModal && !!activeLog"
+                                @close="
+                                    resetUpdateEndUse;
+                                    showEstimatedEndUseModal = false;
+                                "
+                            >
+                                <template #title>
+                                    Update Estimated End of Use
+                                </template>
+                                <template #content>
+                                    <div
+                                        class="pt-3 mt-3 border-t border-gray-100"
+                                    >
+                                        <div class="flex flex-col gap-2">
+                                            <TextInput
+                                                id="update_end_use_employee_id"
+                                                v-model="
+                                                    updateEndUseForm.employee_id
+                                                "
+                                                label="PhilRice ID"
+                                                :error="
+                                                    getErrorMessage(
+                                                        updateEndUseErrors.employee_id,
+                                                    )
+                                                "
+                                                @keydown.enter.prevent="
+                                                    submitUpdateEndUse
+                                                "
+                                                required
+                                            />
+                                            <TextInput
+                                                id="update_end_use_at"
+                                                v-model="
+                                                    updateEndUseForm.end_use_at
+                                                "
+                                                label="New Estimated End of Use"
+                                                type="datetime-local"
+                                                :error="
+                                                    getErrorMessage(
+                                                        updateEndUseErrors.end_use_at,
+                                                    )
+                                                "
+                                                @keydown.enter.prevent="
+                                                    submitUpdateEndUse
+                                                "
+                                                required
+                                            />
+                                            <div
+                                                v-if="
+                                                    getErrorMessage(
+                                                        updateEndUseErrors.base,
+                                                    )
+                                                "
+                                                class="text-sm text-red-600"
+                                            >
+                                                {{
+                                                    getErrorMessage(
+                                                        updateEndUseErrors.base,
+                                                    )
+                                                }}
+                                            </div>
+                                            <div
+                                                class="flex flex-wrap gap-2 mt-2"
+                                            >
+                                                <button
+                                                    type="button"
+                                                    class="px-3 py-1 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-md"
+                                                    @click="addMinutes(15)"
+                                                >
+                                                    +15 min
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    class="px-3 py-1 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-md"
+                                                    @click="addMinutes(30)"
+                                                >
+                                                    +30 min
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    class="px-3 py-1 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-md"
+                                                    @click="addMinutes(60)"
+                                                >
+                                                    +60 min
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    class="px-3 py-1 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-md"
+                                                    @click="addMinutes(120)"
+                                                >
+                                                    +120 min
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    class="px-3 py-1 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-md"
+                                                    @click="addMinutes(0)"
+                                                >
+                                                    Reset to default
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template #footer>
+                                    <button
+                                        type="button"
+                                        class="w-full px-4 py-2 text-sm text-white rounded bg-AB hover:bg-AB-dark"
+                                        @click="submitUpdateEndUse"
+                                    >
+                                        Update End of Use
+                                    </button>
+                                </template>
+                            </DialogModal>
                         </div>
                     </div>
 
                     <div
                         v-if="hasEquipment && !notFound && canCheckIn"
-                        class="p-4 bg-white border rounded-lg shadow-sm"
+                        class="p-4 bg-white border rounded-lg shadow-sm flex flex-col gap-2"
                     >
                         <div class="grid grid-cols-1 gap-2 mb-3">
                             <h2 class="text-base font-bold uppercase">
@@ -600,15 +850,13 @@ export default {
                             @keydown.enter.prevent="submitCheckIn"
                             required
                         />
-                        <p class="text-xs text-gray-800">
-                            End of use must be within {{ maxEndUseHours }} hours
-                            from now.
-                        </p>
-                        <TextArea
+                        <TextInput
                             id="purpose"
                             v-model="checkInForm.purpose"
                             label="Purpose (optional)"
                             :error="getErrorMessage(checkInErrors.purpose)"
+                            :datalist-id="'purpose-suggestions'"
+                            :datalist-options="purposeSuggestions"
                             @keydown.enter.prevent="submitCheckIn"
                         />
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Laboratory\LaboratoryCheckInRequest;
 use App\Http\Requests\Laboratory\LaboratoryCheckOutRequest;
+use App\Http\Requests\Laboratory\LaboratoryUpdateEndUseRequest;
 use App\Http\Requests\Generic\GetRequest;
 use App\Repositories\LaboratoryEquipmentLogRepo;
 use App\Services\Laboratory\LaboratoryLogService;
@@ -76,6 +77,23 @@ class LaboratoryEquipmentController extends Controller
 
         return response()->json([
             'message' => 'Equipment checked out successfully.',
+            'data' => $log,
+        ]);
+    }
+
+    public function updateEndUse(LaboratoryUpdateEndUseRequest $request, string $identifier): JsonResponse
+    {
+        $equipmentId = $this->service->resolveEquipmentId($identifier);
+        if (!$equipmentId) {
+            return response()->json([
+                'message' => 'Equipment not found.',
+            ], 404);
+        }
+
+        $log = $this->service->updateEndUse($equipmentId, $request->validated());
+
+        return response()->json([
+            'message' => 'Estimated end of use updated successfully.',
             'data' => $log,
         ]);
     }
