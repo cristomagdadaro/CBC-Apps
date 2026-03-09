@@ -17,10 +17,6 @@ export default {
     },
     mixins: [ApiMixin, DataFormatterMixin],
     props: {
-        categories: {
-            type: Array,
-            required: true
-        },
         stockLevel: {
             type: Array,
             required: true
@@ -37,6 +33,7 @@ export default {
             processing: false,
             showSuccessModal: false,
             successMessage: 'Your transaction has been recorded.',
+            projectCodeOptions: [],
         }
     },
     beforeMount() {
@@ -45,6 +42,7 @@ export default {
         this.applyNameSort();
     },
     async mounted() {
+        await this.loadProjectCodes();
         await this.searchEvent();
 
         setTimeout(() => {
@@ -85,6 +83,17 @@ export default {
                 this.outgoingFromApi = response;
             })
             this.processing = false;
+        },
+        async loadProjectCodes() {
+            try {
+                const response = await this.fetchGetApi('api.inventory.transactions.project-codes');
+                const list = response?.data ?? [];
+                this.projectCodeOptions = Array.isArray(list)
+                    ? list.map((code) => ({ name: code, label: code }))
+                    : [];
+            } catch (error) {
+                this.projectCodeOptions = [];
+            }
         },
         setFilter(filter, filter_by) {
             if (this.form.filter_by === filter_by) {
@@ -158,6 +167,14 @@ export default {
                             <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
                             <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
                             <camera-scanner class="col-span-3 md:col-span-1" @decoded="searchFromBarcode" />
+                            <custom-dropdown
+                                v-if="projectCodeOptions.length"
+                                class="col-span-3 md:col-span-2"
+                                placeholder="Project Code"
+                                label="Filter by Project Code"
+                                :options="projectCodeOptions"
+                                @selectedChange="setFilter('project_code', $event)"
+                            />
                         </div>
                         <h3>There are {{outgoingFromApi?.data?.length || 0}} items registered</h3>
                         <div class="w-full max-h-[60vh] overflow-y-auto overflow-x-hidden">

@@ -7,7 +7,7 @@ import EditIcon from "@/Components/Icons/EditIcon.vue";
 import DialogModal from "@/Components/DialogModal.vue";
 
 export default {
-    components: { EditIcon },
+    components: { EditIcon, DialogModal },
     name: "EquipmentShow",
     mixins: [ApiMixin, DataFormatterMixin, LaboratoryPersonnelMixin],
     props: {
@@ -28,6 +28,8 @@ export default {
             allowedActions: [],
             maxEndUseHours: 24,
             purposeSuggestions: [],
+            currentLocation: null,
+            storageLocationOptions: [],
             loading: false,
             loadingActiveEquipments: false,
             activeEquipments: [],
@@ -38,6 +40,7 @@ export default {
             checkInErrors: {},
             checkOutErrors: {},
             updateEndUseErrors: {},
+            locationSurveyErrors: {},
             checkInForm: useForm({
                 employee_id: "",
                 end_use_at: "",
@@ -50,6 +53,10 @@ export default {
             updateEndUseForm: useForm({
                 employee_id: "",
                 end_use_at: "",
+            }),
+            locationSurveyForm: useForm({
+                employee_id: "",
+                location_label: "",
             }),
             showPhilRiceField: false,
             isRotating: false,
@@ -76,6 +83,9 @@ export default {
         isAdmin() {
             const page = usePage();
             return page.props.auth?.user?.is_admin ?? false;
+        },
+        shouldShowLocationSurvey() {
+            return this.currentLocation?.source !== "temporary";
         },
         filteredActiveEquipments() {
             if (
@@ -153,6 +163,9 @@ export default {
                 this.activeLog = details?.active_log ?? null;
                 this.allowedActions = details?.allowed_actions ?? [];
                 this.purposeSuggestions = details?.purpose_suggestions ?? [];
+                this.currentLocation = details?.current_location ?? null;
+                this.storageLocationOptions =
+                    details?.storage_location_options ?? [];
                 this.maxEndUseHours = details?.max_end_use_hours ?? 24;
 
                 if (this.activeLog?.end_use_at) {
@@ -165,6 +178,19 @@ export default {
                     !this.updateEndUseForm.employee_id
                 ) {
                     this.updateEndUseForm.employee_id =
+                        this.savedLaboratoryPersonnel.employee_id;
+                }
+
+                if (!this.locationSurveyForm.location_label) {
+                    this.locationSurveyForm.location_label =
+                        this.currentLocation?.label || "";
+                }
+
+                if (
+                    this.savedLaboratoryPersonnel?.employee_id &&
+                    !this.locationSurveyForm.employee_id
+                ) {
+                    this.locationSurveyForm.employee_id =
                         this.savedLaboratoryPersonnel.employee_id;
                 }
             } catch (error) {
@@ -246,25 +272,33 @@ export default {
                 this.updateEndUseForm.employee_id = "";
             }
         },
+        resetLocationSurvey() {
+            this.locationSurveyErrors = {};
+            this.locationSurveyForm.location_label =
+                this.currentLocation?.label || "";
+
+            if (this.savedLaboratoryPersonnel?.employee_id) {
+                this.locationSurveyForm.employee_id =
+                    this.savedLaboratoryPersonnel.employee_id;
+            }
+        },
         addMinutes(minutes) {
             if (minutes === 0) {
-                // Reset to default end_use_at based on started_at + maxEndUseHours
-                if (!this.activeLog?.started_at) return;
+                if (!this.activeLog?.end_use_at) return;
 
-                const startedAt = new Date(this.activeLog.started_at);
-                startedAt.setHours(startedAt.getHours() + this.maxEndUseHours);
                 this.updateEndUseForm.end_use_at =
-                    startedAt.toISOString().slice(0, 16);
+                    this.formatForDatetimeLocal(this.activeLog.end_use_at);
                 return;
             }
-            
+
             let baseTime = this.updateEndUseForm.end_use_at
                 ? new Date(this.updateEndUseForm.end_use_at)
                 : new Date();
 
             baseTime.setMinutes(baseTime.getMinutes() + minutes);
 
-            this.updateEndUseForm.end_use_at = baseTime.toISOString().slice(0, 16);
+            this.updateEndUseForm.end_use_at =
+                this.formatForDatetimeLocal(baseTime);
         },
         async submitCheckIn() {
             this.checkInErrors = {};
@@ -377,6 +411,43 @@ export default {
                 }
             }
         },
+        async submitLocationSurvey() {
+            this.locationSurveyErrors = {};
+            this.message = null;
+
+            const payload = {
+                employee_id: this.locationSurveyForm.employee_id,
+                location_label: this.locationSurveyForm.location_label,
+            };
+
+            try {
+                await this.fetchPostApi(
+                    "api.laboratory.equipments.report-location",
+                    payload,
+                    {
+                        routeParams: this.equipmentId,
+                    },
+                );
+
+                this.messageType = "success";
+                this.message = "Temporary location saved successfully.";
+                this.showSuccessModal = true;
+                await this.loadEquipment();
+            } catch (error) {
+                this.messageType = "error";
+                if (error?.response?.status === 422) {
+                    this.locationSurveyErrors = error.response.data.errors || {
+                        base: error.response.data.message,
+                    };
+                } else {
+                    this.locationSurveyErrors = {
+                        base:
+                            error?.response?.data?.message ||
+                            "Failed to save temporary location.",
+                    };
+                }
+            }
+        },
         formatPersonnelName(personnel) {
             if (!personnel) return "-";
             const parts = [
@@ -438,6 +509,8 @@ export default {
             this.checkOutForm.employee_id =
                 this.savedLaboratoryPersonnel.employee_id;
             this.updateEndUseForm.employee_id =
+                this.savedLaboratoryPersonnel.employee_id;
+            this.locationSurveyForm.employee_id =
                 this.savedLaboratoryPersonnel.employee_id;
         }
         setTimeout(() => {
@@ -619,6 +692,68 @@ export default {
                                 <span class="font-semibold">{{
                                     equipment.barcode || "-"
                                 }}</span>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="text-xs text-gray-500 uppercase"
+                                    >Current Location</span
+                                >
+                                <span class="font-semibold">{{
+                                    currentLocation?.label || "Unknown Location"
+                                }}</span>
+                            </div>
+                            <div
+                                v-if="shouldShowLocationSurvey"
+                                class="flex flex-col gap-2 md:col-span-2"
+                            >
+                               <div>
+                                 <span class="font-bold text-gray-800 uppercase">
+                                    Temporary Location Survey
+                                </span>
+                                 <p class="text-sm text-gray-500">
+                                    Report the current location if different from
+                                    the known location. This helps us keep track
+                                    of equipment whereabouts.
+                                </p>
+                               </div>
+                                <TextInput
+                                    id="survey_location_employee_id"
+                                    v-model="locationSurveyForm.employee_id"
+                                    label="PhilRice ID (Location Survey)"
+                                    :error="
+                                        getErrorMessage(
+                                            locationSurveyErrors.employee_id,
+                                        )
+                                    "
+                                    @keydown.enter.prevent="submitLocationSurvey"
+                                    required
+                                />
+                                <TextInput
+                                    id="survey_location_label"
+                                    v-model="locationSurveyForm.location_label"
+                                    label="Temporary Current Location"
+                                    :datalist-id="'storage-location-suggestions'"
+                                    :datalist-options="storageLocationOptions"
+                                    :error="
+                                        getErrorMessage(
+                                            locationSurveyErrors.location_label,
+                                        )
+                                    "
+                                    @keydown.enter.prevent="submitLocationSurvey"
+                                    required
+                                />
+                                <div
+                                    v-if="getErrorMessage(locationSurveyErrors.base)"
+                                    class="text-sm text-red-600"
+                                >
+                                    {{ getErrorMessage(locationSurveyErrors.base) }}
+                                </div>
+                                <button
+                                    type="button"
+                                    class="w-full px-4 py-2 text-sm text-white rounded bg-AB hover:bg-AB-dark"
+                                    @click="submitLocationSurvey"
+                                >
+                                    Save Temporary Location
+                                </button>
                             </div>
                         </div>
                     </div>

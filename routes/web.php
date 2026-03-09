@@ -210,6 +210,12 @@ Route::middleware([
                 ->name('inventory.generate-pdf');
 
             Route::prefix('transactions')->group(function () {
+                Route::get('/dashboard', function () {
+                    return Inertia::render('Inventory/Transactions/InventoryDashboard', [
+                        'fromUrl' => route('transactions.index'),
+                    ]);
+                })->name('transactions.dashboard');
+
                 Route::get('/', function () {
                     return Inertia::render('Inventory/Transactions/Transactions', [
                         'fromUrl' => route('dashboard'),

@@ -15,6 +15,7 @@ Route::prefix('inventory')->group(function () {
 
         Route::prefix('transactions')->group(function () {
             Route::get('/', [TransactionController::class, 'index'])->name('api.inventory.transactions.index');
+            Route::get('/dashboard', [TransactionController::class, 'dashboard'])->name('api.inventory.transactions.dashboard');
             Route::post('/', [TransactionController::class, 'create'])->name('api.inventory.transactions.store');
             Route::delete('/{id?}', [TransactionController::class, 'destroy'])->name('api.inventory.transactions.destroy');
             Route::delete('/multi/delete', [TransactionController::class, 'multiDestroy'])->name('api.inventory.transactions.multi-destroy');

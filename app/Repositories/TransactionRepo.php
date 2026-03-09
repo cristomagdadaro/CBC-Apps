@@ -4,8 +4,11 @@ namespace App\Repositories;
 
 use App\Models\Transaction;
 use App\Models\Category;
+use App\Repositories\OptionRepo;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Pipeline\Pipeline;
+use Illuminate\Support\Facades\DB;
 use App\Pipelines\InventoryTransaction\ResolveUserByEmployeeId;
 use App\Pipelines\InventoryTransaction\AssignTransactionUuid;
 use App\Pipelines\InventoryTransaction\PersistTransaction;
@@ -14,7 +17,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class TransactionRepo extends AbstractRepoService
 {
-    public function __construct(Transaction $model)
+    public function __construct(Transaction $model, private readonly OptionRepo $optionRepo)
     {
         parent::__construct($model);
         $this->appendWith = ['item', 'user','personnel'];
@@ -47,7 +50,7 @@ class TransactionRepo extends AbstractRepoService
         };
 
         $query = $this->model->newQuery()->selectRaw(
-                'items.name, items.description, items.brand, transactions.unit, items.id as item_id, transactions.barcode, transactions.barcode_prri,' .
+            'items.name, items.description, items.brand, transactions.unit, items.id as item_id, transactions.barcode, transactions.barcode_prri, MAX(transactions.project_code) as project_code,' .
                 ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,' .
                 ' SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END) as total_outgoing,' .
                 ' (SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) - ' .
@@ -122,6 +125,8 @@ class TransactionRepo extends AbstractRepoService
                 $like = '%' . $search . '%';
                 $query->havingRaw('barcode LIKE ?', [$like]);
             }
+        } elseif ($filter === 'project_code' && $filterBy) {
+            $query->where('transactions.project_code', $filterBy);
         }
 
         if ($minRemaining !== null && is_numeric($minRemaining)) {
@@ -255,5 +260,177 @@ class TransactionRepo extends AbstractRepoService
             ->orderBy('created_at', 'desc')
             ->limit($limit)
             ->get();
+    }
+
+    public function getAvailableProjectCodes(): Collection
+    {
+        return $this->model
+            ->newQuery()
+            ->whereNotNull('project_code')
+            ->where('project_code', '!=', '')
+            ->select('project_code')
+            ->distinct()
+            ->orderBy('project_code')
+            ->pluck('project_code');
+    }
+
+    public function getInventoryDashboardMetrics(Collection $parameters): array
+    {
+        $scope = strtolower((string) $parameters->get('scope', 'month'));
+        [$start, $end] = $this->resolveDashboardDateRange($scope);
+
+        $base = $this->model->newQuery()
+            ->when($start && $end, function (Builder $query) use ($start, $end) {
+                $query->whereBetween('transactions.created_at', [$start, $end]);
+            });
+
+        $totalIncoming = (clone $base)
+            ->where('transactions.transac_type', 'incoming')
+            ->sum('transactions.quantity');
+
+        $totalOutgoing = (clone $base)
+            ->where('transactions.transac_type', 'outgoing')
+            ->sum(DB::raw('ABS(transactions.quantity)'));
+
+        $recentTransactions = (clone $base)
+            ->with(['item', 'personnel', 'user'])
+            ->orderByDesc('transactions.created_at')
+            ->limit(10)
+            ->get();
+
+        $itemsPerCategory = (clone $base)
+            ->join('items', 'transactions.item_id', '=', 'items.id')
+            ->join('categories', 'items.category_id', '=', 'categories.id')
+            ->selectRaw('categories.name as label, COUNT(DISTINCT transactions.item_id) as total')
+            ->groupBy('categories.name')
+            ->orderByDesc('total')
+            ->get();
+
+        $itemsPerProjectCode = (clone $base)
+            ->whereNotNull('transactions.project_code')
+            ->where('transactions.project_code', '!=', '')
+            ->selectRaw('transactions.project_code as label, COUNT(DISTINCT transactions.item_id) as total')
+            ->groupBy('transactions.project_code')
+            ->orderByDesc('total')
+            ->get();
+
+        $latestBarcodeRows = (clone $base)
+            ->whereNotNull('transactions.item_id')
+            ->whereNotNull('transactions.barcode')
+            ->select(['transactions.item_id', 'transactions.barcode'])
+            ->orderByDesc('transactions.created_at')
+            ->get()
+            ->unique('item_id');
+
+        $locationLookup = $this->buildStorageLocationLookup();
+
+        $itemsPerLocation = $latestBarcodeRows
+            ->map(function ($row) use ($locationLookup) {
+                $code = $this->extractLocationCodeFromBarcode($row->barcode);
+                $label = $code ? ($locationLookup[$code] ?? 'Unknown Location') : 'Unknown Location';
+
+                return [
+                    'item_id' => $row->item_id,
+                    'label' => $label,
+                ];
+            })
+            ->groupBy('label')
+            ->map(fn ($rows, $label) => [
+                'label' => $label,
+                'total' => collect($rows)->pluck('item_id')->unique()->count(),
+            ])
+            ->values()
+            ->sortByDesc('total')
+            ->values();
+
+        $stockBaseQuery = (clone $base)
+            ->join('items', 'transactions.item_id', '=', 'items.id')
+            ->selectRaw(
+                'items.id as item_id,' .
+                ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,' .
+                ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity WHEN transactions.transac_type = "outgoing" THEN -ABS(transactions.quantity) ELSE 0 END) as remaining_quantity'
+            )
+            ->groupBy('items.id');
+
+        $percentageExpr = 'CASE WHEN total_ingoing <> 0 THEN remaining_quantity / total_ingoing ELSE 0 END';
+
+        $stockBuckets = [
+            'empty' => (clone $stockBaseQuery)->havingRaw("$percentageExpr <= 0")->count(),
+            'low' => (clone $stockBaseQuery)->havingRaw("$percentageExpr > 0 AND $percentageExpr <= 0.25")->count(),
+            'mid' => (clone $stockBaseQuery)->havingRaw("$percentageExpr > 0.25 AND $percentageExpr <= 0.75")->count(),
+            'high' => (clone $stockBaseQuery)->havingRaw("$percentageExpr > 0.75")->count(),
+        ];
+
+        return [
+            'scope' => $scope,
+            'range' => [
+                'start' => $start?->toDateTimeString(),
+                'end' => $end?->toDateTimeString(),
+            ],
+            'totals' => [
+                'incoming' => (float) $totalIncoming,
+                'outgoing' => (float) $totalOutgoing,
+            ],
+            'recent_transactions' => $recentTransactions,
+            'items_per_category' => $itemsPerCategory,
+            'items_per_location' => $itemsPerLocation,
+            'items_per_project_code' => $itemsPerProjectCode,
+            'stock_buckets' => $stockBuckets,
+        ];
+    }
+
+    private function resolveDashboardDateRange(string $scope): array
+    {
+        $now = Carbon::now();
+
+        return match ($scope) {
+            'day' => [$now->copy()->startOfDay(), $now->copy()->endOfDay()],
+            'week' => [$now->copy()->startOfWeek(), $now->copy()->endOfWeek()],
+            'year' => [$now->copy()->startOfYear(), $now->copy()->endOfYear()],
+            'month' => [$now->copy()->startOfMonth(), $now->copy()->endOfMonth()],
+            default => [$now->copy()->startOfMonth(), $now->copy()->endOfMonth()],
+        };
+    }
+
+    private function buildStorageLocationLookup(): array
+    {
+        return collect($this->optionRepo->getStorageLocations())
+            ->mapWithKeys(function (array $location) {
+                $code = $this->normalizeLocationCode($location['name'] ?? null);
+                $label = $location['label'] ?? null;
+
+                if (!$code || !$label) {
+                    return [];
+                }
+
+                return [$code => $label];
+            })
+            ->toArray();
+    }
+
+    private function extractLocationCodeFromBarcode(?string $barcode): ?string
+    {
+        if (!$barcode || !preg_match('/CBC-(\d+)-/i', $barcode, $matches)) {
+            return null;
+        }
+
+        return str_pad($matches[1], 2, '0', STR_PAD_LEFT);
+    }
+
+    private function normalizeLocationCode(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_numeric($value)) {
+            return str_pad((string) ((int) $value), 2, '0', STR_PAD_LEFT);
+        }
+
+        if (is_string($value) && preg_match('/(\d+)/', $value, $matches)) {
+            return str_pad((string) ((int) $matches[1]), 2, '0', STR_PAD_LEFT);
+        }
+
+        return null;
     }
 }

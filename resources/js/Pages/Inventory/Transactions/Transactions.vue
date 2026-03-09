@@ -20,6 +20,12 @@ export default {
         Transaction() {
             return Transaction
         },
+        transactionTypeOptions() {
+            return [
+                { name: 'incoming', label: 'Incoming' },
+                { name: 'outgoing', label: 'Outgoing' },
+            ];
+        },
     },
 }
 </script>
@@ -36,6 +42,9 @@ export default {
             <search-comp
                 :propModel="Transaction"
                 :cardSlot="DataTable"
+                :quick-filter-options="transactionTypeOptions"
+                quick-filter-column="transac_type"
+                quick-filter-label="Type"
             />
         </div>
     </AppLayout>

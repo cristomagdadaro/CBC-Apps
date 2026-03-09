@@ -22,6 +22,18 @@ export default {
                 loader: () => import("@/Components/DefaultBlankForm.vue"),
             }),
         },
+        quickFilterOptions: {
+            type: Array,
+            default: () => [],
+        },
+        quickFilterLabel: {
+            type: String,
+            default: "Quick Filter",
+        },
+        quickFilterColumn: {
+            type: String,
+            default: "",
+        },
     },
     data() {
         return {
@@ -32,6 +44,7 @@ export default {
             searchDebounceDelay: 350,
             latestRequestId: 0,
             autoSearchReady: false,
+            quickFilterValue: null,
         }
     },
     beforeMount() {
@@ -63,6 +76,23 @@ export default {
         },
         'form.per_page'() {
             if (!this.autoSearchReady) return;
+            this.searchEvent({ page: 1 });
+        },
+        quickFilterValue(newValue) {
+            if (!this.autoSearchReady || !this.quickFilterColumn) return;
+
+            if (!newValue) {
+                if (this.form.filter === this.quickFilterColumn) {
+                    this.form.filter = null;
+                    this.form.search = null;
+                    this.form.is_exact = false;
+                }
+                return;
+            }
+
+            this.form.filter = this.quickFilterColumn;
+            this.form.search = newValue;
+            this.form.is_exact = true;
             this.searchEvent({ page: 1 });
         },
     },
@@ -168,6 +198,16 @@ export default {
                         :options="columns"
                         @searchBy="form.filter = $event"
                         @isExact="form.is_exact = $event"
+                    />
+                    <custom-dropdown
+                        v-if="quickFilterOptions.length && quickFilterColumn"
+                        :value="quickFilterValue"
+                        :label="quickFilterLabel"
+                        :placeholder="`Filter by ${quickFilterLabel}`"
+                        :options="quickFilterOptions"
+                        :withAllOption="false"
+                        @selectedChange="quickFilterValue = $event"
+                        class="max-w-fit"
                     />
                     <search-box class="w-full" v-model="form.search" @keydown.enter.prevent="triggerImmediateSearch(true)"/>
                     <div class="flex flex-col gap-0.5">

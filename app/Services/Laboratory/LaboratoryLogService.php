@@ -3,6 +3,7 @@
 namespace App\Services\Laboratory;
 
 use App\Models\Item;
+use App\Models\LaboratoryEquipmentLocationSurvey;
 use App\Models\LaboratoryEquipmentLog;
 use App\Models\Personnel;
 use App\Models\Transaction;
@@ -100,12 +101,15 @@ class LaboratoryLogService
         }
 
         $activeLog = $this->getActiveLog($equipmentId);
+        $resolvedLocation = $this->resolveEquipmentLocation($equipmentId, $equipment->barcode ?? null);
 
         return [
             'equipment' => $equipment,
             'active_log' => $activeLog,
             'allowed_actions' => $activeLog ? ['check-out'] : ['check-in'],
             'purpose_suggestions' => $this->getPurposeSuggestions($equipmentId),
+            'current_location' => $resolvedLocation,
+            'storage_location_options' => $this->getStorageLocationOptions(),
             'max_end_use_hours' => (int) config('laboratory.max_end_use_hours', 24),
         ];
     }
@@ -239,6 +243,38 @@ class LaboratoryLogService
         });
     }
 
+    public function reportTemporaryLocation(string $equipmentId, array $payload): LaboratoryEquipmentLocationSurvey
+    {
+        $equipment = $this->findEligibleEquipment($equipmentId);
+        if (!$equipment) {
+            $item = $this->findEquipmentForValidation($equipmentId);
+            if ($item) {
+                $categoryName = $item->category?->name ?? 'Unknown Category';
+                abort(422, "Sorry, this is a {$categoryName} item. You can only log laboratory equipment.");
+            }
+            abort(404, 'Equipment not found.');
+        }
+
+        $personnel = Personnel::where('employee_id', $payload['employee_id'])->first();
+        if (!$personnel) {
+            abort(422, 'Personnel not found for the provided PhilRice ID.');
+        }
+
+        return DB::transaction(function () use ($equipmentId, $payload, $personnel) {
+            $survey = LaboratoryEquipmentLocationSurvey::firstOrNew([
+                'equipment_id' => $equipmentId,
+            ]);
+
+            $survey->personnel_id = $personnel->id;
+            $survey->location_code = !empty($payload['location_code']) ? trim((string) $payload['location_code']) : null;
+            $survey->location_label = trim((string) $payload['location_label']);
+            $survey->reported_at = Carbon::now();
+            $survey->save();
+
+            return $survey->fresh(['personnel', 'equipment']);
+        });
+    }
+
     public function markOverdue(): int
     {
         return LaboratoryEquipmentLog::where('status', 'active')
@@ -346,12 +382,24 @@ class LaboratoryLogService
             ->unique('item_id')
             ->keyBy('item_id');
 
+        $temporaryLocationByEquipment = LaboratoryEquipmentLocationSurvey::query()
+            ->whereIn('equipment_id', $equipmentIds)
+            ->get()
+            ->keyBy('equipment_id');
+
         $locationByCode = $this->buildStorageLocationLookup();
 
-        $logs->each(function (LaboratoryEquipmentLog $log) use ($latestBarcodeByEquipment, $locationByCode) {
+        $logs->each(function (LaboratoryEquipmentLog $log) use ($latestBarcodeByEquipment, $locationByCode, $temporaryLocationByEquipment) {
             $barcode = $latestBarcodeByEquipment->get($log->equipment_id)?->barcode;
-            $locationCode = $this->extractLocationCodeFromBarcode($barcode);
-            $locationLabel = $locationCode ? ($locationByCode[$locationCode] ?? 'Unknown Location') : 'Unknown Location';
+            $temporary = $temporaryLocationByEquipment->get($log->equipment_id);
+
+            if ($temporary) {
+                $locationCode = $temporary->location_code;
+                $locationLabel = $temporary->location_label ?: 'Unknown Location';
+            } else {
+                $locationCode = $this->extractLocationCodeFromBarcode($barcode);
+                $locationLabel = $locationCode ? ($locationByCode[$locationCode] ?? 'Unknown Location') : 'Unknown Location';
+            }
 
             $log->setAttribute('equipment_barcode', $barcode);
             $log->setAttribute('location_code', $locationCode);
@@ -454,9 +502,10 @@ class LaboratoryLogService
             ->first();
     }
 
-    private function getPurposeSuggestions(): array
+    private function getPurposeSuggestions(string $equipmentId): array
     {
         return LaboratoryEquipmentLog::query()
+            ->where('equipment_id', $equipmentId)
             ->whereNotNull('purpose')
             ->where('purpose', '!=', '')
             ->orderByDesc('created_at')
@@ -468,5 +517,39 @@ class LaboratoryLogService
             ->take(10)
             ->values()
             ->all();
+    }
+
+    private function getStorageLocationOptions(): array
+    {
+        return collect($this->optionRepo->getStorageLocations())
+            ->map(fn (array $location) => $location['label'] ?? null)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function resolveEquipmentLocation(string $equipmentId, ?string $barcode): array
+    {
+        $temporary = LaboratoryEquipmentLocationSurvey::query()
+            ->where('equipment_id', $equipmentId)
+            ->first();
+
+        if ($temporary) {
+            return [
+                'code' => $temporary->location_code,
+                'label' => $temporary->location_label ?: 'Unknown Location',
+                'source' => 'temporary',
+            ];
+        }
+
+        $locationCode = $this->extractLocationCodeFromBarcode($barcode);
+        $locationByCode = $this->buildStorageLocationLookup();
+
+        return [
+            'code' => $locationCode,
+            'label' => $locationCode ? ($locationByCode[$locationCode] ?? 'Unknown Location') : 'Unknown Location',
+            'source' => 'barcode',
+        ];
     }
 }

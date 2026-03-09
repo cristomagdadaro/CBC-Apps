@@ -67,6 +67,20 @@ class TransactionController extends BaseController
         return $this->repo()->getRemainingStocks(new Collection($request->all()));
     }
 
+    public function projectCodes(): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->repo()->getAvailableProjectCodes(),
+        ]);
+    }
+
+    public function dashboard(Request $request): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->repo()->getInventoryDashboardMetrics(new Collection($request->all())),
+        ]);
+    }
+
     public function outgoingStockStore(NewOutgoingRequest $request): Model | JsonResponse
     {
         return $this->repo()->createOutgoingWithPipeline($request->validated());

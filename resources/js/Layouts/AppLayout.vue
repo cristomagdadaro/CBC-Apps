@@ -67,6 +67,9 @@ export default {
                     permission: 'inventory.manage',
                     children: [
                         {
+                            label: 'Dashboard',
+                            href: 'transactions.dashboard'
+                        }, {
                             label: 'Transactions',
                             href: 'transactions.index'
                         }, {
