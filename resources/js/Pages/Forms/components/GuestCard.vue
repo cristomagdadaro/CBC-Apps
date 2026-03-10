@@ -93,6 +93,110 @@ export default {
 
             return Math.max(0, this.currentMaxSlots - (this.currentResponsesCount ?? 0));
         },
+        eventStartAt() {
+            const startDate = this.data?.date_from;
+            const startTime = this.data?.time_from;
+
+            if (!startDate || !startTime) {
+                return null;
+            }
+
+            return this.parseDateTimeValue(`${startDate} ${startTime}`);
+        },
+        eventEndAt() {
+            const endDate = this.data?.date_to;
+            const endTime = this.data?.time_to;
+
+            if (!endDate || !endTime) {
+                return null;
+            }
+
+            return this.parseDateTimeValue(`${endDate} ${endTime}`);
+        },
+        latestSubformCloseAt() {
+            const candidates = [
+                ...(Array.isArray(this.workflowSteps) ? this.workflowSteps : []),
+                ...(Array.isArray(this.data?.requirements) ? this.data.requirements : []),
+            ];
+
+            const timestamps = candidates
+                .map((step) => this.parseDateTimeValue(step?.open_to ?? step?.config?.open_to))
+                .filter((value) => value instanceof Date && !Number.isNaN(value.getTime()))
+                .map((value) => value.getTime());
+
+            if (!timestamps.length) {
+                return null;
+            }
+
+            return new Date(Math.max(...timestamps));
+        },
+        effectiveEventEndAt() {
+            const eventEnd = this.eventEndAt?.getTime?.() ?? null;
+            const subformEnd = this.latestSubformCloseAt?.getTime?.() ?? null;
+
+            if (eventEnd && subformEnd) {
+                return new Date(Math.max(eventEnd, subformEnd));
+            }
+
+            if (eventEnd) {
+                return this.eventEndAt;
+            }
+
+            if (subformEnd) {
+                return this.latestSubformCloseAt;
+            }
+
+            return null;
+        },
+        eventState() {
+            const now = this.formCountdownNow;
+            const start = this.eventStartAt?.getTime?.() ?? null;
+            const end = this.effectiveEventEndAt?.getTime?.() ?? null;
+
+            if (start && now < start) {
+                return 'upcoming';
+            }
+
+            if (end && now <= end) {
+                return 'ongoing';
+            }
+
+            if (start && !end && now >= start) {
+                return 'ongoing';
+            }
+
+            if (end && now > end) {
+                return 'expired';
+            }
+
+            return 'upcoming';
+        },
+        eventCountdownTargetAt() {
+            if (this.eventState === 'upcoming') {
+                return this.eventStartAt;
+            }
+
+            if (this.eventState === 'ongoing') {
+                return this.effectiveEventEndAt;
+            }
+
+            return null;
+        },
+        eventCountdownDisplay() {
+            const target = this.eventCountdownTargetAt;
+            if (!target) {
+                return '0d 0h 0m 0s';
+            }
+
+            const remaining = target.getTime() - this.formCountdownNow;
+            return this.formatCountdownDuration(remaining);
+        },
+        countdownDisplay() {
+            return this.eventCountdownDisplay;
+        },
+        isExpired() {
+            return this.eventState === 'expired';
+        },
     },
     mounted() {
         this.startCountdown();
@@ -700,9 +804,10 @@ export default {
         </div>
 
         <div class="flex flex-col items-center justify-center p-2 rounded-md bg-white dark:bg-gray-700 transition-colors">
-            <span v-if="isExpired" class="text-sm uppercase leading-none text-red-600 dark:text-red-400">Event has ended</span>
-            <span v-else class="text-sm uppercase leading-none text-gray-600 dark:text-gray-300">Event starts in </span>
-            <label class="leading-none font-bold text-4xl text-gray-900 dark:text-white" :class="{'text-red-600 dark:text-red-400' : isExpired}">{{ countdownDisplay }}</label>
+            <span v-if="eventState === 'expired'" class="text-sm uppercase leading-none text-red-600 dark:text-red-400">Event has ended</span>
+            <span v-else-if="eventState === 'ongoing'" class="text-sm uppercase leading-none text-green-700 dark:text-green-300">Event is ongoing</span>
+            <span v-else class="text-sm uppercase leading-none text-gray-600 dark:text-gray-300">Event starts in</span>
+            <label class="leading-none font-bold text-4xl text-gray-900 dark:text-white" :class="{'text-red-600 dark:text-red-400': eventState === 'expired', 'text-green-700 dark:text-green-300': eventState === 'ongoing'}">{{ countdownDisplay }}</label>
         </div>
 
         <div class="flex relative items-center">

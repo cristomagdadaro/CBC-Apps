@@ -6,11 +6,13 @@ import DtoResponse from "@/Modules/dto/DtoResponse";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import Participant from "@/Modules/domain/Participant";
 import RequirementsManager from "@/Components/Forms/RequirementsManager.vue";
+import QrcodeVue from "qrcode.vue";
 
 export default {
     name: "EventCard",
 
     components: {
+        QrcodeVue,
         RequirementsManager,
         SuspendFormBtn,
     },
@@ -22,6 +24,7 @@ export default {
             confirmDelete: false,
             updatedData: null,
             errors: null,
+            qrDownloadReady: false,
         };
     },
 
@@ -109,6 +112,13 @@ export default {
         hasRightBorder() {
             return (index) => index < this.visibleResponseTypes.length - 1;
         },
+        formGuestUrl() {
+            if (!this.formsData?.event_id) {
+                return "";
+            }
+
+            return route('forms.guest.index', this.formsData.event_id);
+        },
     },
     beforeMount() {
         this.model = new Form();
@@ -147,6 +157,29 @@ export default {
             await this.exportCSV(response.data, filename);
 
             this.model = new Form();
+        },
+        async downloadFormQr() {
+            if (!this.formsData?.event_id) {
+                return;
+            }
+
+            if (!this.qrDownloadReady) {
+                await this.$nextTick();
+            }
+
+            const qrHost = this.$refs.formQrDownloadHost;
+            const canvas = qrHost?.querySelector?.('canvas');
+
+            if (!canvas) {
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = `event-${this.formsData.event_id}-qr-500x500.png`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
         },
         getFormTypeLabel(formType) {
             if (!formType) {
@@ -286,11 +319,13 @@ export default {
                         <view-icon class="w-4 h-4" />
                     </a>
 
+                    <button @click="downloadFormQr" class="bg-indigo-200 text-indigo-900 w-fit px-2 py-1 rounded flex items-center hover:scale-110 duration-200" title="Download 500x500 QR code for this guest form">
+                        <download-qr-icon class="w-4 h-4" />
+                    </button>
+
                     <Link :href="route('forms.scan', formsData.event_id)" class="bg-AA text-white w-fit px-2 py-1 rounded flex items-center hover:scale-110 duration-200" title="Scan QR code for on-site registration and attendance">
                         <scan-icon class="w-4 h-4" />
                     </Link>
-
-                    
 
                     <suspend-form-btn v-if="!isExpired" :data="formsData" @updated="updatedData = $event" @failedUpdate="errors = $event"/>
 
@@ -299,6 +334,16 @@ export default {
                     </button>
                 </div>
                 <label class="text-xs text-center text-red-600">{{errors?.toObject()?.message}}</label>
+            </div>
+            <div ref="formQrDownloadHost" class="hidden" aria-hidden="true">
+                <qrcode-vue
+                    v-if="formGuestUrl"
+                    :value="formGuestUrl"
+                    :size="500"
+                    level="M"
+                    render-as="canvas"
+                    @ready="qrDownloadReady = true"
+                />
             </div>
             <delete-confirmation-modal
                 :show="confirmDelete"

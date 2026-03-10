@@ -95,6 +95,7 @@ import FlagIcon from '@/Components/Icons/FlagIcon.vue';
 import BoxesIcon from '@/Components/Icons/BoxesIcon.vue';
 import TruckIcon from '@/Components/Icons/TruckIcon.vue';
 import BuildingIcon from '@/Components/Icons/BuildingIcon.vue';
+import DownloadQrIcon from '@/Components/Icons/DownloadQrIcon.vue';
 
 // Dropdown Components
 import DropdownLink from "@/Components/DropdownLink.vue";
@@ -235,6 +236,7 @@ createInertiaApp({
         vueApp.component('BoxesIcon', BoxesIcon);
         vueApp.component('TruckIcon', TruckIcon);
         vueApp.component('BuildingIcon', BuildingIcon);
+        vueApp.component('DownloadQrIcon', DownloadQrIcon);
 
         // Global Dropdown Components
         vueApp.component('DropdownLink', DropdownLink);
