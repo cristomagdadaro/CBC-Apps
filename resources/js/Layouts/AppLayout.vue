@@ -58,7 +58,7 @@ export default {
                     href: 'accessUseRequest.index',
                     permission: 'fes.request.approve',
                 },{
-                    label: 'Lab Equipment Logger',
+                    label: 'Equipment Logger',
                     href: 'laboratory.dashboard',
                     permission: 'laboratory.logger.manage',
                 },{

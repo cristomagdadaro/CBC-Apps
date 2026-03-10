@@ -15,31 +15,15 @@ export default {
     data() {
         return {
             searchLoading: false,
-            clientErrors: {},
-            lastRaw: '',
+            clientErrors: {}
         };
     },
     methods: {
-        formatPhilRiceId(raw) {
-            if (!raw) return '';
-            const cleaned = raw.replace(/[^A-Za-z0-9]/g, '');
-            if (cleaned.length <= 2) return cleaned;
-            return cleaned.slice(0, 2) + '-' + cleaned.slice(2);
-        },
         onInput(value) {
-            const raw = (value || '').replace(/[^A-Za-z0-9]/g, '');
-            const isDeleting = raw.length < (this.lastRaw || '').length;
-
-            let formatted = this.formatPhilRiceId(raw);
-            if (isDeleting && raw.length <= 2) {
-                formatted = raw;
-            }
-
-            this.lastRaw = raw;
             delete this.clientErrors.employee_id;
-            this.$emit('update:modelValue', formatted);
+            this.$emit('update:modelValue', value);
         },
-        
+
         async searchPersonnel() {
             this.clientErrors = { ...this.clientErrors, employee_id: null };
 
@@ -50,14 +34,20 @@ export default {
             }
 
             this.searchLoading = true;
+
             try {
-                const response = await this.fetchGetApi('api.inventory.personnels.index.guest', {
-                    filter: 'employee_id',
-                    search: this.modelValue,
-                    is_exact: true,
-                }, Personnel);
+                const response = await this.fetchGetApi(
+                    'api.inventory.personnels.index.guest',
+                    {
+                        filter: 'employee_id',
+                        search: this.modelValue,
+                        is_exact: true,
+                    },
+                    Personnel
+                );
 
                 const payload = response?.data ?? response ?? [];
+
                 const record = Array.isArray(payload?.data ?? payload)
                     ? (payload.data ?? payload)[0]
                     : (payload.data ?? payload);
@@ -69,6 +59,7 @@ export default {
                 }
 
                 delete this.clientErrors.employee_id;
+
                 this.$emit('found', {
                     fullName: record.fullName,
                     position: record.position,
@@ -76,24 +67,18 @@ export default {
                     email: record.email,
                     affiliation: "Philippine Rice Research Institute"
                 });
+
             } catch (error) {
                 console.error(error);
                 this.clientErrors.employee_id = 'Lookup failed. Please try again.';
                 this.$emit('error', { field: 'employee_id', message: this.clientErrors.employee_id });
+
             } finally {
                 this.searchLoading = false;
             }
         }
-    },
-    mounted() {
-        this.lastRaw = (this.modelValue || '').replace(/[^A-Za-z0-9]/g, '');
-    },
-    watch: {
-        modelValue(newVal) {
-            this.lastRaw = (newVal || '').replace(/[^A-Za-z0-9]/g, '');
-        }
     }
-    };
+};
 </script>
 
 <template>
