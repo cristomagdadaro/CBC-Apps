@@ -4,6 +4,7 @@ import Transaction from "@/Modules/domain/Transaction";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import ListOfForms from "@/Pages/Forms/components/ListOfForms.vue";
 import OutgoingForm from "@/Pages/Inventory/Transactions/components/OutgoingForm.vue";
+import OutgoingItemCard from "@/Pages/Inventory/Transactions/components/presentation/OutgoingItemCard.vue";
 import Personnel from "@/Modules/domain/Personnel.js";
 import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
 
@@ -12,15 +13,12 @@ export default {
     components: {
         TransactionHeaderAction,
         OutgoingForm,
+        OutgoingItemCard,
         ListOfForms,
         SearchBy
     },
     mixins: [ApiMixin],
     props: {
-        categories: {
-            type: Array,
-            required: true
-        },
         stockLevel: {
             type: Array,
             required: true
@@ -104,6 +102,7 @@ export default {
                 <div class="flex gap-1 items-center w-full justify-center">
                     <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
                     <custom-dropdown :with-all-option="false" placeholder="Category" label="Filter by Category" @selectedChange="setFilter('category', $event)" :options="categories" />
+                    <custom-dropdown :with-all-option="false" placeholder="Project Code" label="Filter by Project Code" @selectedChange="setFilter('project_code', $event)" :options="projectCodes" class="col-span-3 md:col-span-2" />
                 </div>
                 <h3>There are {{outgoingFromApi?.data?.length || 0}} items registered</h3>
                 <div v-if="outgoingFromApi" class="flex flex-col w-full gap-2 items-center">
@@ -148,20 +147,12 @@ export default {
                         </paginate-btn>
                     </div>
                     <div class="w-full overflow-hidden">
-                        <div v-if="outgoingFromApi && Array.isArray(outgoingFromApi.data) && outgoingFromApi.data.length > 0" class="sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 flex flex-col sm:gap-1 min-w-fit">
-                            <div v-for="item in outgoingFromApi.data" v-bind:key="item.id" @click="selectItem(item)" class="flex flex-col bg-white shadow hover:bg-gray-200 hover:border-gray-500 border rounded active:scale-95 duration-75">
-                                <div class="flex justify-between items-center gap-5 py-2 px-4">
-                                    <div class="flex flex-col">
-                                        <span class="font-bold text-xs whitespace-nowrap overflow-ellipsis overflow-hidden">
-                                            {{ item.name }} {{ item.description ? `(${item.description})` : '' }}
-                                        </span>
-                                        <span class="text-xs text-gray-500 leading-none">{{ item.brand }}</span>
-                                        <span class="text-xs text-gray-500 leading-none" :class="{'text-red-600' : !item.barcode}">{{ item.barcode || 'Warning! NO BARCODE' }}</span>
-                                    </div>
-                                    <span class="text-right">{{ formatNumber(item.remaining_quantity) }}</span>
-                                </div>
-                            </div>
-                        </div>
+                        <outgoing-item-card 
+                            v-if="outgoingFromApi && Array.isArray(outgoingFromApi.data) && outgoingFromApi.data.length > 0" 
+                            :outgoing-from-api="outgoingFromApi" 
+                            @select-item="selectItem"
+                        />
+
                         <!-- Show "Searching" when processing -->
                         <div v-else-if="model.api.processing" class="text-center py-3 border border-AB rounded-lg">
                             Searching...

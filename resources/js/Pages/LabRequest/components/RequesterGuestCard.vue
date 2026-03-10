@@ -217,6 +217,56 @@ export default {
         },
     },
     computed: {
+        requestTypeWhitelist() {
+            const defaults = [
+                'Biofreezer',
+                'Field Experimental Space',
+                'ICT Equipment',
+                'ICT Supplies',
+                'IEC Materials',
+                'Laboratory Access',
+                'Laboratory Consumables',
+                'Laboratory Equipment',
+                'Medicool',
+                'Office Space',
+                'Office Supplies',
+                'Parking Space',
+                'Plant Growth Chamber',
+                'Screenhouse Space',
+                'Storage Space',
+                'Tokens',
+                'Utility Space',
+            ];
+
+            const fromProps = (this.requestTypeOptions || []).map((entry) =>
+                typeof entry === 'string'
+                    ? { name: entry, label: entry }
+                    : { name: entry?.name ?? entry?.label, label: entry?.label ?? entry?.name }
+            ).filter((entry) => entry.name);
+
+            const seen = new Set(fromProps.map((entry) => entry.name));
+            const missing = defaults
+                .filter((name) => !seen.has(name))
+                .map((name) => ({ name, label: name }));
+
+            return [...fromProps, ...missing];
+        },
+        fallbackTagifyOptions() {
+            return {
+                biofreezers: ['Biofreezer'],
+                field_spaces: ['Field Experimental Space'],
+                laboratory_consumables: ['Laboratory Consumables'],
+                medicool_units: ['Medicool'],
+                office_spaces: ['Office Space'],
+                office_supplies: ['Office Supplies'],
+                parking_spaces: ['Parking Space'],
+                plant_growth_chambers: ['Plant Growth Chamber'],
+                screenhouse_spaces: ['Screenhouse Space'],
+                storage_spaces: ['Storage Space'],
+                tokens: ['Tokens'],
+                utility_spaces: ['Utility Space'],
+            };
+        },
         selectedRequestTypes() {
             const type = this.form?.request_type;
             if (!type) return [];
@@ -309,7 +359,7 @@ export default {
         />
         <div class="px-2 pt-4 overflow-x-auto">
             <ProgressTabs :steps="stepLabels" :current="currentStep" @update:current="handleStepChange" />
-        </div> {{ form }}
+        </div>
         <form v-if="form" @submit.prevent="handleCreate()" class="px-2 py-0  md:rounded-md flex flex-col gap-4 bg-white">
             
             <!-- Step 0: Request Type -->
@@ -326,7 +376,7 @@ export default {
                         v-model="form.request_type"
                         name="request_type"
                         placeholder="Select one or more"
-                        :whitelist="requestTypeOptions"
+                        :whitelist="requestTypeWhitelist"
                         :enforce-whitelist="true"
                         @update:modelValue="form.clearErrors('request_type')"
                     />
@@ -398,6 +448,7 @@ export default {
                     name="biofreezers" 
                     placeholder="Select available biofreezers" 
                     api-link="api.inventory.categories.public" 
+                    :whitelist="fallbackTagifyOptions.biofreezers"
                     :params="{ routeParams: {categoryName: 'Biofreezer'} }" 
                 />
                 <InputError v-if="hasErr('biofreezers')" :message="errMsg('biofreezers')" />
@@ -414,6 +465,7 @@ export default {
                     name="field_spaces" 
                     placeholder="Select available field spaces" 
                     api-link="api.inventory.categories.public" 
+                    :whitelist="fallbackTagifyOptions.field_spaces"
                     :params="{ routeParams: {categoryName: 'Field Experimental Space'} }" 
                 />
                 <InputError v-if="hasErr('field_spaces')" :message="errMsg('field_spaces')" />
@@ -494,6 +546,7 @@ export default {
                     name="laboratory_consumables" 
                     placeholder="Select available consumables" 
                     api-link="api.inventory.categories.public" 
+                    :whitelist="fallbackTagifyOptions.laboratory_consumables"
                     :params="{ routeParams: {categoryName: 'Laboratory Consumables'} }" 
                 />
                 <InputError v-if="hasErr('laboratory_consumables')" :message="errMsg('laboratory_consumables')" />
@@ -526,6 +579,7 @@ export default {
                     name="medicool_units" 
                     placeholder="Select available Medicool units" 
                     api-link="api.inventory.categories.public" 
+                    :whitelist="fallbackTagifyOptions.medicool_units"
                     :params="{ routeParams: {categoryName: 'Medicool'} }" 
                 />
                 <InputError v-if="hasErr('medicool_units')" :message="errMsg('medicool_units')" />
@@ -542,6 +596,7 @@ export default {
                     name="office_spaces" 
                     placeholder="Select available office spaces" 
                     api-link="api.inventory.categories.public" 
+                    :whitelist="fallbackTagifyOptions.office_spaces"
                     :params="{ routeParams: {categoryName: 'Office Space'} }" 
                 />
                 <InputError v-if="hasErr('office_spaces')" :message="errMsg('office_spaces')" />
@@ -558,6 +613,7 @@ export default {
                     name="office_supplies" 
                     placeholder="Select available office supplies" 
                     api-link="api.inventory.categories.public" 
+                    :whitelist="fallbackTagifyOptions.office_supplies"
                     :params="{ routeParams: {categoryName: 'Office Supplies'} }" 
                 />
                 <InputError v-if="hasErr('office_supplies')" :message="errMsg('office_supplies')" />
@@ -574,6 +630,7 @@ export default {
                     name="parking_spaces" 
                     placeholder="Select available parking spaces" 
                     api-link="api.inventory.categories.public" 
+                    :whitelist="fallbackTagifyOptions.parking_spaces"
                     :params="{ routeParams: {categoryName: 'Parking Space'} }" 
                 />
                 <InputError v-if="hasErr('parking_spaces')" :message="errMsg('parking_spaces')" />
@@ -590,6 +647,7 @@ export default {
                     name="plant_growth_chambers" 
                     placeholder="Select available plant growth chambers" 
                     api-link="api.inventory.categories.public" 
+                    :whitelist="fallbackTagifyOptions.plant_growth_chambers"
                     :params="{ routeParams: {categoryName: 'Plant Growth Chamber'} }" 
                 />
                 <InputError v-if="hasErr('plant_growth_chambers')" :message="errMsg('plant_growth_chambers')" />
@@ -606,6 +664,7 @@ export default {
                     name="screenhouse_spaces" 
                     placeholder="Select available screenhouse spaces" 
                     api-link="api.inventory.categories.public" 
+                    :whitelist="fallbackTagifyOptions.screenhouse_spaces"
                     :params="{ routeParams: {categoryName: 'Screenhouse Space'} }" 
                 />
                 <InputError v-if="hasErr('screenhouse_spaces')" :message="errMsg('screenhouse_spaces')" />
@@ -622,6 +681,7 @@ export default {
                     name="storage_spaces" 
                     placeholder="Select available storage spaces" 
                     api-link="api.inventory.categories.public" 
+                    :whitelist="fallbackTagifyOptions.storage_spaces"
                     :params="{ routeParams: {categoryName: 'Storage Space'} }" 
                 />
                 <InputError v-if="hasErr('storage_spaces')" :message="errMsg('storage_spaces')" />
@@ -638,6 +698,7 @@ export default {
                     name="tokens" 
                     placeholder="Select available tokens" 
                     api-link="api.inventory.categories.public" 
+                    :whitelist="fallbackTagifyOptions.tokens"
                     :params="{ routeParams: {categoryName: 'Tokens'} }" 
                 />
                 <InputError v-if="hasErr('tokens')" :message="errMsg('tokens')" />
@@ -654,6 +715,7 @@ export default {
                     name="utility_spaces" 
                     placeholder="Select available utility spaces" 
                     api-link="api.inventory.categories.public" 
+                    :whitelist="fallbackTagifyOptions.utility_spaces"
                     :params="{ routeParams: {categoryName: 'Utility Space'} }" 
                 />
                 <InputError v-if="hasErr('utility_spaces')" :message="errMsg('utility_spaces')" />

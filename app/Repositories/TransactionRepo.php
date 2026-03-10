@@ -45,7 +45,7 @@ class TransactionRepo extends AbstractRepoService
             'total_ingoing'      => 'total_ingoing',
             'total_outgoing'     => 'total_outgoing',
             'remaining_quantity' => 'remaining_quantity',
-            'expiration'         => 'transactions.expiration',
+            'expiration'         => 'expiration',
             default              => 'items.id',
         };
 
@@ -55,15 +55,15 @@ class TransactionRepo extends AbstractRepoService
                 ' SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END) as total_outgoing,' .
                 ' (SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) - ' .
                 '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity,' .
-                ' transactions.expiration,' .
+                ' MIN(transactions.expiration) as expiration,' .
                 ' CASE ' .
-                '   WHEN transactions.expiration IS NULL THEN 0 ' .
-                '   WHEN transactions.expiration < CURDATE() THEN 3 ' .
-                '   WHEN transactions.expiration <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) THEN 2 ' .
+                '   WHEN MIN(transactions.expiration) IS NULL THEN 0 ' .
+                '   WHEN MIN(transactions.expiration) < CURDATE() THEN 3 ' .
+                '   WHEN MIN(transactions.expiration) <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) THEN 2 ' .
                 '   ELSE 1 ' .
                 ' END as expiration_priority'
             )->join('items', 'transactions.item_id', '=', 'items.id')
-            ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode', 'transactions.barcode_prri', 'transactions.expiration');
+            ->groupBy('items.id', 'items.name', 'items.description', 'items.brand', 'transactions.unit', 'transactions.barcode', 'transactions.barcode_prri');
 
         if ($filter === 'category' && $filterBy) {
             $values = is_array($filterBy) ? $filterBy : [$filterBy];
@@ -98,7 +98,14 @@ class TransactionRepo extends AbstractRepoService
             if (!empty($ids)) {
                 $query->whereIn('items.category_id', $ids);
             } else {
-                $query->whereRaw('0 = 1');
+                $query->where(function ($q) use ($names) {
+                    foreach ($names as $name) {
+                        $like = "%{$name}%";
+                        $q->orWhere('items.name', 'like', $like)
+                            ->orWhere('items.description', 'like', $like)
+                            ->orWhere('items.brand', 'like', $like);
+                    }
+                });
             }
         } elseif (!$filter && !empty($consumableCategoryIds)) {
             // Apply consumable category filter by default
@@ -219,9 +226,12 @@ class TransactionRepo extends AbstractRepoService
 
     public function getRemainingStocksPerCategory(Collection $parameters, string $categoryName): Collection
     {
+        $minRemaining = $parameters->get('min_remaining', 1);
+
         $params = $parameters->merge([
             'filter' => 'category',
             'filter_by' => $categoryName,
+            'min_remaining' => $minRemaining,
         ]);
 
         $stock = $this->getRemainingStocks($params);
@@ -268,10 +278,10 @@ class TransactionRepo extends AbstractRepoService
             ->newQuery()
             ->whereNotNull('project_code')
             ->where('project_code', '!=', '')
-            ->select('project_code')
+            ->select('project_code as name', 'project_code as label')
             ->distinct()
             ->orderBy('project_code')
-            ->pluck('project_code');
+            ->get();
     }
 
     public function getInventoryDashboardMetrics(Collection $parameters): array

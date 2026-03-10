@@ -29,6 +29,9 @@ export default {
         categories() {
             return this.$page.props.categories;
         },
+        projectCodes() {
+            return this.$page.props.projectCodes;
+        }
     },
     methods: {
         setFormAction(action: string) {

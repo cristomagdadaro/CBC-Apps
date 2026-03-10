@@ -7,13 +7,16 @@ import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Personnel from "@/Modules/domain/Personnel";
 import CameraScanner from "@/Components/CameraScanner.vue";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
+import OutgoingItemCard from "@/Pages/Inventory/Transactions/components/presentation/OutgoingItemCard.vue";
+
 export default {
     name: "OutgoingFormGuest",
     components: {
         CameraScanner,
         OutgoingForm,
         RequesterGuestCard,
-        TransactionHeaderAction
+        TransactionHeaderAction,
+        OutgoingItemCard,
     },
     mixins: [ApiMixin, DataFormatterMixin],
     props: {
@@ -33,7 +36,6 @@ export default {
             processing: false,
             showSuccessModal: false,
             successMessage: 'Your transaction has been recorded.',
-            projectCodeOptions: [],
         }
     },
     beforeMount() {
@@ -42,7 +44,6 @@ export default {
         this.applyNameSort();
     },
     async mounted() {
-        await this.loadProjectCodes();
         await this.searchEvent();
 
         setTimeout(() => {
@@ -83,17 +84,6 @@ export default {
                 this.outgoingFromApi = response;
             })
             this.processing = false;
-        },
-        async loadProjectCodes() {
-            try {
-                const response = await this.fetchGetApi('api.inventory.transactions.project-codes');
-                const list = response?.data ?? [];
-                this.projectCodeOptions = Array.isArray(list)
-                    ? list.map((code) => ({ name: code, label: code }))
-                    : [];
-            } catch (error) {
-                this.projectCodeOptions = [];
-            }
         },
         setFilter(filter, filter_by) {
             if (this.form.filter_by === filter_by) {
@@ -168,11 +158,11 @@ export default {
                             <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
                             <camera-scanner class="col-span-3 md:col-span-1" @decoded="searchFromBarcode" />
                             <custom-dropdown
-                                v-if="projectCodeOptions.length"
+                                v-if="projectCodes"
                                 class="col-span-3 md:col-span-2"
                                 placeholder="Project Code"
                                 label="Filter by Project Code"
-                                :options="projectCodeOptions"
+                                :options="projectCodes"
                                 @selectedChange="setFilter('project_code', $event)"
                             />
                         </div>
@@ -184,37 +174,11 @@ export default {
                                     Loading...
                                 </div>
                             </div>
-                            <div v-if="outgoingFromApi && Array.isArray(outgoingFromApi.data) && outgoingFromApi.data.length > 0" class="sm:grid sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-3 flex flex-col gap-1 min-w-fit">
-                                <div
-                                    v-for="(item, index) in outgoingFromApi.data"
-                                    :key="`${item.item_id || item.id}-${item.unit}-${item.barcode || 'nobarcode'}-${index}`"
-                                    @click="selectItem(item)"
-                                    class="flex flex-col bg-white shadow hover:bg-gray-200 hover:border-gray-500 border rounded active:scale-95 duration-75"
-                                >
-                                    <div class="flex flex-col justify-between py-2 px-4 h-full">
-                                        <div class="flex justify-between items-center gap-5">
-                                            <div class="flex flex-col">
-                                                    <span class="font-bold text-xs whitespace-nowrap overflow-ellipsis overflow-hidden">
-                                                        {{ item.name }} {{ item.description ? `(${item.description})` : '' }}
-                                                    </span>
-                                                <span v-if="item.expiration" :class="{
-                                                    'text-red-600 font-semibold': getExpirationStatus(item.expiration) === 'expired',
-                                                    'text-orange-600 font-semibold': ['expiring_soon', 'expiring_today'].includes(getExpirationStatus(item.expiration)),
-                                                    'text-gray-500': !getExpirationStatus(item.expiration)
-                                                }" class="text-xs">
-                                                    Expiry: {{ formatDate(item.expiration) }}
-                                                    <span v-if="getExpirationStatus(item.expiration) === 'expired'" class="ml-1">(Expired)</span>
-                                                    <span v-else-if="getExpirationStatus(item.expiration) === 'expiring_today'" class="ml-1">(Expires Today)</span>
-                                                    <span v-else-if="getExpirationStatus(item.expiration) === 'expiring_soon'" class="ml-1">(Expiring Soon)</span>
-                                                </span>
-                                                <span class="text-xs text-gray-500">{{ item.brand }}</span>
-                                            </div>
-                                            <span class="text-right">{{ formatNumber(item.remaining_quantity) }}</span>
-                                        </div>
-                                        <span class="text-xs text-gray-500">{{ item.barcode }}</span>
-                                    </div>
-                                </div>
-                            </div>
+                            <outgoing-item-card
+                                    v-if="outgoingFromApi && Array.isArray(outgoingFromApi.data) && outgoingFromApi.data.length > 0"
+                                    :outgoing-from-api="outgoingFromApi"
+                                    @select-item="selectItem"
+                                />
                             <!-- Show "Searching" when processing -->
                             <div v-else-if="model.api.processing" class="text-center py-3 border border-AB rounded-lg">
                                 Searching...

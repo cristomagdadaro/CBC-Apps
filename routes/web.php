@@ -12,6 +12,7 @@ use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\SupplierController;
 use App\Models\Category;
 use App\Repositories\OptionRepo;
+use App\Repositories\TransactionRepo;
 use App\Models\Item;
 use App\Models\Personnel;
 use App\Models\Supplier;
@@ -250,6 +251,7 @@ Route::middleware([
                         'personnels' => Personnel::selectRaw(expression: 'id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                         'stockLevel' => app(OptionRepo::class)->getStockLevels(),
                         'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
+                        'projectCodes' => app(TransactionRepo::class)->getAvailableProjectCodes(),
                     ]);
                 })->name('transactions.outgoing');
 

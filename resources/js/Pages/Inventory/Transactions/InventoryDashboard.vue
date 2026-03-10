@@ -1,10 +1,14 @@
 <script>
 import axios from "axios";
 import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
+import ApiMixin from "@/Modules/mixins/ApiMixin";
+import ConcreteApiService from "@/Modules/infrastructure/ConcreteApiService";
+import Transaction from "@/Modules/domain/Transaction";
 
 export default {
     name: "InventoryDashboard",
     components: { TransactionHeaderAction },
+    mixins: [ApiMixin],
     data() {
         return {
             loading: false,
@@ -46,14 +50,11 @@ export default {
         async loadDashboard() {
             this.loading = true;
             try {
-                const response = await axios.get(
-                    route("api.inventory.transactions.dashboard"),
-                    { params: { scope: this.scope } },
-                );
+                const response = await this.fetchGetApi("api.inventory.transactions.dashboard", {params: { scope: this.scope }});
                 const payload = response?.data?.data ?? response?.data ?? {};
                 this.dashboard = {
                     totals: payload?.totals ?? { incoming: 0, outgoing: 0 },
-                    recent_transactions: payload?.recent_transactions ?? [],
+                    recent_transactions: this.convertToTransaction(payload?.recent_transactions) ?? [],
                     items_per_category: payload?.items_per_category ?? [],
                     items_per_location: payload?.items_per_location ?? [],
                     items_per_project_code: payload?.items_per_project_code ?? [],
@@ -67,6 +68,13 @@ export default {
             } finally {
                 this.loading = false;
             }
+        },
+        convertToTransaction(response) {
+            const service = new ConcreteApiService();
+
+            return response.map(item => 
+                service.castToModel(item, Transaction)
+            );
         },
         formatDateTime(value) {
             if (!value) return "-";
@@ -111,11 +119,17 @@ export default {
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="p-4 bg-white border rounded-lg shadow-sm">
-                    <p class="text-xs text-gray-500 uppercase">Total Incoming</p>
+                    <div class="flex flex-col leading-tight">
+                        <p class="text-sm text-g7ray-700 uppercase font-semibold">Total Incoming</p>
+                        <span class="text-gray-500 lowercase font-normal text-xs">{{ 'within a ' + scope }}</span>
+                    </div>
                     <p class="mt-2 text-3xl font-bold text-green-600">{{ dashboard.totals.incoming }}</p>
                 </div>
                 <div class="p-4 bg-white border rounded-lg shadow-sm">
-                    <p class="text-xs text-gray-500 uppercase">Total Outgoing</p>
+                    <div class="flex flex-col leading-tight">
+                        <p class="text-sm text-gray-700 uppercase font-semibold">Total Outgoing</p>
+                        <span class="text-gray-500 lowercase font-normal text-xs">{{ 'within a ' + scope }}</span>
+                    </div>
                     <p class="mt-2 text-3xl font-bold text-red-600">{{ dashboard.totals.outgoing }}</p>
                 </div>
             </div>
@@ -145,6 +159,7 @@ export default {
                             <thead>
                                 <tr class="text-left text-gray-500">
                                     <th class="pb-2">Date</th>
+                                    <th class="pb-2">Personnel</th>
                                     <th class="pb-2">Item</th>
                                     <th class="pb-2">Type</th>
                                     <th class="pb-2 text-right">Qty</th>
@@ -153,6 +168,7 @@ export default {
                             <tbody>
                                 <tr v-for="row in dashboard.recent_transactions" :key="row.id" class="border-t">
                                     <td class="py-2">{{ formatDateTime(row.created_at) }}</td>
+                                    <td class="py-2">{{ row.personnel.fullName || '-' }}</td>
                                     <td class="py-2">{{ row.item?.name || '-' }}</td>
                                     <td class="py-2 uppercase">{{ row.transac_type }}</td>
                                     <td class="py-2 text-right">{{ row.quantity }}</td>
