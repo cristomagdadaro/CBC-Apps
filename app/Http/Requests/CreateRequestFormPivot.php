@@ -8,6 +8,44 @@ use App\Repositories\OptionRepo;
 
 class CreateRequestFormPivot extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $equipmentsToUse = $this->mergeUniqueArrays(
+            $this->input('equipments_to_use'),
+            $this->input('ict_equipments'),
+            $this->input('laboratory_equipments'),
+            $this->input('biofreezers'),
+            $this->input('medicool_units'),
+            $this->input('plant_growth_chambers'),
+        );
+
+        $labsToUse = $this->mergeUniqueArrays(
+            $this->input('labs_to_use'),
+            $this->input('laboratory_access'),
+            $this->input('field_spaces'),
+            $this->input('screenhouse_spaces'),
+            $this->input('office_spaces'),
+            $this->input('storage_spaces'),
+            $this->input('utility_spaces'),
+            $this->input('parking_spaces'),
+        );
+
+        $consumablesToUse = $this->mergeUniqueArrays(
+            $this->input('consumables_to_use'),
+            $this->input('ict_supplies'),
+            $this->input('laboratory_consumables'),
+            $this->input('office_supplies'),
+            $this->input('iec_materials'),
+            $this->input('tokens'),
+        );
+
+        $this->merge([
+            'equipments_to_use' => $equipmentsToUse,
+            'labs_to_use' => $labsToUse,
+            'consumables_to_use' => $consumablesToUse,
+        ]);
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -81,5 +119,22 @@ class CreateRequestFormPivot extends FormRequest
         }
 
         return in_array('Equipments', $types, true) || in_array('Laboratory Access', $types, true);
+    }
+
+    private function mergeUniqueArrays(mixed ...$values): array
+    {
+        $items = collect($values)
+            ->flatMap(function ($value) {
+                if (is_array($value)) {
+                    return $value;
+                }
+
+                return filled($value) ? [$value] : [];
+            })
+            ->filter(fn ($value) => filled($value))
+            ->values()
+            ->all();
+
+        return array_values(array_unique($items));
     }
 }

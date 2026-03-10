@@ -49,11 +49,56 @@ export default {
     },
     methods: {
         async handleCreate() {
+            this.syncResourceSelections();
             const response = await this.submitCreate();
             if (response instanceof DtoResponse) {
                 this.showSuccessModal = true;
                 this.$emit('createdModel', response);
             }
+        },
+        toArray(value) {
+            if (Array.isArray(value)) {
+                return value.filter(Boolean);
+            }
+
+            return value ? [value] : [];
+        },
+        mergeUnique(...lists) {
+            return [...new Set(lists.flat().filter(Boolean))];
+        },
+        syncResourceSelections() {
+            const equipmentSelections = this.mergeUnique(
+                this.toArray(this.form?.equipments_to_use),
+                this.toArray(this.form?.ict_equipments),
+                this.toArray(this.form?.laboratory_equipments),
+                this.toArray(this.form?.biofreezers),
+                this.toArray(this.form?.medicool_units),
+                this.toArray(this.form?.plant_growth_chambers),
+            );
+
+            const laboratorySelections = this.mergeUnique(
+                this.toArray(this.form?.labs_to_use),
+                this.toArray(this.form?.laboratory_access),
+                this.toArray(this.form?.field_spaces),
+                this.toArray(this.form?.screenhouse_spaces),
+                this.toArray(this.form?.office_spaces),
+                this.toArray(this.form?.storage_spaces),
+                this.toArray(this.form?.utility_spaces),
+                this.toArray(this.form?.parking_spaces),
+            );
+
+            const consumableSelections = this.mergeUnique(
+                this.toArray(this.form?.consumables_to_use),
+                this.toArray(this.form?.ict_supplies),
+                this.toArray(this.form?.laboratory_consumables),
+                this.toArray(this.form?.office_supplies),
+                this.toArray(this.form?.iec_materials),
+                this.toArray(this.form?.tokens),
+            );
+
+            this.form.equipments_to_use = equipmentSelections;
+            this.form.labs_to_use = laboratorySelections;
+            this.form.consumables_to_use = consumableSelections;
         },
         handlePersonnelFound(data) {
             this.form.name = data.fullName || this.form.name;
@@ -264,7 +309,7 @@ export default {
         />
         <div class="px-2 pt-4 overflow-x-auto">
             <ProgressTabs :steps="stepLabels" :current="currentStep" @update:current="handleStepChange" />
-        </div>
+        </div> {{ form }}
         <form v-if="form" @submit.prevent="handleCreate()" class="px-2 py-0  md:rounded-md flex flex-col gap-4 bg-white">
             
             <!-- Step 0: Request Type -->
