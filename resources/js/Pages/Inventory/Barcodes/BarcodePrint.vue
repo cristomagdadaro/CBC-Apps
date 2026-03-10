@@ -37,6 +37,13 @@ export default {
             layoutMode: "single",
             sheetSize: "a4",
             sheetMarginCm: 0.5,
+            equipmentRouteMap: {
+                7: "laboratory",
+                4: "ict",
+            },
+            defaultPreviewBarcode: "CBC-00-000000",
+            defaultPreviewBarcodeId:
+                "default-preview-barcode-cbc-00-000000",
         };
     },
     computed: {
@@ -125,11 +132,11 @@ export default {
             return Math.max(12, Math.floor(modeHeightLimit));
         },
         barcodeHeight() {
-            const height = this.normalizeSize(this.customBarcodeHeight, 30);
+            const height = this.normalizeSize(this.customBarcodeHeight, this.maxBarcodeHeightPx);
             return Math.max(12, Math.min(height, this.maxBarcodeHeightPx));
         },
         qrSize() {
-            const size = this.normalizeSize(this.customQRSize, 60);
+            const size = this.normalizeSize(this.customQRSize, this.maxQrSizePx);
             return Math.max(20, Math.min(size, this.maxQrSizePx));
         },
         modalBarcodeHeight() {
@@ -208,13 +215,27 @@ export default {
             this.$nextTick(() => {
                 this.renderBarcodes();
                 this.renderModalBarcode();
+                this.renderDefaultPreviewBarcode();
             });
         },
         barcodeHeight() {
             this.$nextTick(() => {
                 this.renderBarcodes();
                 this.renderModalBarcode();
+                this.renderDefaultPreviewBarcode();
             });
+        },
+        sizeTemplate() {
+            this.$nextTick(() => this.renderDefaultPreviewBarcode());
+        },
+        customWidthCm() {
+            this.$nextTick(() => this.renderDefaultPreviewBarcode());
+        },
+        customHeightCm() {
+            this.$nextTick(() => this.renderDefaultPreviewBarcode());
+        },
+        orientation() {
+            this.$nextTick(() => this.renderDefaultPreviewBarcode());
         },
     },
     methods: {
@@ -236,8 +257,22 @@ export default {
             JsBarcode(el, this.selectedLabelForModal.item.barcode, {
                 format: "CODE128",
                 displayValue: false,
-                width: 1.7,
+                width: this.getBarcodeModuleWidth(this.selectedLabelForModal.item.barcode),
                 height: this.modalBarcodeHeight,
+                margin: 0,
+            });
+        },
+        renderDefaultPreviewBarcode() {
+            if (this.printMode === "qr") return;
+
+            const el = document.getElementById(this.defaultPreviewBarcodeId);
+            if (!el) return;
+
+            JsBarcode(el, this.defaultPreviewBarcode, {
+                format: "CODE128",
+                displayValue: false,
+                width: this.getBarcodeModuleWidth(this.defaultPreviewBarcode),
+                height: this.barcodeHeight,
                 margin: 0,
             });
         },
@@ -271,12 +306,21 @@ export default {
         getEquipmentUrl(barcode) {
             if (!barcode) return "";
 
-            const path = `/laboratory/equipments/${encodeURIComponent(barcode)}`;
+            const loggerSegment = this.equipmentRouteMap?.[Number(this.categoryId)] || "laboratory";
+            const path = `/${loggerSegment}/equipments/${encodeURIComponent(barcode)}`;
             if (typeof window === "undefined") {
                 return path;
             }
 
-            return `${window.location.origin}${path}`;
+            const secureOrigin = window.location.origin.replace(/^http:/i, "https:");
+            return `${secureOrigin}${path}`;
+        },
+        getBarcodeModuleWidth(barcodeValue) {
+            const value = String(barcodeValue || "");
+            const estimatedModules = Math.max(88, value.length * 11 + 35);
+            const moduleWidth = this.cardUsableWidthPx / estimatedModules;
+
+            return Math.max(1.1, Math.min(moduleWidth, 3.2));
         },
         itemKey(item) {
             return `${item.item_id}-${item.barcode}-${item.unit}`;
@@ -373,7 +417,7 @@ export default {
                     JsBarcode(previewEl, barcodeValue, {
                         format: "CODE128",
                         displayValue: false,
-                        width: 1.7,
+                        width: this.getBarcodeModuleWidth(barcodeValue),
                         height: this.barcodeHeight,
                         margin: 0,
                     });
@@ -385,7 +429,7 @@ export default {
                     JsBarcode(printEl, barcodeValue, {
                         format: "CODE128",
                         displayValue: false,
-                        width: 1.7,
+                        width: this.getBarcodeModuleWidth(barcodeValue),
                         height: this.barcodeHeight,
                         margin: 0,
                     });
@@ -441,6 +485,7 @@ export default {
     mounted() {
         this.applyPrintPageSize();
         this.loadItems();
+        this.$nextTick(() => this.renderDefaultPreviewBarcode());
     },
 };
 </script>
@@ -454,135 +499,163 @@ export default {
         </template>
 
         <div class="py-8 px-4 mx-auto space-y-6 flex gap-5">
-            <div class="no-print bg-white shadow rounded-lg p-4 space-y-4">
-                <p>
-                    <span class="text-sm text-gray-700">Tips for Intermec PD43 Printer</span>
-                    <ul>
-                        <li class="text-xs text-gray-500">- Always recalibrate the printer after turning it on or changing the label roll. <b>Go to printer Wizards>Calibrate>Media</b>.</li>
-                        <li class="text-xs text-gray-500">- Make sure the selected Size Template matches the actual label size loaded in the printer for best results.</li>
-                        <li class="text-xs text-gray-500">- Use the "Select Filtered" button to quickly select all items that match your search and category filters.</li>
-                        <li class="text-xs text-gray-500">- For Laboratory Logger only Laboratory Equipments will work.</li>
-                    </ul>
-                </p>
-                <div class="grid grid-cols-4 md:grid-cols-6 grid-rows-4 gap-2">
+            <div class="flex gap-5">
+                <div class="no-print bg-white shadow rounded-lg p-4 space-y-4 w-full">
+                    <div class="grid grid-cols-4 md:grid-cols-6 grid-rows-4 gap-2">
                         <div class="col-span-4 md:col-span-6">
-                            <text-input
-                                v-model="search"
-                                placeholder="Search item, brand, or barcode"
-                            />
+                                <text-input
+                                    v-model="search"
+                                    placeholder="Search item, brand, or barcode"
+                                />
+                            </div>
+                            <custom-dropdown :value="categoryId" @selectedChange="onCategoryChange($event)" :options="categoryOptions" label="Category" placeholder="Filter by category" :withAllOption="false" />
+                            <custom-dropdown :value="printMode" @selectedChange="printMode = $event" :options="[{name:'barcode', label:'Barcode'}, {name:'qr', label:'QR Code'}, {name:'both', label:'Both'}]" label="Mode" placeholder="Select a mode" :withAllOption="false" />
+                            <custom-dropdown :value="sizeTemplate" @selectedChange="sizeTemplate = $event" :options="sizeTemplates" label="Size Template" placeholder="Select a size template" :withAllOption="false" />
+                            <custom-dropdown :value="layoutMode" @selectedChange="layoutMode = $event" :options="[{name:'single', label:'Single Page'}, {name:'sheet', label:'Sheet Layout'}]" label="Layout" placeholder="Select layout mode" :withAllOption="false" />
+                            
+                            <div v-if="layoutMode === 'sheet'" class="flex items-center gap-2">
+                                <custom-dropdown :value="sheetSize" @selectedChange="sheetSize = $event" :options="[{name:'a4', label:'A4 (21×29.7cm)'}, {name:'folio', label:'Folio (21.6×33cm)'}]" label="Sheet Size" placeholder="Select sheet size" :withAllOption="false" />
+                            </div>
+
+                            <div v-if="layoutMode === 'sheet'" class="flex items-center gap-2">
+                                <text-input v-model.number="sheetMarginCm" type="number" min="0" max="2" step="0.1" :label="'Margin(cm) ' + labelsPerRow + ' × ' + labelsPerColumn + ' = ' + labelsPerSheet + '/sheet'" placeholder="Margin (cm)" />
+                                <div class="text-xs text-gray-600 ml-2"></div>
+                            </div>
+                            
+                            <div v-if="isCustomSize" class="flex items-center gap-2">
+                                <label class="text-xs text-gray-500">H(cm)</label>
+                                <input v-model.number="customHeightCm" type="number" min="0.5" step="0.1" class="w-20 px-2 py-1 border rounded text-sm" />
+                                <label class="text-xs text-gray-500">W(cm)</label>
+                                <input v-model.number="customWidthCm" type="number" min="0.5" step="0.1" class="w-20 px-2 py-1 border rounded text-sm" />
+                            </div>
+
+                            <custom-dropdown :value="orientation" @selectedChange="orientation = $event" :options="[{name:'portrait', label:'Portrait'}, {name:'landscape', label:'Landscape'}]" label="Orientation" placeholder="Select orientation" :withAllOption="false" />
+                            <custom-dropdown :value="rotationDeg" @selectedChange="rotationDeg = $event" :options="[{name:0, label:'0°'}, {name:90, label:'90°'}, {name:180, label:'180°'}, {name:270, label:'270°'}]" label="Rotate" placeholder="Rotate" :withAllOption="false" />
+
+                            <text-input v-model.number="customFontSize" type="number" min="6" max="20" step="1" label="Font Size" placeholder="Font Size (px)" />
+                            <text-input v-if="hasBarcodeMode" v-model.number="customBarcodeHeight" type="number" min="12" :max="maxBarcodeHeightPx" step="1" label="Barcode Height (px)" placeholder="Barcode Height (px)" />
+
+                            <text-input v-if="hasQrMode" v-model.number="customQRSize" type="number" min="20" :max="maxQrSizePx" step="1" label="QR Size (px)" placeholder="QR Size (px)" />
+
+                            <div class="flex gap-5 items-center">
+                                <label class="inline-flex items-center gap-1 text-sm text-gray-600">
+                                    <input v-model="flipHorizontal" type="checkbox" /> Flip X
+                                </label>
+                                <label class="inline-flex items-center gap-1 text-sm text-gray-600">
+                                    <input v-model="flipVertical" type="checkbox" /> Flip Y
+                                </label>
+                            </div>
+
+                            <button
+                                type="button"
+                                class="px-3 py-2 text-sm rounded border border-gray-300 text-gray-700 hover:bg-gray-50"
+                                @click="toggleAll"
+                            >
+                                {{ allSelected ? 'Clear Selection' : 'Select Filtered' }}
+                            </button>
+                            <submit-btn :disabled="selectedCount === 0" @click="buildLabels">
+                                Generate Preview ({{ selectedCount }})
+                            </submit-btn>
+                            <submit-btn :disabled="!previewReady || exporting" @click="exportPdf" class="hidden">
+                                {{ exporting ? 'Exporting...' : 'Export PDF' }}
+                            </submit-btn>
+                            <submit-btn :disabled="!previewReady" @click="printLabels">
+                                Print Labels
+                            </submit-btn>
                         </div>
-                        <custom-dropdown :value="categoryId" @selectedChange="onCategoryChange($event)" :options="categoryOptions" label="Category" placeholder="Filter by category" :withAllOption="false" />
-                        <custom-dropdown :value="printMode" @selectedChange="printMode = $event" :options="[{name:'barcode', label:'Barcode'}, {name:'qr', label:'QR Code'}, {name:'both', label:'Both'}]" label="Mode" placeholder="Select a mode" :withAllOption="false" />
-                        <custom-dropdown :value="sizeTemplate" @selectedChange="sizeTemplate = $event" :options="sizeTemplates" label="Size Template" placeholder="Select a size template" :withAllOption="false" />
-                        <custom-dropdown :value="layoutMode" @selectedChange="layoutMode = $event" :options="[{name:'single', label:'Single Page'}, {name:'sheet', label:'Sheet Layout'}]" label="Layout" placeholder="Select layout mode" :withAllOption="false" />
-                        
-                        <div v-if="layoutMode === 'sheet'" class="flex items-center gap-2">
-                            <custom-dropdown :value="sheetSize" @selectedChange="sheetSize = $event" :options="[{name:'a4', label:'A4 (21×29.7cm)'}, {name:'folio', label:'Folio (21.6×33cm)'}]" label="Sheet Size" placeholder="Select sheet size" :withAllOption="false" />
-                        </div>
+                    <div v-if="loading" class="text-sm text-gray-500">Loading items...</div>
 
-                         <div v-if="layoutMode === 'sheet'" class="flex items-center gap-2">
-                            <text-input v-model.number="sheetMarginCm" type="number" min="0" max="2" step="0.1" :label="'Margin(cm) ' + labelsPerRow + ' × ' + labelsPerColumn + ' = ' + labelsPerSheet + '/sheet'" placeholder="Margin (cm)" />
-                            <div class="text-xs text-gray-600 ml-2"></div>
-                        </div>
-                        
-                        <div v-if="isCustomSize" class="flex items-center gap-2">
-                            <label class="text-xs text-gray-500">H(cm)</label>
-                            <input v-model.number="customHeightCm" type="number" min="0.5" step="0.1" class="w-20 px-2 py-1 border rounded text-sm" />
-                            <label class="text-xs text-gray-500">W(cm)</label>
-                            <input v-model.number="customWidthCm" type="number" min="0.5" step="0.1" class="w-20 px-2 py-1 border rounded text-sm" />
-                        </div>
-
-                        <custom-dropdown :value="orientation" @selectedChange="orientation = $event" :options="[{name:'portrait', label:'Portrait'}, {name:'landscape', label:'Landscape'}]" label="Orientation" placeholder="Select orientation" :withAllOption="false" />
-                        <custom-dropdown :value="rotationDeg" @selectedChange="rotationDeg = $event" :options="[{name:0, label:'0°'}, {name:90, label:'90°'}, {name:180, label:'180°'}, {name:270, label:'270°'}]" label="Rotate" placeholder="Rotate" :withAllOption="false" />
-
-                        <text-input v-model.number="customFontSize" type="number" min="6" max="20" step="1" label="Font Size" placeholder="Font Size (px)" />
-                        <text-input v-if="hasBarcodeMode" v-model.number="customBarcodeHeight" type="number" min="12" :max="maxBarcodeHeightPx" step="1" label="Barcode Height (px)" placeholder="Barcode Height (px)" />
-
-                        <text-input v-if="hasQrMode" v-model.number="customQRSize" type="number" min="20" :max="maxQrSizePx" step="1" label="QR Size (px)" placeholder="QR Size (px)" />
-
-                        <div class="flex gap-5 items-center">
-                            <label class="inline-flex items-center gap-1 text-sm text-gray-600">
-                                <input v-model="flipHorizontal" type="checkbox" /> Flip X
-                            </label>
-                            <label class="inline-flex items-center gap-1 text-sm text-gray-600">
-                                <input v-model="flipVertical" type="checkbox" /> Flip Y
-                            </label>
-                        </div>
-
-                        <button
-                            type="button"
-                            class="px-3 py-2 text-sm rounded border border-gray-300 text-gray-700 hover:bg-gray-50"
-                            @click="toggleAll"
-                        >
-                            {{ allSelected ? 'Clear Selection' : 'Select Filtered' }}
-                        </button>
-                        <submit-btn :disabled="selectedCount === 0" @click="buildLabels">
-                            Generate Preview ({{ selectedCount }})
-                        </submit-btn>
-                        <submit-btn :disabled="!previewReady || exporting" @click="exportPdf" class="hidden">
-                            {{ exporting ? 'Exporting...' : 'Export PDF' }}
-                        </submit-btn>
-                        <submit-btn :disabled="!previewReady" @click="printLabels">
-                            Print Labels
-                        </submit-btn>
+                    <div v-else class="overflow-x-auto">
+                        <table class="min-w-full text-sm">
+                            <thead>
+                                <tr class="text-left text-gray-500 border-b">
+                                    <th class="py-2">Select</th>
+                                    <th class="py-2">Item</th>
+                                    <th class="py-2">Brand</th>
+                                    <th class="py-2">Barcode</th>
+                                    <th class="py-2">PRRI Barcode</th>
+                                    <th class="py-2">Unit</th>
+                                    <th class="py-2">Remaining</th>
+                                    <th class="py-2">Qty to Print</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="item in filteredItems" :key="itemKey(item)" class="border-b">
+                                    <td class="py-2">
+                                        <input
+                                            type="checkbox"
+                                            :disabled="!item.barcode"
+                                            :checked="!!selected[itemKey(item)]"
+                                            @change="toggleItem(item)"
+                                        />
+                                    </td>
+                                    <td class="py-2">
+                                        <div class="font-medium text-gray-800">{{ item.name }}</div>
+                                        <div class="text-xs text-gray-500" v-if="item.description">{{ item.description }}</div>
+                                    </td>
+                                    <td class="py-2">{{ item.brand }}</td>
+                                    <td class="py-2">
+                                        <span v-if="item.barcode">{{ item.barcode }}</span>
+                                        <span v-else class="text-xs text-red-500">No barcode</span>
+                                    </td>
+                                    <td class="py-2">
+                                        <span v-if="item.barcode_prri">{{ item.barcode_prri }}</span>
+                                        <span v-else class="text-xs text-red-500">No PRRI barcode</span>
+                                    </td>
+                                    <td class="py-2">{{ item.unit }}</td>
+                                    <td class="py-2">{{ item.remaining_quantity }}</td>
+                                    <td class="py-2">
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            class="w-20 px-2 py-1 border rounded disabled:bg-gray-100 disabled:border-gray-200 disabled:text-gray-500"
+                                            :disabled="!selected[itemKey(item)]"
+                                            :value="selected[itemKey(item)]?.qty ?? 1"
+                                            @input="updateQty(itemKey(item), $event.target.value)"
+                                        />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                <div v-if="loading" class="text-sm text-gray-500">Loading items...</div>
-
-                <div v-else class="overflow-x-auto">
-                    <table class="min-w-full text-sm">
-                        <thead>
-                            <tr class="text-left text-gray-500 border-b">
-                                <th class="py-2">Select</th>
-                                <th class="py-2">Item</th>
-                                <th class="py-2">Brand</th>
-                                <th class="py-2">Barcode</th>
-                                <th class="py-2">PRRI Barcode</th>
-                                <th class="py-2">Unit</th>
-                                <th class="py-2">Remaining</th>
-                                <th class="py-2">Qty to Print</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="item in filteredItems" :key="itemKey(item)" class="border-b">
-                                <td class="py-2">
-                                    <input
-                                        type="checkbox"
-                                        :disabled="!item.barcode"
-                                        :checked="!!selected[itemKey(item)]"
-                                        @change="toggleItem(item)"
-                                    />
-                                </td>
-                                <td class="py-2">
-                                    <div class="font-medium text-gray-800">{{ item.name }}</div>
-                                    <div class="text-xs text-gray-500" v-if="item.description">{{ item.description }}</div>
-                                </td>
-                                <td class="py-2">{{ item.brand }}</td>
-                                <td class="py-2">
-                                    <span v-if="item.barcode">{{ item.barcode }}</span>
-                                    <span v-else class="text-xs text-red-500">No barcode</span>
-                                </td>
-                                <td class="py-2">
-                                    <span v-if="item.barcode_prri">{{ item.barcode_prri }}</span>
-                                    <span v-else class="text-xs text-red-500">No PRRI barcode</span>
-                                </td>
-                                <td class="py-2">{{ item.unit }}</td>
-                                <td class="py-2">{{ item.remaining_quantity }}</td>
-                                <td class="py-2">
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        class="w-20 px-2 py-1 border rounded disabled:bg-gray-100 disabled:border-gray-200 disabled:text-gray-500"
-                                        :disabled="!selected[itemKey(item)]"
-                                        :value="selected[itemKey(item)]?.qty ?? 1"
-                                        @input="updateQty(itemKey(item), $event.target.value)"
-                                    />
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                </div>
+                <div class="flex flex-col w-1/4 min-w-96 bg-white p-4 rounded-lg shadow">
+                    <span class="text-gray-700 font-bold text-lg">Card Preview</span>
+                    <div v-if="previewReady && layoutMode === 'single'" class="print-area select-none my-3 mx-auto drop-shadow-lg">
+                        <div class="label-card" :style="cardStyle">
+                            <div class="label-card-inner" :style="cardInnerStyle">
+                                <div class="label-text" :style="{ fontSize: `${labelFontSize}px` }">
+                                    <div class="label-item">Generic Name</div>
+                                    <div class="label-brand">Brand X (Model XXXX)</div>
+                                </div>
+                                <svg
+                                    v-if="printMode !== 'qr'"
+                                    :id="defaultPreviewBarcodeId"
+                                ></svg>
+                                <qrcode-vue v-if="printMode !== 'barcode'" :key="`print-preview-qr-000000-${qrSize}-${printMode}`" :value="getEquipmentUrl(defaultPreviewBarcode)" :size="qrSize" level="M" render-as="canvas" class="label-qr mx-auto" />
+                                <div v-if="printMode !== 'qr'" class="label-barcode mx-auto" :style="{ fontSize: `${labelFontSize}px` }">{{ defaultPreviewBarcode }}</div>
+                                <div v-else class="label-qr-caption" :style="{ fontSize: `${labelFontSize * 0.9}px` }">{{ defaultPreviewBarcode }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="text-gray-700 font-bold text-lg mt-3">Tips for Intermec PD43 Printer</span>
+                    <ul>
+                        <li class="text-gray-500">- Always recalibrate the printer after turning it on or changing the label roll. <b>Go to printer Wizards>Calibrate>Media</b>.</li>
+                        <li class="text-gray-500">- Make sure the selected Size Template matches the actual label size loaded in the printer for best results.</li>
+                        <li class="text-gray-500">- Use the "Select Filtered" button to quickly select all items that match your search and category filters.</li>
+                    </ul>
+                    <span class="text-gray-700 font-bold text-lg mt-3">QR and Barcode Usage</span>
+                    <ul>
+                        <li class="text-gray-500">- QR codes can be used to quickly access equipment logging by scanning the code with a mobile device.</li>
+                        <li class="text-gray-500">- Barcodes are ideal for quick scanning during inventory audits or checkouts using a barcode scanner.</li>
+                        <li class="text-gray-500">- For items that require both, use the "Both" print mode to include a QR code and a barcode on the same label.</li>
+                    </ul>
+                    <span class="text-gray-700 font-bold text-lg mt-3">IT Note</span>
+                    <ul>
+                        <li class="text-gray-500">- QR redirect currently supports only ICT and Laboratory equipment categories. To support more categories, add the category ID and logger route segment in <b>equipmentRouteMap</b> inside this component.</li>
+                    </ul>
                 </div>
             </div>
-           
             <Teleport to="body">
                 <div v-if="previewReady && layoutMode === 'single'" class="print-area">
                     <div class="label-grid">
@@ -608,7 +681,7 @@ export default {
                                 <div class="label-card-inner" :style="cardInnerStyle">
                                     <div class="label-text" :style="{ fontSize: `${labelFontSize}px` }">
                                         <div class="label-item">{{ label.item.name }}</div>
-                                        <div class="label-brand">{{ label.item.brand }} {{ label.item.description ? '(' + label.item.description + ')' : '' }}</div>
+                                        <div class="label-brand" >{{ label.item.brand }} {{ label.item.description ? '(' + label.item.description + ')' : '' }}</div>
                                     </div>
                                     <svg v-if="printMode !== 'qr'" :id="`print-barcode-${label.key}`"></svg>
                                     <qrcode-vue v-if="printMode !== 'barcode'" :key="`print-sheet-qr-${label.key}-${qrSize}-${printMode}`" :value="label.equipmentUrl" :size="qrSize" level="M" render-as="canvas" class="label-qr mx-auto" />
@@ -709,7 +782,6 @@ export default {
 
 .label-brand {
     color: #111827;
-    font-size: 9px;
     font-weight: 600;
 }
 
@@ -720,6 +792,7 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-weight: 600;
 }
 
 .label-card svg {

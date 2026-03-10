@@ -23,5 +23,17 @@ export default class DtoPersonnel extends DtoBaseClass implements IPersonnel {
         this.address = data?.address;
         this.email = data?.email;
         this.employee_id = data?.employee_id;
+
+        // sorted by created_at desc
+        this.api.setSearchFields({
+            search: null,
+            filter: null,
+            filter_by: null,
+            is_exact: false,
+            page: 1,
+            per_page: 50,
+            sort: 'created_at',
+            order: 'desc'
+        });
     }
 }
