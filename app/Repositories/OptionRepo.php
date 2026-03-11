@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories;
 
 use App\Models\Option;
@@ -72,12 +73,12 @@ class OptionRepo extends AbstractRepoService
             ->updateOrCreate(
                 ['key' => $key],
                 [
-                    'value'       => $value ? 'true' : 'false',
-                    'label'       => Arr::get($meta, 'label', $key),
+                    'value' => $value ? 'true' : 'false',
+                    'label' => Arr::get($meta, 'label', $key),
                     'description' => Arr::get($meta, 'description'),
-                    'type'        => 'boolean',
-                    'group'       => Arr::get($meta, 'group', 'forms'),
-                    'options'     => Arr::get($meta, 'options'),
+                    'type' => 'boolean',
+                    'group' => Arr::get($meta, 'group', 'forms'),
+                    'options' => Arr::get($meta, 'options'),
                 ]
             );
     }
@@ -134,31 +135,20 @@ class OptionRepo extends AbstractRepoService
      */
     public function getStorageLocations()
     {
-        $groups = [
-            'storage_locations',
-            'event_halls',
-            'laboratories',
-            'offices',
-            'screenhouses',
-        ];
-
-        $locations = [];
-
-        foreach ($groups as $group) {
-            $locations = array_merge($locations, $this->getByGroup($group) ?? []);
-        }
-
-        return collect($locations)
-            ->map(function ($label, $key) {
-                $decoded = json_decode($key, true);
+        $locations =  $this->getByGroup('storage_locations');
+        $normalized = collect($locations)
+            ->map(function ($label, $jsonKey) {
+                $decoded = json_decode($jsonKey, true);
 
                 return [
                     'label' => $label,
-                    'name'  => $decoded ?: $key,
+                    'name' => $decoded ?? null,
                 ];
             })
             ->values()
             ->toArray();
+
+        return $normalized;
     }
 
     /**
@@ -183,7 +173,7 @@ class OptionRepo extends AbstractRepoService
 
         return collect($result)->map(function ($type) {
             return [
-                'name'  => $type,
+                'name' => $type,
                 'label' => $type,
             ];
         })->sortBy('label')->values();
@@ -262,7 +252,7 @@ class OptionRepo extends AbstractRepoService
     {
         $value = $this->getByKey('sex');
 
-        if (! $value) {
+        if (!$value) {
             return [];
         }
 
