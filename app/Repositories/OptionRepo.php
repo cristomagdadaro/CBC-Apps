@@ -135,14 +135,19 @@ class OptionRepo extends AbstractRepoService
      */
     public function getStorageLocations()
     {
-        $locations =  $this->getByGroup('storage_locations');
-        $normalized = collect($locations)
-            ->map(function ($label, $jsonKey) {
-                $decoded = json_decode($jsonKey, true);
+        $groups = ['storage_locations', 'event_halls', 'laboratories', 'offices', 'screenhouses'];
 
+        $normalized = $this->model
+            ->newQuery()
+            ->whereIn('group', $groups)
+            ->whereNotNull('value')
+            ->select('value', 'label')
+            ->orderByRaw('CAST(value AS UNSIGNED) asc')
+            ->get()
+            ->map(function ($record) {
                 return [
-                    'label' => $label,
-                    'name' => $decoded ?? null,
+                    'label' => $record->label,
+                    'name' => (string) $record->value,
                 ];
             })
             ->values()

@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Enums\Inventory;
 use App\Models\Item;
 use App\Models\NewBarcode;
+use App\Models\Option;
 use App\Models\Personnel;
 use App\Models\Supplier;
 use App\Models\Transaction;
@@ -99,6 +100,11 @@ class TransactionFactory extends Factory
 
     public static function generateBarcode(string $room): string
     {
+        $roomName = Option::query()
+            ->where('value', (string) $room)
+            ->whereIn('group', ['storage_locations', 'event_halls', 'laboratories', 'offices', 'screenhouses'])
+            ->value('label');
+
         // Get the last known barcode from the NewBarcode table
         $lastBarcodeRecord = NewBarcode::where('room', $room)->first();
         $latestBarcode = $lastBarcodeRecord?->barcode;
@@ -124,7 +130,10 @@ class TransactionFactory extends Factory
         // Save/update the last generated barcode reference
         NewBarcode::updateOrCreate(
             ['room' => $room],
-            ['barcode' => $newBarcode]
+            [
+                'barcode' => $newBarcode,
+                'name' => $roomName,
+            ]
         );
 
         // Track used barcodes in memory (factory-only behavior)
