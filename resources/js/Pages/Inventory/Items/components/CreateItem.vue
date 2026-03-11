@@ -2,11 +2,11 @@
 
 import {defineComponent} from "vue";
 import ItemsHeaderActions from "@/Pages/Inventory/Items/components/ItemsHeaderActions.vue";
-import CreateItemForm from "@/Pages/Inventory/Items/components/CreateItemForm.vue";
+import ItemForm from "@/Pages/Inventory/Items/components/ItemForm.vue";
 
 export default defineComponent({
     name: "CreateItem",
-    components: { ItemsHeaderActions, CreateItemForm },
+    components: { ItemsHeaderActions, ItemForm },
 })
 </script>
 
@@ -15,7 +15,7 @@ export default defineComponent({
         <template #header>
             <items-header-actions />
         </template>
-        <create-item-form />
+        <item-form />
     </AppLayout>
 </template>
 

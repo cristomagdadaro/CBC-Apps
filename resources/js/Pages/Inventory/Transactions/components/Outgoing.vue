@@ -21,8 +21,24 @@ export default {
     props: {
         stockLevel: {
             type: Array,
-            required: true
-        }
+            default: () => []
+        },
+        data: {
+            type: Object,
+            default: null,
+        },
+        summary: {
+            type: Object,
+            default: null,
+        },
+        attachedReports: {
+            type: Array,
+            default: () => [],
+        },
+        mode: {
+            type: String,
+            default: 'create',
+        },
     },
     data() {
         return {
@@ -34,15 +50,26 @@ export default {
         }
     },
     beforeMount() {
+        if (this.isUpdateView) {
+            return;
+        }
+
         this.model = new Transaction();
         this.setFormAction('get');
     },
     async mounted() {
+        if (this.isUpdateView) {
+            return;
+        }
+
         await this.searchEvent();
     },
     computed: {
+        isUpdateView() {
+            return this.mode === 'update';
+        },
         personnels() {
-            return this.$page.props.personnels.map(personnel => {
+            return (this.$page.props.personnels ?? []).map(personnel => {
                 return {
                     name: personnel.id,
                     label: (new Personnel(personnel)).fullName,
@@ -89,7 +116,18 @@ export default {
         <template #header>
             <transaction-header-action />
         </template>
-        <div class="default-container py-4">
+        <div v-if="isUpdateView" class="py-4">
+            <div class="max-w-xl mx-auto">
+                <outgoing-form
+                    :data="data"
+                    :summary="summary"
+                    :attached-reports="attachedReports"
+                    :personnels="personnels"
+                    mode="update"
+                />
+            </div>
+        </div>
+        <div v-else class="default-container py-4">
             <div class="flex flex-col justify-between max-w-[90vw] gap-3 mx-auto">
                 <div class="w-full flex gap-2 items-end lg:px-0 px-2">
                     <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />

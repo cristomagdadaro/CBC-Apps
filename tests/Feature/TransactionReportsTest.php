@@ -54,7 +54,7 @@ class TransactionReportsTest extends TestCase
         $this->get(route('transactions.show', $transaction->id))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('Inventory/Transactions/components/IncomingUpdateForm')
+                ->component('Inventory/Transactions/components/Incoming')
                 ->has('attachedReports', 2)
                 ->where('attachedReports.0.transaction_id', $transaction->id)
                 ->where('attachedReports.0.item.id', $item->id)
@@ -112,7 +112,7 @@ class TransactionReportsTest extends TestCase
         $this->get(route('transactions.show', $outgoing->id))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('Inventory/Transactions/components/OutgoingUpdateForm')
+                ->component('Inventory/Transactions/components/Outgoing')
                 ->has('attachedReports', 1)
                 ->where('attachedReports.0.transaction_id', $outgoing->id)
                 ->where('attachedReports.0.item.id', $item->id)

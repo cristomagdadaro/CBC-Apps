@@ -5,13 +5,22 @@ import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Transaction from "@/Modules/domain/Transaction";
 import JsBarcode from "jsbarcode";
 import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
-import CreateItemForm from "@/Pages/Inventory/Items/components/CreateItemForm.vue";
+import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/TransactionReportAccordion.vue";
+import AuditInfoCard from "@/Components/AuditInfoCard.vue";
 
 export default {
     name: "IncomingForm",
+    props: {
+        attachedReports: {
+            type: Array,
+            default: () => [],
+        },
+    },
     components: {
         TransactionHeaderAction,
-        QrcodeVue, CreateItemForm,
+        TransactionReportAccordion,
+        AuditInfoCard,
+        QrcodeVue,
     },
     mixins: [ApiMixin],
     data() {
@@ -20,11 +29,19 @@ export default {
             noModelApi: null,
             barcodeCanvas: null,
             svgText: '',
-            select_storage: null,
             showNewItemForm: false,
         }
     },
+    emits: ['showNewItemForm'],
     methods: {
+        async submitForm() {
+            if (this.isUpdate) {
+                await this.submitUpdate();
+                return;
+            }
+
+            await this.submitCreate();
+        },
         async generateBarcode(room) {
             if (!room) {
                 return;
@@ -33,21 +50,32 @@ export default {
             await this.fetchGetApi('api.inventory.transactions.genbarcode', { room: room }).then(response => {
                 this.form.barcode = response.data.barcode;
                 this.renderBarcode();
-            });;
+            });
         },
-        renderBarcode(){
+        resetIncomingForm() {
+            if (this.isUpdate) {
+                this.resetField(this.data);
+                return;
+            }
+
+            this.resetField(this.$page.props.data);
+        },
+        renderBarcode() {
             const canvas = createCanvas(256, 256);
             JsBarcode(canvas, this.form.barcode, {
                 displayValue: true,
                 fontSize: 20,
                 textMargin: 5,
-                width:2,
+                width: 2,
                 height: 60,
             });
             this.svgText = canvas.toDataURL();
         },
     },
     computed: {
+        isUpdate() {
+            return !!this.data?.id;
+        },
         storage_locations() {
             if (!Array.isArray(this.$page.props.storage_locations)) {
                 return [];
@@ -94,6 +122,16 @@ export default {
         preGenerateBarcode() {
             return this.$page.props.barcode;
         },
+        selectedStorage() {
+            if (this.form?.barcode && this.form.barcode.length >= 6) {
+                return this.form.barcode.substring(4, 6);
+            }
+
+            return null;
+        },
+        attachedReportsList() {
+            return Array.isArray(this.attachedReports) ? this.attachedReports : [];
+        },
         print() {
             const img = document.getElementById('barcode-image');
 
@@ -131,6 +169,9 @@ export default {
         },
     },
     watch: {
+        'form.barcode': function () {
+            this.renderBarcode();
+        },
         'form.item_id': function (val) {
             this.form.unit_price = val ? val.unit_price : null;
             this.form.unit = val ? val.unit : null;
@@ -145,25 +186,54 @@ export default {
     },
     async mounted() {
         this.model = new Transaction();
-        this.setFormAction('create');
+        this.setFormAction(this.isUpdate ? 'update' : 'create');
 
-        this.form.transac_type = 'incoming';
-        this.form.barcode = this.preGenerateBarcode;
-        this.form.user_id = this.$page.props?.auth?.user?.id;
+        if (!this.form.transac_type) {
+            this.form.transac_type = 'incoming';
+        }
 
-        await this.generateBarcode();
+        if (!this.isUpdate) {
+            this.form.barcode = this.preGenerateBarcode;
+            this.form.user_id = this.$page.props?.auth?.user?.id;
+            await this.generateBarcode();
+            return;
+        }
+
+        this.renderBarcode();
     },
 }
 </script>
 
 <template>
-    <form v-if="!!form" @submit.prevent="submitCreate" class="py-12 max-w-xl mx-auto">
-        <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
-            <div class="flex flex-col gap-2 mx-auto w-full">
+    <table class="w-1/4 bg-white dark:bg-gray-800 border-collapse border m-5 rounded-lg">
+        <thead class="bg-AA text-white">
+            <tr>
+                <th class="border px-2 py-1 text-center" colspan="2">Storage Location Reference</th>
+            </tr>
+            <tr>
+                <th class="border px-2 py-1 text-center">Room #</th>
+                <th class="border px-2 py-1">Label</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="location in storage_locations" :key="location.name">
+                <td class="border px-2 py-1 text-sm text-center">{{ location.name }}</td>
+                <td class="border px-2 py-1 text-sm">{{ location.label }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <form v-if="!!form" @submit.prevent="submitForm"  class="py-12 max-w-xl mx-auto">
+        <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg h-fit">
+            <div class="flex flex-col gap-2 mx-auto w-full h-fit">
                 <div class="flex flex-col">
-                    <h2 class="font-bold uppercase leading-none py-2 mb-1 border-b">Incoming Transaction Form</h2>
-                    <p>Please use this form to submit details of an incoming transaction.</p>
+                    <h2 class="font-bold uppercase leading-none py-2 mb-1 border-b">{{ isUpdate ? 'Update Incoming Transaction Details' : 'Incoming Transaction Form' }}</h2>
+                    <p>{{ isUpdate ? 'Please use this form to update details of an incoming transaction.' : 'Please use this form to submit details of an incoming transaction.' }}</p>
                 </div>
+                <transaction-report-accordion
+                    v-if="isUpdate"
+                    class="w-full"
+                    :reports="attachedReportsList"
+                />
                 <div class="flex flex-row gap-2 h-fit">
                     <select-search-field required :api-link="'api.inventory.items.options'"  :error="form.errors.item_id" label="Item" v-model="form.item_id" />
                     <div class="flex items-end">
@@ -196,7 +266,7 @@ export default {
                 <custom-dropdown
                     required
                     :with-all-option="false"
-                    :value="select_storage"
+                    :value="selectedStorage"
                     :options="storage_locations"
                     placeholder="Select Storage"
                     label="Storage Location"
@@ -210,7 +280,7 @@ export default {
                 <div class="grid grid-cols-2 gap-2">
                     <text-input label="PRRI Barcode" v-model="form.barcode_prri" :error="form.errors.barcode_prri" />
                     <text-input label="PAR No" v-model="form.par_no" :error="form.errors.par_no" />
-                    <text-input label="Condition" v-model="form.condition" :error="form.errors.condition" />
+                    <text-input label="Condition" v-model="form.condition" :error="form.errors.condition" class="col-span-2" />
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <text-input required type="number" label="Quantity" v-model="form.quantity" :error="form.errors.quantity" />
@@ -221,7 +291,7 @@ export default {
 
                 <date-input type="date" label="Expiration" v-model="form.expiration" :error="form.errors.expiration" />
                 <text-area label="PR Details/Remarks" v-model="form.remarks" :error="form.errors.remarks" />
-                <div v-if="svgText" class="flex sm:flex-row flex-col gap-1 w-full items-center relative">
+                <div v-if="svgText && selectedStorage" class="flex sm:flex-row flex-col gap-1 w-full items-center relative">
                     <img id="barcode-image" :src="svgText" alt="SVG Image" class="w-full" />
                     <button class="px-5 py-2 bg-gray-300 hover:scale-105 active:scale-100 rounded h-fit absolute bottom-3 right-4" @click.prevent="print">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-auto h-5" viewBox="0 0 16 16">
@@ -232,33 +302,22 @@ export default {
                 </div>
             </div>
             <div class="flex gap-1 justify-between">
-                <reset-btn @click="resetField($page.props.data)">
+                <reset-btn @click="resetIncomingForm">
                     Reset
                 </reset-btn>
                 <submit-btn :disabled="model.api.processing">
-                    <span v-if="model.api.processing">Saving</span>
-                    <span v-else>Save</span>
+                    <span v-if="model.api.processing">{{ isUpdate ? 'Updating' : 'Saving' }}</span>
+                    <span v-else>{{ isUpdate ? 'Update' : 'Save' }}</span>
                 </submit-btn>
             </div>
+            <audit-info-card
+                v-if="isUpdate"
+                :audit-logs="$page.props.auditLogs"
+                :created-at="data?.created_at"
+                :updated-at="data?.updated_at"
+            />
         </div>
     </form>
-    <table class="w-1/4 bg-white dark:bg-gray-800 border-collapse border m-5 rounded-lg">
-        <thead class="bg-AA text-white">
-            <tr>
-                <th class="border px-2 py-1 text-center" colspan="2">Storage Location Reference</th>
-            </tr>
-            <tr>
-                <th class="border px-2 py-1 text-center">Room #</th>
-                <th class="border px-2 py-1">Label</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="location in storage_locations" :key="location.name">
-                <td class="border px-2 py-1 text-sm text-center">{{ location.name }}</td>
-                <td class="border px-2 py-1 text-sm">{{ location.label }}</td>
-            </tr>
-        </tbody>
-    </table>
 </template>
 
 <style scoped>

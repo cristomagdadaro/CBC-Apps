@@ -4,11 +4,36 @@ import ApiMixin from "@/Modules/mixins/ApiMixin";
 import DtoResponse from "@/Modules/dto/DtoResponse";
 import DtoError from "@/Modules/dto/DtoError";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
+import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/TransactionReportAccordion.vue";
+import AuditInfoCard from "@/Components/AuditInfoCard.vue";
 
 export default {
     name: "OutgoingForm",
+    components: {
+        TransactionReportAccordion,
+        AuditInfoCard,
+    },
     props: {
-        personnels: Object,
+        personnels: {
+            type: Array,
+            default: () => [],
+        },
+        data: {
+            type: Object,
+            default: null,
+        },
+        summary: {
+            type: Object,
+            default: null,
+        },
+        attachedReports: {
+            type: Array,
+            default: () => [],
+        },
+        mode: {
+            type: String,
+            default: 'create',
+        },
     },
     mixins: [ApiMixin, DataFormatterMixin],
     data() {
@@ -20,14 +45,33 @@ export default {
     },
     beforeMount() {
         this.model = new Transaction();
-        this.setFormAction('create');
+        this.setFormAction(this.isUpdate ? 'update' : 'create');
     },
     computed: {
+        isUpdate() {
+            return this.mode === 'update';
+        },
         isAuthenticated() {
             return (this.$page.props.auth && this.$page.props.auth.user);
         },
         isPublic() {
             return !this.isAuthenticated;
+        },
+        displayData() {
+            return this.isUpdate ? (this.summary ?? this.data ?? {}) : (this.data ?? {});
+        },
+        reportsList() {
+            return Array.isArray(this.attachedReports) ? this.attachedReports : [];
+        },
+        utilizationPercentage() {
+            const totalIngoing = Number(this.displayData?.total_ingoing ?? 0);
+            const remaining = Number(this.displayData?.remaining_quantity ?? 0);
+
+            if (totalIngoing <= 0) {
+                return '0.00';
+            }
+
+            return (100 - ((remaining / totalIngoing) * 100)).toFixed(2);
         },
     },
     methods: {
@@ -52,11 +96,22 @@ export default {
                 this.form.personnel_id = null;
             }
 
-            const temp = await this.submitCreate();
+            const temp = this.isUpdate
+                ? await this.submitUpdate()
+                : await this.submitCreate();
+
             if (temp instanceof DtoResponse)
                 this.$emit('submitted');
             if (temp instanceof DtoError)
                 this.$emit('error');
+        },
+        resetOutgoingForm() {
+            if (this.isUpdate) {
+                this.resetField(this.data);
+                return;
+            }
+
+            this.resetForm(['barcode','item_id','transac_type','unit']);
         },
         getRecentTransactions() {
             this.processing = true;
@@ -68,25 +123,27 @@ export default {
         },
     },
     mounted() {
-        this.form.barcode = this.data.barcode;
-        this.form.name = this.data.name;
-        this.form.brand = this.data.brand;
-        this.form.unit = this.data.unit;
-        this.form.item_id = this.data.item_id;
+        this.form.barcode = this.data?.barcode;
+        this.form.name = this.data?.name;
+        this.form.brand = this.data?.brand;
+        this.form.unit = this.data?.unit;
+        this.form.item_id = this.data?.item_id;
 
         // For logged-in users, set user_id so we know who inserted the record
         if (this.isAuthenticated) {
             this.form.user_id = this.$page.props?.auth?.user?.id;
         }
 
-        this.form.transac_type = 'outgoing';
+        if (!this.form.transac_type) {
+            this.form.transac_type = 'outgoing';
+        }
 
         this.getRecentTransactions();
     },
     watch: {
         'form.quantity': {
             handler(newVal) {
-                if(newVal > Number(this.data?.remaining_quantity))
+                if (newVal > Number(this.displayData?.remaining_quantity))
                     this.form['errors'].quantity = 'Exceeds maximum quantity';
                 else
                     this.form['errors'].quantity = null;
@@ -99,28 +156,28 @@ export default {
 <template>
     <div class="grid sm:grid-cols-3 grid-cols-1 sm:p-5 p-3 sm:gap-3">
         <div class="flex flex-col col-span-2 gap-1 bg-white rounded">
-            <div  v-if="data" class="flex flex-col  justify-between items-center gap-5 py-2 px-1 md:px-4 border-b">
+            <div  v-if="displayData" class="flex flex-col  justify-between items-center gap-5 py-2 px-1 md:px-4 border-b">
                 <div class="flex flex-col leading-tight w-full">
                     <span class="font-bold text-base md:text-lg whitespace-nowrap overflow-ellipsis overflow-hidden">
-                        {{ data.name }} {{ data.description ? `(${data.description})` : '' }}
+                        {{ displayData.name }} {{ displayData.description ? `(${displayData.description})` : '' }}
                     </span>
-                    <span v-if="data.expiration" :class="{
-                        'text-red-600 font-semibold': getExpirationStatus(data.expiration) === 'expired',
-                        'text-orange-600 font-semibold': ['expiring_soon', 'expiring_today'].includes(getExpirationStatus(data.expiration)),
-                        'text-gray-500': !getExpirationStatus(data.expiration)
+                    <span v-if="displayData.expiration" :class="{
+                        'text-red-600 font-semibold': getExpirationStatus(displayData.expiration) === 'expired',
+                        'text-orange-600 font-semibold': ['expiring_soon', 'expiring_today'].includes(getExpirationStatus(displayData.expiration)),
+                        'text-gray-500': !getExpirationStatus(displayData.expiration)
                     }" class="text-xs">
-                        Expiry: {{ formatDate(data.expiration) }}
-                        <span v-if="getExpirationStatus(data.expiration) === 'expired'" class="ml-1">(Expired)</span>
-                        <span v-else-if="getExpirationStatus(data.expiration) === 'expiring_today'" class="ml-1">(Expires Today)</span>
-                        <span v-else-if="getExpirationStatus(data.expiration) === 'expiring_soon'" class="ml-1">(Expiring Soon)</span>
+                        Expiry: {{ formatDate(displayData.expiration) }}
+                        <span v-if="getExpirationStatus(displayData.expiration) === 'expired'" class="ml-1">(Expired)</span>
+                        <span v-else-if="getExpirationStatus(displayData.expiration) === 'expiring_today'" class="ml-1">(Expires Today)</span>
+                        <span v-else-if="getExpirationStatus(displayData.expiration) === 'expiring_soon'" class="ml-1">(Expiring Soon)</span>
                     </span>
-                    <span class="text-sm text-gray-500">{{ data.brand }}</span>
-                    <span class="text-xs text-gray-500 leading-none" :class="{'text-red-600' : !data.barcode}">{{ data.barcode || 'Warning! NO BARCODE' }}</span>
+                    <span class="text-sm text-gray-500">{{ displayData.brand }}</span>
+                    <span class="text-xs text-gray-500 leading-none" :class="{'text-red-600' : !data?.barcode}">{{ data?.barcode || 'Warning! NO BARCODE' }}</span>
                 </div>
                 <div class="flex sm:gap-4 gap-1 w-full justify-evenly">
                     <div class="flex flex-col leading-none md:leading-relaxed">
                         <span class="text-center text-gray-600">
-                            {{ formatNumber(data.remaining_quantity) }}
+                            {{ formatNumber(displayData.remaining_quantity) }}
                         </span>
                         <span class="text-xs text-gray-400">
                             Remaining
@@ -128,7 +185,7 @@ export default {
                     </div>
                     <div class="flex flex-col leading-none md:leading-relaxed">
                         <span class="text-center text-gray-600">
-                            {{ formatNumber(data.total_outgoing) }}
+                            {{ formatNumber(displayData.total_outgoing) }}
                         </span>
                         <span class="text-xs text-gray-400">
                             Consumed
@@ -136,7 +193,7 @@ export default {
                     </div>
                     <div class="flex flex-col leading-none md:leading-relaxed">
                         <span class="text-center text-gray-600">
-                            {{ (100-((data.remaining_quantity/data.total_ingoing) *100)).toFixed(2)  }}%
+                            {{ utilizationPercentage }}%
                         </span>
                         <span class="text-xs text-gray-400">
                             Utilization
@@ -145,7 +202,12 @@ export default {
                 </div>
             </div>
             <div class="flex flex-col sm:gap-3 gap-1 sm:p-3 p-1 rounded">
-                <h1 class="text-base md:text-lg font-semibold text-gray-800">Outgoing Transaction</h1>
+                <transaction-report-accordion
+                    v-if="isUpdate"
+                    class="w-full mb-3"
+                    :reports="reportsList"
+                />
+                <h1 class="text-base md:text-lg font-semibold text-gray-800">{{ isUpdate ? 'Update Outgoing Transaction' : 'Outgoing Transaction' }}</h1>
                 <form @submit.prevent="proxySubmit" class="flex flex-col gap-3">
                     <!-- Public access: ask for Employee ID only -->
                     <text-input
@@ -201,15 +263,27 @@ export default {
                         :error="form.errors.remarks"
                     />
 
+                    <div v-if="isUpdate" class="grid grid-cols-2 gap-2">
+                        <text-input label="PRRI Barcode" v-model="form.barcode_prri" :error="form.errors.barcode_prri" />
+                        <text-input label="PAR No" v-model="form.par_no" :error="form.errors.par_no" />
+                        <text-input label="Condition" v-model="form.condition" :error="form.errors.condition" />
+                    </div>
+
                     <div class="flex gap-1 justify-between">
-                        <cancel-btn @click="resetForm(['barcode','item_id','transac_type','unit'])">
-                            Reset
+                        <cancel-btn @click="resetOutgoingForm">
+                            {{ isUpdate ? 'Cancel' : 'Reset' }}
                         </cancel-btn>
                         <submit-btn :disabled="model.api.processing">
-                            <span v-if="model.api.processing">Saving</span>
-                            <span v-else>Save</span>
+                            <span v-if="model.api.processing">{{ isUpdate ? 'Updating' : 'Saving' }}</span>
+                            <span v-else>{{ isUpdate ? 'Update' : 'Save' }}</span>
                         </submit-btn>
                     </div>
+                    <audit-info-card
+                        v-if="isUpdate"
+                        :audit-logs="$page.props.auditLogs"
+                        :created-at="data?.created_at"
+                        :updated-at="data?.updated_at"
+                    />
                 </form>
             </div>
         </div>

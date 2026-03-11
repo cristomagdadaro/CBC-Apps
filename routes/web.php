@@ -190,7 +190,7 @@ Route::middleware([
                 })->name('items.index');
 
                 Route::get('/create', function () {
-                    return Inertia::render('Inventory/Items/components/CreateItemForm', [
+                    return Inertia::render('Inventory/Items/components/CreateItem', [
                         'fromUrl' => url()->previous(),
                         'suppliers' => app(SupplierRepo::class)->getOptions(),
                         'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
@@ -270,7 +270,7 @@ Route::middleware([
                         ->get();
                     
                     if($transaction->transac_type === Inventory::INCOMING->value){
-                        return Inertia::render('Inventory/Transactions/components/IncomingUpdateForm', [
+                        return Inertia::render('Inventory/Transactions/components/Incoming', [
                             'data' => $transaction,
                             'items' => Item::withTrashed()->get(),
                             'fromUrl' => route('transactions.index'),
@@ -279,7 +279,7 @@ Route::middleware([
                             'attachedReports' => $attachedReports,
                         ]);
                     } else {
-                        return Inertia::render('Inventory/Transactions/components/OutgoingUpdateForm', [
+                        return Inertia::render('Inventory/Transactions/components/Outgoing', [
                             'data' =>  Transaction::select('*')->where('transactions.id', request()->route('id'))->first(),
                             'summary' =>  Transaction::selectRaw('
                                         items.id as item_id,
@@ -307,6 +307,7 @@ Route::middleware([
                                 ->where('transactions.item_id', $transaction->item_id)
                                 ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode', 'transactions.barcode_prri')
                                 ->first(),
+                            'mode' => 'update',
                             'fromUrl' => route('transactions.index'),
                             'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                             'attachedReports' => $attachedReports,
