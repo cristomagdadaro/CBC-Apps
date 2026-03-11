@@ -39,11 +39,11 @@ class CreateItemRequest extends FormRequest
         return [
             'name' => ['required','string', new UniqueItem()],
             'brand' => ['required','string', new UniqueItem()],
-            'description' => 'string|nullable',
-            'specifications' => 'string|nullable',
+            'description' => ['string','nullable', new UniqueItem()],
+            'specifications' => ['string','nullable'],
             'category_id' => ['required','exists:categories,id', new UniqueItem()],
-            'supplier_id' => 'required|exists:suppliers,id',
-            'image' => 'string|nullable',
+            'supplier_id' => ['required','exists:suppliers,id'],
+            'image' => ['string','nullable'],
         ];
     }
 

@@ -27,10 +27,12 @@ class UniqueItem implements ValidationRule
         $name = request('name');
         $brand = request('brand');
         $category_id = request('category_id');
+        $description = request('description');
 
         $query = Item::where('name', $name)
             ->where('brand', $brand)
-            ->where('category_id', $category_id);
+            ->where('category_id', $category_id)
+            ->where('description', $description);
 
         if($this->id)
             $query->where('id', '!=', $this->id);

@@ -27,11 +27,11 @@ class UpdateItemRequest extends FormRequest
         return [
             'name' => ['required','string', new UniqueItem($this->id)],
             'brand' => ['required','string', new UniqueItem($this->id)],
-            'description' => 'string|nullable',
-            'specifications' => 'string|nullable',
+            'description' => ['string','nullable', new UniqueItem($this->id)],
+            'specifications' => ['string','nullable'],
             'category_id' => ['required','exists:categories,id', new UniqueItem($this->id)],
-            'supplier_id' => 'required|exists:suppliers,id',
-            'image' => 'string|nullable',
+            'supplier_id' => ['required','exists:suppliers,id'],
+            'image' => ['string','nullable'],
         ];
     }
 
