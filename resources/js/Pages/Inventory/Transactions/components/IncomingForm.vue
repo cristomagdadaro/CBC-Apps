@@ -157,7 +157,7 @@ export default {
 </script>
 
 <template>
-<form v-if="!!form" @submit.prevent="submitCreate" class="py-12 max-w-xl mx-auto">
+    <form v-if="!!form" @submit.prevent="submitCreate" class="py-12 max-w-xl mx-auto">
         <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
             <div class="flex flex-col gap-2 mx-auto w-full">
                 <div class="flex flex-col">
@@ -242,6 +242,23 @@ export default {
             </div>
         </div>
     </form>
+    <table class="w-1/4 bg-white dark:bg-gray-800 border-collapse border m-5 rounded-lg">
+        <thead class="bg-AA text-white">
+            <tr>
+                <th class="border px-2 py-1 text-center" colspan="2">Storage Location Reference</th>
+            </tr>
+            <tr>
+                <th class="border px-2 py-1 text-center">Room #</th>
+                <th class="border px-2 py-1">Label</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="location in storage_locations" :key="location.name">
+                <td class="border px-2 py-1 text-sm text-center">{{ location.name }}</td>
+                <td class="border px-2 py-1 text-sm">{{ location.label }}</td>
+            </tr>
+        </tbody>
+    </table>
 </template>
 
 <style scoped>
