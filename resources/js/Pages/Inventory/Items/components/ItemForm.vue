@@ -85,12 +85,12 @@ export default defineComponent({
                 </template>
             </custom-dropdown>
             <text-input
-                label="Description"
+                label="Model / Serial No. / Short Description"
                 v-model="form.description"
                 :error="form.errors.description"
             />
             <text-area
-                label="Specifications"
+                label="Detailed Specifications"
                 v-model="form.specifications"
                 :error="form.errors.specifications"
             />

@@ -69,8 +69,8 @@ export default defineComponent({
                         <filter-icon class="h-4 w-4" />
                     </template>
                 </custom-dropdown>
-                <text-input label="Description" v-model="form.description" :error="form.errors.description" />
-                <text-area label="Specifications" v-model="form.specifications" :error="form.errors.specifications" />
+                <text-input label="Model / Serial No. / Short Description" v-model="form.description" :error="form.errors.description" />
+                <text-area label="Detailed Specifications" v-model="form.specifications" :error="form.errors.specifications" />
                 <file-input label="Image" v-model="form.image" :error="form.errors.image" />
                 <div v-if="form.image" class="w-full  shadow bg-white focus:border-indigo-500 focus:ring-indigo-500 rounded-md border p-2 justify-center flex">
                     <img :src="form.image" @click.right.prevent="null" draggable="false" class="max-w-80 w-1/2 bg-transparent" alt="image">
