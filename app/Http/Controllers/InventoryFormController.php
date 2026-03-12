@@ -30,6 +30,7 @@ class InventoryFormController extends BaseController
             'categories' => $this->categoryRepo->getInventoryFormCategories(),
             'personnels' => $this->personnelRepo->getAllForInventoryForm(),
             'projectCodes' => $this->transactionRepo->getAvailableProjectCodes(),
+            'storage_locations' => $this->optionRepo->getStorageLocations(),
         ]);
     }
 }

@@ -29,6 +29,12 @@ const isInternetAccess = computed(() => {
 
 const services = [
     {
+        title: "Center Calendar",
+        description: "View the center's unified calendar of events, bookings, and equipment logging schedules",
+        icon: CalendarIcon,
+        href: route("forms.guest.index"),
+    },
+    {
         title: "Event Forms",
         description: "Register and participate in DA-CBC events with comprehensive event forms",
         icon: CalendarIcon,
@@ -175,7 +181,7 @@ onMounted(() => {
                         <h3 class="text-gray-900 dark:text-white text-xl font-bold tracking-wider uppercase">Apps & Services</h3>
                         <div class="h-1.5 w-16 bg-gradient-to-r from-AC via-AB to-AA dark:from-AA dark:via-AD dark:to-AB mt-3 mx-auto rounded-full shadow-lg dark:shadow-AC/30"></div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full max-w-7xl">
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 w-full max-w-7xl">
                         <ServiceCard
                             v-for="(service, index) in services"
                             :key="index"

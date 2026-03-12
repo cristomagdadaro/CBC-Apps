@@ -252,6 +252,7 @@ Route::middleware([
                         'stockLevel' => app(OptionRepo::class)->getStockLevels(),
                         'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
                         'projectCodes' => app(TransactionRepo::class)->getAvailableProjectCodes(),
+                        'storage_locations' => app(OptionRepo::class)->getStorageLocations(),
                     ]);
                 })->name('transactions.outgoing');
 

@@ -31,7 +31,17 @@ export default {
         },
         projectCodes() {
             return this.$page.props.projectCodes;
-        }
+        },
+        storage_locations() {
+            if (!Array.isArray(this.$page.props.storage_locations)) {
+                return [];
+            }
+
+            return this.$page.props.storage_locations.map(location => ({
+                name: location.name,
+                label: location.label,
+            }));
+        },
     },
     methods: {
         setFormAction(action: string) {

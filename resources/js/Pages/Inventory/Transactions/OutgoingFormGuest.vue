@@ -65,6 +65,27 @@ export default {
                 }
             });
         },
+        storageRooms() {
+            if (!Array.isArray(this.$page.props?.storage_locations)) {
+                return [];
+            }
+
+            return this.$page.props.storage_locations
+                .map((location) => {
+                    const roomMatch = String(location?.name ?? '').match(/\d+/);
+                    if (!roomMatch) {
+                        return null;
+                    }
+
+                    const room = String(roomMatch[0]).padStart(2, '0');
+
+                    return {
+                        name: room,
+                        label: `${room} - ${location.label}`,
+                    };
+                })
+                .filter(Boolean);
+        },
         // Override mixin's isExpired to avoid conflicts with item-level expiration checking
         isExpired() {
             return null;
@@ -94,6 +115,26 @@ export default {
             }
             this.form.filter = filter;
             this.form.filter_by = filter_by;
+            this.searchEvent();
+        },
+        applyStorageRoomFilter(roomCode) {
+            const room = roomCode ? String(roomCode).padStart(2, '0') : '';
+            const barcodePrefix = room ? `CBC-${room}-` : '';
+            const isSameFilter = this.form.filter === 'barcode' && this.form.search === barcodePrefix;
+
+            if (!room || isSameFilter) {
+                this.form.filter = '';
+                this.form.filter_by = '';
+                this.form.search = '';
+                this.form.is_exact = false;
+                this.searchEvent();
+                return;
+            }
+
+            this.form.filter = 'barcode';
+            this.form.filter_by = room;
+            this.form.search = barcodePrefix;
+            this.form.is_exact = false;
             this.searchEvent();
         },
         async closeForm() {
@@ -156,6 +197,7 @@ export default {
                             <custom-dropdown :with-all-option="false" placeholder="Category" label="Filter by Category" @selectedChange="setFilter('category', $event)" :options="categories" />
                             <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
                             <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
+                            <custom-dropdown :with-all-option="false" placeholder="Storage Room" label="Filter by Storage Room" @selectedChange="applyStorageRoomFilter($event)" :options="storageRooms" />
                             <camera-scanner class="col-span-3 md:col-span-1" @decoded="searchFromBarcode" />
                             <custom-dropdown
                                 v-if="projectCodes"

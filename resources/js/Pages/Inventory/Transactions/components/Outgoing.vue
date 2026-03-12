@@ -107,6 +107,26 @@ export default {
             this.form.filter_by = filter_by;
             this.searchEvent();
         },
+        applyStorageRoomFilter(roomCode) {
+            const room = roomCode ? String(roomCode).padStart(2, '0') : '';
+            const barcodePrefix = room ? `CBC-${room}-` : '';
+            const isSameFilter = this.form.filter === 'barcode' && this.form.search === barcodePrefix;
+
+            if (!room || isSameFilter) {
+                this.form.filter = '';
+                this.form.filter_by = '';
+                this.form.search = '';
+                this.form.is_exact = false;
+                this.searchEvent();
+                return;
+            }
+
+            this.form.filter = 'barcode';
+            this.form.filter_by = room;
+            this.form.search = barcodePrefix;
+            this.form.is_exact = false;
+            this.searchEvent();
+        },
     }
 }
 </script>
@@ -140,6 +160,7 @@ export default {
                 <div class="flex gap-1 items-center w-full justify-center">
                     <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
                     <custom-dropdown :with-all-option="false" placeholder="Category" label="Filter by Category" @selectedChange="setFilter('category', $event)" :options="categories" />
+                    <custom-dropdown :with-all-option="false" placeholder="Storage Room" label="Filter by Storage Room" @selectedChange="applyStorageRoomFilter($event)" :options="storage_locations" />
                     <custom-dropdown :with-all-option="false" placeholder="Project Code" label="Filter by Project Code" @selectedChange="setFilter('project_code', $event)" :options="projectCodes" class="col-span-3 md:col-span-2" />
                 </div>
                 <h3>There are {{outgoingFromApi?.data?.length || 0}} items registered</h3>

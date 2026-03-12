@@ -76,16 +76,6 @@ export default {
         isUpdate() {
             return !!this.data?.id;
         },
-        storage_locations() {
-            if (!Array.isArray(this.$page.props.storage_locations)) {
-                return [];
-            }
-
-            return this.$page.props.storage_locations.map(location => ({
-                name: location.name,
-                label: location.label,
-            }));
-        },
         items() {
             if (!this.$page.props?.items)
                 return [];
@@ -173,9 +163,25 @@ export default {
             this.renderBarcode();
         },
         'form.item_id': function (val) {
-            this.form.unit_price = val ? val.unit_price : null;
-            this.form.unit = val ? val.unit : null;
-            this.form.total_cost = val ? val.unit_price * this.form.quantity : null;
+            const selectedItem = typeof val === 'object' && val !== null
+                ? val
+                : (this.$page.props?.items ?? []).find(item => item.id === val);
+
+            if (!selectedItem) {
+                if (!val) {
+                    this.form.unit_price = null;
+                    this.form.unit = null;
+                    this.form.total_cost = null;
+                }
+
+                return;
+            }
+
+            this.form.unit_price = selectedItem.unit_price ?? null;
+            this.form.unit = selectedItem.unit ?? this.form.unit;
+            this.form.total_cost = this.form.quantity && this.form.unit_price
+                ? this.form.unit_price * this.form.quantity
+                : null;
         },
         'form.quantity': function (val) {
             this.form.total_cost = this.form.unit_price ? this.form.unit_price * val : null;
@@ -235,8 +241,8 @@ export default {
                     :reports="attachedReportsList"
                 />
                 <div class="flex flex-row gap-2 h-fit">
-                    <select-search-field required :api-link="'api.inventory.items.options'"  :error="form.errors.item_id" label="Item" v-model="form.item_id" />
-                    <div class="flex items-end">
+                    <select-search-field :disabled="isUpdate" required :api-link="'api.inventory.items.options'"  :error="form.errors.item_id" label="Item" v-model="form.item_id" />
+                    <div v-if="!isUpdate" class="flex items-end">
                         <button v-if="!showNewItemForm" @click.prevent="toggleShowNewItemForm" class="h-fit w-full py-2.5 border border-gray-700 flex items-center justify-center bg-white text-gray-600 rounded gap-1 text-sm px-2">
                             <add-icon class="h-5 w-5" />
                             <span class="whitespace-nowrap">New Item</span>

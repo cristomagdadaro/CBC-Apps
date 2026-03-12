@@ -19,7 +19,7 @@ defineProps({
         :href="href"
         :target="external ? '_blank' : undefined"
         :rel="external ? 'noopener noreferrer' : undefined"
-        class="group relative h-full overflow-hidden rounded-xl bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-800 dark:via-gray-900 dark:to-gray-950 border border-gray-200 dark:border-gray-700 p-6 transition-all duration-300 hover:border-AC dark:hover:border-AA hover:shadow-lg dark:hover:shadow-lg hover:shadow-AC/25 dark:hover:shadow-AA/20 hover:-translate-y-1"
+        class="group relative h-full overflow-hidden rounded-xl bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-800 dark:via-gray-900 dark:to-gray-950 border border-gray-200 dark:border-gray-700 p-4 transition-all duration-300 hover:border-AC dark:hover:border-AA hover:shadow-lg dark:hover:shadow-lg hover:shadow-AC/25 dark:hover:shadow-AA/20 hover:-translate-y-1"
     >
         <!-- Background gradient on hover -->
         <div class="absolute inset-0 bg-gradient-to-br from-AC/5 via-AB/5 to-AA/5 dark:from-AC/15 dark:to-AA/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -41,7 +41,7 @@ defineProps({
             </h3>
 
             <!-- Description -->
-            <p class="mb-4 flex-grow text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-300 leading-relaxed">
+            <p class="mb-2 flex-grow text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-300 leading-relaxed">
                 {{ description }}
             </p>
 

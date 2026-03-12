@@ -568,7 +568,7 @@ export default {
                     @click="toggleDropdown()"
                     @input="debounceApiCall($event)"
                     @clear="clearSelection"
-                    ><button class="p-2 m-1 text-white rounded-md bg-AB">
+                    ><button v-if="!disabled" class="p-2 m-1 text-white rounded-md bg-AB">
                         <search-icon
                             class="w-5 h-5 pointer-events-none"
                         /></button
