@@ -23,6 +23,41 @@ class TransactionRepo extends AbstractRepoService
         $this->appendWith = ['item', 'user','personnel'];
     }
 
+    public function create(array $data)
+    {
+        $components = collect($data['components'] ?? [])
+            ->filter(fn ($component) => !empty($component['item_id']) && !empty($component['quantity']))
+            ->values();
+
+        unset($data['components']);
+
+        return DB::transaction(function () use ($data, $components) {
+            $main = $this->model->newQuery()->create($data);
+
+            if (($data['transac_type'] ?? null) === 'incoming' && $components->isNotEmpty()) {
+                $components->each(function (array $component) use ($main, $data) {
+                    $quantity = (float) ($component['quantity'] ?? 0);
+                    $prriComponentNo = $component['prri_component_no'] ?? null;
+
+                    $main->components()->create([
+                        'transaction_id' => $main->id,
+                        'item_id' => $component['item_id'],
+                        'quantity' => $quantity,
+                        'unit' => $component['unit'] ?? ($data['unit'] ?? null),
+                        'barcode_prri' => $component['barcode_prri'] ?? ($data['barcode_prri'] ?? null),
+                        'prri_component_no' => $prriComponentNo !== null && $prriComponentNo !== ''
+                            ? str_pad((string) ((int) $prriComponentNo), 5, '0', STR_PAD_LEFT)
+                            : null,
+                        'expiration' => $component['expiration'] ?? ($data['expiration'] ?? null),
+                        'remarks' => $component['remarks'] ?? null,
+                    ]);
+                });
+            }
+
+            return $main;
+        });
+    }
+
     public function getRemainingStocks(Collection $parameters, array $consumableCategoryIds = [1, 2, 3, 5, 6]): Collection
     {
         $search   = $parameters->get('search');

@@ -260,6 +260,8 @@ Route::middleware([
                     $transaction = Transaction::find(request()->route('id'));
                     if (!$transaction) return redirect()->route('transactions.index');
 
+                    $transaction->load(['components.item']);
+
                     $attachedReports = $transaction->reports()
                         ->with([
                             'user:id,name',
@@ -278,6 +280,7 @@ Route::middleware([
                             'storage_locations' => app(OptionRepo::class)->getStorageLocations(),
                             'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                             'attachedReports' => $attachedReports,
+                            'attachedComponents' => $transaction->components,
                         ]);
                     } else {
                         return Inertia::render('Inventory/Transactions/components/Outgoing', [

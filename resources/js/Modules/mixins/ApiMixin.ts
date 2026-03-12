@@ -44,25 +44,36 @@ export default {
         },
     },
     methods: {
+        createFormWithRemember(payload: object, action: string) {
+            const rememberKey = this.rememberFormKey
+                ? `${this.rememberFormKey}.${action}`
+                : null;
+
+            if (rememberKey) {
+                return useForm(rememberKey, payload);
+            }
+
+            return useForm(payload);
+        },
         setFormAction(action: string) {
             switch (action) {
                 case "create":
-                    this.form = useForm(this.model.createFields);
+                    this.form = this.createFormWithRemember(this.model.createFields, action);
                     break;
                 case "update":
-                    this.form = useForm(this.model.updateFields(this.data));
+                    this.form = this.createFormWithRemember(this.model.updateFields(this.data), action);
                     break;
                 case "delete":
-                    this.form = useForm(this.model.deleteField(this.toDelete));
+                    this.form = this.createFormWithRemember(this.model.deleteField(this.toDelete), action);
                     break;
                 case "get":
-                    this.form = useForm(this.model.api.getSearchFields());
+                    this.form = this.createFormWithRemember(this.model.api.getSearchFields(), action);
                     break;
                 case "show":
-                    this.form = useForm(this.model.updateFields(this.data));
+                    this.form = this.createFormWithRemember(this.model.updateFields(this.data), action);
                     break;
                 case "summary":
-                    this.form = useForm(this.model.api.getSearchFields());
+                    this.form = this.createFormWithRemember(this.model.api.getSearchFields(), action);
                     break;
             }
 

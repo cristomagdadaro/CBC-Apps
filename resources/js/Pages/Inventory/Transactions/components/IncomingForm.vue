@@ -6,6 +6,7 @@ import Transaction from "@/Modules/domain/Transaction";
 import JsBarcode from "jsbarcode";
 import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
 import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/TransactionReportAccordion.vue";
+import TransactionComponentAccordion from "@/Pages/Inventory/Transactions/components/TransactionComponentAccordion.vue";
 import AuditInfoCard from "@/Components/AuditInfoCard.vue";
 
 export default {
@@ -15,10 +16,15 @@ export default {
             type: Array,
             default: () => [],
         },
+        attachedComponents: {
+            type: Array,
+            default: () => [],
+        },
     },
     components: {
         TransactionHeaderAction,
         TransactionReportAccordion,
+        TransactionComponentAccordion,
         AuditInfoCard,
         QrcodeVue,
     },
@@ -30,6 +36,8 @@ export default {
             barcodeCanvas: null,
             svgText: '',
             showNewItemForm: false,
+            componentRows: [],
+            rememberFormKey: 'incomingTransactionForm',
         }
     },
     emits: ['showNewItemForm'],
@@ -40,7 +48,50 @@ export default {
                 return;
             }
 
+            this.syncComponentsPayload();
             await this.submitCreate();
+        },
+        createEmptyComponentRow() {
+            return {
+                item_id: null,
+                quantity: 1,
+                unit: null,
+                prri_component_no: null,
+                expiration: null,
+            };
+        },
+        addComponentRow() {
+            this.componentRows.push(this.createEmptyComponentRow());
+            this.syncComponentsPayload();
+        },
+        removeComponentRow(index) {
+            this.componentRows.splice(index, 1);
+            this.syncComponentsPayload();
+        },
+        onComponentItemChange(index, selectedValue) {
+            const selectedItem = typeof selectedValue === 'object' && selectedValue !== null
+                ? selectedValue
+                : (this.$page.props?.items ?? []).find(item => item.id === selectedValue);
+
+            this.componentRows[index].item_id = selectedItem?.id ?? selectedValue;
+            this.componentRows[index].unit = selectedItem?.unit ?? null;
+            this.syncComponentsPayload();
+        },
+        syncComponentsPayload() {
+            if (!this.form) {
+                return;
+            }
+
+            this.form.components = this.componentRows
+                .filter(component => component.item_id && Number(component.quantity) > 0)
+                .map(component => ({
+                    item_id: component.item_id,
+                    quantity: Number(component.quantity),
+                    unit: component.unit,
+                    prri_component_no: component.prri_component_no,
+                    expiration: component.expiration,
+                    barcode_prri: this.form.barcode_prri ?? null,
+                }));
         },
         async generateBarcode(room) {
             if (!room) {
@@ -59,6 +110,8 @@ export default {
             }
 
             this.resetField(this.$page.props.data);
+            this.componentRows = [];
+            this.syncComponentsPayload();
         },
         renderBarcode() {
             const canvas = createCanvas(256, 256);
@@ -121,6 +174,9 @@ export default {
         },
         attachedReportsList() {
             return Array.isArray(this.attachedReports) ? this.attachedReports : [];
+        },
+        attachedComponentsList() {
+            return Array.isArray(this.attachedComponents) ? this.attachedComponents : [];
         },
         print() {
             const img = document.getElementById('barcode-image');
@@ -201,6 +257,8 @@ export default {
         if (!this.isUpdate) {
             this.form.barcode = this.preGenerateBarcode;
             this.form.user_id = this.$page.props?.auth?.user?.id;
+            this.form.components = [];
+            this.componentRows = [];
             await this.generateBarcode();
             return;
         }
@@ -211,24 +269,7 @@ export default {
 </script>
 
 <template>
-    <table class="w-1/4 bg-white dark:bg-gray-800 border-collapse border m-5 rounded-lg">
-        <thead class="bg-AA text-white">
-            <tr>
-                <th class="border px-2 py-1 text-center" colspan="2">Storage Location Reference</th>
-            </tr>
-            <tr>
-                <th class="border px-2 py-1 text-center">Room #</th>
-                <th class="border px-2 py-1">Label</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="location in storage_locations" :key="location.name">
-                <td class="border px-2 py-1 text-sm text-center">{{ location.name }}</td>
-                <td class="border px-2 py-1 text-sm">{{ location.label }}</td>
-            </tr>
-        </tbody>
-    </table>
-    <form v-if="!!form" @submit.prevent="submitForm"  class="py-12 max-w-xl mx-auto">
+    <form v-if="!!form" @submit.prevent="submitForm"  class="grid grid-cols-2 gap-4 w-full">
         <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg h-fit">
             <div class="flex flex-col gap-2 mx-auto w-full h-fit">
                 <div class="flex flex-col">
@@ -239,6 +280,11 @@ export default {
                     v-if="isUpdate"
                     class="w-full"
                     :reports="attachedReportsList"
+                />
+                <transaction-component-accordion
+                    v-if="isUpdate"
+                    class="w-full"
+                    :components="attachedComponentsList"
                 />
                 <div class="flex flex-row gap-2 h-fit">
                     <select-search-field :disabled="isUpdate" required :api-link="'api.inventory.items.options'"  :error="form.errors.item_id" label="Item" v-model="form.item_id" />
@@ -294,7 +340,6 @@ export default {
                     <text-input required label="Unit" v-model="form.unit" :error="form.errors.unit" />
                     <text-input type="number" label="Total Cost" v-model="form.total_cost" :error="form.errors.total_cost" />
                 </div>
-
                 <date-input type="date" label="Expiration" v-model="form.expiration" :error="form.errors.expiration" />
                 <text-area label="PR Details/Remarks" v-model="form.remarks" :error="form.errors.remarks" />
                 <div v-if="svgText && selectedStorage" class="flex sm:flex-row flex-col gap-1 w-full items-center relative">
@@ -322,6 +367,50 @@ export default {
                 :created-at="data?.created_at"
                 :updated-at="data?.updated_at"
             />
+        </div>
+        <div v-if="!isUpdate" class="flex flex-col gap-2 shadow-xl sm:rounded-lg sm:p-2 lg:p-4 bg-white dark:bg-gray-700 h-fit">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold uppercase leading-none py-2 mb-1 border-b"><span v-if="componentRows.length">{{ componentRows.length }}</span> Attached Components / Items</h3>
+                <button type="button" class="px-2 py-1 text-xs rounded border border-gray-600 text-gray-700" @click="addComponentRow">
+                    Add Component
+                </button>
+            </div>
+            <p>Optional: attach components under the same transaction for tracking and retrieval.</p>
+
+            <div v-for="(component, index) in componentRows" :key="`component-${index}`" class="grid grid-cols-2 gap-2 border border-gray-200 rounded p-2 items-end">
+                <select-search-field
+                    :api-link="'api.inventory.items.options'"
+                    label="Component Item"
+                    v-model="component.item_id"
+                    class="col-span-2"
+                    @update:model-value="onComponentItemChange(index, $event)"
+                />
+                <text-input
+                    type="number"
+                    label="Quantity"
+                    v-model="component.quantity"
+                    @update:model-value="syncComponentsPayload()"
+                />
+                <text-input label="Unit" v-model="component.unit" @update:model-value="syncComponentsPayload()" />
+                <text-input
+                    type="text"
+                    label="PRRI Component No."
+                    placeholder="00001"
+                    v-model="component.prri_component_no"
+                    @update:model-value="syncComponentsPayload()"
+                />
+                <date-input
+                    type="date"
+                    label="Expiry Date"
+                    v-model="component.expiration"
+                    @update:model-value="syncComponentsPayload()"
+                />
+                <div class="col-span-2 flex justify-end">
+                    <button type="button" class="px-2 py-1 text-xs rounded border border-red-500 text-red-600" @click="removeComponentRow(index)">
+                        Remove
+                    </button>
+                </div>
+            </div>
         </div>
     </form>
 </template>

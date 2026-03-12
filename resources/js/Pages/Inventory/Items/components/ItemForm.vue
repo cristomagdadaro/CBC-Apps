@@ -19,7 +19,7 @@ export default defineComponent({
     <form
         v-if="!!form"
         @submit.prevent="submitCreate"
-        class="py-12 max-w-xl mx-auto"
+        class="max-w-xl mx-auto"
     >
         <div
             class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg"

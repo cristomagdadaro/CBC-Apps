@@ -24,7 +24,7 @@ export default class Transaction extends DtoTransaction {
         this.api._apiPut = Transaction.endpoints.put;
         this.api._apiDelete = Transaction.endpoints.delete;
 
-        this.api.appendWith = ['item', 'user','personnel'];
+        this.api.appendWith = ['item', 'user', 'personnel', 'components.item'];
 
         this.showPage = Transaction.endpoints.show;
     }
@@ -32,6 +32,7 @@ export default class Transaction extends DtoTransaction {
     createFields(): object
     {
         return {
+            components: [],
             barcode: null,
             barcode_prri: null,
             item_id: null,
@@ -75,7 +76,7 @@ export default class Transaction extends DtoTransaction {
     }
 
     get dataColor( ){
-        return `${this.transac_type && this.transac_type === 'incoming' ? 'text-green-600' : 'text-red-600'} text-center uppercase`;
+        return `${this.transac_type && this.transac_type === 'incoming' ? 'text-green-600' : 'text-red-600'}`;
     }
 
     static getColumns(data: DtoTransaction = null): any {

@@ -22,7 +22,7 @@ export default {
             <supplier-header-actions />
         </template>
 
-        <form v-if="!!form" @submit.prevent="submitUpdate" class="py-12 max-w-xl mx-auto">
+        <form v-if="!!form" @submit.prevent="submitUpdate" class="max-w-xl mx-auto">
             <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
                 <div class="flex flex-col">
                     <h2 class="font-bold uppercase leading-none py-2 mb-1 border-b">Supplier Update Form</h2>

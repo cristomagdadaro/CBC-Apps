@@ -92,4 +92,9 @@ class Transaction extends BaseModel
     {
         return $this->hasMany(SuppEquipReport::class, 'transaction_id', 'id');
     }
+
+    public function components(): HasMany
+    {
+        return $this->hasMany(TransactionComponent::class, 'transaction_id', 'id');
+    }
 }

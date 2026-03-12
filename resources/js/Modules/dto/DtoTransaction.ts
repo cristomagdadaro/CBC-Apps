@@ -4,6 +4,13 @@ import DtoPersonnel from "@/Modules/dto/DtoPersonnel";
 import DtoUser from "@/Modules/dto/DtoUser";
 
 export default class DtoTransaction extends DtoBaseClass implements ITransaction{
+    components?: Array<{
+        item_id: string;
+        quantity: number | string;
+        unit?: string;
+        unit_price?: number | string;
+        total_cost?: number | string;
+    }>;
     barcode: string;
     barcode_prri: string;
     item_id:string;
@@ -29,6 +36,7 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
         super(data);
 
         this.barcode = data?.barcode;
+        this.components = data?.components ?? [];
         this.barcode_prri = data?.barcode_prri;
         this.item_id = data?.item_id;
         this.transac_type = data?.transac_type;
