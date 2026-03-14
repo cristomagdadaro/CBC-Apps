@@ -34,6 +34,8 @@ class CreateRentalVehicleRequest extends FormRequest
             'time_to' => ['required', 'date_format:H:i:s', 'after:time_from'],
             'purpose' => ['required', 'string', 'max:500'],
             'requested_by' => ['required', 'string', 'max:255'],
+            'members_of_party' => ['nullable', 'array', 'max:30'],
+            'members_of_party.*' => ['required', 'string', 'max:255'],
             'contact_number' => ['required', 'string', 'regex:/^[0-9\-\+\s\(\)]*$/'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ];

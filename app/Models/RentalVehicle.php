@@ -39,9 +39,14 @@ class RentalVehicle extends Model
         'time_to',
         'purpose',
         'requested_by',
+        'members_of_party',
         'contact_number',
         'status',
         'notes',
+    ];
+
+    protected $casts = [
+        'members_of_party' => 'array',
     ];
 
     protected $dates = ['date_from', 'date_to', 'deleted_at', 'updated_at', 'created_at'];

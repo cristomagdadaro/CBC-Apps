@@ -6,6 +6,7 @@ interface IRentalVehicle extends IBaseClass {
     time_to: string;
     purpose: string;
     requested_by: string;
+    members_of_party: string[];
     contact_number: string;
     status: string;
     notes?: string;

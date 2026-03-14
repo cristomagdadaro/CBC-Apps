@@ -1,0 +1,517 @@
+[
+    {
+        "icon":  "Activity",
+        "module":  "lucide-react",
+        "usages":  4
+    },
+    {
+        "icon":  "AlertCircle",
+        "module":  "lucide-react",
+        "usages":  3
+    },
+    {
+        "icon":  "AlertTriangle",
+        "module":  "lucide-react",
+        "usages":  4
+    },
+    {
+        "icon":  "ArrowDownLeft",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "ArrowLeft",
+        "module":  "lucide-react",
+        "usages":  4
+    },
+    {
+        "icon":  "ArrowLeftRight",
+        "module":  "lucide-react",
+        "usages":  2
+    },
+    {
+        "icon":  "ArrowRight",
+        "module":  "lucide-react",
+        "usages":  6
+    },
+    {
+        "icon":  "ArrowUpRight",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Award",
+        "module":  "lucide-react",
+        "usages":  6
+    },
+    {
+        "icon":  "BarChart3",
+        "module":  "lucide-react",
+        "usages":  3
+    },
+    {
+        "icon":  "Barcode",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Bed",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Bell",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Box",
+        "module":  "lucide-react",
+        "usages":  2
+    },
+    {
+        "icon":  "Building",
+        "module":  "lucide-react",
+        "usages":  4
+    },
+    {
+        "icon":  "Building2",
+        "module":  "lucide-react",
+        "usages":  3
+    },
+    {
+        "icon":  "Calendar",
+        "module":  "lucide-react",
+        "usages":  12
+    },
+    {
+        "icon":  "CalendarDays",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "CalendarPlus",
+        "module":  "lucide-react",
+        "usages":  2
+    },
+    {
+        "icon":  "Car",
+        "module":  "lucide-react",
+        "usages":  5
+    },
+    {
+        "icon":  "Check",
+        "module":  "lucide-react",
+        "usages":  4
+    },
+    {
+        "icon":  "CheckCircle",
+        "module":  "lucide-react",
+        "usages":  17
+    },
+    {
+        "icon":  "CheckIcon",
+        "module":  "lucide-react",
+        "usages":  5
+    },
+    {
+        "icon":  "ChevronDown",
+        "module":  "lucide-react",
+        "usages":  2
+    },
+    {
+        "icon":  "ChevronDownIcon",
+        "module":  "lucide-react",
+        "usages":  4
+    },
+    {
+        "icon":  "ChevronLeft",
+        "module":  "lucide-react",
+        "usages":  2
+    },
+    {
+        "icon":  "ChevronLeftIcon",
+        "module":  "lucide-react",
+        "usages":  2
+    },
+    {
+        "icon":  "ChevronRight",
+        "module":  "lucide-react",
+        "usages":  3
+    },
+    {
+        "icon":  "ChevronRightIcon",
+        "module":  "lucide-react",
+        "usages":  5
+    },
+    {
+        "icon":  "ChevronUpIcon",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "CircleCheckIcon",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "CircleIcon",
+        "module":  "lucide-react",
+        "usages":  4
+    },
+    {
+        "icon":  "ClipboardList",
+        "module":  "lucide-react",
+        "usages":  7
+    },
+    {
+        "icon":  "Clock",
+        "module":  "lucide-react",
+        "usages":  10
+    },
+    {
+        "icon":  "Copy",
+        "module":  "lucide-react",
+        "usages":  3
+    },
+    {
+        "icon":  "Cpu",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "DollarSign",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Download",
+        "module":  "lucide-react",
+        "usages":  6
+    },
+    {
+        "icon":  "Edit",
+        "module":  "lucide-react",
+        "usages":  6
+    },
+    {
+        "icon":  "Eye",
+        "module":  "lucide-react",
+        "usages":  9
+    },
+    {
+        "icon":  "EyeOff",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Facebook",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "FileSpreadsheet",
+        "module":  "lucide-react",
+        "usages":  2
+    },
+    {
+        "icon":  "FileText",
+        "module":  "lucide-react",
+        "usages":  11
+    },
+    {
+        "icon":  "Filter",
+        "module":  "lucide-react",
+        "usages":  7
+    },
+    {
+        "icon":  "Flag",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "FlaskConical",
+        "module":  "lucide-react",
+        "usages":  4
+    },
+    {
+        "icon":  "Fuel",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Gauge",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Globe",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Grid3X3",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "GripVertical",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "GripVerticalIcon",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Image",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Info",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "InfoIcon",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "LayoutDashboard",
+        "module":  "lucide-react",
+        "usages":  2
+    },
+    {
+        "icon":  "List",
+        "module":  "lucide-react",
+        "usages":  3
+    },
+    {
+        "icon":  "Loader2",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Loader2Icon",
+        "module":  "lucide-react",
+        "usages":  2
+    },
+    {
+        "icon":  "Lock",
+        "module":  "lucide-react",
+        "usages":  2
+    },
+    {
+        "icon":  "LogOut",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Mail",
+        "module":  "lucide-react",
+        "usages":  4
+    },
+    {
+        "icon":  "MapPin",
+        "module":  "lucide-react",
+        "usages":  4
+    },
+    {
+        "icon":  "Microscope",
+        "module":  "lucide-react",
+        "usages":  9
+    },
+    {
+        "icon":  "MinusIcon",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "MoreHorizontal",
+        "module":  "lucide-react",
+        "usages":  6
+    },
+    {
+        "icon":  "MoreHorizontalIcon",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "OctagonXIcon",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Package",
+        "module":  "lucide-react",
+        "usages":  10
+    },
+    {
+        "icon":  "PanelLeftIcon",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Phone",
+        "module":  "lucide-react",
+        "usages":  2
+    },
+    {
+        "icon":  "Play",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Plus",
+        "module":  "lucide-react",
+        "usages":  10
+    },
+    {
+        "icon":  "PlusCircle",
+        "module":  "lucide-react",
+        "usages":  2
+    },
+    {
+        "icon":  "Printer",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Projector",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "QrCode",
+        "module":  "lucide-react",
+        "usages":  5
+    },
+    {
+        "icon":  "RefreshCw",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Save",
+        "module":  "lucide-react",
+        "usages":  2
+    },
+    {
+        "icon":  "Search",
+        "module":  "lucide-react",
+        "usages":  11
+    },
+    {
+        "icon":  "SearchIcon",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Send",
+        "module":  "lucide-react",
+        "usages":  4
+    },
+    {
+        "icon":  "Settings",
+        "module":  "lucide-react",
+        "usages":  4
+    },
+    {
+        "icon":  "Shield",
+        "module":  "lucide-react",
+        "usages":  2
+    },
+    {
+        "icon":  "Sliders",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Square",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Star",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Trash2",
+        "module":  "lucide-react",
+        "usages":  8
+    },
+    {
+        "icon":  "TrendingDown",
+        "module":  "lucide-react",
+        "usages":  2
+    },
+    {
+        "icon":  "TrendingUp",
+        "module":  "lucide-react",
+        "usages":  3
+    },
+    {
+        "icon":  "TriangleAlertIcon",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Truck",
+        "module":  "lucide-react",
+        "usages":  5
+    },
+    {
+        "icon":  "Type",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Upload",
+        "module":  "lucide-react",
+        "usages":  2
+    },
+    {
+        "icon":  "User",
+        "module":  "lucide-react",
+        "usages":  8
+    },
+    {
+        "icon":  "Users",
+        "module":  "lucide-react",
+        "usages":  7
+    },
+    {
+        "icon":  "Volume2",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Wifi",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "Wrench",
+        "module":  "lucide-react",
+        "usages":  1
+    },
+    {
+        "icon":  "X",
+        "module":  "lucide-react",
+        "usages":  3
+    },
+    {
+        "icon":  "XCircle",
+        "module":  "lucide-react",
+        "usages":  4
+    },
+    {
+        "icon":  "XIcon",
+        "module":  "lucide-react",
+        "usages":  2
+    }
+]

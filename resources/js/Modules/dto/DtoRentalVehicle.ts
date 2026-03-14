@@ -8,6 +8,7 @@ export default class DtoRentalVehicle extends DtoBaseClass implements IRentalVeh
     time_to: string;
     purpose: string;
     requested_by: string;
+    members_of_party: string[];
     contact_number: string;
     status: string;
     notes: string;
@@ -22,6 +23,7 @@ export default class DtoRentalVehicle extends DtoBaseClass implements IRentalVeh
         this.time_to = data?.time_to;
         this.purpose = data?.purpose;
         this.requested_by = data?.requested_by;
+        this.members_of_party = Array.isArray(data?.members_of_party) ? data.members_of_party : [];
         this.contact_number = data?.contact_number;
         this.status = data?.status || 'pending';
         this.notes = data?.notes;

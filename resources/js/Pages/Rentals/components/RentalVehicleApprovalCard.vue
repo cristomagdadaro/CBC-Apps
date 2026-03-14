@@ -100,6 +100,18 @@ export default {
                     <div class="mt-4 text-sm text-gray-700 dark:text-gray-300 space-y-1">
                         <p><b>Purpose:</b> {{ formState.purpose || 'N/A' }}</p>
                         <p><b>Contact Number:</b> {{ formState.contact_number || 'N/A' }}</p>
+                        <div>
+                            <p><b>Members of Party:</b></p>
+                            <ul
+                                v-if="Array.isArray(formState.members_of_party) && formState.members_of_party.length"
+                                class="list-disc pl-5"
+                            >
+                                <li v-for="(member, index) in formState.members_of_party" :key="`member-${index}`">
+                                    {{ member }}
+                                </li>
+                            </ul>
+                            <p v-else>N/A</p>
+                        </div>
                     </div>
                 </div>
             </div>

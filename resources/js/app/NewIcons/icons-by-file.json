@@ -1,0 +1,1581 @@
+[
+    {
+        "file":  "resources\\js\\app\\src\\components\\dashboard\\ActivityFeed.tsx",
+        "icons":  [
+                      {
+                          "icon":  "CheckCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Edit",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "FileText",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Plus",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Send",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Trash2",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\dashboard\\PendingQueue.tsx",
+        "icons":  [
+                      {
+                          "icon":  "Car",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CheckCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ClipboardList",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "FileText",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "XCircle",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\dashboard\\QuickActionCard.tsx",
+        "icons":  [
+                      {
+                          "icon":  "ArrowRight",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Award",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "BarChart3",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CalendarPlus",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CheckCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Package",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "PlusCircle",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\dashboard\\StatCard.tsx",
+        "icons":  [
+                      {
+                          "icon":  "Activity",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Award",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "BarChart3",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Building",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Calendar",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Car",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CheckCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ClipboardList",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Clock",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Eye",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "FileText",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "FlaskConical",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Microscope",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Package",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Send",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "TrendingDown",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "TrendingUp",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Truck",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Users",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\layout\\PageHeader.tsx",
+        "icons":  {
+                      "icon":  "ChevronLeft",
+                      "module":  "lucide-react"
+                  }
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\layout\\Sidebar.tsx",
+        "icons":  [
+                      {
+                          "icon":  "Activity",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ArrowLeftRight",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Award",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Bed",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Box",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Building",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Calendar",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Car",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ChevronRight",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ClipboardList",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Clock",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Cpu",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "FileText",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "LayoutDashboard",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "List",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Microscope",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Package",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Plus",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "QrCode",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Settings",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Shield",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Sliders",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Truck",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Users",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "X",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\layout\\TopBar.tsx",
+        "icons":  [
+                      {
+                          "icon":  "Bell",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ChevronDown",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "LogOut",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Search",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Settings",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "User",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "X",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\ui\\accordion.tsx",
+        "icons":  {
+                      "icon":  "ChevronDownIcon",
+                      "module":  "lucide-react"
+                  }
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\ui\\breadcrumb.tsx",
+        "icons":  [
+                      {
+                          "icon":  "ChevronRight",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "MoreHorizontal",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\ui\\calendar.tsx",
+        "icons":  [
+                      {
+                          "icon":  "ChevronDownIcon",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ChevronLeftIcon",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ChevronRightIcon",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\ui\\carousel.tsx",
+        "icons":  [
+                      {
+                          "icon":  "ArrowLeft",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ArrowRight",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\ui\\checkbox.tsx",
+        "icons":  {
+                      "icon":  "CheckIcon",
+                      "module":  "lucide-react"
+                  }
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\ui\\command.tsx",
+        "icons":  {
+                      "icon":  "SearchIcon",
+                      "module":  "lucide-react"
+                  }
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\ui\\context-menu.tsx",
+        "icons":  [
+                      {
+                          "icon":  "CheckIcon",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ChevronRightIcon",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CircleIcon",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\ui\\dialog.tsx",
+        "icons":  {
+                      "icon":  "XIcon",
+                      "module":  "lucide-react"
+                  }
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\ui\\dropdown-menu.tsx",
+        "icons":  [
+                      {
+                          "icon":  "CheckIcon",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ChevronRightIcon",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CircleIcon",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\ui\\input-otp.tsx",
+        "icons":  {
+                      "icon":  "MinusIcon",
+                      "module":  "lucide-react"
+                  }
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\ui\\menubar.tsx",
+        "icons":  [
+                      {
+                          "icon":  "CheckIcon",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ChevronRightIcon",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CircleIcon",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\ui\\navigation-menu.tsx",
+        "icons":  {
+                      "icon":  "ChevronDownIcon",
+                      "module":  "lucide-react"
+                  }
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\ui\\pagination.tsx",
+        "icons":  [
+                      {
+                          "icon":  "ChevronLeftIcon",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ChevronRightIcon",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "MoreHorizontalIcon",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\ui\\radio-group.tsx",
+        "icons":  {
+                      "icon":  "CircleIcon",
+                      "module":  "lucide-react"
+                  }
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\ui\\resizable.tsx",
+        "icons":  {
+                      "icon":  "GripVerticalIcon",
+                      "module":  "lucide-react"
+                  }
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\ui\\select.tsx",
+        "icons":  [
+                      {
+                          "icon":  "CheckIcon",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ChevronDownIcon",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ChevronUpIcon",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\ui\\sheet.tsx",
+        "icons":  {
+                      "icon":  "XIcon",
+                      "module":  "lucide-react"
+                  }
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\ui\\sidebar.tsx",
+        "icons":  {
+                      "icon":  "PanelLeftIcon",
+                      "module":  "lucide-react"
+                  }
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\ui\\sonner.tsx",
+        "icons":  [
+                      {
+                          "icon":  "CircleCheckIcon",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "InfoIcon",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Loader2Icon",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "OctagonXIcon",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "TriangleAlertIcon",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\components\\ui\\spinner.tsx",
+        "icons":  {
+                      "icon":  "Loader2Icon",
+                      "module":  "lucide-react"
+                  }
+    },
+    {
+        "file":  "resources\\js\\app\\src\\pages\\auth\\LoginPage.tsx",
+        "icons":  [
+                      {
+                          "icon":  "ArrowRight",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CheckCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Eye",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "EyeOff",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Loader2",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Lock",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Mail",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\pages\\certificates\\CertificateGeneratorPage.tsx",
+        "icons":  [
+                      {
+                          "icon":  "Award",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Calendar",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CheckCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Download",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Eye",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "FileSpreadsheet",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "FileText",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Image",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Plus",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Trash2",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Upload",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "User",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\pages\\dashboard\\DashboardPage.tsx",
+        "icons":  [
+                      {
+                          "icon":  "Activity",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Award",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "BarChart3",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Building",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CalendarPlus",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Car",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CheckCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ClipboardList",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Clock",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Eye",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "FileText",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "FlaskConical",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Microscope",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Package",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "PlusCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Send",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Truck",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\pages\\fes\\ApprovalQueuePage.tsx",
+        "icons":  [
+                      {
+                          "icon":  "AlertCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CheckCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ClipboardList",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Clock",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Download",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Eye",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "FileText",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Filter",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "MoreHorizontal",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Search",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "XCircle",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\pages\\fes\\GuestRequestPage.tsx",
+        "icons":  [
+                      {
+                          "icon":  "Building",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Building2",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Calendar",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Check",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ChevronLeft",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ChevronRight",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "FileText",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Mail",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Microscope",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Package",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Phone",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Plus",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Send",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Trash2",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "User",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\pages\\forms\\FormBuilderPage.tsx",
+        "icons":  [
+                      {
+                          "icon":  "ArrowLeft",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Calendar",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Check",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ChevronDown",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Copy",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Eye",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "GripVertical",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "List",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Plus",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Save",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Settings",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Star",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Trash2",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Type",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Upload",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\pages\\forms\\FormsListPage.tsx",
+        "icons":  [
+                      {
+                          "icon":  "Calendar",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Copy",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Download",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Edit",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Eye",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Filter",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "MoreHorizontal",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Plus",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Search",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Trash2",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Users",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\pages\\forms\\FormSubmissionsPage.tsx",
+        "icons":  [
+                      {
+                          "icon":  "ArrowLeft",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CheckCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Download",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Eye",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "FileSpreadsheet",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "FileText",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Filter",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "MoreHorizontal",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Search",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "XCircle",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\pages\\inventory\\BarcodesPage.tsx",
+        "icons":  [
+                      {
+                          "icon":  "Barcode",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Check",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Download",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Package",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Printer",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "QrCode",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Search",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\pages\\inventory\\ItemDetailPage.tsx",
+        "icons":  [
+                      {
+                          "icon":  "AlertTriangle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ArrowLeft",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Box",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Calendar",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CheckCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "DollarSign",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Edit",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "MapPin",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Package",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "QrCode",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "TrendingDown",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "TrendingUp",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\pages\\inventory\\ItemsListPage.tsx",
+        "icons":  [
+                      {
+                          "icon":  "AlertTriangle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CheckCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Copy",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Edit",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Eye",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Filter",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Grid3X3",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "List",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "MoreHorizontal",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Package",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Plus",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "QrCode",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Search",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Trash2",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\pages\\inventory\\TransactionsPage.tsx",
+        "icons":  [
+                      {
+                          "icon":  "ArrowDownLeft",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ArrowLeftRight",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ArrowUpRight",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Download",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Filter",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Plus",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "RefreshCw",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Search",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\pages\\laboratory\\EquipmentShowcasePage.tsx",
+        "icons":  [
+                      {
+                          "icon":  "AlertTriangle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ArrowRight",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Calendar",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CheckCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Clock",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Filter",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Info",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Microscope",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Search",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Wrench",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\pages\\laboratory\\MonitoringPage.tsx",
+        "icons":  [
+                      {
+                          "icon":  "Activity",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "AlertTriangle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ArrowRight",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Calendar",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CheckCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Clock",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "FlaskConical",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Microscope",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "TrendingUp",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Users",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\pages\\laboratory\\UsageLoggerPage.tsx",
+        "icons":  [
+                      {
+                          "icon":  "AlertCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CheckCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Clock",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "FileText",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Microscope",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Play",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "QrCode",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Search",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Square",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "User",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\pages\\public\\LandingPage.tsx",
+        "icons":  [
+                      {
+                          "icon":  "ArrowRight",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Building2",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CalendarDays",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ClipboardList",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Clock",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Facebook",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Flag",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "FlaskConical",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Globe",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Mail",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "MapPin",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Microscope",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Package",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Truck",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "User",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\pages\\rentals\\VehicleRentalPage.tsx",
+        "icons":  [
+                      {
+                          "icon":  "AlertCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Calendar",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CheckCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Clock",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "FileText",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Fuel",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Gauge",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "MapPin",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Phone",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Truck",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "User",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Users",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\pages\\rentals\\VenueRentalPage.tsx",
+        "icons":  [
+                      {
+                          "icon":  "Building2",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Calendar",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "CheckCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Clock",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "MapPin",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Projector",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Search",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Users",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Volume2",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Wifi",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\pages\\settings\\RolesPage.tsx",
+        "icons":  [
+                      {
+                          "icon":  "Award",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Calendar",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Car",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Check",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "ClipboardList",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Edit",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "LayoutDashboard",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Microscope",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Package",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Plus",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Save",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Settings",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Shield",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Trash2",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "User",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Users",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "X",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    },
+    {
+        "file":  "resources\\js\\app\\src\\pages\\settings\\UsersPage.tsx",
+        "icons":  [
+                      {
+                          "icon":  "CheckCircle",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Edit",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Filter",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Lock",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Mail",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "MoreHorizontal",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Plus",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Search",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "Trash2",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "User",
+                          "module":  "lucide-react"
+                      },
+                      {
+                          "icon":  "XCircle",
+                          "module":  "lucide-react"
+                      }
+                  ]
+    }
+]

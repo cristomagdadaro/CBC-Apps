@@ -7,6 +7,7 @@ export interface RentalVehicle {
     time_to: string;
     purpose: string;
     requested_by: string;
+    members_of_party?: string[];
     contact_number: string;
     status: 'pending' | 'approved' | 'rejected' | 'completed' | 'cancelled';
     notes?: string | null;
@@ -22,6 +23,7 @@ export interface CreateRentalVehiclePayload {
     time_to: string;
     purpose: string;
     requested_by: string;
+    members_of_party?: string[];
     contact_number: string;
     notes?: string | null;
 }

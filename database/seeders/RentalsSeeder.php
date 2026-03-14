@@ -53,6 +53,14 @@ class RentalsSeeder extends Seeder
                 $contactNumber = $personnel?->phone
                     ?: '0917' . str_pad((string) (1000000 + ($monthIndex * 100) + $i), 7, '0', STR_PAD_LEFT);
 
+                $membersOfParty = $personnels
+                    ->shuffle()
+                    ->take(rand(0, 4))
+                    ->map(fn ($item) => $this->formatPersonnelName($item))
+                    ->filter()
+                    ->values()
+                    ->all();
+
                 RentalVehicle::query()->create([
                     'vehicle_type' => $vehicleTypes[$i % count($vehicleTypes)],
                     'date_from' => $dateFrom->toDateString(),
@@ -61,6 +69,7 @@ class RentalsSeeder extends Seeder
                     'time_to' => ($i % 2 === 0) ? '12:00:00' : '17:00:00',
                     'purpose' => "{$monthLabel} vehicle transport booking #" . ($i + 1),
                     'requested_by' => $requestedBy,
+                    'members_of_party' => $membersOfParty,
                     'contact_number' => $contactNumber,
                     'status' => $status,
                     'notes' => "Auto-seeded {$monthLabel} vehicle booking for calendar testing and database search.",

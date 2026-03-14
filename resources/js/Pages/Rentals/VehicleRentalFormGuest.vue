@@ -14,7 +14,7 @@ export default {
         return {
             delayReady: false,
             title: 'Vehicle Rental Form',
-            subtitle: 'Please fill out the form below to rent a vehicle.',
+            subtitle: 'Please refer to the official dispatch as guide for your input. ',
         }
     },
     mounted() {
