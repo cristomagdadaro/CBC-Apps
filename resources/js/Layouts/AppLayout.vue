@@ -44,17 +44,17 @@ export default {
                     permission: 'event.forms.manage',
                     icon: 'LuCalendar',
                 },{
-                    label: 'Rentals',
+                    label: 'Bookings and Rentals',
                     href: null,
-                    icon: 'LuCar',
+                    icon: 'LuDollarSign',
                     children: [
                         {
-                            label: 'Vehicle Rentals',
+                            label: 'Vehicle',
                             href: 'rentals.vehicle.index',
                             permission: 'rental.vehicle.manage',
                             icon: 'LuCar',
                         },{
-                            label: 'Venue Rentals',
+                            label: 'Venue',
                             href: 'rentals.venue.index',
                             permission: 'rental.venue.manage',
                             icon: 'LuBuilding',

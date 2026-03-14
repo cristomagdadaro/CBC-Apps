@@ -33,26 +33,6 @@ export default {
     this.loadWorkflowToggles();
     this.searchOptions();
   },
-  computed: {
-    groupedOptions() {
-      const rows = Array.isArray(this.optionsFromApi?.data) ? this.optionsFromApi.data : []
-
-      return rows.reduce((groups, option) => {
-        const groupName = option?.group || 'uncategorized'
-
-        if (!groups[groupName]) {
-          groups[groupName] = []
-        }
-
-        groups[groupName].push(option)
-        return groups
-      }, {})
-    },
-    groupedEntries() {
-      return Object.entries(this.groupedOptions)
-        .sort(([groupA], [groupB]) => groupA.localeCompare(groupB))
-    },
-  },
 
   methods: {
     async loadWorkflowToggles() {
@@ -106,25 +86,6 @@ export default {
     async searchOptions() {
       this.optionsFromApi = await this.fetchData();
     },
-    formatOptionValue(option) {
-      if (option?.type === 'boolean' || option?.type === 'checkbox') {
-        const normalized = String(option?.value ?? '').toLowerCase()
-        return ['1', 'true', 'yes', 'on'].includes(normalized) ? 'Enabled' : 'Disabled'
-      }
-
-      if (option?.type === 'json' || option?.type === 'select') {
-        try {
-          const parsed = typeof option?.value === 'string'
-            ? JSON.parse(option.value)
-            : option?.value
-          return JSON.stringify(parsed, null, 2)
-        } catch (error) {
-          return option?.value || '-'
-        }
-      }
-
-      return option?.value ?? '-'
-    },
   },
   watch: {
     'form.search': {
@@ -142,197 +103,205 @@ export default {
 
 
 <template>
-<app-layout title="System Options">
-  <template #header>
-    <ActionHeaderLayout title="System Options" subtitle="Manage system-wide settings and configuration options" route-link="system.options.index">
-      <a :href="route('system.options.create')">
-        <add-icon class="h-auto w-5 text-white dark:text-gray-800 dark:bg-gray-200" />
-      </a>
-    </ActionHeaderLayout>
-  </template> 
-  <div class="min-h-screen py-5">
-    <div class="max-w-[90vw] mx-auto sm:px-6 lg:px-8">
-      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4">
-        <div class="flex items-start justify-between gap-4 mb-3">
-          <div>
-            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Form Workflow Toggles</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-300">Enable or disable event, participant, and participant verification logic from frontend to backend.</p>
-          </div>
-          <button
-            type="button"
-            class="rounded-lg bg-AB px-4 py-2 text-sm font-medium text-white hover:bg-AB/90 disabled:opacity-60"
-            :disabled="workflowToggleLoading || workflowToggleSaving"
-            @click="saveWorkflowToggles"
-          >
-            {{ workflowToggleSaving ? 'Saving...' : 'Save Toggles' }}
-          </button>
-        </div>
-
-        <div v-if="workflowToggleLoading" class="text-sm text-gray-500 dark:text-gray-400">Loading workflow toggles...</div>
-        <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <label class="flex items-center justify-between rounded-md border border-gray-200 dark:border-gray-700 p-3">
-            <span class="text-sm font-medium text-gray-800 dark:text-gray-200">Event Workflow</span>
-            <input type="checkbox" v-model="workflowToggles.event_workflow_enabled" class="rounded border-gray-300 text-AB focus:ring-AB" />
-          </label>
-
-          <label class="flex items-center justify-between rounded-md border border-gray-200 dark:border-gray-700 p-3">
-            <span class="text-sm font-medium text-gray-800 dark:text-gray-200">Participant Workflow</span>
-            <input type="checkbox" v-model="workflowToggles.participant_workflow_enabled" class="rounded border-gray-300 text-AB focus:ring-AB" />
-          </label>
-
-          <label class="flex items-center justify-between rounded-md border border-gray-200 dark:border-gray-700 p-3">
-            <span class="text-sm font-medium text-gray-800 dark:text-gray-200">Participant Verification</span>
-            <input type="checkbox" v-model="workflowToggles.participant_verification_enabled" class="rounded border-gray-300 text-AB focus:ring-AB" />
-          </label>
-        </div>
-      </div>
-
-      <form v-if="!!form" class="flex gap-2 items-end" @submit.prevent="searchOptions">
-        <div class="grid grid-rows-2 w-full">
-          <div class="w-full flex gap-2 items-end lg:px-0 px-2">
-            <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
-            <text-input placeholder="Search..." v-model="form.search" />
-            <search-btn type="submit" :disabled="processing" class="w-[10rem] text-center">
-              <span v-if="!processing">Search</span>
-              <span v-else>Searching</span>
-            </search-btn>
-          </div>
-          <div v-if="optionsFromApi" class="flex w-full gap-2 items-center">
-            <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
-              <!-- First Button -->
-              <paginate-btn @click="form.page = 1; searchOptions();" :disabled="form.page === 1">
-                First
-              </paginate-btn>
-              <!-- Previous Button -->
-              <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchOptions();" :disabled="form.page === 1">
-                <template v-slot:icon>
-                  <arrow-left class="h-auto w-6" />
-                </template>
-                Prev
-              </paginate-btn>
-              <!-- Current Page Indicator -->
-              <div class="text-xs flex flex-col whitespace-nowrap text-center">
-                <span class="font-medium mx-1" title="current page and total pages">
-                  <span>{{ optionsFromApi?.current_page }}</span> / <span>{{ optionsFromApi?.last_page }}</span>
-                </span>
+  <app-layout title="System Options">
+    <template #header>
+      <ActionHeaderLayout title="System Options" subtitle="Manage system-wide settings and configuration options"
+        route-link="system.options.index">
+        <a :href="route('system.options.create')">
+          <add-icon class="h-auto w-5 text-white dark:text-gray-800 dark:bg-gray-200" />
+        </a>
+      </ActionHeaderLayout>
+    </template>
+    <div class="min-h-screen py-5">
+      <div class="max-w-[90vw] mx-auto sm:px-6 lg:px-8 flex flex-col gap-5">
+        <!-- Workflow Toggles Card -->
+        <div
+          class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div class="p-6">
+            <div class="flex items-start justify-between gap-4 mb-6">
+              <div class="flex items-start gap-3">
+                <div class="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg mt-1">
+                  <LuLayoutGrid class="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Form Workflow Toggles</h3>
+                  <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Enable or disable event, participant, and
+                    verification workflows across the system.</p>
+                </div>
               </div>
-              <!-- Next Button -->
-              <paginate-btn @click="form.page = Math.min(optionsFromApi?.last_page, form.page + 1); searchOptions();" :disabled="form.page === optionsFromApi?.last_page">
-                Next
-                <template v-slot:icon>
-                  <arrow-right class="h-auto w-6" />
-                </template>
-              </paginate-btn>
-              <!-- Last Button -->
-              <paginate-btn @click="form.page = optionsFromApi?.last_page; searchOptions();" :disabled="form.page === optionsFromApi?.last_page">
-                Last
-              </paginate-btn>
+              <button type="button" @click="saveWorkflowToggles"
+                :disabled="workflowToggleLoading || workflowToggleSaving"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:cursor-not-allowed text-white rounded-lg transition-all duration-200 shadow-sm">
+                <LuLoader2 v-if="workflowToggleSaving" class="w-4 h-4 animate-spin" />
+                <LuSave v-else class="w-4 h-4" />
+                <span>{{ workflowToggleSaving ? 'Saving...' : 'Save Changes' }}</span>
+              </button>
             </div>
-          </div>
-        </div>
-      </form>
-      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mt-4">
-        <div class="flex items-start justify-between gap-4 mb-3">
-          <div>
-            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Options by Group</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-300">Grouped view for easier reading while keeping the same option behavior.</p>
-          </div>
-        </div>
 
-        <div v-if="processing" class="text-center py-3 border border-gray-300 rounded-lg">
-          Searching...
-        </div>
+            <div v-if="workflowToggleLoading"
+              class="flex items-center justify-center py-8 text-gray-500 dark:text-gray-400">
+              <LuLoader2 class="w-5 h-5 animate-spin mr-2" />
+              <span>Loading workflow settings...</span>
+            </div>
 
-        <div v-else-if="optionsFromApi && optionsFromApi.total > 0" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div
-            v-for="([groupName, options]) in groupedEntries"
-            :key="groupName"
-            class="rounded-md border border-gray-200 dark:border-gray-700 p-3"
-          >
-            <h4 class="text-sm font-semibold uppercase text-gray-900 dark:text-gray-100 mb-2">{{ groupName }}</h4>
-
-            <div class="space-y-2">
-              <div
-                v-for="option in options"
-                :key="option.id"
-                class="rounded-md border border-gray-200 dark:border-gray-700 p-2"
-              >
-                <div class="flex justify-between gap-2 items-start">
-                  <div class="min-w-0">
-                    <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{{ option.label }}</p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 break-all">{{ option.key }}</p>
+            <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <label
+                class="group relative flex items-center justify-between p-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-200 cursor-pointer bg-gray-50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800"
+                :class="{ 'border-indigo-500 dark:border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20': workflowToggles.event_workflow_enabled }">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-lg flex items-center justify-center transition-colors"
+                    :class="workflowToggles.event_workflow_enabled ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400' : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'">
+                    <LuCheckCircle v-if="workflowToggles.event_workflow_enabled" class="w-5 h-5" />
+                    <LuXCircle v-else class="w-5 h-5" />
                   </div>
-                  <div class="flex items-center gap-2 shrink-0">
-                    <Link
-                      :href="route('system.options.show', option.id)"
-                      class="text-xs px-2 py-1 rounded border border-gray-300 text-gray-700 hover:bg-gray-50"
-                    >
-                      Edit
-                    </Link>
-                    <button
-                      type="button"
-                      class="text-xs px-2 py-1 rounded border border-red-300 text-red-600 hover:bg-red-50"
-                      @click="handleDeleteRecord(option)"
-                    >
-                      Delete
-                    </button>
+                  <div>
+                    <span class="block text-sm font-semibold text-gray-900 dark:text-white">Event Workflow</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">Manage event processing</span>
                   </div>
                 </div>
+                <input type="checkbox" v-model="workflowToggles.event_workflow_enabled"
+                  class="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0 cursor-pointer" />
+              </label>
 
-                <p v-if="option.description" class="text-xs text-gray-600 dark:text-gray-300 mt-1">{{ option.description }}</p>
-
-                <div class="mt-2">
-                  <p class="text-xs font-medium text-gray-700 dark:text-gray-300">Value</p>
-                  <pre
-                    class="text-xs text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-900 rounded p-2 whitespace-pre-wrap break-all"
-                  >{{ formatOptionValue(option) }}</pre>
+              <label
+                class="group relative flex items-center justify-between p-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-200 cursor-pointer bg-gray-50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800"
+                :class="{ 'border-indigo-500 dark:border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20': workflowToggles.participant_workflow_enabled }">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-lg flex items-center justify-center transition-colors"
+                    :class="workflowToggles.participant_workflow_enabled ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400' : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'">
+                    <LuCheckCircle v-if="workflowToggles.participant_workflow_enabled" class="w-5 h-5" />
+                    <LuXCircle v-else class="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span class="block text-sm font-semibold text-gray-900 dark:text-white">Participant Workflow</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">Handle participant logic</span>
+                  </div>
                 </div>
-              </div>
+                <input type="checkbox" v-model="workflowToggles.participant_workflow_enabled"
+                  class="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0 cursor-pointer" />
+              </label>
+
+              <label
+                class="group relative flex items-center justify-between p-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-200 cursor-pointer bg-gray-50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800"
+                :class="{ 'border-indigo-500 dark:border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20': workflowToggles.participant_verification_enabled }">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-lg flex items-center justify-center transition-colors"
+                    :class="workflowToggles.participant_verification_enabled ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400' : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'">
+                    <LuCheckCircle v-if="workflowToggles.participant_verification_enabled" class="w-5 h-5" />
+                    <LuXCircle v-else class="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span class="block text-sm font-semibold text-gray-900 dark:text-white">Verification</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">Enable verification steps</span>
+                  </div>
+                </div>
+                <input type="checkbox" v-model="workflowToggles.participant_verification_enabled"
+                  class="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0 cursor-pointer" />
+              </label>
             </div>
           </div>
         </div>
 
-        <div v-else-if="optionsFromApi && optionsFromApi.total === 0 && form.search" class="text-center py-3 border border-gray-300 rounded-lg">
-          No options found. Try using some filters.
-        </div>
-
-        <div v-else class="text-center py-3 border border-gray-300 rounded-lg">
-          No options available.
-        </div>
-      </div>
-      <div v-if="optionsFromApi && optionsFromApi.data?.length" class="flex w-full gap-2 py-5 items-center">
-        <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
-          <!-- First Button -->
-          <paginate-btn @click="form.page = 1; searchOptions();" :disabled="form.page === 1">
-            First
-          </paginate-btn>
-          <!-- Previous Button -->
-          <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchOptions();" :disabled="form.page === 1">
-            <template v-slot:icon>
-              <arrow-left class="h-auto w-6" />
-            </template>
-            Prev
-          </paginate-btn>
-          <!-- Current Page Indicator -->
-          <div class="text-xs flex flex-col whitespace-nowrap text-center">
-            <span class="font-medium mx-1" title="current page and total pages">
-              <span>{{ optionsFromApi?.current_page }}</span> / <span>{{ optionsFromApi?.last_page }}</span>
-            </span>
+        <form v-if="!!form" class="flex gap-2 items-end" @submit.prevent="searchOptions">
+          <div class="grid grid-rows-2 w-full">
+            <div class="w-full flex gap-2 items-end lg:px-0 px-2">
+              <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()"
+                @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
+              <text-input placeholder="Search..." v-model="form.search" />
+              <search-btn type="submit" :disabled="processing" class="w-[10rem] text-center">
+                <span v-if="!processing">Search</span>
+                <span v-else>Searching</span>
+              </search-btn>
+            </div>
+            <div v-if="optionsFromApi" class="flex w-full gap-2 items-center">
+              <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
+                <!-- First Button -->
+                <paginate-btn @click="form.page = 1; searchOptions();" :disabled="form.page === 1">
+                  First
+                </paginate-btn>
+                <!-- Previous Button -->
+                <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchOptions();"
+                  :disabled="form.page === 1">
+                  <template v-slot:icon>
+                    <arrow-left class="h-auto w-6" />
+                  </template>
+                  Prev
+                </paginate-btn>
+                <!-- Current Page Indicator -->
+                <div class="text-xs flex flex-col whitespace-nowrap text-center">
+                  <span class="font-medium mx-1" title="current page and total pages">
+                    <span>{{ optionsFromApi?.current_page }}</span> / <span>{{ optionsFromApi?.last_page }}</span>
+                  </span>
+                </div>
+                <!-- Next Button -->
+                <paginate-btn @click="form.page = Math.min(optionsFromApi?.last_page, form.page + 1); searchOptions();"
+                  :disabled="form.page === optionsFromApi?.last_page">
+                  Next
+                  <template v-slot:icon>
+                    <arrow-right class="h-auto w-6" />
+                  </template>
+                </paginate-btn>
+                <!-- Last Button -->
+                <paginate-btn @click="form.page = optionsFromApi?.last_page; searchOptions();"
+                  :disabled="form.page === optionsFromApi?.last_page">
+                  Last
+                </paginate-btn>
+              </div>
+            </div>
           </div>
-          <!-- Next Button -->
-          <paginate-btn @click="form.page = Math.min(optionsFromApi?.last_page, form.page + 1); searchOptions();" :disabled="form.page === optionsFromApi?.last_page">
-            Next
-            <template v-slot:icon>
-              <arrow-right class="h-auto w-6" />
-            </template>
-          </paginate-btn>
-          <!-- Last Button -->
-          <paginate-btn @click="form.page = optionsFromApi?.last_page; searchOptions();" :disabled="form.page === optionsFromApi?.last_page">
-            Last
-          </paginate-btn>
+        </form>
+        <div class="bg-white dark:bg-gray-800 overflow-hidden sm:rounded-lg mt-4">
+          <data-table v-if="optionsFromApi && optionsFromApi.total > 0 && !processing" :api-response="optionsFromApi"
+            :processing="processing" :model="model.constructor" @delete-record="handleDeleteRecord" />
+          <!-- Show "Searching" when processing -->
+          <div v-else-if="processing" class="text-center py-3 border border-gray-300 rounded-lg">
+            Searching...
+          </div>
+          <!-- Show "No options" when search was performed but no results -->
+          <div v-else-if="optionsFromApi && optionsFromApi.total === 0 && form.search"
+            class="text-center py-3 border border-gray-300 rounded-lg">
+            No options found. Try using some filters.
+          </div>
+          <!-- Show "No options available" when nothing was returned and no search was performed -->
+          <div v-else class="text-center py-3 border border-gray-300 rounded-lg">
+            No options available.
+          </div>
+        </div>
+        <div v-if="optionsFromApi && optionsFromApi.data?.length" class="flex w-full gap-2 py-5 items-center">
+          <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
+            <!-- First Button -->
+            <paginate-btn @click="form.page = 1; searchOptions();" :disabled="form.page === 1">
+              First
+            </paginate-btn>
+            <!-- Previous Button -->
+            <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchOptions();" :disabled="form.page === 1">
+              <template v-slot:icon>
+                <arrow-left class="h-auto w-6" />
+              </template>
+              Prev
+            </paginate-btn>
+            <!-- Current Page Indicator -->
+            <div class="text-xs flex flex-col whitespace-nowrap text-center">
+              <span class="font-medium mx-1" title="current page and total pages">
+                <span>{{ optionsFromApi?.current_page }}</span> / <span>{{ optionsFromApi?.last_page }}</span>
+              </span>
+            </div>
+            <!-- Next Button -->
+            <paginate-btn @click="form.page = Math.min(optionsFromApi?.last_page, form.page + 1); searchOptions();"
+              :disabled="form.page === optionsFromApi?.last_page">
+              Next
+              <template v-slot:icon>
+                <arrow-right class="h-auto w-6" />
+              </template>
+            </paginate-btn>
+            <!-- Last Button -->
+            <paginate-btn @click="form.page = optionsFromApi?.last_page; searchOptions();"
+              :disabled="form.page === optionsFromApi?.last_page">
+              Last
+            </paginate-btn>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</app-layout>
+  </app-layout>
 </template>

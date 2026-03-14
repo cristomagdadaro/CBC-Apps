@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LockKeyhole } from 'lucide-vue-next'
+import { LayoutGrid } from 'lucide-vue-next'
 
 withDefaults(
     defineProps<{
@@ -14,5 +14,5 @@ withDefaults(
 </script>
 
 <template>
-    <LockKeyhole :size="size" :stroke-width="strokeWidth" v-bind="$attrs" />
+    <LayoutGrid :size="size" :stroke-width="strokeWidth" v-bind="$attrs" />
 </template>
