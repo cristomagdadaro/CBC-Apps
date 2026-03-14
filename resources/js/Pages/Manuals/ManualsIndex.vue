@@ -13,6 +13,7 @@ import ConsoleLoggerTopic from './Topics/ConsoleLoggerTopic.vue';
 import RentalServicesTopic from './Topics/RentalServicesTopic.vue';
 import SystemOptionsTopic from './Topics/SystemOptionsTopic.vue';
 import CertificateGeneratorTopic from './Topics/CertificateGeneratorTopic.vue';
+import IconsLibraryTopic from './Topics/IconsLibraryTopic.vue';
 
 export default {
     name: 'ManualsIndex',
@@ -30,6 +31,7 @@ export default {
         RentalServicesTopic,
         SystemOptionsTopic,
         CertificateGeneratorTopic,
+        IconsLibraryTopic,
     },
     setup() {
         const activeSection = ref('overview');
@@ -100,6 +102,11 @@ export default {
                 icon: '🎓',
                 component: CertificateGeneratorTopic,
             },
+            iconsLibrary: {
+                title: 'Icons Library',
+                icon: '🎨',
+                component: IconsLibraryTopic,
+            },
         };
 
         const menuItems = [
@@ -116,6 +123,7 @@ export default {
             { id: 'consoleLogger', label: 'Console Logger (Development)', icon: '🖥️' },
             { id: 'systemOptions', label: 'How to use System Options', icon: '⚙️' },
             { id: 'certificateGenerator', label: 'How to use Certificate Generator', icon: '🎓' },
+            { id: 'iconsLibrary', label: 'Icons Library', icon: '🎨' },
         ];
 
         return {
