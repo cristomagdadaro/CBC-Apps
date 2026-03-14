@@ -21,6 +21,7 @@ export default class DtoForm extends DtoBaseClass implements IForm{
     style_tokens: FormAppearanceTokens;
 
     participants_count: number;
+    responses_count: number;
 
     registrations: Array<IRegistration>;
     participants: Array<IParticipant>;
@@ -41,6 +42,7 @@ export default class DtoForm extends DtoBaseClass implements IForm{
 
         this.style_tokens = mergeFormStyleTokens(data?.style_tokens);
         this.participants_count = data?.participants_count ?? 0;
+        this.responses_count = data?.responses_count ?? 0;
 
         if (Array.isArray(data?.requirements)) {
             this.requirements = data.requirements.map( item => {

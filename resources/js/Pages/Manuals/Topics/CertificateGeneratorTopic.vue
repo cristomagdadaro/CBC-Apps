@@ -69,7 +69,7 @@
         <li>
           Configure naming convention (optional):
           <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
-            <li>Example: <code>{Fullname}_{date}</code></li>
+            <li>Example: <code>{event}_{Fullname}_{date}</code></li>
             <li>You may use any column key in curly braces.</li>
           </ul>
         </li>

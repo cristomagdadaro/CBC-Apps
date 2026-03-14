@@ -37,6 +37,7 @@ export default interface IForm extends IBaseClass {
     style_tokens: IFormStyleTokens;
 
     participants_count: number;
+    responses_count: number;
 
     registrations: Array<IRegistration>;
     participants: Array<IParticipant>;

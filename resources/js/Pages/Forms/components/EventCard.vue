@@ -101,6 +101,16 @@ export default {
                 (item) => item.count > 0 || item.maxSlots > 0,
             );
         },
+        totalResponseCount() {
+            const breakdownTotal = this.visibleResponseTypes.reduce(
+                (acc, item) => acc + Number(item.count || 0),
+                0,
+            );
+            if (breakdownTotal > 0) {
+                return breakdownTotal;
+            }
+            return Number(this.formsData?.responses_count ?? 0);
+        },
         formGuestUrl() {
             if (!this.formsData?.event_id) {
                 return "";
@@ -396,7 +406,15 @@ export default {
                 class="text-center py-6 text-gray-400 dark:text-gray-500"
             >
                 <LuClipboardList class="w-8 h-8 mx-auto mb-2 opacity-30" />
-                <p class="text-sm">No responses yet</p>
+                <p class="text-sm">
+                    <template v-if="totalResponseCount > 0">
+                        {{ totalResponseCount }} {{ totalResponseCount === 1 ? 'response' : 'responses' }} recorded
+                        <span v-if="!visibleResponseTypes.length">(awaiting detailed breakdown)</span>
+                    </template>
+                    <template v-else>
+                        No responses yet
+                    </template>
+                </p>
             </div>
         </div>
 

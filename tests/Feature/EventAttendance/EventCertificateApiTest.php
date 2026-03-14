@@ -85,7 +85,7 @@ class EventCertificateApiTest extends TestCase
             'template' => $template,
             'data' => $data,
             'format' => 'pdf',
-            'name_template' => '{Fullname}_{date}',
+            'name_template' => '{event}_{Fullname}_{date}',
         ]);
 
         $response->assertStatus(202)->assertJsonStructure(['status', 'message', 'data' => ['batch_id']]);

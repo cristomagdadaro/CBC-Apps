@@ -92,9 +92,9 @@ class Form extends BaseModel
             EventSubform::class,
             'event_id',
             'form_parent_id',
-            'id',
+            'event_id',
             'id'
-        );
+        )->withTrashedParents();
     }
     public function requirements(): HasMany
     {

@@ -232,6 +232,7 @@ class ProcessCertificateBatchJob implements ShouldQueue
 
             try {
                 $process = new Process($command, base_path());
+                $process->setEnv($this->buildPythonProcessEnv());
                 $process->setTimeout(0);
                 $process->mustRun();
                 return;
@@ -262,7 +263,7 @@ class ProcessCertificateBatchJob implements ShouldQueue
         ];
 
         $defaults = PHP_OS_FAMILY === 'Windows'
-            ? ['py', 'python', 'python3']
+            ? ['py', 'python']
             : ['python3', 'python'];
 
         $candidates = array_merge($configured, $defaults);
@@ -278,5 +279,15 @@ class ProcessCertificateBatchJob implements ShouldQueue
             || str_contains($normalized, 'is not recognized as an internal or external command')
             || str_contains($normalized, 'no such file or directory')
             || str_contains($normalized, 'could not be found');
+    }
+
+    private function buildPythonProcessEnv(): array
+    {
+        $env = $_ENV;
+
+        $configuredHashSeed = (string) config('services.certificate_generator.python_hash_seed', '0');
+        $env['PYTHONHASHSEED'] = $configuredHashSeed === '' ? '0' : $configuredHashSeed;
+
+        return $env;
     }
 }

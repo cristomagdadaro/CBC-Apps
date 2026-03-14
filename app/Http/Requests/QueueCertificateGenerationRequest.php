@@ -34,6 +34,8 @@ class QueueCertificateGenerationRequest extends FormRequest
             'name_column' => ['nullable', 'string', 'max:150', $useEventData ? 'required' : 'nullable'],
             'email_column' => ['nullable', 'string', 'max:150', $useEventData ? 'required' : 'nullable'],
             'subform_type' => ['nullable', 'string', 'max:50'],
+            'recipient_ids' => [$useEventData ? 'nullable' : 'prohibited', 'array'],
+            'recipient_ids.*' => [$useEventData ? 'nullable' : 'prohibited', 'string', 'max:64'],
             'format' => ['required', 'string', 'in:pptx,pdf,png,jpg'],
             'name_template' => ['nullable', 'string', 'max:150'],
         ];

@@ -67,7 +67,8 @@ class FormRepo extends AbstractRepoService
             return 0;
         }
 
-        return EventSubform::join('event_subform_responses', 'form_parent_id', '=', 'event_subforms.id')
+        return EventSubform::withTrashed()
+            ->join('event_subform_responses', 'form_parent_id', '=', 'event_subforms.id')
             ->where('event_subforms.event_id', $eventId)
             ->count();
     }

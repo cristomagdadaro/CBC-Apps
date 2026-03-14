@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\QueueCertificateGenerationRequest;
 use App\Jobs\ProcessCertificateBatchJob;
 use App\Models\EventCertificateTemplate;
+use App\Models\Form;
 use App\Models\EventSubformResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -101,8 +102,10 @@ class EventCertificateController extends Controller
     public function columns(string $event_id): JsonResponse
     {
         $responses = EventSubformResponse::query()
-            ->whereRelation('parent', 'event_id', $event_id)
-            ->select(['subform_type', 'response_data'])
+            ->whereHas('parent', function ($query) use ($event_id) {
+                $query->withTrashed()->where('event_id', $event_id);
+            })
+            ->select(['id', 'subform_type', 'response_data', 'submitted_at'])
             ->latest()
             ->get();
 
@@ -142,6 +145,14 @@ class EventCertificateController extends Controller
             'data' => [
                 'columns' => $columnSet,
                 'subform_types' => $responses->pluck('subform_type')->filter()->unique()->values(),
+                'recipients' => $responses->map(function (EventSubformResponse $response) {
+                    return [
+                        'id' => $response->id,
+                        'subform_type' => $response->subform_type,
+                        'submitted_at' => optional($response->submitted_at)->toIso8601String(),
+                        'response_data' => is_array($response->response_data) ? $response->response_data : [],
+                    ];
+                })->values(),
                 'template' => $template,
             ],
         ]);
@@ -274,17 +285,33 @@ class EventCertificateController extends Controller
     private function resolveDataPath(Request $request, string $eventId, string $batchDir, array $validated): string
     {
         if ($request->boolean('use_event_data')) {
-            $rows = $this->collectResponseRows($eventId, $validated['subform_type'] ?? null);
+            $recipientIds = collect($validated['recipient_ids'] ?? [])
+                ->filter(fn ($value) => is_string($value) && trim($value) !== '')
+                ->map(fn ($value) => trim($value))
+                ->unique()
+                ->values()
+                ->all();
+
+            $rows = $this->collectResponseRows(
+                eventId: $eventId,
+                subformType: $validated['subform_type'] ?? null,
+                recipientIds: $recipientIds,
+            );
 
             if (count($rows) === 0) {
                 throw new \RuntimeException('No event response_data rows found for this event.');
             }
+
+            $event = Form::query()->where('event_id', $eventId)->first();
 
             return $this->buildCsvDataFile(
                 rows: $rows,
                 batchDir: $batchDir,
                 emailColumn: (string) ($validated['email_column'] ?? ''),
                 nameColumn: (string) ($validated['name_column'] ?? ''),
+                eventTitle: (string) ($event?->title ?? ''),
+                eventDate: $this->formatEventDate($event),
+                dateGiven: now()->format('F j, Y'),
             );
         }
 
@@ -298,14 +325,20 @@ class EventCertificateController extends Controller
         return $request->file('data')->storeAs($batchDir, $filename);
     }
 
-    private function collectResponseRows(string $eventId, ?string $subformType = null): array
+    private function collectResponseRows(string $eventId, ?string $subformType = null, array $recipientIds = []): array
     {
         $query = EventSubformResponse::query()
-            ->whereRelation('parent', 'event_id', $eventId)
-            ->select(['response_data']);
+            ->whereHas('parent', function ($query) use ($eventId) {
+                $query->withTrashed()->where('event_id', $eventId);
+            })
+            ->select(['id', 'response_data']);
 
         if (!empty($subformType)) {
             $query->where('subform_type', $subformType);
+        }
+
+        if (!empty($recipientIds)) {
+            $query->whereIn('id', $recipientIds);
         }
 
         return $query
@@ -318,10 +351,21 @@ class EventCertificateController extends Controller
             ->all();
     }
 
-    private function buildCsvDataFile(array $rows, string $batchDir, string $emailColumn, string $nameColumn): string
+    private function buildCsvDataFile(
+        array $rows,
+        string $batchDir,
+        string $emailColumn,
+        string $nameColumn,
+        string $eventTitle = '',
+        string $eventDate = '',
+        string $dateGiven = ''
+    ): string
     {
         $emailColumn = trim($emailColumn);
         $nameColumn = trim($nameColumn);
+        $eventTitle = trim($eventTitle);
+        $eventDate = trim($eventDate);
+        $dateGiven = trim($dateGiven);
 
         $columns = [];
         foreach ($rows as $row) {
@@ -349,6 +393,18 @@ class EventCertificateController extends Controller
             $columns[] = 'Fullname';
         }
 
+        if (!in_array('EVENT_TITLE', $columns, true)) {
+            $columns[] = 'EVENT_TITLE';
+        }
+
+        if (!in_array('EVENT_DATE', $columns, true)) {
+            $columns[] = 'EVENT_DATE';
+        }
+
+        if (!in_array('DATE_GIVEN', $columns, true)) {
+            $columns[] = 'DATE_GIVEN';
+        }
+
         $relativePath = "{$batchDir}/data.csv";
         $absolutePath = Storage::path($relativePath);
 
@@ -368,6 +424,12 @@ class EventCertificateController extends Controller
                     $value = $row[$emailColumn] ?? '';
                 } elseif ($column === 'Fullname') {
                     $value = $row[$nameColumn] ?? '';
+                } elseif ($column === 'EVENT_TITLE') {
+                    $value = $eventTitle;
+                } elseif ($column === 'EVENT_DATE') {
+                    $value = $eventDate;
+                } elseif ($column === 'DATE_GIVEN') {
+                    $value = $dateGiven;
                 } else {
                     $value = $row[$column] ?? '';
                 }
@@ -385,6 +447,22 @@ class EventCertificateController extends Controller
         fclose($stream);
 
         return $relativePath;
+    }
+
+    private function formatEventDate(?Form $event): string
+    {
+        if (!$event || !$event->date_from || !$event->date_to) {
+            return '';
+        }
+
+        $from = $event->date_from->copy();
+        $to = $event->date_to->copy();
+
+        if ($from->isSameDay($to)) {
+            return $from->format('F j, Y');
+        }
+
+        return $from->format('F j, Y') . ' - ' . $to->format('F j, Y');
     }
 
     private function cacheKey(string $batchId): string

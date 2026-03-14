@@ -25,6 +25,8 @@ export default {
             selectedNameColumn: '',
             selectedEmailColumn: '',
             selectedSubformType: '',
+            recipients: [],
+            selectedRecipientIds: [],
             loadingColumns: false,
             savedTemplate: this.template,
             uploadProgress: 0,
@@ -33,7 +35,7 @@ export default {
             message: '',
             errorMessage: '',
             outputFormat: 'pdf',
-            namingTemplate: '{Fullname}_{date}',
+            namingTemplate: '{event}_{Fullname}_{date}',
             batchId: null,
             poller: null,
             serverStatus: 'idle',
@@ -53,9 +55,26 @@ export default {
         },
         isReadyToProcess() {
             if (this.useEventData) {
-                return this.selectedNameColumn && this.selectedEmailColumn;
+                return this.selectedNameColumn && this.selectedEmailColumn && this.selectedRecipientIds.length > 0;
             }
             return !!this.dataFile;
+        },
+        filteredRecipients() {
+            if (!this.selectedSubformType) {
+                return this.recipients;
+            }
+
+            return this.recipients.filter((recipient) => recipient?.subform_type === this.selectedSubformType);
+        },
+        allFilteredRecipientsSelected() {
+            if (!this.filteredRecipients.length) {
+                return false;
+            }
+
+            return this.filteredRecipients.every((recipient) => this.selectedRecipientIds.includes(recipient.id));
+        },
+        selectedRecipientCount() {
+            return this.selectedRecipientIds.length;
         },
         statusConfig() {
             const configs = {
@@ -89,6 +108,11 @@ export default {
         },
         useEventData(value) {
             if (value) this.dataFile = null;
+        },
+        selectedSubformType() {
+            if (this.useEventData) {
+                this.syncRecipientSelection();
+            }
         },
     },
     beforeUnmount() {
@@ -153,7 +177,21 @@ export default {
                 const payload = response?.data || {};
                 this.responseColumns = Array.isArray(payload?.columns) ? payload.columns : [];
                 this.subformTypes = Array.isArray(payload?.subform_types) ? payload.subform_types : [];
+                this.recipients = Array.isArray(payload?.recipients) ? payload.recipients : [];
                 this.savedTemplate = payload?.template || null;
+
+                const existingSelection = new Set(this.selectedRecipientIds);
+                const availableRecipientIds = this.recipients
+                    .map((recipient) => recipient?.id)
+                    .filter((id) => !!id);
+
+                if (existingSelection.size > 0) {
+                    this.selectedRecipientIds = availableRecipientIds.filter((id) => existingSelection.has(id));
+                } else {
+                    this.selectedRecipientIds = [...availableRecipientIds];
+                }
+
+                this.syncRecipientSelection();
 
                 if (!this.selectedEmailColumn) {
                     const emailMatch = this.responseColumns.find((col) => /email/i.test(String(col)));
@@ -184,6 +222,69 @@ export default {
         onDragLeave(type, event) {
             event.preventDefault();
             this.dragOver[type] = false;
+        },
+        syncRecipientSelection() {
+            const visibleRecipientIds = this.filteredRecipients
+                .map((recipient) => recipient?.id)
+                .filter((id) => !!id);
+
+            this.selectedRecipientIds = this.selectedRecipientIds.filter((id) => {
+                return this.recipients.some((recipient) => recipient?.id === id);
+            });
+
+            if (this.selectedRecipientIds.length === 0 && visibleRecipientIds.length > 0) {
+                this.selectedRecipientIds = [...visibleRecipientIds];
+            }
+        },
+        toggleAllFilteredRecipients(event) {
+            const checked = !!event?.target?.checked;
+            const filteredIds = this.filteredRecipients
+                .map((recipient) => recipient?.id)
+                .filter((id) => !!id);
+
+            if (checked) {
+                this.selectedRecipientIds = Array.from(new Set([...this.selectedRecipientIds, ...filteredIds]));
+                return;
+            }
+
+            this.selectedRecipientIds = this.selectedRecipientIds.filter((id) => !filteredIds.includes(id));
+        },
+        recipientDisplayValue(recipient, keyHint) {
+            const source = recipient?.response_data && typeof recipient.response_data === 'object'
+                ? recipient.response_data
+                : {};
+
+            if (keyHint && source[keyHint] !== undefined && source[keyHint] !== null) {
+                return String(source[keyHint]);
+            }
+
+            if (!keyHint) {
+                return '';
+            }
+
+            const normalizedHint = String(keyHint).toLowerCase().replace(/\s+/g, '').replace(/_/g, '');
+            const fallbackKey = Object.keys(source).find((key) => {
+                const normalizedKey = String(key).toLowerCase().replace(/\s+/g, '').replace(/_/g, '');
+                return normalizedKey === normalizedHint;
+            });
+
+            if (fallbackKey && source[fallbackKey] !== undefined && source[fallbackKey] !== null) {
+                return String(source[fallbackKey]);
+            }
+
+            return '';
+        },
+        recipientName(recipient) {
+            return this.recipientDisplayValue(recipient, this.selectedNameColumn) || '—';
+        },
+        recipientEmail(recipient) {
+            return this.recipientDisplayValue(recipient, this.selectedEmailColumn) || '—';
+        },
+        formatSubmittedAt(value) {
+            if (!value) return '—';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return '—';
+            return date.toLocaleString();
         },
         async resolveErrorMessage(error, fallback = 'Certificate request failed.') {
             if (!error?.response) return error?.message || fallback;
@@ -226,6 +327,10 @@ export default {
                 this.errorMessage = 'Select both name and email columns.';
                 return;
             }
+            if (this.useEventData && this.selectedRecipientIds.length === 0) {
+                this.errorMessage = 'Select at least one recipient.';
+                return;
+            }
 
             this.resetMessages();
             this.uploadProgress = 0;
@@ -252,6 +357,7 @@ export default {
                         formData.append('name_column', this.selectedNameColumn);
                         formData.append('email_column', this.selectedEmailColumn);
                         if (this.selectedSubformType) formData.append('subform_type', this.selectedSubformType);
+                        this.selectedRecipientIds.forEach((id) => formData.append('recipient_ids[]', id));
                     }
                     if (this.namingTemplate?.trim()) formData.append('name_template', this.namingTemplate.trim());
 
@@ -275,6 +381,7 @@ export default {
                             name_column: this.selectedNameColumn,
                             email_column: this.selectedEmailColumn,
                             ...(this.selectedSubformType ? { subform_type: this.selectedSubformType } : {}),
+                            recipient_ids: this.selectedRecipientIds,
                         } : {}),
                         ...(this.namingTemplate?.trim() ? { name_template: this.namingTemplate.trim() } : {}),
                     };
@@ -487,6 +594,57 @@ export default {
                         </div>
                     </div>
 
+                    <div v-if="useEventData" class="mt-4 border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+                        <div class="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-700/40 border-b border-gray-200 dark:border-gray-700">
+                            <div class="text-sm font-medium text-gray-700 dark:text-gray-200">
+                                Possible Recipients
+                                <span class="text-xs text-gray-500 dark:text-gray-400">({{ selectedRecipientCount }} selected)</span>
+                            </div>
+                            <label class="inline-flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
+                                <input
+                                    type="checkbox"
+                                    :checked="allFilteredRecipientsSelected"
+                                    @change="toggleAllFilteredRecipients"
+                                    class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500"
+                                />
+                                Select all shown
+                            </label>
+                        </div>
+
+                        <div v-if="filteredRecipients.length" class="max-h-72 overflow-auto">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead class="bg-white dark:bg-gray-800 sticky top-0">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Select</th>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Name</th>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Email</th>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Subform</th>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Submitted</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                    <tr v-for="recipient in filteredRecipients" :key="recipient.id">
+                                        <td class="px-3 py-2">
+                                            <input
+                                                v-model="selectedRecipientIds"
+                                                :value="recipient.id"
+                                                type="checkbox"
+                                                class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500"
+                                            />
+                                        </td>
+                                        <td class="px-3 py-2 text-sm text-gray-700 dark:text-gray-200">{{ recipientName(recipient) }}</td>
+                                        <td class="px-3 py-2 text-sm text-gray-700 dark:text-gray-200">{{ recipientEmail(recipient) }}</td>
+                                        <td class="px-3 py-2 text-sm text-gray-700 dark:text-gray-200">{{ recipient.subform_type || '—' }}</td>
+                                        <td class="px-3 py-2 text-sm text-gray-700 dark:text-gray-200">{{ formatSubmittedAt(recipient.submitted_at) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div v-else class="px-4 py-6 text-sm text-gray-500 dark:text-gray-400 text-center">
+                            No recipients found for the selected filters.
+                        </div>
+                    </div>
+
                     <!-- Upload Data File -->
                     <div 
                         v-else
@@ -550,10 +708,10 @@ export default {
                                 v-model="namingTemplate"
                                 type="text"
                                 class="block w-full pl-3 pr-3 py-2 text-base border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                placeholder="{Fullname}_{date}"
+                                placeholder="{event}_{Fullname}_{date}"
                             />
                         </div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Use placeholders like {Fullname}, {date}, {event_id}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Use placeholders like {event}, {Fullname}, {date}</p>
                     </div>
                 </div>
 
@@ -656,6 +814,10 @@ export default {
                     <li class="flex items-start gap-3">
                         <LuCheck class="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                         <span>Match column names exactly from your data source (e.g., <code class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-blue-600 dark:text-blue-400 font-mono text-xs">fullname_8647</code>)</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <LuCheck class="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span>You can use built-in placeholders <code class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-blue-600 dark:text-blue-400 font-mono text-xs">&lt;&lt;EVENT_TITLE&gt;&gt;</code>, <code class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-blue-600 dark:text-blue-400 font-mono text-xs">&lt;&lt;EVENT_DATE&gt;&gt;</code>, and <code class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-blue-600 dark:text-blue-400 font-mono text-xs">&lt;&lt;DATE_GIVEN&gt;&gt;</code></span>
                     </li>
                     <li class="flex items-start gap-3">
                         <LuCheck class="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
