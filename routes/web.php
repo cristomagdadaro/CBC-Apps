@@ -89,6 +89,10 @@ Route::prefix('rental')->group(function () {
             'venueOptions' => app(OptionRepo::class)->getEventHalls(),
         ]);
     })->name('rental.venue.guest');
+
+    Route::get('/bookings', function () {
+        return Inertia::render('Rentals/BookingRentalsPublic');
+    })->name('rental.bookings.guest');
 });
 
 Route::prefix('file-report')->group(function () {
@@ -369,7 +373,7 @@ Route::middleware([
         });
 
         Route::prefix('system')->group(function () {
-            Route::prefix('options')->group(function () {
+            Route::middleware(['can:event.forms.manage'])->prefix('options')->group(function () {
                 Route::get('/', function () {
                     return Inertia::render('System/Options/OptionsIndex', [
                         'options' => \App\Models\Option::all(),

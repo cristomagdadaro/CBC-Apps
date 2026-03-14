@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateRentalVehicleRequest;
 use App\Repositories\RentalVehicleRepository;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class RentalVehicleController extends BaseController
 {
@@ -17,10 +18,34 @@ class RentalVehicleController extends BaseController
         $this->repository = $repository;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $rentals = $this->repository->paginate(15);
+        $rentals = $this->repository->paginate(
+            $request->only(['search', 'filter', 'is_exact', 'sort', 'order', 'page', 'per_page']),
+            (int) $request->query('per_page', 15)
+        );
         return response()->json($rentals);
+    }
+
+    public function publicIndex(Request $request): JsonResponse
+    {
+        $statuses = collect(explode(',', (string) $request->query('statuses', 'pending,approved,rejected')))
+            ->map(fn ($status) => trim($status))
+            ->filter()
+            ->values()
+            ->all();
+
+        $filters = [
+            'vehicle_type' => $request->query('vehicle_type'),
+            'date_from' => $request->query('date_from'),
+            'date_to' => $request->query('date_to'),
+        ];
+
+        $rentals = collect($this->repository->all($filters))
+            ->when(!empty($statuses), fn ($items) => $items->whereIn('status', $statuses))
+            ->values();
+
+        return response()->json(['data' => $rentals]);
     }
 
     public function store(CreateRentalVehicleRequest $request): JsonResponse
@@ -88,6 +113,27 @@ class RentalVehicleController extends BaseController
         }
 
         $updated = $this->repository->update($id, $data);
+
+        return response()->json(['data' => $updated]);
+    }
+
+    public function updateStatus(Request $request, string $id): JsonResponse
+    {
+        $validated = $request->validate([
+            'status' => ['required', 'in:pending,approved,rejected'],
+            'notes' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $rental = $this->repository->find($id);
+
+        if (!$rental) {
+            return response()->json(['message' => 'Rental not found'], 404);
+        }
+
+        $updated = $this->repository->update($id, [
+            'status' => $validated['status'],
+            'notes' => $validated['notes'] ?? $rental->notes,
+        ]);
 
         return response()->json(['data' => $updated]);
     }

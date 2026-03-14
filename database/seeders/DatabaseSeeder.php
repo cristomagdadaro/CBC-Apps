@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\RentalVehicle;
-use App\Models\RentalVenue;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 
@@ -53,9 +51,7 @@ class DatabaseSeeder extends Seeder
             LocCitiesSeeder::class,
             InventoryIcf2026Seeder::class,
             LaboratoryEquipmentLogSeeder::class,
+            RentalsSeeder::class,
         ]);
-
-        RentalVehicle::factory()->count(20)->create();
-        RentalVenue::factory()->count(20)->create();
     }
 }

@@ -3,6 +3,8 @@
 use App\Http\Controllers\EventSubformResponseController;
 use App\Http\Controllers\EventWorkflowController;
 use App\Http\Controllers\FormController;
+use App\Http\Controllers\RentalVehicleController;
+use App\Http\Controllers\RentalVenueController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\PersonnelController;
@@ -114,6 +116,23 @@ Route::prefix('guest')->group(function () {
         Route::post('/outgoing', [TransactionController::class, 'outgoingStockStore'])->name('api.inventory.transactions.store.public');
         Route::get('/remaining-stocks', [TransactionController::class, 'remainingStocks'])->name('api.inventory.transactions.remaining-stocks');
         Route::get('/project-codes', [TransactionController::class, 'projectCodes'])->name('api.inventory.transactions.project-codes');
+    });
+
+    // Rental public endpoints
+    Route::prefix('rental')->group(function () {
+        Route::prefix('vehicles')->group(function () {
+            Route::get('/', [RentalVehicleController::class, 'publicIndex'])->name('api.guest.rental.vehicles.index');
+            Route::post('/', [RentalVehicleController::class, 'store'])->name('api.guest.rental.vehicles.store');
+            Route::get('/check-availability/{vehicleType}/{dateFrom}/{dateTo}', [RentalVehicleController::class, 'checkAvailability'])
+                ->name('api.guest.rental.vehicles.check-availability');
+        });
+
+        Route::prefix('venues')->group(function () {
+            Route::get('/', [RentalVenueController::class, 'publicIndex'])->name('api.guest.rental.venues.index');
+            Route::post('/', [RentalVenueController::class, 'store'])->name('api.guest.rental.venues.store');
+            Route::get('/check-availability/{venueType}/{dateFrom}/{dateTo}', [RentalVenueController::class, 'checkAvailability'])
+                ->name('api.guest.rental.venues.check-availability');
+        });
     });
 
     // Event subform responses

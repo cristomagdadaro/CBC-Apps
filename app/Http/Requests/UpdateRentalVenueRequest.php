@@ -26,7 +26,7 @@ class UpdateRentalVenueRequest extends FormRequest
             'event_name' => ['sometimes', 'string', 'max:255'],
             'requested_by' => ['sometimes', 'string', 'max:255'],
             'contact_number' => ['sometimes', 'string', 'regex:/^[0-9\-\+\s\(\)]*$/'],
-            'status' => ['sometimes', 'in:pending,approved,rejected,completed,cancelled'],
+            'status' => ['sometimes', 'in:pending,approved,rejected'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ];
     }

@@ -23,6 +23,9 @@ export default {
     this.model = new Options();
     if (this.data) {
       this.setFormAction("update");
+      if (this.form.options && typeof this.form.options !== 'string') {
+        this.form.options = JSON.stringify(this.form.options, null, 2);
+      }
     } else {
       this.setFormAction("create");
     }
@@ -54,6 +57,35 @@ export default {
     },
   },
   methods: {
+    normalizePayload() {
+      const payload = { ...this.form.data() };
+
+      if (payload.key) {
+        payload.key = String(payload.key).toLowerCase().replace(/\s+/g, '_');
+      }
+
+      if (payload.type !== 'select') {
+        payload.options = null;
+      } else if (typeof payload.options === 'string') {
+        payload.options = payload.options.trim() ? payload.options : null;
+      }
+
+      if (['boolean', 'checkbox'].includes(payload.type)) {
+        if (typeof payload.value === 'boolean') {
+          payload.value = payload.value ? 'true' : 'false';
+        }
+      }
+
+      if (payload.type === 'number' && payload.value !== null && payload.value !== '') {
+        payload.value = String(payload.value);
+      }
+
+      if (['json', 'select'].includes(payload.type) && payload.value && typeof payload.value === 'object') {
+        payload.value = JSON.stringify(payload.value);
+      }
+
+      return payload;
+    },
     getValueComponent() {
       const map = {
         text: { component: this.InputTextOptions, props: { type: "text" } },
@@ -71,6 +103,11 @@ export default {
       return map[this.form.type] || map.text;
     },
     async submitProxy() {
+      const normalizedPayload = this.normalizePayload();
+      Object.keys(normalizedPayload).forEach((key) => {
+        this.form[key] = normalizedPayload[key];
+      });
+
       if (this.isEdit) {
         await this.submitUpdate();
       } else {

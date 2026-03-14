@@ -2,9 +2,13 @@
 import RentalVenue from "@/Modules/domain/RentalVenue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
+import CalendarModule from "@/Components/CalendarModule.vue";
 
 export default {
     name: 'VenueRentalForm',
+    components: {
+        CalendarModule,
+    },
     mixins: [ApiMixin, FormLocalMixin],
     props: {
         venueOptions: {
@@ -22,15 +26,52 @@ export default {
             isAvailable: true,
             availabilityMessage: '',
             employee_id: null,
+            calendarLoading: false,
+            calendarEvents: [],
         };
     },
     computed: {
         minDate() {
             const today = new Date();
             return today.toISOString().split('T')[0];
-        }
+        },
+        statusColors() {
+            return {
+                pending: '#FBBF24',
+                approved: '#10B981',
+                rejected: '#EF4444',
+            };
+        },
+        statusOptions() {
+            return [
+                { key: 'pending', label: 'Pending' },
+                { key: 'approved', label: 'Approved' },
+                { key: 'rejected', label: 'Declined' },
+            ];
+        },
+        venueTypeOptions() {
+            return this.venueOptions.map(option => ({
+                key: option.name,
+                label: option.label,
+                color: '#6B7280',
+            }));
+        },
+        isGuestContext() {
+            return !this.$page?.props?.auth?.user?.id;
+        },
     },
     methods: {
+        routeNameFor(type) {
+            const routeMap = {
+                index: this.isGuestContext ? 'api.guest.rental.venues.index' : 'api.rental.venues.index',
+                create: this.isGuestContext ? 'api.guest.rental.venues.store' : 'api.rental.venues.store',
+                checkAvailability: this.isGuestContext
+                    ? 'api.guest.rental.venues.check-availability'
+                    : 'api.rental.venues.check-availability',
+            };
+
+            return routeMap[type];
+        },
         async checkAvailability() {
             if (!this.form.venue_type || !this.form.date_from || !this.form.date_to) {
                 return;
@@ -38,7 +79,13 @@ export default {
 
             this.availabilityChecking = true;
             try {
-                const response = await this.fetchGetApi('api.rental.venues.check-availability', { routeParams: {venueType: this.form.venue_type, dateFrom: this.form.date_from, dateTo: this.form.date_to} });
+                const response = await this.fetchGetApi(this.routeNameFor('checkAvailability'), {
+                    routeParams: {
+                        venueType: this.form.venue_type,
+                        dateFrom: this.form.date_from,
+                        dateTo: this.form.date_to,
+                    },
+                });
                 this.isAvailable = response.available;
                 this.availabilityMessage = response.message;
             } catch (error) {
@@ -58,24 +105,64 @@ export default {
             this.form.requested_by = data.fullName;
             this.form.contact_number = data.phone;
         },
+        normalizeCalendarEvents(rows = []) {
+            return rows.map((rental) => ({
+                id: rental.id,
+                label: rental.event_name || rental.venue_type,
+                subtitle: rental.requested_by || '',
+                type: rental.venue_type || 'venue',
+                status: rental.status || 'pending',
+                date_from: rental.date_from,
+                date_to: rental.date_to,
+            }));
+        },
+        async loadCalendarEvents() {
+            this.calendarLoading = true;
+
+            try {
+                const response = await this.fetchGetApi(this.routeNameFor('index'), {
+                    statuses: 'pending,approved,rejected',
+                });
+
+                const rows = Array.isArray(response?.data)
+                    ? response.data
+                    : Array.isArray(response)
+                        ? response
+                        : [];
+
+                this.calendarEvents = this.normalizeCalendarEvents(rows);
+            } catch (error) {
+                this.calendarEvents = [];
+            } finally {
+                this.calendarLoading = false;
+            }
+        },
         async submitProxyCreate() {
             if (!this.isAvailable) {
                 this.form.errors.general = 'Please select available dates';
                 return;
             }
 
-            const data = await this.submitCreate();
+            const data = this.isGuestContext
+                ? await this.fetchPostApi(this.routeNameFor('create'), this.form.data())
+                : await this.submitCreate();
             
             if (data && data.error || data.status === 422 || data.status === 500) {
                 this.form.errors.general = data.message || 'Failed to submit rental request';
                 return;
             }
+
+            await this.loadCalendarEvents();
             
             this.successMessage = (data && data.message) ? data.message : 'Rental request submitted successfully';
             this.showSuccessModal = true;
-            this.$emit('submitted', data.data);
+            this.$emit('submitted', data?.data?.data ?? data?.data ?? data);
         },
     }
+    ,
+    mounted() {
+        this.loadCalendarEvents();
+    },
 };
 </script>
 
@@ -86,7 +173,8 @@ export default {
         :message="successMessage"
         @close="showSuccessModal = false"
     />
-    <div v-if="form" class="bg-white p-2 rounded-md flex flex-col gap-2 max-w-xl drop-shadow-lg lg:mx-0 my-4 md:mt-0">
+    <div class="grid grid-cols-2 gap-6">
+        <div v-if="form" class="bg-white p-2 rounded-md flex gap-2 drop-shadow-lg lg:mx-0 my-4 md:mt-0">
         <form @submit.prevent="submitProxyCreate" class="space-y-3 bg-white rounded-lg p-3">
             <!-- General Error -->
             <div v-if="form.errors.general" class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
@@ -234,5 +322,23 @@ export default {
                 </PrimaryButton>
             </div>
         </form>
+    </div>
+    <div class="bg-white p-4 rounded-lg shadow">
+        <h3 class="text-base font-semibold text-gray-900 mb-2">Venue Availability Calendar</h3>
+        <p class="text-sm text-gray-600 mb-3">Check pending, approved, and declined venue requests before submitting.</p>
+        <div v-if="calendarLoading" class="text-sm text-gray-500">Loading calendar...</div>
+        <calendar-module
+            v-else
+            title="Venue Requests"
+            :events="calendarEvents"
+            :type-options="venueTypeOptions"
+            :status-options="statusOptions"
+            :status-colors="statusColors"
+            :show-today="true"
+            :show-type-filter="true"
+            :show-status-filter="true"
+            :show-stats="false"
+        />
+    </div>
     </div>
 </template>

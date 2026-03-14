@@ -96,8 +96,8 @@ const fetchRentalData = async () => {
         error.value = null;
 
         const [vehiclesRes, venuesRes] = await Promise.all([
-            fetch("/api/rental/vehicles?per_page=1000"),
-            fetch("/api/rental/venues?per_page=1000"),
+            fetch("/api/guest/rental/vehicles?statuses=pending,approved,rejected"),
+            fetch("/api/guest/rental/venues?statuses=pending,approved,rejected"),
         ]);
 
         if (!vehiclesRes.ok || !venuesRes.ok) {
@@ -107,8 +107,13 @@ const fetchRentalData = async () => {
         const vehiclesData = await vehiclesRes.json();
         const venuesData = await venuesRes.json();
 
-        vehicleRentals.value = vehiclesData.data || [];
-        venueRentals.value = venuesData.data || [];
+        vehicleRentals.value = Array.isArray(vehiclesData?.data)
+            ? vehiclesData.data
+            : (Array.isArray(vehiclesData?.data?.data) ? vehiclesData.data.data : []);
+
+        venueRentals.value = Array.isArray(venuesData?.data)
+            ? venuesData.data
+            : (Array.isArray(venuesData?.data?.data) ? venuesData.data.data : []);
     } catch (err) {
         error.value = err.message;
         console.error("Error fetching rentals:", err);

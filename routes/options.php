@@ -12,13 +12,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('options')->group(function () {
+Route::middleware(['auth:sanctum', 'can:event.forms.manage'])->prefix('options')->group(function () {
     // Specific named routes must come before generic {id} routes to prevent conflicts
     Route::get('/workflow-toggles', [OptionController::class, 'getWorkflowToggles'])
         ->name('api.options.workflow-toggles');
 
     Route::put('/workflow-toggles', [OptionController::class, 'updateWorkflowToggles'])
-        ->middleware(['auth:sanctum', 'can:event.forms.manage'])
         ->name('api.options.workflow-toggles.update');
 
     // Get options by group

@@ -1,5 +1,4 @@
 <script>
-import { useNotifier } from '@/Modules/composables/useNotifier'
 import ApiMixin from '@/Modules/mixins/ApiMixin'
 import Options from '@/Modules/domain/Options'
 
@@ -33,6 +32,26 @@ export default {
   mounted() {
     this.loadWorkflowToggles();
     this.searchOptions();
+  },
+  computed: {
+    groupedOptions() {
+      const rows = Array.isArray(this.optionsFromApi?.data) ? this.optionsFromApi.data : []
+
+      return rows.reduce((groups, option) => {
+        const groupName = option?.group || 'uncategorized'
+
+        if (!groups[groupName]) {
+          groups[groupName] = []
+        }
+
+        groups[groupName].push(option)
+        return groups
+      }, {})
+    },
+    groupedEntries() {
+      return Object.entries(this.groupedOptions)
+        .sort(([groupA], [groupB]) => groupA.localeCompare(groupB))
+    },
   },
 
   methods: {
@@ -87,6 +106,25 @@ export default {
     async searchOptions() {
       this.optionsFromApi = await this.fetchData();
     },
+    formatOptionValue(option) {
+      if (option?.type === 'boolean' || option?.type === 'checkbox') {
+        const normalized = String(option?.value ?? '').toLowerCase()
+        return ['1', 'true', 'yes', 'on'].includes(normalized) ? 'Enabled' : 'Disabled'
+      }
+
+      if (option?.type === 'json' || option?.type === 'select') {
+        try {
+          const parsed = typeof option?.value === 'string'
+            ? JSON.parse(option.value)
+            : option?.value
+          return JSON.stringify(parsed, null, 2)
+        } catch (error) {
+          return option?.value || '-'
+        }
+      }
+
+      return option?.value ?? '-'
+    },
   },
   watch: {
     'form.search': {
@@ -107,8 +145,8 @@ export default {
 <app-layout title="System Options">
   <template #header>
     <ActionHeaderLayout title="System Options" subtitle="Manage system-wide settings and configuration options" route-link="system.options.index">
-      <a :href="route('system.options.create')"  target="_blank">
-        <add-icon class="h-auto w-5 text-AA dark:text-gray-800 dark:bg-gray-200" />
+      <a :href="route('system.options.create')">
+        <add-icon class="h-auto w-5 text-white dark:text-gray-800 dark:bg-gray-200" />
       </a>
     </ActionHeaderLayout>
   </template> 
@@ -193,23 +231,71 @@ export default {
           </div>
         </div>
       </form>
-      <div class="bg-white dark:bg-gray-800 overflow-hidden sm:rounded-lg mt-4">
-        <data-table
-          v-if="optionsFromApi && optionsFromApi.total > 0 && !processing"
-          :api-response="optionsFromApi"
-          :processing="processing"
-          :model="model.constructor"
-          @delete-record="handleDeleteRecord"
-        />
-        <!-- Show "Searching" when processing -->
-        <div v-else-if="processing" class="text-center py-3 border border-gray-300 rounded-lg">
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mt-4">
+        <div class="flex items-start justify-between gap-4 mb-3">
+          <div>
+            <h3 class="font-semibold text-gray-900 dark:text-gray-100">Options by Group</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-300">Grouped view for easier reading while keeping the same option behavior.</p>
+          </div>
+        </div>
+
+        <div v-if="processing" class="text-center py-3 border border-gray-300 rounded-lg">
           Searching...
         </div>
-        <!-- Show "No options" when search was performed but no results -->
+
+        <div v-else-if="optionsFromApi && optionsFromApi.total > 0" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div
+            v-for="([groupName, options]) in groupedEntries"
+            :key="groupName"
+            class="rounded-md border border-gray-200 dark:border-gray-700 p-3"
+          >
+            <h4 class="text-sm font-semibold uppercase text-gray-900 dark:text-gray-100 mb-2">{{ groupName }}</h4>
+
+            <div class="space-y-2">
+              <div
+                v-for="option in options"
+                :key="option.id"
+                class="rounded-md border border-gray-200 dark:border-gray-700 p-2"
+              >
+                <div class="flex justify-between gap-2 items-start">
+                  <div class="min-w-0">
+                    <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{{ option.label }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 break-all">{{ option.key }}</p>
+                  </div>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <Link
+                      :href="route('system.options.show', option.id)"
+                      class="text-xs px-2 py-1 rounded border border-gray-300 text-gray-700 hover:bg-gray-50"
+                    >
+                      Edit
+                    </Link>
+                    <button
+                      type="button"
+                      class="text-xs px-2 py-1 rounded border border-red-300 text-red-600 hover:bg-red-50"
+                      @click="handleDeleteRecord(option)"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+
+                <p v-if="option.description" class="text-xs text-gray-600 dark:text-gray-300 mt-1">{{ option.description }}</p>
+
+                <div class="mt-2">
+                  <p class="text-xs font-medium text-gray-700 dark:text-gray-300">Value</p>
+                  <pre
+                    class="text-xs text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-900 rounded p-2 whitespace-pre-wrap break-all"
+                  >{{ formatOptionValue(option) }}</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div v-else-if="optionsFromApi && optionsFromApi.total === 0 && form.search" class="text-center py-3 border border-gray-300 rounded-lg">
           No options found. Try using some filters.
         </div>
-        <!-- Show "No options available" when nothing was returned and no search was performed -->
+
         <div v-else class="text-center py-3 border border-gray-300 rounded-lg">
           No options available.
         </div>

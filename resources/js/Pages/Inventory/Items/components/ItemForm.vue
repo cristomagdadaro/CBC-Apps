@@ -85,7 +85,7 @@ export default defineComponent({
                 </template>
             </custom-dropdown>
             <text-input
-                label="Model / Serial No. / Short Description"
+                label="Model / Short Physical Description"
                 v-model="form.description"
                 :error="form.errors.description"
             />

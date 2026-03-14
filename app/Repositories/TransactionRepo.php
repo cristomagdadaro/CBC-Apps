@@ -58,6 +58,51 @@ class TransactionRepo extends AbstractRepoService
         });
     }
 
+    public function update(int|string $id, array $data): Model
+    {
+        $components = collect($data['components'] ?? [])
+            ->filter(fn ($component) => !empty($component['item_id']) && !empty($component['quantity']))
+            ->values();
+
+        unset($data['components']);
+
+        return DB::transaction(function () use ($id, $data, $components) {
+            $model = $this->model->newQuery()->findOrFail($id);
+            $model->fill($data);
+            $model->save();
+
+            if (($model->transac_type ?? null) !== 'incoming') {
+                return $model;
+            }
+
+            $model->components()->delete();
+
+            if ($components->isEmpty()) {
+                return $model;
+            }
+
+            $components->each(function (array $component) use ($model) {
+                $quantity = (float) ($component['quantity'] ?? 0);
+                $prriComponentNo = $component['prri_component_no'] ?? null;
+
+                $model->components()->create([
+                    'transaction_id' => $model->id,
+                    'item_id' => $component['item_id'],
+                    'quantity' => $quantity,
+                    'unit' => $component['unit'] ?? ($model->unit ?? null),
+                    'barcode_prri' => $component['barcode_prri'] ?? ($model->barcode_prri ?? null),
+                    'prri_component_no' => $prriComponentNo !== null && $prriComponentNo !== ''
+                        ? str_pad((string) ((int) $prriComponentNo), 5, '0', STR_PAD_LEFT)
+                        : null,
+                    'expiration' => $component['expiration'] ?? ($model->expiration ?? null),
+                    'remarks' => $component['remarks'] ?? null,
+                ]);
+            });
+
+            return $model;
+        });
+    }
+
     public function getRemainingStocks(Collection $parameters, array $consumableCategoryIds = [1, 2, 3, 5, 6]): Collection
     {
         $search   = $parameters->get('search');

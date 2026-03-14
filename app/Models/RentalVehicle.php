@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use DateTimeInterface;
 
 class RentalVehicle extends Model
 {
@@ -43,7 +44,7 @@ class RentalVehicle extends Model
         'notes',
     ];
 
-    protected $dates = ['date_from', 'date_to', 'deleted_at'];
+    protected $dates = ['date_from', 'date_to', 'deleted_at', 'updated_at', 'created_at'];
 
     public const STATUS_PENDING = 'pending';
     public const STATUS_APPROVED = 'approved';
@@ -65,5 +66,10 @@ class RentalVehicle extends Model
             self::STATUS_COMPLETED,
             self::STATUS_CANCELLED,
         ];
+    }
+
+    protected function serializeDate(DateTimeInterface $date): string
+    {
+        return $date->format('g:i a M j, Y');
     }
 }

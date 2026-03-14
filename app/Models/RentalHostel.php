@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use DateTimeInterface;
 
 class RentalHostel extends Model
 {
@@ -28,7 +29,7 @@ class RentalHostel extends Model
         'notes',
     ];
 
-    protected $dates = ['check_in_date', 'check_out_date', 'deleted_at'];
+    protected $dates = ['check_in_date', 'check_out_date', 'deleted_at', 'updated_at', 'created_at'];
 
     public const STATUS_PENDING = 'pending';
     public const STATUS_APPROVED = 'approved';
@@ -45,5 +46,10 @@ class RentalHostel extends Model
             self::STATUS_COMPLETED,
             self::STATUS_CANCELLED,
         ];
+    }
+
+    protected function serializeDate(DateTimeInterface $date): string
+    {
+        return $date->format('g:i a M j, Y');
     }
 }

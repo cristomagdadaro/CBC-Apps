@@ -206,6 +206,20 @@ export default {
             }
         },
     },
+    watch: {
+        startDate: {
+            handler(value) {
+                if (!value) {
+                    return;
+                }
+
+                const parsed = new Date(value);
+                if (!Number.isNaN(parsed.getTime())) {
+                    this.currentDate = parsed;
+                }
+            },
+        },
+    },
 };
 </script>
 

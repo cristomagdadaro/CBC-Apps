@@ -14,6 +14,7 @@ return [
         'rental.vehicle.manage',
         'rental.venue.manage',
         'rental.hostel.manage',
+        'rental.request.approve',
     ],
 
     'role_permissions' => [
@@ -38,6 +39,7 @@ return [
             'rental.vehicle.manage',
             'rental.venue.manage',
             'rental.hostel.manage',
+            'rental.request.approve',
         ],
     ],
 ];

@@ -11,6 +11,9 @@ Route::prefix('rental')->group(function () {
         Route::post('/', [RentalVehicleController::class, 'store'])->name('api.rental.vehicles.store');
         Route::get('/{id}', [RentalVehicleController::class, 'show'])->name('api.rental.vehicles.show');
         Route::put('/{id}', [RentalVehicleController::class, 'update'])->name('api.rental.vehicles.update');
+        Route::put('/{id}/status', [RentalVehicleController::class, 'updateStatus'])
+            ->middleware(['can:rental.request.approve'])
+            ->name('api.rental.vehicles.update-status');
         Route::delete('/{id}', [RentalVehicleController::class, 'destroy'])->name('api.rental.vehicles.destroy');
         Route::get('/check-availability/{vehicleType}/{dateFrom}/{dateTo}', [RentalVehicleController::class, 'checkAvailability'])->name('api.rental.vehicles.check-availability');
         Route::get('/by-type/{vehicleType}', [RentalVehicleController::class, 'getByVehicleType'])->name('api.rental.vehicles.by-type');
@@ -22,6 +25,9 @@ Route::prefix('rental')->group(function () {
         Route::post('/', [RentalVenueController::class, 'store'])->name('api.rental.venues.store');
         Route::get('/{id}', [RentalVenueController::class, 'show'])->name('api.rental.venues.show');
         Route::put('/{id}', [RentalVenueController::class, 'update'])->name('api.rental.venues.update');
+        Route::put('/{id}/status', [RentalVenueController::class, 'updateStatus'])
+            ->middleware(['can:rental.request.approve'])
+            ->name('api.rental.venues.update-status');
         Route::delete('/{id}', [RentalVenueController::class, 'destroy'])->name('api.rental.venues.destroy');
         Route::get('/check-availability/{venueType}/{dateFrom}/{dateTo}', [RentalVenueController::class, 'checkAvailability'])->name('api.rental.venues.check-availability');
         Route::get('/by-type/{venueType}', [RentalVenueController::class, 'getByVenueType'])->name('api.rental.venues.by-type');

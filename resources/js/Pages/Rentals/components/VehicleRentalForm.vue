@@ -3,11 +3,13 @@ import RentalVehicle from '@/Modules/domain/RentalVehicle';
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 import SuccessModal from "@/Components/SuccessModal.vue";
+import CalendarModule from "@/Components/CalendarModule.vue";
 
 export default {
     name: 'VehicleRentalForm',
     components: {
         SuccessModal,
+        CalendarModule,
     },
     mixins: [ApiMixin, FormLocalMixin],
     props: {
@@ -30,15 +32,52 @@ export default {
             employee_id: null,
             showSuccessModal: false,
             successMessage: '',
+            calendarLoading: false,
+            calendarEvents: [],
         };
     },
     computed: {
         minDate() {
             const today = new Date();
             return today.toISOString().split('T')[0];
-        }
+        },
+        statusColors() {
+            return {
+                pending: '#FBBF24',
+                approved: '#10B981',
+                rejected: '#EF4444',
+            };
+        },
+        statusOptions() {
+            return [
+                { key: 'pending', label: 'Pending' },
+                { key: 'approved', label: 'Approved' },
+                { key: 'rejected', label: 'Declined' },
+            ];
+        },
+        vehicleTypeOptions() {
+            return this.vehicleOptions.map(option => ({
+                key: option.name,
+                label: option.label,
+                color: '#6B7280',
+            }));
+        },
+        isGuestContext() {
+            return !this.$page?.props?.auth?.user?.id;
+        },
     },
     methods: {
+        routeNameFor(type) {
+            const routeMap = {
+                index: this.isGuestContext ? 'api.guest.rental.vehicles.index' : 'api.rental.vehicles.index',
+                create: this.isGuestContext ? 'api.guest.rental.vehicles.store' : 'api.rental.vehicles.store',
+                checkAvailability: this.isGuestContext
+                    ? 'api.guest.rental.vehicles.check-availability'
+                    : 'api.rental.vehicles.check-availability',
+            };
+
+            return routeMap[type];
+        },
         async checkAvailability() {
             if (!this.form.vehicle_type || !this.form.date_from || !this.form.date_to) {
                 return;
@@ -46,7 +85,13 @@ export default {
 
             this.availabilityChecking = true;
             try {
-                const response = await this.fetchGetApi('api.rental.vehicles.check-availability', { routeParams: {vehicleType: this.form.vehicle_type, dateFrom: this.form.date_from, dateTo: this.form.date_to} });
+                const response = await this.fetchGetApi(this.routeNameFor('checkAvailability'), {
+                    routeParams: {
+                        vehicleType: this.form.vehicle_type,
+                        dateFrom: this.form.date_from,
+                        dateTo: this.form.date_to,
+                    },
+                });
                 this.isAvailable = response.available;
                 this.availabilityMessage = response.message;
             } catch (error) {
@@ -67,24 +112,63 @@ export default {
             this.form.requested_by = data.fullName;
             this.form.contact_number = data.phone;
         },
+        normalizeCalendarEvents(rows = []) {
+            return rows.map((rental) => ({
+                id: rental.id,
+                label: rental.vehicle_type,
+                subtitle: rental.requested_by || '',
+                type: rental.vehicle_type || 'vehicle',
+                status: rental.status || 'pending',
+                date_from: rental.date_from,
+                date_to: rental.date_to,
+            }));
+        },
+        async loadCalendarEvents() {
+            this.calendarLoading = true;
+
+            try {
+                const response = await this.fetchGetApi(this.routeNameFor('index'), {
+                    statuses: 'pending,approved,rejected',
+                });
+
+                const rows = Array.isArray(response?.data)
+                    ? response.data
+                    : Array.isArray(response)
+                        ? response
+                        : [];
+
+                this.calendarEvents = this.normalizeCalendarEvents(rows);
+            } catch (error) {
+                this.calendarEvents = [];
+            } finally {
+                this.calendarLoading = false;
+            }
+        },
         async submitProxyCreate() {
             if (!this.isAvailable) {
                 this.form.errors.general = 'Please select available dates';
                 return;
             }
 
-            const data = await this.submitCreate();
+            const data = this.isGuestContext
+                ? await this.fetchPostApi(this.routeNameFor('create'), this.form.data())
+                : await this.submitCreate();
             
             if (data && data.error || data.status === 422 || data.status === 500) {
                 this.form.errors.general = data.message || 'Failed to submit rental request';
                 return;
             }
+
+            await this.loadCalendarEvents();
             
             this.successMessage = (data && data.message) ? data.message : 'Rental request submitted successfully';
             this.showSuccessModal = true;
             this.$emit('submitted', data.data ?? data);
         },
-    }
+    },
+    mounted() {
+        this.loadCalendarEvents();
+    },
 };
 </script>
 
@@ -214,5 +298,23 @@ export default {
                 </PrimaryButton>
             </div>
         </form>
+
+        <div class="mt-4 border-t pt-4">
+            <h3 class="text-base font-semibold text-gray-900 mb-2">Vehicle Availability Calendar</h3>
+            <p class="text-sm text-gray-600 mb-3">Check pending, approved, and declined vehicle requests before submitting.</p>
+            <div v-if="calendarLoading" class="text-sm text-gray-500">Loading calendar...</div>
+            <calendar-module
+                v-else
+                title="Vehicle Requests"
+                :events="calendarEvents"
+                :type-options="vehicleTypeOptions"
+                :status-options="statusOptions"
+                :status-colors="statusColors"
+                :show-today="true"
+                :show-type-filter="true"
+                :show-status-filter="true"
+                :show-stats="false"
+            />
+        </div>
     </div>
 </template>

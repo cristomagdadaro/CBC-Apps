@@ -67,11 +67,35 @@ export default {
             this.updateCountdown();
             this.intervalId = setInterval(this.updateCountdown, 1000);
         },
-        formatDate(dateString: string) {
-            if (!dateString) return "";
+        formatDate(dateInput: string | Date | null) {
+            if (!dateInput) return "";
 
-            const [year, month, day] = dateString.split("-").map(Number);
-            const date = new Date(year, month - 1, day); // Month is zero-based in JS
+            let date: Date;
+
+            if (dateInput instanceof Date) {
+                date = new Date(dateInput.getTime());
+            } else {
+                const raw = String(dateInput).trim();
+                const normalized = raw.includes('T') ? raw : raw.replace(' ', 'T');
+                const parsed = new Date(normalized);
+
+                if (!Number.isNaN(parsed.getTime())) {
+                    date = parsed;
+                } else {
+                    const dateOnly = raw.slice(0, 10);
+                    const [year, month, day] = dateOnly.split("-").map(Number);
+
+                    if (!year || !month || !day) {
+                        return "";
+                    }
+
+                    date = new Date(year, month - 1, day);
+                }
+            }
+
+            if (Number.isNaN(date.getTime())) {
+                return "";
+            }
 
             return new Intl.DateTimeFormat("en-US", {
                 year: "numeric",
@@ -159,7 +183,7 @@ export default {
             const [year, month, day] = expirationDate.split('-').map(Number);
             const expDate = new Date(Date.UTC(year, month - 1, day));
             const today = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()));
-            const diffTime = expDate - today;
+            const diffTime = expDate.getTime() - today.getTime();
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             if (diffDays < 0) {
                 return 'expired';

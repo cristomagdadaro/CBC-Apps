@@ -408,8 +408,8 @@ export default {
                             </div>
                         </div>
                         <div class="mt-4 flex justify-end">
-                            <Link :href="route('rentals.vehicle.index')" class="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">
-                                View rentals
+                            <Link :href="route('rental.bookings.guest')" class="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                                Booking and Rentals
                             </Link>
                         </div>
                     </div>
@@ -442,8 +442,8 @@ export default {
                             </div>
                         </div>
                         <div class="mt-4 flex justify-end">
-                            <Link :href="route('rentals.venue.index')" class="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">
-                                View rentals
+                            <Link :href="route('rental.bookings.guest')" class="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                                Booking and Rentals
                             </Link>
                         </div>
                     </div>
@@ -522,18 +522,8 @@ export default {
                         <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Rentals</h3>
                         <ul class="space-y-2 text-sm">
                             <li>
-                                <Link :href="route('rentals.vehicle.index')" class="text-blue-600 dark:text-blue-400 hover:underline">
-                                    Vehicle rentals
-                                </Link>
-                            </li>
-                            <li>
-                                <Link :href="route('rentals.venue.index')" class="text-blue-600 dark:text-blue-400 hover:underline">
-                                    Venue rentals
-                                </Link>
-                            </li>
-                            <li>
-                                <Link :href="route('rentals.calendar.index')" class="text-blue-600 dark:text-blue-400 hover:underline">
-                                    Calendar view
+                                <Link :href="route('rental.bookings.guest')" class="text-blue-600 dark:text-blue-400 hover:underline">
+                                    Booking and Rentals
                                 </Link>
                             </li>
                         </ul>

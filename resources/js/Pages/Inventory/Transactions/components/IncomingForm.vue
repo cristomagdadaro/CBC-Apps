@@ -6,7 +6,6 @@ import Transaction from "@/Modules/domain/Transaction";
 import JsBarcode from "jsbarcode";
 import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
 import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/TransactionReportAccordion.vue";
-import TransactionComponentAccordion from "@/Pages/Inventory/Transactions/components/TransactionComponentAccordion.vue";
 import AuditInfoCard from "@/Components/AuditInfoCard.vue";
 
 export default {
@@ -24,7 +23,6 @@ export default {
     components: {
         TransactionHeaderAction,
         TransactionReportAccordion,
-        TransactionComponentAccordion,
         AuditInfoCard,
         QrcodeVue,
     },
@@ -43,12 +41,12 @@ export default {
     emits: ['showNewItemForm'],
     methods: {
         async submitForm() {
+            this.syncComponentsPayload();
+
             if (this.isUpdate) {
                 await this.submitUpdate();
                 return;
             }
-
-            this.syncComponentsPayload();
             await this.submitCreate();
         },
         createEmptyComponentRow() {
@@ -106,6 +104,8 @@ export default {
         resetIncomingForm() {
             if (this.isUpdate) {
                 this.resetField(this.data);
+                this.componentRows = this.mapAttachedComponentsToRows(this.attachedComponentsList);
+                this.syncComponentsPayload();
                 return;
             }
 
@@ -123,6 +123,19 @@ export default {
                 height: 60,
             });
             this.svgText = canvas.toDataURL();
+        },
+        mapAttachedComponentsToRows(components = []) {
+            if (!Array.isArray(components)) {
+                return [];
+            }
+
+            return components.map(component => ({
+                item_id: component.item_id ?? component?.item?.id ?? null,
+                quantity: Number(component.quantity ?? 1),
+                unit: component.unit ?? component?.item?.unit ?? null,
+                prri_component_no: component.prri_component_no ?? null,
+                expiration: component.expiration ?? null,
+            }));
         },
     },
     computed: {
@@ -263,6 +276,8 @@ export default {
             return;
         }
 
+        this.componentRows = this.mapAttachedComponentsToRows(this.attachedComponentsList);
+        this.syncComponentsPayload();
         this.renderBarcode();
     },
 }
@@ -270,7 +285,7 @@ export default {
 
 <template>
     <form v-if="!!form" @submit.prevent="submitForm"  class="grid grid-cols-2 gap-4 w-full">
-        <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg h-fit">
+        <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-lg sm:rounded-lg h-fit">
             <div class="flex flex-col gap-2 mx-auto w-full h-fit">
                 <div class="flex flex-col">
                     <h2 class="font-bold uppercase leading-none py-2 mb-1 border-b">{{ isUpdate ? 'Update Incoming Transaction Details' : 'Incoming Transaction Form' }}</h2>
@@ -280,11 +295,6 @@ export default {
                     v-if="isUpdate"
                     class="w-full"
                     :reports="attachedReportsList"
-                />
-                <transaction-component-accordion
-                    v-if="isUpdate"
-                    class="w-full"
-                    :components="attachedComponentsList"
                 />
                 <div class="flex flex-row gap-2 h-fit">
                     <select-search-field :disabled="isUpdate" required :api-link="'api.inventory.items.options'"  :error="form.errors.item_id" label="Item" v-model="form.item_id" />
@@ -317,6 +327,7 @@ export default {
                 </custom-dropdown>
                 <custom-dropdown
                     required
+                    :disabled="isUpdate"
                     :with-all-option="false"
                     :value="selectedStorage"
                     :options="storage_locations"
@@ -368,14 +379,14 @@ export default {
                 :updated-at="data?.updated_at"
             />
         </div>
-        <div v-if="!isUpdate" class="flex flex-col gap-2 shadow-xl sm:rounded-lg sm:p-2 lg:p-4 bg-white dark:bg-gray-700 h-fit">
+        <div class="flex flex-col gap-2 shadow-xl sm:rounded-lg sm:p-2 lg:p-4 bg-white dark:bg-gray-700 h-fit">
             <div class="flex items-center justify-between">
                 <h3 class="font-bold uppercase leading-none py-2 mb-1 border-b"><span v-if="componentRows.length">{{ componentRows.length }}</span> Attached Components / Items</h3>
                 <button type="button" class="px-2 py-1 text-xs rounded border border-gray-600 text-gray-700" @click="addComponentRow">
                     Add Component
                 </button>
             </div>
-            <p>Optional: attach components under the same transaction for tracking and retrieval.</p>
+            <p>Attach components under the same transaction for tracking and retrieval. E.g. One (1) Desktop Computer Set includes monitor, keyboard, mouse, MS Office, etc. Each component can be individually tracked. </p>
 
             <div v-for="(component, index) in componentRows" :key="`component-${index}`" class="grid grid-cols-2 gap-2 border border-gray-200 rounded p-2 items-end">
                 <select-search-field

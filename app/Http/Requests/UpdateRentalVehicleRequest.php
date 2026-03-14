@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Repositories\OptionRepo;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateRentalVehicleRequest extends FormRequest
 {
@@ -15,9 +16,18 @@ class UpdateRentalVehicleRequest extends FormRequest
     public function rules(): array
     {
         $optionRepo = app(OptionRepo::class);
+        $vehicleTypes = collect($optionRepo->getVehicles())
+            ->pluck('name')
+            ->filter()
+            ->values()
+            ->all();
 
         return [
-            'vehicle_type' => ['sometimes', 'string', 'in:'.implode(',', array_column($optionRepo->getVehicles()->toArray(), 'name'))],
+            'vehicle_type' => array_values(array_filter([
+                'sometimes',
+                'string',
+                !empty($vehicleTypes) ? Rule::in($vehicleTypes) : null,
+            ])),
             'date_from' => ['sometimes', 'date', 'after_or_equal:today'],
             'date_to' => ['sometimes', 'date', 'after_or_equal:date_from'],
             'time_from' => ['sometimes', 'date_format:H:i:s'],
@@ -25,7 +35,7 @@ class UpdateRentalVehicleRequest extends FormRequest
             'purpose' => ['sometimes', 'string', 'max:500'],
             'requested_by' => ['sometimes', 'string', 'max:255'],
             'contact_number' => ['sometimes', 'string', 'regex:/^[0-9\-\+\s\(\)]*$/'],
-            'status' => ['sometimes', 'in:pending,approved,rejected,completed,cancelled'],
+            'status' => ['sometimes', 'in:pending,approved,rejected'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ];
     }

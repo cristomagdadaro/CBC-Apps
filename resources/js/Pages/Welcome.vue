@@ -29,10 +29,10 @@ const isInternetAccess = computed(() => {
 
 const services = [
     {
-        title: "Center Calendar",
-        description: "View the center's unified calendar of events, bookings, and equipment logging schedules",
+        title: "Bookings and Rentals",
+        description: "Manage and track bookings and rentals for vehicles and venues",
         icon: CalendarIcon,
-        href: route("forms.guest.index"),
+        href: route("rental.bookings.guest"),
     },
     {
         title: "Event Forms",
@@ -63,20 +63,6 @@ const services = [
         description: "Check out and track supplies and equipment from our inventory",
         href: route("inventory.public.outgoing.index"),
         icon: BoxesIcon,
-    },
-    {
-        title: "Vehicle Rental",
-        description: "Reserve and book available vehicles for your research activities",
-        href: route("rental.vehicle.guest"),
-        icon: TruckIcon,
-        external: true,
-    },
-    {
-        title: "Venue Rental",
-        description: "Reserve meeting rooms and event spaces for your activities",
-        href: route("rental.venue.guest"),
-        icon: BuildingIcon,
-        external: true,
     },
     {
         title: "File a Report",

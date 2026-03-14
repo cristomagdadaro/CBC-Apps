@@ -13,7 +13,7 @@ class UpdateOptionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('event.forms.manage') ?? false;
     }
 
     /**
@@ -23,8 +23,10 @@ class UpdateOptionRequest extends FormRequest
      */
     public function rules(): array
     {
+        $id = $this->route('id') ?? $this->input('id');
+
         return [
-            'key' => ['required', 'string', Rule::unique('options', 'key')->ignore($this->id)],
+            'key' => ['required', 'string', Rule::unique('options', 'key')->ignore($id)],
             'value' => ['nullable'],
             'label' => ['required', 'string'],
             'description' => ['nullable', 'string'],

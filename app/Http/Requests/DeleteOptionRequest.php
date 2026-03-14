@@ -12,7 +12,7 @@ class DeleteOptionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('event.forms.manage') ?? false;
     }
 
     public function prepareForValidation(): void

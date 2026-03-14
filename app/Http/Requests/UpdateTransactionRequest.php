@@ -27,12 +27,18 @@ class UpdateTransactionRequest extends FormRequest
     public function rules(): array
     {
         $id = $this->route('id');
+        $transaction = Transaction::query()->find($id);
+        $isIncomingUpdate = $transaction?->transac_type === Inventory::INCOMING->value;
         
         return [
             'item_id' => 'required|exists:items,id',
             'barcode' => [
                 'required',
                 'string',
+                Rule::when(
+                    $isIncomingUpdate,
+                    [Rule::in([$transaction?->barcode])]
+                ),
                 Rule::when(
                     fn ($input) => $input->transac_type === Inventory::INCOMING->value,
                     [Rule::unique('transactions', 'barcode')->where('transac_type', Inventory::INCOMING->value)->ignore($id)]
@@ -70,6 +76,27 @@ class UpdateTransactionRequest extends FormRequest
             'personnel_id' => 'nullable|exists:personnels,id',
             'par_no' => 'nullable|string|unique:transactions,par_no,' . $id,
             'condition' => 'nullable|string',
+            'components' => [
+                'nullable',
+                'array',
+                Rule::when(
+                    fn ($input) => $input->transac_type === Inventory::INCOMING->value,
+                    ['max:50']
+                ),
+            ],
+            'components.*.item_id' => [
+                'required_with:components',
+                'exists:items,id',
+            ],
+            'components.*.quantity' => [
+                'required_with:components',
+                'numeric',
+                'min:1',
+            ],
+            'components.*.unit' => 'nullable|string',
+            'components.*.prri_component_no' => ['nullable', 'regex:/^\d{1,5}$/'],
+            'components.*.expiration' => 'nullable|date',
+            'components.*.remarks' => 'nullable|string',
         ];
     }
 

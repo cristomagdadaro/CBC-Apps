@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Option;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 
 class OptionRepo extends AbstractRepoService
@@ -10,6 +11,44 @@ class OptionRepo extends AbstractRepoService
     public function __construct(Option $model)
     {
         parent::__construct($model);
+    }
+
+    public function create(array $data)
+    {
+        return parent::create($this->normalizeOptionPayload($data));
+    }
+
+    public function update(int|string $id, array $data): Model
+    {
+        return parent::update($id, $this->normalizeOptionPayload($data));
+    }
+
+    protected function normalizeOptionPayload(array $data): array
+    {
+        if (array_key_exists('key', $data) && is_string($data['key'])) {
+            $data['key'] = strtolower(str_replace(' ', '_', trim($data['key'])));
+        }
+
+        if (($data['type'] ?? null) !== 'select') {
+            $data['options'] = null;
+        } elseif (array_key_exists('options', $data) && is_string($data['options'])) {
+            $decoded = json_decode($data['options'], true);
+            $data['options'] = json_last_error() === JSON_ERROR_NONE ? $decoded : null;
+        }
+
+        if (array_key_exists('value', $data)) {
+            $value = $data['value'];
+
+            if (is_bool($value)) {
+                $data['value'] = $value ? 'true' : 'false';
+            } elseif (is_array($value) || is_object($value)) {
+                $data['value'] = json_encode($value);
+            } elseif ($value !== null) {
+                $data['value'] = (string) $value;
+            }
+        }
+
+        return $data;
     }
 
     /**
@@ -66,7 +105,7 @@ class OptionRepo extends AbstractRepoService
         return $default;
     }
 
-    public function upsertBooleanOption(string $key, bool $value, array $meta = []): Option
+    public function upsertBooleanOption(string $key, bool $value, array $meta = []): Model
     {
         return $this->model
             ->newQuery()
@@ -209,17 +248,39 @@ class OptionRepo extends AbstractRepoService
         return collect($this->getByGroup('laboratories'))->map(function ($label, $name) {
             return [
                 'value' => (int) $name,
-                'value' => (int) $name,
                 'label' => $label,
             ];
         })->sortBy('label')->values();
     }
 
     /**
-     * Get all vehicles from the transactions table join with items table and category_id of 8 for vehicles
+     * Get available vehicles from options key `vehicles` (or `vehicle`),
+     * with a fallback to inventory transactions for backward compatibility.
      */
     public function getVehicles()
     {
+        $raw = $this->getByKey('vehicles') ?? $this->getByKey('vehicle');
+        $decoded = is_string($raw) ? json_decode($raw, true) : $raw;
+
+        if (is_array($decoded) && !empty($decoded)) {
+            return collect($decoded)
+                ->map(function ($vehicle) {
+                    $name = $vehicle['name'] ?? null;
+                    $label = $vehicle['label'] ?? $name;
+
+                    if (!$name) {
+                        return null;
+                    }
+
+                    return [
+                        'name' => (string) $name,
+                        'label' => (string) $label,
+                    ];
+                })
+                ->filter()
+                ->values();
+        }
+
         return \App\Models\Transaction::join('items', 'transactions.item_id', '=', 'items.id')
             ->where('items.category_id', 8)
             ->selectRaw('items.description as name, concat(items.brand, " (", items.description, ")") as label')

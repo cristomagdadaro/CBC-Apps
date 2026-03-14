@@ -30,9 +30,55 @@ class RentalVehicleRepository
         return $query->orderBy('date_from', 'asc')->get();
     }
 
-    public function paginate(int $perPage = 15)
+    public function paginate(array $params = [], int $perPage = 15)
     {
-        return RentalVehicle::orderBy('date_from', 'asc')->paginate($perPage);
+        $query = RentalVehicle::query();
+
+        $search = trim((string) ($params['search'] ?? ''));
+        $filter = $params['filter'] ?? null;
+        $isExact = filter_var($params['is_exact'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $sort = $params['sort'] ?? 'date_from';
+        $order = strtolower((string) ($params['order'] ?? 'asc')) === 'desc' ? 'desc' : 'asc';
+        $page = max((int) ($params['page'] ?? 1), 1);
+        $perPageValue = (int) ($params['per_page'] ?? $perPage);
+        $perPageValue = $perPageValue > 0 ? $perPageValue : $perPage;
+
+        $filterableColumns = [
+            'id',
+            'vehicle_type',
+            'requested_by',
+            'contact_number',
+            'date_from',
+            'date_to',
+            'status',
+            'purpose',
+            'notes',
+        ];
+
+        if (!empty($search)) {
+            $operator = $isExact ? '=' : 'like';
+            $searchValue = $isExact ? $search : "%{$search}%";
+
+            if ($filter && in_array($filter, $filterableColumns, true)) {
+                $query->where($filter, $operator, $searchValue);
+            } else {
+                $query->where(function ($subQuery) use ($searchValue) {
+                    $subQuery->where('vehicle_type', 'like', $searchValue)
+                        ->orWhere('requested_by', 'like', $searchValue)
+                        ->orWhere('purpose', 'like', $searchValue)
+                        ->orWhere('status', 'like', $searchValue)
+                        ->orWhere('contact_number', 'like', $searchValue);
+                });
+            }
+        }
+
+        if (!in_array($sort, $filterableColumns, true)) {
+            $sort = 'date_from';
+        }
+
+        return $query
+            ->orderBy($sort, $order)
+            ->paginate($perPageValue, ['*'], 'page', $page);
     }
 
     public function find(string $id)

@@ -171,6 +171,13 @@ export default class Transaction extends DtoTransaction {
                 db_key: 'project_code',
                 align: 'dataColor',
                 sortable: true,
+                visible: true,
+            },{
+                title: 'Components',
+                key: 'components.length',
+                db_key: 'components',
+                align: 'dataColor',
+                sortable: true,
                 visible: false,
             },{
                 title: 'Date Created',
@@ -185,7 +192,7 @@ export default class Transaction extends DtoTransaction {
                 db_key: 'remarks',
                 align: 'dataColor',
                 sortable: true,
-                visible: true,
+                visible: false,
             },{
                 title: 'PAR No',
                 key: 'par_no',
