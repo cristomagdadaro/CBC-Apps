@@ -237,7 +237,42 @@ class OptionRepo extends AbstractRepoService
      */
     public function getEventHalls()
     {
-        return json_decode($this->getByKey('event_halls'), true) ?? [];
+        $raw = $this->getByKey('event_halls') ?? $this->getByKey('event_halls');
+        $decoded = is_string($raw) ? json_decode($raw, true) : $raw;
+        if (is_array($decoded) && !empty($decoded)) {
+            return collect($decoded)
+                ->map(function ($hall) {
+                    $name = $hall['name'] ?? null;
+                    $label = $hall['label'] ?? $name;
+
+                    if (!$name) {
+                        return null;
+                    }
+
+                    return [
+                        'name' => (string) $name,
+                        'label' => (string) $label,
+                    ];
+                })
+                ->filter()
+                ->values();
+        }
+
+        return $this->model
+            ->newQuery()
+            ->where('group', 'event_halls')
+            ->whereNotNull('value')
+            ->select('value', 'label')
+            ->orderByRaw('CAST(value AS UNSIGNED) asc')
+            ->get()
+            ->map(function ($record) {
+                return [
+                    'label' => $record->label,
+                    'name' => (string) $record->value,
+                ];
+            })
+            ->values()
+            ->toArray();
     }
 
     /**

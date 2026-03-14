@@ -25,31 +25,39 @@ export default {
             showingNavigationDropdown: false,
             sidebarOpen: false,
             sidebarCollapsed: false,
+            userDropdownOpen: false,
+            teamDropdownOpen: false,
             navigationMode: this.$page.props.layout_navigation_mode || 'top',
             services: [
                 {
                     label: 'Dashboard',
                     href: 'dashboard',
+                    icon: 'LuLayoutDashboard',
                 },{
                     label: 'Certificate Generator',
                     href: 'certificates.index',
                     permission: 'event.certificates.manage',
+                    icon: 'LuAward',
                 },{
                     label: 'Event Forms',
                     href: 'forms.index',
                     permission: 'event.forms.manage',
+                    icon: 'LuCalendar',
                 },{
                     label: 'Rentals',
                     href: null,
+                    icon: 'LuCar',
                     children: [
                         {
                             label: 'Vehicle Rentals',
                             href: 'rentals.vehicle.index',
                             permission: 'rental.vehicle.manage',
+                            icon: 'LuCar',
                         },{
                             label: 'Venue Rentals',
                             href: 'rentals.venue.index',
                             permission: 'rental.venue.manage',
+                            icon: 'LuBuilding',
                         }
                     ],
                     permission: 'rental.vehicle.manage',
@@ -57,33 +65,42 @@ export default {
                     label: 'FES Request Form',
                     href: 'accessUseRequest.index',
                     permission: 'fes.request.approve',
+                    icon: 'LuShield',
                 },{
                     label: 'Equipment Logger',
                     href: 'laboratory.dashboard',
                     permission: 'laboratory.logger.manage',
+                    icon: 'LuMicroscope',
                 },{
-                    label: 'Inventory Management',
+                    label: 'Inventory',
                     href: null,
+                    icon: 'LuPackage',
                     permission: 'inventory.manage',
                     children: [
                         {
                             label: 'Dashboard',
-                            href: 'transactions.dashboard'
+                            href: 'transactions.dashboard',
+                            icon: 'LuBarChart3',
                         }, {
                             label: 'Transactions',
-                            href: 'transactions.index'
+                            href: 'transactions.index',
+                            icon: 'LuArrowLeftRight',
                         }, {
                             label: 'Barcode Printing',
-                            href: 'inventory.barcodes.print'
+                            href: 'inventory.barcodes.print',
+                            icon: 'LuBarcode',
                         },{
                             label: 'Items',
                             href: 'items.index',
+                            icon: 'LuBox',
                         },{
                             label: 'Suppliers',
-                            href: 'suppliers.index'
+                            href: 'suppliers.index',
+                            icon: 'LuTruck',
                         },{
                             label: 'Personnels',
-                            href: 'personnels.index'
+                            href: 'personnels.index',
+                            icon: 'LuUsers',
                         },
                     ]
                 },
@@ -91,105 +108,86 @@ export default {
                     label: 'File Reports',
                     href: 'suppEquipReports.index',
                     permission: 'equipment.report.manage',
+                    icon: 'LuFileText',
                 },
                 {
                     label: 'System',
                     href: null,
+                    icon: 'LuSettings',
                     roles: ['admin'],
                     children: [
                         {
                             label: 'Options',
                             href: 'system.options.index',
                             roles: ['admin'],
+                            icon: 'LuSliders',
                         },{
                             label: 'Users Management',
                             href: 'system.users.index',
                             permission: 'users.manage',
                             roles: ['admin'],
+                            icon: 'LuUserCog',
                         },
                     ]
                 },
                 {
                     label: 'Manuals & Guides',
                     href: 'manuals.index',
+                    icon: 'LuBookOpen',
                 },
             ],
         };
     },
     created() {
-        if (typeof window === 'undefined') {
-            return;
-        }
+        if (typeof window === 'undefined') return;
 
-        // Initialize from database prop
         if (this.$page.props.layout_navigation_mode) {
             this.navigationMode = this.$page.props.layout_navigation_mode;
         }
 
-        // Keep sidebar collapsed state in localStorage
         const savedSidebarCollapsed = window.localStorage.getItem('layout.sidebar.collapsed');
         if (savedSidebarCollapsed === 'true' || savedSidebarCollapsed === 'false') {
             this.sidebarCollapsed = savedSidebarCollapsed === 'true';
         }
+
+        // Close dropdowns on route change
+        router.on('navigate', () => {
+            this.showingNavigationDropdown = false;
+            this.sidebarOpen = false;
+            this.userDropdownOpen = false;
+            this.teamDropdownOpen = false;
+        });
     },
     computed: {
         isSidebarModeResponsive() {
-            // Only sidebar mode if layout_navigation_mode is sidebar AND screen is lg+
             if (typeof window === 'undefined') return false;
             const isLg = window.matchMedia('(min-width: 1024px)').matches;
             return this.$page.props.layout_navigation_mode === 'sidebar' && isLg;
         },
-
-        // raw boolean for whether the layout mode is sidebar (used by template)
         isSidebarMode() {
             return this.navigationMode === 'sidebar' || this.rawLayoutMode === 'sidebar';
         },
-
-        // expose raw layout mode for child components (desktop top vs sidebar)
         rawLayoutMode() {
             return this.$page.props.layout_navigation_mode || 'top';
         },
         visibleServices() {
             return this.services.filter((service) => {
-                if (!this.canAccessService(service)) {
-                    return false;
-                }
-
-                if (!Array.isArray(service.children)) {
-                    return true;
-                }
-
+                if (!this.canAccessService(service)) return false;
+                if (!Array.isArray(service.children)) return true;
                 return this.visibleChildren(service).length > 0 || !!service.href;
             });
         },
         formattedPermissions() {
             const permissions = this.$page.props.auth?.permissions || [];
-
-            // Super admin case: ['*']
             if (permissions.length === 1 && permissions[0] === '*') {
-                return [{
-                    name: '*',
-                    label: 'All Permissions',
-                }];
+                return [{ name: '*', label: 'All Permissions' }];
             }
-
             return permissions.map(permission => {
                 if (!permission || permission === '*') {
-                    return {
-                        name: permission,
-                        label: 'All Permissions',
-                    };
+                    return { name: permission, label: 'All Permissions' };
                 }
-
-                const base = permission
-                    .split('.')
-                    .slice(0, -1)
-                    .join(' ');
-
-                return {
-                    name: permission,
-                    label: this.formatLabel(base),
-                };
+                const base = permission.split('.').slice(0, -1).join(' ');
+                return { name: permission, label: this.formatLabel(base) };
             });
         },
         rolesList() {
@@ -201,7 +199,10 @@ export default {
         singleRoleLabel() {
             if (!this.singleRole) return '';
             return this.formatLabel(this.rolesList[0] || '');
-        }
+        },
+        currentRouteName() {
+            return route().current();
+        },
     },
     methods: {
         formatLabel(text) {
@@ -210,79 +211,56 @@ export default {
             return cleaned.split(' ').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
         },
         hasPermission(permission) {
-            if (!permission) {
-                return true;
-            }
-
+            if (!permission) return true;
             const permissions = this.$page.props?.auth?.permissions ?? [];
-
             return permissions.includes('*') || permissions.includes(permission);
         },
         hasAnyRole(roles = []) {
-            if (!roles.length) {
-                return true;
-            }
-
+            if (!roles.length) return true;
             const currentRoles = this.$page.props?.auth?.roles ?? [];
-
             return roles.some((role) => currentRoles.includes(role));
         },
         canAccessService(service) {
-            if (!service) {
-                return false;
-            }
-
+            if (!service) return false;
             return this.hasPermission(service.permission) && this.hasAnyRole(service.roles || []);
         },
         visibleChildren(service) {
-            if (!Array.isArray(service?.children)) {
-                return [];
-            }
-
+            if (!Array.isArray(service?.children)) return [];
             return service.children.filter((child) => this.canAccessService(child));
         },
         isServiceActive(service) {
-            if (!service) {
-                return false;
-            }
-
-            if (service.href && route().current(service.href)) {
-                return true;
-            }
-
+            if (!service) return false;
+            if (service.href && route().current(service.href)) return true;
             if (Array.isArray(service.children)) {
                 return this.visibleChildren(service).some((child) => route().current(child.href));
             }
-
             return false;
+        },
+        isChildActive(child) {
+            return route().current(child.href);
         },
         handleMobileMenuToggle() {
             if (this.isSidebarModeResponsive) {
                 this.sidebarOpen = !this.sidebarOpen;
                 return;
             }
-
             this.showingNavigationDropdown = !this.showingNavigationDropdown;
         },
         toggleSidebarCollapse() {
             this.sidebarCollapsed = !this.sidebarCollapsed;
-
             if (typeof window !== 'undefined') {
                 window.localStorage.setItem('layout.sidebar.collapsed', String(this.sidebarCollapsed));
             }
         },
         handleHamburgerClick() {
-            // For responsive behavior, use isSidebarModeResponsive
             if (!this.isSidebarModeResponsive) {
                 this.showingNavigationDropdown = !this.showingNavigationDropdown;
                 return;
             }
-
             if (typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches) {
                 this.toggleSidebarCollapse();
                 return;
             }
-
             this.sidebarOpen = !this.sidebarOpen;
         },
         closeSidebar() {
@@ -291,9 +269,7 @@ export default {
         switchToTeam(team) {
             router.put(route('current-team.update'), {
                 team_id: team.id,
-            }, {
-                preserveState: false,
-            });
+            }, { preserveState: false });
         },
         logout() {
             router.post(route('logout'));
@@ -303,448 +279,466 @@ export default {
 </script>
 
 <template>
-    <div>
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
         <Head :title="title" />
 
         <Banner />
         <NotificationToast />
 
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900 flex">
-            <Transition name="nav-switch" mode="out-in">
+        <div class="flex min-h-screen">
+            <!-- Sidebar Navigation (Desktop) -->
+            <Transition 
+                enter-active-class="transition-all duration-300 ease-in-out"
+                enter-from-class="opacity-0 -translate-x-full"
+                enter-to-class="opacity-100 translate-x-0"
+                leave-active-class="transition-all duration-300 ease-in-out"
+                leave-from-class="opacity-100 translate-x-0"
+                leave-to-class="opacity-0 -translate-x-full">
                 <aside
                     v-if="isSidebarModeResponsive"
-                    class="hidden lg:flex lg:shrink-0 lg:flex-col bg-white dark:bg-gray-800 border-r border-AA shadow-sm dark:border-gray-700 transition-all duration-300 ease-in-out overflow-hidden "
-                    :class="sidebarCollapsed ? 'lg:w-14' : 'lg:w-72'"
-                >
-                    <!-- Header with hamburger always visible -->
-                    <div class="px-2 py-2.5 border-b border-AA bg-AA dark:bg-gray-800 dark:border-gray-700 text-gray-100 drop-shadow-md flex items-center justify-center lg:justify-start gap-2 transition-opacity duration-200">
-                        <button
-                            type="button"
-                            class="inline-flex items-center justify-center p-2 rounded-md dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out"
-                            @click="toggleSidebarCollapse"
-                            :title="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
-                        >
-                            <svg
-                                class="h-6 w-6 transition-transform duration-300"
-                                :class="sidebarCollapsed ? 'rotate-180' : 'rotate-0'"
-                                stroke="currentColor"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M15 19l-7-7 7-7"
-                                />
-                            </svg>
-                        </button>
-                        <div class="flex items-center">
-                            <div v-if="$page.props.jetstream.managesProfilePhotos && $page.props.auth?.user" class="shrink-0 me-3">
-                                <img class="h-10 w-10 rounded-full object-cover" :src="$page.props.auth.user.profile_photo_url" :alt="$page.props.auth?.user?.name">
-                            </div>
-
-                            <div class="leading-none">
-                                <div class="font-bold tracking-wide">
-                                    {{ $page.props.auth?.user?.name || 'Account' }}
+                    class="hidden max-h-screen sticky top-0 z-10 lg:flex lg:flex-col fixed lg:static inset-y-0 left-0 z-40 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg lg:shadow-none transition-all duration-300"
+                    :class="sidebarCollapsed ? 'w-20' : 'w-64'">
+                    
+                    <!-- Sidebar Header -->
+                    <div class="bg-AA dark:bg-gray-800 shadow-sm border-b border-AA dark:border-gray-700 h-16">
+                        <!-- User Profile Summary -->
+                        <div v-if="!sidebarCollapsed" class="flex items-center h-full pl-3">
+                            <div class="flex items-center gap-3">
+                                <img 
+                                    v-if="$page.props.jetstream.managesProfilePhotos && $page.props.auth?.user"
+                                    :src="$page.props.auth.user.profile_photo_url" 
+                                    :alt="$page.props.auth?.user?.name"
+                                    class="h-10 w-10 rounded-full object-cover ring-2 ring-white dark:ring-gray-700 shadow-sm">
+                                <div v-else class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                                    {{ $page.props.auth?.user?.name?.charAt(0)?.toUpperCase() || 'U' }}
                                 </div>
-                                <div class="text-xs tracking-wide">
-                                    {{ $page.props.auth?.user?.email }}
+                                <div class="flex-1 min-w-0 leading-tight">
+                                    <p class="text-sm font-semibold text-gray-50 dark:text-gray-200 truncate uppercase">
+                                        {{ $page.props.auth?.user?.name || 'User' }}
+                                    </p>
+                                    <p class="text-xs text-gray-200 dark:text-gray-500 truncate">
+                                        {{ singleRoleLabel || 'Member' }}
+                                    </p>
                                 </div>
                             </div>
                         </div>
+                        <div v-else class="p-3 border-b border-gray-200 dark:border-gray-700 flex justify-center">
+                            <img 
+                                v-if="$page.props.jetstream.managesProfilePhotos && $page.props.auth?.user"
+                                :src="$page.props.auth.user.profile_photo_url" 
+                                class="h-10 w-10 rounded-full object-cover ring-2 ring-white dark:ring-gray-700">
+                            <div v-else class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold">
+                                {{ $page.props.auth?.user?.name?.charAt(0)?.toUpperCase() || 'U' }}
+                            </div>
+                        </div>
+                        <button
+                            v-if="!sidebarCollapsed"
+                            @click="toggleSidebarCollapse"
+                            class="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+                            title="Collapse sidebar">
+                            <LuPanelLeft class="w-5 h-5" />
+                        </button>
                     </div>
-                    <!-- Navigation content (hidden when collapsed) -->
-                    <div v-if="!sidebarCollapsed" class="flex flex-col overflow-y-auto p-3 transition-opacity duration-200">
-                        <div v-if="$page.props.jetstream.hasTeamFeatures" class="flex flex-col">
-                            <div class="ms-3 relative">
-                                <!-- Teams Dropdown -->
-                                <Dropdown align="right" width="60">
-                                    <template #trigger>
-                                        <span class="inline-flex rounded-md">
-                                            <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
-                                                {{ $page.props.auth.user.current_team.name }}
 
-                                                <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                                                </svg>
-                                            </button>
-                                        </span>
-                                    </template>
+                    <!-- Collapsed Toggle (when collapsed) -->
+                    <button
+                        v-if="sidebarCollapsed"
+                        @click="toggleSidebarCollapse"
+                        class="absolute -right-3 top-20 bg-blue-600 text-white p-1.5 rounded-full shadow-lg hover:bg-blue-700 transition-colors z-50"
+                        title="Expand sidebar">
+                        <LuChevronRight class="w-4 h-4" />
+                    </button>
 
-                                    <template #content>
-                                        <div class="w-60">
-                                            <!-- Team Management -->
-                                            <div class="block px-4 py-2 text-xs text-gray-400">
-                                                Manage Team
-                                            </div>
+                    <!-- Navigation Items -->
+                    <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+                        <template v-for="service in visibleServices" :key="service.label">
+                            <!-- Single Link -->
+                            <Link
+                                v-if="!service.children || !visibleChildren(service).length"
+                                :href="route(service.href)"
+                                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group relative"
+                                :class="isServiceActive(service) 
+                                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' 
+                                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50'">
+                                <component :is="service.icon" class="w-5 h-5 flex-shrink-0" :class="isServiceActive(service) ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300'" />
+                                <span v-if="!sidebarCollapsed" class="truncate">{{ service.label }}</span>
+                                <span v-if="isServiceActive(service) && !sidebarCollapsed" class="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                                
+                                <!-- Tooltip for collapsed state -->
+                                <div v-if="sidebarCollapsed" class="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+                                    {{ service.label }}
+                                </div>
+                            </Link>
 
-                                            <!-- Team Settings -->
-                                            <DropdownLink :href="route('teams.show', $page.props.auth.user.current_team)">
-                                                Team Settings
-                                            </DropdownLink>
+                            <!-- Dropdown Group -->
+                            <div v-else class="space-y-1">
+                                <button
+                                    @click="service.isOpen = !service.isOpen"
+                                    class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group"
+                                    :class="isServiceActive(service) 
+                                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' 
+                                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50'">
+                                    <component :is="service.icon" class="w-5 h-5 flex-shrink-0" :class="isServiceActive(service) ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300'" />
+                                    <span v-if="!sidebarCollapsed" class="flex-1 text-left truncate">{{ service.label }}</span>
+                                    <LuChevronDown v-if="!sidebarCollapsed" class="w-4 h-4 transition-transform duration-200" :class="service.isOpen ? 'rotate-180' : ''" />
+                                    
+                                    <!-- Collapsed dropdown indicator -->
+                                    <div v-if="sidebarCollapsed && isServiceActive(service)" class="absolute left-0 w-1 h-8 bg-blue-600 rounded-r-full"></div>
+                                </button>
+                                
+                                <!-- Expanded children -->
+                                <div v-if="!sidebarCollapsed && service.isOpen" class="ml-4 pl-4 border-l-2 border-gray-200 dark:border-gray-700 space-y-1">
+                                    <Link
+                                        v-for="child in visibleChildren(service)"
+                                        :key="child.label"
+                                        :href="route(child.href)"
+                                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200"
+                                        :class="isChildActive(child)
+                                            ? 'text-blue-700 dark:text-blue-300 bg-blue-50/50 dark:bg-blue-900/10 font-medium'
+                                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/30'">
+                                        <component :is="child.icon" v-if="child.icon" class="w-4 h-4" :class="isChildActive(child) ? 'text-blue-600' : 'text-gray-400'" />
+                                        <span v-else class="w-1.5 h-1.5 rounded-full" :class="isChildActive(child) ? 'bg-blue-600' : 'bg-gray-300'"></span>
+                                        <span class="truncate">{{ child.label }}</span>
+                                    </Link>
+                                </div>
+                            </div>
+                        </template>
+                    </nav>
 
-                                            <DropdownLink v-if="$page.props.jetstream.canCreateTeams" :href="route('teams.create')">
-                                                Create New Team
-                                            </DropdownLink>
+                    <!-- Sidebar Footer -->
+                    <div class="p-3 border-t border-gray-200 dark:border-gray-700 space-y-1">
+                        <Link
+                            :href="route('profile.show')"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors group relative">
+                            <LuUser class="w-5 h-5 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
+                            <span v-if="!sidebarCollapsed">Profile</span>
+                            <div v-if="sidebarCollapsed" class="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+                                Profile
+                            </div>
+                        </Link>
+                        <button
+                            @click="logout"
+                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors group relative">
+                            <LuLogOut class="w-5 h-5" />
+                            <span v-if="!sidebarCollapsed">Log Out</span>
+                            <div v-if="sidebarCollapsed" class="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+                                Log Out
+                            </div>
+                        </button>
+                    </div>
+                </aside>
+            </Transition>
 
-                                            <!-- Team Switcher -->
-                                            <template v-if="$page.props.auth.user.all_teams.length > 1">
-                                                <div class="border-t border-gray-200 dark:border-gray-600" />
+            <!-- Mobile Sidebar Overlay -->
+            <Transition
+                enter-active-class="transition-opacity duration-300"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="transition-opacity duration-300"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0">
+                <div 
+                    v-if="isSidebarModeResponsive && sidebarOpen" 
+                    class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+                    @click="closeSidebar">
+                </div>
+            </Transition>
 
-                                                <div class="block px-4 py-2 text-xs text-gray-400">
-                                                    Switch Teams
-                                                </div>
+            <!-- Mobile Sidebar Drawer -->
+            <Transition
+                enter-active-class="transition-transform duration-300 ease-out"
+                enter-from-class="-translate-x-full"
+                enter-to-class="translate-x-0"
+                leave-active-class="transition-transform duration-300 ease-in"
+                leave-from-class="translate-x-0"
+                leave-to-class="-translate-x-full">
+                <aside
+                    v-if="isSidebarModeResponsive && sidebarOpen"
+                    class="fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-gray-800 shadow-2xl lg:hidden flex flex-col">
+                    
+                    <!-- Mobile Header -->
+                    <div class="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-600 to-indigo-600">
+                        <span class="font-bold text-white">FES System</span>
+                        <button @click="closeSidebar" class="p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors">
+                            <LuX class="w-5 h-5" />
+                        </button>
+                    </div>
 
-                                                <template v-for="team in $page.props.auth.user.all_teams" :key="team.id">
-                                                    <form @submit.prevent="switchToTeam(team)">
-                                                        <DropdownLink as="button">
-                                                            <div class="flex items-center">
-                                                                <svg v-if="team.id == $page.props.auth.user.current_team_id" class="me-2 h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                </svg>
+                    <!-- Mobile User Info -->
+                    <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                        <div class="flex items-center gap-3">
+                            <img 
+                                v-if="$page.props.jetstream.managesProfilePhotos && $page.props.auth?.user"
+                                :src="$page.props.auth.user.profile_photo_url" 
+                                class="h-12 w-12 rounded-full object-cover ring-2 ring-white dark:ring-gray-700">
+                            <div v-else class="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg">
+                                {{ $page.props.auth?.user?.name?.charAt(0)?.toUpperCase() || 'U' }}
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-900 dark:text-white">{{ $page.props.auth?.user?.name }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ $page.props.auth?.user?.email }}</p>
+                            </div>
+                        </div>
+                    </div>
 
-                                                                <div>{{ team.name }}</div>
-                                                            </div>
-                                                        </DropdownLink>
-                                                    </form>
-                                                </template>
+                    <!-- Mobile Navigation -->
+                    <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+                        <template v-for="service in visibleServices" :key="`mobile-${service.label}`">
+                            <Link
+                                v-if="!service.children || !visibleChildren(service).length"
+                                :href="route(service.href)"
+                                @click="closeSidebar"
+                                class="flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors"
+                                :class="isServiceActive(service) 
+                                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' 
+                                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50'">
+                                <component :is="service.icon" class="w-5 h-5" :class="isServiceActive(service) ? 'text-blue-600' : 'text-gray-400'" />
+                                {{ service.label }}
+                            </Link>
+                            
+                            <div v-else>
+                                <div class="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                    {{ service.label }}
+                                </div>
+                                <div class="ml-2 space-y-1">
+                                    <Link
+                                        v-for="child in visibleChildren(service)"
+                                        :key="`mobile-child-${child.label}`"
+                                        :href="route(child.href)"
+                                        @click="closeSidebar"
+                                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors"
+                                        :class="isChildActive(child)
+                                            ? 'text-blue-700 dark:text-blue-300 bg-blue-50/50 dark:bg-blue-900/10 font-medium'
+                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/30'">
+                                        <component :is="child.icon" v-if="child.icon" class="w-4 h-4" />
+                                        <span v-else class="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+                                        {{ child.label }}
+                                    </Link>
+                                </div>
+                            </div>
+                        </template>
+                    </nav>
+
+                    <!-- Mobile Footer -->
+                    <div class="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                        <Link
+                            :href="route('profile.show')"
+                            @click="closeSidebar"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">
+                            <LuUser class="w-5 h-5 text-gray-400" />
+                            Profile Settings
+                        </Link>
+                        <button
+                            @click="logout"
+                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
+                            <LuLogOut class="w-5 h-5" />
+                            Log Out
+                        </button>
+                    </div>
+                </aside>
+            </Transition>
+
+            <!-- Main Content Area -->
+            <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+                
+                <!-- Top Navigation (Top mode or mobile) -->
+                <nav 
+                    v-if="!isSidebarModeResponsive || !isSidebarMode"
+                    class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="flex justify-between h-16">
+                            <!-- Left: Logo & Mobile Menu -->
+                            <div class="flex items-center gap-4">
+                                <button
+                                    v-if="isSidebarModeResponsive"
+                                    @click="sidebarOpen = true"
+                                    class="lg:hidden p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-700 transition-colors">
+                                    <LuMenu class="w-6 h-6" />
+                                </button>
+
+                                <Link :href="route('dashboard')" class="flex items-center gap-2">
+                                    <ApplicationMark class="h-8 w-8 text-blue-600" />
+                                    <span class="font-bold text-xl text-gray-900 dark:text-white hidden sm:block">FES</span>
+                                </Link>
+
+                                <!-- Desktop Navigation -->
+                                <div class="hidden md:flex items-center gap-1 ml-8">
+                                    <template v-for="service in visibleServices" :key="`top-${service.label}`">
+                                        <Dropdown v-if="service.children && visibleChildren(service).length" align="left" width="56">
+                                            <template #trigger>
+                                                <button
+                                                    class="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                                                    :class="isServiceActive(service)
+                                                        ? 'text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20'
+                                                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50'">
+                                                    <component :is="service.icon" class="w-4 h-4" />
+                                                    {{ service.label }}
+                                                    <LuChevronDown class="w-4 h-4 opacity-50" />
+                                                </button>
                                             </template>
+                                            <template #content>
+                                                <div class="py-1">
+                                                    <Link
+                                                        v-for="child in visibleChildren(service)"
+                                                        :key="child.label"
+                                                        :href="route(child.href)"
+                                                        class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 first:rounded-t-md last:rounded-b-md">
+                                                        <component :is="child.icon" v-if="child.icon" class="w-4 h-4 text-gray-400" />
+                                                        {{ child.label }}
+                                                    </Link>
+                                                </div>
+                                            </template>
+                                        </Dropdown>
+
+                                        <Link
+                                            v-else
+                                            :href="route(service.href)"
+                                            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                                            :class="isServiceActive(service)
+                                                ? 'text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20'
+                                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50'">
+                                            <component :is="service.icon" class="w-4 h-4" />
+                                            {{ service.label }}
+                                        </Link>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Right: User Menu -->
+                            <div class="flex items-center gap-2">
+                                <!-- Notifications (placeholder) -->
+                                <button class="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-700 transition-colors relative">
+                                    <LuBell class="w-5 h-5" />
+                                    <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-gray-800"></span>
+                                </button>
+
+                                <!-- User Dropdown -->
+                                <Dropdown align="right" width="64">
+                                    <template #trigger>
+                                        <button class="flex items-center gap-3 p-1.5 pr-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors">
+                                            <img 
+                                                v-if="$page.props.jetstream.managesProfilePhotos && $page.props.auth?.user"
+                                                :src="$page.props.auth.user.profile_photo_url" 
+                                                class="h-8 w-8 rounded-full object-cover ring-2 ring-white dark:ring-gray-700">
+                                            <div v-else class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm">
+                                                {{ $page.props.auth?.user?.name?.charAt(0)?.toUpperCase() || 'U' }}
+                                            </div>
+                                            <div class="hidden sm:block text-left">
+                                                <p class="text-sm font-medium text-gray-900 dark:text-white leading-tight">{{ $page.props.auth?.user?.name }}</p>
+                                                <p class="text-xs text-gray-500 dark:text-gray-400 leading-tight">{{ singleRoleLabel }}</p>
+                                            </div>
+                                            <LuChevronDown class="w-4 h-4 text-gray-400 hidden sm:block" />
+                                        </button>
+                                    </template>
+                                    
+                                    <template #content>
+                                        <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $page.props.auth?.user?.name }}</p>
+                                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ $page.props.auth?.user?.email }}</p>
+                                        </div>
+                                        
+                                        <div class="py-1">
+                                            <DropdownLink :href="route('profile.show')" class="flex items-center gap-2">
+                                                <LuUser class="w-4 h-4" />
+                                                Profile
+                                            </DropdownLink>
+                                            
+                                            <DropdownLink v-if="$page.props.jetstream.hasApiFeatures" :href="route('api-tokens.index')">
+                                                <LuKey class="w-4 h-4 mr-2" />
+                                                API Tokens
+                                            </DropdownLink>
+                                        </div>
+
+                                        <div class="border-t border-gray-100 dark:border-gray-700 py-1">
+                                            <button @click="logout" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                                                <LuLogOut class="w-4 h-4" />
+                                                Log Out
+                                            </button>
                                         </div>
                                     </template>
                                 </Dropdown>
                             </div>
                         </div>
-                        <NavigationItems :services="visibleServices" mode="sidebar" :visibleChildren="visibleChildren" :isServiceActive="isServiceActive" />
-                        <div class="px-3 pt-3 pb-1 text-xs text-gray-400">
-                            Manage Account
-                        </div>
-                        <NavLink :href="route('profile.show')" :active="route().current('profile.show')">
-                            Profile
-                        </NavLink>
-                        <!-- Authentication -->
-                        <form @submit.prevent="logout">
-                            <NavLink as="button">
-                                Log Out
-                            </NavLink>
-                        </form>
                     </div>
-                </aside>
-            </Transition>
 
-            <div class="flex-1 min-w-0">
-                <nav class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
-                    <!-- Primary Navigation Menu -->
-                    <div v-if="!isSidebarModeResponsive" class="default-container">
-                        <div class="flex justify-between h-16">
-                            <div class="flex items-center w-full">
-                               <div class="flex justify-between w-full">
-                                    <!-- Logo -->
-                                    <div class="shrink-0 flex items-center">
-                                        <Link :href="route('dashboard')">
-                                            <ApplicationMark class="block h-9 w-auto" />
+                    <!-- Mobile Navigation Menu -->
+                    <Transition
+                        enter-active-class="transition-all duration-200 ease-out"
+                        enter-from-class="opacity-0 -translate-y-2"
+                        enter-to-class="opacity-100 translate-y-0"
+                        leave-active-class="transition-all duration-200 ease-in"
+                        leave-from-class="opacity-100 translate-y-0"
+                        leave-to-class="opacity-0 -translate-y-2">
+                        <div v-if="showingNavigationDropdown" class="md:hidden border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                            <div class="px-4 py-3 space-y-1">
+                                <template v-for="service in visibleServices" :key="`mobile-top-${service.label}`">
+                                    <Link
+                                        v-if="!service.children || !visibleChildren(service).length"
+                                        :href="route(service.href)"
+                                        @click="showingNavigationDropdown = false"
+                                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                                        :class="isServiceActive(service) 
+                                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' 
+                                            : 'text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700'">
+                                        <component :is="service.icon" class="w-5 h-5" />
+                                        {{ service.label }}
+                                    </Link>
+                                    
+                                    <div v-else class="space-y-1">
+                                        <div class="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                            {{ service.label }}
+                                        </div>
+                                        <Link
+                                            v-for="child in visibleChildren(service)"
+                                            :key="`mobile-top-child-${child.label}`"
+                                            :href="route(child.href)"
+                                            @click="showingNavigationDropdown = false"
+                                            class="flex items-center gap-3 px-3 py-2 ml-4 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-700 transition-colors">
+                                            <component :is="child.icon" v-if="child.icon" class="w-4 h-4" />
+                                            {{ child.label }}
                                         </Link>
                                     </div>
-
-                                    <!-- Mobile hamburger (always top on mobile) -->
-                                    <button
-                                        @click="showingNavigationDropdown = !showingNavigationDropdown"
-                                        class="lg:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ms-3"
-                                        :aria-expanded="String(showingNavigationDropdown)"
-                                        aria-controls="primary-navigation"
-                                        aria-label="Toggle navigation"
-                                    >
-                                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                                        </svg>
-                                    </button>
-                               </div>
-
-                                <!-- Navigation Links -->
-                                <Transition name="nav-fade" mode="out-in">
-                                    <div v-if="!isSidebarMode" class="hidden sm:ms-6 sm:flex sm:items-center sm:gap-2 sm:flex-wrap">
-                                        <template v-for="service in visibleServices" :key="service.label">
-                                            <Dropdown v-if="service.children && visibleChildren(service).length" align="right" width="60">
-                                                <template #trigger>
-                                                    <button
-                                                        type="button"
-                                                        :class="[
-                                                            'inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md transition ease-in-out duration-150',
-                                                            isServiceActive(service)
-                                                                ? 'text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700'
-                                                                : 'text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700',
-                                                        ]"
-                                                    >
-                                                        {{ service.label }}
-                                                        <caret-down class="ms-2 -me-0.5 h-4 w-4" />
-                                                    </button>
-                                                </template>
-
-                                                <template #content>
-                                                    <div v-for="child in visibleChildren(service)" :key="child.label" class="w-60">
-                                                        <DropdownLink :href="route(child.href)" :active="route().current(child.href)">
-                                                            <div class="flex items-center gap-1">
-                                                                <span>{{ child.label }}</span>
-                                                            </div>
-                                                        </DropdownLink>
-                                                    </div>
-                                                </template>
-                                            </Dropdown>
-
-                                            <NavLink v-else :href="route(service.href)" :active="route().current(service.href)">
-                                                {{ service.label }}
-                                            </NavLink>
-                                        </template>
-                                    </div>
-                                </Transition>
+                                </template>
                             </div>
-
-                            <div v-if="!isSidebarModeResponsive" class="hidden sm:flex sm:items-center sm:ms-6">
-                                <div class="ms-3 relative">
-                                    <!-- Teams Dropdown -->
-                                    <Dropdown v-if="$page.props.jetstream.hasTeamFeatures" align="right" width="60">
-                                        <template #trigger>
-                                            <span class="inline-flex rounded-md">
-                                                <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
-                                                    {{ $page.props.auth.user.current_team.name }}
-
-                                                    <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                                                    </svg>
-                                                </button>
-                                            </span>
-                                        </template>
-
-                                        <template #content>
-                                            <div class="w-60">
-                                                <!-- Team Management -->
-                                                <div class="block px-4 py-2 text-xs text-gray-400">
-                                                    Manage Team
-                                                </div>
-
-                                                <!-- Team Settings -->
-                                                <DropdownLink :href="route('teams.show', $page.props.auth.user.current_team)">
-                                                    Team Settings
-                                                </DropdownLink>
-
-                                                <DropdownLink v-if="$page.props.jetstream.canCreateTeams" :href="route('teams.create')">
-                                                    Create New Team
-                                                </DropdownLink>
-
-                                                <!-- Team Switcher -->
-                                                <template v-if="$page.props.auth.user.all_teams.length > 1">
-                                                    <div class="border-t border-gray-200 dark:border-gray-600" />
-
-                                                    <div class="block px-4 py-2 text-xs text-gray-400">
-                                                        Switch Teams
-                                                    </div>
-
-                                                    <template v-for="team in $page.props.auth.user.all_teams" :key="team.id">
-                                                        <form @submit.prevent="switchToTeam(team)">
-                                                            <DropdownLink as="button">
-                                                                <div class="flex items-center">
-                                                                    <svg v-if="team.id == $page.props.auth.user.current_team_id" class="me-2 h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                    </svg>
-
-                                                                    <div>{{ team.name }}</div>
-                                                                </div>
-                                                            </DropdownLink>
-                                                        </form>
-                                                    </template>
-                                                </template>
-                                            </div>
-                                        </template>
-                                    </Dropdown>
+                            
+                            <!-- Mobile User Section -->
+                            <div class="border-t border-gray-200 dark:border-gray-700 px-4 py-3">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <img 
+                                        v-if="$page.props.jetstream.managesProfilePhotos && $page.props.auth?.user"
+                                        :src="$page.props.auth.user.profile_photo_url" 
+                                        class="h-10 w-10 rounded-full">
+                                    <div>
+                                        <p class="font-medium text-gray-900 dark:text-white">{{ $page.props.auth?.user?.name }}</p>
+                                        <p class="text-sm text-gray-500">{{ $page.props.auth?.user?.email }}</p>
+                                    </div>
                                 </div>
-                                
-                                <div class="ms-3 relative">
-                                <!-- Settings Dropdown -->
-                                    <Dropdown align="right" width="48">
-                                        <template #trigger>
-                                            <button v-if="$page.props.jetstream.managesProfilePhotos && $page.props.auth?.user" class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-gray-300 transition">
-                                                <img class="h-8 w-8 rounded-full object-cover" :src="$page.props.auth.user.profile_photo_url" :alt="$page.props.auth?.user?.name">
-                                            </button>
-
-                                            <span v-else class="inline-flex rounded-md">
-                                                <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
-                                                    <div class="flex flex-col leading-4">
-                                                        <span class="text-sm  font-medium ">{{ $page.props.auth?.user?.name || 'Account' }}</span>
-                                                        <div v-if="singleRole" class=" text-xs leading-none ">
-                                                            {{ singleRoleLabel }}
-                                                        </div>
-                                                    </div>
-                                                    <caret-down class="ms-2 -me-0.5 h-4 w-4" />
-                                                </button>
-                                            </span>
-                                        </template>
-
-                                        <template #content>
-                                            <!-- Account Management -->
-                                            <div class="block px-4 py-2 text-xs text-gray-400">
-                                                Manage Account
-                                            </div>
-
-                                            <DropdownLink :href="route('profile.show')" :active="route().current('profile.show')">
-                                                Profile
-                                            </DropdownLink>
-
-                                            <div class="block px-4 py-1 text-xs text-gray-400">
-                                                Permissions
-                                            </div>
-                                            <ul class="mb-1">
-                                                <li v-for="permission in formattedPermissions" :key="permission.name" class="block px-6 text-xs text-gray-400">
-                                                    - {{ permission.label }}
-                                                </li>
-                                            </ul>
-
-                                            <DropdownLink v-if="$page.props.jetstream.hasApiFeatures" :href="route('api-tokens.index')" :active="route().current('api-tokens.index')">
-                                                API Tokens
-                                            </DropdownLink>
-
-                                            <div class="border-t border-gray-200 dark:border-gray-600" />
-
-                                            <!-- Authentication -->
-                                            <form @submit.prevent="logout">
-                                                <DropdownLink as="button">
-                                                    Log Out
-                                                </DropdownLink>
-                                            </form>
-                                        </template>
-                                    </Dropdown>
+                                <div class="space-y-1">
+                                    <Link :href="route('profile.show')" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700">
+                                        <LuUser class="w-4 h-4" />
+                                        Profile
+                                    </Link>
+                                    <button @click="logout" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
+                                        <LuLogOut class="w-4 h-4" />
+                                        Log Out
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </Transition>
                 </nav>
 
-                <!-- Responsive Navigation Menu -->
-                <div v-if="!isSidebarModeResponsive" :class="{'block': showingNavigationDropdown, 'hidden': ! showingNavigationDropdown}" id="primary-navigation" class="sm:hidden bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
-                    <div class="pt-2 pb-3 space-y-1">
-                        <div class="sm:hidden flex flex-col gap-1">
-                            <NavigationItems :services="visibleServices" mode="mobile" :visibleChildren="visibleChildren" :isServiceActive="isServiceActive" @item-clicked="showingNavigationDropdown = false" />
-                        </div>
+                <!-- Page Header -->
+                <header v-if="$slots.header" class="bg-AA dark:bg-gray-800 shadow-sm border-b border-AA dark:border-gray-700 h-16">
+                    <div class="default-container">
+                        <slot name="header" />
                     </div>
+                </header>
 
-                    <!-- Responsive Settings Options -->
-                    <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
-                        <div class="flex items-center px-4">
-                            <div v-if="$page.props.jetstream.managesProfilePhotos && $page.props.auth?.user" class="shrink-0 me-3">
-                                <img class="h-10 w-10 rounded-full object-cover" :src="$page.props.auth.user.profile_photo_url" :alt="$page.props.auth?.user?.name">
-                            </div>
-
-                            <div>
-                                <div class="font-medium text-base text-gray-800 dark:text-gray-200">
-                                    {{ $page.props.auth?.user?.name || 'Account' }}
-                                </div>
-                                <div class="font-medium text-sm text-gray-500">
-                                    {{ $page.props.auth?.user?.email }}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mt-3 space-y-1">
-                            <ResponsiveNavLink :href="route('profile.show')" :active="route().current('profile.show')">
-                                Profile
-                            </ResponsiveNavLink>
-
-                            <ResponsiveNavLink v-if="$page.props.jetstream.hasApiFeatures" :href="route('api-tokens.index')" :active="route().current('api-tokens.index')">
-                                API Tokens
-                            </ResponsiveNavLink>
-
-                            <!-- Authentication -->
-                            <form method="POST" @submit.prevent="logout">
-                                <ResponsiveNavLink as="button">
-                                    Log Out
-                                </ResponsiveNavLink>
-                            </form>
-
-                            <!-- Team Management -->
-                            <template v-if="$page.props.jetstream.hasTeamFeatures">
-                                <div class="border-t border-gray-200 dark:border-gray-600" />
-
-                                <div class="block px-4 py-2 text-xs text-gray-400">
-                                    Manage Team
-                                </div>
-
-                                <!-- Team Settings -->
-                                <ResponsiveNavLink :href="route('teams.show', $page.props.auth.user.current_team)" :active="route().current('teams.show')">
-                                    Team Settings
-                                </ResponsiveNavLink>
-
-                                <ResponsiveNavLink v-if="$page.props.jetstream.canCreateTeams" :href="route('teams.create')" :active="route().current('teams.create')">
-                                    Create New Team
-                                </ResponsiveNavLink>
-
-                                <!-- Team Switcher -->
-                                <template v-if="$page.props.auth.user.all_teams.length > 1">
-                                    <div class="border-t border-gray-200 dark:border-gray-600" />
-
-                                    <div class="block px-4 py-2 text-xs text-gray-400">
-                                        Switch Teams
-                                    </div>
-
-                                    <template v-for="team in $page.props.auth.user.all_teams" :key="team.id">
-                                        <form @submit.prevent="switchToTeam(team)">
-                                            <ResponsiveNavLink as="button">
-                                                <div class="flex items-center">
-                                                    <svg v-if="team.id == $page.props.auth.user.current_team_id" class="me-2 h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
-                                                    <div>{{ team.name }}</div>
-                                                </div>
-                                            </ResponsiveNavLink>
-                                        </form>
-                                    </template>
-                                </template>
-                            </template>
-                        </div>
-                    </div>
-                </div>
-                <div v-if="isSidebarModeResponsive && sidebarOpen" class="fixed inset-0 z-40 flex lg:hidden">
-                    <button type="button" class="absolute inset-0 bg-black/40" @click="closeSidebar" />
-                    <aside class="relative h-full w-72 max-w-full bg-white dark:bg-gray-800 border-e border-gray-100 dark:border-gray-700 overflow-y-auto">
-                        <div class="h-16 px-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-                            <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">Navigation</span>
-                            <button type="button" class="text-gray-500 dark:text-gray-400" @click="closeSidebar">
-                                Close
-                            </button>
-                        </div>
-                        <div class="p-3 space-y-1">
-                            <button type="button" class="w-full text-left inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
-                                Switch to Top Navigation
-                            </button>
-                            <template v-for="service in visibleServices" :key="`mobile-sidebar-${service.label}`">
-                                <template v-if="service.children && visibleChildren(service).length">
-                                    <div class="px-3 pt-3 pb-1 text-xs text-gray-400">
-                                        {{ service.label }}
-                                    </div>
-                                    <ResponsiveNavLink v-if="service.href" :href="route(service.href)" :active="route().current(service.href)">
-                                        {{ service.label }}
-                                    </ResponsiveNavLink>
-                                    <ResponsiveNavLink v-for="child in visibleChildren(service)" :key="child.label" :href="route(child.href)" :active="route().current(child.href)">
-                                        {{ child.label }}
-                                    </ResponsiveNavLink>
-                                </template>
-                                <ResponsiveNavLink v-else :href="route(service.href)" :active="route().current(service.href)">
-                                    {{ service.label }}
-                                </ResponsiveNavLink>
-                            </template>
-                        </div>
-                    </aside>
-                </div>
-
-            <!-- Page Heading -->
-            <header v-if="$slots.header" class="bg-AA dark:bg-gray-800 shadow-sm border-b border-AA dark:border-gray-700">
-                <div class="default-container">
-                    <slot name="header" />
-                </div>
-            </header>
-
-            <!-- Page Content -->
-            <main class="overflow-x-auto">
-                <slot />
-            </main>
+                <!-- Main Content -->
+                <main class="overflow-x-auto bg-gray-50 dark:bg-gray-900">
+                    <slot />
+                </main>
             </div>
         </div>
     </div>

@@ -1,15 +1,18 @@
 <script setup>
 import particleMixin from "@/Modules/mixins/ParticleMixin.js";
+import {
+    LuCalendarDays,
+    LuMicroscope,
+    LuCalendar,
+    LuPackage,
+    LuFlag,
+    LuFlaskConical,
+    LuClipboardList,
+    LuCpu
+} from "@/Components/Icons";
 import { onMounted, ref, computed } from "vue";
 import SocialLinks from "@/Components/SocialLinks.vue";
 import ServiceCard from "@/Components/ServiceCard.vue";
-import CalendarIcon from "@/Components/Icons/CalendarIcon.vue";
-import FesIcon from "@/Components/Icons/FesIcon.vue";
-import BookmarkIcon from "@/Components/Icons/BookmarkIcon.vue";
-import FlagIcon from "@/Components/Icons/FlagIcon.vue";
-import BoxesIcon from "@/Components/Icons/BoxesIcon.vue";
-import TruckIcon from "@/Components/Icons/TruckIcon.vue";
-import BuildingIcon from "@/Components/Icons/BuildingIcon.vue";
 
 defineProps({
     canLogin: Boolean,
@@ -29,52 +32,59 @@ const isInternetAccess = computed(() => {
 
 const services = [
     {
-        title: "Bookings and Rentals",
-        description: "Manage and track bookings and rentals for vehicles and venues",
-        icon: CalendarIcon,
+        title: "Bookings & Rentals",
+        description: "Reserve vehicles, venues, and equipment for your events",
+        icon: LuCalendarDays,
         href: route("rental.bookings.guest"),
+        color: "blue",
     },
     {
-        title: "Event Forms",
-        description: "Register and participate in DA-CBC events with comprehensive event forms",
-        icon: CalendarIcon,
+        title: "Event Registration",
+        description: "Register and participate in DA-CBC events and activities",
+        icon: LuCalendar,
         href: route("forms.guest.index"),
+        color: "violet",
     },
     {
-        title: "FES Request Form",
-        description: "Facility, Equipment, and Supplies Request Form (Borrower's Slip)",
+        title: "FES Requests",
+        description: "Request facilities, equipment, and supplies",
+        icon: LuClipboardList,
         href: route("labReq.guest.index"),
-        icon: FesIcon,
+        color: "amber",
     },
     {
-        title: "Lab Equipment Logger",
-        description: "Access and track laboratory equipment availability and usage logs",
+        title: "Lab Equipment Log",
+        description: "Track and manage laboratory equipment usage",
+        icon: LuMicroscope,
         href: route("laboratory.equipments.show"),
-        icon: BookmarkIcon,
+        color: "emerald",
     },
     {
-        title: "ICT Equipment Logger",
-        description: "Access and track ICT equipment availability and usage logs",
+        title: "ICT Equipment Log",
+        description: "Monitor ICT assets and equipment availability",
+        icon: LuCpu,
         href: route("ict.equipments.show"),
-        icon: BookmarkIcon,
+        color: "cyan",
     },
     {
         title: "Supplies Checkout",
-        description: "Check out and track supplies and equipment from our inventory",
+        description: "Request and track inventory and supply items",
+        icon: LuPackage,
         href: route("inventory.public.outgoing.index"),
-        icon: BoxesIcon,
-    },
-    {
-        title: "File a Report",
-        description: "Report incidents, maintenance issues, or equipment damage",
+        color: "orange",
+    },{
+        title: "Incident Reports",
+        description: "Report issues, damages, or maintenance needs",
+        icon: LuFlag,
         href: route("suppEquipReports.create.guest"),
-        icon: FlagIcon,
+        color: "rose",
     },
     {
-        title: "Experiment Monitoring",
-        description: "Monitor and track ongoing experiments in the laboratory",
+        title: "Experiment Log",
+        description: "Monitor ongoing laboratory experiments and research",
+        icon: LuFlaskConical,
         href: route("laboratory.monitoring.guest"),
-        icon: FlagIcon,
+        color: "indigo",
     },
 ];
 
@@ -119,7 +129,10 @@ onMounted(() => {
     // Show network modal only if:
     // 1. Accessed from internet URL
     // 2. Not already declined in this session
-    if (isInternetAccess.value && !sessionStorage.getItem("declinedLocalNetwork")) {
+    if (
+        isInternetAccess.value &&
+        !sessionStorage.getItem("declinedLocalNetwork")
+    ) {
         // Small delay to let page fully load first
         setTimeout(() => {
             showNetworkModal.value = true;
@@ -128,46 +141,70 @@ onMounted(() => {
 });
 </script>
 
-
 <template>
     <Head title="Welcome" />
     <div class="fixed top-0 left-0 w-full h-full z-0 overflow-hidden">
         <div class="absolute inset-0 bg-gradient-radial animate-gradient"></div>
     </div>
-    <div class="absolute top-0 left-0 w-full ">
+    <div class="absolute top-0 left-0 w-full">
         <div class="relative sm:flex justify-center items-center min-h-screen">
             <div class="sm:fixed sm:top-0 sm:end-0 p-6 text-end z-10">
-                <Link v-if="$page.props.auth.user" :href="route('dashboard')" class="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+                <Link
+                    v-if="$page.props.auth.user"
+                    :href="route('dashboard')"
+                    class="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                >
                     Dashboard
                 </Link>
             </div>
             <!-- Falling Logos Container -->
-<!--            <div id="falling-logos"></div>-->
+            <!--            <div id="falling-logos"></div>-->
 
             <div class="flex flex-col gap-5 px-5">
                 <div class="text-center text-gray-700 dark:text-gray-300">
                     <div class="relative w-fit mx-auto">
                         <div class="flex items-center gap-1">
-                            <h1 class="lg:text-6xl md:text-4xl text-3xl font-bold leading-none text-AB dark:text-green-400 font-[Montserrat] drop-shadow-md whitespace-nowrap">
+                            <h1
+                                class="lg:text-6xl md:text-4xl text-3xl font-bold leading-none text-AB dark:text-green-400 font-[Montserrat] drop-shadow-md whitespace-nowrap"
+                            >
                                 {{ $appName }}
                             </h1>
                         </div>
-                        <span class="absolute bottom-0 -right-5 text-[0.60rem] text-AB">
+                        <span
+                            class="absolute bottom-0 -right-5 text-[0.60rem] text-AB"
+                        >
                             {{ $page.props.appVersion }}
                         </span>
                     </div>
 
-                    <p class="mt-4 max-w-2xl mx-auto text-gray-300 leading-none">
-                        Your gateway to DA-Crop Biotechnology Center's proprietary web apps and services.
+                    <p
+                        class="mt-4 max-w-2xl mx-auto text-gray-300 leading-none"
+                    >
+                        Your gateway to DA-Crop Biotechnology Center's
+                        proprietary web apps and services.
                     </p>
-                    <blockquote class="mt-2 font-semibold text-gray-300 leading-none">Better Crops, Better Lives</blockquote>
+                    <blockquote
+                        class="mt-2 font-semibold text-gray-300 leading-none"
+                    >
+                        Better Crops, Better Lives
+                    </blockquote>
                 </div>
-                <div class="flex flex-col items-center justify-center gap-6 text-sm w-full">
+                <div
+                    class="flex flex-col items-center justify-center gap-6 text-sm w-full"
+                >
                     <div class="text-center">
-                        <h3 class="text-gray-900 dark:text-white text-xl font-bold tracking-wider uppercase">Apps & Services</h3>
-                        <div class="h-1.5 w-16 bg-gradient-to-r from-AC via-AB to-AA dark:from-AA dark:via-AD dark:to-AB mt-3 mx-auto rounded-full shadow-lg dark:shadow-AC/30"></div>
+                        <h3
+                            class="text-gray-900 dark:text-white text-xl font-bold tracking-wider uppercase"
+                        >
+                            Apps & Services
+                        </h3>
+                        <div
+                            class="h-1.5 w-16 bg-gradient-to-r from-AC via-AB to-AA dark:from-AA dark:via-AD dark:to-AB mt-3 mx-auto rounded-full shadow-lg dark:shadow-AC/30"
+                        ></div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 w-full max-w-7xl">
+                    <div
+                        class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 w-full max-w-7xl"
+                    >
                         <ServiceCard
                             v-for="(service, index) in services"
                             :key="index"
@@ -175,6 +212,7 @@ onMounted(() => {
                             :description="service.description"
                             :icon="service.icon"
                             :href="service.href"
+                            :color="service.color"
                             :external="service.external"
                         />
                     </div>
@@ -185,13 +223,20 @@ onMounted(() => {
     <social-links />
 
     <!-- PhilRice Network Detection Modal -->
-    <div v-if="showNetworkModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-8 max-w-md mx-4">
+    <div
+        v-if="showNetworkModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+    >
+        <div
+            class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-8 max-w-md mx-4"
+        >
             <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">
                 PhilRice Network Detected?
             </h3>
             <p class="text-gray-600 dark:text-gray-300 mb-6">
-                We detected you're accessing from the internet. If you're connected to the PhilRice network, we can redirect you to the faster local deployment for better performance.
+                We detected you're accessing from the internet. If you're
+                connected to the PhilRice network, we can redirect you to the
+                faster local deployment for better performance.
             </p>
             <div class="flex gap-3">
                 <button
@@ -207,9 +252,24 @@ onMounted(() => {
                     class="flex-1 px-4 py-2 bg-AB dark:bg-green-600 text-white rounded-lg hover:bg-opacity-90 dark:hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                 >
                     <span v-if="isCheckingNetwork">
-                        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        <svg
+                            class="animate-spin h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                        >
+                            <circle
+                                class="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                stroke-width="4"
+                            ></circle>
+                            <path
+                                class="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
                         </svg>
                     </span>
                     <span v-else>Yes, I'm on PhilRice Network</span>
@@ -218,4 +278,3 @@ onMounted(() => {
         </div>
     </div>
 </template>
-

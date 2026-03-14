@@ -7,6 +7,10 @@ export default class DtoRentalVehicle extends DtoBaseClass implements IRentalVeh
     time_from: string;
     time_to: string;
     purpose: string;
+    destination_location: string;
+    destination_city: string;
+    destination_province: string;
+    destination_region: string;
     requested_by: string;
     members_of_party: string[];
     contact_number: string;
@@ -22,6 +26,10 @@ export default class DtoRentalVehicle extends DtoBaseClass implements IRentalVeh
         this.time_from = data?.time_from;
         this.time_to = data?.time_to;
         this.purpose = data?.purpose;
+        this.destination_location = data?.destination_location;
+        this.destination_city = data?.destination_city;
+        this.destination_province = data?.destination_province;
+        this.destination_region = data?.destination_region;
         this.requested_by = data?.requested_by;
         this.members_of_party = Array.isArray(data?.members_of_party) ? data.members_of_party : [];
         this.contact_number = data?.contact_number;

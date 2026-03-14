@@ -6,6 +6,10 @@ export interface RentalVehicle {
     time_from: string;
     time_to: string;
     purpose: string;
+    destination_location: string;
+    destination_city: string;
+    destination_province: string;
+    destination_region: string;
     requested_by: string;
     members_of_party?: string[];
     contact_number: string;

@@ -86,6 +86,17 @@ class RentalVehicleController extends BaseController
         return response()->json(['data' => $rental]);
     }
 
+    public function publicShow(string $id): JsonResponse
+    {
+        $rental = $this->repository->find($id);
+
+        if (!$rental) {
+            return response()->json(['message' => 'Rental not found'], 404);
+        }
+
+        return response()->json(['data' => $rental]);
+    }
+
     public function update(UpdateRentalVehicleRequest $request, string $id): JsonResponse
     {
         $rental = $this->repository->find($id);

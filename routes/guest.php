@@ -122,6 +122,7 @@ Route::prefix('guest')->group(function () {
     Route::prefix('rental')->group(function () {
         Route::prefix('vehicles')->group(function () {
             Route::get('/', [RentalVehicleController::class, 'publicIndex'])->name('api.guest.rental.vehicles.index');
+            Route::get('/{id}', [RentalVehicleController::class, 'publicShow'])->name('api.guest.rental.vehicles.show');
             Route::post('/', [RentalVehicleController::class, 'store'])->name('api.guest.rental.vehicles.store');
             Route::get('/check-availability/{vehicleType}/{dateFrom}/{dateTo}', [RentalVehicleController::class, 'checkAvailability'])
                 ->name('api.guest.rental.vehicles.check-availability');
@@ -129,6 +130,7 @@ Route::prefix('guest')->group(function () {
 
         Route::prefix('venues')->group(function () {
             Route::get('/', [RentalVenueController::class, 'publicIndex'])->name('api.guest.rental.venues.index');
+            Route::get('/{id}', [RentalVenueController::class, 'publicShow'])->name('api.guest.rental.venues.show');
             Route::post('/', [RentalVenueController::class, 'store'])->name('api.guest.rental.venues.store');
             Route::get('/check-availability/{venueType}/{dateFrom}/{dateTo}', [RentalVenueController::class, 'checkAvailability'])
                 ->name('api.guest.rental.venues.check-availability');

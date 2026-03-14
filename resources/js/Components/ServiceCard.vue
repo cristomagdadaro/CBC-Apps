@@ -10,7 +10,22 @@ defineProps({
         type: Boolean,
         default: false,
     },
+    color: {
+        type: String,
+        default: "AB",
+    },
 });
+
+const colorClasses = {
+    blue: "bg-blue-500",
+    violet: "bg-violet-500",
+    amber: "bg-amber-500",
+    emerald: "bg-emerald-500",
+    cyan: "bg-cyan-500",
+    orange: "bg-orange-500",
+    rose: "bg-rose-500",
+    indigo: "bg-indigo-500",
+};
 </script>
 
 <template>
@@ -30,7 +45,7 @@ defineProps({
         <!-- Content -->
         <div class="relative z-10 flex flex-col h-full">
             <!-- Icon container -->
-            <div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-AC/10 to-AB/5 dark:from-AC/25 dark:to-AA/15 p-2 text-AC dark:text-AA group-hover:from-AC/15 group-hover:to-AB/10 dark:group-hover:from-AC/35 dark:group-hover:to-AA/25 group-hover:text-AC dark:group-hover:text-AA transition-all duration-300 shadow-sm dark:shadow-none">
+            <div :class="`${colorClasses[color]}`" class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-AC/10 to-AB/5 dark:from-AC/25 dark:to-AA/15 p-2 text-white dark:text-AA group-hover:from-AC/15 group-hover:to-AB/10 dark:group-hover:from-AC/35 dark:group-hover:to-AA/25 transition-all duration-300 shadow-sm dark:shadow-none">
                 <component :is="icon" class="w-6 h-6" v-if="typeof icon === 'object'" />
                 <span v-else class="text-lg">{{ icon }}</span>
             </div>

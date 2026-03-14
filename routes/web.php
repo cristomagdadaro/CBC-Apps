@@ -93,6 +93,18 @@ Route::prefix('rental')->group(function () {
     Route::get('/bookings', function () {
         return Inertia::render('Rentals/BookingRentalsPublic');
     })->name('rental.bookings.guest');
+
+    Route::get('/vehicle/{id}', function (string $id) {
+        return Inertia::render('Rentals/RentalVehicleShow', [
+            'rental_id' => $id,
+        ]);
+    })->name('rental.vehicle.show');
+
+    Route::get('/venue/{id}', function (string $id) {
+        return Inertia::render('Rentals/RentalVenueShow', [
+            'rental_id' => $id,
+        ]);
+    })->name('rental.venue.show');
 });
 
 Route::prefix('file-report')->group(function () {

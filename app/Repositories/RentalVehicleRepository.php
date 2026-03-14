@@ -52,6 +52,10 @@ class RentalVehicleRepository
             'date_to',
             'status',
             'purpose',
+            'destination_location',
+            'destination_city',
+            'destination_province',
+            'destination_region',
             'notes',
         ];
 

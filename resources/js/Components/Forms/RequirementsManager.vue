@@ -432,14 +432,6 @@ export default {
 
 <template>
     <div class="px-1 flex flex-col gap-2">
-        <label class="font-bold uppercase flex items-center gap-2" title="Configure required forms for this event">
-            <span>Requirements:</span>
-            <transition name="fade">
-                <div v-if="successMessage" class="p-0.5 bg-green-100 border border-green-300 rounded text-xs text-green-800 w-full">
-                    ✓ {{ successMessage }}
-                </div>
-            </transition>
-        </label>
         <transition-container type="slide-bottom">
             <div>
                 <InputError v-show="!!error" class="" :message="error" />

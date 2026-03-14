@@ -53,6 +53,10 @@ class RentalVenueRepository
             'date_from',
             'date_to',
             'status',
+            'destination_location',
+            'destination_city',
+            'destination_province',
+            'destination_region',
             'notes',
         ];
 

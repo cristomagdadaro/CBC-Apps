@@ -8,6 +8,10 @@ export default class DtoRentalVenue extends DtoBaseClass implements IRentalVenue
     time_to: string;
     expected_attendees: number;
     event_name: string;
+    destination_location: string;
+    destination_city: string;
+    destination_province: string;
+    destination_region: string;
     requested_by: string;
     contact_number: string;
     status: string;
@@ -23,6 +27,10 @@ export default class DtoRentalVenue extends DtoBaseClass implements IRentalVenue
         this.time_to = data?.time_to;
         this.expected_attendees = data?.expected_attendees;
         this.event_name = data?.event_name;
+        this.destination_location = data?.destination_location;
+        this.destination_city = data?.destination_city;
+        this.destination_province = data?.destination_province;
+        this.destination_region = data?.destination_region;
         this.requested_by = data?.requested_by;
         this.contact_number = data?.contact_number;
         this.status = data?.status || 'pending';

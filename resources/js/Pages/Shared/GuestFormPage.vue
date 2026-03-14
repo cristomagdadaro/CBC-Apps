@@ -22,7 +22,7 @@ export default {
         },
         maxWidth: {
             type: String,
-            default: 'max-w-4xl',
+            default: 'max-w-full',
         },
     },
 };
@@ -36,8 +36,8 @@ export default {
 
     <!-- Main content overlay -->
     <div class="fixed top-0 left-0 w-full h-full flex justify-center overflow-y-auto">
-        <div class="relative sm:flex flex-col md:gap-5 justify-start items-center md:w-fit mt-0 md:mt-[5%] w-full">
-            <div class="md:relative flex flex-col md:gap-5 w-full" :class="maxWidth">
+        <div class="relative sm:flex flex-col md:gap-5 justify-start items-center md:w-fit w-full">
+            <div class="md:relative flex flex-col md:gap-5 w-full p-3 md:p-5" :class="maxWidth">
                 <!-- Header / search / top content -->
                 <slot name="top">
                     <div v-show="delayReady" class="p-0 md:rounded-md flex flex-col gap-2 md:drop-shadow-lg mb-0 w-full">
