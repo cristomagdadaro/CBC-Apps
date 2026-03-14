@@ -12,7 +12,10 @@ export default {
 </script>
 
 <template>
-    <th class="lg:py-2 py-1" :class="isFiltered?'bg-blue-600 border border-blue-800 hover:bg-blue-700':''">
+    <th 
+        class="font-semibold tracking-wide select-none"
+        :class="isFiltered ? 'bg-blue-600 text-white' : ''"
+    >
         <slot />
     </th>
 </template>

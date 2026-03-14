@@ -12,8 +12,11 @@ export default {
 
 <template>
     <tr
-        class="hover:bg-gray-300 duration-100 cursor-default"
-        :class="{ 'bg-blue-200': selected }"
+        class="transition-colors duration-150 cursor-pointer"
+        :class="{ 
+            'bg-blue-50 dark:bg-blue-900/20': selected,
+            'hover:bg-gray-50 dark:hover:bg-gray-700/50': !selected 
+        }"
     >
         <slot />
     </tr>

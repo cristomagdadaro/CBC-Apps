@@ -296,7 +296,7 @@ export default {
                 leave-to-class="opacity-0 -translate-x-full">
                 <aside
                     v-if="isSidebarModeResponsive"
-                    class="hidden max-h-screen sticky top-0 z-10 lg:flex lg:flex-col fixed lg:static inset-y-0 left-0 z-40 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg lg:shadow-none transition-all duration-300"
+                    class="hidden max-h-screen sticky top-0 lg:flex lg:flex-col lg:sticky inset-y-0 left-0 z-40 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg lg:shadow-none transition-all duration-300"
                     :class="sidebarCollapsed ? 'w-20' : 'w-64'">
                     
                     <!-- Sidebar Header -->
@@ -729,7 +729,7 @@ export default {
                 </nav>
 
                 <!-- Page Header -->
-                <header v-if="$slots.header" class="bg-AA dark:bg-gray-800 shadow-sm border-b border-AA dark:border-gray-700 h-16">
+                <header v-if="$slots.header" class="bg-AA dark:bg-gray-800 shadow-sm border-b border-AA dark:border-gray-700 h-16 ">
                     <div class="default-container">
                         <slot name="header" />
                     </div>

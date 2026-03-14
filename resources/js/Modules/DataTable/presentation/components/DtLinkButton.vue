@@ -25,15 +25,11 @@ export default {
         :href="href"
         :target="target"
         :rel="target === '_blank' ? 'noopener noreferrer' : null"
-        class="text-blue-500 hover:text-blue-700 flex gap-1 items-center justify-center w-fit"
+        class="inline-flex items-center justify-center transition-colors duration-200"
     >
         <slot />
     </Link>
-    <button v-else class="text-blue-500 hover:text-blue-700 flex gap-1 items-center justify-center w-fit">
+    <button v-else type="button" class="inline-flex items-center justify-center transition-colors duration-200">
         <slot />
     </button>
 </template>
-
-<style scoped>
-
-</style>

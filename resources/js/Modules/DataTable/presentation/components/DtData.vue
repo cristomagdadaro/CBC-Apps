@@ -1,11 +1,19 @@
 <script>
 export default {
-    name: "DtData"
+    name: "DtData",
+    props: {
+        truncate: {
+            type: Boolean,
+            default: true
+        }
+    }
 }
 </script>
 
 <template>
-    <td class="lg:whitespace-nowrap max-w-32 overflow-ellipsis overflow-hidden py-1 lg:py-2">
-        <slot />
+    <td class="whitespace-nowrap">
+        <div :class="truncate ? 'truncate max-w-xs' : ''">
+            <slot />
+        </div>
     </td>
 </template>

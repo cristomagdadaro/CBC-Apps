@@ -31,14 +31,12 @@ export default {
             <supp-equip-header-actions />
         </template>
 
-        <div class="py-10">
-            <div class="max-w-6xl mx-auto space-y-8 px-4">
+        <div class="mx-auto space-y-8 p-5">
                 <search-comp
                     :propModel="reportModel"
                     :cardSlot="reportsCard"
                 />
             </div>
-        </div>
     </AppLayout>
 </template>
 

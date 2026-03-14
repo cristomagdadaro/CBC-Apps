@@ -54,7 +54,7 @@ export default {
             </div>
         </template>
 
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <div class="mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
             <!-- Event Selection Card -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">

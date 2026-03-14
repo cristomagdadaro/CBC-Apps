@@ -142,7 +142,7 @@ export default {
         </template>
 
         <div class="py-6 px-4 sm:px-6 lg:px-8">
-            <div class="max-w-7xl mx-auto">
+            <div class="mx-auto">
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <!-- Sidebar Menu -->
                     <div class="lg:col-span-1">
