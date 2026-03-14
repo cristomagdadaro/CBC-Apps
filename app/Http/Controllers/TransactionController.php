@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateTransactionRequest;
 use App\Http\Requests\GetTransactionRequest;
+use App\Http\Requests\InventoryRecountAdjustmentRequest;
 use App\Http\Requests\NewOutgoingRequest;
 use App\Http\Requests\UpdateTransactionRequest;
 use App\Models\NewBarcode;
@@ -84,6 +85,43 @@ class TransactionController extends BaseController
     public function outgoingStockStore(NewOutgoingRequest $request): Model | JsonResponse
     {
         return $this->repo()->createOutgoingWithPipeline($request->validated());
+    }
+
+    public function recountLookup(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'barcode' => ['required', 'string', 'max:191'],
+        ]);
+
+        $result = $this->repo()->findRecountingCandidateByBarcode($validated['barcode']);
+
+        if (!$result) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No inventory item found for the scanned barcode.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $result,
+        ]);
+    }
+
+    public function recountAdjust(InventoryRecountAdjustmentRequest $request): JsonResponse
+    {
+        $result = $this->repo()->applyInventoryRecountAdjustment(
+            payload: $request->validated(),
+            userId: optional($request->user())->id,
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => $result['transaction_created']
+                ? 'Inventory adjustment recorded successfully.'
+                : 'No discrepancy found. Inventory count is already aligned.',
+            'data' => $result,
+        ]);
     }
 
     public function getRemainingStocksPerCategory(GetTransactionRequest $request, string $categoryName): Collection

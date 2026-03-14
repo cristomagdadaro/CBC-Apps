@@ -4,10 +4,11 @@ import OutgoingTransactionLink from "@/Pages/Inventory/Transactions/components/p
 import InventoryDashboardLink from "@/Pages/Inventory/Transactions/components/presentation/InventoryDashboardLink.vue";
 import AttachReportLink from "@/Pages/Inventory/Transactions/components/presentation/AttachReportLink.vue";
 import CreatePersonnelLink from "@/Pages/Inventory/Transactions/components/presentation/CreatePersonnelLink.vue";
+import RecountingTransactionLink from "@/Pages/Inventory/Transactions/components/presentation/RecountingTransactionLink.vue";
 
 export default {
     name: "TransactionHeaderAction",
-    components: {IncommingTransactionLink, OutgoingTransactionLink, InventoryDashboardLink, AttachReportLink, CreatePersonnelLink},
+    components: {IncommingTransactionLink, OutgoingTransactionLink, InventoryDashboardLink, AttachReportLink, CreatePersonnelLink, RecountingTransactionLink},
 }
 </script>
 
@@ -16,6 +17,7 @@ export default {
         <InventoryDashboardLink />
         <IncommingTransactionLink />
         <OutgoingTransactionLink />
+        <RecountingTransactionLink />
         <CreatePersonnelLink />
         <AttachReportLink />
     </ActionHeaderLayout>

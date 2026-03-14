@@ -86,6 +86,10 @@ export default {
                             href: 'transactions.index',
                             icon: 'LuArrowLeftRight',
                         }, {
+                            label: 'Recounting',
+                            href: 'transactions.recounting',
+                            icon: 'LuClipboardCheck',
+                        }, {
                             label: 'Barcode Printing',
                             href: 'inventory.barcodes.print',
                             icon: 'LuBarcode',

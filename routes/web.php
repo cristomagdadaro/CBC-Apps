@@ -272,6 +272,13 @@ Route::middleware([
                     ]);
                 })->name('transactions.outgoing');
 
+                Route::get('/recounting', function () {
+                    return Inertia::render('Inventory/Transactions/Recounting', [
+                        'fromUrl' => route('transactions.index'),
+                        'storage_locations' => app(OptionRepo::class)->getStorageLocations(),
+                    ]);
+                })->name('transactions.recounting');
+
                 Route::get('/{id}', function () {
                     $transaction = Transaction::find(request()->route('id'));
                     if (!$transaction) return redirect()->route('transactions.index');
