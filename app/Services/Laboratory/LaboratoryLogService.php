@@ -329,7 +329,7 @@ class LaboratoryLogService
             ->select([
                 'equipment_id',
                 DB::raw('COUNT(*) as usage_count'),
-                DB::raw('SUM(TIMESTAMPDIFF(SECOND, started_at, COALESCE(actual_end_at, end_use_at))) as total_duration_seconds'),
+                DB::raw($this->totalDurationExpression()),
             ])
             ->whereIn('status', ['completed', 'overdue'])
             ->groupBy('equipment_id')
@@ -366,6 +366,14 @@ class LaboratoryLogService
             'most_used' => $mostUsed,
             'heatmap' => $heatmap,
         ];
+    }
+
+    protected function totalDurationExpression(): string
+    {
+        return match (DB::getDriverName()) {
+            'sqlite' => 'ROUND(SUM((julianday(COALESCE(actual_end_at, end_use_at)) - julianday(started_at)) * 86400)) as total_duration_seconds',
+            default => 'SUM(TIMESTAMPDIFF(SECOND, started_at, COALESCE(actual_end_at, end_use_at))) as total_duration_seconds',
+        };
     }
 
     public function enrichLogsWithLocationDetails(Collection ...$collections): void

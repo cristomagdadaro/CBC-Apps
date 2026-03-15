@@ -10,6 +10,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! in_array(DB::getDriverName(), ['mysql', 'mariadb'], true)) {
+            return;
+        }
+
         DB::statement("ALTER TABLE rental_vehicles MODIFY vehicle_type VARCHAR(255) NOT NULL");
     }
 
@@ -18,6 +22,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (! in_array(DB::getDriverName(), ['mysql', 'mariadb'], true)) {
+            return;
+        }
+
         DB::statement("ALTER TABLE rental_vehicles MODIFY vehicle_type ENUM('innova','pickup','van','suv') NOT NULL");
     }
 };

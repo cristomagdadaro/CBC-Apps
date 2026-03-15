@@ -189,8 +189,7 @@ class OptionRepo extends AbstractRepoService
                     'name' => (string) $record->value,
                 ];
             })
-            ->values()
-            ->toArray();
+            ->values();
 
         return $normalized;
     }
@@ -271,8 +270,7 @@ class OptionRepo extends AbstractRepoService
                     'name' => (string) $record->value,
                 ];
             })
-            ->values()
-            ->toArray();
+            ->values();
     }
 
     /**
@@ -316,10 +314,23 @@ class OptionRepo extends AbstractRepoService
                 ->values();
         }
 
-        return \App\Models\Transaction::join('items', 'transactions.item_id', '=', 'items.id')
+        $items = \App\Models\Transaction::join('items', 'transactions.item_id', '=', 'items.id')
             ->where('items.category_id', 8)
-            ->selectRaw('items.description as name, concat(items.brand, " (", items.description, ")") as label')
+            ->select('items.description as description', 'items.brand as brand')
             ->get();
+
+        return $items->map(function ($item) {
+            $description = (string) $item->description;
+            $brand = trim((string) ($item->brand ?? ''));
+            $label = $brand ? "{$brand} ({$description})" : $description;
+
+            return [
+                'name' => $description,
+                'label' => $label,
+            ];
+        })
+        ->unique('name')
+        ->values();
     }
 
     /**
