@@ -25,6 +25,7 @@
         "nunomaduro/collision": "^7.0",
         "pestphp/pest-plugin-stressless": "*",
         "phpunit/phpunit": "^10.1",
+        "smeghead/php-class-diagram": "^1.6",
         "spatie/laravel-ignition": "^2.0"
     },
     "autoload": {

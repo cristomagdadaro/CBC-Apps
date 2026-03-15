@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Generic\GetRequest;
 use App\Http\Requests\CreateRequest;
-use App\Http\Requests\DeleteRequest;
+use App\Http\Requests\Generic\DeleteRequest;
 use App\Http\Requests\UpdateRequest;
 use App\Repositories\CategoryRepo;
 
@@ -32,6 +32,6 @@ class CategoryController extends BaseController
 
     public function destroy(DeleteRequest $request, string $id)
     {
-        return parent::_destroy($$id);
+        return parent::_destroy($id);
     }
 }

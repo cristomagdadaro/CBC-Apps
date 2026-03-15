@@ -1,0 +1,39 @@
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - FormBuilder
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: pcov
+          extensions: mbstring, dom, fileinfo, sqlite3, pdo_sqlite
+
+      - name: Copy environment
+        run: cp .env.example .env
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Generate app key
+        run: php artisan key:generate
+
+      - name: Run PHPUnit with coverage
+        run: vendor/bin/phpunit --coverage-clover coverage.xml --coverage-text
+
+      - name: Enforce minimum line coverage
+        run: |
+          php -r "$xml=simplexml_load_file('coverage.xml'); $metrics=$xml->project->metrics; $covered=(int)$metrics['coveredstatements']; $statements=(int)$metrics['statements']; $line=$statements>0?($covered/$statements)*100:0; echo 'Line coverage: '.round($line,2).PHP_EOL; if ($line < 40) { fwrite(STDERR, 'Coverage below 40% threshold'.PHP_EOL); exit(1);}"

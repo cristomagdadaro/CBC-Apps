@@ -1,5 +1,19 @@
 # CBC-Apps AI Coding Instructions
 
+## Usage Instructions
+
+### For the Agentic Prompt
+1. Open GitHub Copilot Chat in Agent mode.
+2. Attach [.github/prompts/agent.refactor-controllers.prompt.md](../.github/prompts/agent.refactor-controllers.prompt.md).
+3. Let the agent follow the structured refactoring plan for the target controllers.
+4. Start with: "Refactor FormBuilderController to use BaseController standards".
+
+### For Copilot Instructions
+The shared instruction file at [.github/copilot-instructions.md](../.github/copilot-instructions.md) applies these defaults to Copilot interactions:
+- New controllers extend `BaseController` by default.
+- Repository injection uses the `$service` property convention.
+- CBC domain patterns for Events, Inventory, and Requests stay consistent.
+
 ## Architecture Overview
 This is a Laravel 10 application using Inertia.js with Vue 3 for a modern SPA experience. It manages event registrations, inventory tracking, and resource requests for an organization (CBC).
 

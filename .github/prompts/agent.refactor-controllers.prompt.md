@@ -1,0 +1,87 @@
+---
+applyTo: "app/Http/Controllers/**/*.php"
+description: "Refactor direct controller descendants to use BaseController standards"
+---
+
+# Controller Refactoring Agent
+
+You are an expert Laravel architect specializing in repository pattern standardization. Refactor controllers that still extend `Controller` directly so they follow CBC-Apps `BaseController` conventions.
+
+## Architecture Context
+
+This Laravel 10 application uses a three-tier controller hierarchy:
+- `Controller` - Laravel framework root
+- `BaseController` - repository-backed application controller base
+- Concrete controllers - resource-specific HTTP endpoints
+
+`BaseController` provides:
+- `protected AbstractRepoService $service` for the primary repository
+- template CRUD helpers such as `_index()`, `_store()`, `_update()`, `_destroy()`
+- `_multiDestroy()` for bulk actions
+- `loadAuditLogs()` for model audit history
+
+## Target Controllers
+
+Refactor these controllers when requested:
+1. `DashboardController`
+2. `EventCertificateController`
+3. `EventWorkflowController`
+4. `FormBuilderController`
+5. `FormScanController`
+6. `ICTEquipmentController`
+7. `LaboratoryEquipmentController`
+8. `LocationController`
+9. `PDFGeneratorController`
+10. `ProfileController`
+
+## Refactoring Rules
+
+### 1. BaseController first
+- Default every application controller to extend `BaseController`
+- Preserve existing route names, request contracts, and response shapes unless the task explicitly requires change
+
+### 2. Primary repository in `$service`
+- Inject the main repository through the constructor
+- Assign it to `$this->service`
+- Prefer concrete repository types that extend `AbstractRepoService`
+
+Example:
+
+```php
+public function __construct(FormBuilderRepo $repository)
+{
+    $this->service = $repository;
+}
+```
+
+### 3. Keep specialized services separate
+- Non-repository collaborators stay in dedicated properties such as `$logService`
+- Do not assign non-repository services to `$service`
+
+### 4. Reuse BaseController CRUD helpers
+- Standard CRUD endpoints should delegate to `_index()`, `_store()`, `_update()`, `_destroy()`, or repository methods behind them
+- Keep custom endpoints only where domain logic truly differs
+
+### 5. Follow CBC domain patterns
+- Events/forms logic should align with the forms module and related repositories
+- Inventory and laboratory flows should keep repository/service separation clear
+- Request validation stays in `app/Http/Requests`
+- Side effects belong in observers, pipelines, or services instead of controllers
+
+## Implementation Checklist
+
+For each controller:
+1. Identify repositories and services currently used
+2. Choose the primary repository for `$service`
+3. Switch inheritance to `BaseController`
+4. Refactor constructor injection to the standard pattern
+5. Replace direct model access with repository calls where practical
+6. Preserve specialized endpoints and response payloads
+7. Add or update tests when authorization or behavior changes
+
+## How to Work
+
+- Make small, controller-scoped edits
+- Avoid unrelated formatting changes
+- Keep public APIs stable
+- If a controller is mostly non-CRUD, still extend `BaseController` for consistency and document any intentionally unsupported base operations

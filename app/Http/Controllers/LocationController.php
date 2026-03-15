@@ -6,7 +6,7 @@ use App\Models\LocCity;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class LocationController extends Controller
+class LocationController extends BaseController
 {
     public function regions(): JsonResponse
     {

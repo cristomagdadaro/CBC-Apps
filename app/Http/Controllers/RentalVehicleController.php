@@ -11,16 +11,14 @@ use Illuminate\Http\Request;
 
 class RentalVehicleController extends BaseController
 {
-    protected RentalVehicleRepository $repository;
-
     public function __construct(RentalVehicleRepository $repository)
     {
-        $this->repository = $repository;
+        $this->service = $repository;
     }
 
     public function index(Request $request): JsonResponse
     {
-        $rentals = $this->repository->paginate(
+        $rentals = $this->repo()->paginate(
             $request->only(['search', 'filter', 'is_exact', 'sort', 'order', 'page', 'per_page']),
             (int) $request->query('per_page', 15)
         );
@@ -41,7 +39,7 @@ class RentalVehicleController extends BaseController
             'date_to' => $request->query('date_to'),
         ];
 
-        $rentals = collect($this->repository->all($filters))
+        $rentals = collect($this->repo()->all($filters))
             ->when(!empty($statuses), fn ($items) => $items->whereIn('status', $statuses))
             ->values();
 
@@ -56,7 +54,7 @@ class RentalVehicleController extends BaseController
         $dateFrom = Carbon::parse($data['date_from']);
         $dateTo = Carbon::parse($data['date_to']);
 
-        if ($this->repository->checkConflict(
+        if ($this->repo()->checkConflict(
             $data['vehicle_type'],
             $dateFrom,
             $dateTo,
@@ -70,14 +68,14 @@ class RentalVehicleController extends BaseController
         }
 
         $data['status'] = 'pending';
-        $rental = $this->repository->create($data);
+        $rental = $this->repo()->create($data);
 
         return response()->json(['data' => $rental], 201);
     }
 
     public function show(string $id): JsonResponse
     {
-        $rental = $this->repository->find($id);
+        $rental = $this->repo()->find($id);
 
         if (!$rental) {
             return response()->json(['message' => 'Rental not found'], 404);
@@ -88,7 +86,7 @@ class RentalVehicleController extends BaseController
 
     public function publicShow(string $id): JsonResponse
     {
-        $rental = $this->repository->find($id);
+        $rental = $this->repo()->find($id);
 
         if (!$rental) {
             return response()->json(['message' => 'Rental not found'], 404);
@@ -99,7 +97,7 @@ class RentalVehicleController extends BaseController
 
     public function update(UpdateRentalVehicleRequest $request, string $id): JsonResponse
     {
-        $rental = $this->repository->find($id);
+        $rental = $this->repo()->find($id);
 
         if (!$rental) {
             return response()->json(['message' => 'Rental not found'], 404);
@@ -115,7 +113,7 @@ class RentalVehicleController extends BaseController
             $timeTo = $data['time_to'] ?? $rental->time_to;
             $vehicleType = $data['vehicle_type'] ?? $rental->vehicle_type;
 
-            if ($this->repository->checkConflict($vehicleType, $dateFrom, $dateTo, $timeFrom, $timeTo, $id)) {
+            if ($this->repo()->checkConflict($vehicleType, $dateFrom, $dateTo, $timeFrom, $timeTo, $id)) {
                 return response()->json([
                     'message' => 'The selected vehicle is not available for the requested dates and time.',
                     'error' => 'conflict'
@@ -123,7 +121,7 @@ class RentalVehicleController extends BaseController
             }
         }
 
-        $updated = $this->repository->update($id, $data);
+        $updated = $this->repo()->update($id, $data);
 
         return response()->json(['data' => $updated]);
     }
@@ -135,13 +133,13 @@ class RentalVehicleController extends BaseController
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $rental = $this->repository->find($id);
+        $rental = $this->repo()->find($id);
 
         if (!$rental) {
             return response()->json(['message' => 'Rental not found'], 404);
         }
 
-        $updated = $this->repository->update($id, [
+        $updated = $this->repo()->update($id, [
             'status' => $validated['status'],
             'notes' => $validated['notes'] ?? $rental->notes,
         ]);
@@ -151,13 +149,13 @@ class RentalVehicleController extends BaseController
 
     public function destroy(string $id): JsonResponse
     {
-        $rental = $this->repository->find($id);
+        $rental = $this->repo()->find($id);
 
         if (!$rental) {
             return response()->json(['message' => 'Rental not found'], 404);
         }
 
-        $this->repository->delete($id);
+        $this->repo()->delete($id);
 
         return response()->json(['message' => 'Rental deleted successfully']);
     }
@@ -168,7 +166,7 @@ class RentalVehicleController extends BaseController
             $from = Carbon::parse($dateFrom);
             $to = Carbon::parse($dateTo);
 
-            $conflicts = $this->repository->getConflicts($vehicleType, $from, $to);
+            $conflicts = $this->repo()->getConflicts($vehicleType, $from, $to);
             $isAvailable = $conflicts->isEmpty();
 
             $response = [
@@ -209,7 +207,15 @@ class RentalVehicleController extends BaseController
 
     public function getByVehicleType(string $vehicleType): JsonResponse
     {
-        $rentals = $this->repository->all(['vehicle_type' => $vehicleType]);
+        $rentals = $this->repo()->all(['vehicle_type' => $vehicleType]);
         return response()->json(['data' => $rentals]);
+    }
+
+    protected function repo(): RentalVehicleRepository
+    {
+        /** @var RentalVehicleRepository $repository */
+        $repository = $this->requireService();
+
+        return $repository;
     }
 }

@@ -15,13 +15,11 @@ use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Milon\Barcode\DNS1D;
 
-class PDFGeneratorController extends Controller
+class PDFGeneratorController extends BaseController
 {
-    protected RequestFormPivotRepo $requestFormPivotRepo;
-
     public function __construct(RequestFormPivotRepo $requestFormPivotRepo)
     {
-        $this->requestFormPivotRepo = $requestFormPivotRepo;
+        $this->service = $requestFormPivotRepo;
     }
     /**
      * Stream or download a cached/generated PDF for the given RequestFormPivot.
@@ -44,7 +42,7 @@ class PDFGeneratorController extends Controller
             $template = 'generator/pdf/printable-request-form';
         }
         
-        $form = $this->requestFormPivotRepo->getForPdf($id);
+        $form = $this->requestFormPivotRepo()->getForPdf($id);
 
         // Prepare cache path based on template and id
         $templateSlug = Str::slug($template);
@@ -303,5 +301,10 @@ class PDFGeneratorController extends Controller
         $last = isset($req->last_name) ? (string) $req->last_name : '';
         $combined = trim($first . ' ' . $last);
         return $combined !== '' ? $combined : $fallback;
+    }
+
+    protected function requestFormPivotRepo(): RequestFormPivotRepo
+    {
+        return $this->requireService();
     }
 }

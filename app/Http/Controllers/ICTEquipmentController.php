@@ -9,16 +9,16 @@ use App\Http\Requests\Laboratory\LaboratoryUpdateEndUseRequest;
 use App\Services\Laboratory\LaboratoryLogService;
 use Illuminate\Http\JsonResponse;
 
-class ICTEquipmentController extends Controller
+class ICTEquipmentController extends BaseController
 {
-    public function __construct(private readonly LaboratoryLogService $service)
+    public function __construct(private readonly LaboratoryLogService $logService)
     {
     }
 
     public function index(): JsonResponse
     {
         $search = request()->query('search');
-        $equipment = $this->service->listEligibleEquipment($search, 'ict');
+        $equipment = $this->logService->listEligibleEquipment($search, 'ict');
 
         return response()->json([
             'data' => $equipment,
@@ -27,14 +27,14 @@ class ICTEquipmentController extends Controller
 
     public function show(string $identifier): JsonResponse
     {
-        $equipmentId = $this->service->resolveEquipmentId($identifier);
+        $equipmentId = $this->logService->resolveEquipmentId($identifier);
         if (!$equipmentId) {
             return response()->json([
                 'message' => 'Equipment not found.',
             ], 404);
         }
 
-        $details = $this->service->getEquipmentDetails($equipmentId, 'ict');
+        $details = $this->logService->getEquipmentDetails($equipmentId, 'ict');
 
         return response()->json([
             'data' => $details,
@@ -43,14 +43,14 @@ class ICTEquipmentController extends Controller
 
     public function checkIn(LaboratoryCheckInRequest $request, string $identifier): JsonResponse
     {
-        $equipmentId = $this->service->resolveEquipmentId($identifier);
+        $equipmentId = $this->logService->resolveEquipmentId($identifier);
         if (!$equipmentId) {
             return response()->json([
                 'message' => 'Equipment not found.',
             ], 404);
         }
 
-        $log = $this->service->checkIn($equipmentId, $request->validated(), 'ict');
+        $log = $this->logService->checkIn($equipmentId, $request->validated(), 'ict');
 
         return response()->json([
             'message' => 'Equipment checked in successfully.',
@@ -60,14 +60,14 @@ class ICTEquipmentController extends Controller
 
     public function checkOut(LaboratoryCheckOutRequest $request, string $identifier): JsonResponse
     {
-        $equipmentId = $this->service->resolveEquipmentId($identifier);
+        $equipmentId = $this->logService->resolveEquipmentId($identifier);
         if (!$equipmentId) {
             return response()->json([
                 'message' => 'Equipment not found.',
             ], 404);
         }
 
-        $log = $this->service->checkOut($equipmentId, $request->validated(), 'ict');
+        $log = $this->logService->checkOut($equipmentId, $request->validated(), 'ict');
 
         return response()->json([
             'message' => 'Equipment checked out successfully.',
@@ -77,14 +77,14 @@ class ICTEquipmentController extends Controller
 
     public function updateEndUse(LaboratoryUpdateEndUseRequest $request, string $identifier): JsonResponse
     {
-        $equipmentId = $this->service->resolveEquipmentId($identifier);
+        $equipmentId = $this->logService->resolveEquipmentId($identifier);
         if (!$equipmentId) {
             return response()->json([
                 'message' => 'Equipment not found.',
             ], 404);
         }
 
-        $log = $this->service->updateEndUse($equipmentId, $request->validated(), 'ict');
+        $log = $this->logService->updateEndUse($equipmentId, $request->validated(), 'ict');
 
         return response()->json([
             'message' => 'Estimated end of use updated successfully.',
@@ -94,14 +94,14 @@ class ICTEquipmentController extends Controller
 
     public function reportLocation(LaboratoryReportLocationRequest $request, string $identifier): JsonResponse
     {
-        $equipmentId = $this->service->resolveEquipmentId($identifier);
+        $equipmentId = $this->logService->resolveEquipmentId($identifier);
         if (!$equipmentId) {
             return response()->json([
                 'message' => 'Equipment not found.',
             ], 404);
         }
 
-        $location = $this->service->reportTemporaryLocation($equipmentId, $request->validated(), 'ict');
+        $location = $this->logService->reportTemporaryLocation($equipmentId, $request->validated(), 'ict');
 
         return response()->json([
             'message' => 'Temporary location saved successfully.',
@@ -112,7 +112,7 @@ class ICTEquipmentController extends Controller
     public function activeEquipments($employee_id = null): JsonResponse
     {
         return response()->json([
-            'data' => $this->service->getActiveEquipment($employee_id, 'ict'),
+            'data' => $this->logService->getActiveEquipment($employee_id, 'ict'),
         ]);
     }
 }

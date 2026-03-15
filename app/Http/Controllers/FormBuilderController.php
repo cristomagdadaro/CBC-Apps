@@ -11,13 +11,11 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
-class FormBuilderController extends Controller
+class FormBuilderController extends BaseController
 {
-    protected FormBuilderRepo $repository;
-
     public function __construct(FormBuilderRepo $repository)
     {
-        $this->repository = $repository;
+        $this->service = $repository;
     }
 
     /**
@@ -25,7 +23,7 @@ class FormBuilderController extends Controller
      */
     public function indexTemplates(Request $request): JsonResponse
     {
-        $templates = $this->repository->getTemplatesWithFieldCounts();
+        $templates = $this->formBuilderRepo()->getTemplatesWithFieldCounts();
 
         return response()->json([
             'data' => $templates,
@@ -179,7 +177,7 @@ class FormBuilderController extends Controller
             'fields.*.field_config' => 'nullable|array',
         ]);
 
-        $template = $this->repository->createTemplateWithFields(
+        $template = $this->formBuilderRepo()->createTemplateWithFields(
             [
                 'name' => $validated['name'],
                 'description' => $validated['description'] ?? null,
@@ -222,7 +220,7 @@ class FormBuilderController extends Controller
             'fields.*.field_config' => 'nullable|array',
         ]);
 
-        $template = $this->repository->updateTemplateWithFields(
+        $template = $this->formBuilderRepo()->updateTemplateWithFields(
             $template,
             $validated,
             $validated['fields'] ?? []
@@ -269,7 +267,7 @@ class FormBuilderController extends Controller
         /** @var FormTypeTemplate $template */
         $template = FormTypeTemplate::with('fieldDefinitions')->findOrFail($id);
 
-        $newTemplate = $this->repository->duplicateTemplate($template, Auth::id());
+        $newTemplate = $this->formBuilderRepo()->duplicateTemplate($template, Auth::id());
 
         return response()->json([
             'message' => 'Template duplicated successfully',
@@ -292,7 +290,7 @@ class FormBuilderController extends Controller
      */
     public function showTemplateBySlug(string $slug): JsonResponse
     {
-        $template = $this->repository->findBySlug($slug);
+        $template = $this->formBuilderRepo()->findBySlug($slug);
 
         if (!$template) {
             return response()->json([
@@ -304,5 +302,10 @@ class FormBuilderController extends Controller
             'data' => $template,
             'field_schema' => $template->field_schema,
         ]);
+    }
+
+    protected function formBuilderRepo(): FormBuilderRepo
+    {
+        return $this->requireService();
     }
 }

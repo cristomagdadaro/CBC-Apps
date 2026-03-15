@@ -11,16 +11,14 @@ use Illuminate\Http\Request;
 
 class RentalVenueController extends BaseController
 {
-    protected RentalVenueRepository $repository;
-
     public function __construct(RentalVenueRepository $repository)
     {
-        $this->repository = $repository;
+        $this->service = $repository;
     }
 
     public function index(Request $request): JsonResponse
     {
-        $rentals = $this->repository->paginate(
+        $rentals = $this->repo()->paginate(
             $request->only(['search', 'filter', 'is_exact', 'sort', 'order', 'page', 'per_page']),
             (int) $request->query('per_page', 15)
         );
@@ -41,7 +39,7 @@ class RentalVenueController extends BaseController
             'date_to' => $request->query('date_to'),
         ];
 
-        $rentals = collect($this->repository->all($filters))
+        $rentals = collect($this->repo()->all($filters))
             ->when(!empty($statuses), fn ($items) => $items->whereIn('status', $statuses))
             ->values();
 
@@ -56,7 +54,7 @@ class RentalVenueController extends BaseController
         $dateFrom = Carbon::parse($data['date_from']);
         $dateTo = Carbon::parse($data['date_to']);
 
-        if ($this->repository->checkConflict(
+        if ($this->repo()->checkConflict(
             $data['venue_type'],
             $dateFrom,
             $dateTo,
@@ -70,14 +68,14 @@ class RentalVenueController extends BaseController
         }
 
         $data['status'] = 'pending';
-        $rental = $this->repository->create($data);
+        $rental = $this->repo()->create($data);
 
         return response()->json(['data' => $rental], 201);
     }
 
     public function show(string $id): JsonResponse
     {
-        $rental = $this->repository->find($id);
+        $rental = $this->repo()->find($id);
 
         if (!$rental) {
             return response()->json(['message' => 'Rental not found'], 404);
@@ -88,7 +86,7 @@ class RentalVenueController extends BaseController
 
     public function publicShow(string $id): JsonResponse
     {
-        $rental = $this->repository->find($id);
+        $rental = $this->repo()->find($id);
 
         if (!$rental) {
             return response()->json(['message' => 'Rental not found'], 404);
@@ -99,7 +97,7 @@ class RentalVenueController extends BaseController
 
     public function update(UpdateRentalVenueRequest $request, string $id): JsonResponse
     {
-        $rental = $this->repository->find($id);
+        $rental = $this->repo()->find($id);
 
         if (!$rental) {
             return response()->json(['message' => 'Rental not found'], 404);
@@ -115,7 +113,7 @@ class RentalVenueController extends BaseController
             $timeTo = $data['time_to'] ?? $rental->time_to;
             $venueType = $data['venue_type'] ?? $rental->venue_type;
 
-            if ($this->repository->checkConflict($venueType, $dateFrom, $dateTo, $timeFrom, $timeTo, $id)) {
+            if ($this->repo()->checkConflict($venueType, $dateFrom, $dateTo, $timeFrom, $timeTo, $id)) {
                 return response()->json([
                     'message' => 'The selected venue is not available for the requested dates and time.',
                     'error' => 'conflict'
@@ -123,7 +121,7 @@ class RentalVenueController extends BaseController
             }
         }
 
-        $updated = $this->repository->update($id, $data);
+        $updated = $this->repo()->update($id, $data);
 
         return response()->json(['data' => $updated]);
     }
@@ -135,13 +133,13 @@ class RentalVenueController extends BaseController
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $rental = $this->repository->find($id);
+        $rental = $this->repo()->find($id);
 
         if (!$rental) {
             return response()->json(['message' => 'Rental not found'], 404);
         }
 
-        $updated = $this->repository->update($id, [
+        $updated = $this->repo()->update($id, [
             'status' => $validated['status'],
             'notes' => $validated['notes'] ?? $rental->notes,
         ]);
@@ -151,13 +149,13 @@ class RentalVenueController extends BaseController
 
     public function destroy(string $id): JsonResponse
     {
-        $rental = $this->repository->find($id);
+        $rental = $this->repo()->find($id);
 
         if (!$rental) {
             return response()->json(['message' => 'Rental not found'], 404);
         }
 
-        $this->repository->delete($id);
+        $this->repo()->delete($id);
 
         return response()->json(['message' => 'Rental deleted successfully']);
     }
@@ -168,7 +166,7 @@ class RentalVenueController extends BaseController
             $from = Carbon::parse($dateFrom);
             $to = Carbon::parse($dateTo);
 
-            $conflicts = $this->repository->getConflicts($venueType, $from, $to);
+            $conflicts = $this->repo()->getConflicts($venueType, $from, $to);
             $isAvailable = $conflicts->isEmpty();
 
             $response = [
@@ -210,7 +208,15 @@ class RentalVenueController extends BaseController
 
     public function getByVenueType(string $venueType): JsonResponse
     {
-        $rentals = $this->repository->all(['venue_type' => $venueType]);
+        $rentals = $this->repo()->all(['venue_type' => $venueType]);
         return response()->json(['data' => $rentals]);
+    }
+
+    protected function repo(): RentalVenueRepository
+    {
+        /** @var RentalVenueRepository $repository */
+        $repository = $this->requireService();
+
+        return $repository;
     }
 }

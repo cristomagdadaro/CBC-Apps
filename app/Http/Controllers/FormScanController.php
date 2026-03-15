@@ -12,7 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class FormScanController extends Controller
+class FormScanController extends BaseController
 {
     public function scan(FormScanRequest $request, string $event_id): JsonResponse
     {

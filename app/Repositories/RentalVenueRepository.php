@@ -4,12 +4,18 @@ namespace App\Repositories;
 
 use App\Models\RentalVenue;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 
-class RentalVenueRepository
+class RentalVenueRepository extends AbstractRepoService
 {
+    public function __construct(RentalVenue $model)
+    {
+        parent::__construct($model);
+    }
+
     public function all(array $filters = [])
     {
-        $query = RentalVenue::query();
+        $query = $this->model->newQuery();
 
         if (!empty($filters['venue_type'])) {
             $query->where('venue_type', $filters['venue_type']);
@@ -32,7 +38,7 @@ class RentalVenueRepository
 
     public function paginate(array $params = [], int $perPage = 15)
     {
-        $query = RentalVenue::query();
+        $query = $this->model->newQuery();
 
         $search = trim((string) ($params['search'] ?? ''));
         $filter = $params['filter'] ?? null;
@@ -88,29 +94,33 @@ class RentalVenueRepository
 
     public function find(string $id)
     {
-        return RentalVenue::find($id);
+        return $this->model->newQuery()->find($id);
     }
 
     public function create(array $data): RentalVenue
     {
-        return RentalVenue::create($data);
-    }
+        /** @var RentalVenue $rental */
+        $rental = parent::create($data);
 
-    public function update(string $id, array $data): RentalVenue
-    {
-        $rental = $this->find($id);
-        $rental->update($data);
         return $rental;
     }
 
-    public function delete(string $id): bool
+    public function update(int|string $id, array $data): Model
     {
-        return RentalVenue::destroy($id) > 0;
+        $rental = $this->find($id);
+        $rental->update($data);
+
+        return $rental;
+    }
+
+    public function delete(int|string $id): Model
+    {
+        return parent::delete($id);
     }
 
     public function checkConflict(string $venueType, Carbon $dateFrom, Carbon $dateTo, string $timeFrom, string $timeTo, ?string $excludeId = null): bool
     {
-        $query = RentalVenue::where('venue_type', $venueType)
+        $query = $this->model->newQuery()->where('venue_type', $venueType)
             ->whereIn('status', ['pending', 'approved'])
             ->where(function ($q) use ($dateFrom, $dateTo) {
                 $q->where(function ($subQ) use ($dateFrom, $dateTo) {
@@ -132,7 +142,7 @@ class RentalVenueRepository
 
     public function getConflicts(string $venueType, Carbon $dateFrom, Carbon $dateTo, ?string $excludeId = null)
     {
-        $query = RentalVenue::where('venue_type', $venueType)
+        $query = $this->model->newQuery()->where('venue_type', $venueType)
             ->whereIn('status', ['pending', 'approved'])
             ->where(function ($q) use ($dateFrom, $dateTo) {
                 $q->where(function ($subQ) use ($dateFrom, $dateTo) {

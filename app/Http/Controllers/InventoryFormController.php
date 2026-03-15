@@ -13,14 +13,13 @@ class InventoryFormController extends BaseController
     protected CategoryRepo $categoryRepo;
     protected PersonnelRepo $personnelRepo;
     protected OptionRepo $optionRepo;
-    protected TransactionRepo $transactionRepo;
 
     public function __construct(CategoryRepo $categoryRepo, PersonnelRepo $personnelRepo, OptionRepo $optionRepo, TransactionRepo $transactionRepo)
     {
+        $this->service = $transactionRepo;
         $this->categoryRepo = $categoryRepo;
         $this->personnelRepo = $personnelRepo;
         $this->optionRepo = $optionRepo;
-        $this->transactionRepo = $transactionRepo;
     }
 
     public function outgoingForm() {
@@ -29,8 +28,13 @@ class InventoryFormController extends BaseController
             'stockLevel' => $this->optionRepo->getStockLevels(),
             'categories' => $this->categoryRepo->getInventoryFormCategories(),
             'personnels' => $this->personnelRepo->getAllForInventoryForm(),
-            'projectCodes' => $this->transactionRepo->getAvailableProjectCodes(),
+            'projectCodes' => $this->transactionRepo()->getAvailableProjectCodes(),
             'storage_locations' => $this->optionRepo->getStorageLocations(),
         ]);
+    }
+
+    protected function transactionRepo(): TransactionRepo
+    {
+        return $this->requireService();
     }
 }

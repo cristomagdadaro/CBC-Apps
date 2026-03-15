@@ -9,27 +9,36 @@ use Illuminate\Support\Collection;
 
 abstract class BaseController extends Controller
 {
-    protected AbstractRepoService $service;
+    protected ?AbstractRepoService $service = null;
+
+    protected function requireService(): AbstractRepoService
+    {
+        if (! $this->service) {
+            throw new \BadMethodCallException(static::class . ' does not define a primary repository service.');
+        }
+
+        return $this->service;
+    }
 
     protected function _index($request): Collection
     {
-        $data = $this->service->search(new Collection($request->validated()));
+        $data = $this->requireService()->search(new Collection($request->validated()));
         return new Collection($data);
     }
 
     protected function _store($request): Model
     {
-        return $this->service->create($request->validated());
+        return $this->requireService()->create($request->validated());
     }
 
     protected function _update(string $id, $request): Model
     {
-        return $this->service->update($id, $request->validated());
+        return $this->requireService()->update($id, $request->validated());
     }
 
     protected function _destroy(string $id): Model
     {
-        return $this->service->delete($id);
+        return $this->requireService()->delete($id);
     }
 
     public function _multiDestroy($request): JsonResponse
@@ -38,7 +47,7 @@ abstract class BaseController extends Controller
         $deletedItems = [];
 
         foreach ($ids as $id) {
-            $deletedItems[] = $this->service->delete($id);
+            $deletedItems[] = $this->requireService()->delete($id);
         }
 
         return response()->json([

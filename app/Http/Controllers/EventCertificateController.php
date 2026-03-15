@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class EventCertificateController extends Controller
+class EventCertificateController extends BaseController
 {
     private const DEFAULT_TEMPLATE_RELATIVE_PATH = 'app/python/Certificate-Generator/multi_template.pptx';
 

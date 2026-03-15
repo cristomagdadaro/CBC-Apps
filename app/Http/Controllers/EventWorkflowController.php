@@ -10,7 +10,7 @@ use App\Services\EventWorkflowFeatureService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
-class EventWorkflowController extends Controller
+class EventWorkflowController extends BaseController
 {
     public function state(Request $request, string $event_id, EventWorkflowService $workflow): JsonResponse
     {

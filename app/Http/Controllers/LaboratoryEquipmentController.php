@@ -12,18 +12,22 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
-class LaboratoryEquipmentController extends Controller
+class LaboratoryEquipmentController extends BaseController
 {
+    private readonly LaboratoryLogService $logService;
+
     public function __construct(
-        private readonly LaboratoryLogService $service,
-        private readonly LaboratoryEquipmentLogRepo $logRepo,
+        LaboratoryLogService $logService,
+        LaboratoryEquipmentLogRepo $logRepo,
     ) {
+        $this->logService = $logService;
+        $this->service = $logRepo;
     }
 
     public function index(): JsonResponse
     {
         $search    = request()->query('search');
-        $equipment = $this->service->listEligibleEquipment($search);
+        $equipment = $this->logService->listEligibleEquipment($search);
 
         return response()->json([
             'data' => $equipment,
@@ -32,14 +36,14 @@ class LaboratoryEquipmentController extends Controller
 
     public function show(string $identifier): JsonResponse
     {
-        $equipmentId = $this->service->resolveEquipmentId($identifier);
+        $equipmentId = $this->logService->resolveEquipmentId($identifier);
         if (! $equipmentId) {
             return response()->json([
                 'message' => 'Equipment not found.',
             ], 404);
         }
 
-        $details = $this->service->getEquipmentDetails($equipmentId);
+        $details = $this->logService->getEquipmentDetails($equipmentId);
 
         return response()->json([
             'data' => $details,
@@ -48,14 +52,14 @@ class LaboratoryEquipmentController extends Controller
 
     public function checkIn(LaboratoryCheckInRequest $request, string $identifier): JsonResponse
     {
-        $equipmentId = $this->service->resolveEquipmentId($identifier);
+        $equipmentId = $this->logService->resolveEquipmentId($identifier);
         if (! $equipmentId) {
             return response()->json([
                 'message' => 'Equipment not found.',
             ], 404);
         }
 
-        $log = $this->service->checkIn($equipmentId, $request->validated());
+        $log = $this->logService->checkIn($equipmentId, $request->validated());
 
         return response()->json([
             'message' => 'Equipment checked in successfully.',
@@ -65,14 +69,14 @@ class LaboratoryEquipmentController extends Controller
 
     public function checkOut(LaboratoryCheckOutRequest $request, string $identifier): JsonResponse
     {
-        $equipmentId = $this->service->resolveEquipmentId($identifier);
+        $equipmentId = $this->logService->resolveEquipmentId($identifier);
         if (! $equipmentId) {
             return response()->json([
                 'message' => 'Equipment not found.',
             ], 404);
         }
 
-        $log = $this->service->checkOut($equipmentId, $request->validated());
+        $log = $this->logService->checkOut($equipmentId, $request->validated());
 
         return response()->json([
             'message' => 'Equipment checked out successfully.',
@@ -82,14 +86,14 @@ class LaboratoryEquipmentController extends Controller
 
     public function updateEndUse(LaboratoryUpdateEndUseRequest $request, string $identifier): JsonResponse
     {
-        $equipmentId = $this->service->resolveEquipmentId($identifier);
+        $equipmentId = $this->logService->resolveEquipmentId($identifier);
         if (! $equipmentId) {
             return response()->json([
                 'message' => 'Equipment not found.',
             ], 404);
         }
 
-        $log = $this->service->updateEndUse($equipmentId, $request->validated());
+        $log = $this->logService->updateEndUse($equipmentId, $request->validated());
 
         return response()->json([
             'message' => 'Estimated end of use updated successfully.',
@@ -99,14 +103,14 @@ class LaboratoryEquipmentController extends Controller
 
     public function reportLocation(LaboratoryReportLocationRequest $request, string $identifier): JsonResponse
     {
-        $equipmentId = $this->service->resolveEquipmentId($identifier);
+        $equipmentId = $this->logService->resolveEquipmentId($identifier);
         if (! $equipmentId) {
             return response()->json([
                 'message' => 'Equipment not found.',
             ], 404);
         }
 
-        $location = $this->service->reportTemporaryLocation($equipmentId, $request->validated());
+        $location = $this->logService->reportTemporaryLocation($equipmentId, $request->validated());
 
         return response()->json([
             'message' => 'Temporary location saved successfully.',
@@ -117,38 +121,43 @@ class LaboratoryEquipmentController extends Controller
     public function dashboard(): JsonResponse
     {
         return response()->json([
-            'data' => $this->service->getDashboardMetrics(),
+            'data' => $this->logService->getDashboardMetrics(),
         ]);
     }
 
     public function activeEquipments($employee_id = null): JsonResponse
     {
         return response()->json([
-            'data' => $this->service->getActiveEquipment($employee_id),
+            'data' => $this->logService->getActiveEquipment($employee_id),
         ]);
     }
 
     public function logs(GetRequest $request): Collection
     {
-        $result = $this->logRepo->search(new Collection($request->validated()));
+        $result = $this->logRepo()->search(new Collection($request->validated()));
 
         if (is_array($result) && isset($result['data']) && $result['data'] instanceof Collection) {
-            $this->service->enrichLogsWithLocationDetails($result['data']);
+            $this->logService->enrichLogsWithLocationDetails($result['data']);
             return new Collection($result);
         }
 
         if ($result instanceof LengthAwarePaginator) {
             $collection = $result->getCollection();
-            $this->service->enrichLogsWithLocationDetails($collection);
+            $this->logService->enrichLogsWithLocationDetails($collection);
             $result->setCollection($collection);
             return new Collection($result);
         }
 
         if ($result instanceof Collection) {
-            $this->service->enrichLogsWithLocationDetails($result);
+            $this->logService->enrichLogsWithLocationDetails($result);
             return $result;
         }
 
         return new Collection($result);
+    }
+
+    private function logRepo(): LaboratoryEquipmentLogRepo
+    {
+        return $this->requireService();
     }
 }
