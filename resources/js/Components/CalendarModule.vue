@@ -67,19 +67,16 @@ export default {
             filterType: "all",
             filterStatus: "all",
             weekDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-            weekHeaderHeight: 32,
-            weekEventHeight: 22,
-            weekEventGap: 4,
-            weekRowBottomPadding: 10,
+            MAX_VISIBLE_EVENTS_PER_DAY: 2,
         };
     },
     computed: {
         normalizedEvents() {
             return (this.events || []).map((event) => ({
                 ...event,
-                label: event.label || event.title || "(Untitled)",
+                label: event.label || event.title || event.purpose || "(Untitled)",
                 subtitle: event.subtitle || event.requested_by || "",
-                type: event.type || "general",
+                type: event.type || event.vehicle_type || "general",
                 status: event.status || "",
             }));
         },
@@ -98,44 +95,62 @@ export default {
 
             return list;
         },
+        daysInMonth() {
+            return new Date(
+                this.currentDate.getFullYear(),
+                this.currentDate.getMonth() + 1,
+                0,
+            ).getDate();
+        },
+        firstDayOfMonth() {
+            return new Date(
+                this.currentDate.getFullYear(),
+                this.currentDate.getMonth(),
+                1,
+            ).getDay();
+        },
+        calendarDays() {
+            const days = [];
+            for (let i = 0; i < this.firstDayOfMonth; i += 1) {
+                days.push(null);
+            }
+            for (let i = 1; i <= this.daysInMonth; i += 1) {
+                days.push(i);
+            }
+            return days;
+        },
+        // Group days into weeks for proper multi-day event rendering
+        calendarWeeks() {
+            const weeks = [];
+            let currentWeek = [];
+            
+            // Add padding for days before the first day of month
+            for (let i = 0; i < this.firstDayOfMonth; i++) {
+                currentWeek.push(null);
+            }
+            
+            // Add all days of the month
+            for (let day = 1; day <= this.daysInMonth; day++) {
+                currentWeek.push(day);
+                if (currentWeek.length === 7) {
+                    weeks.push([...currentWeek]);
+                    currentWeek = [];
+                }
+            }
+            
+            // Add padding for remaining days in the last week
+            if (currentWeek.length > 0) {
+                while (currentWeek.length < 7) {
+                    currentWeek.push(null);
+                }
+                weeks.push(currentWeek);
+            }
+            
+            return weeks;
+        },
         monthYearLabel() {
             const options = { month: "long", year: "numeric" };
             return this.currentDate.toLocaleDateString("en-US", options);
-        },
-        calendarWeeks() {
-            const year = this.currentDate.getFullYear();
-            const month = this.currentDate.getMonth();
-            const firstOfMonth = this.createDateAtNoon(year, month, 1);
-            const lastOfMonth = this.createDateAtNoon(year, month + 1, 0);
-            const gridStart = this.addDays(firstOfMonth, -firstOfMonth.getDay());
-            const gridEnd = this.addDays(lastOfMonth, 6 - lastOfMonth.getDay());
-            const weeks = [];
-
-            for (
-                let cursor = this.cloneDate(gridStart);
-                cursor <= gridEnd;
-                cursor = this.addDays(cursor, 7)
-            ) {
-                const days = [];
-
-                for (let offset = 0; offset < 7; offset += 1) {
-                    const date = this.addDays(cursor, offset);
-                    days.push({
-                        key: this.formatDateKey(date),
-                        date,
-                        dayNumber: date.getDate(),
-                        inCurrentMonth: date.getMonth() === month,
-                        isToday: this.isSameDate(date, new Date()),
-                    });
-                }
-
-                weeks.push(days);
-            }
-
-            return weeks;
-        },
-        weekEventLanes() {
-            return this.calendarWeeks.map((week) => this.buildWeekEventLanes(week));
         },
         legendData() {
             if (this.legendGroups && this.legendGroups.length) {
@@ -200,98 +215,6 @@ export default {
                 this.currentDate.getFullYear() === today.getFullYear()
             );
         },
-        createDateAtNoon(year, month, day) {
-            return new Date(year, month, day, 12, 0, 0, 0);
-        },
-        cloneDate(value) {
-            return this.createDateAtNoon(
-                value.getFullYear(),
-                value.getMonth(),
-                value.getDate(),
-            );
-        },
-        addDays(value, days) {
-            const date = this.cloneDate(value);
-            date.setDate(date.getDate() + days);
-            return this.createDateAtNoon(
-                date.getFullYear(),
-                date.getMonth(),
-                date.getDate(),
-            );
-        },
-        parseDateValue(value) {
-            if (!value) return null;
-
-            if (value instanceof Date) {
-                return this.createDateAtNoon(
-                    value.getFullYear(),
-                    value.getMonth(),
-                    value.getDate(),
-                );
-            }
-
-            const text = String(value).trim();
-            const match = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
-            if (match) {
-                return this.createDateAtNoon(
-                    Number(match[1]),
-                    Number(match[2]) - 1,
-                    Number(match[3]),
-                );
-            }
-
-            const parsed = new Date(text);
-            if (Number.isNaN(parsed.getTime())) {
-                return null;
-            }
-
-            return this.createDateAtNoon(
-                parsed.getFullYear(),
-                parsed.getMonth(),
-                parsed.getDate(),
-            );
-        },
-        formatDateKey(value) {
-            const date = this.parseDateValue(value);
-            if (!date) return null;
-
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, "0");
-            const day = String(date.getDate()).padStart(2, "0");
-
-            return `${year}-${month}-${day}`;
-        },
-        isSameDate(left, right) {
-            const leftDate = this.parseDateValue(left);
-            const rightDate = this.parseDateValue(right);
-
-            return !!leftDate && !!rightDate && this.formatDateKey(leftDate) === this.formatDateKey(rightDate);
-        },
-        getEventDateRange(event) {
-            const start = this.parseDateValue(
-                event.date_from || event.start_at || event.started_at,
-            );
-            const end = this.parseDateValue(
-                event.date_to || event.end_at || event.end_use_at || event.date_from,
-            );
-
-            if (!start || !end) {
-                return null;
-            }
-
-            if (end < start) {
-                return { start: end, end: start };
-            }
-
-            return { start, end };
-        },
-        diffInDays(start, end) {
-            const startDate = this.parseDateValue(start);
-            const endDate = this.parseDateValue(end);
-            if (!startDate || !endDate) return 0;
-
-            return Math.round((endDate.getTime() - startDate.getTime()) / 86400000);
-        },
         toDateOnly(value) {
             if (!value) return null;
             if (value instanceof Date) return value.toISOString().split("T")[0];
@@ -303,101 +226,118 @@ export default {
             }
             return text.length >= 10 ? text.slice(0, 10) : null;
         },
-        buildWeekEventLanes(week) {
-            if (!Array.isArray(week) || !week.length) {
-                return [];
-            }
-
-            const weekStart = week[0].date;
-            const weekEnd = week[6].date;
-            const segments = this.filteredEvents
-                .map((event) => {
-                    const range = this.getEventDateRange(event);
-                    if (!range) {
-                        return null;
-                    }
-
-                    if (range.end < weekStart || range.start > weekEnd) {
-                        return null;
-                    }
-
-                    const visibleStart = range.start < weekStart ? weekStart : range.start;
-                    const visibleEnd = range.end > weekEnd ? weekEnd : range.end;
-                    const startCol = this.diffInDays(weekStart, visibleStart) + 1;
-                    const endCol = this.diffInDays(weekStart, visibleEnd) + 1;
-
-                    return {
-                        event,
-                        startCol,
-                        endCol,
-                        span: endCol - startCol + 1,
-                        continuesBefore: range.start < weekStart,
-                        continuesAfter: range.end > weekEnd,
-                        sortStart: range.start,
-                        sortEnd: range.end,
-                    };
-                })
-                .filter(Boolean)
-                .sort((left, right) => {
-                    if (left.startCol !== right.startCol) {
-                        return left.startCol - right.startCol;
-                    }
-
-                    if (left.span !== right.span) {
-                        return right.span - left.span;
-                    }
-
-                    return String(left.event.label || "").localeCompare(String(right.event.label || ""));
-                });
-
-            const lanes = [];
-
-            segments.forEach((segment) => {
-                let laneIndex = lanes.findIndex((lane) => {
-                    const last = lane[lane.length - 1];
-                    return !last || segment.startCol > last.endCol;
-                });
-
-                if (laneIndex === -1) {
-                    laneIndex = lanes.length;
-                    lanes.push([]);
-                }
-
-                lanes[laneIndex].push({
-                    ...segment,
-                    laneIndex,
-                });
+        // Get events that overlap with a specific week
+        getEventsForWeek(weekDays, weekIndex) {
+            const weekStartDate = this.getWeekStartDate(weekDays);
+            const weekEndDate = this.getWeekEndDate(weekDays);
+            
+            return this.filteredEvents.filter((event) => {
+                const dateFrom = this.toDateOnly(
+                    event.date_from || event.start_at || event.started_at,
+                );
+                const dateTo = this.toDateOnly(
+                    event.date_to ||
+                        event.end_at ||
+                        event.end_use_at ||
+                        event.date_from,
+                );
+                if (!dateFrom || !dateTo) return false;
+                
+                // Event overlaps with this week if:
+                // event starts before week ends AND event ends after week starts
+                return dateFrom <= weekEndDate && dateTo >= weekStartDate;
             });
-
+        },
+        getWeekStartDate(weekDays) {
+            // Find first non-null day in the week
+            const firstDay = weekDays.find(d => d !== null);
+            if (!firstDay) return null;
+            return new Date(
+                this.currentDate.getFullYear(),
+                this.currentDate.getMonth(),
+                firstDay,
+            ).toISOString().split("T")[0];
+        },
+        getWeekEndDate(weekDays) {
+            // Find last non-null day in the week
+            const lastDay = [...weekDays].reverse().find(d => d !== null);
+            if (!lastDay) return null;
+            return new Date(
+                this.currentDate.getFullYear(),
+                this.currentDate.getMonth(),
+                lastDay,
+            ).toISOString().split("T")[0];
+        },
+        // Calculate event position within a week (lane and column span)
+        getEventWeekLayout(event, weekDays) {
+            const eventStart = this.toDateOnly(
+                event.date_from || event.start_at || event.started_at,
+            );
+            const eventEnd = this.toDateOnly(
+                event.date_to || event.end_at || event.end_use_at || event.date_from,
+            );
+            
+            const weekStart = this.getWeekStartDate(weekDays);
+            const weekEnd = this.getWeekEndDate(weekDays);
+            
+            // Calculate visible start and end within this week
+            const visibleStart = eventStart < weekStart ? weekStart : eventStart;
+            const visibleEnd = eventEnd > weekEnd ? weekEnd : eventEnd;
+            
+            // Find column positions
+            const startCol = this.getDayColumn(visibleStart, weekDays);
+            const endCol = this.getDayColumn(visibleEnd, weekDays);
+            
+            return {
+                startCol,
+                endCol,
+                span: endCol - startCol + 1,
+            };
+        },
+        getDayColumn(dateStr, weekDays) {
+            const date = new Date(dateStr);
+            const dayOfMonth = date.getDate();
+            const col = weekDays.findIndex(d => d === dayOfMonth);
+            return col >= 0 ? col : 0;
+        },
+        // Assign lanes to events to prevent overlapping
+        assignEventLanes(events, weekDays) {
+            const lanes = [];
+            
+            events.forEach((event) => {
+                const layout = this.getEventWeekLayout(event, weekDays);
+                
+                // Find first lane that doesn't conflict
+                let laneIndex = 0;
+                let placed = false;
+                
+                while (!placed) {
+                    if (!lanes[laneIndex]) {
+                        lanes[laneIndex] = [];
+                    }
+                    
+                    // Check if this event conflicts with any event in this lane
+                    const hasConflict = lanes[laneIndex].some((existingEvent) => {
+                        const existingLayout = this.getEventWeekLayout(existingEvent, weekDays);
+                        // Events conflict if they overlap in columns
+                        return !(layout.endCol < existingLayout.startCol || 
+                                 layout.startCol > existingLayout.endCol);
+                    });
+                    
+                    if (!hasConflict) {
+                        lanes[laneIndex].push(event);
+                        placed = true;
+                    } else {
+                        laneIndex++;
+                    }
+                }
+            });
             return lanes;
         },
-        getWeekMinHeight(weekIndex) {
-            const laneCount = this.weekEventLanes[weekIndex]?.length || 0;
-            const eventRowsHeight = laneCount
-                ? (laneCount * this.weekEventHeight) + ((laneCount - 1) * this.weekEventGap)
-                : this.weekEventHeight;
-
-            return `${this.weekHeaderHeight + eventRowsHeight + this.weekRowBottomPadding}px`;
-        },
-        getWeekEventStyle(segment) {
-            const leftPercent = ((segment.startCol - 1) / 7) * 100;
-            const widthPercent = (segment.span / 7) * 100;
-            const top = this.weekHeaderHeight + (segment.laneIndex * (this.weekEventHeight + this.weekEventGap));
-
-            return {
-                left: `calc(${leftPercent}% + 4px)`,
-                width: `calc(${widthPercent}% - 8px)`,
-                top: `${top}px`,
-                height: `${this.weekEventHeight}px`,
-            };
-        },
-        getWeekEventClasses(segment) {
-            return {
-                "rounded-l-none": segment.continuesBefore,
-                "rounded-r-none": segment.continuesAfter,
-            };
-        },
         getEventColor(event) {
+            if (event.status && this.statusColors?.[event.status]) {
+                return this.statusColors[event.status];
+            }
             if (event.color) return event.color;
             const typeMatch = this.typeOptions.find(
                 (item) => item.key === event.type,
@@ -412,6 +352,36 @@ export default {
             } else if (this.$inertia && this.$inertia.visit) {
                 console.warn("No Route configured:", event);
             }
+        },
+        getDropdownAlignment(dayIndex) {
+            const col = dayIndex % 7;
+            return col < 2 ? "right" : "left";
+        },
+        // Get single-day events for a specific day (for the "more" dropdown)
+        getBookingsForDate(day) {
+            if (!day) return [];
+
+            const dateStr = new Date(
+                this.currentDate.getFullYear(),
+                this.currentDate.getMonth(),
+                day,
+            )
+                .toISOString()
+                .split("T")[0];
+
+            return this.filteredEvents.filter((event) => {
+                const dateFrom = this.toDateOnly(
+                    event.date_from || event.start_at || event.started_at,
+                );
+                const dateTo = this.toDateOnly(
+                    event.date_to ||
+                        event.end_at ||
+                        event.end_use_at ||
+                        event.date_from,
+                );
+                if (!dateFrom || !dateTo) return false;
+                return dateStr >= dateFrom && dateStr <= dateTo;
+            });
         },
     },
     watch: {
@@ -601,7 +571,7 @@ export default {
                     v-if="showToday"
                     type="button"
                     @click="goToToday"
-                    class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 dark:bg-primary-600 dark:hover:bg-primary-500 text-gray-500 font-medium transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
+                    class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 dark:bg-primary-600 dark:hover:bg-primary-500 text-white font-medium transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
                 >
                     <svg
                         class="w-4 h-4"
@@ -677,7 +647,7 @@ export default {
                 </div>
             </div>
 
-            <!-- Stats - Fixed: Light theme instead of dark -->
+            <!-- Stats -->
             <div
                 v-if="showStats"
                 class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 p-5"
@@ -733,7 +703,7 @@ export default {
             </div>
         </aside>
 
-        <!-- Main Calendar Area - Fixed: No overflow-hidden -->
+        <!-- Main Calendar Area -->
         <main class="flex-1 min-w-0">
             <div
                 class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700"
@@ -789,9 +759,10 @@ export default {
                     </button>
                 </div>
 
-                <!-- Calendar Grid - Week-based spanning event rows -->
+                <!-- Calendar Grid -->
                 <div class="overflow-x-auto">
                     <div class="min-w-[900px]">
+                        <!-- Week Headers -->
                         <div
                             class="grid grid-cols-7 border-b border-slate-200 dark:border-slate-700"
                         >
@@ -808,74 +779,84 @@ export default {
                             </div>
                         </div>
 
-                        <div
-                            v-for="(week, weekIndex) in calendarWeeks"
-                            :key="`week-${weekIndex}`"
-                            class="relative border-b border-slate-200 dark:border-slate-700"
-                            :style="{ minHeight: getWeekMinHeight(weekIndex) }"
-                        >
-                            <div class="grid grid-cols-7">
-                                <div
-                                    v-for="(day, dayIndex) in week"
-                                    :key="day.key"
-                                    class="relative border-r border-slate-200 dark:border-slate-700 px-2 py-1.5 transition-all hover:bg-slate-50 dark:hover:bg-slate-700/30"
-                                    :class="{
-                                        'border-r-0': dayIndex === 6,
-                                        'bg-slate-50/30 dark:bg-slate-800/20': !day.inCurrentMonth,
-                                    }"
-                                    :style="{ minHeight: getWeekMinHeight(weekIndex) }"
-                                >
-                                    <div class="relative z-[1] flex items-start justify-between">
-                                        <span
-                                            class="flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold transition-colors"
-                                            :class="{
-                                                'bg-primary-600 text-white shadow-md shadow-primary-500/30': day.isToday,
-                                                'text-slate-700 dark:text-slate-200': day.inCurrentMonth && !day.isToday,
-                                                'text-slate-400 dark:text-slate-500': !day.inCurrentMonth && !day.isToday,
-                                            }"
-                                        >
-                                            {{ day.dayNumber }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
+                        <!-- Calendar Weeks -->
+                        <div class="calendar-weeks">
                             <div
-                                class="pointer-events-none absolute inset-x-0"
-                                :style="{
-                                    top: `${weekHeaderHeight}px`,
-                                    bottom: `${weekRowBottomPadding}px`,
+                                v-for="(week, weekIndex) in calendarWeeks"
+                                :key="weekIndex"
+                                class="calendar-week border-b border-slate-200 dark:border-slate-700"
+                                :style="{ 
+                                    minHeight: `${Math.max(100, 40 + (assignEventLanes(getEventsForWeek(week, weekIndex), week).length * 32))}px` 
                                 }"
                             >
-                                <button
-                                    v-for="segment in weekEventLanes[weekIndex]?.flat() || []"
-                                    :key="`${weekIndex}-${segment.event.id}-${segment.startCol}-${segment.endCol}`"
-                                    type="button"
-                                    class="pointer-events-auto absolute flex items-center gap-1 overflow-hidden whitespace-nowrap rounded-md border-l-2 px-2 text-left text-[11px] font-medium text-slate-800 shadow-sm transition-all hover:brightness-95 dark:text-slate-100"
-                                    :class="getWeekEventClasses(segment)"
-                                    :style="{
-                                        ...getWeekEventStyle(segment),
-                                        backgroundColor: `${getEventColor(segment.event)}20`,
-                                        borderLeftColor: getEventColor(segment.event),
-                                    }"
-                                    @click="handleEventClick(segment.event)"
-                                >
-                                    <span
-                                        v-if="segment.continuesBefore"
-                                        class="text-[10px] text-slate-500 dark:text-slate-300"
+                                <!-- Day Cells Grid -->
+                                <div class="grid grid-cols-7 relative">
+                                    <!-- Day Number Row -->
+                                    <div
+                                        v-for="(day, dayIndex) in week"
+                                        :key="`day-${weekIndex}-${dayIndex}`"
+                                        class="day-cell border-r border-slate-200 dark:border-slate-700 p-2 transition-all hover:bg-slate-50 dark:hover:bg-slate-700/30"
+                                        :class="{
+                                            'bg-slate-50/30 dark:bg-slate-800/20': !day,
+                                            'border-r-0': dayIndex === 6,
+                                        }"
                                     >
-                                        ◀
-                                    </span>
-                                    <span class="truncate">
-                                        {{ segment.event.label }}
-                                    </span>
-                                    <span
-                                        v-if="segment.continuesAfter"
-                                        class="text-[10px] text-slate-500 dark:text-slate-300"
-                                    >
-                                        ▶
-                                    </span>
-                                </button>
+                                        <div v-if="day" class="flex flex-col h-full">
+                                            <!-- Day Number -->
+                                            <span
+                                                class="text-sm font-semibold w-7 h-7 flex items-center justify-center rounded-full transition-colors"
+                                                :class="{
+                                                    'bg-primary-600 text-white shadow-md shadow-primary-500/30':
+                                                        isToday(day),
+                                                    'text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600':
+                                                        !isToday(day),
+                                                }"
+                                            >
+                                                {{ day }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Multi-day Events Layer - Positioned absolutely over the week -->
+                                    <div class="absolute inset-0 pt-10 pointer-events-none">
+                                        <div class="relative h-full px-1">
+                                            <!-- Event Lanes -->
+                                            <div
+                                                v-for="(lane, laneIndex) in assignEventLanes(getEventsForWeek(week, weekIndex), week)"
+                                                :key="`lane-${weekIndex}-${laneIndex}`"
+                                                class="event-lane relative h-12 mb-1"
+                                            >
+                                                <div
+                                                    v-for="event in lane"
+                                                    :key="`event-${event.id}-${weekIndex}`"
+                                                    class="event-bar absolute h-12 rounded-md cursor-pointer pointer-events-auto hover:shadow-md transition-all hover:scale-[1.01] active:scale-[0.99] overflow-hidden"
+                                                    :style="{
+                                                        backgroundColor: getEventColor(event) + '20',
+                                                        borderLeft: `3px solid ${getEventColor(event)}`,
+                                                        left: `${(getEventWeekLayout(event, week).startCol * 100) / 7}%`,
+                                                        width: `${(getEventWeekLayout(event, week).span * 100) / 7 - 0.5}%`,
+                                                    }"
+                                                    @click="handleEventClick(event)"
+                                                >
+                                                    <div class="px-2 py-0.5 h-full flex flex-col justify-center">
+                                                        <div
+                                                            class="font-medium text-xs text-slate-900 dark:text-slate-100 truncate leading-tight"
+                                                            :title="event.label"
+                                                        >
+                                                            {{ event.label }}
+                                                        </div>
+                                                        <div
+                                                            v-if="event.subtitle && getEventWeekLayout(event, week).span > 1"
+                                                            class="text-slate-500 dark:text-slate-400 truncate text-[10px]"
+                                                        >
+                                                            {{ event.subtitle }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -911,6 +892,23 @@ export default {
 
 .dark ::-webkit-scrollbar-thumb:hover {
     background: #64748b;
+}
+
+/* Calendar styles */
+.calendar-week {
+    position: relative;
+}
+
+.day-cell {
+    min-height: 100px;
+}
+
+.event-bar {
+    box-sizing: border-box;
+}
+
+.event-bar:hover {
+    z-index: 10;
 }
 
 </style>

@@ -151,7 +151,7 @@ export default {
         normalizeCalendarEvents(rows = []) {
             return rows.map((rental) => ({
                 id: rental.id,
-                label: rental.event_name || rental.venue_type,
+                label: rental.event_name || "Untitled Event",
                 subtitle: rental.requested_by || "",
                 type: rental.venue_type || "venue",
                 status: rental.status || "pending",

@@ -145,10 +145,6 @@ Route::middleware([
             Route::get('/venue', function () {
                 return Inertia::render('Rentals/RentalsVenueIndex');
             })->name('rentals.venue.index');
-
-            Route::get('/calendar', function () {
-                return Inertia::render('Rentals/CalendarModule');
-            })->name('rentals.calendar.index');
         });
 
         Route::prefix('event-forms')->group(function () {

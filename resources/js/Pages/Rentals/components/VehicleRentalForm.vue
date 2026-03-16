@@ -174,8 +174,10 @@ export default {
         normalizeCalendarEvents(rows = []) {
             return rows.map((rental) => ({
                 id: rental.id,
-                label: rental.vehicle_type || getTripTypeMeta(rental.trip_type).label,
-                subtitle: rental.requested_by || "",
+                label: `${rental.requested_by || "Unknown requester"} (${rental.vehicle_type || "Vehicle pending"})`,
+                subtitle: [rental.destination_location, rental.purpose]
+                    .filter(Boolean)
+                    .join(" - "),
                 type: rental.vehicle_type || rental.trip_type || "vehicle",
                 status: rental.status || "pending",
                 date_from: rental.date_from,

@@ -48,11 +48,10 @@ export default {
                 status: rental.status,
                 date_from: rental.date_from,
                 date_to: rental.date_to,
-                label: (rental.vehicle_type || rental.trip_type || "vehicle")
-                    .replaceAll("_", " ")
-                    .toUpperCase(),
-                subtitle: rental.requested_by || "",
-                color: "#3B82F6",
+                label: `${rental.requested_by || "Unknown requester"} (${rental.vehicle_type || "Vehicle pending"})`,
+                subtitle: [rental.destination_location, rental.purpose]
+                    .filter(Boolean)
+                    .join(" - "),
                 checkoutPage: "rental.vehicle.show",
                 checkoutPageId: rental.id,
                 checkoutPageTarget: "_blank",
@@ -64,9 +63,8 @@ export default {
                 status: rental.status,
                 date_from: rental.date_from,
                 date_to: rental.date_to,
-                label: rental.event_name || rental.venue_type,
+                label: rental.event_name || "Untitled Event",
                 subtitle: rental.requested_by || "",
-                color: "#10B981",
                 checkoutPage: "rental.venue.show",
                 checkoutPageId: rental.id,
                 checkoutPageTarget: "_blank",
