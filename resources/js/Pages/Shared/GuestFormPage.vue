@@ -1,9 +1,10 @@
 <script>
 import SocialLinks from "@/Components/SocialLinks.vue";
+import MainBg from "@/Pages/Shared/MainBg.vue";
 
 export default {
     name: 'GuestFormPage',
-    components: {SocialLinks},
+    components: {SocialLinks, MainBg},
     props: {
         /** Main title text in the colored header bar */
         title: {
@@ -30,9 +31,7 @@ export default {
 
 <template>
     <!-- Background gradient (fixed behind content) -->
-    <div class="fixed top-0 left-0 w-full h-full z-0 overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-radial animate-gradient"></div>
-    </div>
+    <main-bg></main-bg>
 
     <!-- Main content overlay -->
     <div class="fixed top-0 left-0 w-full h-full flex justify-center overflow-y-auto">

@@ -34,15 +34,23 @@ export default {
                     href: 'dashboard',
                     icon: 'LuLayoutDashboard',
                 },{
-                    label: 'Certificate Generator',
-                    href: 'certificates.index',
-                    permission: 'event.certificates.manage',
-                    icon: 'LuAward',
-                },{
-                    label: 'Event Forms',
-                    href: 'forms.index',
-                    permission: 'event.forms.manage',
-                    icon: 'LuCalendar',
+                    label: 'Form Builder',
+                    href: null,
+                    icon: 'LuWrench',
+                    children: [
+                        {
+                            label: 'Event Forms',
+                            href: 'forms.index',
+                            permission: 'event.forms.manage',
+                            icon: 'LuCalendar',
+                        },
+                        {
+                            label: 'Certificate Generator',
+                            href: 'certificates.index',
+                            permission: 'event.certificates.manage',
+                            icon: 'LuAward',
+                        },
+                    ],
                 },{
                     label: 'Bookings and Rentals',
                     href: null,

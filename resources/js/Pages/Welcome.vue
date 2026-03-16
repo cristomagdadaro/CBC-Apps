@@ -13,6 +13,7 @@ import {
 import { onMounted, ref, computed } from "vue";
 import SocialLinks from "@/Components/SocialLinks.vue";
 import ServiceCard from "@/Components/ServiceCard.vue";
+import MainBg from "@/Pages/Shared/MainBg.vue";
 
 defineProps({
     canLogin: Boolean,
@@ -143,9 +144,7 @@ onMounted(() => {
 
 <template>
     <Head title="Welcome" />
-    <div class="fixed top-0 left-0 w-full h-full z-0 overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-radial animate-gradient"></div>
-    </div>
+    <main-bg />
     <div class="absolute top-0 left-0 w-full">
         <div class="relative sm:flex justify-center items-center min-h-screen">
             <div class="sm:fixed sm:top-0 sm:end-0 p-6 text-end z-10">
@@ -165,13 +164,13 @@ onMounted(() => {
                     <div class="relative w-fit mx-auto">
                         <div class="flex items-center gap-1">
                             <h1
-                                class="lg:text-6xl md:text-4xl text-3xl font-bold leading-none text-AB dark:text-green-400 font-[Montserrat] drop-shadow-md whitespace-nowrap"
+                                class="lg:text-6xl md:text-4xl text-3xl font-bold leading-none text-lime-500 dark:text-green-400 font-[Montserrat] drop-shadow-md whitespace-nowrap"
                             >
                                 {{ $appName }}
                             </h1>
                         </div>
                         <span
-                            class="absolute bottom-0 -right-5 text-[0.60rem] text-AB"
+                            class="absolute bottom-0 -right-5 text-[0.60rem] text-lime-500"
                         >
                             {{ $page.props.appVersion }}
                         </span>
@@ -194,7 +193,7 @@ onMounted(() => {
                 >
                     <div class="text-center">
                         <h3
-                            class="text-gray-900 dark:text-white text-xl font-bold tracking-wider uppercase"
+                            class="text-lime-500 dark:text-white text-xl font-bold tracking-wider uppercase"
                         >
                             Apps & Services
                         </h3>

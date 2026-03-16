@@ -3,11 +3,13 @@ import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Transaction from "@/Modules/domain/Transaction";
 import JsBarcode from "jsbarcode";
 import QrcodeVue from "qrcode.vue";
+import LabelCard from "./components/LabelCard.vue";
 
 export default {
     name: "BarcodePrint",
     components: { 
         QrcodeVue, 
+        LabelCard,
     },
     mixins: [ApiMixin],
     data() {
@@ -427,16 +429,6 @@ export default {
                         margin: 0,
                     });
                 }
-                const printEl = document.getElementById(`print-barcode-${label.key}`);
-                if (printEl) {
-                    JsBarcode(printEl, barcodeValue, {
-                        format: "CODE128",
-                        displayValue: false,
-                        width: this.getBarcodeModuleWidth(barcodeValue),
-                        height: this.barcodeHeight,
-                        margin: 0,
-                    });
-                }
             });
         },
         printLabels() {
@@ -835,18 +827,18 @@ export default {
                         <!-- Label Preview Grid -->
                         <div class="bg-gray-100 dark:bg-gray-900 rounded-xl p-4 sm:p-8 overflow-x-auto">
                             <div class="flex flex-wrap justify-center gap-4">
-                                <div v-for="label in labels" :key="label.key" class="label-card" :style="cardStyle">
-                                    <div class="label-card-inner" :style="cardInnerStyle">
-                                        <div class="label-text" :style="{ fontSize: `${labelFontSize}px` }">
-                                            <div class="label-item">{{ label.item.name }}</div>
-                                            <div class="label-brand">{{ label.item.brand }} {{ label.item.description ? '(' + label.item.description + ')' : '' }}</div>
-                                        </div>
-                                        <svg v-if="printMode !== 'qr'" :id="`print-barcode-${label.key}`"></svg>
-                                        <qrcode-vue v-if="printMode !== 'barcode'" :value="label.equipmentUrl" :size="qrSize" level="M" render-as="canvas" class="label-qr mx-auto" />
-                                        <div v-if="printMode !== 'qr'" class="label-barcode mx-auto" :style="{ fontSize: `${labelFontSize}px` }">{{ label.item.barcode }}</div>
-                                        <div v-else class="label-qr-caption" :style="{ fontSize: `${labelFontSize * 0.9}px` }">{{ label.item.barcode }}</div>
-                                    </div>
-                                </div>
+                                <LabelCard
+                                    v-for="label in labels"
+                                    :key="label.key"
+                                    :label="label"
+                                    :print-mode="printMode"
+                                    :label-font-size="labelFontSize"
+                                    :qr-size="qrSize"
+                                    :barcode-height="barcodeHeight"
+                                    :barcode-module-width="getBarcodeModuleWidth(label.item?.barcode)"
+                                    :card-style="cardStyle"
+                                    :card-inner-style="cardInnerStyle"
+                                />
                             </div>
                             <div v-if="labels.length > 12" class="text-center mt-4 text-sm text-gray-500 dark:text-gray-400">
                                 Showing 12 of {{ labels.length }} labels
@@ -1094,36 +1086,36 @@ export default {
         <!-- Print Areas (Hidden) -->
         <Teleport to="body">
             <div v-if="previewReady && layoutMode === 'single'" class="print-area flex flex-wrap justify-center gap-4 hidden">
-                <div v-for="label in labels" :key="label.key" class="label-card" :style="cardStyle">
-                    <div class="label-card-inner" :style="cardInnerStyle">
-                        <div class="label-text" :style="{ fontSize: `${labelFontSize}px` }">
-                            <div class="label-item">{{ label.item.name }}</div>
-                            <div class="label-brand">{{ label.item.brand }} {{ label.item.description ? '(' + label.item.description + ')' : '' }}</div>
-                        </div>
-                        <svg v-if="printMode !== 'qr'" :id="`print-barcode-${label.key}`"></svg>
-                        <qrcode-vue v-if="printMode !== 'barcode'" :value="label.equipmentUrl" :size="qrSize" level="M" render-as="canvas" class="label-qr mx-auto" />
-                        <div v-if="printMode !== 'qr'" class="label-barcode mx-auto" :style="{ fontSize: `${labelFontSize}px` }">{{ label.item.barcode }}</div>
-                        <div v-else class="label-qr-caption" :style="{ fontSize: `${labelFontSize * 0.9}px` }">{{ label.item.barcode }}</div>
-                    </div>
-                </div>
+                <LabelCard
+                    v-for="label in labels"
+                    :key="label.key"
+                    :label="label"
+                    :print-mode="printMode"
+                    :label-font-size="labelFontSize"
+                    :qr-size="qrSize"
+                    :barcode-height="barcodeHeight"
+                    :barcode-module-width="getBarcodeModuleWidth(label.item?.barcode)"
+                    :card-style="cardStyle"
+                    :card-inner-style="cardInnerStyle"
+                />
             </div>
             
             <div v-if="previewReady && layoutMode === 'sheet'" class="print-area-sheet hidden">
                 <div v-for="(sheet, sheetIndex) in sheetedLabels" :key="`print-sheet-${sheetIndex}`" class="sheet-page" 
                     :style="{ width: `${sheetDimensions.widthCm}cm`, height: `${sheetDimensions.heightCm}cm`, padding: `${sheetMarginCm}cm` }">
                     <div class="sheet-grid" :style="{ display: 'grid', gridTemplateColumns: `repeat(${labelsPerRow}, 1fr)`, gap: '5px' }">
-                        <div v-for="label in sheet" :key="label.key" class="label-card" :style="cardStyle">
-                            <div class="label-card-inner" :style="cardInnerStyle">
-                                <div class="label-text" :style="{ fontSize: `${labelFontSize}px` }">
-                                    <div class="label-item">{{ label.item.name }}</div>
-                                    <div class="label-brand">{{ label.item.brand }} {{ label.item.description ? '(' + label.item.description + ')' : '' }}</div>
-                                </div>
-                                <svg v-if="printMode !== 'qr'" :id="`print-barcode-${label.key}`"></svg>
-                                <qrcode-vue v-if="printMode !== 'barcode'" :value="label.equipmentUrl" :size="qrSize" level="M" render-as="canvas" class="label-qr mx-auto" />
-                                <div v-if="printMode !== 'qr'" class="label-barcode mx-auto" :style="{ fontSize: `${labelFontSize}px` }">{{ label.item.barcode }}</div>
-                                <div v-else class="label-qr-caption" :style="{ fontSize: `${labelFontSize * 0.9}px` }">{{ label.item.barcode }}</div>
-                            </div>
-                        </div>
+                        <LabelCard
+                            v-for="label in sheet"
+                            :key="label.key"
+                            :label="label"
+                            :print-mode="printMode"
+                            :label-font-size="labelFontSize"
+                            :qr-size="qrSize"
+                            :barcode-height="barcodeHeight"
+                            :barcode-module-width="getBarcodeModuleWidth(label.item?.barcode)"
+                            :card-style="cardStyle"
+                            :card-inner-style="cardInnerStyle"
+                        />
                     </div>
                 </div>
             </div>
@@ -1167,7 +1159,7 @@ export default {
     </AppLayout>
 </template>
 
-<style scoped>
+<style>
 .label-grid {
     display: flex;
     flex-wrap: wrap;
