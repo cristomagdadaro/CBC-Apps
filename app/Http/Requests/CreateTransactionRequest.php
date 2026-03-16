@@ -65,7 +65,7 @@ class CreateTransactionRequest extends FormRequest
             'expiration' => 'date|nullable',
             'remarks' => 'string|nullable',
             'project_code' => 'nullable|string',
-            'personnel_id' => 'nullable|exists:personnels,id',
+            'personnel_id' => 'required|exists:personnels,id',
             'par_no' => 'nullable|string|unique:transactions,par_no',
             'condition' => 'nullable|string',
             'components' => [

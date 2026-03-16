@@ -318,6 +318,7 @@ export default {
                     :options="personnels"
                     placeholder="Select Personnel"
                     label="Accountable Personnel"
+                    required
                     :error="form.errors.personnel_id"
                     @selectedChange="form.personnel_id = $event"
                 >

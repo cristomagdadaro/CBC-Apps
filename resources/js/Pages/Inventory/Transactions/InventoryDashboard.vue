@@ -52,6 +52,7 @@ export default {
             try {
                 const response = await this.fetchGetApi("api.inventory.transactions.dashboard", {params: { scope: this.scope }});
                 const payload = response?.data?.data ?? response?.data ?? {};
+                console.log(payload?.recent_transactions);
                 this.dashboard = {
                     totals: payload?.totals ?? { incoming: 0, outgoing: 0 },
                     recent_transactions: this.convertToTransaction(payload?.recent_transactions) ?? [],
@@ -168,7 +169,7 @@ export default {
                             <tbody>
                                 <tr v-for="row in dashboard.recent_transactions" :key="row.id" class="border-t">
                                     <td class="py-2">{{ formatDateTime(row.created_at) }}</td>
-                                    <td class="py-2">{{ row.personnel.fullName || '-' }}</td>
+                                    <td class="py-2">{{ row.personnel?.fullName || '-' }}</td>
                                     <td class="py-2">{{ row.item?.name || '-' }}</td>
                                     <td class="py-2 uppercase">{{ row.transac_type }}</td>
                                     <td class="py-2 text-right">{{ row.quantity }}</td>
