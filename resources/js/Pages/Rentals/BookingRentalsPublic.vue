@@ -1,186 +1,214 @@
-<script setup>
-import { computed, onMounted, ref, watch } from "vue";
+<script>
 import CalendarModule from "@/Components/CalendarModule.vue";
 
-const loading = ref(true);
-const error = ref(null);
-const vehicleRentals = ref([]);
-const venueRentals = ref([]);
-const searchKeyword = ref("");
-const selectedMonth = ref("");
-const monthToLabel = (monthKey) => {
-    const [year, month] = monthKey.split("-").map((value) => Number(value));
-    return new Date(year, month - 1, 1).toLocaleDateString("en-US", {
-        month: "long",
-        year: "numeric",
-    });
+export default {
+    components: {
+        CalendarModule,
+    },
+
+    data() {
+        return {
+            loading: true,
+            error: null,
+            vehicleRentals: [],
+            venueRentals: [],
+            searchKeyword: "",
+            selectedMonth: "",
+
+            statusColors: {
+                pending: "#FBBF24",
+                approved: "#10B981",
+                in_progress: "#3B82F6",
+                rejected: "#EF4444",
+                cancelled: "#6B7280",
+                completed: "#334155",
+            },
+
+            statusOptions: [
+                { key: "pending", label: "Pending" },
+                { key: "approved", label: "Approved" },
+                { key: "in_progress", label: "In Progress" },
+                { key: "rejected", label: "Rejected" },
+                { key: "cancelled", label: "Cancelled" },
+                { key: "completed", label: "Completed" },
+            ],
+
+            typeOptions: [
+                { key: "vehicle", label: "Vehicles", color: "#3B82F6" },
+                { key: "venue", label: "Venues", color: "#10B981" },
+            ],
+        };
+    },
+
+    computed: {
+        allEvents() {
+            const vehicles = this.vehicleRentals.map((rental) => ({
+                id: `vehicle-${rental.id}`,
+                type: "vehicle",
+                status: rental.status,
+                date_from: rental.date_from,
+                date_to: rental.date_to,
+                label: (rental.vehicle_type || rental.trip_type || "vehicle")
+                    .replaceAll("_", " ")
+                    .toUpperCase(),
+                subtitle: rental.requested_by || "",
+                color: "#3B82F6",
+                checkoutPage: "rental.vehicle.show",
+                checkoutPageId: rental.id,
+                checkoutPageTarget: "_blank",
+            }));
+
+            const venues = this.venueRentals.map((rental) => ({
+                id: `venue-${rental.id}`,
+                type: "venue",
+                status: rental.status,
+                date_from: rental.date_from,
+                date_to: rental.date_to,
+                label: rental.event_name || rental.venue_type,
+                subtitle: rental.requested_by || "",
+                color: "#10B981",
+                checkoutPage: "rental.venue.show",
+                checkoutPageId: rental.id,
+                checkoutPageTarget: "_blank",
+            }));
+
+            return [...vehicles, ...venues];
+        },
+
+        searchableEvents() {
+            const keyword = this.searchKeyword.trim().toLowerCase();
+
+            if (!keyword) {
+                return this.allEvents;
+            }
+
+            return this.allEvents.filter((event) => {
+                const haystack = [
+                    event.label,
+                    event.subtitle,
+                    event.type,
+                    event.status,
+                    event.date_from,
+                    event.date_to,
+                ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase();
+
+                return haystack.includes(keyword);
+            });
+        },
+
+        availableMonths() {
+            const keys = new Set();
+
+            this.searchableEvents.forEach((event) => {
+                const value = event.date_from || event.date_to;
+
+                if (!value) return;
+
+                const key = String(value).slice(0, 7);
+
+                if (key.length === 7) {
+                    keys.add(key);
+                }
+            });
+
+            return Array.from(keys).sort();
+        },
+
+        selectedStartDate() {
+            if (!this.selectedMonth) {
+                return null;
+            }
+
+            return `${this.selectedMonth}-01`;
+        },
+    },
+
+    watch: {
+        availableMonths() {
+            this.syncSelectedMonth();
+        },
+    },
+
+    methods: {
+        monthToLabel(monthKey) {
+            const [year, month] = monthKey.split("-").map((v) => Number(v));
+
+            return new Date(year, month - 1, 1).toLocaleDateString("en-US", {
+                month: "long",
+                year: "numeric",
+            });
+        },
+
+        syncSelectedMonth() {
+            if (!this.availableMonths.length) {
+                this.selectedMonth = "";
+                return;
+            }
+
+            const nowMonth = new Date().toISOString().slice(0, 7);
+
+            if (
+                this.selectedMonth &&
+                this.availableMonths.includes(this.selectedMonth)
+            ) {
+                return;
+            }
+
+            if (this.availableMonths.includes(nowMonth)) {
+                this.selectedMonth = nowMonth;
+                return;
+            }
+
+            this.selectedMonth = this.availableMonths[0];
+        },
+
+        async loadBookings() {
+            try {
+                this.loading = true;
+                this.error = null;
+
+                const [vehicleRes, venueRes] = await Promise.all([
+                    fetch(
+                        "/api/guest/rental/vehicles?statuses=pending,approved,in_progress,rejected,cancelled,completed"
+                    ),
+                    fetch(
+                        "/api/guest/rental/venues?statuses=pending,approved,in_progress,rejected,cancelled,completed"
+                    ),
+                ]);
+
+                if (!vehicleRes.ok || !venueRes.ok) {
+                    throw new Error(
+                        "Unable to load booking calendars right now."
+                    );
+                }
+
+                const vehicleData = await vehicleRes.json();
+                const venueData = await venueRes.json();
+
+                this.vehicleRentals = Array.isArray(vehicleData?.data)
+                    ? vehicleData.data
+                    : [];
+
+                this.venueRentals = Array.isArray(venueData?.data)
+                    ? venueData.data
+                    : [];
+
+                this.syncSelectedMonth();
+            } catch (err) {
+                this.error = err?.message || "Failed to load booking data.";
+            } finally {
+                this.loading = false;
+            }
+        },
+    },
+
+    mounted() {
+        this.loadBookings();
+    },
 };
-
-const statusColors = {
-    pending: "#FBBF24",
-    approved: "#10B981",
-    rejected: "#EF4444",
-};
-
-const statusOptions = [
-    { key: "pending", label: "Pending" },
-    { key: "approved", label: "Approved" },
-    { key: "rejected", label: "Declined" },
-];
-
-const typeOptions = [
-    { key: "vehicle", label: "Vehicles", color: "#3B82F6" },
-    { key: "venue", label: "Venues", color: "#10B981" },
-];
-
-const allEvents = computed(() => {
-    const vehicles = vehicleRentals.value.map((rental) => ({
-        id: `vehicle-${rental.id}`,
-        type: "vehicle",
-        status: rental.status,
-        date_from: rental.date_from,
-        date_to: rental.date_to,
-        label: (rental.vehicle_type || "").toUpperCase(),
-        subtitle: rental.requested_by || "",
-        color: "#3B82F6",
-        checkoutPage: "rental.vehicle.show",
-        checkoutPageId: rental.id,
-        checkoutPageTarget: "_blank",
-    }));
-
-    const venues = venueRentals.value.map((rental) => ({
-        id: `venue-${rental.id}`,
-        type: "venue",
-        status: rental.status,
-        date_from: rental.date_from,
-        date_to: rental.date_to,
-        label: rental.event_name || rental.venue_type,
-        subtitle: rental.requested_by || "",
-        color: "#10B981",
-        checkoutPage: "rental.venue.show",
-        checkoutPageId: rental.id,
-        checkoutPageTarget: "_blank",
-    }));
-
-    return [...vehicles, ...venues];
-});
-
-const searchableEvents = computed(() => {
-    const keyword = searchKeyword.value.trim().toLowerCase();
-
-    if (!keyword) {
-        return allEvents.value;
-    }
-
-    return allEvents.value.filter((event) => {
-        const haystack = [
-            event.label,
-            event.subtitle,
-            event.type,
-            event.status,
-            event.date_from,
-            event.date_to,
-        ]
-            .filter(Boolean)
-            .join(" ")
-            .toLowerCase();
-
-        return haystack.includes(keyword);
-    });
-});
-
-const availableMonths = computed(() => {
-    const keys = new Set();
-
-    searchableEvents.value.forEach((event) => {
-        const value = event.date_from || event.date_to;
-        if (!value) {
-            return;
-        }
-
-        const key = String(value).slice(0, 7);
-        if (key.length === 7) {
-            keys.add(key);
-        }
-    });
-
-    return Array.from(keys).sort();
-});
-
-const selectedStartDate = computed(() => {
-    if (!selectedMonth.value) {
-        return null;
-    }
-
-    return `${selectedMonth.value}-01`;
-});
-
-const syncSelectedMonth = () => {
-    if (!availableMonths.value.length) {
-        selectedMonth.value = "";
-        return;
-    }
-
-    const nowMonth = new Date().toISOString().slice(0, 7);
-
-    if (
-        selectedMonth.value &&
-        availableMonths.value.includes(selectedMonth.value)
-    ) {
-        return;
-    }
-
-    if (availableMonths.value.includes(nowMonth)) {
-        selectedMonth.value = nowMonth;
-        return;
-    }
-
-    selectedMonth.value = availableMonths.value[0];
-};
-
-watch(availableMonths, () => {
-    syncSelectedMonth();
-});
-
-const loadBookings = async () => {
-    try {
-        loading.value = true;
-        error.value = null;
-
-        const [vehicleRes, venueRes] = await Promise.all([
-            fetch(
-                "/api/guest/rental/vehicles?statuses=pending,approved,rejected",
-            ),
-            fetch(
-                "/api/guest/rental/venues?statuses=pending,approved,rejected",
-            ),
-        ]);
-
-        if (!vehicleRes.ok || !venueRes.ok) {
-            throw new Error("Unable to load booking calendars right now.");
-        }
-
-        const vehicleData = await vehicleRes.json();
-        const venueData = await venueRes.json();
-
-        vehicleRentals.value = Array.isArray(vehicleData?.data)
-            ? vehicleData.data
-            : [];
-        venueRentals.value = Array.isArray(venueData?.data)
-            ? venueData.data
-            : [];
-
-        syncSelectedMonth();
-    } catch (err) {
-        error.value = err?.message || "Failed to load booking data.";
-    } finally {
-        loading.value = false;
-    }
-};
-
-onMounted(() => {
-    loadBookings();
-});
 </script>
 
 <template>
@@ -253,7 +281,7 @@ onMounted(() => {
                 <calendar-module
                     v-else
                     title="Vehicle and Venue Bookings"
-                    subtitle="Shows pending, approved, and declined bookings from venue and vehicle rentals."
+                    subtitle="Shows the full rental workflow across vehicle and venue bookings."
                     :events="searchableEvents"
                     :type-options="typeOptions"
                     :status-options="statusOptions"

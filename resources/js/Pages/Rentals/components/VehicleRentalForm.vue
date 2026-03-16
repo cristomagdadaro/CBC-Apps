@@ -4,6 +4,7 @@ import ApiMixin from "@/Modules/mixins/ApiMixin";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 import SuccessModal from "@/Components/SuccessModal.vue";
 import CalendarModule from "@/Components/CalendarModule.vue";
+import { rentalVehicleTripOptions, getTripTypeMeta } from "@/Pages/Rentals/constants/tripWorkflows";
 
 export default {
     name: "VehicleRentalForm",
@@ -25,16 +26,13 @@ export default {
     data() {
         return {
             submitted: false,
-            availableVehicles: [],
-            availabilityChecking: false,
-            isAvailable: true,
-            availabilityMessage: "",
             employee_id: null,
             showSuccessModal: false,
             successMessage: "",
             calendarLoading: false,
             calendarEvents: [],
             membersOfPartyRows: [],
+            destinationStopInput: "",
         };
     },
     computed: {
@@ -46,15 +44,32 @@ export default {
             return {
                 pending: "#FBBF24",
                 approved: "#10B981",
+                in_progress: "#3B82F6",
                 rejected: "#EF4444",
+                cancelled: "#6B7280",
+                completed: "#334155",
             };
         },
         statusOptions() {
             return [
                 { key: "pending", label: "Pending" },
                 { key: "approved", label: "Approved" },
-                { key: "rejected", label: "Declined" },
+                { key: "in_progress", label: "In Progress" },
+                { key: "rejected", label: "Rejected" },
+                { key: "cancelled", label: "Cancelled" },
+                { key: "completed", label: "Completed" },
             ];
+        },
+        tripTypeOptions() {
+            return rentalVehicleTripOptions.map((option) => ({
+                key: option.name,
+                name: option.name,
+                label: option.label,
+                color: "#6B7280",
+            }));
+        },
+        selectedTripTypeMeta() {
+            return getTripTypeMeta(this.form?.trip_type);
         },
         vehicleTypeOptions() {
             return this.vehicleOptions.map((option) => ({
@@ -96,49 +111,12 @@ export default {
                 create: this.isGuestContext
                     ? "api.guest.rental.vehicles.store"
                     : "api.rental.vehicles.store",
-                checkAvailability: this.isGuestContext
-                    ? "api.guest.rental.vehicles.check-availability"
-                    : "api.rental.vehicles.check-availability",
             };
 
             return routeMap[type];
         },
-        async checkAvailability() {
-            if (
-                !this.form.vehicle_type ||
-                !this.form.date_from ||
-                !this.form.date_to
-            ) {
-                return;
-            }
-
-            this.availabilityChecking = true;
-            try {
-                const response = await this.fetchGetApi(
-                    this.routeNameFor("checkAvailability"),
-                    {
-                        routeParams: {
-                            vehicleType: this.form.vehicle_type,
-                            dateFrom: this.form.date_from,
-                            dateTo: this.form.date_to,
-                        },
-                    },
-                );
-                this.isAvailable = response.available;
-                this.availabilityMessage = response.message;
-            } catch (error) {
-                console.error("Error checking availability:", error);
-                this.availabilityMessage = "Error checking availability";
-            } finally {
-                this.availabilityChecking = false;
-            }
-        },
-        handleVehicleTypeChange(value) {
-            this.form.vehicle_type = value;
-            this.checkAvailability();
-        },
-        handleDateChange() {
-            this.checkAvailability();
+        handleTripTypeChange(value) {
+            this.form.trip_type = value;
         },
         handlePersonnelFound(data) {
             this.form.requested_by = data.fullName;
@@ -149,6 +127,12 @@ export default {
         },
         handleDestinationProvinceChange(value) {
             this.form.destination_province = value;
+        },
+        syncDestinationStops() {
+            this.form.destination_stops = this.destinationStopInput
+                .split("\n")
+                .map((value) => String(value || "").trim())
+                .filter((value) => !!value);
         },
         createEmptyMemberRow() {
             return { name: "" };
@@ -184,32 +168,21 @@ export default {
             this.membersOfPartyRows.splice(index, 1);
             this.syncMembersOfPartyPayload();
         },
-        moveMemberOfParty(index, direction) {
-            const target = index + direction;
-
-            if (target < 0 || target >= this.membersOfPartyRows.length) {
-                return;
-            }
-
-            const copy = [...this.membersOfPartyRows];
-            const current = copy[index];
-            copy[index] = copy[target];
-            copy[target] = current;
-            this.membersOfPartyRows = copy;
-            this.syncMembersOfPartyPayload();
-        },
         memberRowError(index) {
             return this.form?.errors?.[`members_of_party.${index}`] ?? null;
         },
         normalizeCalendarEvents(rows = []) {
             return rows.map((rental) => ({
                 id: rental.id,
-                label: rental.vehicle_type,
+                label: rental.vehicle_type || getTripTypeMeta(rental.trip_type).label,
                 subtitle: rental.requested_by || "",
-                type: rental.vehicle_type || "vehicle",
+                type: rental.vehicle_type || rental.trip_type || "vehicle",
                 status: rental.status || "pending",
                 date_from: rental.date_from,
                 date_to: rental.date_to,
+                checkoutPage: "rental.vehicle.show",
+                checkoutPageId: rental.id,
+                checkoutPageTarget: "_blank",
             }));
         },
         async loadCalendarEvents() {
@@ -219,7 +192,7 @@ export default {
                 const response = await this.fetchGetApi(
                     this.routeNameFor("index"),
                     {
-                        statuses: "pending,approved,rejected",
+                        statuses: "pending,approved,in_progress,rejected,cancelled,completed",
                     },
                 );
 
@@ -237,11 +210,7 @@ export default {
             }
         },
         async submitProxyCreate() {
-            if (!this.isAvailable) {
-                this.form.errors.general = "Please select available dates";
-                return;
-            }
-
+            this.syncDestinationStops();
             this.syncMembersOfPartyPayload();
 
             const data = this.isGuestContext
@@ -273,6 +242,9 @@ export default {
     },
     mounted() {
         this.hydrateMembersOfPartyRows();
+        this.destinationStopInput = Array.isArray(this.form?.destination_stops)
+            ? this.form.destination_stops.join("\n")
+            : "";
         this.loadCalendarEvents();
     },
 };
@@ -327,47 +299,29 @@ export default {
                     <div v-if="form.errors.general" class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
                         {{ form.errors.general }}
                     </div>
-                    <div v-if="
-                        form.date_from && form.date_to && form.vehicle_type
-                    " class="px-4 py-2 rounded-md" :class="isAvailable
-                                ? 'bg-green-50 border border-green-200'
-                                : 'bg-red-50 border border-red-200'
-                            ">
-                        <div class="flex items-center gap-2">
-                            <loader-icon v-if="availabilityChecking" class="text-AB" />
-                            <span :class="isAvailable
-                                    ? 'text-green-700'
-                                    : 'text-red-700'
-                                ">
-                                {{
-                                    availabilityMessage ||
-                                    "Checking availability..."
-                                }}
-                            </span>
-                        </div>
-                    </div>
-                    <custom-dropdown label="Vehicle Type" required placeholder="Select a vehicle"
-                        @selectedChange="handleVehicleTypeChange" :value="form.vehicle_type" :with-all-option="false"
-                        :options="vehicleOptions.map((v) => ({
-                            name: v.name,
-                            label: v.label,
-                        }))
-                            " :error="form.errors.vehicle_type">
+                    <custom-dropdown label="Trip Workflow" required placeholder="Select a trip workflow"
+                        @selectedChange="handleTripTypeChange" :value="form.trip_type" :with-all-option="false"
+                        :options="tripTypeOptions" :error="form.errors.trip_type">
                         <template #icon>
                             <caret-down class="h-4 w-4 text-gray-600" />
                         </template>
                     </custom-dropdown>
+                    <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Selected Workflow</p>
+                        <p class="mt-2 text-sm font-semibold text-gray-900">{{ selectedTripTypeMeta.label }}</p>
+                        <p class="mt-1 text-sm text-gray-600">{{ selectedTripTypeMeta.description }}</p>
+                    </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <DateInput id="date_from" label="Start Date" required v-model="form.date_from" :min="minDate"
-                            @change="handleDateChange" :error="form.errors.date_from" />
+                            :error="form.errors.date_from" />
                         <DateInput id="date_to" label="End Date" required v-model="form.date_to" type="date"
-                            :min="form.date_from || minDate" @change="handleDateChange" :error="form.errors.date_to" />
+                            :min="form.date_from || minDate" :error="form.errors.date_to" />
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <TimeInput id="time_from" label="Start Time" required v-model="form.time_from"
-                            @change="handleDateChange" :error="form.errors.time_from" class="mt-1 block w-full" />
+                            :error="form.errors.time_from" class="mt-1 block w-full" />
                         <TimeInput id="time_to" label="End Time" required v-model="form.time_to"
-                            @change="handleDateChange" :error="form.errors.time_to" class="mt-1 block w-full" />
+                            :error="form.errors.time_to" class="mt-1 block w-full" />
                     </div>
                     <TextArea id="purpose" v-model="form.purpose" label="Purpose" required
                         placeholder="Describe the purpose of your vehicle rental"
@@ -391,6 +345,22 @@ export default {
                     <TextInput id="destination_location" label="Specific Address" required
                         v-model="form.destination_location" type="text" placeholder="Specific destination / address"
                         :error="form.errors.destination_location" class="mt-1 block w-full" />
+                    <TextArea id="destination_stops" v-model="destinationStopInput" label="Additional Stops"
+                        placeholder="One stop per line for shuttle or multi-stop trips" @input="syncDestinationStops"
+                        :error="form.errors.destination_stops"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-AB focus:ring-AB"></TextArea>
+                    <div class="rounded-lg border border-gray-200 p-4">
+                        <label class="flex items-start gap-3 text-sm text-gray-700">
+                            <Checkbox v-model:checked="form.is_shared_ride" name="is_shared_ride" />
+                            <span>
+                                <span class="block font-medium text-gray-900">Shared/Hitch Ride</span>
+                                <span class="block text-xs text-gray-500">Enable this if the trip can be grouped with another approved request.</span>
+                            </span>
+                        </label>
+                    </div>
+                    <TextInput v-if="form.is_shared_ride" id="shared_ride_reference" label="Shared/Hitch Ride Reference"
+                        v-model="form.shared_ride_reference" type="text" placeholder="Full name of the person you're sharing with"
+                        :error="form.errors.shared_ride_reference" class="mt-1 block w-full" />
                     <PersonnelLookup v-model="employee_id" @found="handlePersonnelFound" />
                     <TextInput id="requested_by" label="Your Name" required v-model="form.requested_by" type="text"
                         placeholder="Full name" :error="form.errors.requested_by" class="mt-1 block w-full" />
@@ -414,8 +384,8 @@ export default {
 
                         <div v-if="membersOfPartyRows.length" class="flex flex-col gap-2">
                             <div v-for="(member, index) in membersOfPartyRows" :key="`mop-${index}`"
-                                class="grid grid-cols-12 gap-2 items-start">
-                                <div class="col-span-8">
+                                class="flex gap-2 items-start">
+                                <div class="flex-1">
                                     <TextInput :id="`members_of_party_${index}`" :label="`Member ${index + 1}`"
                                         v-model="member.name" type="text" placeholder="Enter member full name"
                                         @input="syncMembersOfPartyPayload" class="mt-1 block w-full" />
@@ -424,23 +394,11 @@ export default {
                                     </p>
                                 </div>
 
-                                <div class="col-span-4 flex gap-1 pt-6">
-                                    <button type="button"
-                                        class="px-2 py-1 text-xs border rounded hover:bg-gray-50 disabled:opacity-50"
-                                        :disabled="index === 0" @click="moveMemberOfParty(index, -1)" title="Move up">
-                                        Up
-                                    </button>
-                                    <button type="button"
-                                        class="px-2 py-1 text-xs border rounded hover:bg-gray-50 disabled:opacity-50"
-                                        :disabled="index ===
-                                            membersOfPartyRows.length - 1
-                                            " @click="moveMemberOfParty(index, 1)" title="Move down">
-                                        Down
-                                    </button>
+                                <div class="flex gap-1">
                                     <button type="button"
                                         class="px-2 py-1 text-xs border border-red-300 text-red-600 rounded hover:bg-red-50"
                                         @click="removeMemberOfPartyRow(index)" title="Remove member">
-                                        Remove
+                                        <lu-x class="h-3 w-3" />
                                     </button>
                                 </div>
                             </div>
@@ -456,7 +414,7 @@ export default {
                         placeholder="Any additional information"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-AB focus:ring-AB"></TextArea>
                     <div class="flex gap-4 pt-6 border-t">
-                        <PrimaryButton :disabled="processing || !isAvailable" class="justify-center flex-1">
+                        <PrimaryButton :disabled="processing" class="justify-center flex-1">
                             <span v-if="processing" class="flex items-center justify-center gap-2">
                                 <loader-icon />
                                 Submitting...
@@ -467,13 +425,12 @@ export default {
                 </form>
             </div>
         </div>
-        <div class="bg-white p-4 rounded-lg shadow col-span-3">
+        <div class="bg-white p-4 rounded-lg shadow col-span-3 h-fit">
             <h3 class="text-base font-semibold text-gray-900 mb-2">
                 Vehicle Availability Calendar
             </h3>
             <p class="text-sm text-gray-600 mb-3">
-                Check pending, approved, and declined vehicle requests before
-                submitting.
+                Review current request schedules and workflow states before submitting.
             </p>
             <div v-if="calendarLoading" class="text-sm text-gray-500 flex items-center gap-2 justify-center">
                 <loader-icon class="w-6 h-6 text-gray-500 animate-spin" />

@@ -53,6 +53,7 @@ class RentalVenue extends Model
 
     public const STATUS_PENDING = 'pending';
     public const STATUS_APPROVED = 'approved';
+    public const STATUS_IN_PROGRESS = 'in_progress';
     public const STATUS_REJECTED = 'rejected';
     public const STATUS_COMPLETED = 'completed';
     public const STATUS_CANCELLED = 'cancelled';
@@ -67,6 +68,7 @@ class RentalVenue extends Model
         return [
             self::STATUS_PENDING,
             self::STATUS_APPROVED,
+            self::STATUS_IN_PROGRESS,
             self::STATUS_REJECTED,
             self::STATUS_COMPLETED,
             self::STATUS_CANCELLED,

@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateRentalVehicleRequest;
 use App\Http\Requests\UpdateRentalVehicleRequest;
+use App\Models\RentalVehicle;
+use App\Repositories\OptionRepo;
 use App\Repositories\RentalVehicleRepository;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class RentalVehicleController extends BaseController
 {
@@ -27,7 +30,7 @@ class RentalVehicleController extends BaseController
 
     public function publicIndex(Request $request): JsonResponse
     {
-        $statuses = collect(explode(',', (string) $request->query('statuses', 'pending,approved,rejected')))
+        $statuses = collect(explode(',', (string) $request->query('statuses', implode(',', RentalVehicle::getStatuses()))))
             ->map(fn ($status) => trim($status))
             ->filter()
             ->values()
@@ -50,24 +53,26 @@ class RentalVehicleController extends BaseController
     {
         $data = $request->validated();
 
-        // Check for conflicts
-        $dateFrom = Carbon::parse($data['date_from']);
-        $dateTo = Carbon::parse($data['date_to']);
+        if (!empty($data['vehicle_type'])) {
+            $dateFrom = Carbon::parse($data['date_from']);
+            $dateTo = Carbon::parse($data['date_to']);
 
-        if ($this->repo()->checkConflict(
-            $data['vehicle_type'],
-            $dateFrom,
-            $dateTo,
-            $data['time_from'],
-            $data['time_to']
-        )) {
-            return response()->json([
-                'message' => 'The selected vehicle is not available for the requested dates and time.',
-                'error' => 'conflict'
-            ], 409);
+            if ($this->repo()->checkConflict(
+                $data['vehicle_type'],
+                $dateFrom,
+                $dateTo,
+                $data['time_from'],
+                $data['time_to']
+            )) {
+                return response()->json([
+                    'message' => 'The selected vehicle is not available for the requested dates and time.',
+                    'error' => 'conflict'
+                ], 409);
+            }
         }
 
-        $data['status'] = 'pending';
+        $data['vehicle_type'] = $data['vehicle_type'] ?? null;
+        $data['status'] = RentalVehicle::STATUS_PENDING;
         $rental = $this->repo()->create($data);
 
         return response()->json(['data' => $rental], 201);
@@ -113,7 +118,7 @@ class RentalVehicleController extends BaseController
             $timeTo = $data['time_to'] ?? $rental->time_to;
             $vehicleType = $data['vehicle_type'] ?? $rental->vehicle_type;
 
-            if ($this->repo()->checkConflict($vehicleType, $dateFrom, $dateTo, $timeFrom, $timeTo, $id)) {
+            if ($vehicleType && $this->repo()->checkConflict($vehicleType, $dateFrom, $dateTo, $timeFrom, $timeTo, $id)) {
                 return response()->json([
                     'message' => 'The selected vehicle is not available for the requested dates and time.',
                     'error' => 'conflict'
@@ -128,8 +133,25 @@ class RentalVehicleController extends BaseController
 
     public function updateStatus(Request $request, string $id): JsonResponse
     {
+        $vehicleTypes = collect(app(OptionRepo::class)->getVehicles())
+            ->pluck('name')
+            ->filter()
+            ->values()
+            ->all();
+
         $validated = $request->validate([
-            'status' => ['required', 'in:pending,approved,rejected'],
+            'status' => ['required', Rule::in([
+                RentalVehicle::STATUS_PENDING,
+                RentalVehicle::STATUS_APPROVED,
+                RentalVehicle::STATUS_REJECTED,
+                RentalVehicle::STATUS_CANCELLED,
+            ])],
+            'vehicle_type' => array_values(array_filter([
+                Rule::requiredIf(fn () => $request->input('status') === RentalVehicle::STATUS_APPROVED),
+                'nullable',
+                'string',
+                !empty($vehicleTypes) ? Rule::in($vehicleTypes) : null,
+            ])),
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -139,12 +161,34 @@ class RentalVehicleController extends BaseController
             return response()->json(['message' => 'Rental not found'], 404);
         }
 
+        $vehicleType = $validated['vehicle_type'] ?? $rental->vehicle_type;
+
+        if ($validated['status'] === RentalVehicle::STATUS_APPROVED) {
+            $dateFrom = Carbon::parse($rental->date_from);
+            $dateTo = Carbon::parse($rental->date_to);
+
+            if ($this->repo()->checkConflict(
+                $vehicleType,
+                $dateFrom,
+                $dateTo,
+                (string) $rental->time_from,
+                (string) $rental->time_to,
+                $id
+            )) {
+                return response()->json([
+                    'message' => 'The selected vehicle is not available for this trip schedule.',
+                    'error' => 'conflict'
+                ], 409);
+            }
+        }
+
         $updated = $this->repo()->update($id, [
             'status' => $validated['status'],
+            'vehicle_type' => $vehicleType,
             'notes' => $validated['notes'] ?? $rental->notes,
         ]);
 
-        return response()->json(['data' => $updated]);
+        return response()->json(['data' => $this->repo()->find((string) $updated->id)]);
     }
 
     public function destroy(string $id): JsonResponse

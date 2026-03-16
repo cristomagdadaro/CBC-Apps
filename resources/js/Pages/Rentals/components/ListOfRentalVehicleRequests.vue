@@ -11,6 +11,10 @@ export default {
             type: Array,
             default: () => [],
         },
+        vehicleOptions: {
+            type: Array,
+            default: () => [],
+        },
     },
 };
 </script>
@@ -21,6 +25,7 @@ export default {
             v-for="data in rentalsData"
             :key="data.id"
             :data="data"
+            :vehicle-options="vehicleOptions"
             @updated="$emit('updated', $event)"
             @failedUpdate="$emit('failedUpdate', $event)"
         />

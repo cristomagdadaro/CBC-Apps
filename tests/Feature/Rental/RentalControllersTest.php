@@ -27,13 +27,20 @@ class RentalControllersTest extends TestCase
 
     public function test_guest_can_create_vehicle_rental_through_public_endpoint(): void
     {
-        $response = $this->postJson(route('api.guest.rental.vehicles.store'), $this->vehiclePayload());
+        $response = $this->postJson(route('api.guest.rental.vehicles.store'), $this->vehiclePayload([
+            'vehicle_type' => null,
+            'trip_type' => 'shuttle_service',
+            'destination_stops' => ['Science Hub', 'Extension Office'],
+        ]));
 
         $response->assertCreated()
-            ->assertJsonPath('data.status', 'pending');
+            ->assertJsonPath('data.status', 'pending')
+            ->assertJsonPath('data.vehicle_type', null)
+            ->assertJsonPath('data.trip_type', 'shuttle_service');
 
         $this->assertDatabaseHas('rental_vehicles', [
-            'vehicle_type' => 'innova',
+            'vehicle_type' => null,
+            'trip_type' => 'shuttle_service',
             'status' => 'pending',
         ]);
     }
@@ -69,6 +76,44 @@ class RentalControllersTest extends TestCase
         $this->putJson(route('api.rental.vehicles.update-status', $rental->id), [
             'status' => 'approved',
         ])->assertForbidden();
+    }
+
+    public function test_vehicle_approval_requires_vehicle_assignment(): void
+    {
+        $user = $this->createUserWithRole(RoleEnum::ADMINISTRATIVE_ASSISTANT->value);
+        Sanctum::actingAs($user);
+
+        $rental = RentalVehicle::query()->create(array_merge($this->vehiclePayload([
+            'vehicle_type' => null,
+        ]), [
+            'status' => 'pending',
+        ]));
+
+        $this->putJson(route('api.rental.vehicles.update-status', $rental->id), [
+            'status' => 'approved',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('vehicle_type');
+    }
+
+    public function test_vehicle_approver_can_assign_vehicle_on_approval(): void
+    {
+        $user = $this->createUserWithRole(RoleEnum::ADMINISTRATIVE_ASSISTANT->value);
+        Sanctum::actingAs($user);
+
+        $rental = RentalVehicle::query()->create(array_merge($this->vehiclePayload([
+            'vehicle_type' => null,
+        ]), [
+            'status' => 'pending',
+        ]));
+
+        $this->putJson(route('api.rental.vehicles.update-status', $rental->id), [
+            'status' => 'approved',
+            'vehicle_type' => 'pickup',
+            'notes' => 'Assigned during approval',
+        ])->assertOk()
+            ->assertJsonPath('data.status', 'approved')
+            ->assertJsonPath('data.vehicle_type', 'pickup')
+            ->assertJsonPath('data.notes', 'Assigned during approval');
     }
 
     public function test_guest_can_create_venue_rental_through_public_endpoint(): void
@@ -120,6 +165,7 @@ class RentalControllersTest extends TestCase
     private function seedLocation(): void
     {
         DB::table('loc_cities')->insert([
+            'id' => 1,
             'city' => 'Science City of Muñoz',
             'province' => 'Nueva Ecija',
             'region' => 'REGION III',
@@ -162,6 +208,7 @@ class RentalControllersTest extends TestCase
     {
         return array_merge([
             'vehicle_type' => 'innova',
+            'trip_type' => 'dedicated_trip',
             'date_from' => now()->addDays(5)->toDateString(),
             'date_to' => now()->addDays(6)->toDateString(),
             'time_from' => '08:00:00',
@@ -171,8 +218,11 @@ class RentalControllersTest extends TestCase
             'destination_city' => 'Science City of Muñoz',
             'destination_province' => 'Nueva Ecija',
             'destination_region' => 'REGION III',
+            'destination_stops' => [],
             'requested_by' => 'Jane Doe',
             'members_of_party' => ['Jane Doe', 'John Doe'],
+            'is_shared_ride' => false,
+            'shared_ride_reference' => null,
             'contact_number' => '09171234567',
             'notes' => 'Needs driver',
         ], $overrides);

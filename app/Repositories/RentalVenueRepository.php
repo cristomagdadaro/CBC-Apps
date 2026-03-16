@@ -4,7 +4,10 @@ namespace App\Repositories;
 
 use App\Models\RentalVenue;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class RentalVenueRepository extends AbstractRepoService
 {
@@ -33,7 +36,9 @@ class RentalVenueRepository extends AbstractRepoService
             $query->where('date_to', '<=', $filters['date_to']);
         }
 
-        return $query->orderBy('date_from', 'asc')->get();
+        return $this->syncLifecycleStatuses(
+            $query->orderBy('date_from', 'asc')->get()
+        );
     }
 
     public function paginate(array $params = [], int $perPage = 15)
@@ -87,14 +92,21 @@ class RentalVenueRepository extends AbstractRepoService
             $sort = 'date_from';
         }
 
-        return $query
+        /** @var LengthAwarePaginator $paginator */
+        $paginator = $query
             ->orderBy($sort, $order)
             ->paginate($perPageValue, ['*'], 'page', $page);
+
+        $paginator->setCollection($this->syncLifecycleStatuses($paginator->getCollection()));
+
+        return $paginator;
     }
 
     public function find(string $id)
     {
-        return $this->model->newQuery()->find($id);
+        $rental = $this->model->newQuery()->find($id);
+
+        return $rental ? $this->syncLifecycleStatus($rental) : null;
     }
 
     public function create(array $data): RentalVenue
@@ -121,7 +133,7 @@ class RentalVenueRepository extends AbstractRepoService
     public function checkConflict(string $venueType, Carbon $dateFrom, Carbon $dateTo, string $timeFrom, string $timeTo, ?string $excludeId = null): bool
     {
         $query = $this->model->newQuery()->where('venue_type', $venueType)
-            ->whereIn('status', ['pending', 'approved'])
+            ->whereIn('status', $this->blockingStatuses())
             ->where(function ($q) use ($dateFrom, $dateTo) {
                 $q->where(function ($subQ) use ($dateFrom, $dateTo) {
                     $subQ->whereBetween('date_from', [$dateFrom, $dateTo])
@@ -143,7 +155,7 @@ class RentalVenueRepository extends AbstractRepoService
     public function getConflicts(string $venueType, Carbon $dateFrom, Carbon $dateTo, ?string $excludeId = null)
     {
         $query = $this->model->newQuery()->where('venue_type', $venueType)
-            ->whereIn('status', ['pending', 'approved'])
+            ->whereIn('status', $this->blockingStatuses())
             ->where(function ($q) use ($dateFrom, $dateTo) {
                 $q->where(function ($subQ) use ($dateFrom, $dateTo) {
                     $subQ->whereBetween('date_from', [$dateFrom, $dateTo])
@@ -159,6 +171,79 @@ class RentalVenueRepository extends AbstractRepoService
             $query->where('id', '!=', $excludeId);
         }
 
-        return $query->get();
+        return $this->syncLifecycleStatuses($query->get());
+    }
+
+    private function blockingStatuses(): array
+    {
+        return [
+            RentalVenue::STATUS_APPROVED,
+            RentalVenue::STATUS_IN_PROGRESS,
+        ];
+    }
+
+    private function syncLifecycleStatuses(Collection $rentals): Collection
+    {
+        return $rentals->map(fn (RentalVenue $rental) => $this->syncLifecycleStatus($rental));
+    }
+
+    private function syncLifecycleStatus(RentalVenue $rental): RentalVenue
+    {
+        $nextStatus = $this->resolveLifecycleStatus($rental);
+
+        if ($nextStatus && $nextStatus !== $rental->status) {
+            $rental->forceFill(['status' => $nextStatus])->saveQuietly();
+            $rental->status = $nextStatus;
+        }
+
+        return $rental;
+    }
+
+    private function resolveLifecycleStatus(RentalVenue $rental): ?string
+    {
+        $status = strtolower((string) $rental->status);
+
+        if (in_array($status, [
+            RentalVenue::STATUS_PENDING,
+            RentalVenue::STATUS_REJECTED,
+            RentalVenue::STATUS_CANCELLED,
+        ], true)) {
+            return null;
+        }
+
+        $startAt = $this->combineDateAndTime($rental->date_from, $rental->time_from, false);
+        $endAt = $this->combineDateAndTime($rental->date_to, $rental->time_to, true);
+        $now = now();
+
+        if ($endAt && $now->gt($endAt)) {
+            return RentalVenue::STATUS_COMPLETED;
+        }
+
+        if ($startAt && $endAt && $now->betweenIncluded($startAt, $endAt)) {
+            return RentalVenue::STATUS_IN_PROGRESS;
+        }
+
+        if ($status === RentalVenue::STATUS_IN_PROGRESS && $startAt && $now->lt($startAt)) {
+            return RentalVenue::STATUS_APPROVED;
+        }
+
+        return null;
+    }
+
+    private function combineDateAndTime(mixed $date, mixed $time, bool $endOfDay): ?Carbon
+    {
+        if (!$date) {
+            return null;
+        }
+
+        $resolvedDate = $date instanceof CarbonInterface
+            ? $date->copy()
+            : Carbon::parse((string) $date);
+
+        if ($time) {
+            return Carbon::parse(sprintf('%s %s', $resolvedDate->toDateString(), $time));
+        }
+
+        return $endOfDay ? $resolvedDate->endOfDay() : $resolvedDate->startOfDay();
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Repositories\OptionRepo;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateRentalVenueRequest extends FormRequest
 {
@@ -30,7 +31,7 @@ class UpdateRentalVenueRequest extends FormRequest
             'destination_region' => ['sometimes', 'string', 'exists:loc_cities,region'],
             'requested_by' => ['sometimes', 'string', 'max:255'],
             'contact_number' => ['sometimes', 'string', 'regex:/^[0-9\-\+\s\(\)]*$/'],
-            'status' => ['sometimes', 'in:pending,approved,rejected'],
+            'status' => ['sometimes', Rule::in(['pending', 'approved', 'in_progress', 'rejected', 'cancelled', 'completed'])],
             'notes' => ['nullable', 'string', 'max:1000'],
         ];
     }

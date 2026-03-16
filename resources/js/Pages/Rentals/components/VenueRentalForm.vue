@@ -39,14 +39,20 @@ export default {
             return {
                 pending: "#FBBF24",
                 approved: "#10B981",
+                in_progress: "#3B82F6",
                 rejected: "#EF4444",
+                cancelled: "#6B7280",
+                completed: "#334155",
             };
         },
         statusOptions() {
             return [
                 { key: "pending", label: "Pending" },
                 { key: "approved", label: "Approved" },
-                { key: "rejected", label: "Declined" },
+                { key: "in_progress", label: "In Progress" },
+                { key: "rejected", label: "Rejected" },
+                { key: "cancelled", label: "Cancelled" },
+                { key: "completed", label: "Completed" },
             ];
         },
         venueTypeOptions() {
@@ -151,6 +157,9 @@ export default {
                 status: rental.status || "pending",
                 date_from: rental.date_from,
                 date_to: rental.date_to,
+                checkoutPage: "rental.venue.show",
+                checkoutPageId: rental.id,
+                checkoutPageTarget: "_blank",
             }));
         },
         async loadCalendarEvents() {
@@ -160,7 +169,7 @@ export default {
                 const response = await this.fetchGetApi(
                     this.routeNameFor("index"),
                     {
-                        statuses: "pending,approved,rejected",
+                        statuses: "pending,approved,in_progress,rejected,cancelled,completed",
                     },
                 );
 
@@ -453,13 +462,12 @@ export default {
                 </div>
             </form>
         </div>
-        <div class="bg-white p-4 rounded-lg shadow col-span-3">
+        <div class="bg-white p-4 rounded-lg shadow col-span-3 h-fit">
             <h3 class="text-base font-semibold text-gray-900 mb-2">
                 Venue Availability Calendar
             </h3>
             <p class="text-sm text-gray-600 mb-3">
-                Check pending, approved, and declined venue requests before
-                submitting.
+                Check current venue workflow states before submitting.
             </p>
             <div v-if="calendarLoading" class="text-sm text-gray-500 flex items-center gap-2 justify-center">
                 <loader-icon class="w-6 h-6 text-gray-500 animate-spin" />

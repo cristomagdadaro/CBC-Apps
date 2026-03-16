@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateRentalVenueRequest;
 use App\Http\Requests\UpdateRentalVenueRequest;
+use App\Models\RentalVenue;
 use App\Repositories\RentalVenueRepository;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class RentalVenueController extends BaseController
 {
@@ -27,7 +29,7 @@ class RentalVenueController extends BaseController
 
     public function publicIndex(Request $request): JsonResponse
     {
-        $statuses = collect(explode(',', (string) $request->query('statuses', 'pending,approved,rejected')))
+        $statuses = collect(explode(',', (string) $request->query('statuses', implode(',', RentalVenue::getStatuses()))))
             ->map(fn ($status) => trim($status))
             ->filter()
             ->values()
@@ -129,7 +131,12 @@ class RentalVenueController extends BaseController
     public function updateStatus(Request $request, string $id): JsonResponse
     {
         $validated = $request->validate([
-            'status' => ['required', 'in:pending,approved,rejected'],
+            'status' => ['required', Rule::in([
+                RentalVenue::STATUS_PENDING,
+                RentalVenue::STATUS_APPROVED,
+                RentalVenue::STATUS_REJECTED,
+                RentalVenue::STATUS_CANCELLED,
+            ])],
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
 

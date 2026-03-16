@@ -137,7 +137,9 @@ Route::middleware([
 
         Route::prefix('rentals')->group(function () {
             Route::get('/vehicle', function () {
-                return Inertia::render('Rentals/RentalsVehicleIndex');
+                return Inertia::render('Rentals/RentalsVehicleIndex', [
+                    'vehicleOptions' => app(OptionRepo::class)->getVehicles(),
+                ]);
             })->name('rentals.vehicle.index');
 
             Route::get('/venue', function () {

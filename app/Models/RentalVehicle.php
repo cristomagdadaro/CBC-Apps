@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\RentalTripType;
 use Database\Factories\RentalVehicleFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -33,6 +34,7 @@ class RentalVehicle extends Model
 
     protected $fillable = [
         'vehicle_type',
+        'trip_type',
         'date_from',
         'date_to',
         'time_from',
@@ -42,8 +44,11 @@ class RentalVehicle extends Model
         'destination_city',
         'destination_province',
         'destination_region',
+        'destination_stops',
         'requested_by',
         'members_of_party',
+        'is_shared_ride',
+        'shared_ride_reference',
         'contact_number',
         'status',
         'notes',
@@ -51,12 +56,15 @@ class RentalVehicle extends Model
 
     protected $casts = [
         'members_of_party' => 'array',
+        'destination_stops' => 'array',
+        'is_shared_ride' => 'boolean',
     ];
 
     protected $dates = ['date_from', 'date_to', 'deleted_at', 'updated_at', 'created_at'];
 
     public const STATUS_PENDING = 'pending';
     public const STATUS_APPROVED = 'approved';
+    public const STATUS_IN_PROGRESS = 'in_progress';
     public const STATUS_REJECTED = 'rejected';
     public const STATUS_COMPLETED = 'completed';
     public const STATUS_CANCELLED = 'cancelled';
@@ -71,10 +79,16 @@ class RentalVehicle extends Model
         return [
             self::STATUS_PENDING,
             self::STATUS_APPROVED,
+            self::STATUS_IN_PROGRESS,
             self::STATUS_REJECTED,
             self::STATUS_COMPLETED,
             self::STATUS_CANCELLED,
         ];
+    }
+
+    public static function getTripTypes(): array
+    {
+        return RentalTripType::values();
     }
 
     protected function serializeDate(DateTimeInterface $date): string

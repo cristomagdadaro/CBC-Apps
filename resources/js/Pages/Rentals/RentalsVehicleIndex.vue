@@ -10,13 +10,22 @@ export default {
         RentalsHeaderAction,
         ListOfRentalVehicleRequests,
     },
+    props: {
+        vehicleOptions: {
+            type: Array,
+            default: () => [],
+        },
+    },
     mixins: [ApiMixin],
     data() {
         return {
             rentalsFromApi: null,
             statusOptions: [
                 { name: 'approved', label: 'Approved' },
-                { name: 'rejected', label: 'Declined' },
+                { name: 'in_progress', label: 'In Progress' },
+                { name: 'rejected', label: 'Rejected' },
+                { name: 'cancelled', label: 'Cancelled' },
+                { name: 'completed', label: 'Completed' },
                 { name: 'pending', label: 'Pending' },
             ],
         };
@@ -134,6 +143,7 @@ export default {
                 <list-of-rental-vehicle-requests
                     v-if="rentalsFromApi && rentalsFromApi.total > 0 && !processing"
                     :rentals-data="rentalsFromApi.data"
+                    :vehicle-options="vehicleOptions"
                     @updated="searchRentals"
                 />
 

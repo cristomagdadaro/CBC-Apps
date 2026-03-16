@@ -24,6 +24,7 @@ const venueTypes = [
 const statusColors = {
     pending: "#FBBF24",
     approved: "#10B981",
+    in_progress: "#3B82F6",
     rejected: "#EF4444",
     completed: "#6B7280",
     cancelled: "#9CA3AF",
@@ -32,6 +33,7 @@ const statusColors = {
 const statusOptions = [
     { key: "pending", label: "Pending" },
     { key: "approved", label: "Approved" },
+    { key: "in_progress", label: "In Progress" },
     { key: "rejected", label: "Rejected" },
     { key: "completed", label: "Completed" },
     { key: "cancelled", label: "Cancelled" },
@@ -96,8 +98,8 @@ const fetchRentalData = async () => {
         error.value = null;
 
         const [vehiclesRes, venuesRes] = await Promise.all([
-            fetch("/api/guest/rental/vehicles?statuses=pending,approved,rejected"),
-            fetch("/api/guest/rental/venues?statuses=pending,approved,rejected"),
+            fetch("/api/guest/rental/vehicles?statuses=pending,approved,in_progress,rejected,cancelled,completed"),
+            fetch("/api/guest/rental/venues?statuses=pending,approved,in_progress,rejected,cancelled,completed"),
         ]);
 
         if (!vehiclesRes.ok || !venuesRes.ok) {

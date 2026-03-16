@@ -67,7 +67,10 @@ export default {
             filterType: "all",
             filterStatus: "all",
             weekDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-            MAX_VISIBLE_EVENTS_PER_DAY: 2,
+            weekHeaderHeight: 32,
+            weekEventHeight: 22,
+            weekEventGap: 4,
+            weekRowBottomPadding: 10,
         };
     },
     computed: {
@@ -95,33 +98,44 @@ export default {
 
             return list;
         },
-        daysInMonth() {
-            return new Date(
-                this.currentDate.getFullYear(),
-                this.currentDate.getMonth() + 1,
-                0,
-            ).getDate();
-        },
-        firstDayOfMonth() {
-            return new Date(
-                this.currentDate.getFullYear(),
-                this.currentDate.getMonth(),
-                1,
-            ).getDay();
-        },
-        calendarDays() {
-            const days = [];
-            for (let i = 0; i < this.firstDayOfMonth; i += 1) {
-                days.push(null);
-            }
-            for (let i = 1; i <= this.daysInMonth; i += 1) {
-                days.push(i);
-            }
-            return days;
-        },
         monthYearLabel() {
             const options = { month: "long", year: "numeric" };
             return this.currentDate.toLocaleDateString("en-US", options);
+        },
+        calendarWeeks() {
+            const year = this.currentDate.getFullYear();
+            const month = this.currentDate.getMonth();
+            const firstOfMonth = this.createDateAtNoon(year, month, 1);
+            const lastOfMonth = this.createDateAtNoon(year, month + 1, 0);
+            const gridStart = this.addDays(firstOfMonth, -firstOfMonth.getDay());
+            const gridEnd = this.addDays(lastOfMonth, 6 - lastOfMonth.getDay());
+            const weeks = [];
+
+            for (
+                let cursor = this.cloneDate(gridStart);
+                cursor <= gridEnd;
+                cursor = this.addDays(cursor, 7)
+            ) {
+                const days = [];
+
+                for (let offset = 0; offset < 7; offset += 1) {
+                    const date = this.addDays(cursor, offset);
+                    days.push({
+                        key: this.formatDateKey(date),
+                        date,
+                        dayNumber: date.getDate(),
+                        inCurrentMonth: date.getMonth() === month,
+                        isToday: this.isSameDate(date, new Date()),
+                    });
+                }
+
+                weeks.push(days);
+            }
+
+            return weeks;
+        },
+        weekEventLanes() {
+            return this.calendarWeeks.map((week) => this.buildWeekEventLanes(week));
         },
         legendData() {
             if (this.legendGroups && this.legendGroups.length) {
@@ -186,6 +200,98 @@ export default {
                 this.currentDate.getFullYear() === today.getFullYear()
             );
         },
+        createDateAtNoon(year, month, day) {
+            return new Date(year, month, day, 12, 0, 0, 0);
+        },
+        cloneDate(value) {
+            return this.createDateAtNoon(
+                value.getFullYear(),
+                value.getMonth(),
+                value.getDate(),
+            );
+        },
+        addDays(value, days) {
+            const date = this.cloneDate(value);
+            date.setDate(date.getDate() + days);
+            return this.createDateAtNoon(
+                date.getFullYear(),
+                date.getMonth(),
+                date.getDate(),
+            );
+        },
+        parseDateValue(value) {
+            if (!value) return null;
+
+            if (value instanceof Date) {
+                return this.createDateAtNoon(
+                    value.getFullYear(),
+                    value.getMonth(),
+                    value.getDate(),
+                );
+            }
+
+            const text = String(value).trim();
+            const match = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+            if (match) {
+                return this.createDateAtNoon(
+                    Number(match[1]),
+                    Number(match[2]) - 1,
+                    Number(match[3]),
+                );
+            }
+
+            const parsed = new Date(text);
+            if (Number.isNaN(parsed.getTime())) {
+                return null;
+            }
+
+            return this.createDateAtNoon(
+                parsed.getFullYear(),
+                parsed.getMonth(),
+                parsed.getDate(),
+            );
+        },
+        formatDateKey(value) {
+            const date = this.parseDateValue(value);
+            if (!date) return null;
+
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+
+            return `${year}-${month}-${day}`;
+        },
+        isSameDate(left, right) {
+            const leftDate = this.parseDateValue(left);
+            const rightDate = this.parseDateValue(right);
+
+            return !!leftDate && !!rightDate && this.formatDateKey(leftDate) === this.formatDateKey(rightDate);
+        },
+        getEventDateRange(event) {
+            const start = this.parseDateValue(
+                event.date_from || event.start_at || event.started_at,
+            );
+            const end = this.parseDateValue(
+                event.date_to || event.end_at || event.end_use_at || event.date_from,
+            );
+
+            if (!start || !end) {
+                return null;
+            }
+
+            if (end < start) {
+                return { start: end, end: start };
+            }
+
+            return { start, end };
+        },
+        diffInDays(start, end) {
+            const startDate = this.parseDateValue(start);
+            const endDate = this.parseDateValue(end);
+            if (!startDate || !endDate) return 0;
+
+            return Math.round((endDate.getTime() - startDate.getTime()) / 86400000);
+        },
         toDateOnly(value) {
             if (!value) return null;
             if (value instanceof Date) return value.toISOString().split("T")[0];
@@ -197,42 +303,99 @@ export default {
             }
             return text.length >= 10 ? text.slice(0, 10) : null;
         },
-        getBookingsForDate(day) {
-            if (!day) return [];
+        buildWeekEventLanes(week) {
+            if (!Array.isArray(week) || !week.length) {
+                return [];
+            }
 
-            const dateStr = new Date(
-                this.currentDate.getFullYear(),
-                this.currentDate.getMonth(),
-                day,
-            )
-                .toISOString()
-                .split("T")[0];
+            const weekStart = week[0].date;
+            const weekEnd = week[6].date;
+            const segments = this.filteredEvents
+                .map((event) => {
+                    const range = this.getEventDateRange(event);
+                    if (!range) {
+                        return null;
+                    }
 
-            return this.filteredEvents.filter((event) => {
-                const dateFrom = this.toDateOnly(
-                    event.date_from || event.start_at || event.started_at,
-                );
-                const dateTo = this.toDateOnly(
-                    event.date_to ||
-                        event.end_at ||
-                        event.end_use_at ||
-                        event.date_from,
-                );
-                if (!dateFrom || !dateTo) return false;
-                return dateStr >= dateFrom && dateStr <= dateTo;
+                    if (range.end < weekStart || range.start > weekEnd) {
+                        return null;
+                    }
+
+                    const visibleStart = range.start < weekStart ? weekStart : range.start;
+                    const visibleEnd = range.end > weekEnd ? weekEnd : range.end;
+                    const startCol = this.diffInDays(weekStart, visibleStart) + 1;
+                    const endCol = this.diffInDays(weekStart, visibleEnd) + 1;
+
+                    return {
+                        event,
+                        startCol,
+                        endCol,
+                        span: endCol - startCol + 1,
+                        continuesBefore: range.start < weekStart,
+                        continuesAfter: range.end > weekEnd,
+                        sortStart: range.start,
+                        sortEnd: range.end,
+                    };
+                })
+                .filter(Boolean)
+                .sort((left, right) => {
+                    if (left.startCol !== right.startCol) {
+                        return left.startCol - right.startCol;
+                    }
+
+                    if (left.span !== right.span) {
+                        return right.span - left.span;
+                    }
+
+                    return String(left.event.label || "").localeCompare(String(right.event.label || ""));
+                });
+
+            const lanes = [];
+
+            segments.forEach((segment) => {
+                let laneIndex = lanes.findIndex((lane) => {
+                    const last = lane[lane.length - 1];
+                    return !last || segment.startCol > last.endCol;
+                });
+
+                if (laneIndex === -1) {
+                    laneIndex = lanes.length;
+                    lanes.push([]);
+                }
+
+                lanes[laneIndex].push({
+                    ...segment,
+                    laneIndex,
+                });
             });
+
+            return lanes;
         },
-        getVisibleBookingsForDate(day) {
-            return this.getBookingsForDate(day).slice(
-                0,
-                this.MAX_VISIBLE_EVENTS_PER_DAY,
-            );
+        getWeekMinHeight(weekIndex) {
+            const laneCount = this.weekEventLanes[weekIndex]?.length || 0;
+            const eventRowsHeight = laneCount
+                ? (laneCount * this.weekEventHeight) + ((laneCount - 1) * this.weekEventGap)
+                : this.weekEventHeight;
+
+            return `${this.weekHeaderHeight + eventRowsHeight + this.weekRowBottomPadding}px`;
         },
-        getRemainingBookingsForDate(day) {
-            const bookings = this.getBookingsForDate(day);
-            return bookings.length > this.MAX_VISIBLE_EVENTS_PER_DAY
-                ? bookings.slice(this.MAX_VISIBLE_EVENTS_PER_DAY)
-                : [];
+        getWeekEventStyle(segment) {
+            const leftPercent = ((segment.startCol - 1) / 7) * 100;
+            const widthPercent = (segment.span / 7) * 100;
+            const top = this.weekHeaderHeight + (segment.laneIndex * (this.weekEventHeight + this.weekEventGap));
+
+            return {
+                left: `calc(${leftPercent}% + 4px)`,
+                width: `calc(${widthPercent}% - 8px)`,
+                top: `${top}px`,
+                height: `${this.weekEventHeight}px`,
+            };
+        },
+        getWeekEventClasses(segment) {
+            return {
+                "rounded-l-none": segment.continuesBefore,
+                "rounded-r-none": segment.continuesAfter,
+            };
         },
         getEventColor(event) {
             if (event.color) return event.color;
@@ -249,12 +412,6 @@ export default {
             } else if (this.$inertia && this.$inertia.visit) {
                 console.warn("No Route configured:", event);
             }
-        },
-        getDropdownAlignment(dayIndex) {
-            // If day is in first 2 columns (Sun, Mon or first 2 days), align right
-            // Otherwise align left to prevent right-edge cutoff
-            const col = dayIndex % 7;
-            return col < 2 ? "right" : "left";
         },
     },
     watch: {
@@ -632,10 +789,9 @@ export default {
                     </button>
                 </div>
 
-                <!-- Calendar Grid - Fixed: Proper overflow handling -->
+                <!-- Calendar Grid - Week-based spanning event rows -->
                 <div class="overflow-x-auto">
                     <div class="min-w-[900px]">
-                        <!-- Week Headers -->
                         <div
                             class="grid grid-cols-7 border-b border-slate-200 dark:border-slate-700"
                         >
@@ -652,180 +808,74 @@ export default {
                             </div>
                         </div>
 
-                        <!-- Calendar Days -->
-                        <div class="grid grid-cols-7">
-                            <div
-                                v-for="(day, index) in calendarDays"
-                                :key="index"
-                                class="min-h-[100px] border-b border-r border-slate-200 dark:border-slate-700 p-2 transition-all hover:bg-slate-50 dark:hover:bg-slate-700/30 relative group"
-                                :class="{
-                                    'bg-slate-50/30 dark:bg-slate-800/20': !day,
-                                    'border-r-0': (index + 1) % 7 === 0,
-                                }"
-                            >
-                                <div v-if="day" class="h-full flex flex-col">
-                                    <!-- Events -->
-                                    <div class="flex-1 space-y-1">
-                                        <div
-                                            v-for="booking in getVisibleBookingsForDate(
-                                                day,
-                                            )"
-                                            :key="booking.id"
-                                            class="p-1.5 rounded-md border-l-2 cursor-pointer hover:shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
-                                            :style="{
-                                                backgroundColor:
-                                                    getEventColor(booking) +
-                                                    '15',
-                                                borderLeftColor:
-                                                    getEventColor(booking),
-                                            }"
-                                            @click="handleEventClick(booking)"
-                                        >
-                                            <div
-                                                class="font-medium text-sm text-slate-900 dark:text-slate-100 truncate leading-tight"
-                                            >
-                                                {{ booking.label }}
-                                            </div>
-                                            <div
-                                                v-if="booking.subtitle"
-                                                class="text-slate-500 dark:text-slate-400 truncate text-xs mt-0.5"
-                                            >
-                                                {{ booking.subtitle }}
-                                            </div>
-                                            <div
-                                                v-if="booking.status"
-                                                class="inline-flex items-center gap-1 mt-1 text-[9px] font-medium uppercase tracking-wide"
-                                                :style="{
-                                                    color:
-                                                        statusColors[
-                                                            booking.status
-                                                        ] || '#6B7280',
-                                                }"
-                                            >
-                                                <div
-                                                    class="w-1 h-1 rounded-full"
-                                                    :style="{
-                                                        backgroundColor:
-                                                            statusColors[
-                                                                booking.status
-                                                            ] || '#6B7280',
-                                                    }"
-                                                ></div>
-                                                {{ booking.status }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- Day Number -->
-                                    <div
-                                        class="flex items-center justify-between mt-1.5"
-                                    >
+                        <div
+                            v-for="(week, weekIndex) in calendarWeeks"
+                            :key="`week-${weekIndex}`"
+                            class="relative border-b border-slate-200 dark:border-slate-700"
+                            :style="{ minHeight: getWeekMinHeight(weekIndex) }"
+                        >
+                            <div class="grid grid-cols-7">
+                                <div
+                                    v-for="(day, dayIndex) in week"
+                                    :key="day.key"
+                                    class="relative border-r border-slate-200 dark:border-slate-700 px-2 py-1.5 transition-all hover:bg-slate-50 dark:hover:bg-slate-700/30"
+                                    :class="{
+                                        'border-r-0': dayIndex === 6,
+                                        'bg-slate-50/30 dark:bg-slate-800/20': !day.inCurrentMonth,
+                                    }"
+                                    :style="{ minHeight: getWeekMinHeight(weekIndex) }"
+                                >
+                                    <div class="relative z-[1] flex items-start justify-between">
                                         <span
-                                            class="bg-AB text-white font-semibold w-6 h-6 flex items-center justify-center rounded-full transition-colors"
+                                            class="flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold transition-colors"
                                             :class="{
-                                                'bg-primary-600 text-white shadow-md shadow-primary-500/30':
-                                                    isToday(day),
-                                                'text-slate-700 dark:text-slate-800 hover:bg-slate-200 dark:hover:bg-slate-600':
-                                                    !isToday(day),
+                                                'bg-primary-600 text-white shadow-md shadow-primary-500/30': day.isToday,
+                                                'text-slate-700 dark:text-slate-200': day.inCurrentMonth && !day.isToday,
+                                                'text-slate-400 dark:text-slate-500': !day.inCurrentMonth && !day.isToday,
                                             }"
                                         >
-                                            {{ day }}
+                                            {{ day.dayNumber }}
                                         </span>
-                                         <!-- More Button - Fixed: Smart alignment -->
-                                        <Dropdown
-                                            v-if="
-                                                getRemainingBookingsForDate(day)
-                                                    .length
-                                            "
-                                            :align="getDropdownAlignment(index)"
-                                            width="64"
-                                            max-height="18rem"
-                                            content-class="z-50"
-                                        >
-                                            <template #trigger>
-                                                <button
-                                                    type="button"
-                                                    class="w-full text-[10px] text-center py-1 px-3 rounded-md border border-dashed border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-primary-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all"
-                                                >
-                                                    +{{
-                                                        getRemainingBookingsForDate(
-                                                            day,
-                                                        ).length
-                                                    }}
-                                                    more
-                                                </button>
-                                            </template>
-
-                                            <template #content>
-                                                <div class="p-2 space-y-1">
-                                                    <div
-                                                        class="font-semibold text-slate-500 dark:text-slate-400 px-2 py-1 border-b border-slate-100 dark:border-slate-700 mb-1"
-                                                    >
-                                                        {{
-                                                            getBookingsForDate(
-                                                                day,
-                                                            ).length
-                                                        }}
-                                                        events
-                                                    </div>
-                                                    <div
-                                                        v-for="booking in getRemainingBookingsForDate(
-                                                            day,
-                                                        )"
-                                                        :key="`remaining-${booking.id}`"
-                                                        class="p-2 rounded-md border-l-2 cursor-pointer hover:shadow-sm transition-all"
-                                                        :style="{
-                                                            backgroundColor:
-                                                                getEventColor(
-                                                                    booking,
-                                                                ) + '15',
-                                                            borderLeftColor:
-                                                                getEventColor(
-                                                                    booking,
-                                                                ),
-                                                        }"
-                                                        @click="
-                                                            handleEventClick(
-                                                                booking,
-                                                            )
-                                                        "
-                                                    >
-                                                        <div
-                                                            class="font-medium text-slate-900 dark:text-slate-100 truncate"
-                                                        >
-                                                            {{ booking.label }}
-                                                        </div>
-                                                        <div
-                                                            v-if="
-                                                                booking.subtitle
-                                                            "
-                                                            class="text-slate-500 dark:text-slate-400 truncate text-[9px]"
-                                                        >
-                                                            {{
-                                                                booking.subtitle
-                                                            }}
-                                                        </div>
-                                                        <div
-                                                            v-if="
-                                                                booking.status
-                                                            "
-                                                            class="text-[9px] font-medium capitalize mt-0.5"
-                                                            :style="{
-                                                                color:
-                                                                    statusColors[
-                                                                        booking
-                                                                            .status
-                                                                    ] ||
-                                                                    '#6B7280',
-                                                            }"
-                                                        >
-                                                            {{ booking.status }}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </template>
-                                        </Dropdown>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div
+                                class="pointer-events-none absolute inset-x-0"
+                                :style="{
+                                    top: `${weekHeaderHeight}px`,
+                                    bottom: `${weekRowBottomPadding}px`,
+                                }"
+                            >
+                                <button
+                                    v-for="segment in weekEventLanes[weekIndex]?.flat() || []"
+                                    :key="`${weekIndex}-${segment.event.id}-${segment.startCol}-${segment.endCol}`"
+                                    type="button"
+                                    class="pointer-events-auto absolute flex items-center gap-1 overflow-hidden whitespace-nowrap rounded-md border-l-2 px-2 text-left text-[11px] font-medium text-slate-800 shadow-sm transition-all hover:brightness-95 dark:text-slate-100"
+                                    :class="getWeekEventClasses(segment)"
+                                    :style="{
+                                        ...getWeekEventStyle(segment),
+                                        backgroundColor: `${getEventColor(segment.event)}20`,
+                                        borderLeftColor: getEventColor(segment.event),
+                                    }"
+                                    @click="handleEventClick(segment.event)"
+                                >
+                                    <span
+                                        v-if="segment.continuesBefore"
+                                        class="text-[10px] text-slate-500 dark:text-slate-300"
+                                    >
+                                        ◀
+                                    </span>
+                                    <span class="truncate">
+                                        {{ segment.event.label }}
+                                    </span>
+                                    <span
+                                        v-if="segment.continuesAfter"
+                                        class="text-[10px] text-slate-500 dark:text-slate-300"
+                                    >
+                                        ▶
+                                    </span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -863,9 +913,4 @@ export default {
     background: #64748b;
 }
 
-/* Ensure dropdowns can overflow */
-:deep(.dropdown-content) {
-    position: fixed !important;
-    z-index: 9999 !important;
-}
 </style>

@@ -1,101 +1,134 @@
-<script setup>
-import { onMounted, ref, computed } from 'vue'
-import { 
-    Car, 
-    Calendar, 
-    Clock, 
-    User, 
-    Phone, 
-    MapPin, 
-    FileText, 
-    AlertCircle,
-    CheckCircle2,
-    XCircle,
-    Clock3,
-    ArrowRight
-} from 'lucide-vue-next'
+<script>
+import {
+    LuAlertCircle,
+    LuCalendar,
+    LuCar,
+    LuCheckCircle2,
+    LuClock,
+    LuClock3,
+    LuFileText,
+    LuMapPin,
+    LuPhone,
+    LuUser,
+    LuXCircle,
+} from '@/Components/Icons'
+import ApiMixin from '@/Modules/mixins/ApiMixin'
+import RentalTripRouteVisualizer from '@/Pages/Rentals/components/RentalTripRouteVisualizer.vue'
+import { getTripTypeMeta } from '@/Pages/Rentals/constants/tripWorkflows'
 
-const props = defineProps({
-    rental_id: {
-        type: String,
-        required: true,
+export default {
+    name: 'RentalVehicleShow',
+    components: {
+        LuAlertCircle,
+        LuCalendar,
+        LuCar,
+        LuCheckCircle2,
+        LuClock,
+        LuClock3,
+        LuFileText,
+        LuMapPin,
+        LuPhone,
+        LuUser,
+        LuXCircle,
+        RentalTripRouteVisualizer,
     },
-})
-
-const loading = ref(true)
-const error = ref('')
-const rental = ref(null)
-
-const statusConfig = computed(() => {
-    const configs = {
-        pending: { 
-            color: 'bg-amber-100 text-amber-800 border-amber-200', 
-            icon: Clock3,
-            label: 'Pending Approval'
+    mixins: [ApiMixin],
+    props: {
+        rental_id: {
+            type: String,
+            required: true,
         },
-        approved: { 
-            color: 'bg-emerald-100 text-emerald-800 border-emerald-200', 
-            icon: CheckCircle2,
-            label: 'Approved'
-        },
-        rejected: { 
-            color: 'bg-red-100 text-red-800 border-red-200', 
-            icon: XCircle,
-            label: 'Rejected'
-        },
-        completed: { 
-            color: 'bg-slate-100 text-slate-800 border-slate-200', 
-            icon: CheckCircle2,
-            label: 'Completed'
-        },
-        active: { 
-            color: 'bg-blue-100 text-blue-800 border-blue-200', 
-            icon: Car,
-            label: 'Active'
+    },
+    data() {
+        return {
+            loading: true,
+            error: '',
+            rental: null,
         }
-    }
-    return configs[rental.value?.status?.toLowerCase()] || { 
-        color: 'bg-gray-100 text-gray-800 border-gray-200', 
-        icon: AlertCircle,
-        label: rental.value?.status || 'Unknown'
-    }
-})
+    },
+    computed: {
+        tripTypeMeta() {
+            return getTripTypeMeta(this.rental?.trip_type)
+        },
+        destinationStops() {
+            const stops = this.rental?.destination_stops
+            return Array.isArray(stops) ? stops : []
+        },
+        statusConfig() {
+            const configs = {
+                pending: {
+                    color: 'bg-amber-100 text-amber-800 border-amber-200',
+                    icon: LuClock3,
+                    label: 'Pending Approval',
+                },
+                approved: {
+                    color: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                    icon: LuCheckCircle2,
+                    label: 'Approved',
+                },
+                in_progress: {
+                    color: 'bg-blue-100 text-blue-800 border-blue-200',
+                    icon: LuClock,
+                    label: 'In Progress',
+                },
+                rejected: {
+                    color: 'bg-red-100 text-red-800 border-red-200',
+                    icon: LuXCircle,
+                    label: 'Rejected',
+                },
+                cancelled: {
+                    color: 'bg-gray-100 text-gray-800 border-gray-200',
+                    icon: LuXCircle,
+                    label: 'Cancelled',
+                },
+                completed: {
+                    color: 'bg-slate-100 text-slate-800 border-slate-200',
+                    icon: LuCheckCircle2,
+                    label: 'Completed',
+                },
+            }
 
-const formatDateTime = (date, time) => {
-    if (!date) return 'Not specified'
-    const dateObj = new Date(date)
-    const formatted = dateObj.toLocaleDateString('en-US', { 
-        weekday: 'short', 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
-    })
-    return time ? `${formatted} at ${time}` : formatted
+            return configs[this.rental?.status?.toLowerCase()] || {
+                color: 'bg-gray-100 text-gray-800 border-gray-200',
+                icon: LuAlertCircle,
+                label: this.rental?.status || 'Unknown',
+            }
+        },
+    },
+    mounted() {
+        this.loadRental()
+    },
+    methods: {
+        formatDateTime(date, time) {
+            if (!date) return 'Not specified'
+
+            const dateObj = new Date(date)
+            const formatted = dateObj.toLocaleDateString('en-US', {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+            })
+
+            return time ? `${formatted} at ${time}` : formatted
+        },
+        async loadRental() {
+            this.loading = true
+            this.error = ''
+
+            try {
+                const payload = await this.fetchGetApi('api.guest.rental.vehicles.show', {
+                    routeParams: this.rental_id,
+                })
+                this.rental = payload?.data ?? null
+            } catch (err) {
+                this.error = err?.message || 'Failed to load vehicle rental details.'
+            } finally {
+                this.loading = false
+            }
+        },
+    },
 }
-
-const loadRental = async () => {
-    loading.value = true
-    error.value = ''
-
-    try {
-        const response = await fetch(`/api/guest/rental/vehicles/${props.rental_id}`)
-
-        if (!response.ok) {
-            throw new Error('Unable to load vehicle rental details.')
-        }
-
-        const payload = await response.json()
-        rental.value = payload?.data ?? null
-    } catch (err) {
-        error.value = err?.message || 'Failed to load vehicle rental details.'
-    } finally {
-        loading.value = false
-    }
-}
-
-onMounted(() => {
-    loadRental()
-})
 </script>
 
 <template>
@@ -121,7 +154,7 @@ onMounted(() => {
         <div v-else-if="error" class="rounded-2xl border border-red-200 bg-red-50 p-8">
             <div class="flex flex-col items-center justify-center space-y-3 py-8 text-center">
                 <div class="rounded-full bg-red-100 p-3">
-                    <AlertCircle class="h-6 w-6 text-red-600" />
+                    <LuAlertCircle class="h-6 w-6 text-red-600" />
                 </div>
                 <h3 class="text-lg font-semibold text-red-900">Failed to Load</h3>
                 <p class="max-w-sm text-sm text-red-700">{{ error }}</p>
@@ -138,7 +171,7 @@ onMounted(() => {
         <div v-else-if="!rental" class="rounded-2xl border border-gray-200 bg-white p-8">
             <div class="flex flex-col items-center justify-center space-y-3 py-12 text-center">
                 <div class="rounded-full bg-gray-100 p-4">
-                    <Car class="h-8 w-8 text-gray-400" />
+                    <LuCar class="h-8 w-8 text-gray-400" />
                 </div>
                 <h3 class="text-lg font-semibold text-gray-900">Rental Not Found</h3>
                 <p class="max-w-sm text-sm text-gray-500">The requested vehicle rental details could not be found or may have been removed.</p>
@@ -171,11 +204,11 @@ onMounted(() => {
                     <div class="flex items-start justify-between">
                         <div class="flex items-center space-x-4">
                             <div class="rounded-xl bg-blue-600 p-3 text-white shadow-lg shadow-blue-600/20">
-                                <Car class="h-6 w-6" />
+                                <LuCar class="h-6 w-6" />
                             </div>
                             <div>
-                                <h2 class="text-xl font-bold text-gray-900">{{ rental.vehicle_type || 'Vehicle Not Specified' }}</h2>
-                                <p class="text-sm text-gray-500">Vehicle Rental Request</p>
+                                <h2 class="text-xl font-bold text-gray-900">{{ rental.vehicle_type || 'Vehicle To Be Assigned by Admin' }}</h2>
+                                <p class="text-sm text-gray-500">{{ tripTypeMeta.label }}</p>
                             </div>
                         </div>
                     </div>
@@ -186,7 +219,7 @@ onMounted(() => {
                     <div class="mb-8 grid gap-4 md:grid-cols-2">
                         <div class="rounded-xl bg-gray-50 p-4">
                             <div class="mb-2 flex items-center space-x-2 text-gray-500">
-                                <Calendar class="h-4 w-4" />
+                                <LuCalendar class="h-4 w-4" />
                                 <span class="text-xs font-semibold uppercase tracking-wider">Pickup</span>
                             </div>
                             <p class="text-sm font-semibold text-gray-900">
@@ -195,7 +228,7 @@ onMounted(() => {
                         </div>
                         <div class="rounded-xl bg-gray-50 p-4">
                             <div class="mb-2 flex items-center space-x-2 text-gray-500">
-                                <Clock class="h-4 w-4" />
+                                <LuClock class="h-4 w-4" />
                                 <span class="text-xs font-semibold uppercase tracking-wider">Return</span>
                             </div>
                             <p class="text-sm font-semibold text-gray-900">
@@ -209,7 +242,7 @@ onMounted(() => {
                         <!-- Requester Info -->
                         <div class="space-y-4">
                             <h3 class="flex items-center space-x-2 text-sm font-bold text-gray-900">
-                                <User class="h-4 w-4 text-blue-600" />
+                                <LuUser class="h-4 w-4 text-blue-600" />
                                 <span>Requester Information</span>
                             </h3>
                             <div class="space-y-3">
@@ -224,7 +257,12 @@ onMounted(() => {
                                     <div class="mt-0.5 h-2 w-2 rounded-full bg-blue-600"></div>
                                     <div>
                                         <p class="text-xs text-gray-500">Contact Number</p>
-                                        <p class="text-sm font-medium text-gray-900">{{ rental.contact_number || 'Not specified' }}</p>
+                                        <p class="text-sm font-medium text-gray-900">
+                                            <span class="inline-flex items-center gap-2">
+                                                <LuPhone class="h-3.5 w-3.5 text-gray-400" />
+                                                {{ rental.contact_number || 'Not specified' }}
+                                            </span>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -233,7 +271,7 @@ onMounted(() => {
                         <!-- Destination Info -->
                         <div class="space-y-4">
                             <h3 class="flex items-center space-x-2 text-sm font-bold text-gray-900">
-                                <MapPin class="h-4 w-4 text-blue-600" />
+                                <LuMapPin class="h-4 w-4 text-blue-600" />
                                 <span>Destination Details</span>
                             </h3>
                             <div class="space-y-3">
@@ -257,10 +295,20 @@ onMounted(() => {
                         </div>
                     </div>
 
+                    <div class="mt-6">
+                        <RentalTripRouteVisualizer
+                            :trip-type="rental.trip_type || 'dedicated_trip'"
+                            :destination-location="rental.destination_location || ''"
+                            :destination-stops="destinationStops"
+                            :is-shared-ride="Boolean(rental.is_shared_ride)"
+                            :shared-ride-reference="rental.shared_ride_reference || ''"
+                        />
+                    </div>
+
                     <!-- Purpose -->
                     <div v-if="rental.purpose" class="mt-6 rounded-xl bg-blue-50 p-4">
                         <div class="flex items-start space-x-3">
-                            <FileText class="mt-0.5 h-5 w-5 text-blue-600" />
+                            <LuFileText class="mt-0.5 h-5 w-5 text-blue-600" />
                             <div>
                                 <p class="text-xs font-semibold uppercase tracking-wider text-blue-900">Purpose of Trip</p>
                                 <p class="mt-1 text-sm text-blue-900">{{ rental.purpose }}</p>
@@ -271,7 +319,7 @@ onMounted(() => {
                     <!-- Specific Location -->
                     <div v-if="rental.destination_location" class="mt-4 rounded-xl border border-gray-200 p-4">
                         <div class="flex items-start space-x-3">
-                            <MapPin class="mt-0.5 h-5 w-5 text-gray-400" />
+                            <LuMapPin class="mt-0.5 h-5 w-5 text-gray-400" />
                             <div>
                                 <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Specific Location</p>
                                 <p class="mt-1 text-sm text-gray-900">{{ rental.destination_location }}</p>
@@ -282,7 +330,7 @@ onMounted(() => {
                     <!-- Notes -->
                     <div v-if="rental.notes" class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
                         <div class="flex items-start space-x-3">
-                            <AlertCircle class="mt-0.5 h-5 w-5 text-amber-600" />
+                            <LuAlertCircle class="mt-0.5 h-5 w-5 text-amber-600" />
                             <div>
                                 <p class="text-xs font-semibold uppercase tracking-wider text-amber-900">Additional Notes</p>
                                 <p class="mt-1 text-sm text-amber-900">{{ rental.notes }}</p>
