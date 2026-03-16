@@ -36,6 +36,7 @@ return [
 
         Role::ADMINISTRATIVE_ASSISTANT->value => [
             'event.certificates.manage',
+            'event.forms.manage',
             'rental.vehicle.manage',
             'rental.venue.manage',
             'rental.hostel.manage',
