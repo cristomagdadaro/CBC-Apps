@@ -31,15 +31,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Inertia::share('appVersion', $this->buildAppVersion());
 
-        if (!class_exists(RequestFormPivot::class)) {
-            $fallback = app_path('Models/RequestFormPIvot.php');
-            if (is_file($fallback)) {
-                require_once $fallback;
-            }
-        }
-        if (class_exists(RequestFormPivot::class)) {
-            RequestFormPivot::observe(RequestFormPivotObserver::class);
-        }
+        RequestFormPivot::observe(RequestFormPivotObserver::class);
         Transaction::observe(TransactionObserver::class);
         EventSubformResponse::observe(EventSubformResponseObserver::class);
         User::observe(UserObserver::class);
