@@ -7,8 +7,8 @@ import LabelCard from "./components/LabelCard.vue";
 
 export default {
     name: "BarcodePrint",
-    components: { 
-        QrcodeVue, 
+    components: {
+        QrcodeVue,
         LabelCard,
     },
     mixins: [ApiMixin],
@@ -47,6 +47,7 @@ export default {
             activeTab: 'items',
             isMobile: false,
             showMobilePreview: false,
+            hoveredKey: null,
         };
     },
     computed: {
@@ -505,6 +506,7 @@ export default {
 </script>
 
 <template>
+
     <Head title="Print Barcodes" />
 
     <AppLayout title="Barcode Printing">
@@ -525,597 +527,644 @@ export default {
             </div>
         </template>
         <div class="md:grid md:grid-cols-12 gap-5 p-5">
-        <!-- Help Section -->
-        <div class="grid grid-cols-1 grid-rows-3 gap-4 col-span-12 md:col-span-2 h-fit md:sticky md:top-5 md:self-start">
-            <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                <div class="flex items-center gap-2 mb-2">
-                    <LuInfo class="w-5 h-5 text-blue-600" />
-                    <h4 class="font-medium text-gray-900 dark:text-white">Printer Setup</h4>
+            <!-- Help Section -->
+            <div
+                class="grid grid-cols-1 grid-rows-3 gap-4 col-span-12 md:col-span-2 h-fit md:sticky md:top-5 md:self-start">
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center gap-2 mb-2">
+                        <LuInfo class="w-5 h-5 text-blue-600" />
+                        <h4 class="font-medium text-gray-900 dark:text-white">Printer Setup</h4>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        Always recalibrate your Intermec PD43 after powering on or changing label rolls. Go to
+                        <strong>Wizards →
+                            Calibrate → Media</strong>.
+                    </p>
                 </div>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                    Always recalibrate your Intermec PD43 after powering on or changing label rolls. Go to <strong>Wizards → Calibrate → Media</strong>.
-                </p>
-            </div>
-            
-            <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                <div class="flex items-center gap-2 mb-2">
-                    <LuQrCode class="w-5 h-5 text-blue-600" />
-                    <h4 class="font-medium text-gray-900 dark:text-white">QR Code Usage</h4>
+
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center gap-2 mb-2">
+                        <LuQrCode class="w-5 h-5 text-blue-600" />
+                        <h4 class="font-medium text-gray-900 dark:text-white">QR Code Usage</h4>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        Scan QR codes with any mobile device to quickly access equipment logging pages. Supports
+                        Laboratory and
+                        ICT equipment.
+                    </p>
                 </div>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                    Scan QR codes with any mobile device to quickly access equipment logging pages. Supports Laboratory and ICT equipment.
-                </p>
-            </div>
-            
-            <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                <div class="flex items-center gap-2 mb-2">
-                    <LuLayers class="w-5 h-5 text-blue-600" />
-                    <h4 class="font-medium text-gray-900 dark:text-white">Label Sizes</h4>
-                </div>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                    Choose from preset sizes or create custom dimensions. Ensure your selected size matches the loaded label stock for best print quality.
-                </p>
-            </div>
-        </div>
-        <div class="w-full cols-span-12 md:col-span-10">
-            <!-- Mobile Tab Navigation -->
-            <div class="md:hidden bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <div class="flex border-b border-gray-200 dark:border-gray-700">
-                    <button @click="activeTab = 'items'" class="flex-1 px-3 py-3 text-xs font-medium transition-colors"
-                        :class="activeTab === 'items' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50 dark:bg-blue-900/20' : 'text-gray-600 dark:text-gray-400'">
-                        <div class="flex flex-col items-center gap-1">
-                            <LuPackage class="w-4 h-4" />
-                            <span>Select</span>
-                            <span v-if="selectedCount > 0" class="text-[10px] bg-blue-600 text-white px-1.5 py-0.5 rounded-full">{{ selectedCount }}</span>
-                        </div>
-                    </button>
-                    <button @click="activeTab = 'settings'" class="flex-1 px-3 py-3 text-xs font-medium transition-colors"
-                        :class="activeTab === 'settings' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50 dark:bg-blue-900/20' : 'text-gray-600 dark:text-gray-400'">
-                        <div class="flex flex-col items-center gap-1">
-                            <LuSettings2 class="w-4 h-4" />
-                            <span>Settings</span>
-                        </div>
-                    </button>
-                    <button @click="activeTab = 'preview'" :disabled="!previewReady" class="flex-1 px-3 py-3 text-xs font-medium transition-colors disabled:opacity-50"
-                        :class="activeTab === 'preview' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50 dark:bg-blue-900/20' : 'text-gray-600 dark:text-gray-400'">
-                        <div class="flex flex-col items-center gap-1">
-                            <LuPrinter class="w-4 h-4" />
-                            <span>Print</span>
-                        </div>
-                    </button>
+
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center gap-2 mb-2">
+                        <LuLayers class="w-5 h-5 text-blue-600" />
+                        <h4 class="font-medium text-gray-900 dark:text-white">Label Sizes</h4>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        Choose from preset sizes or create custom dimensions. Ensure your selected size matches the
+                        loaded label
+                        stock for best print quality.
+                    </p>
                 </div>
             </div>
-
-            <!-- Desktop Tab Navigation -->
-            <div class="hidden md:block bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <div class="flex border-b border-gray-200 dark:border-gray-700">
-                    <button @click="activeTab = 'items'" class="flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2"
-                        :class="activeTab === 'items' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50 dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'">
-                        <LuPackage class="w-4 h-4" />
-                        Select Items
-                        <span v-if="selectedCount > 0" class="ml-1 px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full">{{ selectedCount }}</span>
-                    </button>
-                    <button @click="activeTab = 'settings'" class="flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2"
-                        :class="activeTab === 'settings' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50 dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'">
-                        <LuSettings2 class="w-4 h-4" />
-                        Label Settings
-                    </button>
-                    <button @click="activeTab = 'preview'" :disabled="!previewReady" class="flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                        :class="activeTab === 'preview' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50 dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'">
-                        <LuEye class="w-4 h-4" />
-                        Preview & Print
-                    </button>
-                </div>
-
-                <!-- Items Tab -->
-                <div v-show="activeTab === 'items'" class="p-4 sm:p-6 space-y-4">
-                    <!-- Filters -->
-                    <div class="flex flex-col sm:flex-row gap-3">
-                        <div class="flex-1 relative">
-                            <LuSearch class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <input v-model="search" type="text" placeholder="Search items, brands, or barcodes..."
-                                class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm" />
-                        </div>
-                        <custom-dropdown :value="categoryId" @selectedChange="onCategoryChange($event)" :options="categoryOptions"
-                            placeholder="All Categories" class="w-full sm:w-64" />
-                    </div>
-
-                    <!-- Bulk Actions -->
-                    <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                        <div class="flex items-center gap-3">
-                            <input type="checkbox" :checked="allSelected" :indeterminate="someSelected" @change="toggleAll"
-                                class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" />
-                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                {{ allSelected ? 'Deselect All' : 'Select All' }}
-                            </span>
-                        </div>
-                        <span class="text-sm text-gray-500 dark:text-gray-400">
-                            {{ selectedCount }} of {{ filteredItems.filter(i => i.barcode).length }} selected
-                        </span>
-                    </div>
-
-                    <!-- Items Table -->
-                    <div v-if="loading" class="flex items-center justify-center py-12">
-                        <LuLoader2 class="w-8 h-8 text-blue-600 animate-spin" />
-                    </div>
-
-                    <div v-else-if="filteredItems.length === 0" class="text-center py-12">
-                        <LuPackageX class="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                        <p class="text-gray-500 dark:text-gray-400">No items found</p>
-                    </div>
-
-                    <div v-else class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm">
-                                <thead class="bg-gray-50 dark:bg-gray-700/50 text-xs uppercase text-gray-500 dark:text-gray-400">
-                                    <tr>
-                                        <th class="px-4 py-3 w-10"></th>
-                                        <th class="px-4 py-3 text-left">Item</th>
-                                        <th class="px-4 py-3 text-left">Barcode</th>
-                                        <th class="px-4 py-3 text-left">Property No.</th>
-                                        <th class="px-4 py-3 text-right w-24">Qty</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                                    <tr v-for="item in filteredItems" :key="itemKey(item)" class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors cursor-pointer"
-                                        :class="{ 'bg-blue-50/50 dark:bg-blue-900/10': selected[itemKey(item)] }" @dblclick="toggleItem(item)">
-                                        <td class="px-4 py-3">
-                                            <input type="checkbox" :disabled="!item.barcode" :checked="!!selected[itemKey(item)]" @change="toggleItem(item)"
-                                                class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 disabled:opacity-50" />
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <div class="text-gray-900 dark:text-white"><b>{{ item.name }}</b> ({{ item.brand }})</div>
-                                            <div class="text-xs text-gray-500 dark:text-gray-400 sm:hidden">{{ item.brand }}</div>
-                                            <div v-if="item.description" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ item.description }}</div>
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <span v-if="item.barcode" class="font-mono text-sm bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{ item.barcode }}</span>
-                                            <span v-else class="text-xs text-red-500 flex items-center gap-1">
-                                                <LuAlertCircle class="w-3 h-3" />
-                                                No barcode
-                                            </span>
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <span v-if="item.barcode_prri" class="font-mono text-sm bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{ item.barcode_prri }}</span>
-                                            <span v-else class="text-xs text-gray-500 dark:text-gray-400">—</span>
-                                        </td>
-                                        <td class="px-4 py-3 text-right">
-                                            <input v-if="selected[itemKey(item)]" type="number" min="1"
-                                                :value="selected[itemKey(item)]?.qty ?? 1" @input="updateQty(itemKey(item), $event.target.value)"
-                                                class="w-16 px-2 py-1 text-right border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm" />
-                                            <span v-else class="text-gray-400">—</span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Next Button -->
-                    <div class="flex justify-end pt-4">
-                        <button @click="nextStep" :disabled="selectedCount === 0"
-                            class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center gap-2">
-                            Continue to Settings
-                            <LuArrowRight class="w-4 h-4" />
+            <div class="w-full cols-span-12 md:col-span-10">
+                <!-- Mobile Tab Navigation -->
+                <div
+                    class="md:hidden bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="flex border-b border-gray-200 dark:border-gray-700">
+                        <button @click="activeTab = 'items'"
+                            class="flex-1 px-3 py-3 text-xs font-medium transition-colors"
+                            :class="activeTab === 'items' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50 dark:bg-blue-900/20' : 'text-gray-600 dark:text-gray-400'">
+                            <div class="flex flex-col items-center gap-1">
+                                <LuPackage class="w-4 h-4" />
+                                <span>Select</span>
+                                <span v-if="selectedCount > 0"
+                                    class="text-[10px] bg-blue-600 text-white px-1.5 py-0.5 rounded-full">{{
+                                    selectedCount
+                                    }}</span>
+                            </div>
+                        </button>
+                        <button @click="activeTab = 'settings'"
+                            class="flex-1 px-3 py-3 text-xs font-medium transition-colors"
+                            :class="activeTab === 'settings' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50 dark:bg-blue-900/20' : 'text-gray-600 dark:text-gray-400'">
+                            <div class="flex flex-col items-center gap-1">
+                                <LuSettings2 class="w-4 h-4" />
+                                <span>Settings</span>
+                            </div>
+                        </button>
+                        <button @click="activeTab = 'preview'" :disabled="!previewReady"
+                            class="flex-1 px-3 py-3 text-xs font-medium transition-colors disabled:opacity-50"
+                            :class="activeTab === 'preview' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50 dark:bg-blue-900/20' : 'text-gray-600 dark:text-gray-400'">
+                            <div class="flex flex-col items-center gap-1">
+                                <LuPrinter class="w-4 h-4" />
+                                <span>Print</span>
+                            </div>
                         </button>
                     </div>
                 </div>
 
-                <!-- Settings Tab -->
-                <div v-show="activeTab === 'settings'" class="p-4 sm:p-6 space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Print Mode -->
+                <!-- Desktop Tab Navigation -->
+                <div
+                    class="hidden md:block bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-visible">
+                    <div class="flex border-b border-gray-200 dark:border-gray-700">
+                        <button @click="activeTab = 'items'"
+                            class="flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                            :class="activeTab === 'items' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50 dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'">
+                            <LuPackage class="w-4 h-4" />
+                            Select Items
+                            <span v-if="selectedCount > 0"
+                                class="ml-1 px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full">{{ selectedCount
+                                }}</span>
+                        </button>
+                        <button @click="activeTab = 'settings'"
+                            class="flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                            :class="activeTab === 'settings' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50 dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'">
+                            <LuSettings2 class="w-4 h-4" />
+                            Label Settings
+                        </button>
+                        <button @click="activeTab = 'preview'" :disabled="!previewReady"
+                            class="flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            :class="activeTab === 'preview' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50 dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'">
+                            <LuEye class="w-4 h-4" />
+                            Preview & Print
+                        </button>
+                    </div>
+
+                    <!-- Items Tab -->
+                    <div v-show="activeTab === 'items'" class="p-4 sm:p-6 space-y-4">
+                        <!-- Filters -->
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <div class="flex-1 relative">
+                                <LuSearch class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <input v-model="search" type="text" placeholder="Search items, brands, or barcodes..."
+                                    class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm" />
+                            </div>
+                            <custom-dropdown :value="categoryId" @selectedChange="onCategoryChange($event)"
+                                :options="categoryOptions" placeholder="All Categories" class="w-full sm:w-64" />
+                        </div>
+
+                        <!-- Bulk Actions -->
+                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" :checked="allSelected" :indeterminate="someSelected"
+                                    @change="toggleAll"
+                                    class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" />
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    {{ allSelected ? 'Deselect All' : 'Select All' }}
+                                </span>
+                            </div>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">
+                                {{ selectedCount }} of {{filteredItems.filter(i => i.barcode).length}} selected
+                            </span>
+                        </div>
+
+                        <!-- Items Table -->
+                        <div v-if="loading" class="flex items-center justify-center py-12">
+                            <LuLoader2 class="w-8 h-8 text-blue-600 animate-spin" />
+                        </div>
+
+                        <div v-else-if="filteredItems.length === 0" class="text-center py-12">
+                            <LuPackageX class="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                            <p class="text-gray-500 dark:text-gray-400">No items found</p>
+                        </div>
+
+                        <div v-else class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead
+                                        class="bg-gray-50 dark:bg-gray-700/50 text-xs uppercase text-gray-500 dark:text-gray-400">
+                                        <tr>
+                                            <th class="px-4 py-3 w-10"></th>
+                                            <th class="px-4 py-3 text-left">Item</th>
+                                            <th class="px-4 py-3 text-left">Barcode</th>
+                                            <th class="px-4 py-3 text-left">Property No.</th>
+                                            <th class="px-4 py-3 text-right w-24">Qty</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                        <tr v-for="item in filteredItems" :key="itemKey(item)"
+                                            class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors cursor-pointer"
+                                            :class="{ 'bg-blue-50/50 dark:bg-blue-900/10': selected[itemKey(item)] }"
+                                            @dblclick="toggleItem(item)">
+                                            <td class="px-4 py-3">
+                                                <input type="checkbox" :disabled="!item.barcode"
+                                                    :checked="!!selected[itemKey(item)]" @change="toggleItem(item)"
+                                                    class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 disabled:opacity-50" />
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <div class="text-gray-900 dark:text-white"><b>{{ item.name }}</b> ({{
+                                                    item.brand
+                                                    }})</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400 sm:hidden">{{
+                                                    item.brand }}
+                                                </div>
+                                                <div v-if="item.description"
+                                                    class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{
+                                                    item.description
+                                                    }}</div>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <span v-if="item.barcode"
+                                                    class="font-mono text-sm bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{
+                                                    item.barcode }}</span>
+                                                <span v-else class="text-xs text-red-500 flex items-center gap-1">
+                                                    <LuAlertCircle class="w-3 h-3" />
+                                                    No barcode
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <span v-if="item.barcode_prri"
+                                                    class="font-mono text-sm bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{
+                                                    item.barcode_prri }}</span>
+                                                <span v-else class="text-xs text-gray-500 dark:text-gray-400">—</span>
+                                            </td>
+                                            <td class="px-4 py-3 text-right">
+                                                <input v-if="selected[itemKey(item)]" type="number" min="1"
+                                                    :value="selected[itemKey(item)]?.qty ?? 1"
+                                                    @input="updateQty(itemKey(item), $event.target.value)"
+                                                    class="w-16 px-2 py-1 text-right border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm" />
+                                                <span v-else class="text-gray-400">—</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Next Button -->
+                        <div class="flex justify-end pt-4">
+                            <button @click="nextStep" :disabled="selectedCount === 0"
+                                class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center gap-2">
+                                Continue to Settings
+                                <LuArrowRight class="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Settings Tab -->
+                    <div v-show="activeTab === 'settings'" class="p-4 sm:p-6 space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Print Mode -->
+                            <div class="space-y-3">
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Print Mode</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button v-for="mode in printModeOptions" :key="mode.name"
+                                        @click="printMode = mode.name"
+                                        class="flex flex-col items-center gap-2 p-3 border-2 rounded-lg transition-all"
+                                        :class="printMode === mode.name ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'">
+                                        <component :is="mode.icon" class="w-6 h-6" />
+                                        <span class="text-xs font-medium">{{ mode.label }}</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Size Template -->
+                            <div class="space-y-3">
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Label Size</label>
+                                <custom-dropdown :value="sizeTemplate" @selectedChange="sizeTemplate = $event"
+                                    :options="sizeTemplates" class="w-full" />
+                                <div v-if="isCustomSize" class="flex gap-2">
+                                    <div class="flex-1">
+                                        <label class="text-xs text-gray-500">Height (cm)</label>
+                                        <input v-model.number="customHeightCm" type="number" min="0.5" step="0.1"
+                                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white" />
+                                    </div>
+                                    <div class="flex-1">
+                                        <label class="text-xs text-gray-500">Width (cm)</label>
+                                        <input v-model.number="customWidthCm" type="number" min="0.5" step="0.1"
+                                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Layout Mode -->
+                            <div class="space-y-3">
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Layout</label>
+                                <div class="flex gap-2">
+                                    <button @click="layoutMode = 'single'"
+                                        class="flex-1 px-4 py-2 border-2 rounded-lg text-sm font-medium transition-colors"
+                                        :class="layoutMode === 'single' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'">
+                                        Single Label
+                                    </button>
+                                    <button @click="layoutMode = 'sheet'"
+                                        class="flex-1 px-4 py-2 border-2 rounded-lg text-sm font-medium transition-colors"
+                                        :class="layoutMode === 'sheet' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'">
+                                        Sheet Layout
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Orientation -->
+                            <div class="space-y-3">
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Orientation</label>
+                                <div class="flex gap-2">
+                                    <button @click="orientation = 'portrait'"
+                                        class="flex-1 px-4 py-2 border-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                                        :class="orientation === 'portrait' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'">
+                                        <LuSmartphone class="w-4 h-4" />
+                                        Portrait
+                                    </button>
+                                    <button @click="orientation = 'landscape'"
+                                        class="flex-1 px-4 py-2 border-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                                        :class="orientation === 'landscape' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'">
+                                        <LuSmartphone class="w-4 h-4 rotate-90" />
+                                        Landscape
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Settings -->
+                        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                            <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <LuSlidersHorizontal class="w-4 h-4" />
+                                Advanced Settings
+                            </h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div>
+                                    <label class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Font Size</label>
+                                    <input v-model.number="customFontSize" type="number" min="6" max="20"
+                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm" />
+                                </div>
+                                <div v-if="hasBarcodeMode">
+                                    <label class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Barcode
+                                        Height</label>
+                                    <input v-model.number="customBarcodeHeight" type="number" min="12"
+                                        :max="maxBarcodeHeightPx"
+                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm" />
+                                </div>
+                                <div v-if="hasQrMode">
+                                    <label class="text-xs text-gray-500 dark:text-gray-400 block mb-1">QR Size</label>
+                                    <input v-model.number="customQRSize" type="number" min="20" :max="maxQrSizePx"
+                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm" />
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Rotation</label>
+                                    <custom-dropdown :value="rotationDeg" @selectedChange="rotationDeg = $event"
+                                        :options="[{ name: 0, label: '0°' }, { name: 90, label: '90°' }, { name: 180, label: '180°' }, { name: 270, label: '270°' }]" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Generate Button -->
+                        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <button @click="prevStep"
+                                class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                Back
+                            </button>
+                            <button @click="buildLabels"
+                                class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors flex items-center gap-2">
+                                <LuSparkles class="w-4 h-4" />
+                                Generate Preview
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Preview Tab -->
+                    <div v-show="activeTab === 'preview'" class="p-4 sm:p-6 space-y-6 overflow-visible">
+                        <div v-if="!previewReady" class="text-center py-12">
+                            <LuEyeOff class="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                            <p class="text-gray-500 dark:text-gray-400">Generate a preview first</p>
+                        </div>
+
+                        <template v-else>
+                            <!-- Label Preview Grid -->
+                            <div class="bg-gray-100 dark:bg-gray-900 rounded-xl p-4 sm:p-8 overflow-visible">
+                                <div class="flex flex-wrap justify-center gap-4">
+
+                                    <div v-for="label in labels" :key="label.key" @mouseenter="hoveredKey = label.key"
+                                        @mouseleave="hoveredKey = null" :class="[
+                                            'transition-all duration-300',
+                                            hoveredKey && hoveredKey !== label.key
+                                                ? 'blur-sm scale-95 opacity-60'
+                                                : 'blur-0 scale-100 opacity-100 hover:z-10'
+                                        ]">
+                                        <LabelCard :label="label" :print-mode="printMode"
+                                            :label-font-size="labelFontSize" :qr-size="qrSize"
+                                            :barcode-height="barcodeHeight"
+                                            :barcode-module-width="getBarcodeModuleWidth(label.item?.barcode)"
+                                            :card-style="cardStyle" :card-inner-style="cardInnerStyle" />
+                                    </div>
+
+                                </div>
+
+                                <div v-if="labels.length > 12"
+                                    class="text-center mt-4 text-sm text-gray-500 dark:text-gray-400">
+                                    Showing 12 of {{ labels.length }} labels
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex flex-col sm:flex-row justify-end gap-3">
+                                <button @click="prevStep"
+                                    class="px-4 py-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    Back to Settings
+                                </button>
+                                <button @click="exportPdf" :disabled="exporting"
+                                    class="px-4 py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
+                                    <LuFileDown v-if="!exporting" class="w-4 h-4" />
+                                    <LuLoader2 v-else class="w-4 h-4 animate-spin" />
+                                    {{ exporting ? 'Exporting...' : 'Export PDF' }}
+                                </button>
+                                <button @click="printLabels"
+                                    class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                                    <LuPrinter class="w-4 h-4" />
+                                    Print Labels
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Mobile Content Areas -->
+                <div class="md:hidden space-y-4">
+                    <!-- Mobile Items View -->
+                    <div v-if="activeTab === 'items'"
+                        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 space-y-4">
+                        <div class="relative">
+                            <LuSearch class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input v-model="search" type="text" placeholder="Search items..."
+                                class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm" />
+                        </div>
+
+                        <custom-dropdown :value="categoryId" @selectedChange="onCategoryChange($event)"
+                            :options="categoryOptions" placeholder="All Categories" class="w-full" />
+
+                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" :checked="allSelected" :indeterminate="someSelected"
+                                    @change="toggleAll"
+                                    class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" />
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    {{ allSelected ? 'Deselect All' : 'Select All' }}
+                                </span>
+                            </div>
+                            <span class="text-sm text-gray-500">{{ selectedCount }} selected</span>
+                        </div>
+
+                        <div v-if="loading" class="flex justify-center py-8">
+                            <LuLoader2 class="w-6 h-6 text-blue-600 animate-spin" />
+                        </div>
+
+                        <div v-else-if="filteredItems.length === 0" class="text-center py-8 text-gray-500">
+                            No items found
+                        </div>
+
+                        <div v-else class="space-y-2">
+                            <div v-for="item in filteredItems" :key="itemKey(item)"
+                                class="p-3 border border-gray-200 dark:border-gray-700 rounded-lg"
+                                :class="{ 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700': selected[itemKey(item)] }">
+                                <div class="flex items-start gap-3">
+                                    <input type="checkbox" :disabled="!item.barcode"
+                                        :checked="!!selected[itemKey(item)]" @change="toggleItem(item)"
+                                        class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 mt-1 disabled:opacity-50" />
+                                    <div class="flex-1 min-w-0">
+                                        <div class="font-medium text-gray-900 dark:text-white text-sm">{{ item.name }}
+                                        </div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ item.brand }}</div>
+                                        <div v-if="item.barcode"
+                                            class="mt-1 font-mono text-xs bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded inline-block">
+                                            {{ item.barcode }}
+                                        </div>
+                                        <div v-else class="mt-1 text-xs text-red-500 flex items-center gap-1">
+                                            <LuAlertCircle class="w-3 h-3" />
+                                            No barcode
+                                        </div>
+
+                                        <div v-if="selected[itemKey(item)]" class="mt-2 flex items-center gap-2">
+                                            <label class="text-xs text-gray-500">Qty:</label>
+                                            <input type="number" min="1" :value="selected[itemKey(item)]?.qty ?? 1"
+                                                @input="updateQty(itemKey(item), $event.target.value)"
+                                                class="w-16 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700 dark:text-white" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button @click="nextStep" :disabled="selectedCount === 0"
+                            class="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                            Continue
+                            <LuArrowRight class="w-4 h-4" />
+                        </button>
+                    </div>
+
+                    <!-- Mobile Settings View -->
+                    <div v-if="activeTab === 'settings'"
+                        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 space-y-4">
                         <div class="space-y-3">
                             <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Print Mode</label>
                             <div class="grid grid-cols-3 gap-2">
                                 <button v-for="mode in printModeOptions" :key="mode.name" @click="printMode = mode.name"
-                                    class="flex flex-col items-center gap-2 p-3 border-2 rounded-lg transition-all"
-                                    :class="printMode === mode.name ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'">
-                                    <component :is="mode.icon" class="w-6 h-6" />
-                                    <span class="text-xs font-medium">{{ mode.label }}</span>
+                                    class="flex flex-col items-center gap-1 p-2 border-2 rounded-lg transition-all text-xs"
+                                    :class="printMode === mode.name ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'">
+                                    <component :is="mode.icon" class="w-5 h-5" />
+                                    <span class="font-medium">{{ mode.label }}</span>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Size Template -->
                         <div class="space-y-3">
                             <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Label Size</label>
-                            <custom-dropdown :value="sizeTemplate" @selectedChange="sizeTemplate = $event" :options="sizeTemplates"
-                                class="w-full" />
-                            <div v-if="isCustomSize" class="flex gap-2">
-                                <div class="flex-1">
+                            <custom-dropdown :value="sizeTemplate" @selectedChange="sizeTemplate = $event"
+                                :options="sizeTemplates" class="w-full" />
+                            <div v-if="isCustomSize" class="grid grid-cols-2 gap-2">
+                                <div>
                                     <label class="text-xs text-gray-500">Height (cm)</label>
                                     <input v-model.number="customHeightCm" type="number" min="0.5" step="0.1"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white" />
+                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm" />
                                 </div>
-                                <div class="flex-1">
+                                <div>
                                     <label class="text-xs text-gray-500">Width (cm)</label>
                                     <input v-model.number="customWidthCm" type="number" min="0.5" step="0.1"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white" />
+                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm" />
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Layout Mode -->
-                        <div class="space-y-3">
-                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Layout</label>
-                            <div class="flex gap-2">
-                                <button @click="layoutMode = 'single'"
-                                    class="flex-1 px-4 py-2 border-2 rounded-lg text-sm font-medium transition-colors"
-                                    :class="layoutMode === 'single' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'">
-                                    Single Label
-                                </button>
-                                <button @click="layoutMode = 'sheet'"
-                                    class="flex-1 px-4 py-2 border-2 rounded-lg text-sm font-medium transition-colors"
-                                    :class="layoutMode === 'sheet' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'">
-                                    Sheet Layout
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Orientation -->
-                        <div class="space-y-3">
-                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Orientation</label>
-                            <div class="flex gap-2">
-                                <button @click="orientation = 'portrait'"
-                                    class="flex-1 px-4 py-2 border-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-                                    :class="orientation === 'portrait' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'">
-                                    <LuSmartphone class="w-4 h-4" />
-                                    Portrait
-                                </button>
-                                <button @click="orientation = 'landscape'"
-                                    class="flex-1 px-4 py-2 border-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-                                    :class="orientation === 'landscape' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'">
-                                    <LuSmartphone class="w-4 h-4 rotate-90" />
-                                    Landscape
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Advanced Settings -->
-                    <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-                        <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                            <LuSlidersHorizontal class="w-4 h-4" />
-                            Advanced Settings
-                        </h4>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div>
-                                <label class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Font Size</label>
-                                <input v-model.number="customFontSize" type="number" min="6" max="20"
-                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm" />
-                            </div>
-                            <div v-if="hasBarcodeMode">
-                                <label class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Barcode Height</label>
-                                <input v-model.number="customBarcodeHeight" type="number" min="12" :max="maxBarcodeHeightPx"
-                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm" />
-                            </div>
-                            <div v-if="hasQrMode">
-                                <label class="text-xs text-gray-500 dark:text-gray-400 block mb-1">QR Size</label>
-                                <input v-model.number="customQRSize" type="number" min="20" :max="maxQrSizePx"
-                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm" />
-                            </div>
-                            <div>
-                                <label class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Rotation</label>
-                                <custom-dropdown :value="rotationDeg" @selectedChange="rotationDeg = $event"
-                                    :options="[{name: 0, label: '0°'}, {name: 90, label: '90°'}, {name: 180, label: '180°'}, {name: 270, label: '270°'}]" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Generate Button -->
-                    <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <button @click="prevStep" class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                            Back
-                        </button>
-                        <button @click="buildLabels"
-                            class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors flex items-center gap-2">
-                            <LuSparkles class="w-4 h-4" />
-                            Generate Preview
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Preview Tab -->
-                <div v-show="activeTab === 'preview'" class="p-4 sm:p-6 space-y-6">
-                    <div v-if="!previewReady" class="text-center py-12">
-                        <LuEyeOff class="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                        <p class="text-gray-500 dark:text-gray-400">Generate a preview first</p>
-                    </div>
-
-                    <template v-else>
-                        <!-- Label Preview Grid -->
-                        <div class="bg-gray-100 dark:bg-gray-900 rounded-xl p-4 sm:p-8 overflow-x-auto">
-                            <div class="flex flex-wrap justify-center gap-4">
-                                <LabelCard
-                                    v-for="label in labels"
-                                    :key="label.key"
-                                    :label="label"
-                                    :print-mode="printMode"
-                                    :label-font-size="labelFontSize"
-                                    :qr-size="qrSize"
-                                    :barcode-height="barcodeHeight"
-                                    :barcode-module-width="getBarcodeModuleWidth(label.item?.barcode)"
-                                    :card-style="cardStyle"
-                                    :card-inner-style="cardInnerStyle"
-                                />
-                            </div>
-                            <div v-if="labels.length > 12" class="text-center mt-4 text-sm text-gray-500 dark:text-gray-400">
-                                Showing 12 of {{ labels.length }} labels
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="flex flex-col sm:flex-row justify-end gap-3">
-                            <button @click="prevStep" class="px-4 py-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                                Back to Settings
-                            </button>
-                            <button @click="exportPdf" :disabled="exporting"
-                                class="px-4 py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
-                                <LuFileDown v-if="!exporting" class="w-4 h-4" />
-                                <LuLoader2 v-else class="w-4 h-4 animate-spin" />
-                                {{ exporting ? 'Exporting...' : 'Export PDF' }}
-                            </button>
-                            <button @click="printLabels"
-                                class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
-                                <LuPrinter class="w-4 h-4" />
-                                Print Labels
-                            </button>
-                        </div>
-                    </template>
-                </div>
-            </div>
-
-            <!-- Mobile Content Areas -->
-            <div class="md:hidden space-y-4">
-                <!-- Mobile Items View -->
-                <div v-if="activeTab === 'items'" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 space-y-4">
-                    <div class="relative">
-                        <LuSearch class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <input v-model="search" type="text" placeholder="Search items..."
-                            class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm" />
-                    </div>
-                    
-                    <custom-dropdown :value="categoryId" @selectedChange="onCategoryChange($event)" :options="categoryOptions"
-                        placeholder="All Categories" class="w-full" />
-
-                    <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                        <div class="flex items-center gap-3">
-                            <input type="checkbox" :checked="allSelected" :indeterminate="someSelected" @change="toggleAll"
-                                class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" />
-                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                {{ allSelected ? 'Deselect All' : 'Select All' }}
-                            </span>
-                        </div>
-                        <span class="text-sm text-gray-500">{{ selectedCount }} selected</span>
-                    </div>
-
-                    <div v-if="loading" class="flex justify-center py-8">
-                        <LuLoader2 class="w-6 h-6 text-blue-600 animate-spin" />
-                    </div>
-
-                    <div v-else-if="filteredItems.length === 0" class="text-center py-8 text-gray-500">
-                        No items found
-                    </div>
-
-                    <div v-else class="space-y-2">
-                        <div v-for="item in filteredItems" :key="itemKey(item)" 
-                            class="p-3 border border-gray-200 dark:border-gray-700 rounded-lg"
-                            :class="{ 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700': selected[itemKey(item)] }">
-                            <div class="flex items-start gap-3">
-                                <input type="checkbox" :disabled="!item.barcode" :checked="!!selected[itemKey(item)]" 
-                                    @change="toggleItem(item)"
-                                    class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 mt-1 disabled:opacity-50" />
-                                <div class="flex-1 min-w-0">
-                                    <div class="font-medium text-gray-900 dark:text-white text-sm">{{ item.name }}</div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ item.brand }}</div>
-                                    <div v-if="item.barcode" class="mt-1 font-mono text-xs bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded inline-block">
-                                        {{ item.barcode }}
-                                    </div>
-                                    <div v-else class="mt-1 text-xs text-red-500 flex items-center gap-1">
-                                        <LuAlertCircle class="w-3 h-3" />
-                                        No barcode
-                                    </div>
-                                    
-                                    <div v-if="selected[itemKey(item)]" class="mt-2 flex items-center gap-2">
-                                        <label class="text-xs text-gray-500">Qty:</label>
-                                        <input type="number" min="1" :value="selected[itemKey(item)]?.qty ?? 1"
-                                            @input="updateQty(itemKey(item), $event.target.value)"
-                                            class="w-16 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700 dark:text-white" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button @click="nextStep" :disabled="selectedCount === 0"
-                        class="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
-                        Continue
-                        <LuArrowRight class="w-4 h-4" />
-                    </button>
-                </div>
-
-                <!-- Mobile Settings View -->
-                <div v-if="activeTab === 'settings'" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 space-y-4">
-                    <div class="space-y-3">
-                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Print Mode</label>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button v-for="mode in printModeOptions" :key="mode.name" @click="printMode = mode.name"
-                                class="flex flex-col items-center gap-1 p-2 border-2 rounded-lg transition-all text-xs"
-                                :class="printMode === mode.name ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'">
-                                <component :is="mode.icon" class="w-5 h-5" />
-                                <span class="font-medium">{{ mode.label }}</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="space-y-3">
-                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Label Size</label>
-                        <custom-dropdown :value="sizeTemplate" @selectedChange="sizeTemplate = $event" :options="sizeTemplates"
-                            class="w-full" />
-                        <div v-if="isCustomSize" class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="text-xs text-gray-500">Height (cm)</label>
-                                <input v-model.number="customHeightCm" type="number" min="0.5" step="0.1"
-                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm" />
-                            </div>
-                            <div>
-                                <label class="text-xs text-gray-500">Width (cm)</label>
-                                <input v-model.number="customWidthCm" type="number" min="0.5" step="0.1"
-                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <button @click="layoutMode = 'single'"
-                            class="px-4 py-2 border-2 rounded-lg text-sm font-medium transition-colors"
-                            :class="layoutMode === 'single' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'">
-                            Single Label
-                        </button>
-                        <button @click="layoutMode = 'sheet'"
-                            class="px-4 py-2 border-2 rounded-lg text-sm font-medium transition-colors"
-                            :class="layoutMode === 'sheet' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'">
-                            Sheet Layout
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <button @click="orientation = 'portrait'"
-                            class="px-4 py-2 border-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-                            :class="orientation === 'portrait' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'">
-                            <LuSmartphone class="w-4 h-4" />
-                            Portrait
-                        </button>
-                        <button @click="orientation = 'landscape'"
-                            class="px-4 py-2 border-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-                            :class="orientation === 'landscape' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'">
-                            <LuSmartphone class="w-4 h-4 rotate-90" />
-                            Landscape
-                        </button>
-                    </div>
-
-                    <div class="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-3">
-                        <h4 class="text-sm font-medium text-gray-900 dark:text-white flex items-center gap-2">
-                            <LuSlidersHorizontal class="w-4 h-4" />
-                            Advanced
-                        </h4>
                         <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Font Size</label>
-                                <input v-model.number="customFontSize" type="number" min="6" max="20"
-                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm" />
+                            <button @click="layoutMode = 'single'"
+                                class="px-4 py-2 border-2 rounded-lg text-sm font-medium transition-colors"
+                                :class="layoutMode === 'single' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'">
+                                Single Label
+                            </button>
+                            <button @click="layoutMode = 'sheet'"
+                                class="px-4 py-2 border-2 rounded-lg text-sm font-medium transition-colors"
+                                :class="layoutMode === 'sheet' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'">
+                                Sheet Layout
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <button @click="orientation = 'portrait'"
+                                class="px-4 py-2 border-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                                :class="orientation === 'portrait' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'">
+                                <LuSmartphone class="w-4 h-4" />
+                                Portrait
+                            </button>
+                            <button @click="orientation = 'landscape'"
+                                class="px-4 py-2 border-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                                :class="orientation === 'landscape' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'">
+                                <LuSmartphone class="w-4 h-4 rotate-90" />
+                                Landscape
+                            </button>
+                        </div>
+
+                        <div class="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-3">
+                            <h4 class="text-sm font-medium text-gray-900 dark:text-white flex items-center gap-2">
+                                <LuSlidersHorizontal class="w-4 h-4" />
+                                Advanced
+                            </h4>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Font Size</label>
+                                    <input v-model.number="customFontSize" type="number" min="6" max="20"
+                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm" />
+                                </div>
+                                <div v-if="hasBarcodeMode">
+                                    <label class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Barcode
+                                        Height</label>
+                                    <input v-model.number="customBarcodeHeight" type="number" min="12"
+                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm" />
+                                </div>
                             </div>
-                            <div v-if="hasBarcodeMode">
-                                <label class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Barcode Height</label>
-                                <input v-model.number="customBarcodeHeight" type="number" min="12"
-                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm" />
-                            </div>
+                        </div>
+
+                        <div class="flex gap-3 pt-4">
+                            <button @click="prevStep"
+                                class="flex-1 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                Back
+                            </button>
+                            <button @click="buildLabels"
+                                class="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                                <LuSparkles class="w-4 h-4" />
+                                Preview
+                            </button>
                         </div>
                     </div>
 
-                    <div class="flex gap-3 pt-4">
-                        <button @click="prevStep" class="flex-1 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                            Back
-                        </button>
-                        <button @click="buildLabels"
-                            class="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
-                            <LuSparkles class="w-4 h-4" />
-                            Preview
-                        </button>
-                    </div>
-                </div>
+                    <!-- Mobile Preview View -->
+                    <div v-if="activeTab === 'preview'"
+                        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 space-y-4">
+                        <div v-if="!previewReady" class="text-center py-8">
+                            <LuEyeOff class="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                            <p class="text-gray-500 dark:text-gray-400">Generate a preview first</p>
+                        </div>
 
-                <!-- Mobile Preview View -->
-                <div v-if="activeTab === 'preview'" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 space-y-4">
-                    <div v-if="!previewReady" class="text-center py-8">
-                        <LuEyeOff class="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                        <p class="text-gray-500 dark:text-gray-400">Generate a preview first</p>
-                    </div>
-
-                    <template v-else>
-                        <div class="bg-gray-100 dark:bg-gray-900 rounded-lg p-4 overflow-x-auto">
-                            <div class="flex flex-wrap justify-center gap-3">
-                                <div v-for="label in labels.slice(0, 6)" :key="label.key"
-                                    class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
-                                    :style="{ width: '140px', height: 'auto', aspectRatio: `${resolvedWidthCm}/${resolvedHeightCm}` }"
-                                    @click="openLabelModal(label)">
-                                    <div class="p-2 h-full flex flex-col justify-between" :style="cardInnerStyle">
-                                        <div class="text-center" :style="{ fontSize: `${Math.max(8, labelFontSize - 2)}px` }">
-                                            <div class="font-bold text-gray-900 dark:text-white truncate">{{ label.item.name }}</div>
-                                            <div class="text-gray-600 dark:text-gray-400 text-[10px] truncate">{{ label.item.brand }}</div>
-                                        </div>
-                                        <div class="flex flex-col items-center gap-1">
-                                            <svg v-if="printMode !== 'qr'" :id="`barcode-${label.key}`" class="w-full" style="height: 20px;"></svg>
-                                            <qrcode-vue v-if="printMode !== 'barcode'" :value="label.equipmentUrl" :size="Math.min(60, qrSize)" level="M"
-                                                render-as="canvas" class="mx-auto" />
-                                            <div v-if="printMode !== 'qr'" class="text-center font-mono text-[10px] text-gray-600 dark:text-gray-400">
-                                                {{ label.item.barcode }}
+                        <template v-else>
+                            <div class="bg-gray-100 dark:bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                                <div class="flex flex-wrap justify-center gap-3">
+                                    <div v-for="label in labels.slice(0, 6)" :key="label.key"
+                                        class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
+                                        :style="{ width: '140px', height: 'auto', aspectRatio: `${resolvedWidthCm}/${resolvedHeightCm}` }"
+                                        @click="openLabelModal(label)">
+                                        <div class="p-2 h-full flex flex-col justify-between" :style="cardInnerStyle">
+                                            <div class="text-center"
+                                                :style="{ fontSize: `${Math.max(8, labelFontSize - 2)}px` }">
+                                                <div class="font-bold text-gray-900 dark:text-white truncate">{{
+                                                    label.item.name }}</div>
+                                                <div class="text-gray-600 dark:text-gray-400 text-[10px] truncate">{{
+                                                    label.item.brand }}</div>
+                                            </div>
+                                            <div class="flex flex-col items-center gap-1">
+                                                <svg v-if="printMode !== 'qr'" :id="`barcode-${label.key}`"
+                                                    class="w-full" style="height: 20px;"></svg>
+                                                <qrcode-vue v-if="printMode !== 'barcode'" :value="label.equipmentUrl"
+                                                    :size="Math.min(60, qrSize)" level="M" render-as="canvas"
+                                                    class="mx-auto" />
+                                                <div v-if="printMode !== 'qr'"
+                                                    class="text-center font-mono text-[10px] text-gray-600 dark:text-gray-400">
+                                                    {{ label.item.barcode }}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                                <div v-if="labels.length > 6" class="text-center mt-3 text-xs text-gray-500">
+                                    Showing 6 of {{ labels.length }} labels
+                                </div>
                             </div>
-                            <div v-if="labels.length > 6" class="text-center mt-3 text-xs text-gray-500">
-                                Showing 6 of {{ labels.length }} labels
-                            </div>
-                        </div>
 
-                        <div class="grid grid-cols-2 gap-3">
-                            <button @click="prevStep" class="px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-sm">
-                                Back
+                            <div class="grid grid-cols-2 gap-3">
+                                <button @click="prevStep"
+                                    class="px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-sm">
+                                    Back
+                                </button>
+                                <button @click="exportPdf" :disabled="exporting"
+                                    class="px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 text-sm">
+                                    <LuFileDown v-if="!exporting" class="w-4 h-4" />
+                                    <LuLoader2 v-else class="w-4 h-4 animate-spin" />
+                                    PDF
+                                </button>
+                            </div>
+                            <button @click="printLabels"
+                                class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                                <LuPrinter class="w-4 h-4" />
+                                Print {{ totalLabels }} Labels
                             </button>
-                            <button @click="exportPdf" :disabled="exporting"
-                                class="px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 text-sm">
-                                <LuFileDown v-if="!exporting" class="w-4 h-4" />
-                                <LuLoader2 v-else class="w-4 h-4 animate-spin" />
-                                PDF
-                            </button>
-                        </div>
-                        <button @click="printLabels"
-                            class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
-                            <LuPrinter class="w-4 h-4" />
-                            Print {{ totalLabels }} Labels
-                        </button>
-                    </template>
+                        </template>
+                    </div>
                 </div>
             </div>
-        </div>
         </div>
 
         <!-- Print Areas (Hidden) -->
         <Teleport to="body">
             <div v-if="previewReady && layoutMode === 'single'" class="print-area flex flex-wrap justify-center gap-4">
-                <LabelCard
-                    v-for="label in labels"
-                    :key="label.key"
-                    :label="label"
-                    :print-mode="printMode"
-                    :label-font-size="labelFontSize"
-                    :qr-size="qrSize"
-                    :barcode-height="barcodeHeight"
-                    :barcode-module-width="getBarcodeModuleWidth(label.item?.barcode)"
-                    :card-style="cardStyle"
-                    :card-inner-style="cardInnerStyle"
-                />
+                <LabelCard v-for="label in labels" :key="label.key" :label="label" :print-mode="printMode"
+                    :label-font-size="labelFontSize" :qr-size="qrSize" :barcode-height="barcodeHeight"
+                    :barcode-module-width="getBarcodeModuleWidth(label.item?.barcode)" :card-style="cardStyle"
+                    :card-inner-style="cardInnerStyle" />
             </div>
-            
+
             <div v-if="previewReady && layoutMode === 'sheet'" class="print-area-sheet">
-                <div v-for="(sheet, sheetIndex) in sheetedLabels" :key="`print-sheet-${sheetIndex}`" class="sheet-page" 
+                <div v-for="(sheet, sheetIndex) in sheetedLabels" :key="`print-sheet-${sheetIndex}`" class="sheet-page"
                     :style="{ width: `${sheetDimensions.widthCm}cm`, height: `${sheetDimensions.heightCm}cm`, padding: `${sheetMarginCm}cm` }">
-                    <div class="sheet-grid" :style="{ display: 'grid', gridTemplateColumns: `repeat(${labelsPerRow}, 1fr)`, gap: '5px' }">
-                        <LabelCard
-                            v-for="label in sheet"
-                            :key="label.key"
-                            :label="label"
-                            :print-mode="printMode"
-                            :label-font-size="labelFontSize"
-                            :qr-size="qrSize"
-                            :barcode-height="barcodeHeight"
-                            :barcode-module-width="getBarcodeModuleWidth(label.item?.barcode)"
-                            :card-style="cardStyle"
-                            :card-inner-style="cardInnerStyle"
-                        />
+                    <div class="sheet-grid"
+                        :style="{ display: 'grid', gridTemplateColumns: `repeat(${labelsPerRow}, 1fr)`, gap: '5px' }">
+                        <LabelCard v-for="label in sheet" :key="label.key" :label="label" :print-mode="printMode"
+                            :label-font-size="labelFontSize" :qr-size="qrSize" :barcode-height="barcodeHeight"
+                            :barcode-module-width="getBarcodeModuleWidth(label.item?.barcode)" :card-style="cardStyle"
+                            :card-inner-style="cardInnerStyle" />
                     </div>
                 </div>
             </div>
@@ -1131,17 +1180,19 @@ export default {
                             <div :style="{ fontSize: `${labelFontSize * 2.5}px` }">
                                 <div class="font-bold text-gray-900">{{ selectedLabelForModal.item.name }}</div>
                                 <div class="text-gray-600" :style="{ fontSize: `${labelFontSize * 2}px` }">
-                                    {{ selectedLabelForModal.item.brand }} {{ selectedLabelForModal.item.description ? '(' + selectedLabelForModal.item.description + ')' : '' }}
+                                    {{ selectedLabelForModal.item.brand }} {{ selectedLabelForModal.item.description ?
+                                        '(' + selectedLabelForModal.item.description + ')' : '' }}
                                 </div>
                             </div>
-                            
+
                             <div class="flex flex-col items-center">
-                                <svg v-if="printMode !== 'qr'" :id="'modal-barcode-' + selectedLabelForModal.key" 
+                                <svg v-if="printMode !== 'qr'" :id="'modal-barcode-' + selectedLabelForModal.key"
                                     :style="{ width: '100%', height: `${modalBarcodeHeight}px` }"></svg>
-                                <qrcode-vue v-if="printMode !== 'barcode'" :value="selectedLabelForModal.equipmentUrl" 
+                                <qrcode-vue v-if="printMode !== 'barcode'" :value="selectedLabelForModal.equipmentUrl"
                                     :size="modalQRSize" level="M" render-as="canvas" />
-                                <div v-if="printMode !== 'qr'" class="font-mono text-gray-600 mt-1" 
-                                    :style="{ fontSize: `${labelFontSize * 3}px` }">{{ selectedLabelForModal.item.barcode }}</div>
+                                <div v-if="printMode !== 'qr'" class="font-mono text-gray-600 mt-1"
+                                    :style="{ fontSize: `${labelFontSize * 3}px` }">{{
+                                    selectedLabelForModal.item.barcode }}</div>
                                 <div v-else class="label-qr-caption" :style="{ fontSize: `${labelFontSize * 2.6}px` }">
                                     {{ selectedLabelForModal.item.barcode }}
                                 </div>
@@ -1269,7 +1320,9 @@ export default {
 }
 
 @media print {
-    html, body {
+
+    html,
+    body {
         margin: 0 !important;
         padding: 0 !important;
     }
@@ -1278,7 +1331,8 @@ export default {
         display: none !important;
     }
 
-    .print-area, .print-area-sheet {
+    .print-area,
+    .print-area-sheet {
         position: absolute;
         left: 0;
         top: 0;

@@ -1,5 +1,5 @@
 <template>
-    <div class="label-card" :style="cardStyle">
+    <div class="label-card hover:scale-[2] transition-transform duration-300 hover:z-10" :style="cardStyle">
         <div class="label-card-inner" :style="cardInnerStyle">
             <div class="label-text" :style="{ fontSize: `${labelFontSize}px` }">
                 <div class="label-item">{{ label?.item?.name }}</div>
