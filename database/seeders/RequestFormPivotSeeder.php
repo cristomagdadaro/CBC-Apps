@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\RequestFormPivot;
 use Illuminate\Database\Seeder;
 
-class RequestFormPIvotSeeder extends Seeder
+class RequestFormPivotSeeder extends Seeder
 {
     /**
      * Run the database seeds.

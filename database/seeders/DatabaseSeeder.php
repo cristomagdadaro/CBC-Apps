@@ -47,7 +47,7 @@ class DatabaseSeeder extends Seeder
             InventorySeeder::class,
             RequesterSeeder::class,
             UseRequestFormSeeder::class,
-            RequestFormPIvotSeeder::class,
+            RequestFormPivotSeeder::class,
             LocCitiesSeeder::class,
             InventoryIcf2026Seeder::class,
             LaboratoryEquipmentLogSeeder::class,
