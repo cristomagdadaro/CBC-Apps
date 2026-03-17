@@ -76,19 +76,21 @@ export default {
                 ...event,
                 label: event.label || event.title || "(Untitled)",
                 subtitle: event.subtitle || event.requested_by || "",
-                type: event.type || "general",
-                status: event.status || "",
+                type: this.normalizeTypeValue(event.type || "general"),
+                status: this.normalizeStatusValue(event.status || ""),
             }));
         },
         filteredEvents() {
             let list = [...this.normalizedEvents];
 
             if (this.showTypeFilter && this.filterType !== "all") {
-                list = list.filter((event) => event.type === this.filterType);
+                const selectedType = this.normalizeTypeValue(this.filterType);
+                list = list.filter((event) => event.type === selectedType);
             }
 
             if (this.showStatusFilter && this.filterStatus !== "all") {
-                list = list.filter((event) => event.status === this.filterStatus);
+                const selectedStatus = this.normalizeStatusValue(this.filterStatus);
+                list = list.filter((event) => event.status === selectedStatus);
             }
 
             return list;
@@ -125,6 +127,9 @@ export default {
                     items: this.typeOptions.map((item) => ({
                         label: item.label,
                         color: item.color || "#6B7280",
+                        key: item.key,
+                        filterKey: this.normalizeTypeValue(item.key),
+                        filterTarget: "type",
                     })),
                 });
             }
@@ -135,6 +140,9 @@ export default {
                     items: Object.entries(this.statusColors).map(([key, value]) => ({
                         label: key.charAt(0).toUpperCase() + key.slice(1),
                         color: value,
+                        key,
+                        filterKey: this.normalizeStatusValue(key),
+                        filterTarget: "status",
                     })),
                 });
             }
@@ -149,6 +157,12 @@ export default {
         },
     },
     methods: {
+        normalizeTypeValue(value) {
+            return String(value || "general").trim().toUpperCase();
+        },
+        normalizeStatusValue(value) {
+            return String(value || "").trim().toLowerCase();
+        },
         formatLocalDate(date) {
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -203,8 +217,22 @@ export default {
         },
         getEventColor(event) {
             if (event.color) return event.color;
-            const typeMatch = this.typeOptions.find((item) => item.key === event.type);
+            const typeMatch = this.typeOptions.find((item) => this.normalizeTypeValue(item.key) === event.type);
             return typeMatch?.color || "#6B7280";
+        },
+        handleLegendClick(item) {
+            if (!item?.filterTarget || !item.filterKey) {
+                return;
+            }
+
+            if (item.filterTarget === 'type' && this.showTypeFilter) {
+                this.filterType = item.filterKey;
+                return;
+            }
+
+            if (item.filterTarget === 'status' && this.showStatusFilter) {
+                this.filterStatus = item.filterKey;
+            }
         },
         handleEventClick(event) {
             if (event.checkoutPage && event.checkoutPageId) {
@@ -409,7 +437,7 @@ export default {
                 <div v-for="group in legendData" :key="group.title">
                     <h4 class="font-semibold text-gray-900 dark:text-gray-100 mb-2">{{ group.title }}</h4>
                     <div class="space-y-2">
-                        <div v-for="item in group.items" :key="item.label" class="flex items-center gap-2">
+                        <div v-for="item in group.items" :key="item.label" class="flex items-center gap-2 cursor-pointer" @click="handleLegendClick(item)">
                             <div class="w-4 h-4 rounded" :style="{ backgroundColor: item.color }"></div>
                             <span class="text-sm text-gray-700 dark:text-gray-300">{{ item.label }}</span>
                         </div>

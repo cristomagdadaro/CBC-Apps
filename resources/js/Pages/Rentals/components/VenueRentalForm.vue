@@ -307,7 +307,7 @@ export default {
                     class="mt-1 block w-full"
                 />
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 hidden">
                     <div>
                         <InputLabel value="Destination Region" required />
                         <SelectRegion
@@ -346,7 +346,7 @@ export default {
                     type="text"
                     placeholder="Specific destination / address"
                     :error="form.errors.destination_location"
-                    class="mt-1 block w-full"
+                    class="mt-1 block w-full hidden"
                 />
 
                 <!-- Date Range -->
@@ -360,6 +360,19 @@ export default {
                         @change="handleDateChange"
                         :error="form.errors.date_from"
                     />
+                    <TimeInput
+                        id="time_from"
+                        label="Start Time"
+                        required
+                        v-model="form.time_from"
+                        @change="handleDateChange"
+                        :error="form.errors.time_from"
+                        class="mt-1 block w-full"
+                    />
+                </div>
+
+                <!-- Time Range -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <DateInput
                         id="date_to"
                         label="End Date"
@@ -369,19 +382,6 @@ export default {
                         :min="form.date_from || minDate"
                         @change="handleDateChange"
                         :error="form.errors.date_to"
-                    />
-                </div>
-
-                <!-- Time Range -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <TimeInput
-                        id="time_from"
-                        label="Start Time"
-                        required
-                        v-model="form.time_from"
-                        @change="handleDateChange"
-                        :error="form.errors.time_from"
-                        class="mt-1 block w-full"
                     />
                     <TimeInput
                         id="time_to"

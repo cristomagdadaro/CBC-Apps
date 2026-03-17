@@ -80,20 +80,24 @@ export default {
                 ...event,
                 label: event.label || event.title || event.purpose || "(Untitled)",
                 subtitle: event.subtitle || event.requested_by || "",
-                type: event.type?.toUpperCase() || event.vehicle_type?.toUpperCase() || "GENERAL",
-                status: event.status || "",
+                type: this.normalizeTypeValue(
+                    event.type || event.vehicle_type || "GENERAL",
+                ),
+                status: this.normalizeStatusValue(event.status || ""),
             }));
         },
         filteredEvents() {
             let list = [...this.normalizedEvents];
 
             if (this.showTypeFilter && this.filterType !== "all") {
-                list = list.filter((event) => event.type === this.filterType);
+                const selectedType = this.normalizeTypeValue(this.filterType);
+                list = list.filter((event) => event.type === selectedType);
             }
 
             if (this.showStatusFilter && this.filterStatus !== "all") {
+                const selectedStatus = this.normalizeStatusValue(this.filterStatus);
                 list = list.filter(
-                    (event) => event.status === this.filterStatus,
+                    (event) => event.status === selectedStatus,
                 );
             }
 
@@ -155,6 +159,8 @@ export default {
                         label: item.label,
                         color: item.color || "#6B7280",
                         key: item.key,
+                        filterKey: this.normalizeTypeValue(item.key),
+                        filterTarget: "type",
                     })),
                 });
             }
@@ -167,6 +173,8 @@ export default {
                             label: key.charAt(0).toUpperCase() + key.slice(1),
                             color: value,
                             key: key,
+                            filterKey: this.normalizeStatusValue(key),
+                            filterTarget: "status",
                         }),
                     ),
                 });
@@ -182,6 +190,12 @@ export default {
         },
     },
     methods: {
+        normalizeTypeValue(value) {
+            return String(value || "general").trim().toUpperCase();
+        },
+        normalizeStatusValue(value) {
+            return String(value || "").trim().toLowerCase();
+        },
         formatLocalDate(date) {
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -336,9 +350,23 @@ export default {
             }
             if (event.color) return event.color;
             const typeMatch = this.typeOptions.find(
-                (item) => item.key === event.type,
+                (item) => this.normalizeTypeValue(item.key) === event.type,
             );
             return typeMatch?.color || "#6B7280";
+        },
+        handleLegendClick(item) {
+            if (!item?.filterTarget || !item.filterKey) {
+                return;
+            }
+
+            if (item.filterTarget === "type" && this.showTypeFilter) {
+                this.filterType = item.filterKey;
+                return;
+            }
+
+            if (item.filterTarget === "status" && this.showStatusFilter) {
+                this.filterStatus = item.filterKey;
+            }
         },
         handleEventClick(event) {
             if (event.checkoutPage && event.checkoutPageId) {
@@ -526,9 +554,7 @@ export default {
                                 v-for="item in group.items"
                                 :key="item.label"
                                 class="flex items-center gap-2.5 p-1.5 rounded-md hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer group"
-                                @click="
-                                    item.key ? (filterType = item.key) : null
-                                "
+                                @click="handleLegendClick(item)"
                             >
                                 <div
                                     class="w-2.5 h-2.5 rounded-full ring-2 ring-offset-1 ring-offset-white dark:ring-offset-slate-800 transition-all"
