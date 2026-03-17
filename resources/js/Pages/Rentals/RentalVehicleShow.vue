@@ -182,22 +182,22 @@ export default {
         <div v-else class="space-y-6 w-fit mx-auto">
             <!-- Status Banner -->
             <div :class="['rounded-2xl border-2 p-6', statusConfig.color]">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between gap-5">
                     <!-- Vehicle Header -->
                     <div class="flex items-center space-x-4">
                         <div class="rounded-xl bg-blue-600 p-3 text-white shadow-lg shadow-blue-600/20">
                             <LuCar class="h-6 w-6" />
                         </div>
-                        <div>
-                            <h2 class="text-xl font-bold text-gray-900">{{ rental.vehicle_type || 'Vehicle To Be Assigned by Admin' }}</h2>
+                        <div class="leading-tight">
+                            <h2 class="text-lg font-bold text-gray-900">{{ rental.vehicle_type || 'Vehicle Not Assigned Yet' }}</h2>
                             <p class="text-sm text-gray-500">{{ tripTypeMeta.label }}</p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
                         <component :is="statusConfig.icon" class="h-6 w-6" />
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-wider opacity-80">Current Status</p>
+                        <div class="leading-tight">
                             <p class="text-lg font-bold">{{ statusConfig.label }}</p>
+                            <p class="text-xs font-semibold uppercase tracking-wider opacity-80">Current Status</p>
                         </div>
                     </div>
                 </div>

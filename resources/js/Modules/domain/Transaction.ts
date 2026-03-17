@@ -66,7 +66,7 @@ export default class Transaction extends DtoTransaction {
             total_cost: model.total_cost ?? null,
             personnel_id: model.personnel_id ?? null,
             employee_id: model.employee_id ?? null,
-            user_id: model.user_id ?? Transaction.page.props.auth.user.id ?? null,
+            user_id: model.user_id ?? Transaction.page.props.auth?.user?.id ?? null,
             expiration: model.expiration ?? null,
             remarks: model.remarks ?? null,
             project_code: model.project_code ?? null,

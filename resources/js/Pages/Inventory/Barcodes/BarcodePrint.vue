@@ -657,8 +657,8 @@ export default {
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                                    <tr v-for="item in filteredItems" :key="itemKey(item)" class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
-                                        :class="{ 'bg-blue-50/50 dark:bg-blue-900/10': selected[itemKey(item)] }">
+                                    <tr v-for="item in filteredItems" :key="itemKey(item)" class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors cursor-pointer"
+                                        :class="{ 'bg-blue-50/50 dark:bg-blue-900/10': selected[itemKey(item)] }" @dblclick="toggleItem(item)">
                                         <td class="px-4 py-3">
                                             <input type="checkbox" :disabled="!item.barcode" :checked="!!selected[itemKey(item)]" @change="toggleItem(item)"
                                                 class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 disabled:opacity-50" />
@@ -1085,7 +1085,7 @@ export default {
 
         <!-- Print Areas (Hidden) -->
         <Teleport to="body">
-            <div v-if="previewReady && layoutMode === 'single'" class="print-area flex flex-wrap justify-center gap-4 hidden">
+            <div v-if="previewReady && layoutMode === 'single'" class="print-area flex flex-wrap justify-center gap-4">
                 <LabelCard
                     v-for="label in labels"
                     :key="label.key"
@@ -1100,7 +1100,7 @@ export default {
                 />
             </div>
             
-            <div v-if="previewReady && layoutMode === 'sheet'" class="print-area-sheet hidden">
+            <div v-if="previewReady && layoutMode === 'sheet'" class="print-area-sheet">
                 <div v-for="(sheet, sheetIndex) in sheetedLabels" :key="`print-sheet-${sheetIndex}`" class="sheet-page" 
                     :style="{ width: `${sheetDimensions.widthCm}cm`, height: `${sheetDimensions.heightCm}cm`, padding: `${sheetMarginCm}cm` }">
                     <div class="sheet-grid" :style="{ display: 'grid', gridTemplateColumns: `repeat(${labelsPerRow}, 1fr)`, gap: '5px' }">
@@ -1263,13 +1263,18 @@ export default {
     flex-direction: column;
 }
 
+.print-area,
+.print-area-sheet {
+    display: none;
+}
+
 @media print {
-    :global(body), :global(html) {
+    html, body {
         margin: 0 !important;
         padding: 0 !important;
     }
 
-    :global(body > *:not(.print-area):not(.print-area-sheet)) {
+    body > *:not(.print-area):not(.print-area-sheet) {
         display: none !important;
     }
 

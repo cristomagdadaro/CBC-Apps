@@ -224,9 +224,9 @@ export default {
                         <div :class="['rounded-xl bg-white/80 p-3 shadow-sm backdrop-blur-sm']">
                             <component :is="statusConfig.icon" class="h-6 w-6 text-AB" />
                         </div>
-                        <div>
+                        <div class="flex flex-col justify-center">
                             <p class="text-xs font-bold uppercase tracking-wider opacity-70">Booking Status</p>
-                            <p class="text-xl font-bold">{{ statusConfig.label }}</p>
+                            <p class="text-xl font-bold leading-none">{{ statusConfig.label }}</p>
                         </div>
                     </div>
                 </div>
@@ -298,14 +298,14 @@ export default {
                                 Organizer Details
                             </h3>
                             <div class="space-y-3">
-                                <div class="flex items-start gap-3 rounded-lg border border-gray-100 bg-gray-50/50 p-3">
+                                <div class="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50/50 p-3">
                                     <LuUser class="mt-0.5 h-4 w-4 text-gray-400" />
                                     <div>
                                         <p class="text-xs text-gray-500">Requested By</p>
                                         <p class="font-medium text-gray-900">{{ rental.requested_by || 'Not specified' }}</p>
                                     </div>
                                 </div>
-                                <div class="flex items-start gap-3 rounded-lg border border-gray-100 bg-gray-50/50 p-3">
+                                <div class="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50/50 p-3">
                                     <LuPhone class="mt-0.5 h-4 w-4 text-gray-400" />
                                     <div>
                                         <p class="text-xs text-gray-500">Contact Number</p>
@@ -365,13 +365,6 @@ export default {
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Footer Info -->
-            <div class="rounded-xl border border-gray-200 bg-gray-50/50 p-4 text-center">
-                <p class="text-xs text-gray-500">
-                    Questions about your booking? Contact our events team for assistance.
-                </p>
             </div>
         </div>
     </GuestFormPage>
