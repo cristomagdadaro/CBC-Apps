@@ -5,7 +5,7 @@ export default {
 </script>
 
 <template>
-    <thead >
+    <thead class="bg-slate-50 dark:bg-slate-800">
         <slot />
     </thead>
 </template>

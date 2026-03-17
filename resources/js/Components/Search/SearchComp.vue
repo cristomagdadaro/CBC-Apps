@@ -1,294 +1,435 @@
-<script>
-import ApiMixin from "@/Modules/mixins/ApiMixin";
-import {defineAsyncComponent} from "vue";
-import DtoResponse from "@/Modules/dto/DtoResponse.js";
+<!-- SearchComp.vue -->
+<script setup lang="ts">
+import { ref, computed, onMounted, watch, defineAsyncComponent, shallowRef } from 'vue';
+import type { Component, VNodeProps, AllowedComponentProps } from 'vue';
 
-export default {
-    name: "SearchComp",
-    mixins: [ApiMixin],
-    props: {
-        propModel: {
-            type: Function,
-            required: true,
-        },
-        action: {
-            type: String,
-            default: "get",
-        },
-        cardSlot: {
-            type: Object,
-            required: false,
-            default: defineAsyncComponent({
-                loader: () => import("@/Components/DefaultBlankForm.vue"),
-            }),
-        },
-        quickFilterOptions: {
-            type: Array,
-            default: () => [],
-        },
-        quickFilterLabel: {
-            type: String,
-            default: "Quick Filter",
-        },
-        quickFilterColumn: {
-            type: String,
-            default: "",
-        },
-    },
-    data() {
-        return {
-            apiResponse: null,
-            confirmDelete: false,
-            toDelete: null,
-            searchDebounceTimer: null,
-            searchDebounceDelay: 350,
-            latestRequestId: 0,
-            autoSearchReady: false,
-            quickFilterValue: null,
-        }
-    },
-    beforeMount() {
-        this.model = new this.propModel();
-        this.setFormAction(this.action);
-    },
-    async mounted() {
-        await this.searchEvent();
-        this.autoSearchReady = true;
-    },
-    beforeUnmount() {
-        if (this.searchDebounceTimer) {
-            clearTimeout(this.searchDebounceTimer);
-            this.searchDebounceTimer = null;
-        }
-    },
-    watch: {
-        'form.search'() {
-            if (!this.autoSearchReady) return;
-            this.debouncedSearch(true);
-        },
-        'form.filter'() {
-            if (!this.autoSearchReady) return;
-            this.searchEvent({ page: 1 });
-        },
-        'form.is_exact'() {
-            if (!this.autoSearchReady) return;
-            this.searchEvent({ page: 1 });
-        },
-        'form.per_page'() {
-            if (!this.autoSearchReady) return;
-            this.searchEvent({ page: 1 });
-        },
-        quickFilterValue(newValue) {
-            if (!this.autoSearchReady || !this.quickFilterColumn) return;
-
-            if (!newValue) {
-                if (this.form.filter === this.quickFilterColumn) {
-                    this.form.filter = null;
-                    this.form.search = null;
-                    this.form.is_exact = false;
-                }
-                return;
-            }
-
-            this.form.filter = this.quickFilterColumn;
-            this.form.search = newValue;
-            this.form.is_exact = true;
-            this.searchEvent({ page: 1 });
-        },
-    },
-    computed: {
-        columns() {
-            return this.propModel.getColumns()
-                .map(column => column && column.visible ? { name: column.key, label: column.title } : null)
-                .filter(Boolean);
-        },
-        perPageOptions() {
-            return [
-                {name:10, label:'10'},
-                {name:25, label:'25'},
-                {name:50, label:'50'},
-                {name:100, label:'100'},
-                {name:'*', label:'All'},
-            ]
-        }
-    },
-    methods: {
-        debouncedSearch(resetPage = false) {
-            if (this.searchDebounceTimer) {
-                clearTimeout(this.searchDebounceTimer);
-            }
-
-            this.searchDebounceTimer = setTimeout(() => {
-                this.searchEvent(resetPage ? { page: 1 } : {});
-            }, this.searchDebounceDelay);
-        },
-        triggerImmediateSearch(resetPage = false) {
-            if (this.searchDebounceTimer) {
-                clearTimeout(this.searchDebounceTimer);
-                this.searchDebounceTimer = null;
-            }
-
-            this.searchEvent(resetPage ? { page: 1 } : {});
-        },
-        async searchEvent(params = {}) {
-            // merge params into form
-            Object.keys(params).forEach(key => {
-                this.form[key] = params[key];
-            });
-
-            const currentRequestId = ++this.latestRequestId;
-            const response = await this.fetchData();
-
-            if (currentRequestId !== this.latestRequestId) {
-                return;
-            }
-
-            this.apiResponse = response;
-            this.$emit("searchedData", this.apiResponse);
-        },
-        async handleDelete()
-        {
-            if (!this.toDelete) {
-                return;
-            }
-
-            const response = await this.submitDelete();
-            if (response instanceof DtoResponse)
-            {
-                this.confirmDelete = false;
-                this.toDelete = null;
-                this.$emit("deletedModel", response.data);
-                // Auto-refresh data after successful delete
-                await this.searchEvent();
-            }
-        },
-        async handleDataTableDelete(row)
-        {
-            // Set the row to delete and open confirmation modal from DataTable action
-            this.toDelete = row;
-            this.confirmDelete = true;
-        }
-    }
+interface Props {
+  propModel: new () => any;
+  cardSlot?: Component;
+  listSlot?: Component;
+  cardSlotProps?: Record<string, any>; // Props to pass to cardSlot
+  listSlotProps?: Record<string, any>; // Props to pass to listSlot
+  action?: 'get' | 'post' | 'put' | 'delete';
+  quickFilterOptions?: Array<{ name: string; label: string }>;
+  quickFilterLabel?: string;
+  quickFilterColumn?: string;
+  enableDebounce?: boolean;
+  debounceDelay?: number;
+  defaultPerPage?: number;
+  enableExport?: boolean;
 }
+
+const props = withDefaults(defineProps<Props>(), {
+  action: 'get',
+  quickFilterOptions: () => [],
+  quickFilterLabel: 'Quick Filter',
+  quickFilterColumn: '',
+  enableDebounce: true,
+  debounceDelay: 350,
+  defaultPerPage: 25,
+  enableExport: false,
+  cardSlotProps: () => ({}),
+  listSlotProps: () => ({}),
+});
+
+const emit = defineEmits<{
+  (e: 'searchedData', data: any): void;
+  (e: 'deletedModel', data: any): void;
+}>();
+
+// Initialize model instance
+const model = ref<InstanceType<typeof props.propModel> | null>(null);
+const apiResponse = ref<any>(null);
+const processing = ref(false);
+
+// Search state
+const searchForm = ref({
+  search: '',
+  filter: null as string | null,
+  filter_by: null as string | null,
+  is_exact: false,
+  page: 1,
+  per_page: props.defaultPerPage,
+  sort: null as string | null,
+  order: 'asc' as 'asc' | 'desc',
+});
+
+const quickFilterValue = ref<string | null>(null);
+const showDeleteModal = ref(false);
+const itemToDelete = ref<any>(null);
+const searchDebounceTimer = ref<ReturnType<typeof setTimeout> | null>(null);
+const requestId = ref(0);
+
+// Computed
+const columns = computed(() => {
+  if (!props.propModel.getColumns) return [];
+  return props.propModel
+    .getColumns()
+    .filter((col: any) => col.visible !== false)
+    .map((col: any) => ({
+      name: col.key,
+      label: col.title,
+    }));
+});
+
+const perPageOptions = [
+  { name: 10, label: '10' },
+  { name: 25, label: '25' },
+  { name: 50, label: '50' },
+  { name: 100, label: '100' },
+];
+
+// Merge default props with user-provided cardSlotProps
+const mergedCardSlotProps = computed(() => ({
+  'api-response': apiResponse.value,
+  'processing': processing.value,
+  'model': props.propModel,
+  'enable-search': false, // Disable DataTable search by default (SearchComp handles it)
+  'enable-filters': false, // Disable DataTable filters by default
+  'enable-export': props.enableExport,
+  'enable-pagination': false, // SearchComp handles pagination
+  ...props.cardSlotProps, // User can override any of these
+}));
+
+const mergedListSlotProps = computed(() => ({
+  'api-response': apiResponse.value,
+  'processing': processing.value,
+  'model': props.propModel,
+  ...props.listSlotProps,
+}));
+
+// Methods
+const debouncedSearch = (resetPage = false) => {
+  if (!props.enableDebounce) {
+    executeSearch(resetPage);
+    return;
+  }
+
+  if (searchDebounceTimer.value) {
+    clearTimeout(searchDebounceTimer.value);
+  }
+
+  searchDebounceTimer.value = setTimeout(() => {
+    executeSearch(resetPage);
+  }, props.debounceDelay);
+};
+
+const executeSearch = async (resetPage = false) => {
+  if (resetPage) {
+    searchForm.value.page = 1;
+  }
+
+  const currentRequestId = ++requestId.value;
+
+  try {
+    processing.value = true;
+
+    if (!model.value) {
+      model.value = new props.propModel();
+    }
+
+    const params = {
+      ...searchForm.value,
+      ...(model.value.api?.getSearchFields?.() || {}),
+    };
+
+    const response = await model.value.api.getIndex(params);
+
+    if (currentRequestId !== requestId.value) return;
+
+    apiResponse.value = response;
+    emit('searchedData', response);
+  } catch (error) {
+    console.error('Search error:', error);
+  } finally {
+    processing.value = false;
+  }
+};
+
+const handleSort = (column: string, direction: 'asc' | 'desc') => {
+  searchForm.value.sort = column;
+  searchForm.value.order = direction;
+  executeSearch();
+};
+
+const handleSearchInput = (value: string) => {
+  searchForm.value.search = value;
+  debouncedSearch(true);
+};
+
+const handleFilterChange = (filters: Record<string, any>) => {
+  Object.assign(searchForm.value, filters);
+  executeSearch(true);
+};
+
+const handlePerPageChange = (value: number) => {
+  searchForm.value.per_page = value;
+  executeSearch(true);
+};
+
+const handlePageChange = (value: number) => {
+  searchForm.value.page = value;
+  executeSearch();
+};
+
+const handleDeleteRequest = (row: any) => {
+  itemToDelete.value = row;
+  showDeleteModal.value = true;
+};
+
+const confirmDelete = async () => {
+  if (!itemToDelete.value || !model.value) return;
+
+  try {
+    processing.value = true;
+    const response = await model.value.api.deleteApiIndex(itemToDelete.value);
+
+    showDeleteModal.value = false;
+    emit('deletedModel', response);
+    await executeSearch();
+  } catch (error) {
+    console.error('Delete error:', error);
+  } finally {
+    processing.value = false;
+    itemToDelete.value = null;
+  }
+};
+
+// Watchers
+watch(quickFilterValue, (newValue) => {
+  if (!props.quickFilterColumn) return;
+
+  if (!newValue) {
+    if (searchForm.value.filter === props.quickFilterColumn) {
+      searchForm.value.filter = null;
+      searchForm.value.search = '';
+      searchForm.value.is_exact = false;
+    }
+    return;
+  }
+
+  searchForm.value.filter = props.quickFilterColumn;
+  searchForm.value.search = newValue;
+  searchForm.value.is_exact = true;
+  executeSearch(true);
+});
+
+// Lifecycle
+onMounted(() => {
+  executeSearch();
+});
 </script>
 
 <template>
-    <form v-if="!!form" class="flex gap-2 items-end "  @submit.prevent="triggerImmediateSearch(true)">
-        <div class="flex flex-col w-full gap-2">
-            <div class="w-full flex gap-2 items-end lg:px-0 px-2">
-                <div class="flex gap-3 w-full">
-                    <div class="flex flex-col gap-0.5">
-                        <div class="flex justify-between ">
-                            <label class="text-gray-600 text-xs">Per Page</label>
-                        </div>
-                        <custom-dropdown :show-clear="false"
-                            :value="form.per_page"
-                            :options="perPageOptions"
-                            :withAllOption="false"
-                            @selectedChange="form.per_page = $event"
-                        >
-                            <template #icon>
-                                <filter-icon class="h-4 w-4" />
-                            </template>
-                        </custom-dropdown>
-                    </div>
-                    <search-by
-                        :value="form.filter"
-                        :is-exact="form.is_exact"
-                        :options="columns"
-                        @searchBy="form.filter = $event"
-                        @isExact="form.is_exact = $event"
-                    />
-                    <custom-dropdown
-                        v-if="quickFilterOptions.length && quickFilterColumn"
-                        :value="quickFilterValue"
-                        :label="quickFilterLabel"
-                        :placeholder="`Filter by ${quickFilterLabel}`"
-                        :options="quickFilterOptions"
-                        :withAllOption="false"
-                        @selectedChange="quickFilterValue = $event"
-                        class="max-w-fit"
-                    />
-                    <search-box class="w-full" v-model="form.search" @keydown.enter.prevent="triggerImmediateSearch(true)"/>
-                    <div class="flex flex-col gap-0.5">
-                        <div class="flex justify-between ">
-                            <label class="text-gray-600 text-xs">&nbsp;</label>
-                        </div>
-                        <search-btn type="submit" :disabled="model?.processing || processing" class="w-[10rem] text-center h-full hover:bg-AB duration-150">
-                            <span v-if="!model?.processing">Search</span>
-                            <span v-else>Searching</span>
-                        </search-btn>
-                    </div>
-                </div>
-            </div>
-            <div v-if="apiResponse" class="flex w-full gap-2 items-center">
-                <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
-                    <!-- First Button -->
-                    <paginate-btn @click="form.page = 1; triggerImmediateSearch()" :disabled="form.page === 1 || processing">
-                        First
-                    </paginate-btn>
-
-                    <!-- Previous Button -->
-                    <paginate-btn @click="form.page = Math.max(1, form.page - 1); triggerImmediateSearch()" :disabled="form.page === 1 || processing">
-                        <template v-slot:icon>
-                            <arrow-left class="h-auto w-6" />
-                        </template>
-                        Prev
-                    </paginate-btn>
-
-                    <!-- Current Page Indicator -->
-                    <div class="text-xs flex flex-col whitespace-nowrap text-center">
-                                    <span class="font-medium mx-1" title="current page and total pages">
-                                        <span>{{ apiResponse?.current_page }}</span> / <span>{{ apiResponse?.last_page }}</span>
-                                    </span>
-                    </div>
-
-                    <!-- Next Button -->
-                    <paginate-btn
-                        @click="form.page = Math.min(apiResponse?.last_page, form.page + 1); searchEvent()"
-                        :disabled="form.page === apiResponse?.last_page || processing"
-                    >
-                        Next
-                        <template v-slot:icon>
-                            <arrow-right class="h-auto w-6" />
-                        </template>
-                    </paginate-btn>
-
-                    <!-- Last Button -->
-                    <paginate-btn
-                        @click="form.page = apiResponse?.last_page; searchEvent()"
-                        :disabled="form.page === apiResponse?.last_page || processing"
-                    >
-                        Last
-                    </paginate-btn>
-                </div>
-            </div>
+  <div class="search-container space-y-4">
+    <!-- Search Toolbar -->
+    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4">
+      <div class="flex flex-col lg:flex-row gap-4 items-end">
+        
+        <!-- Per Page -->
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-slate-600 dark:text-slate-400">Per Page</label>
+          <select
+            v-model="searchForm.per_page"
+            @change="handlePerPageChange(searchForm.per_page)"
+            class="block w-24 pl-3 pr-8 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500"
+          >
+            <option v-for="opt in perPageOptions" :key="opt.name" :value="opt.name">
+              {{ opt.label }}
+            </option>
+          </select>
         </div>
-    </form>
-    <component v-if="cardSlot"
-        :is="cardSlot"
-        :apiResponse="apiResponse"
-        :processing="model.api.processing"
-        :model="propModel"
-        @searchEvent="searchEvent"
-        @confirmDelete="confirmDelete = true; toDelete = $event"
-        @delete-record="handleDataTableDelete"
-        class="my-2"
-    />
-    <div v-if="apiResponse" class="flex w-full gap-2 items-center">
-        <delete-confirmation-modal
-            v-if="confirmDelete"
-            :show="confirmDelete"
-            :is-processing="model.api.processing"
-            title="Confirm Delete"
-            :message="`Are you sure you want to delete this record? This action cannot be undone.`"
-            :item-name="toDelete?.fullName ? `${toDelete.fullName} (${toDelete.id})` : ''"
-            @confirm="handleDelete"
-            @close="confirmDelete = false; toDelete = null"
-        />
+
+        <!-- Search By Column -->
+        <div class="flex flex-col gap-1 flex-1 max-w-xs">
+          <label class="text-xs font-medium text-slate-600 dark:text-slate-400">Search By</label>
+          <div class="flex gap-2">
+            <select
+              v-model="searchForm.filter"
+              class="block w-full pl-3 pr-8 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500"
+            >
+              <option :value="null">All Fields</option>
+              <option v-for="col in columns" :key="col.name" :value="col.name">
+                {{ col.label }}
+              </option>
+            </select>
+            <label class="flex items-center gap-2 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 cursor-pointer">
+              <input
+                v-model="searchForm.is_exact"
+                type="checkbox"
+                class="rounded text-primary-600 focus:ring-primary-500"
+              />
+              <span class="text-sm text-slate-600 dark:text-slate-400">Exact</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Quick Filter -->
+        <div v-if="quickFilterOptions.length && quickFilterColumn" class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-slate-600 dark:text-slate-400">{{ quickFilterLabel }}</label>
+          <select
+            v-model="quickFilterValue"
+            class="block w-40 pl-3 pr-8 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500"
+          >
+            <option :value="null">All</option>
+            <option v-for="opt in quickFilterOptions" :key="opt.name" :value="opt.name">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Search Input -->
+        <div class="flex flex-col gap-1 flex-1">
+          <label class="text-xs font-medium text-slate-600 dark:text-slate-400">&nbsp;</label>
+          <div class="flex gap-2">
+            <div class="relative flex-1">
+              <input
+                v-model="searchForm.search"
+                @input="handleSearchInput(($event.target as HTMLInputElement).value)"
+                type="text"
+                placeholder="Search..."
+                class="block w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500"
+              />
+              <svg class="absolute left-3 top-2.5 h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <button
+              @click="executeSearch(true)"
+              :disabled="processing"
+              class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+            >
+              <span v-if="!processing">Search</span>
+              <span v-else class="flex items-center gap-2">
+                <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Searching...
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- Pagination Info -->
+    <div v-if="apiResponse" class="flex justify-between items-center text-sm text-slate-600 dark:text-slate-400">
+      <span>
+        Showing <span class="font-medium">{{ apiResponse.from || 1 }}</span> to 
+        <span class="font-medium">{{ apiResponse.to || 0 }}</span> of 
+        <span class="font-medium">{{ apiResponse.total || 0 }}</span> results
+      </span>
+      
+      <!-- Page Navigation -->
+      <div class="flex items-center gap-2">
+        <button
+          @click="handlePageChange(1)"
+          :disabled="apiResponse.current_page === 1 || processing"
+          class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+          </svg>
+        </button>
+        <button
+          @click="handlePageChange(apiResponse.current_page - 1)"
+          :disabled="apiResponse.current_page === 1 || processing"
+          class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        
+        <span class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg font-medium min-w-[3rem] text-center">
+          {{ apiResponse.current_page }}
+        </span>
+        <span class="text-slate-500">of {{ apiResponse.last_page }}</span>
+        
+        <button
+          @click="handlePageChange(apiResponse.current_page + 1)"
+          :disabled="apiResponse.current_page === apiResponse.last_page || processing"
+          class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+        <button
+          @click="handlePageChange(apiResponse.last_page)"
+          :disabled="apiResponse.current_page === apiResponse.last_page || processing"
+          class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Results Display -->
+    <div class="results-container">
+      <!-- DataTable Mode -->
+      <component
+        v-if="cardSlot && !listSlot"
+        :is="cardSlot"
+        v-bind="mergedCardSlotProps"
+        @sort="handleSort"
+        @delete-record="handleDeleteRequest"
+      />
+
+      <!-- Custom List/Card Mode -->
+      <component
+        v-else-if="listSlot"
+        :is="listSlot"
+        v-bind="mergedListSlotProps"
+        @delete-record="handleDeleteRequest"
+      >
+        <template v-for="(_, name) in $slots" #[name]="slotData">
+          <slot :name="name" v-bind="slotData" />
+        </template>
+      </component>
+
+      <!-- Fallback -->
+      <div v-else class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 text-yellow-800 dark:text-yellow-200">
+        Please provide either a cardSlot (DataTable) or listSlot (custom layout) component.
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <teleport to="body">
+      <div
+        v-if="showDeleteModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        @click.self="showDeleteModal = false"
+      >
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-6 max-w-md w-full mx-4">
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Confirm Delete</h3>
+          <p class="text-slate-600 dark:text-slate-400 mb-4">
+            Are you sure you want to delete this record? This action cannot be undone.
+          </p>
+          <p v-if="itemToDelete?.fullName" class="text-sm font-medium text-slate-900 dark:text-white mb-4">
+            {{ itemToDelete.fullName }} (ID: {{ itemToDelete.id }})
+          </p>
+          <div class="flex justify-end gap-3">
+            <button
+              @click="showDeleteModal = false"
+              class="px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              @click="confirmDelete"
+              :disabled="processing"
+              class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors flex items-center gap-2"
+            >
+              <span v-if="processing" class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </teleport>
+  </div>
 </template>
-
-<style scoped>
-
-</style>

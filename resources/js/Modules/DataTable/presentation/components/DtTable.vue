@@ -5,7 +5,7 @@ export default {
 </script>
 
 <template>
-    <table class="w-full border-collapse">
+    <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
         <slot />
     </table>
 </template>

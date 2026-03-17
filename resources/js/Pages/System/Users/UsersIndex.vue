@@ -1,6 +1,7 @@
 <script>
 import axios from 'axios'
 import { useNotifier } from '@/Modules/composables/useNotifier'
+import User from '@/Modules/domain/User';
 
 export default {
     name: 'UsersIndex',
@@ -15,6 +16,11 @@ export default {
     },
     mounted() {
         this.loadUsers()
+    },
+    computed: {
+        User() {
+            return User
+        }
     },
     methods: {
         formatLabel(value) {
@@ -113,6 +119,17 @@ export default {
                     </table>
                 </div>
             </div>
+            
+            <DataTable
+                index-api="api.users.index"
+                :model="User"
+                mode="online"
+                enable-export
+                enable-filters
+                enable-search
+                striped
+                hoverable
+            />
         </div>
     </AppLayout>
 </template>
