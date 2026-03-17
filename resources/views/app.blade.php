@@ -3,6 +3,12 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta property="og:image" content="{{ asset('imgs/philrice-cbc-compound.jpg') }}">
+        <meta property="og:image:secure_url" content="{{ secure_asset('imgs/philrice-cbc-compound.jpg') }}">
+        <meta property="og:image:type" content="image/jpeg">
+        <meta property="og:image:alt" content="PhilRice CBC compound aerial view">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:image" content="{{ asset('imgs/philrice-cbc-compound.jpg') }}">
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
