@@ -31,7 +31,9 @@ class AppServiceProvider extends ServiceProvider
     {
         Inertia::share('appVersion', $this->buildAppVersion());
 
-        RequestFormPivot::observe(RequestFormPivotObserver::class);
+        if (class_exists(RequestFormPivot::class)) {
+            RequestFormPivot::observe(RequestFormPivotObserver::class);
+        }
         Transaction::observe(TransactionObserver::class);
         EventSubformResponse::observe(EventSubformResponseObserver::class);
         User::observe(UserObserver::class);
