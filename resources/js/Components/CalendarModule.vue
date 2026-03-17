@@ -60,6 +60,11 @@ export default {
             type: [String, Date],
             default: null,
         },
+        // NEW: Max visible event lanes per week before showing "more" indicator
+        maxEventLanes: {
+            type: Number,
+            default: 4,
+        },
     },
     data() {
         return {
@@ -67,7 +72,6 @@ export default {
             filterType: "all",
             filterStatus: "all",
             weekDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-            MAX_VISIBLE_EVENTS_PER_DAY: 2,
         };
     },
     computed: {
@@ -76,7 +80,7 @@ export default {
                 ...event,
                 label: event.label || event.title || event.purpose || "(Untitled)",
                 subtitle: event.subtitle || event.requested_by || "",
-                type: event.type || event.vehicle_type || "general",
+                type: event.type?.toUpperCase() || event.vehicle_type?.toUpperCase() || "GENERAL",
                 status: event.status || "",
             }));
         },
@@ -109,27 +113,14 @@ export default {
                 1,
             ).getDay();
         },
-        calendarDays() {
-            const days = [];
-            for (let i = 0; i < this.firstDayOfMonth; i += 1) {
-                days.push(null);
-            }
-            for (let i = 1; i <= this.daysInMonth; i += 1) {
-                days.push(i);
-            }
-            return days;
-        },
-        // Group days into weeks for proper multi-day event rendering
         calendarWeeks() {
             const weeks = [];
             let currentWeek = [];
             
-            // Add padding for days before the first day of month
             for (let i = 0; i < this.firstDayOfMonth; i++) {
                 currentWeek.push(null);
             }
             
-            // Add all days of the month
             for (let day = 1; day <= this.daysInMonth; day++) {
                 currentWeek.push(day);
                 if (currentWeek.length === 7) {
@@ -138,7 +129,6 @@ export default {
                 }
             }
             
-            // Add padding for remaining days in the last week
             if (currentWeek.length > 0) {
                 while (currentWeek.length < 7) {
                     currentWeek.push(null);
@@ -226,7 +216,6 @@ export default {
             }
             return text.length >= 10 ? text.slice(0, 10) : null;
         },
-        // Get events that overlap with a specific week
         getEventsForWeek(weekDays, weekIndex) {
             const weekStartDate = this.getWeekStartDate(weekDays);
             const weekEndDate = this.getWeekEndDate(weekDays);
@@ -243,13 +232,10 @@ export default {
                 );
                 if (!dateFrom || !dateTo) return false;
                 
-                // Event overlaps with this week if:
-                // event starts before week ends AND event ends after week starts
                 return dateFrom <= weekEndDate && dateTo >= weekStartDate;
             });
         },
         getWeekStartDate(weekDays) {
-            // Find first non-null day in the week
             const firstDay = weekDays.find(d => d !== null);
             if (!firstDay) return null;
             return new Date(
@@ -259,7 +245,6 @@ export default {
             ).toISOString().split("T")[0];
         },
         getWeekEndDate(weekDays) {
-            // Find last non-null day in the week
             const lastDay = [...weekDays].reverse().find(d => d !== null);
             if (!lastDay) return null;
             return new Date(
@@ -268,7 +253,6 @@ export default {
                 lastDay,
             ).toISOString().split("T")[0];
         },
-        // Calculate event position within a week (lane and column span)
         getEventWeekLayout(event, weekDays) {
             const eventStart = this.toDateOnly(
                 event.date_from || event.start_at || event.started_at,
@@ -280,11 +264,9 @@ export default {
             const weekStart = this.getWeekStartDate(weekDays);
             const weekEnd = this.getWeekEndDate(weekDays);
             
-            // Calculate visible start and end within this week
             const visibleStart = eventStart < weekStart ? weekStart : eventStart;
             const visibleEnd = eventEnd > weekEnd ? weekEnd : eventEnd;
             
-            // Find column positions
             const startCol = this.getDayColumn(visibleStart, weekDays);
             const endCol = this.getDayColumn(visibleEnd, weekDays);
             
@@ -300,26 +282,24 @@ export default {
             const col = weekDays.findIndex(d => d === dayOfMonth);
             return col >= 0 ? col : 0;
         },
-        // Assign lanes to events to prevent overlapping
+        // OPTIMIZED: Assign lanes with max limit and overflow detection
         assignEventLanes(events, weekDays) {
             const lanes = [];
+            let overflowEvents = [];
             
             events.forEach((event) => {
                 const layout = this.getEventWeekLayout(event, weekDays);
                 
-                // Find first lane that doesn't conflict
                 let laneIndex = 0;
                 let placed = false;
                 
-                while (!placed) {
+                while (!placed && laneIndex < this.maxEventLanes) {
                     if (!lanes[laneIndex]) {
                         lanes[laneIndex] = [];
                     }
                     
-                    // Check if this event conflicts with any event in this lane
                     const hasConflict = lanes[laneIndex].some((existingEvent) => {
                         const existingLayout = this.getEventWeekLayout(existingEvent, weekDays);
-                        // Events conflict if they overlap in columns
                         return !(layout.endCol < existingLayout.startCol || 
                                  layout.startCol > existingLayout.endCol);
                     });
@@ -331,8 +311,14 @@ export default {
                         laneIndex++;
                     }
                 }
+                
+                // If couldn't place in max lanes, add to overflow
+                if (!placed) {
+                    overflowEvents.push(event);
+                }
             });
-            return lanes;
+            
+            return { lanes, overflowCount: overflowEvents.length, overflowEvents };
         },
         getEventColor(event) {
             if (event.status && this.statusColors?.[event.status]) {
@@ -353,11 +339,15 @@ export default {
                 console.warn("No Route configured:", event);
             }
         },
-        getDropdownAlignment(dayIndex) {
-            const col = dayIndex % 7;
-            return col < 2 ? "right" : "left";
+        // NEW: Handle clicking the overflow indicator
+        handleOverflowClick(weekDays, overflowEvents) {
+            // Emit event or open modal with overflow events
+            this.$emit('show-overflow-events', {
+                weekStart: this.getWeekStartDate(weekDays),
+                weekEnd: this.getWeekEndDate(weekDays),
+                events: overflowEvents
+            });
         },
-        // Get single-day events for a specific day (for the "more" dropdown)
         getBookingsForDate(day) {
             if (!day) return [];
 
@@ -413,19 +403,7 @@ export default {
                     <div
                         class="p-2.5 bg-primary-100 dark:bg-primary-900/30 rounded-xl"
                     >
-                        <svg
-                            class="w-6 h-6 text-primary-600 dark:text-primary-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                        </svg>
+                        <lu-calendar-days class="text-primary-600 dark:text-primary-400" />
                     </div>
                     <div>
                         <h2
@@ -450,19 +428,7 @@ export default {
                 <h3
                     class="text-xs font-semibold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2"
                 >
-                    <svg
-                        class="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-                        />
-                    </svg>
+                    <lu-filter class="w-4 h-4" />
                     Filters
                 </h3>
 
@@ -489,32 +455,7 @@ export default {
                                 {{ option.label }}
                             </option>
                         </select>
-                        <svg
-                            class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                            />
-                        </svg>
-                        <svg
-                            class="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M19 9l-7 7-7-7"
-                            />
-                        </svg>
+                        <lu-filter class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
                 </div>
 
@@ -538,32 +479,7 @@ export default {
                                 {{ option.label }}
                             </option>
                         </select>
-                        <svg
-                            class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                        </svg>
-                        <svg
-                            class="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M19 9l-7 7-7-7"
-                            />
-                        </svg>
+                        <lu-check-circle-2 class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
                 </div>
 
@@ -571,21 +487,9 @@ export default {
                     v-if="showToday"
                     type="button"
                     @click="goToToday"
-                    class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 dark:bg-primary-600 dark:hover:bg-primary-500 text-white font-medium transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
+                    class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 dark:bg-primary-600 dark:hover:bg-primary-500 text-gray-900 font-medium transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
                 >
-                    <svg
-                        class="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                        />
-                    </svg>
+                    <lu-refresh-cw />
                     Jump to Today
                 </button>
             </div>
@@ -598,19 +502,7 @@ export default {
                 <h3
                     class="text-xs font-semibold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2"
                 >
-                    <svg
-                        class="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
-                        />
-                    </svg>
+                    <lu-layers />
                     Legend
                 </h3>
 
@@ -655,19 +547,7 @@ export default {
                 <h3
                     class="text-xs font-semibold text-slate-900 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-2"
                 >
-                    <svg
-                        class="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                        />
-                    </svg>
+                    <lu-layout-grid />
                     Overview
                 </h3>
                 <div class="grid grid-cols-2 gap-3">
@@ -717,19 +597,7 @@ export default {
                         @click="previousMonth"
                         class="p-2 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm hover:shadow border border-transparent hover:border-slate-200 dark:hover:border-slate-600"
                     >
-                        <svg
-                            class="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M15 19l-7-7 7-7"
-                            />
-                        </svg>
+                        <lu-chevron-left-icon />
                     </button>
 
                     <h3
@@ -743,19 +611,7 @@ export default {
                         @click="nextMonth"
                         class="p-2 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm hover:shadow border border-transparent hover:border-slate-200 dark:hover:border-slate-600"
                     >
-                        <svg
-                            class="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M9 5l7 7-7 7"
-                            />
-                        </svg>
+                        <lu-chevron-right />
                     </button>
                 </div>
 
@@ -785,13 +641,15 @@ export default {
                                 v-for="(week, weekIndex) in calendarWeeks"
                                 :key="weekIndex"
                                 class="calendar-week border-b border-slate-200 dark:border-slate-700"
-                                :style="{ 
-                                    minHeight: `${Math.max(100, 40 + (assignEventLanes(getEventsForWeek(week, weekIndex), week).length * 32))}px` 
-                                }"
                             >
-                                <!-- Day Cells Grid -->
-                                <div class="grid grid-cols-7 relative">
-                                    <!-- Day Number Row -->
+                                <!-- OPTIMIZED: Use CSS Grid instead of absolute positioning -->
+                                <div 
+                                    class="week-grid"
+                                    :style="{
+                                        gridTemplateRows: `auto repeat(${Math.max(1, assignEventLanes(getEventsForWeek(week, weekIndex), week).lanes.length)}, minmax(28px, auto)) auto`
+                                    }"
+                                >
+                                    <!-- Day Numbers Row -->
                                     <div
                                         v-for="(day, dayIndex) in week"
                                         :key="`day-${weekIndex}-${dayIndex}`"
@@ -801,12 +659,11 @@ export default {
                                             'border-r-0': dayIndex === 6,
                                         }"
                                     >
-                                        <div v-if="day" class="flex flex-col h-full">
-                                            <!-- Day Number -->
+                                        <div v-if="day" class="flex flex-col">
                                             <span
                                                 class="text-sm font-semibold w-7 h-7 flex items-center justify-center rounded-full transition-colors"
                                                 :class="{
-                                                    'bg-primary-600 text-white shadow-md shadow-primary-500/30':
+                                                    'bg-indigo-500 text-white shadow-md shadow-primary-500/30':
                                                         isToday(day),
                                                     'text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600':
                                                         !isToday(day),
@@ -817,44 +674,82 @@ export default {
                                         </div>
                                     </div>
 
-                                    <!-- Multi-day Events Layer - Positioned absolutely over the week -->
-                                    <div class="absolute inset-0 pt-10 pointer-events-none">
-                                        <div class="relative h-full px-1">
-                                            <!-- Event Lanes -->
+                                    <!-- Event Lanes - Now part of the grid flow -->
+                                    <template v-if="getEventsForWeek(week, weekIndex).length > 0">
+                                        <div
+                                            v-for="(lane, laneIndex) in assignEventLanes(getEventsForWeek(week, weekIndex), week).lanes"
+                                            :key="`lane-${weekIndex}-${laneIndex}`"
+                                            class="event-lane contents"
+                                        >
+                                            <!-- Empty cells for days without events in this lane -->
                                             <div
-                                                v-for="(lane, laneIndex) in assignEventLanes(getEventsForWeek(week, weekIndex), week)"
-                                                :key="`lane-${weekIndex}-${laneIndex}`"
-                                                class="event-lane relative h-12 mb-1"
+                                                v-for="col in 7"
+                                                :key="`lane-${laneIndex}-col-${col}`"
+                                                class="event-cell border-r border-slate-200 dark:border-slate-700"
+                                                :class="{ 'border-r-0': col === 7 }"
                                             >
+                                                <!-- Find event for this column -->
                                                 <div
-                                                    v-for="event in lane"
+                                                    v-for="event in lane.filter(e => {
+                                                        const layout = getEventWeekLayout(e, week);
+                                                        return layout.startCol === col - 1;
+                                                    })"
                                                     :key="`event-${event.id}-${weekIndex}`"
-                                                    class="event-bar absolute h-12 rounded-md cursor-pointer pointer-events-auto hover:shadow-md transition-all hover:scale-[1.01] active:scale-[0.99] overflow-hidden"
+                                                    class="event-bar h-6 rounded cursor-pointer pointer-events-auto hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] overflow-hidden mx-0.5"
                                                     :style="{
                                                         backgroundColor: getEventColor(event) + '20',
                                                         borderLeft: `3px solid ${getEventColor(event)}`,
-                                                        left: `${(getEventWeekLayout(event, week).startCol * 100) / 7}%`,
-                                                        width: `${(getEventWeekLayout(event, week).span * 100) / 7 - 0.5}%`,
+                                                        width: `calc(${getEventWeekLayout(event, week).span * 100}% - 4px)`,
+                                                        zIndex: 10
                                                     }"
                                                     @click="handleEventClick(event)"
                                                 >
-                                                    <div class="px-2 py-0.5 h-full flex flex-col justify-center">
-                                                        <div
-                                                            class="font-medium text-xs text-slate-900 dark:text-slate-100 truncate leading-tight"
+                                                    <div class="px-1.5 h-full flex items-center">
+                                                        <span
+                                                            class="font-medium text-xs text-slate-900 dark:text-slate-100 truncate block"
                                                             :title="event.label"
                                                         >
                                                             {{ event.label }}
-                                                        </div>
-                                                        <div
-                                                            v-if="event.subtitle && getEventWeekLayout(event, week).span > 1"
-                                                            class="text-slate-500 dark:text-slate-400 truncate text-[10px]"
-                                                        >
-                                                            {{ event.subtitle }}
-                                                        </div>
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+                                    </template>
+
+                                    <!-- Overflow Indicator Row -->
+                                    <div
+                                        v-if="assignEventLanes(getEventsForWeek(week, weekIndex), week).overflowCount > 0"
+                                        class="overflow-indicator contents"
+                                    >
+                                        <div
+                                            v-for="col in 7"
+                                            :key="`overflow-${weekIndex}-${col}`"
+                                            class="border-r border-slate-200 dark:border-slate-700 p-1"
+                                            :class="{ 'border-r-0': col === 7 }"
+                                        >
+                                            <!-- Show indicator only on first column -->
+                                            <button
+                                                v-if="col === 1"
+                                                @click="handleOverflowClick(week, assignEventLanes(getEventsForWeek(week, weekIndex), week).overflowEvents)"
+                                                class="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium flex items-center gap-1 transition-colors"
+                                            >
+                                                <span>+{{ assignEventLanes(getEventsForWeek(week, weekIndex), week).overflowCount }} more</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Empty state for weeks with no events -->
+                                    <div
+                                        v-if="getEventsForWeek(week, weekIndex).length === 0"
+                                        class="empty-row contents"
+                                    >
+                                        <div
+                                            v-for="col in 7"
+                                            :key="`empty-${weekIndex}-${col}`"
+                                            class="border-r border-slate-200 dark:border-slate-700 min-h-[60px]"
+                                            :class="{ 'border-r-0': col === 7 }"
+                                        ></div>
                                     </div>
                                 </div>
                             </div>
@@ -894,21 +789,57 @@ export default {
     background: #64748b;
 }
 
-/* Calendar styles */
+/* OPTIMIZED: Use CSS Grid for the week layout */
 .calendar-week {
     position: relative;
 }
 
-.day-cell {
+.week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    /* Rows: day numbers + event lanes + optional overflow row */
     min-height: 100px;
 }
 
+.day-cell {
+    min-height: 40px;
+    grid-row: 1;
+}
+
+.event-lane {
+    display: contents;
+}
+
+.event-cell {
+    position: relative;
+    min-height: 28px;
+    padding: 2px 0;
+}
+
 .event-bar {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    height: 24px;
     box-sizing: border-box;
+    transition: all 0.2s ease;
 }
 
 .event-bar:hover {
-    z-index: 10;
+    z-index: 20;
+    transform: translateY(-1px);
 }
 
+.overflow-indicator {
+    display: contents;
+}
+
+.empty-row {
+    display: contents;
+}
+
+/* Ensure proper border handling */
+.border-r-0 {
+    border-right-width: 0;
+}
 </style>

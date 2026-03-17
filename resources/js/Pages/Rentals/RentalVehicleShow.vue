@@ -179,10 +179,20 @@ export default {
         </div>
 
         <!-- Content State -->
-        <div v-else class="space-y-6">
+        <div v-else class="space-y-6 w-fit mx-auto">
             <!-- Status Banner -->
             <div :class="['rounded-2xl border-2 p-6', statusConfig.color]">
                 <div class="flex items-center justify-between">
+                    <!-- Vehicle Header -->
+                    <div class="flex items-center space-x-4">
+                        <div class="rounded-xl bg-blue-600 p-3 text-white shadow-lg shadow-blue-600/20">
+                            <LuCar class="h-6 w-6" />
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-900">{{ rental.vehicle_type || 'Vehicle To Be Assigned by Admin' }}</h2>
+                            <p class="text-sm text-gray-500">{{ tripTypeMeta.label }}</p>
+                        </div>
+                    </div>
                     <div class="flex items-center space-x-3">
                         <component :is="statusConfig.icon" class="h-6 w-6" />
                         <div>
@@ -190,30 +200,11 @@ export default {
                             <p class="text-lg font-bold">{{ statusConfig.label }}</p>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <p class="text-xs opacity-80">Booking ID</p>
-                        <p class="font-mono text-sm font-semibold">#{{ rental_id.slice(-8).toUpperCase() }}</p>
-                    </div>
                 </div>
             </div>
 
             <!-- Main Details Card -->
             <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-                <!-- Vehicle Header -->
-                <div class="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white p-6">
-                    <div class="flex items-start justify-between">
-                        <div class="flex items-center space-x-4">
-                            <div class="rounded-xl bg-blue-600 p-3 text-white shadow-lg shadow-blue-600/20">
-                                <LuCar class="h-6 w-6" />
-                            </div>
-                            <div>
-                                <h2 class="text-xl font-bold text-gray-900">{{ rental.vehicle_type || 'Vehicle To Be Assigned by Admin' }}</h2>
-                                <p class="text-sm text-gray-500">{{ tripTypeMeta.label }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="p-6">
                     <!-- Date Range -->
                     <div class="mb-8 grid gap-4 md:grid-cols-2">
@@ -249,7 +240,7 @@ export default {
                                 <div class="flex items-start space-x-3">
                                     <div class="mt-0.5 h-2 w-2 rounded-full bg-blue-600"></div>
                                     <div>
-                                        <p class="text-xs text-gray-500">Requested By</p>
+                                        <p class="text-xs text-gray-500">Requested By/HOP</p>
                                         <p class="text-sm font-medium text-gray-900">{{ rental.requested_by || 'Not specified' }}</p>
                                     </div>
                                 </div>

@@ -2,14 +2,20 @@
 
 namespace Database\Seeders;
 
+use App\Enums\RentalTripType;
+use App\Models\LocCity;
 use App\Models\Personnel;
 use App\Models\RentalVenue;
 use App\Models\RentalVehicle;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class RentalsSeeder extends Seeder
 {
+    private ?Collection $destinationCities = null;
+
     private function formatPersonnelName(Personnel $personnel): string
     {
         return trim(implode(' ', array_filter([
@@ -18,6 +24,49 @@ class RentalsSeeder extends Seeder
             $personnel->lname,
             $personnel->suffix,
         ])));
+    }
+
+    private function getDestinationCities(): Collection
+    {
+        return $this->destinationCities ??= LocCity::query()
+            ->select(['city', 'province', 'region'])
+            ->inRandomOrder()
+            ->limit(10)
+            ->get();
+    }
+
+    private function getDestinationDetails(int $index): array
+    {
+        $cities = $this->getDestinationCities();
+
+        if ($cities->isEmpty()) {
+            return [
+                'location' => 'CBC Central Office',
+                'city' => 'Quezon City',
+                'province' => 'Metro Manila',
+                'region' => 'NCR',
+            ];
+        }
+
+        $city = $cities->get($index % $cities->count());
+
+        return [
+            'location' => sprintf('CBC Outpost (%s)', $city->city),
+            'city' => $city->city,
+            'province' => $city->province,
+            'region' => $city->region,
+        ];
+    }
+
+    private function getDestinationStops(int $index): array
+    {
+        $zones = ['North Wing', 'South Annex', 'East Pavilion', 'West Lobby', 'Service Yard'];
+        $stopCount = ($index % 3) + 1;
+
+        return array_map(
+            fn (int $offset) => sprintf('Stop %d - %s', $offset + 1, $zones[($index + $offset) % count($zones)]),
+            range(0, $stopCount - 1),
+        );
     }
 
     /**
@@ -35,6 +84,8 @@ class RentalsSeeder extends Seeder
         $vehicleTypes = ['innova', 'pickup', 'van', 'suv'];
         $venueTypes = ['plenary', 'training_room', 'mph'];
         $statuses = ['pending', 'approved', 'rejected'];
+        $tripTypes = RentalTripType::values();
+        $multiStopType = RentalTripType::MULTI_STOP_TRIP->value;
         $personnels = Personnel::query()->get(['fname', 'mname', 'lname', 'suffix', 'phone']);
 
         foreach ($months as $monthIndex => $monthStart) {
@@ -61,32 +112,49 @@ class RentalsSeeder extends Seeder
                     ->values()
                     ->all();
 
-                RentalVehicle::query()->create([
+                $seedIndex = ($monthIndex * 16) + $i;
+                $tripTypeIndex = $seedIndex % count($tripTypes);
+                $tripType = $tripTypes[$tripTypeIndex];
+                $isMultiStopTrip = $tripType === $multiStopType;
+                $destination = $this->getDestinationDetails($seedIndex);
+                $destinationStops = $isMultiStopTrip ? $this->getDestinationStops($seedIndex) : [];
+                $isSharedRide = $i % 4 === 0;
+                $sharedRideReference = $isSharedRide ? 'SHR-' . Str::upper(Str::random(6)) : null;
+
+                RentalVehicle::factory()->create([
                     'vehicle_type' => $vehicleTypes[$i % count($vehicleTypes)],
+                    'trip_type' => $tripType,
                     'date_from' => $dateFrom->toDateString(),
                     'date_to' => $dateTo->toDateString(),
                     'time_from' => ($i % 2 === 0) ? '08:00:00' : '13:00:00',
                     'time_to' => ($i % 2 === 0) ? '12:00:00' : '17:00:00',
-                    'purpose' => "{$monthLabel} vehicle transport booking #" . ($i + 1),
+                    'destination_location' => $destination['location'],
+                    'destination_city' => $destination['city'],
+                    'destination_province' => $destination['province'],
+                    'destination_region' => $destination['region'],
+                    'destination_stops' => $destinationStops,
                     'requested_by' => $requestedBy,
                     'members_of_party' => $membersOfParty,
+                    'is_shared_ride' => $isSharedRide,
+                    'shared_ride_reference' => $sharedRideReference,
                     'contact_number' => $contactNumber,
                     'status' => $status,
-                    'notes' => "Auto-seeded {$monthLabel} vehicle booking for calendar testing and database search.",
                 ]);
 
-                RentalVenue::query()->create([
+                RentalVenue::factory()->create([
                     'venue_type' => $venueTypes[$i % count($venueTypes)],
                     'date_from' => $dateFrom->toDateString(),
                     'date_to' => $dateTo->toDateString(),
                     'time_from' => ($i % 2 === 0) ? '09:00:00' : '14:00:00',
                     'time_to' => ($i % 2 === 0) ? '12:00:00' : '18:00:00',
                     'expected_attendees' => 20 + ($i * 5),
-                    'event_name' => "{$monthLabel} Center Event #" . ($i + 1),
+                    'destination_location' => $destination['location'],
+                    'destination_city' => $destination['city'],
+                    'destination_province' => $destination['province'],
+                    'destination_region' => $destination['region'],
                     'requested_by' => $requestedBy,
                     'contact_number' => $contactNumber,
                     'status' => $status,
-                    'notes' => "Auto-seeded {$monthLabel} venue booking for past/current/future calendar navigation.",
                 ]);
             }
         }

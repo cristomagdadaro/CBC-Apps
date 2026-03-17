@@ -196,48 +196,44 @@ export default {
         </div>
 
         <!-- Content State -->
-        <div v-else class="space-y-6">
+        <div v-else class="space-y-6 w-fit mx-auto">
             <!-- Status Banner -->
-            <div :class="['relative overflow-hidden rounded-2xl border-2 p-6', statusConfig.color]">
+            <div :class="['relative overflow-hidden rounded-2xl border-2 p-6 bg-gradient-to-br from-AB to-AB text-white', statusConfig.color]">
                 <div class="absolute -right-6 -top-6 opacity-10">
                     <component :is="statusConfig.icon" class="h-32 w-32" />
                 </div>
                 <div class="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                     <!-- Event Header -->
+                    <div class="relative">
+                        <div class="relative">
+                            <div class="mb-3 inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-xs font-medium backdrop-blur-sm">
+                                <LuBuilding2 class="h-3.5 w-3.5" />
+                                <span class="uppercase tracking-wider">{{ rental.venue_type || 'Venue' }}</span>
+                            </div>
+                            <h2 class="text-2xl font-bold leading-tight">
+                                {{ rental.event_name || 'Untitled Event' }}
+                            </h2>
+                            <p v-if="formatDuration" class="mt-2 flex items-center gap-2 text-indigo-100">
+                                <LuClock class="h-4 w-4" />
+                                <span class="text-sm">{{ formatDuration }} duration</span>
+                            </p>
+                        </div>
+                    </div>
+
                     <div class="flex items-center gap-4">
                         <div :class="['rounded-xl bg-white/80 p-3 shadow-sm backdrop-blur-sm']">
-                            <component :is="statusConfig.icon" class="h-6 w-6" />
+                            <component :is="statusConfig.icon" class="h-6 w-6 text-AB" />
                         </div>
                         <div>
                             <p class="text-xs font-bold uppercase tracking-wider opacity-70">Booking Status</p>
                             <p class="text-xl font-bold">{{ statusConfig.label }}</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-3 rounded-lg bg-white/60 px-4 py-2 backdrop-blur-sm">
-                        <span class="text-xs font-medium opacity-70">Reference</span>
-                        <span class="font-mono text-sm font-bold tracking-wider">#{{ rental_id.slice(-8).toUpperCase() }}</span>
-                    </div>
                 </div>
             </div>
 
             <!-- Event Card -->
             <div class="overflow-hidden rounded-2xl bg-white shadow-sm">
-                <!-- Event Header -->
-                <div class="relative border-b border-gray-100 bg-gradient-to-br from-AB to-AB p-6 text-white">
-                    <div class="relative">
-                        <div class="mb-3 inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-xs font-medium backdrop-blur-sm">
-                            <LuBuilding2 class="h-3.5 w-3.5" />
-                            <span class="uppercase tracking-wider">{{ rental.venue_type || 'Venue' }}</span>
-                        </div>
-                        <h2 class="text-2xl font-bold leading-tight">
-                            {{ rental.event_name || 'Untitled Event' }}
-                        </h2>
-                        <p v-if="formatDuration" class="mt-2 flex items-center gap-2 text-indigo-100">
-                            <LuClock class="h-4 w-4" />
-                            <span class="text-sm">{{ formatDuration }} duration</span>
-                        </p>
-                    </div>
-                </div>
-
                 <div class="p-6">
                     <!-- Date & Time Section -->
                     <div class="mb-8">

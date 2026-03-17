@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\LocCity;
 use App\Models\Personnel;
 use App\Models\RentalVenue;
 use Carbon\Carbon;
@@ -26,6 +27,15 @@ class RentalVenueFactory extends Factory
             ])))
             : $this->faker->name();
 
+        $destinationCity = LocCity::query()
+            ->select(['city', 'province', 'region'])
+            ->inRandomOrder()
+            ->first();
+
+        $destinationLocation = $destinationCity
+            ? sprintf('CBC Gather Point — %s', $destinationCity->city)
+            : $this->faker->streetAddress();
+
         return [
             'venue_type' => $this->faker->randomElement(['plenary', 'training_room', 'mph']),
             'date_from' => $dateFrom,
@@ -34,6 +44,10 @@ class RentalVenueFactory extends Factory
             'time_to' => $this->faker->randomElement(['17:00', '18:00', '19:00']),
             'expected_attendees' => $this->faker->numberBetween(10, 500),
             'event_name' => $this->faker->sentence(3),
+            'destination_location' => $destinationLocation,
+            'destination_city' => $destinationCity?->city ?? $this->faker->city(),
+            'destination_province' => $destinationCity?->province ?? $this->faker->state(),
+            'destination_region' => $destinationCity?->region ?? $this->faker->randomElement(['NCR', 'CALABARZON', 'Central Visayas', 'CAR']),
             'requested_by' => $requestedBy,
             'contact_number' => $personnel?->phone ?: $this->faker->phoneNumber(),
             'status' => $this->faker->randomElement(['pending', 'approved', 'rejected', 'completed', 'cancelled']),
