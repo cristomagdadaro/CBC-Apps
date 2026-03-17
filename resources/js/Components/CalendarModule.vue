@@ -182,6 +182,13 @@ export default {
         },
     },
     methods: {
+        formatLocalDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+
+            return `${year}-${month}-${day}`;
+        },
         previousMonth() {
             this.currentDate = new Date(
                 this.currentDate.getFullYear(),
@@ -207,12 +214,16 @@ export default {
         },
         toDateOnly(value) {
             if (!value) return null;
-            if (value instanceof Date) return value.toISOString().split("T")[0];
+            if (value instanceof Date) return this.formatLocalDate(value);
             const text = String(value).trim();
+            const dateOnlyMatch = text.match(/^(\d{4}-\d{2}-\d{2})/);
+            if (dateOnlyMatch) {
+                return dateOnlyMatch[1];
+            }
             const iso = text.includes("T") ? text : text.replace(" ", "T");
             const parsed = new Date(iso);
             if (!Number.isNaN(parsed.getTime())) {
-                return parsed.toISOString().split("T")[0];
+                return this.formatLocalDate(parsed);
             }
             return text.length >= 10 ? text.slice(0, 10) : null;
         },
@@ -236,22 +247,22 @@ export default {
             });
         },
         getWeekStartDate(weekDays) {
-            const firstDay = weekDays.find(d => d !== null);
+            const firstDay = weekDays.find((d) => d !== null);
             if (!firstDay) return null;
-            return new Date(
+            return this.formatLocalDate(new Date(
                 this.currentDate.getFullYear(),
                 this.currentDate.getMonth(),
                 firstDay,
-            ).toISOString().split("T")[0];
+            ));
         },
         getWeekEndDate(weekDays) {
-            const lastDay = [...weekDays].reverse().find(d => d !== null);
+            const lastDay = [...weekDays].reverse().find((d) => d !== null);
             if (!lastDay) return null;
-            return new Date(
+            return this.formatLocalDate(new Date(
                 this.currentDate.getFullYear(),
                 this.currentDate.getMonth(),
                 lastDay,
-            ).toISOString().split("T")[0];
+            ));
         },
         getEventWeekLayout(event, weekDays) {
             const eventStart = this.toDateOnly(
@@ -277,9 +288,8 @@ export default {
             };
         },
         getDayColumn(dateStr, weekDays) {
-            const date = new Date(dateStr);
-            const dayOfMonth = date.getDate();
-            const col = weekDays.findIndex(d => d === dayOfMonth);
+            const dayOfMonth = Number(String(dateStr).slice(8, 10));
+            const col = weekDays.findIndex((d) => d === dayOfMonth);
             return col >= 0 ? col : 0;
         },
         // OPTIMIZED: Assign lanes with max limit and overflow detection
@@ -351,13 +361,11 @@ export default {
         getBookingsForDate(day) {
             if (!day) return [];
 
-            const dateStr = new Date(
+            const dateStr = this.formatLocalDate(new Date(
                 this.currentDate.getFullYear(),
                 this.currentDate.getMonth(),
                 day,
-            )
-                .toISOString()
-                .split("T")[0];
+            ));
 
             return this.filteredEvents.filter((event) => {
                 const dateFrom = this.toDateOnly(
@@ -695,22 +703,33 @@ export default {
                                                         return layout.startCol === col - 1;
                                                     })"
                                                     :key="`event-${event.id}-${weekIndex}`"
-                                                    class="event-bar h-6 rounded cursor-pointer pointer-events-auto hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] overflow-hidden mx-0.5"
+                                                    class="event-bar rounded cursor-pointer pointer-events-auto hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] overflow-hidden mx-0.5 p-1.5"
                                                     :style="{
                                                         backgroundColor: getEventColor(event) + '20',
                                                         borderLeft: `3px solid ${getEventColor(event)}`,
                                                         width: `calc(${getEventWeekLayout(event, week).span * 100}% - 4px)`,
                                                         zIndex: 10
                                                     }"
+                                                    :title="event.subtitle ? event.label + ' - ' + event.subtitle : event.label"
                                                     @click="handleEventClick(event)"
                                                 >
-                                                    <div class="px-1.5 h-full flex items-center">
-                                                        <span
-                                                            class="font-medium text-xs text-slate-900 dark:text-slate-100 truncate block"
-                                                            :title="event.label"
-                                                        >
+                                                    <div class="flex h-full flex-col justify-center">
+                                                        <div class="font-medium text-xs text-slate-900 dark:text-slate-100 truncate">
                                                             {{ event.label }}
-                                                        </span>
+                                                        </div>
+                                                        <div
+                                                            v-if="event.subtitle"
+                                                            class="text-[11px] text-slate-600 dark:text-slate-400 truncate"
+                                                        >
+                                                            {{ event.subtitle }}
+                                                        </div>
+                                                        <div
+                                                            v-if="event.status"
+                                                            :style="{ color: statusColors[event.status] || '#6B7280' }"
+                                                            class="text-[11px] font-semibold capitalize truncate"
+                                                        >
+                                                            {{ event.status }}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -729,13 +748,54 @@ export default {
                                             :class="{ 'border-r-0': col === 7 }"
                                         >
                                             <!-- Show indicator only on first column -->
-                                            <button
+                                            <Dropdown
                                                 v-if="col === 1"
-                                                @click="handleOverflowClick(week, assignEventLanes(getEventsForWeek(week, weekIndex), week).overflowEvents)"
-                                                class="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium flex items-center gap-1 transition-colors"
+                                                align="left"
+                                                width="auto"
+                                                max-height="16rem"
                                             >
-                                                <span>+{{ assignEventLanes(getEventsForWeek(week, weekIndex), week).overflowCount }} more</span>
-                                            </button>
+                                                <template #trigger>
+                                                    <button
+                                                        type="button"
+                                                        class="text-xs w-full text-left px-1.5 py-1 rounded border border-slate-300 dark:border-slate-600 text-primary-600 dark:text-primary-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                                                    >
+                                                        +{{ assignEventLanes(getEventsForWeek(week, weekIndex), week).overflowCount }} more
+                                                    </button>
+                                                </template>
+
+                                                <template #content>
+                                                    <div class="w-72 max-w-[85vw] p-2 space-y-1">
+                                                        <div
+                                                            v-for="event in assignEventLanes(getEventsForWeek(week, weekIndex), week).overflowEvents"
+                                                            :key="`overflow-${event.id}-${weekIndex}`"
+                                                            :style="{
+                                                                backgroundColor: getEventColor(event) + '20',
+                                                                borderColor: getEventColor(event),
+                                                            }"
+                                                            class="text-xs p-1.5 rounded border-l-2 cursor-pointer hover:opacity-80 hover:shadow-md transition-opacity"
+                                                            :title="event.subtitle ? event.label + ' - ' + event.subtitle : event.label"
+                                                            @click="handleEventClick(event)"
+                                                        >
+                                                            <div class="font-medium text-slate-900 dark:text-slate-100 truncate">
+                                                                {{ event.label }}
+                                                            </div>
+                                                            <div
+                                                                v-if="event.subtitle"
+                                                                class="text-slate-600 dark:text-slate-400 truncate"
+                                                            >
+                                                                {{ event.subtitle }}
+                                                            </div>
+                                                            <div
+                                                                v-if="event.status"
+                                                                :style="{ color: statusColors[event.status] || '#6B7280' }"
+                                                                class="text-xs font-semibold capitalize truncate"
+                                                            >
+                                                                {{ event.status }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </Dropdown>
                                         </div>
                                     </div>
 
@@ -812,7 +872,7 @@ export default {
 
 .event-cell {
     position: relative;
-    min-height: 28px;
+    min-height: 64px;
     padding: 2px 0;
 }
 
@@ -820,7 +880,7 @@ export default {
     position: absolute;
     top: 2px;
     left: 2px;
-    height: 24px;
+    min-height: 60px;
     box-sizing: border-box;
     transition: all 0.2s ease;
 }
