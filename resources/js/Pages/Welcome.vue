@@ -147,18 +147,6 @@ onMounted(() => {
     <main-bg />
     <div class="absolute top-0 left-0 w-full">
         <div class="relative sm:flex justify-center items-center min-h-screen">
-            <div class="sm:fixed sm:top-0 sm:end-0 p-6 text-end z-10">
-                <Link
-                    v-if="$page.props.auth.user"
-                    :href="route('dashboard')"
-                    class="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-                >
-                    Dashboard
-                </Link>
-            </div>
-            <!-- Falling Logos Container -->
-            <!--            <div id="falling-logos"></div>-->
-
             <div class="flex flex-col gap-5 px-5">
                 <div class="text-center text-gray-700 dark:text-gray-300">
                     <div class="relative w-fit mx-auto">

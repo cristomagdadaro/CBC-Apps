@@ -60,6 +60,15 @@ export default {
         >
             <!-- Auth Links -->
             <Link
+                v-if="$page.props.auth.user"
+                :href="route('dashboard')"
+                class="group relative p-2.5 flex items-center gap-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white"
+            >
+                <LuLayoutGrid class="w-5 h-5" />
+                Dashboard
+            </Link>
+            <Link
+                v-else
                 :href="route('login')"
                 class="group relative p-2.5 flex items-center gap-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white"
                 title="Login"
@@ -72,7 +81,6 @@ export default {
                     Login
                 </span>
             </Link>
-
             <Link
                 v-if="canRegister"
                 :href="route('register')"
