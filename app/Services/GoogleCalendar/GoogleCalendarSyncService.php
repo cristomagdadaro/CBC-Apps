@@ -11,6 +11,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use RuntimeException;
 use Spatie\GoogleCalendar\Event;
+use Throwable;
 
 class GoogleCalendarSyncService
 {
@@ -28,6 +29,8 @@ class GoogleCalendarSyncService
             'sync_enabled' => (bool) config('google-calendar.sync_enabled'),
             'auth_profile' => config('google-calendar.default_auth_profile'),
             'timezone' => config('google-calendar.portal.timezone', config('app.timezone', 'Asia/Manila')),
+            'calendar_id' => config('google-calendar.calendar_id'),
+            'connected_account_email' => $this->resolveConnectedAccountEmail(),
             'configuration_issue' => $configuration['issue'],
             'configuration_message' => $configuration['message'],
             'oauth_connectable' => $this->canStartOauthFlow(),
@@ -315,6 +318,42 @@ class GoogleCalendarSyncService
         return is_array($token) && (!empty($token['access_token']) || !empty($token['refresh_token']));
     }
 
+    private function resolveConnectedAccountEmail(): ?string
+    {
+        $profile = (string) config('google-calendar.default_auth_profile', 'service_account');
+
+        if ($profile === 'service_account') {
+            $impersonatedUser = trim((string) config('google-calendar.user_to_impersonate'));
+
+            if ($impersonatedUser !== '') {
+                return $impersonatedUser;
+            }
+
+            $credentials = $this->readJsonFile(trim((string) config('google-calendar.auth_profiles.service_account.credentials_json')));
+
+            return is_array($credentials) ? ($credentials['client_email'] ?? null) : null;
+        }
+
+        if ($profile !== 'oauth' || !$this->hasOauthToken()) {
+            return null;
+        }
+
+        try {
+            $service = new GoogleCalendar($this->makeAuthorizedOauthClient());
+            $calendars = $service->calendarList->listCalendarList()->getItems();
+
+            foreach ($calendars as $calendar) {
+                if ($calendar->getPrimary()) {
+                    return $calendar->getId();
+                }
+            }
+
+            return $calendars[0]->getId() ?? null;
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
     private function resolveRange(?CarbonInterface $start = null, ?CarbonInterface $end = null): array
     {
         $timezone = config('google-calendar.portal.timezone', config('app.timezone', 'Asia/Manila'));
@@ -523,6 +562,33 @@ class GoogleCalendarSyncService
         $client->setIncludeGrantedScopes(true);
         $client->setPrompt('consent');
         $client->setScopes([GoogleCalendar::CALENDAR]);
+
+        return $client;
+    }
+
+    private function makeAuthorizedOauthClient(): GoogleClient
+    {
+        $client = $this->makeOauthClient();
+        $token = $this->readJsonFile($this->oauthTokenPath());
+
+        if ($token === null) {
+            throw new RuntimeException('Google Calendar OAuth token JSON is invalid.');
+        }
+
+        $client->setAccessToken($token);
+
+        if ($client->isAccessTokenExpired() && $client->getRefreshToken()) {
+            $refreshedToken = $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+
+            if (is_array($refreshedToken) && !isset($refreshedToken['error'])) {
+                if (empty($refreshedToken['refresh_token']) && !empty($token['refresh_token'])) {
+                    $refreshedToken['refresh_token'] = $token['refresh_token'];
+                }
+
+                $client->setAccessToken($refreshedToken);
+                $this->storeOauthToken($refreshedToken);
+            }
+        }
 
         return $client;
     }

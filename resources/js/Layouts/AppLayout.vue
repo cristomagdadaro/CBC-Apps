@@ -67,7 +67,7 @@ export default {
                             permission: 'rental.venue.manage',
                             icon: 'LuBuilding',
                         },{
-                            label: 'Google Calendar',
+                            label: 'Google Calendar Sync',
                             href: 'rentals.calendar.index',
                             permission: 'rental.vehicle.manage',
                             icon: 'LuCalendarDays',

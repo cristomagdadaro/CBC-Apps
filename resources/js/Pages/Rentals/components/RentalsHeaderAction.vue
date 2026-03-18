@@ -4,7 +4,7 @@ export default {
     computed: {
         headerTitle() {
             if (route().current('rentals.calendar.index')) {
-                return 'Rental Calendar Sync'
+                return 'Google Calendar Sync'
             }
 
             return route().current('rentals.vehicle.index') ? 'Vehicle Rentals' : 'Venue Rentals'

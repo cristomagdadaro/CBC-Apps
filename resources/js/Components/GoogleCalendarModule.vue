@@ -11,11 +11,11 @@ export default {
     props: {
         title: {
             type: String,
-            default: 'Google Calendar Sync',
+            default: 'Sync to your Google Calendar',
         },
         subtitle: {
             type: String,
-            default: 'Securely sync portal schedules to a managed Google Calendar.',
+            default: 'Sync Rentals and Bookings to Google Calendar. Securely sync portal schedules to a managed Google Calendar.',
         },
         events: {
             type: Array,
@@ -46,6 +46,8 @@ export default {
                 sync_enabled: false,
                 auth_profile: null,
                 timezone: 'Asia/Manila',
+                calendar_id: null,
+                connected_account_email: null,
                 configuration_issue: null,
                 configuration_message: null,
             },
@@ -333,7 +335,6 @@ export default {
         <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div class="space-y-2">
-                    <p class="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-600">Google Calendar</p>
                     <h2 class="text-2xl font-bold text-slate-900">{{ title }}</h2>
                     <p class="max-w-3xl text-sm leading-6 text-slate-600">
                         {{ subtitle }} The browser only talks to internal Laravel endpoints. Calendar credentials stay on the server, and sync is limited to authenticated users.
@@ -380,11 +381,15 @@ export default {
             <div :class="['mt-5 rounded-2xl border px-4 py-3 text-sm', syncStatusTone]">
                 <p class="font-semibold">{{ syncStatusLabel }}</p>
                 <p class="mt-1 opacity-80">
-                    Auth profile: {{ googleMeta.auth_profile || 'service_account' }}
+                    Auth profile: <b>{{ googleMeta.auth_profile || 'service_account' }}</b>
                     <span class="mx-2">•</span>
-                    Timezone: {{ googleMeta.timezone || 'Asia/Manila' }}
+                    Connected account: <b>{{ googleMeta.connected_account_email || 'Unknown' }}</b>
                     <span class="mx-2">•</span>
-                    Synced: {{ syncedEventCount }} / {{ events.length }} portal events
+                    Target calendar: <b>{{ googleMeta.calendar_id }}</b>
+                    <span class="mx-2">•</span>
+                    Timezone: <b>{{ googleMeta.timezone || 'Asia/Manila' }}</b>
+                    <span class="mx-2">•</span>
+                    Synced: <b>{{ syncedEventCount }} / {{ events.length }}</b> portal events
                 </p>
                 <p v-if="canStartOauthConnect && !googleMeta.configured" class="mt-2 opacity-80">
                     Complete a one-time Google OAuth consent flow to create the server-side token file used for syncing.

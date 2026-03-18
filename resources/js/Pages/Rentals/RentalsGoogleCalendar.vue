@@ -121,13 +121,6 @@ export default {
         </template>
 
         <div class="default-container py-5 space-y-4">
-            <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                <h1 class="text-2xl font-bold text-slate-900">Rental Schedules to Google Calendar</h1>
-                <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                    Use this page to review portal schedules and push approved operational calendars into Google Calendar through a server-side auth flow. Credentials and tokens stay in Laravel storage and never reach the browser.
-                </p>
-            </div>
-
             <div v-if="loading" class="rounded-3xl border border-slate-200 bg-white p-8 text-sm text-slate-500">
                 Loading rental schedules...
             </div>
