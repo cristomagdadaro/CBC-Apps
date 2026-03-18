@@ -42,7 +42,7 @@ export default {
                 {
                     heading: '1. Personal Data Collected',
                     paragraphs: [
-                        'We collect only the data necessary for the secure and efficient operation of the OneCBC Portal, including:',
+                        'We collect only the data necessary for the secure and efficient operation of the DA-CBC, including:',
                     ],
                     items: [
                         {
@@ -152,7 +152,7 @@ export default {
                 {
                     heading: '6. Your Rights as a Data Subject',
                     paragraphs: [
-                        'As a registered user of the OneCBC Portal, you have the right to:',
+                        'As a registered user of the DA-CBC, you have the right to:',
                     ],
                     items: [
                         {
@@ -186,7 +186,7 @@ export default {
                 {
                     heading: '8. Contact Information',
                     paragraphs: [
-                        'For privacy concerns, requests for data correction, or complaints regarding the OneCBC Portal, please contact our Data Protection Officer (DPO):',
+                        'For privacy concerns, requests for data correction, or complaints regarding the DA-CBC, please contact our Data Protection Officer (DPO):',
                     ],
                 },
             ],
@@ -577,23 +577,23 @@ export default {
         </div>
     </div>
 
-    <DialogModal :show="showPrivacyNotice" max-width="4xl" @close="closePrivacyNotice">
+    <DialogModal :show="showPrivacyNotice" max-width="2xl" @close="closePrivacyNotice">
         <template #title>
-            <div class="flex items-center gap-3 pr-8">
+            <div class="flex items-center gap-3 px-5 pt-5">
                 <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
                     <LuShield class="h-5 w-5" />
                 </div>
                 <div>
                     <p class="text-base font-semibold text-gray-900">Data Privacy Notice</p>
-                    <p class="text-sm text-gray-500">OneCBC Portal – DA-Crop Biotechnology Center</p>
+                    <p class="text-sm text-gray-500">DA-Crop Biotechnology Center</p>
                 </div>
             </div>
         </template>
 
         <template #content>
-            <div class="max-h-[70vh] space-y-6 overflow-y-auto pr-2 text-sm leading-6 text-gray-700">
+            <div class="max-h-[70vh] space-y-6 overflow-y-auto px-5 text-sm leading-6 text-gray-700">
                 <p>
-                    This Data Privacy Notice is issued by the Department of Agriculture – Crop Biotechnology Center (DA-CBC) pursuant to the Data Privacy Act of 2012 (Republic Act No. 10173), its Implementing Rules and Regulations, and relevant issuances of the National Privacy Commission. This notice explains how the OneCBC Portal collects, uses, stores, shares, and protects personal data in the course of its operations.
+                    This Data Privacy Notice is issued by the Department of Agriculture – Crop Biotechnology Center (DA-CBC) pursuant to the <a href="https://privacy.gov.ph/data-privacy-act/" class="text-emerald-700 hover:text-emerald-800">Data Privacy Act of 2012 (Republic Act No. 10173)</a>, its Implementing Rules and Regulations, and relevant issuances of the National Privacy Commission. This notice explains how the DA-CBC collects, uses, stores, shares, and protects personal data in the course of its operations.
                 </p>
 
                 <section v-for="section in privacySections" :key="section.heading" class="space-y-3">
@@ -616,9 +616,9 @@ export default {
                         {{ section.closing }}
                     </p>
 
-                    <div v-if="section.heading === '8. Contact Information'" class="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-gray-800">
+                    <div v-if="section.heading === '8. Contact Information'" class="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-gray-800 text-xs leading-tight">
                         <p class="font-semibold text-gray-900">DA-Crop Biotechnology Center</p>
-                        <p>Science City of Muñoz, Nueva Ecija</p>
+                        <p>Barangay Maligaya, Science City of Muñoz, Nueva Ecija</p>
                         <p>
                             Email:
                             <a href="mailto:cropbiotechcenter@gmail.com" class="font-medium text-emerald-700 hover:text-emerald-800">
@@ -634,7 +634,7 @@ export default {
                     </div>
                 </section>
 
-                <div class="border-t border-gray-200 pt-4 text-xs font-medium uppercase tracking-[0.2em] text-gray-400">
+                <div class="pt-4 text-xs font-medium text-gray-300">
                     Last Revised: March 18, 2026
                 </div>
             </div>
