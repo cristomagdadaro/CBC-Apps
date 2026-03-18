@@ -337,9 +337,13 @@ class GoogleCalendarSyncService
         $attributes = [
             'name' => Str::limit((string) $payload['label'], 255, ''),
             'description' => $this->buildDescription($payload),
-            'extendedProperties.private.portal_event_key' => $portalEventKey,
-            'extendedProperties.private.portal_event_type' => (string) ($payload['type'] ?? 'portal'),
-            'extendedProperties.private.portal_event_status' => (string) ($payload['status'] ?? ''),
+            'extendedProperties' => [
+                'private' => [
+                    'portal_event_key' => $portalEventKey,
+                    'portal_event_type' => (string) ($payload['type'] ?? 'portal'),
+                    'portal_event_status' => (string) ($payload['status'] ?? ''),
+                ],
+            ],
         ];
 
         $sourceUrl = $this->safePortalUrl($payload);
