@@ -14,6 +14,7 @@ import RentalServicesTopic from './Topics/RentalServicesTopic.vue';
 import SystemOptionsTopic from './Topics/SystemOptionsTopic.vue';
 import CertificateGeneratorTopic from './Topics/CertificateGeneratorTopic.vue';
 import IconsLibraryTopic from './Topics/IconsLibraryTopic.vue';
+import GoogleCalendarTopic from './Topics/GoogleCalendarTopic.vue';
 
 export default {
     name: 'ManualsIndex',
@@ -32,6 +33,7 @@ export default {
         SystemOptionsTopic,
         CertificateGeneratorTopic,
         IconsLibraryTopic,
+        GoogleCalendarTopic,
     },
     setup() {
         const activeSection = ref('overview');
@@ -107,6 +109,11 @@ export default {
                 icon: '🎨',
                 component: IconsLibraryTopic,
             },
+            googleCalendar: {
+                title: 'Google Calendar Integration',
+                icon: '🗓️',
+                component: GoogleCalendarTopic,
+            },
         };
 
         const menuItems = [
@@ -124,6 +131,7 @@ export default {
             { id: 'systemOptions', label: 'How to use System Options', icon: '⚙️' },
             { id: 'certificateGenerator', label: 'How to use Certificate Generator', icon: '🎓' },
             { id: 'iconsLibrary', label: 'Icons Library', icon: '🎨' },
+            { id: 'googleCalendar', label: 'Google Calendar Integration', icon: '🗓️' },
         ];
 
         return {
