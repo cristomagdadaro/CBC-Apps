@@ -106,6 +106,10 @@ Route::prefix('rental')->group(function () {
             'rental_id' => $id,
         ]);
     })->name('rental.venue.show');
+
+    Route::get('google-calendar', function () {
+        return Inertia::render('Rentals/GoogleCalendarPublic');
+    })->name('google-calendar.rentals');
 });
 
 Route::prefix('file-report')->group(function () {

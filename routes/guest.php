@@ -14,7 +14,7 @@ use App\Http\Controllers\ICTEquipmentController;
 use App\Repositories\OptionRepo;
 use App\Http\Controllers\LaboratoryEquipmentController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\GoogleCalendarController;
 /*
 |--------------------------------------------------------------------------
 | Guest Routes
