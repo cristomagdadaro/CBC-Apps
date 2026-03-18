@@ -329,7 +329,9 @@ export default {
     },
 }
 </script>
-
+<!-- 
+    <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=Asia%2FManila&showPrint=0&title=OneCBC%20Portal&mode=MONTH&showCalendars=0&showTabs=0&showNav=0&src=YzFkZTdiZmI4MTY3YTBkMDIwZDI4MjZiNzE1NjE3ZDA2YjdkMTJjNTYxZGQ0MmI0YmIzNTllNTdmMjA2ODc2ZkBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&color=%23ad1457" style="border-width:0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+-->
 <template>
     <div class="space-y-6">
         <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
