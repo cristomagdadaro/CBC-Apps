@@ -1,11 +1,13 @@
 <script>
 import { useForm } from '@inertiajs/vue3';
 import SocialLinks from "@/Components/SocialLinks.vue";
+import MainBg from '../Shared/MainBg.vue';
 
 export default {
     name: 'Login',
     components: {
         SocialLinks,
+        MainBg,
     },
     props: {
         canResetPassword: Boolean,
@@ -35,9 +37,7 @@ export default {
 
 <template>
     <Head title="Log in" />
-    <div class="min-h-screen flex items-center justify-center text-white text-3xl fixed top-0 left-0 font-bold relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-radial dark:bg-gradient-radial animate-gradient"></div>
-    </div>
+    <main-bg />
     <div class="absolute top-0 left-0 w-full ">
         <AuthenticationCard>
             <template #logo>
