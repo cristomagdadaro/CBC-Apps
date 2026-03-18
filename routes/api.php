@@ -34,6 +34,9 @@ require __DIR__.'/options.php';
 // Authenticated routes organized by module
 Route::middleware(['api', 'auth:sanctum'])->group(function () {
     require __DIR__.'/laboratory.php';
+    Route::middleware(['role.any:admin,administrative_assistant'])->group(function () {
+        require __DIR__.'/calendar.php';
+    });
 
     Route::middleware(['role.any:admin,laboratory_manager,ict_manager,administrative_assistant'])->group(function () {
         require __DIR__.'/locations.php';

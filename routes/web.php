@@ -4,6 +4,7 @@ use App\Enums\Inventory;
 use App\Enums\Role as RoleEnum;
 use App\Http\Controllers\EventSubformController;
 use App\Http\Controllers\FormController;
+use App\Http\Controllers\GoogleCalendarController;
 use App\Http\Controllers\InventoryFormController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LabRequestFormController;
@@ -145,6 +146,16 @@ Route::middleware([
             Route::get('/venue', function () {
                 return Inertia::render('Rentals/RentalsVenueIndex');
             })->name('rentals.venue.index');
+
+            Route::middleware(['role.any:admin,administrative_assistant'])->get('/calendar', function () {
+                return Inertia::render('Rentals/RentalsGoogleCalendar');
+            })->name('rentals.calendar.index');
+
+            Route::middleware(['role.any:admin,administrative_assistant'])->get('/calendar/google/connect', [GoogleCalendarController::class, 'redirectToOauth'])
+                ->name('rentals.calendar.oauth.redirect');
+
+            Route::middleware(['role.any:admin,administrative_assistant'])->get('/calendar/google/callback', [GoogleCalendarController::class, 'handleOauthCallback'])
+                ->name('rentals.calendar.oauth.callback');
         });
 
         Route::prefix('event-forms')->group(function () {

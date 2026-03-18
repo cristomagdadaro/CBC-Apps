@@ -66,6 +66,11 @@ export default {
                             href: 'rentals.venue.index',
                             permission: 'rental.venue.manage',
                             icon: 'LuBuilding',
+                        },{
+                            label: 'Google Calendar',
+                            href: 'rentals.calendar.index',
+                            permission: 'rental.vehicle.manage',
+                            icon: 'LuCalendarDays',
                         }
                     ],
                     permission: 'rental.vehicle.manage',
