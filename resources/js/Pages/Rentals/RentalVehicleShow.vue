@@ -47,6 +47,9 @@ export default {
         }
     },
     computed: {
+        canViewContactNumber() {
+            return Boolean(this.$page.props.auth?.user && this.rental?.contact_number)
+        },
         tripTypeMeta() {
             return getTripTypeMeta(this.rental?.trip_type)
         },
@@ -244,7 +247,7 @@ export default {
                                         <p class="text-sm font-medium text-gray-900">{{ rental.requested_by || 'Not specified' }}</p>
                                     </div>
                                 </div>
-                                <div class="flex items-start space-x-3">
+                                <div v-if="canViewContactNumber" class="flex items-start space-x-3">
                                     <div class="mt-0.5 h-2 w-2 rounded-full bg-blue-600"></div>
                                     <div>
                                         <p class="text-xs text-gray-500">Contact Number</p>

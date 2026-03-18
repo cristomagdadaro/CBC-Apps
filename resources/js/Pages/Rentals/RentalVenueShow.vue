@@ -46,6 +46,9 @@ export default {
         }
     },
     computed: {
+        canViewContactNumber() {
+            return Boolean(this.$page.props.auth?.user && this.rental?.contact_number)
+        },
         statusConfig() {
             const configs = {
                 pending: {
@@ -305,7 +308,7 @@ export default {
                                         <p class="font-medium text-gray-900">{{ rental.requested_by || 'Not specified' }}</p>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50/50 p-3">
+                                <div v-if="canViewContactNumber" class="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50/50 p-3">
                                     <LuPhone class="mt-0.5 h-4 w-4 text-gray-400" />
                                     <div>
                                         <p class="text-xs text-gray-500">Contact Number</p>

@@ -10,6 +10,7 @@ use App\Repositories\RentalVehicleRepository;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 
 class RentalVehicleController extends BaseController
@@ -89,7 +90,7 @@ class RentalVehicleController extends BaseController
         return response()->json(['data' => $rental]);
     }
 
-    public function publicShow(string $id): JsonResponse
+    public function publicShow(Request $request, string $id): JsonResponse
     {
         $rental = $this->repo()->find($id);
 
@@ -97,7 +98,9 @@ class RentalVehicleController extends BaseController
             return response()->json(['message' => 'Rental not found'], 404);
         }
 
-        return response()->json(['data' => $rental]);
+        return response()->json([
+            'data' => $this->buildPublicRentalPayload($rental, $request->user() !== null),
+        ]);
     }
 
     public function update(UpdateRentalVehicleRequest $request, string $id): JsonResponse
@@ -261,5 +264,16 @@ class RentalVehicleController extends BaseController
         $repository = $this->requireService();
 
         return $repository;
+    }
+
+    private function buildPublicRentalPayload(RentalVehicle $rental, bool $includeContactNumber): array
+    {
+        $payload = $rental->toArray();
+
+        if (!$includeContactNumber) {
+            $payload = Arr::except($payload, ['contact_number']);
+        }
+
+        return $payload;
     }
 }

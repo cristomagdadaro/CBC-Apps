@@ -162,6 +162,58 @@ class RentalControllersTest extends TestCase
         ])->assertForbidden();
     }
 
+    public function test_guest_public_vehicle_rental_detail_hides_contact_number(): void
+    {
+        $rental = RentalVehicle::query()->create(array_merge($this->vehiclePayload(), [
+            'status' => 'pending',
+        ]));
+
+        $this->getJson(route('api.guest.rental.vehicles.show', $rental->id))
+            ->assertOk()
+            ->assertJsonPath('data.requested_by', 'Jane Doe')
+            ->assertJsonMissingPath('data.contact_number');
+    }
+
+    public function test_authenticated_public_vehicle_rental_detail_includes_contact_number(): void
+    {
+        $user = $this->createUserWithRole(RoleEnum::ADMINISTRATIVE_ASSISTANT->value);
+        Sanctum::actingAs($user);
+
+        $rental = RentalVehicle::query()->create(array_merge($this->vehiclePayload(), [
+            'status' => 'pending',
+        ]));
+
+        $this->getJson(route('api.guest.rental.vehicles.show', $rental->id))
+            ->assertOk()
+            ->assertJsonPath('data.contact_number', '09171234567');
+    }
+
+    public function test_guest_public_venue_rental_detail_hides_contact_number(): void
+    {
+        $rental = RentalVenue::query()->create(array_merge($this->venuePayload(), [
+            'status' => 'pending',
+        ]));
+
+        $this->getJson(route('api.guest.rental.venues.show', $rental->id))
+            ->assertOk()
+            ->assertJsonPath('data.requested_by', 'Jane Doe')
+            ->assertJsonMissingPath('data.contact_number');
+    }
+
+    public function test_authenticated_public_venue_rental_detail_includes_contact_number(): void
+    {
+        $user = $this->createUserWithRole(RoleEnum::ADMINISTRATIVE_ASSISTANT->value);
+        Sanctum::actingAs($user);
+
+        $rental = RentalVenue::query()->create(array_merge($this->venuePayload(), [
+            'status' => 'pending',
+        ]));
+
+        $this->getJson(route('api.guest.rental.venues.show', $rental->id))
+            ->assertOk()
+            ->assertJsonPath('data.contact_number', '09171234567');
+    }
+
     private function seedLocation(): void
     {
         DB::table('loc_cities')->insert([

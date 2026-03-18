@@ -1,13 +1,30 @@
 <script>
+import { ExternalLink, Menu } from 'lucide-vue-next'
 import {
-    Menu,
-    ExternalLink
-} from 'lucide-vue-next';
+    LuFacebook,
+    LuGlobe,
+    LuLayoutGrid,
+    LuMail,
+    LuMapPin,
+    LuShield,
+    LuStar,
+    LuUser,
+    LuX,
+} from '@/Components/Icons'
 
 export default {
-    name: "SocialLinks",
+    name: 'SocialLinks',
     components: {
         ExternalLink,
+        LuFacebook,
+        LuGlobe,
+        LuLayoutGrid,
+        LuMail,
+        LuMapPin,
+        LuShield,
+        LuStar,
+        LuUser,
+        LuX,
         Menu,
     },
     props: {
@@ -20,17 +37,176 @@ export default {
         return {
             open: false,
             isHovered: false,
-        };
+            showPrivacyNotice: false,
+            privacySections: [
+                {
+                    heading: '1. Personal Data Collected',
+                    paragraphs: [
+                        'We collect only the data necessary for the secure and efficient operation of the OneCBC Portal, including:',
+                    ],
+                    items: [
+                        {
+                            label: 'Account and Profile Data',
+                            text: 'Full name, institutional affiliation, office address, designation, professional email address, and contact number.',
+                        },
+                        {
+                            label: 'Research and System Data',
+                            text: 'Data related to biotechnology research submissions, germplasm requests, or project monitoring as required by CBC protocols.',
+                        },
+                        {
+                            label: 'System Usage Data',
+                            text: 'IP addresses, login timestamps, browser types, and audit logs necessary for security monitoring and system integrity.',
+                        },
+                        {
+                            label: 'Communications',
+                            text: 'Information provided through helpdesk tickets, technical support requests, or official inquiries.',
+                        },
+                    ],
+                },
+                {
+                    heading: '2. Purpose and Legal Basis for Processing',
+                    paragraphs: [
+                        'The DA-CBC processes personal data for the following official purposes:',
+                    ],
+                    items: [
+                        {
+                            label: 'Access Management',
+                            text: 'To verify identity, provide secure authentication, and manage user roles within the portal.',
+                        },
+                        {
+                            label: 'Service Delivery',
+                            text: 'To facilitate the processing of biotechnology-related applications, research tracking, and resource management.',
+                        },
+                        {
+                            label: 'Security and Audit',
+                            text: 'To maintain a secure environment, prevent unauthorized access, and fulfill government auditing requirements.',
+                        },
+                        {
+                            label: 'Statutory Compliance',
+                            text: 'To comply with Department of Agriculture policies, Executive Orders, and other legal obligations.',
+                        },
+                    ],
+                    closing: 'Processing is based on the fulfillment of a legal mandate, compliance with government requirements, and the legitimate interests of the DA-CBC in advancing agricultural biotechnology research.',
+                },
+                {
+                    heading: '3. Data Sharing and Disclosure',
+                    paragraphs: [
+                        'We do not sell or lease personal data to third parties. We may share data only under the following circumstances:',
+                    ],
+                    items: [
+                        {
+                            label: 'Internal DA Units',
+                            text: 'With relevant offices within the Department of Agriculture for official reporting or project verification.',
+                        },
+                        {
+                            label: 'Service Providers',
+                            text: 'With authorized ICT service providers or cloud hosting partners (e.g., PhilRice or DICT) under strict confidentiality and security agreements.',
+                        },
+                        {
+                            label: 'Legal Mandate',
+                            text: 'With authorized government agencies (e.g., COA, NPC) when required by law or lawful court orders.',
+                        },
+                    ],
+                },
+                {
+                    heading: '4. Data Retention',
+                    paragraphs: [
+                        'The DA-CBC retains personal data only for as long as necessary to:',
+                    ],
+                    items: [
+                        {
+                            label: 'Purpose Fulfillment',
+                            text: 'Fulfill the purposes stated in this notice.',
+                        },
+                        {
+                            label: 'Government Records Compliance',
+                            text: 'Comply with the National Archives of the Philippines (NAP) RA 9470 regarding government records.',
+                        },
+                        {
+                            label: 'Audit and Legal Obligations',
+                            text: 'Meet specific audit or legal requirements.',
+                        },
+                    ],
+                    closing: 'Data shall be securely disposed of or anonymized once the retention period has lapsed.',
+                },
+                {
+                    heading: '5. Data Security',
+                    paragraphs: [
+                        'We implement organizational, physical, and technical security measures to protect your data against unauthorized access, alteration, or disclosure. These include:',
+                    ],
+                    items: [
+                        {
+                            label: 'Encryption',
+                            text: 'Use of SSL/TLS (HTTPS) for data in transit.',
+                        },
+                        {
+                            label: 'Access Controls',
+                            text: 'Strict role-based access to the portal database.',
+                        },
+                        {
+                            label: 'Monitoring',
+                            text: 'Continuous logging of system activities to detect potential security breaches.',
+                        },
+                    ],
+                },
+                {
+                    heading: '6. Your Rights as a Data Subject',
+                    paragraphs: [
+                        'As a registered user of the OneCBC Portal, you have the right to:',
+                    ],
+                    items: [
+                        {
+                            label: 'Be Informed',
+                            text: 'Know how your data is being used.',
+                        },
+                        {
+                            label: 'Access',
+                            text: 'Request a copy of the personal data we hold about you.',
+                        },
+                        {
+                            label: 'Correct',
+                            text: 'Update inaccurate or outdated information in your profile.',
+                        },
+                        {
+                            label: 'Object/Erasure',
+                            text: 'Request the suspension or removal of your data, subject to legal and administrative limitations for government records.',
+                        },
+                        {
+                            label: 'Lodge a Complaint',
+                            text: 'Contact the National Privacy Commission (NPC) if you feel your rights have been violated.',
+                        },
+                    ],
+                },
+                {
+                    heading: '7. Changes to this Notice',
+                    paragraphs: [
+                        'The DA-CBC reserves the right to update this notice to align with new government circulars or system upgrades. All changes will be reflected on this page with an updated "Last Revised" date.',
+                    ],
+                },
+                {
+                    heading: '8. Contact Information',
+                    paragraphs: [
+                        'For privacy concerns, requests for data correction, or complaints regarding the OneCBC Portal, please contact our Data Protection Officer (DPO):',
+                    ],
+                },
+            ],
+        }
     },
     methods: {
         toggle() {
-            this.open = !this.open;
+            this.open = !this.open
         },
         close() {
-            this.open = false;
+            this.open = false
+        },
+        openPrivacyNotice() {
+            this.showPrivacyNotice = true
+        },
+        closePrivacyNotice() {
+            this.showPrivacyNotice = false
         },
     },
-};
+}
 </script>
 
 <template>
@@ -165,6 +341,20 @@ export default {
                     Email Us
                 </span>
             </a>
+
+            <button
+                type="button"
+                @click="openPrivacyNotice"
+                class="group relative p-2.5 rounded-full hover:bg-emerald-50 dark:hover:bg-emerald-900/30 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-emerald-600 dark:hover:text-emerald-400"
+                title="Data Privacy Notice"
+            >
+                <LuShield class="w-5 h-5" />
+                <span
+                    class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap"
+                >
+                    Data Privacy Notice
+                </span>
+            </button>
         </div>
 
         <!-- Mobile View: Floating Action Button -->
@@ -351,6 +541,24 @@ export default {
                                 </p>
                             </div>
                         </a>
+
+                        <button
+                            type="button"
+                            @click="openPrivacyNotice"
+                            class="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-200 group"
+                        >
+                            <div
+                                class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-all"
+                            >
+                                <LuShield class="w-4 h-4" />
+                            </div>
+                            <div class="flex-1 text-left">
+                                <span class="text-sm font-medium">Data Privacy Notice</span>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                    Learn how OneCBC handles personal data
+                                </p>
+                            </div>
+                        </button>
                     </div>
                 </div>
             </transition>
@@ -368,6 +576,80 @@ export default {
             </button>
         </div>
     </div>
+
+    <DialogModal :show="showPrivacyNotice" max-width="4xl" @close="closePrivacyNotice">
+        <template #title>
+            <div class="flex items-center gap-3 pr-8">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                    <LuShield class="h-5 w-5" />
+                </div>
+                <div>
+                    <p class="text-base font-semibold text-gray-900">Data Privacy Notice</p>
+                    <p class="text-sm text-gray-500">OneCBC Portal – DA-Crop Biotechnology Center</p>
+                </div>
+            </div>
+        </template>
+
+        <template #content>
+            <div class="max-h-[70vh] space-y-6 overflow-y-auto pr-2 text-sm leading-6 text-gray-700">
+                <p>
+                    This Data Privacy Notice is issued by the Department of Agriculture – Crop Biotechnology Center (DA-CBC) pursuant to the Data Privacy Act of 2012 (Republic Act No. 10173), its Implementing Rules and Regulations, and relevant issuances of the National Privacy Commission. This notice explains how the OneCBC Portal collects, uses, stores, shares, and protects personal data in the course of its operations.
+                </p>
+
+                <section v-for="section in privacySections" :key="section.heading" class="space-y-3">
+                    <div>
+                        <h3 class="text-base font-semibold text-gray-900">{{ section.heading }}</h3>
+                    </div>
+
+                    <p v-for="paragraph in section.paragraphs || []" :key="paragraph">
+                        {{ paragraph }}
+                    </p>
+
+                    <div v-if="section.items?.length" class="space-y-2">
+                        <p v-for="item in section.items" :key="`${section.heading}-${item.label}`">
+                            <span class="font-semibold text-gray-900">{{ item.label }}:</span>
+                            {{ item.text }}
+                        </p>
+                    </div>
+
+                    <p v-if="section.closing">
+                        {{ section.closing }}
+                    </p>
+
+                    <div v-if="section.heading === '8. Contact Information'" class="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-gray-800">
+                        <p class="font-semibold text-gray-900">DA-Crop Biotechnology Center</p>
+                        <p>Science City of Muñoz, Nueva Ecija</p>
+                        <p>
+                            Email:
+                            <a href="mailto:cropbiotechcenter@gmail.com" class="font-medium text-emerald-700 hover:text-emerald-800">
+                                cropbiotechcenter@gmail.com
+                            </a>
+                        </p>
+                        <p>
+                            Website:
+                            <a href="https://onecbc.philrice.gov.ph" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:text-emerald-800">
+                                https://onecbc.philrice.gov.ph
+                            </a>
+                        </p>
+                    </div>
+                </section>
+
+                <div class="border-t border-gray-200 pt-4 text-xs font-medium uppercase tracking-[0.2em] text-gray-400">
+                    Last Revised: March 18, 2026
+                </div>
+            </div>
+        </template>
+
+        <template #footer>
+            <button
+                type="button"
+                @click="closePrivacyNotice"
+                class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+            >
+                Close
+            </button>
+        </template>
+    </DialogModal>
 </template>
 
 <style scoped>
