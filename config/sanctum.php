@@ -17,7 +17,7 @@ return [
 
     'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
         '%s%s',
-        'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1,dacbc.philrice.gov.ph',
+        'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1,onecbc.philrice.gov.ph,192.168.36.10',
         Sanctum::currentApplicationUrlWithPort()
     ))),
 
