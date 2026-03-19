@@ -102,7 +102,6 @@ abstract class AbstractRepoService {
 
         if (empty($searchTerm)) return;
 
-        // Apply search on the main model
         $this->applySearch($query, $searchTerm, $filter, $isExact);
     }
 
@@ -122,15 +121,12 @@ abstract class AbstractRepoService {
             return;
         }
 
-        // Apply search to a specific column if filter is provided
         if ($filter) {
-            // Handle relationship-based searches with dot notation (e.g., item.name)
             if (str_contains($filter, '.')) {
                 [$relation, $column] = explode('.', $filter, 2);
                 $operator = $is_exact ? '=' : 'like';
                 $value = $is_exact ? $search : "%{$search}%";
                 
-                // Use whereHas to search in related table
                 $query->whereHas($relation, function ($subQuery) use ($column, $operator, $value) {
                     $subQuery->where($column, $operator, $value);
                 });
@@ -143,26 +139,22 @@ abstract class AbstractRepoService {
             return;
         }
 
-        // Retrieve searchable columns from main model
         $columns = collect($query->getModel()->getSearchable());
         
         if ($columns->isEmpty()) {
             return;
         }
 
-        // Handle full name search
         if ($columns->contains('fname') && $columns->contains('lname')) {
             $query->orWhereRaw("CONCAT_WS(' ', fname, mname, lname, suffix) LIKE ?", ["%{$search}%"]);
             return;
         }
 
-        // Handle specific "name" column search
         if (request()->has('filter') && request('filter') === 'name') {
             $query->where('name', 'like', "%{$search}%");
             return;
         }
 
-        // Apply search to all searchable columns in main model
         $query->where(function ($subQuery) use ($columns, $search, $is_exact) {
             $operator = $is_exact ? '=' : 'like';
             $value = $is_exact ? $search : "%{$search}%";
@@ -241,19 +233,15 @@ abstract class AbstractRepoService {
 
         if (!$sortColumn) return;
 
-        // Validate the sort column exists to prevent SQL errors
         $table = $query->getModel()->getTable();
         if (!Schema::hasColumn($table, $sortColumn)) {
-            $selectedColumns = $query->getQuery()->getColumns() ? $query->getQuery()->getColumns()[0] : ''; // Get selected columns from query
+            $selectedColumns = $query->getQuery()->getColumns() ? $query->getQuery()->getColumns()[0] : '';
 
             if (str_contains($selectedColumns, $sortColumn)) {
-                // If sort column exists in the query, use it
                 $sortColumn = $selectedColumns;
             } elseif (Schema::hasColumn($query->getModel()->getTable(), 'id')) {
-                // Default to table ID if it exists
                 $sortColumn = $table.'.id';
             } else {
-                // Default to UUID if no valid column is found
                 $sortColumn = 'uuid';
             }
         }
@@ -261,7 +249,7 @@ abstract class AbstractRepoService {
         if (in_array($order, ['ASC', 'DESC'])) {
             $query->orderBy($sortColumn, $order);
         } else {
-            $query->orderBy($sortColumn, 'desc'); // Fallback to descending order
+            $query->orderBy($sortColumn, 'desc');
         }
     }
 
@@ -274,7 +262,6 @@ abstract class AbstractRepoService {
             return [ 'data' => $query->get() ];
         }
 
-
         return $query->paginate($perPage, ['*'], 'page', $page)->withQueryString();
     }
 
@@ -284,7 +271,6 @@ abstract class AbstractRepoService {
     public function sendError(Throwable $error): never
     {
         Log::error('Error occurred: ' . $error->getMessage(), ['exception' => $error]);
-        // Re-throw the original exception to preserve context and stack trace
         throw $error;
     }
 }
