@@ -56,6 +56,12 @@ Route::prefix('forms')->group(function () {
     //Route::get('/{id}/pdf', function(){ return view('generator.pdf.printable-request-form', [ 'form' => \App\Models\RequestFormPivot::with(['requester', 'request_form'])->findOrFail(request()->route('id')), 'forPdf' => false ]);})->name('forms.generate.pdf');
 });
 
+Route::prefix('apps')->group(function () {
+    Route::get('manuals', function () {
+        return Inertia::render('Manuals/ManualsIndex');
+    })->name('manuals.index');
+});
+
 Route::prefix('/laboratory')->group(function () {
         Route::get('/equipments/{equipment_id?}', function ($equipment_id = null) {
             return Inertia::render('Laboratory/EquipmentShow', [
@@ -128,12 +134,6 @@ Route::middleware([
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::prefix('apps')->group(function () {
-        Route::prefix('manuals')->group(function () {
-            Route::get('/', function () {
-                return Inertia::render('Manuals/ManualsIndex');
-            })->name('manuals.index');
-        });
-
         Route::prefix('laboratory')->group(function () {
             Route::get('/', function () {
                 return Inertia::render('Laboratory/LaboratoryDashboard');
