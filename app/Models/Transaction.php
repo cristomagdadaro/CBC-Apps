@@ -52,6 +52,9 @@ class Transaction extends BaseModel
     protected array $searchable = [
         'id',
         'item_id',
+        'item.name',
+        'item.brand',
+        'item.description',
         'barcode',
         'barcode_prri',
         'transac_type',

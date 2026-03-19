@@ -164,12 +164,49 @@ abstract class AbstractRepoService {
 
         // Apply search to all searchable columns in main model
         $query->where(function ($subQuery) use ($columns, $search, $is_exact) {
+            $operator = $is_exact ? '=' : 'like';
+            $value = $is_exact ? $search : "%{$search}%";
+
             foreach ($columns as $column) {
-                $operator = $is_exact ? '=' : 'like';
-                $value = $is_exact ? $search : "%{$search}%";
+                if ($this->isRelationColumn($column)) {
+                    $this->applyRelationColumnSearch($subQuery, $column, $operator, $value);
+                    continue;
+                }
+
                 $subQuery->orWhere($column, $operator, $value);
             }
         });
+    }
+
+    protected function isRelationColumn(string $column): bool
+    {
+        return str_contains($column, '.');
+    }
+
+    protected function applyRelationColumnSearch(Builder $query, string $relationColumn, string $operator, string $value): void
+    {
+        [$relationPath, $columnName] = $this->splitRelationColumn($relationColumn);
+
+        if (!$relationPath || !$columnName) {
+            return;
+        }
+
+        $query->orWhereHas($relationPath, function (Builder $relatedQuery) use ($columnName, $operator, $value) {
+            $relatedQuery->where($columnName, $operator, $value);
+        });
+    }
+
+    protected function splitRelationColumn(string $relationColumn): array
+    {
+        $segments = explode('.', $relationColumn);
+
+        if (count($segments) < 2) {
+            return [null, null];
+        }
+
+        $columnName = array_pop($segments);
+
+        return [implode('.', $segments), $columnName];
     }
 
     public function applyAppends(Builder &$model, Collection $parameters): void
