@@ -141,7 +141,9 @@ class TransactionRepo extends AbstractRepoService
 
     public function getRemainingStocks(Collection $parameters, array $consumableCategoryIds = [1, 2, 3, 5, 6]): Collection
     {
-        $search   = $parameters->get('search');
+        $rawSearch = $parameters->get('search');
+        $searchTerm = $rawSearch !== null ? trim((string) $rawSearch) : '';
+        $hasSearchTerm = $searchTerm !== '';
         $isExact  = filter_var($parameters->get('is_exact', false), FILTER_VALIDATE_BOOLEAN);
         $sort     = $parameters->get('sort', 'id');
         $order    = strtolower($parameters->get('order', 'asc')) === 'desc' ? 'desc' : 'asc';
@@ -223,7 +225,7 @@ class TransactionRepo extends AbstractRepoService
                     }
                 });
             }
-        } elseif (!$filter && !empty($consumableCategoryIds)) {
+        } elseif (!$filter && !$hasSearchTerm && !empty($consumableCategoryIds)) {
             // Apply consumable category filter by default
             $query->whereIn('items.category_id', $consumableCategoryIds);
         } elseif ($filter === 'quantity' && $filterBy) {
@@ -244,8 +246,8 @@ class TransactionRepo extends AbstractRepoService
                     break;
             }
         } elseif ($filter === 'barcode') {
-            if ($search) {
-                $like = '%' . $search . '%';
+            if ($hasSearchTerm) {
+                $like = '%' . $searchTerm . '%';
                 $query->havingRaw('barcode LIKE ?', [$like]);
             }
         } elseif ($filter === 'project_code' && $filterBy) {
@@ -256,34 +258,42 @@ class TransactionRepo extends AbstractRepoService
             $query->havingRaw('remaining_quantity >= ?', [(float) $minRemaining]);
         }
 
-        if ($search !== null && $search !== '') {
+        if ($hasSearchTerm) {
             if ($isExact) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('items.name', $search)
-                        ->orWhere('items.brand', $search)
-                        ->orWhere('transactions.unit', $search)
-                        ->orWhere('transactions.barcode', $search)
-                        ->orWhere('transactions.barcode_prri', $search);
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->where('items.name', $searchTerm)
+                        ->orWhere('items.brand', $searchTerm)
+                        ->orWhere('items.description', $searchTerm)
+                        ->orWhere('transactions.unit', $searchTerm)
+                        ->orWhere('transactions.barcode', $searchTerm)
+                        ->orWhere('transactions.barcode_prri', $searchTerm)
+                        ->orWhere('transactions.project_code', $searchTerm)
+                        ->orWhere('transactions.transac_type', $searchTerm)
+                        ->orWhere('transactions.remarks', $searchTerm);
                 });
 
-                if (is_numeric($search)) {
+                if (is_numeric($searchTerm)) {
                     $query->havingRaw(
                         'total_outgoing = ? OR total_ingoing = ? OR remaining_quantity = ?',
-                        [$search, $search, $search]
+                        [$searchTerm, $searchTerm, $searchTerm]
                     );
                 }
             } else {
-                $like = '%' . $search . '%';
+                $like = '%' . $searchTerm . '%';
 
                 $query->where(function ($q) use ($like) {
                     $q->where('items.name', 'like', $like)
                         ->orWhere('items.brand', 'like', $like)
+                        ->orWhere('items.description', 'like', $like)
                         ->orWhere('transactions.unit', 'like', $like)
                         ->orWhere('transactions.barcode', 'like', $like)
-                        ->orWhere('transactions.barcode_prri', 'like', $like);
+                        ->orWhere('transactions.barcode_prri', 'like', $like)
+                        ->orWhere('transactions.project_code', 'like', $like)
+                        ->orWhere('transactions.transac_type', 'like', $like)
+                        ->orWhere('transactions.remarks', 'like', $like);
                 });
 
-                if (is_numeric($search)) {
+                if (is_numeric($searchTerm)) {
                     $query->orHavingRaw(
                         'CAST(total_outgoing AS CHAR) LIKE ? OR CAST(total_ingoing AS CHAR) LIKE ? OR CAST(remaining_quantity AS CHAR) LIKE ?',
                         [$like, $like, $like]

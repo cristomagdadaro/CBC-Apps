@@ -195,10 +195,10 @@ export default {
                     <div v-if="outgoingFromApi" class="flex flex-col w-full gap-2 items-center">
                         <div class="grid grid-cols-2 md:grid-cols-5 gap-1 items-center w-full justify-center">
                             <custom-dropdown :with-all-option="false" placeholder="Category" label="Filter by Category" @selectedChange="setFilter('category', $event)" :options="categories" />
+                            <custom-dropdown v-if="projectCodes"  placeholder="Project Code"  label="Filter by Project Code"  :options="projectCodes" @selectedChange="setFilter('project_code', $event)" />
+                            <custom-dropdown :with-all-option="false" placeholder="Storage Room" label="Filter by Storage Room" @selectedChange="applyStorageRoomFilter($event)" :options="storageRooms" />
                             <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
                             <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
-                            <custom-dropdown :with-all-option="false" placeholder="Storage Room" label="Filter by Storage Room" @selectedChange="applyStorageRoomFilter($event)" :options="storageRooms" />
-                            <custom-dropdown v-if="projectCodes"  placeholder="Project Code"  label="Filter by Project Code"  :options="projectCodes" @selectedChange="setFilter('project_code', $event)" />
                             <camera-scanner class="md:col-span-5 col-span-3" @decoded="searchFromBarcode" />
                         </div>
                         <h3>There are {{outgoingFromApi?.data?.length || 0}} items registered</h3>
