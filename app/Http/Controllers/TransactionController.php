@@ -89,7 +89,7 @@ class TransactionController extends BaseController
 
     public function remainingStocks(Request $request): Collection
     {
-        return $this->repo()->getRemainingStocks(new Collection($request->all()));
+        return $this->repo()->getRemainingStocks(new Collection($request->all()), [1,2,3,5,6,11,12]);
     }
 
     public function projectCodes(): JsonResponse

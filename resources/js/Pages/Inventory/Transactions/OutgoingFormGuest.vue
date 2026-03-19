@@ -65,27 +65,6 @@ export default {
                 }
             });
         },
-        storageRooms() {
-            if (!Array.isArray(this.$page.props?.storage_locations)) {
-                return [];
-            }
-
-            return this.$page.props.storage_locations
-                .map((location) => {
-                    const roomMatch = String(location?.name ?? '').match(/\d+/);
-                    if (!roomMatch) {
-                        return null;
-                    }
-
-                    const room = String(roomMatch[0]).padStart(2, '0');
-
-                    return {
-                        name: room,
-                        label: `${room} - ${location.label}`,
-                    };
-                })
-                .filter(Boolean);
-        },
         // Override mixin's isExpired to avoid conflicts with item-level expiration checking
         isExpired() {
             return null;
@@ -178,7 +157,7 @@ export default {
     />
 
     <guest-form-page
-        :title="'Outgoing Inventory Form'"
+        :title="'Supplies Checkout Form'"
         :subtitle="'Kindly fill out the form below to record your transaction'"
         :delay-ready="delayReady"
     >
@@ -186,17 +165,17 @@ export default {
             <div class="py-4 flex flex-col md:flex-row gap-3 bg-gray-50 p-4 md:rounded-md  max-w-6xl h-full md:h-fit">
                 <div class="flex flex-col justify-start gap-2 md:mx-auto md:w-full lg:w-[60vw]">
                     <div class="w-full flex gap-2 items-center lg:px-0">
-                        <text-input placeholder="Search..." v-model="form.search" @update:model-value="form.filter = null; form.is_exact = false;" />
+                        <text-input placeholder="Search..." v-model="form.search" @update:model-value="form.filter = null; form.is_exact = false;" @keydown.enter="searchEvent" />
                         <search-btn @click="searchEvent" :disabled="model?.processing" class="text-center h-full">
                             <span v-if="!model?.processing" class="hidden md:flex">Search</span>
                             <span v-else class="hidden md:flex">Searching</span>
                         </search-btn>
                     </div>
                     <div v-if="outgoingFromApi" class="flex flex-col w-full gap-2 items-center">
-                        <div class="grid grid-cols-2 md:grid-cols-5 gap-1 items-center w-full justify-center">
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-2 items-center w-full justify-center">
                             <custom-dropdown :with-all-option="false" placeholder="Category" label="Filter by Category" @selectedChange="setFilter('category', $event)" :options="categories" />
                             <custom-dropdown v-if="projectCodes"  placeholder="Project Code"  label="Filter by Project Code"  :options="projectCodes" @selectedChange="setFilter('project_code', $event)" />
-                            <custom-dropdown :with-all-option="false" placeholder="Storage Room" label="Filter by Storage Room" @selectedChange="applyStorageRoomFilter($event)" :options="storageRooms" />
+                            <custom-dropdown :with-all-option="false" placeholder="Storage Room" label="Filter by Storage Room" @selectedChange="applyStorageRoomFilter($event)" :options="storage_locations" />
                             <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
                             <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
                             <camera-scanner class="md:col-span-5 col-span-3" @decoded="searchFromBarcode" />

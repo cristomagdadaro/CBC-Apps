@@ -18,6 +18,7 @@ export default {
             loading: false,
             search: "",
             categoryId: 7,
+            storageLocationId: null,
             selected: {},
             labels: [],
             previewReady: false,
@@ -344,6 +345,13 @@ export default {
             this.previewReady = false;
             this.loadItems();
         },
+        onStorageLocationChange(value) {
+            this.storageLocationId = value || null;
+            this.selected = {};
+            this.labels = [];
+            this.previewReady = false;
+            this.loadItems();
+        },
         async loadItems() {
             this.loading = true;
             this.model = new Transaction();
@@ -353,6 +361,8 @@ export default {
             this.form.order = 'asc';
             this.form.filter = this.categoryId ? 'category' : null;
             this.form.filter_by = this.categoryId ? this.categoryId : null;
+            this.form.include_all_categories = !this.categoryId;
+            this.form.storage_location_id = this.storageLocationId;
 
             await this.fetchGetApi('api.inventory.transactions.remaining-stocks', this.form.data())
                 .then((response) => {
@@ -639,7 +649,9 @@ export default {
                                     class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm" />
                             </div>
                             <custom-dropdown :value="categoryId" @selectedChange="onCategoryChange($event)"
-                                :options="categoryOptions" placeholder="All Categories" class="w-full sm:w-64" />
+                                :options="categoryOptions" placeholder="All Categories" class="w-full sm:w-64" :with-all-option="false" />
+                            <custom-dropdown :value="storageLocationId" @selectedChange="onStorageLocationChange($event)"
+                                :options="storage_locations" placeholder="Storage Locations" class="w-full sm:w-64" :with-all-option="false" />
                         </div>
 
                         <!-- Bulk Actions -->
@@ -927,7 +939,7 @@ export default {
                         </div>
 
                         <custom-dropdown :value="categoryId" @selectedChange="onCategoryChange($event)"
-                            :options="categoryOptions" placeholder="All Categories" class="w-full" />
+                            :options="categoryOptions" placeholder="All Categories" class="w-full" :with-all-option="false" />
 
                         <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                             <div class="flex items-center gap-3">

@@ -26,7 +26,7 @@ class InventoryFormController extends BaseController
         return Inertia::render('Inventory/Transactions/OutgoingFormGuest',
         [
             'stockLevel' => $this->optionRepo->getStockLevels(),
-            'categories' => $this->categoryRepo->getInventoryFormCategories(),
+            'categories' => $this->categoryRepo->getInventoryFormCategories([1,2,3,5,6,11,12]),
             'personnels' => $this->personnelRepo->getAllForInventoryForm(),
             'projectCodes' => $this->transactionRepo()->getAvailableProjectCodes(),
             'storage_locations' => $this->optionRepo->getStorageLocations(),

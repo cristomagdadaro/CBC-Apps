@@ -139,7 +139,7 @@ class TransactionRepo extends AbstractRepoService
         });
     }
 
-    public function getRemainingStocks(Collection $parameters, array $consumableCategoryIds = [1, 2, 3, 5, 6]): Collection
+    public function getRemainingStocks(Collection $parameters, array $consumableCategoryIds = [1,2,3,5,6,11,12]): Collection
     {
         $rawSearch = $parameters->get('search');
         $searchTerm = $rawSearch !== null ? trim((string) $rawSearch) : '';
@@ -153,6 +153,9 @@ class TransactionRepo extends AbstractRepoService
         $filter    = $parameters->get('filter');
         $filterBy  = $parameters->get('filter_by');
         $minRemaining = $parameters->get('min_remaining');
+        $includeAllCategories = filter_var($parameters->get('include_all_categories', false), FILTER_VALIDATE_BOOLEAN);
+        $storageLocationId = $parameters->get('storage_location_id');
+        $storageLocationCode = $this->normalizeLocationCode($storageLocationId);
 
         $orderByRaw = match ($sort) {
             'name'               => 'items.name',
@@ -225,8 +228,7 @@ class TransactionRepo extends AbstractRepoService
                     }
                 });
             }
-        } elseif (!$filter && !$hasSearchTerm && !empty($consumableCategoryIds)) {
-            // Apply consumable category filter by default
+        } elseif (!$filter && !$includeAllCategories && !empty($consumableCategoryIds)) {
             $query->whereIn('items.category_id', $consumableCategoryIds);
         } elseif ($filter === 'quantity' && $filterBy) {
             $percentageExpr = 'CASE WHEN total_ingoing <> 0 THEN remaining_quantity / total_ingoing ELSE 0 END';
@@ -252,6 +254,10 @@ class TransactionRepo extends AbstractRepoService
             }
         } elseif ($filter === 'project_code' && $filterBy) {
             $query->where('transactions.project_code', $filterBy);
+        }
+
+        if ($storageLocationCode !== null) {
+            $query->where('transactions.barcode', 'like', "CBC-{$storageLocationCode}-%");
         }
 
         if ($minRemaining !== null && is_numeric($minRemaining)) {

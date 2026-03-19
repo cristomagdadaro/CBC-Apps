@@ -298,16 +298,16 @@ export default {
 </script>
 
 <template>
-    <div class="camera-scanner" :class="[`variant-${variant}`]">
+    <div class="camera-scanner gap-2 flex flex-col" :class="[`variant-${variant}`]">
         <div class="flex flex-row gap-1 w-full">
             <!-- Toggle Button -->
-            <div v-if="showToggle" class="scanner-controls mb-3 w-full">
+            <div v-if="showToggle" class="scanner-controls w-full">
                 <button type="button" @click="toggleScanner" :disabled="!enabled"
-                    class="w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all duration-200"
+                    class="w-full flex items-center justify-between px-3 py-2 rounded border transition-all duration-200"
                     :class="[
                         isOpen
-                            ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-900/20 dark:border-indigo-800 dark:text-indigo-300'
-                            : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700',
+                            ? 'bg-indigo-50 border-indigo-500 text-indigo-700 dark:bg-indigo-900/20 dark:border-indigo-800 dark:text-indigo-300 h-full'
+                            : 'bg-white border-gray-700 text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700',
                         !enabled && 'opacity-50 cursor-not-allowed'
                     ]">
                     <div class="flex items-center gap-3">
@@ -335,9 +335,9 @@ export default {
 
             <!-- Device Selection -->
             <transition name="scanner-slide">
-                <div v-show="showDeviceSelect && isOpen && devices.length" class="device-select mb-3">
+                <div v-show="showDeviceSelect && isOpen && devices.length" class="device-select">
                     <div
-                        class="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
+                        class="flex items-center gap-2 px-3 py-1 h-full bg-indigo-50 border-indigo-500 text-indigo-700 dark:bg-indigo-900/20 rounded border dark:border-gray-700">
                         <Camera class="w-4 h-4 text-gray-400" />
                         <select v-model="selectedDeviceId"
                             class="flex-1 bg-transparent text-sm text-gray-700 dark:text-gray-300 outline-none cursor-pointer">
@@ -346,9 +346,9 @@ export default {
                             </option>
                         </select>
                         <button v-if="hasMultipleDevices" @click="switchCamera"
-                            class="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                            class="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors bg-indigo-700 group"
                             title="Switch camera">
-                            <SwitchCamera class="w-4 h-4 text-gray-500" />
+                            <SwitchCamera class="w-4 h-4 text-gray-50 group-hover:text-indigo-700 group-active:rotate-180 duration-500" />
                         </button>
                     </div>
                 </div>

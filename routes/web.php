@@ -240,6 +240,7 @@ Route::middleware([
                 return Inertia::render('Inventory/Barcodes/BarcodePrint', [
                     'fromUrl' => route('items.index'),
                     'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
+                    'storage_locations' => app(OptionRepo::class)->getStorageLocations(),
                 ]);
             })->name('inventory.barcodes.print');
 
