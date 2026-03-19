@@ -14,6 +14,11 @@ export default class Transaction extends DtoTransaction {
 
     static page = usePage();
 
+    private static currentUserId(): string | null {
+        const authUser = (Transaction.page.props as any)?.auth?.user;
+        return authUser?.id ?? null;
+    }
+
     constructor(response: DtoTransaction) {
         super(response);
         
@@ -56,6 +61,7 @@ export default class Transaction extends DtoTransaction {
     {
         return {
             id: model.id ?? null,
+            components: model.components ?? [],
             barcode: model.barcode ?? null,
             barcode_prri: model.barcode_prri ?? null,
             item_id: model.item_id ?? null,
@@ -66,12 +72,22 @@ export default class Transaction extends DtoTransaction {
             total_cost: model.total_cost ?? null,
             personnel_id: model.personnel_id ?? null,
             employee_id: model.employee_id ?? null,
-            user_id: model.user_id ?? Transaction.page.props.auth?.user?.id ?? null,
+            user_id: model.user_id ?? Transaction.currentUserId(),
             expiration: model.expiration ?? null,
             remarks: model.remarks ?? null,
             project_code: model.project_code ?? null,
             par_no: model.par_no ?? null,
             condition: model.condition ?? null,
+        };
+    }
+
+    deleteField(model: ITransaction): object
+    {
+        return {
+            id: model?.id ?? null,
+            barcode: model?.barcode ?? null,
+            force: false,
+            confirmation_barcode: '',
         };
     }
 
@@ -108,7 +124,7 @@ export default class Transaction extends DtoTransaction {
                 db_key: 'barcode_prri',
                 align: 'dataColor',
                 sortable: true,
-                visible: false,
+                visible: true,
             },{
                 title: 'Type',
                 key: 'transac_type',

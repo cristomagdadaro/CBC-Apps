@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\ValidationException;
 
 class TransactionController extends BaseController
 {
@@ -58,8 +59,31 @@ class TransactionController extends BaseController
         return parent::_update($id, $request);
     }
 
-    public function destroy(string $id): Model
+    public function destroy(Request $request, string $id): Model | JsonResponse
     {
+        if ($request->boolean('force')) {
+            $transaction = $this->repo()->model->newQuery()->withTrashed()->findOrFail($id);
+            $confirmationBarcode = trim((string) $request->input('confirmation_barcode', ''));
+
+            if ($confirmationBarcode === '' || $confirmationBarcode !== (string) $transaction->barcode) {
+                throw ValidationException::withMessages([
+                    'confirmation_barcode' => 'Please type ' . $transaction->barcode,
+                ]);
+            }
+
+            $deleted = $this->repo()->forceDelete($id);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Transaction permanently deleted.',
+                'data' => [
+                    'id' => $deleted->id,
+                    'barcode' => $deleted->barcode,
+                    'force' => true,
+                ],
+            ]);
+        }
+
         return parent::_destroy($id);
     }
 

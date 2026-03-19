@@ -40,6 +40,7 @@ export default {
             apiResponse: null,
             confirmDelete: false,
             toDelete: null,
+            deleteConfirmationError: null,
             searchDebounceTimer: null,
             searchDebounceDelay: 350,
             latestRequestId: 0,
@@ -152,6 +153,7 @@ export default {
                 return;
             }
 
+            this.deleteConfirmationError = null;
             const response = await this.submitDelete();
             if (response instanceof DtoResponse)
             {
@@ -162,11 +164,54 @@ export default {
                 await this.searchEvent();
             }
         },
+        async handlePermanentDelete(typedBarcode)
+        {
+            if (!this.toDelete?.id || !this.toDelete?.barcode) {
+                return;
+            }
+
+            this.processing = true;
+            this.deleteConfirmationError = null;
+
+            try {
+                const response = await this.model.api.deleteApiIndex({
+                    id: this.toDelete.id,
+                    force: true,
+                    confirmation_barcode: typedBarcode,
+                });
+
+                if (response) {
+                    this.confirmDelete = false;
+                    this.toDelete = null;
+                    await this.searchEvent();
+                }
+            } catch (error) {
+                const status = error?.response?.status;
+                const message = error?.response?.data?.errors?.confirmation_barcode?.[0]
+                    ?? error?.response?.data?.message
+                    ?? 'Permanent delete failed.';
+
+                if (status === 422) {
+                    this.deleteConfirmationError = message;
+                    return;
+                }
+
+                throw error;
+            } finally {
+                this.processing = false;
+            }
+        },
         async handleDataTableDelete(row)
         {
             // Set the row to delete and open confirmation modal from DataTable action
             this.toDelete = row;
             this.confirmDelete = true;
+            this.deleteConfirmationError = null;
+        },
+        closeDeleteModal() {
+            this.confirmDelete = false;
+            this.toDelete = null;
+            this.deleteConfirmationError = null;
         }
     }
 }
@@ -279,12 +324,18 @@ export default {
         <delete-confirmation-modal
             v-if="confirmDelete"
             :show="confirmDelete"
-            :is-processing="model.api.processing"
+            :is-processing="model.api.processing || processing"
             title="Confirm Delete"
             :message="`Are you sure you want to delete this record? This action cannot be undone.`"
             :item-name="toDelete?.fullName ? `${toDelete.fullName} (${toDelete.id})` : ''"
+            :permanent-delete-enabled="propModel?.name === 'Transaction' && !!toDelete?.barcode"
+            permanent-delete-label="Permanent Delete"
+            :permanent-delete-prompt="toDelete?.barcode ? `Please type ${toDelete.barcode}` : null"
+            :permanent-delete-target="toDelete?.barcode ?? ''"
+            :confirmation-error="deleteConfirmationError"
             @confirm="handleDelete"
-            @close="confirmDelete = false; toDelete = null"
+            @confirm-permanent="handlePermanentDelete"
+            @close="closeDeleteModal"
         />
     </div>
 </template>

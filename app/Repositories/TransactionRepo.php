@@ -62,6 +62,38 @@ class TransactionRepo extends AbstractRepoService
         });
     }
 
+    public function delete(int|string $id): Model
+    {
+        return DB::transaction(function () use ($id) {
+            $model = $this->model->newQuery()->findOrFail($id);
+            $deletedData = $model->getAttributes();
+
+            $model->components()->delete();
+            $model->reports()->delete();
+            $model->delete();
+
+            $model->setRawAttributes($deletedData);
+
+            return $model;
+        });
+    }
+
+    public function forceDelete(int|string $id): Model
+    {
+        return DB::transaction(function () use ($id) {
+            $model = $this->model->newQuery()->withTrashed()->findOrFail($id);
+            $deletedData = $model->getAttributes();
+
+            $model->components()->withTrashed()->forceDelete();
+            $model->reports()->withTrashed()->forceDelete();
+            $model->forceDelete();
+
+            $model->setRawAttributes($deletedData);
+
+            return $model;
+        });
+    }
+
     public function update(int|string $id, array $data): Model
     {
         $components = collect($data['components'] ?? [])

@@ -10,6 +10,10 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
         unit?: string;
         unit_price?: number | string;
         total_cost?: number | string;
+        barcode_prri?: string;
+        prri_component_no?: string;
+        expiration?: string;
+        remarks?: string;
     }>;
     barcode: string;
     barcode_prri: string;

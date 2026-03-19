@@ -374,16 +374,19 @@ export default abstract class ApiService {
         }
     }
 
-    async delete(url: string, id: any) {
+    async delete(url: string, id: any, data?: any) {
         this.processing = true;
         try {
             await this.ensureCsrfProtection();
             ConsoleLogger.debug({
                 tag: 'API_DELETE',
                 id: id,
+                data: data,
             });
-            // @ts-ignore
-            const response = await this.axiosInstance.delete(route(url, id), id);
+            const config = data && Object.keys(data).length
+                ? { data }
+                : undefined;
+            const response = await this.axiosInstance.delete(route(url, id), config);
             this.processing = false;
             ConsoleLogger.log({
                 tag: 'API_DELETE_RESPONSE',
@@ -403,6 +406,27 @@ export default abstract class ApiService {
             this.notifyError(error, 'Failed to delete data.');
             throw error;
         }
+    }
+
+    private getDeletePayload(params: any): any {
+        if (!params || typeof params !== 'object') {
+            return undefined;
+        }
+
+        const payload = { ...params };
+
+        if ('id' in payload) {
+            delete payload.id;
+        } else if ('event_id' in payload) {
+            delete payload.event_id;
+        } else {
+            const otherIdKey = Object.keys(payload).find((key) => key.endsWith('_id'));
+            if (otherIdKey) {
+                delete payload[otherIdKey];
+            }
+        }
+
+        return Object.keys(payload).length ? payload : undefined;
     }
 
     castToModel(response: any, modelOrCtor: any) {
@@ -527,7 +551,11 @@ export default abstract class ApiService {
             this.notifyError(error, 'API for delete not found.');
             return null;
         }
-        return await this.delete(this._apiDelete, this.getIdentifier(params));
+        return await this.delete(
+            this._apiDelete,
+            this.getIdentifier(params),
+            this.getDeletePayload(params)
+        );
     }
 
     private getIdentifier(params: any): null {
