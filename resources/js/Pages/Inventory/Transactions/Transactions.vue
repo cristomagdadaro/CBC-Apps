@@ -16,8 +16,6 @@ const transactionTypeOptions = [
         <template #header>
             <TransactionHeaderAction />
         </template>
-        <CRCMDatatable :base-model="Transaction" :can-view="true" :can-create="false"
-        :can-update="true"
-        :can-delete="true"/>   
+        <CRCMDatatable :base-model="Transaction" :can-view="true" :can-create="false" :can-update="true" :can-delete="true" />
     </AppLayout>
 </template>

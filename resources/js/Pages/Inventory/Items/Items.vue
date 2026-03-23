@@ -4,6 +4,7 @@ import DataTable from "@/Modules/DataTable/presentation/DataTable.vue";
 import SearchComp from "@/Components/Search/SearchComp.vue";
 import Item from "@/Modules/domain/Item";
 import ItemsHeaderActions from "@/Pages/Inventory/Items/components/ItemsHeaderActions.vue";
+import CRCMDatatable from '@/Components/CRCMDatatable/CRCMDatatable.vue';
 
 export default {
     name: "Items",
@@ -11,7 +12,8 @@ export default {
         ItemsHeaderActions,
         SearchComp,
         DataTable,
-        Head
+        Head,
+        CRCMDatatable,
     },
     computed: {
         DataTable() {
@@ -32,14 +34,7 @@ export default {
             <items-header-actions />
         </template>
 
-        <div class="py-12">
-            <div class="max-w-[90vw] mx-auto sm:px-6 lg:px-8">
-                <search-comp
-                    :propModel="Item"
-                    :cardSlot="DataTable"
-                />
-            </div>
-        </div>
+        <CRCMDatatable :base-model="Item" :can-view="true" :can-create="false" :can-update="true" :can-delete="true" />
     </AppLayout>
 </template>
 

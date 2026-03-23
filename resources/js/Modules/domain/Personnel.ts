@@ -1,14 +1,22 @@
 import DtoPersonnel from "@/Modules/dto/DtoPersonnel";
 
 export default class Personnel extends DtoPersonnel {
+    static endpoints = {
+        index: 'api.inventory.suppliers.index',
+        post: 'api.inventory.suppliers.store',
+        put: 'api.inventory.suppliers.update',
+        delete: 'api.inventory.suppliers.destroy',
+        show: 'suppliers.show',
+    };
+
     constructor(response: DtoPersonnel) {
         super(response);
-        this.api._apiIndex = 'api.inventory.personnels.index';
-        this.api._apiPost = 'api.inventory.personnels.store';
-        this.api._apiPut = 'api.inventory.personnels.update';
-        this.api._apiDelete = 'api.inventory.personnels.destroy';
+        this.api._apiIndex = Personnel.endpoints.index;
+        this.api._apiPost = Personnel.endpoints.post;
+        this.api._apiPut = Personnel.endpoints.put;
+        this.api._apiDelete = Personnel.endpoints.delete;
 
-        this.showPage = 'personnels.show';
+        this.showPage = Personnel.endpoints.show;
     }
 
     createFields(): object

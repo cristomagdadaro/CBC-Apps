@@ -1,15 +1,23 @@
 import DtoSupplier from "@/Modules/dto/DtoSupplier";
 
 export default class Supplier extends DtoSupplier {
+    static endpoints = {
+        index: 'api.inventory.suppliers.index',
+        post: 'api.inventory.suppliers.store',
+        put: 'api.inventory.suppliers.update',
+        delete: 'api.inventory.suppliers.destroy',
+        show: 'suppliers.show',
+    };
+    
     constructor(response: DtoSupplier) {
         super(response);
 
-        this.api._apiIndex = 'api.inventory.suppliers.index';
-        this.api._apiPost = 'api.inventory.suppliers.store';
-        this.api._apiPut = 'api.inventory.suppliers.update';
-        this.api._apiDelete = 'api.inventory.suppliers.destroy';
+        this.api._apiIndex = Supplier.endpoints.index;
+        this.api._apiPost = Supplier.endpoints.post;
+        this.api._apiPut = Supplier.endpoints.put;
+        this.api._apiDelete = Supplier.endpoints.delete;
 
-        this.showPage = 'suppliers.show';
+        this.showPage = Supplier.endpoints.show;
     }
 
     createFields(): object {

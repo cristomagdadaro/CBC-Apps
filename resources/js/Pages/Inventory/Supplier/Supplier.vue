@@ -4,12 +4,13 @@ import DataTable from "@/Modules/DataTable/presentation/DataTable.vue";
 import SearchComp from "@/Components/Search/SearchComp.vue";
 import Supplier from "@/Modules/domain/Supplier";
 import SupplierHeaderActions from "@/Pages/Inventory/Supplier/components/SupplierHeaderActions.vue";
+import CRCMDatatable from '@/Components/CRCMDatatable/CRCMDatatable.vue';
 
 export default {
     name: "Supplier",
     components: {
         SupplierHeaderActions,
-        SearchComp, DataTable, Head
+        SearchComp, DataTable, Head, CRCMDatatable
     },
     computed: {
         DataTable() {
@@ -30,14 +31,7 @@ export default {
             <supplier-header-actions />
         </template>
 
-        <div class="py-12">
-            <div class="max-w-[90vw] mx-auto sm:px-6 lg:px-8">
-                <search-comp
-                    :propModel="Supplier"
-                    :cardSlot="DataTable"
-                />
-            </div>
-        </div>
+        <CRCMDatatable :base-model="Supplier" :can-view="true" :can-create="false" :can-update="true" :can-delete="true" />
     </AppLayout>
 </template>
 
