@@ -1028,7 +1028,7 @@ export default {
                                 ">
                                 <h3 class="text-sm font-semibold truncate">
                                     {{ item.equipment?.name }}
-                                    {{ "(" + item.equipment?.brand + ")" }}
+                                    {{ "(" + item.equipment?.brand + ")" }} <span v-if="isActiveItemOverdue(item)" class="font-bold text-red-400 uppercase">- Overdue</span>
                                 </h3>
                                 <p class="text-xs truncate">
                                     Checked in at
@@ -1050,6 +1050,7 @@ export default {
                                                 item.personnel,
                                             )
                                         }}</b>
+                                        <span v-if="isActiveItemOverdue(item)" class="text-red-400 italic"> kindly check-out this equipment</span>
                                     </div>
                                 </div>
                             </div>
