@@ -72,6 +72,7 @@ export default {
             isNavigating: false,
             unsubscribeRouterEvents: null,
             showEstimatedEndUseModal: false,
+            showLocationSurveyModal: false,
         };
     },
     computed: {
@@ -101,7 +102,7 @@ export default {
             return page.props.auth?.user?.is_admin ?? false;
         },
         shouldShowLocationSurvey() {
-            return this.currentLocation?.source !== "temporary";
+            return this.currentLocation?.source !== "temporary" || this.currentLocation?.label === "Unknown Location";
         },
         filteredActiveEquipments() {
             if (
@@ -211,6 +212,10 @@ export default {
                     this.locationSurveyForm.employee_id =
                         this.savedLaboratoryPersonnel.employee_id;
                 }
+
+                if (!this.shouldShowLocationSurvey) {
+                    this.showLocationSurveyModal = false;
+                }
             } catch (error) {
                 this.messageType = "error";
                 this.message =
@@ -289,6 +294,15 @@ export default {
                 this.locationSurveyForm.employee_id =
                     this.savedLaboratoryPersonnel.employee_id;
             }
+        },
+        openLocationSurveyModal() {
+            if (!this.shouldShowLocationSurvey) return;
+            this.resetLocationSurvey();
+            this.showLocationSurveyModal = true;
+        },
+        closeLocationSurveyModal() {
+            this.showLocationSurveyModal = false;
+            this.resetLocationSurvey();
         },
         addMinutes(minutes) {
             if (minutes === 0) {
@@ -410,6 +424,7 @@ export default {
                 this.messageType = "success";
                 this.message = "Location updated successfully";
                 this.showSuccessModal = true;
+                this.showLocationSurveyModal = false;
                 await this.loadEquipment();
             } catch (error) {
                 this.messageType = "error";
@@ -467,6 +482,7 @@ export default {
                 this.equipment = null;
                 this.activeLog = null;
                 this.allowedActions = [];
+                this.showLocationSurveyModal = false;
                 return;
             }
             this.loadEquipment();
@@ -490,7 +506,7 @@ export default {
                 this.savedLaboratoryPersonnel.employee_id;
         }
         setTimeout(() => (this.delayReady = true), 200);
-
+        
         const unsubscribeStart = router.on(
             "start",
             () => (this.isNavigating = true),
@@ -513,29 +529,24 @@ export default {
 </script>
 
 <template>
+
     <Head :title="title" />
-    
+
     <!-- Success Modal -->
-    <Transition
-        enter-active-class="transition duration-200 ease-out"
-        enter-from-class="transform scale-95 opacity-0"
-        enter-to-class="transform scale-100 opacity-100"
-        leave-active-class="transition duration-150 ease-in"
-        leave-from-class="transform scale-100 opacity-100"
-        leave-to-class="transform scale-95 opacity-0"
-    >
-        <div v-if="showSuccessModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <div class="w-full max-w-sm p-6 bg-white shadow-2xl rounded-2xl">
+    <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0"
+        enter-to-class="transform scale-100 opacity-100" leave-active-class="transition duration-150 ease-in"
+        leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
+        <div v-if="showSuccessModal"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div class="w-full max-w-sm p-4 bg-white shadow-2xl rounded-2xl">
                 <div class="flex flex-col items-center text-center">
                     <div class="p-3 mb-4 rounded-full bg-emerald-100">
                         <LuCheckCircle2 class="w-8 h-8 text-emerald-600" />
                     </div>
                     <h3 class="mb-2 text-lg font-semibold text-gray-900">Success</h3>
                     <p class="mb-6 text-gray-600">{{ message }}</p>
-                    <button
-                        @click="showSuccessModal = false"
-                        class="w-full px-4 py-2.5 text-sm font-medium text-white transition-colors bg-emerald-600 rounded-xl hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-                    >
+                    <button @click="showSuccessModal = false"
+                        class="w-full px-4 py-2.5 text-sm font-medium text-white transition-colors bg-emerald-600 rounded-xl hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
                         Continue
                     </button>
                 </div>
@@ -545,15 +556,11 @@ export default {
 
     <GuestFormPage :title="title" :subtitle="subtitle" :delay-ready="delayReady" max-width="max-w-7xl">
         <!-- Loading Overlay -->
-        <Transition
-            enter-active-class="transition-opacity duration-300"
-            enter-from-class="opacity-0"
-            enter-to-class="opacity-100"
-            leave-active-class="transition-opacity duration-200"
-            leave-from-class="opacity-100"
-            leave-to-class="opacity-0"
-        >
-            <div v-if="processing" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+        <Transition enter-active-class="transition-opacity duration-300" enter-from-class="opacity-0"
+            enter-to-class="opacity-100" leave-active-class="transition-opacity duration-200"
+            leave-from-class="opacity-100" leave-to-class="opacity-0">
+            <div v-if="processing"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
                 <div class="flex flex-col items-center gap-3 p-8 bg-white shadow-2xl rounded-2xl">
                     <LuLoader2 class="w-10 h-10 animate-spin text-emerald-600" />
                     <p class="text-sm font-medium text-gray-600">Processing...</p>
@@ -561,21 +568,18 @@ export default {
             </div>
         </Transition>
 
-        <Transition
-            enter-active-class="transition-all duration-500 ease-out"
-            enter-from-class="opacity-0 translate-y-4"
-            enter-to-class="opacity-100 translate-y-0"
-        >
-            <div v-show="delayReady" class="grid grid-cols-1 gap-6 p-4 mx-auto lg:grid-cols-12 max-w-7xl">
-                
+        <Transition enter-active-class="transition-all duration-500 ease-out" enter-from-class="opacity-0 translate-y-4"
+            enter-to-class="opacity-100 translate-y-0">
+            <div v-show="delayReady" class="grid grid-cols-1 gap-0 md:gap-4 lg:gap-4 lg:grid-cols-12">
+
                 <!-- Main Content Column -->
-                <div class="space-y-6 lg:col-span-7">
-                    
+                <div class="space-y-0 md:space-y-4 lg:space-y-6 lg:col-span-7">
+
                     <!-- Equipment Selection / Details Card -->
-                    <div class="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-2xl">
+                    <div class="bg-white border border-gray-200 shadow-sm md:rounded-xl overflow-visible">
                         <!-- Empty State -->
-                        <div v-if="!hasEquipment" class="p-8">
-                            <div class="flex items-center gap-3 mb-6">
+                        <div v-if="!hasEquipment" class="p-4 flex flex-col gap-2">
+                            <div class="flex items-center gap-3">
                                 <div class="p-2 rounded-lg bg-emerald-100">
                                     <LuScanLine class="w-6 h-6 text-emerald-600" />
                                 </div>
@@ -584,13 +588,10 @@ export default {
                                     <p class="text-sm text-gray-500">Scan QR code or search manually</p>
                                 </div>
                             </div>
-                            <SelectSearchField
-                                id="equipment_selector"
-                                placeholder="Search by name, brand, or barcode..."
-                                :options="equipmentOptions"
-                                v-model="selectedEquipmentId"
-                            />
-                            <p class="flex items-center gap-2 mt-3 text-xs text-gray-500">
+                            <SelectSearchField id="equipment_selector"
+                                placeholder="Search by name, brand, or barcode..." :options="equipmentOptions"
+                                v-model="selectedEquipmentId" />
+                            <p class="flex items-center gap-2 text-xs text-gray-500">
                                 <LuSearch class="w-3.5 h-3.5" />
                                 Type to search or scan barcode
                             </p>
@@ -608,126 +609,126 @@ export default {
                             </div>
                             <h3 class="mb-2 text-lg font-semibold text-gray-900">Equipment Not Found</h3>
                             <p class="max-w-xs mx-auto mb-6 text-sm text-gray-500">{{ message }}</p>
-                            <Link
-                                :href="route(showPageRoute)"
+                            <Link :href="route(showPageRoute)"
                                 class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition-colors bg-emerald-600 rounded-lg hover:bg-emerald-700"
-                                :class="{ 'opacity-70 pointer-events-none': isNavigating }"
-                            >
-                                <LuArrowLeft class="w-4 h-4" />
-                                Browse All Equipment
+                                :class="{ 'opacity-70 pointer-events-none': isNavigating }">
+                            <LuArrowLeft class="w-4 h-4" />
+                            Browse All Equipment
                             </Link>
                         </div>
 
                         <!-- Equipment Details -->
                         <div v-else-if="equipment" class="divide-y divide-gray-100">
                             <!-- Header -->
-                            <div class="flex items-start justify-between p-6">
+                            <div class="flex items-start justify-between p-4">
                                 <div class="flex items-center gap-4">
                                     <div class="p-3 rounded-xl bg-emerald-100">
-                                        <LuPackage class="w-6 h-6 text-emerald-600" />
+                                        <LuMicroscope class="w-6 h-6 text-emerald-600" />
                                     </div>
                                     <div>
                                         <h1 class="text-xl font-bold text-gray-900">{{ equipment.name }}</h1>
-                                        <p class="text-sm text-gray-500">{{ equipment.brand || "No brand specified" }}</p>
+                                        <p class="text-sm text-gray-500">{{ equipment.brand || "No brand specified" }}
+                                        </p>
                                     </div>
                                 </div>
-                                <button
-                                    v-if="!equipment_id"
-                                    @click="selectedEquipmentId = null"
-                                    class="p-2 text-gray-400 transition-colors rounded-lg hover:bg-gray-100 hover:text-gray-600"
-                                >
+                                <button v-if="!equipment_id" @click="selectedEquipmentId = null"
+                                    class="p-2 text-gray-400 transition-colors rounded-lg hover:bg-gray-100 hover:text-gray-600">
                                     <LuX class="w-5 h-5" />
                                 </button>
                             </div>
 
                             <!-- Details Grid -->
-                            <div class="grid grid-cols-2 gap-6 p-6">
+                            <div class="grid grid-cols-2 gap-4 px-4 pb-4">
                                 <div class="space-y-1">
-                                    <label class="flex items-center gap-1.5 text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                    <label
+                                        class="flex items-center gap-1.5 text-xs font-medium text-gray-500 uppercase tracking-wide">
                                         <LuBarcode class="w-3.5 h-3.5" />
                                         PhilRice Property No.
                                     </label>
                                     <p class="text-sm font-medium text-gray-900">{{ equipment.barcode_prri || "—" }}</p>
                                 </div>
                                 <div class="space-y-1">
-                                    <label class="flex items-center gap-1.5 text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                    <label
+                                        class="flex items-center gap-1.5 text-xs font-medium text-gray-500 uppercase tracking-wide">
                                         <LuBarcode class="w-3.5 h-3.5" />
                                         CBC Barcode
                                     </label>
                                     <p class="text-sm font-medium text-gray-900">{{ equipment.barcode || "—" }}</p>
                                 </div>
-                                <div class="col-span-2 space-y-1">
-                                    <label class="flex items-center gap-1.5 text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                <div class="space-y-1">
+                                    <label
+                                        class="flex items-center gap-1.5 text-xs font-medium text-gray-500 uppercase tracking-wide">
                                         <LuBuilding class="w-3.5 h-3.5" />
                                         Current Location
                                     </label>
                                     <div class="flex items-center gap-2">
-                                        <p class="text-sm font-medium text-gray-900">{{ currentLocation?.label || "Unknown" }}</p>
-                                        <span
-                                            v-if="currentLocation?.source === 'temporary'"
-                                            class="px-2 py-0.5 text-xs font-medium text-amber-700 bg-amber-100 rounded-full"
-                                        >
+                                        <p class="text-sm font-medium text-gray-900">{{ currentLocation?.label ||
+                                            "Unknown" }}</p>
+                                        <span v-if="currentLocation?.source === 'temporary'"
+                                            class="px-2 py-0.5 text-xs font-medium text-amber-700 bg-amber-100 rounded-full">
                                             Temporary
                                         </span>
                                     </div>
+                                    <button v-if="shouldShowLocationSurvey" type="button" @click="openLocationSurveyModal"
+                                        class="mt-2 text-xs font-medium text-amber-700 transition-colors hover:text-amber-800">
+                                        Update reported location
+                                    </button>
                                 </div>
-                                <div class="col-span-2 space-y-1">
-                                    <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Description</label>
+                                <div class="space-y-1">
+                                    <label
+                                        class="text-xs font-medium text-gray-500 uppercase tracking-wide">Description</label>
                                     <p class="text-sm text-gray-700">{{ equipment.description || "No description" }}</p>
                                 </div>
                             </div>
-
-                            <!-- Location Survey -->
-                            <div v-if="shouldShowLocationSurvey" class="p-6 bg-amber-50/50 border-t border-amber-100">
-                                <div class="flex items-center gap-2 mb-4">
-                                    <LuMapPin class="w-4 h-4 text-amber-600" />
-                                    <h3 class="text-sm font-semibold text-gray-900">Update Location</h3>
-                                </div>
-                                <p class="mb-4 text-xs text-gray-600">Report if equipment is in a different location</p>
-                                <div class="space-y-3">
-                                    <TextInput
-                                        id="survey_location_employee_id"
-                                        v-model="locationSurveyForm.employee_id"
-                                        label="Your ID"
-                                        :error="getErrorMessage(locationSurveyErrors.employee_id)"
-                                        @keydown.enter.prevent="submitLocationSurvey"
-                                    />
-                                    <TextInput
-                                        id="survey_location_label"
-                                        v-model="locationSurveyForm.location_label"
-                                        label="Current Location"
-                                        :datalist-id="'storage-location-suggestions'"
-                                        :datalist-options="storageLocationOptions"
-                                        :error="getErrorMessage(locationSurveyErrors.location_label)"
-                                        @keydown.enter.prevent="submitLocationSurvey"
-                                    />
-                                    <div v-if="getErrorMessage(locationSurveyErrors.base)" class="text-sm text-red-600">
-                                        {{ getErrorMessage(locationSurveyErrors.base) }}
+                            <DialogModal :show="showLocationSurveyModal" max-width="md" @close="closeLocationSurveyModal">
+                                <template #title>
+                                    <div class="flex items-center gap-2 mb-4 py-2">
+                                        <LuMapPin class="w-4 h-4 text-amber-600" />
+                                        <h3 class="text-sm font-semibold text-gray-900">Update Location</h3>
                                     </div>
-                                    <button
-                                        type="button"
-                                        @click="submitLocationSurvey"
-                                        class="w-full px-4 py-2.5 text-sm font-medium text-white transition-colors bg-amber-600 rounded-lg hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
-                                    >
+                                </template>
+                                <template #content>
+                                    <!-- Location Survey -->
+                                    <div class="bg-amber-50/50 border-t border-amber-100">
+                                        <p class="mb-4 text-gray-600">Kindly provide the current location of the equipment.
+                                            location</p>
+                                        <div class="space-y-3">
+                                            <TextInput id="survey_location_employee_id" required
+                                                v-model="locationSurveyForm.employee_id" label="Your ID"
+                                                :error="getErrorMessage(locationSurveyErrors.employee_id)"
+                                                @keydown.enter.prevent="submitLocationSurvey" />
+                                            <TextInput id="survey_location_label" required
+                                                v-model="locationSurveyForm.location_label" label="Current Location"
+                                                :datalist-id="'storage-location-suggestions'"
+                                                :datalist-options="storageLocationOptions"
+                                                :error="getErrorMessage(locationSurveyErrors.location_label)"
+                                                @keydown.enter.prevent="submitLocationSurvey" />
+                                            <div v-if="getErrorMessage(locationSurveyErrors.base)"
+                                                class="text-sm text-red-600">
+                                                {{ getErrorMessage(locationSurveyErrors.base) }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template #footer>
+                                    <button type="button" @click="submitLocationSurvey(); closeLocationSurveyModal()"
+                                        class="w-full px-4 py-2.5 text-sm font-medium text-white transition-colors bg-amber-600 rounded-lg hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2">
                                         Update Location
                                     </button>
-                                </div>
-                            </div>
+                                </template>
+                            </DialogModal>
                         </div>
                     </div>
 
                     <!-- Status Card -->
-                    <div v-if="hasEquipment && !notFound && equipment" class="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-2xl">
-                        <div class="flex items-center justify-between p-6 border-b border-gray-100">
+                    <div v-if="hasEquipment && !notFound && equipment"
+                        class="overflow-hidden bg-white border border-gray-200 shadow-sm md:rounded-xl">
+                        <div class="flex items-center justify-between p-4 border-b border-gray-100">
                             <div class="flex items-center gap-3">
-                                <div
-                                    class="p-2 rounded-lg"
-                                    :class="isOverdue ? 'bg-red-100' : activeLog ? 'bg-emerald-100' : 'bg-gray-100'"
-                                >
-                                    <LuActivity
-                                        class="w-5 h-5"
-                                        :class="isOverdue ? 'text-red-600' : activeLog ? 'text-emerald-600' : 'text-gray-600'"
-                                    />
+                                <div class="p-2 rounded-lg"
+                                    :class="isOverdue ? 'bg-red-100' : activeLog ? 'bg-emerald-100' : 'bg-gray-100'">
+                                    <LuActivity class="w-5 h-5"
+                                        :class="isOverdue ? 'text-red-600' : activeLog ? 'text-emerald-600' : 'text-gray-600'" />
                                 </div>
                                 <div>
                                     <h2 class="text-sm font-semibold text-gray-900">Current Status</h2>
@@ -736,27 +737,21 @@ export default {
                                     </p>
                                 </div>
                             </div>
-                            <button
-                                v-if="activeLog"
-                                @click="showEstimatedEndUseModal = true"
-                                class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 transition-colors bg-emerald-50 rounded-lg hover:bg-emerald-100"
-                            >
+                            <button v-if="activeLog" @click="showEstimatedEndUseModal = true"
+                                class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 transition-colors bg-emerald-50 rounded-lg hover:bg-emerald-100">
                                 <LuEdit class="w-3.5 h-3.5" />
                                 Edit Time
                             </button>
                         </div>
 
-                        <div v-if="activeLog" class="p-6 space-y-4">
+                        <div v-if="activeLog" class="p-4 space-y-1 md:space-y-3">
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-gray-500">Status</span>
                                 <span
                                     class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full"
-                                    :class="isOverdue ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'"
-                                >
-                                    <span
-                                        class="w-1.5 h-1.5 rounded-full animate-pulse"
-                                        :class="isOverdue ? 'bg-red-500' : 'bg-emerald-500'"
-                                    />
+                                    :class="isOverdue ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'">
+                                    <span class="w-1.5 h-1.5 rounded-full animate-pulse"
+                                        :class="isOverdue ? 'bg-red-500' : 'bg-emerald-500'" />
                                     {{ isOverdue ? 'Overdue' : activeLog.status }}
                                 </span>
                             </div>
@@ -768,16 +763,14 @@ export default {
                                 </span>
                             </div>
                             <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-500">Expected Return</span>
-                                <span
-                                    class="flex items-center gap-1.5 text-sm font-medium"
-                                    :class="isOverdue ? 'text-red-600' : 'text-gray-900'"
-                                >
+                                <span class="text-sm text-gray-500">Expected End</span>
+                                <span class="flex items-center gap-1.5 text-sm font-medium"
+                                    :class="isOverdue ? 'text-red-600' : 'text-gray-900'">
                                     <LuClock class="w-4 h-4" :class="isOverdue ? 'text-red-400' : 'text-gray-400'" />
                                     {{ formatDateTime(activeLog.end_use_at) }}
                                 </span>
                             </div>
-                            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                            <div class="flex items-center justify-between">
                                 <span class="text-sm text-gray-500">Current User</span>
                                 <span class="flex items-center gap-1.5 text-sm font-medium text-gray-900">
                                     <LuUser class="w-4 h-4 text-gray-400" />
@@ -785,19 +778,12 @@ export default {
                                 </span>
                             </div>
                         </div>
-
-                        <div v-else class="flex flex-col items-center justify-center p-12 text-center">
-                            <div class="p-3 mb-3 rounded-full bg-gray-100">
-                                <LuPackage class="w-6 h-6 text-gray-400" />
-                            </div>
-                            <p class="text-sm text-gray-500">No active session</p>
-                            <p class="text-xs text-gray-400">Equipment is available for check-in</p>
-                        </div>
                     </div>
 
                     <!-- Check-in Form -->
-                    <div v-if="hasEquipment && !notFound && canCheckIn" class="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-2xl">
-                        <div class="p-6 border-b border-gray-100 bg-emerald-50/30">
+                    <div v-if="hasEquipment && !notFound && canCheckIn"
+                        class="overflow-hidden bg-white border border-gray-200 shadow-sm md:rounded-xl">
+                        <div class="p-4 border-b border-gray-100 bg-emerald-50/30">
                             <div class="flex items-center gap-3">
                                 <div class="p-2 rounded-lg bg-emerald-100">
                                     <LuLogIn class="w-5 h-5 text-emerald-600" />
@@ -808,15 +794,13 @@ export default {
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="p-6 space-y-4">
-                            <PersonnelLookup
-                                v-model="checkInForm.employee_id"
-                                @found="handlePersonnelFound"
-                                @error="handlePersonnelError"
-                            />
-                            
-                            <div v-if="personnelPreview" class="flex items-center gap-2 p-3 text-sm text-emerald-700 rounded-lg bg-emerald-50">
+
+                        <div class="px-4 pb-4 space-y-4">
+                            <PersonnelLookup v-model="checkInForm.employee_id" @found="handlePersonnelFound" required
+                                @error="handlePersonnelError" />
+
+                            <div v-if="personnelPreview"
+                                class="flex items-center gap-2 p-3 text-sm text-emerald-700 rounded-lg bg-emerald-50">
                                 <LuCheckCircle2 class="w-4 h-4" />
                                 <span class="font-medium">{{ personnelPreview.fullName }}</span>
                             </div>
@@ -825,35 +809,21 @@ export default {
                                 {{ getErrorMessage(checkInErrors.employee_id) }}
                             </div>
 
-                            <TextInput
-                                id="end_use_at"
-                                v-model="checkInForm.end_use_at"
-                                label="Expected Return Time"
-                                type="datetime-local"
-                                :error="getErrorMessage(checkInErrors.end_use_at)"
-                                @keydown.enter.prevent="submitCheckIn"
-                            />
+                            <TextInput id="end_use_at" v-model="checkInForm.end_use_at" label="Estimated End of Use" required
+                                type="datetime-local" :error="getErrorMessage(checkInErrors.end_use_at)"
+                                @keydown.enter.prevent="submitCheckIn" />
 
-                            <TextInput
-                                id="purpose"
-                                v-model="checkInForm.purpose"
-                                label="Purpose (optional)"
-                                placeholder="What will you use this for?"
-                                :datalist-id="'purpose-suggestions'"
-                                :datalist-options="purposeSuggestions"
-                                :error="getErrorMessage(checkInErrors.purpose)"
-                                @keydown.enter.prevent="submitCheckIn"
-                            />
+                            <TextInput id="purpose" v-model="checkInForm.purpose" label="Purpose" required
+                                placeholder="What will you use this for?" :datalist-id="'purpose-suggestions'"
+                                :datalist-options="purposeSuggestions" :error="getErrorMessage(checkInErrors.purpose)"
+                                @keydown.enter.prevent="submitCheckIn" />
 
                             <div v-if="checkInErrors.base" class="p-3 text-sm text-red-600 rounded-lg bg-red-50">
                                 {{ checkInErrors.base }}
                             </div>
 
-                            <button
-                                type="button"
-                                @click="submitCheckIn"
-                                class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white transition-all bg-emerald-600 rounded-xl hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-                            >
+                            <button type="button" @click="submitCheckIn"
+                                class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white transition-all bg-emerald-600 rounded-xl hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
                                 <LuLogIn class="w-4 h-4" />
                                 Check In Equipment
                             </button>
@@ -861,8 +831,9 @@ export default {
                     </div>
 
                     <!-- Check-out Form -->
-                    <div v-if="hasEquipment && !notFound && canCheckOut" class="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-2xl">
-                        <div class="p-6 border-b border-gray-100 bg-amber-50/30">
+                    <div v-if="hasEquipment && !notFound && canCheckOut"
+                        class="overflow-hidden bg-white border border-gray-200 shadow-sm md:rounded-xl">
+                        <div class="p-4 border-b border-gray-100 bg-amber-50/30">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-3">
                                     <div class="p-2 rounded-lg bg-amber-100">
@@ -873,81 +844,64 @@ export default {
                                         <p class="text-xs text-gray-500">End current usage session</p>
                                     </div>
                                 </div>
-                                <a
-                                    :href="route('suppEquipReports.create.guest', equipment.barcode)"
-                                    target="_blank"
-                                    class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 transition-colors bg-red-50 rounded-lg hover:bg-red-100"
-                                >
+                                <a :href="route('suppEquipReports.create.guest', equipment.barcode)" target="_blank"
+                                    class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 transition-colors bg-red-50 rounded-lg hover:bg-red-100">
                                     <LuFlag class="w-3.5 h-3.5" />
                                     Report Issue
                                 </a>
                             </div>
                         </div>
 
-                        <div class="p-6 space-y-4">
+                        <div class="px-4 pb-4 space-y-4">
                             <Transition mode="out-in" name="fade-slide">
-                                <div v-if="savedLaboratoryPersonnel && showPhilRiceField" key="saved" class="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-200">
+                                <div v-if="savedLaboratoryPersonnel && showPhilRiceField" key="saved"
+                                    class="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-200">
                                     <div class="flex items-center gap-3">
                                         <div class="p-2 rounded-lg bg-emerald-100">
                                             <LuUser class="w-4 h-4 text-emerald-600" />
                                         </div>
                                         <div>
-                                            <p class="text-sm font-medium text-gray-900">{{ savedLaboratoryPersonnel.fullName }}</p>
-                                            <p class="text-xs text-gray-500">{{ savedLaboratoryPersonnel.employee_id }}</p>
+                                            <p class="text-sm font-medium text-gray-900">{{
+                                                savedLaboratoryPersonnel.fullName }}</p>
+                                            <p class="text-xs text-gray-500">{{ savedLaboratoryPersonnel.employee_id }}
+                                            </p>
                                         </div>
                                     </div>
-                                    <button
-                                        type="button"
-                                        @click="handlePersonnelSwitch"
+                                    <button type="button" @click="handlePersonnelSwitch"
                                         class="p-2 text-gray-500 transition-colors rounded-lg hover:bg-gray-200"
-                                        :class="{ 'animate-spin': isRotating }"
-                                    >
+                                        :class="{ 'animate-spin': isRotating }">
                                         <LuRefreshCw class="w-4 h-4" />
                                     </button>
                                 </div>
 
                                 <div v-else key="manual" class="space-y-3">
-                                    <label class="text-sm font-medium text-gray-700">Enter Your ID</label>
                                     <div class="flex gap-2">
-                                        <TextInput
-                                            id="checkout_employee_id"
-                                            v-model="checkOutForm.employee_id"
-                                            placeholder="PhilRice ID"
-                                            class="flex-1"
+                                        <TextInput id="checkout_employee_id" v-model="checkOutForm.employee_id" label="Enter Your ID" required
+                                            placeholder="PhilRice ID" class="flex-1"
                                             :error="getErrorMessage(checkOutErrors.employee_id)"
-                                            @keydown.enter.prevent="submitCheckOut"
-                                        />
-                                        <button
-                                            type="button"
-                                            @click="handlePersonnelSwitch"
+                                            @keydown.enter.prevent="submitCheckOut" />
+                                        <button type="button" @click="handlePersonnelSwitch"
                                             class="px-3 py-2 text-gray-600 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200"
-                                            title="Use saved profile"
-                                        >
+                                            title="Use saved profile">
                                             <LuUser class="w-4 h-4" />
                                         </button>
                                     </div>
                                 </div>
                             </Transition>
 
-                            <div v-if="getErrorMessage(checkOutErrors.base)" class="p-3 text-sm text-red-600 rounded-lg bg-red-50">
+                            <div v-if="getErrorMessage(checkOutErrors.base)"
+                                class="p-3 text-sm text-red-600 rounded-lg bg-red-50">
                                 {{ getErrorMessage(checkOutErrors.base) }}
                             </div>
 
                             <div v-if="isAdmin" class="flex items-center gap-2 p-3 rounded-lg bg-gray-50">
-                                <input
-                                    id="admin_override"
-                                    v-model="checkOutForm.admin_override"
-                                    type="checkbox"
-                                    class="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
-                                />
+                                <input id="admin_override" v-model="checkOutForm.admin_override" type="checkbox"
+                                    class="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" />
                                 <label for="admin_override" class="text-sm text-gray-700">Admin Override</label>
                             </div>
 
-                            <button
-                                type="button"
-                                @click="submitCheckOut"
-                                class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white transition-all bg-amber-600 rounded-xl hover:bg-amber-700 hover:shadow-lg hover:shadow-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
-                            >
+                            <button type="button" @click="submitCheckOut"
+                                class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white transition-all bg-amber-600 rounded-xl hover:bg-amber-700 hover:shadow-lg hover:shadow-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2">
                                 <LuLogOut class="w-4 h-4" />
                                 Check Out Equipment
                             </button>
@@ -957,33 +911,30 @@ export default {
 
                 <!-- Sidebar: Active Equipment -->
                 <div class="lg:col-span-5">
-                    <div class="sticky overflow-hidden bg-white border border-gray-200 shadow-sm top-4 rounded-2xl">
-                        <div class="flex items-center justify-between p-5 border-b border-gray-100">
+                    <div class="sticky overflow-hidden bg-white border border-gray-200 shadow-sm top-4 md:rounded-xl">
+                        <div class="flex items-center justify-between p-4 border-b border-gray-100">
                             <div class="flex items-center gap-3">
                                 <div class="p-2 rounded-lg bg-blue-100">
-                                    <LuActivity class="w-5 h-5 text-blue-600" />
+                                    <LuAlertCircle class="w-5 h-5 text-blue-600" />
                                 </div>
                                 <div>
                                     <h2 class="text-sm font-semibold text-gray-900">Active Sessions</h2>
-                                    <p class="text-xs text-gray-500">{{ filteredActiveEquipments.length }} equipment in use</p>
+                                    <p class="text-xs text-gray-500">{{ filteredActiveEquipments.length }} equipment in
+                                        use</p>
                                 </div>
                             </div>
                         </div>
 
                         <div v-if="savedLaboratoryPersonnel" class="p-4 border-b border-gray-100 bg-gray-50/50">
-                            <button
-                                @click="filterActiveByPersonnel = !filterActiveByPersonnel"
+                            <button @click="filterActiveByPersonnel = !filterActiveByPersonnel"
                                 class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium transition-colors rounded-lg"
-                                :class="filterActiveByPersonnel ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'"
-                            >
+                                :class="filterActiveByPersonnel ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'">
                                 <span class="flex items-center gap-2">
                                     <LuUser class="w-4 h-4" />
                                     {{ filterActiveByPersonnel ? "Showing My Equipment" : "Show My Equipment Only" }}
                                 </span>
-                                <LuChevronRight
-                                    class="w-4 h-4 transition-transform"
-                                    :class="filterActiveByPersonnel ? 'rotate-90' : ''"
-                                />
+                                <LuChevronRight class="w-4 h-4 transition-transform"
+                                    :class="filterActiveByPersonnel ? 'rotate-90' : ''" />
                             </button>
                         </div>
 
@@ -991,7 +942,8 @@ export default {
                             <LuLoader2 class="w-6 h-6 animate-spin text-gray-400" />
                         </div>
 
-                        <div v-else-if="filteredActiveEquipments.length === 0" class="flex flex-col items-center justify-center p-12 text-center">
+                        <div v-else-if="filteredActiveEquipments.length === 0"
+                            class="flex flex-col items-center justify-center p-12 text-center">
                             <div class="p-3 mb-3 rounded-full bg-gray-100">
                                 <LuPackage class="w-6 h-6 text-gray-400" />
                             </div>
@@ -1000,47 +952,39 @@ export default {
                         </div>
 
                         <div v-else class="divide-y divide-gray-100 max-h-[calc(100vh-300px)] overflow-y-auto">
-                            <Link
-                                v-for="item in filteredActiveEquipments"
-                                :key="item.id"
+                            <Link v-for="item in filteredActiveEquipments" :key="item.id"
                                 :href="route(showPageRoute, item.equipment_id)"
-                                class="flex items-start gap-3 p-4 transition-colors hover:bg-gray-50"
-                                :class="{
+                                class="flex items-start gap-3 p-4 transition-colors hover:bg-gray-50" :class="{
                                     'bg-blue-50/50 border-l-4 border-blue-500': equipment?.id === item.equipment_id,
                                     'border-l-4 border-transparent': equipment?.id !== item.equipment_id,
-                                }"
-                            >
-                                <div
-                                    class="flex-shrink-0 w-2 h-2 mt-2 rounded-full"
-                                    :class="isActiveItemOverdue(item) ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'"
-                                />
-                                
-                                <div class="flex-1 min-w-0">
+                                }">
+                            <div class="flex-shrink-0 w-2 h-2 mt-2 rounded-full"
+                                :class="isActiveItemOverdue(item) ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'" />
+
+                            <div class="flex w-full">
+                                <div class="flex flex-col w-full gap-1">
                                     <div class="flex items-start justify-between gap-2">
                                         <h3 class="text-sm font-semibold text-gray-900 truncate">
                                             {{ item.equipment?.name }}
                                         </h3>
-                                        <span
-                                            v-if="isActiveItemOverdue(item)"
-                                            class="flex-shrink-0 px-1.5 py-0.5 text-[10px] font-bold text-red-700 uppercase bg-red-100 rounded"
-                                        >
+                                        <span v-if="isActiveItemOverdue(item)"
+                                            class="flex-shrink-0 px-1.5 py-0.5 text-[10px] font-bold text-red-700 uppercase bg-red-100 rounded">
                                             Overdue
                                         </span>
                                     </div>
-                                    
-                                    <p class="text-xs text-gray-500 mt-0.5">{{ item.equipment?.brand }}</p>
-                                    
-                                    <div class="flex items-center gap-3 mt-2 text-xs text-gray-500">
-                                        <span class="flex items-center gap-1">
-                                            <LuClock class="w-3.5 h-3.5" />
-                                            {{ formatDateTime(item.end_use_at, 'time') }}
-                                        </span>
-                                        <span class="flex items-center gap-1">
-                                            <LuUser class="w-3.5 h-3.5" />
-                                            {{ formatPersonnelName(item.personnel).split(' ')[0] }}
-                                        </span>
-                                    </div>
+                                    <p class="text-xs text-gray-500">{{ item.equipment?.brand }}</p>
                                 </div>
+                                <div class="flex flex-col items-end text-xs gap-1 text-gray-500 whitespace-nowrap">
+                                    <span class="flex items-center gap-1">
+                                        {{ formatDateTime(item.end_use_at) }}
+                                        <LuClock class="w-3.5 h-3.5" />
+                                    </span>
+                                    <span class="flex items-center gap-1">
+                                        {{ formatPersonnelName(item.personnel) }}
+                                        <LuUser class="w-3.5 h-3.5" />
+                                    </span>
+                                </div>
+                            </div>
                             </Link>
                         </div>
                     </div>
@@ -1049,16 +993,12 @@ export default {
         </Transition>
 
         <!-- Edit End Time Modal -->
-        <Transition
-            enter-active-class="transition duration-200 ease-out"
-            enter-from-class="opacity-0 scale-95"
-            enter-to-class="opacity-100 scale-100"
-            leave-active-class="transition duration-150 ease-in"
-            leave-from-class="opacity-100 scale-100"
-            leave-to-class="opacity-0 scale-95"
-        >
-            <div v-if="showEstimatedEndUseModal && activeLog" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                <div class="w-full max-w-md p-6 bg-white shadow-2xl rounded-2xl">
+        <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 scale-95"
+            enter-to-class="opacity-100 scale-100" leave-active-class="transition duration-150 ease-in"
+            leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
+            <div v-if="showEstimatedEndUseModal && activeLog"
+                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                <div class="w-full max-w-md p-4 bg-white shadow-2xl rounded-2xl">
                     <div class="flex items-center justify-between mb-6">
                         <div class="flex items-center gap-3">
                             <div class="p-2 rounded-lg bg-emerald-100">
@@ -1066,62 +1006,41 @@ export default {
                             </div>
                             <h3 class="text-lg font-semibold text-gray-900">Extend Usage Time</h3>
                         </div>
-                        <button
-                            @click="showEstimatedEndUseModal = false; resetUpdateEndUse()"
-                            class="p-2 text-gray-400 transition-colors rounded-lg hover:bg-gray-100"
-                        >
+                        <button @click="showEstimatedEndUseModal = false; resetUpdateEndUse()"
+                            class="p-2 text-gray-400 transition-colors rounded-lg hover:bg-gray-100">
                             <LuX class="w-5 h-5" />
                         </button>
                     </div>
 
                     <div class="space-y-4">
-                        <TextInput
-                            id="update_end_use_employee_id"
-                            v-model="updateEndUseForm.employee_id"
-                            label="Your ID"
-                            :error="getErrorMessage(updateEndUseErrors.employee_id)"
-                            @keydown.enter.prevent="submitUpdateEndUse"
-                        />
+                        <TextInput id="update_end_use_employee_id" v-model="updateEndUseForm.employee_id"
+                            label="Your ID" :error="getErrorMessage(updateEndUseErrors.employee_id)"
+                            @keydown.enter.prevent="submitUpdateEndUse" />
 
-                        <TextInput
-                            id="update_end_use_at"
-                            v-model="updateEndUseForm.end_use_at"
-                            label="New End Time"
-                            type="datetime-local"
-                            :error="getErrorMessage(updateEndUseErrors.end_use_at)"
-                            @keydown.enter.prevent="submitUpdateEndUse"
-                        />
+                        <TextInput id="update_end_use_at" v-model="updateEndUseForm.end_use_at" label="New End Time"
+                            type="datetime-local" :error="getErrorMessage(updateEndUseErrors.end_use_at)"
+                            @keydown.enter.prevent="submitUpdateEndUse" />
 
-                        <div v-if="getErrorMessage(updateEndUseErrors.base)" class="p-3 text-sm text-red-600 rounded-lg bg-red-50">
+                        <div v-if="getErrorMessage(updateEndUseErrors.base)"
+                            class="p-3 text-sm text-red-600 rounded-lg bg-red-50">
                             {{ getErrorMessage(updateEndUseErrors.base) }}
                         </div>
 
                         <div class="flex flex-wrap gap-2">
-                            <button
-                                v-for="min in [15, 30, 60, 120]"
-                                :key="min"
-                                type="button"
-                                @click="addMinutes(min)"
-                                class="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-emerald-700 transition-colors bg-emerald-50 rounded-lg hover:bg-emerald-100"
-                            >
+                            <button v-for="min in [15, 30, 60, 120]" :key="min" type="button" @click="addMinutes(min)"
+                                class="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-emerald-700 transition-colors bg-emerald-50 rounded-lg hover:bg-emerald-100">
                                 <LuPlus class="w-3 h-3" />
                                 {{ min }}m
                             </button>
-                            <button
-                                type="button"
-                                @click="addMinutes(0)"
-                                class="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200"
-                            >
+                            <button type="button" @click="addMinutes(0)"
+                                class="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200">
                                 <LuRefreshCw class="w-3 h-3" />
                                 Reset
                             </button>
                         </div>
 
-                        <button
-                            type="button"
-                            @click="submitUpdateEndUse"
-                            class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white transition-colors bg-emerald-600 rounded-xl hover:bg-emerald-700"
-                        >
+                        <button type="button" @click="submitUpdateEndUse"
+                            class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white transition-colors bg-emerald-600 rounded-xl hover:bg-emerald-700">
                             <LuCheckCircle2 class="w-4 h-4" />
                             Update Time
                         </button>

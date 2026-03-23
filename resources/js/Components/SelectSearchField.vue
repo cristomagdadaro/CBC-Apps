@@ -55,7 +55,7 @@ export default {
             debounceTimeout: null,
             selectedOption: null,
             isUsingLocalOptions: false,
-            dropdownMaxHeight: 320,
+            dropdownMaxHeight: 300,
             dropdownWidth: null,
             openDropdownUpwards: false,
         };
@@ -308,7 +308,7 @@ export default {
             this.openDropdownUpwards = spaceBelow < 220 && spaceAbove > spaceBelow;
 
             const availableHeight = this.openDropdownUpwards ? spaceAbove : spaceBelow;
-            this.dropdownMaxHeight = Math.max(140, Math.floor(availableHeight));
+            //this.dropdownMaxHeight = Math.max(140, Math.floor(availableHeight));
 
             const labels = (this.filteredOptions?.length
                 ? this.filteredOptions

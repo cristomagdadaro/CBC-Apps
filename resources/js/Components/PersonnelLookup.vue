@@ -9,6 +9,10 @@ export default {
         modelValue: {
             type: String,
             default: ''
+        },
+        required: {
+            type: Boolean,
+            default: false
         }
     },
     emits: ['update:modelValue', 'found', 'error'],
@@ -82,15 +86,15 @@ export default {
 </script>
 
 <template>
-    <div class="flex flex-col gap-2">
-        <p class="text-sm text-gray-600">Auto-fill by PhilRice ID</p>
+    <div class="flex flex-col gap-2 w-full">
         <div class="flex items-end gap-2">
             <TextInput
                 id="employee_id"
                 :modelValue="modelValue"
                 type="text"
                 :error="clientErrors.employee_id"
-                label="PhilRice ID (optional)"
+                :label="required ? 'PhilRice ID or CBC ID' : 'PhilRice ID (optional)'"
+                :required="required"
                 placeholder="**-****"
                 name="employee_id"
                 autocomplete="employee_id"

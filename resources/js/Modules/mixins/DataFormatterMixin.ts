@@ -11,7 +11,8 @@ export default {
     methods: {
         parseDate(dateString:string ) {
             if (!dateString) return null;
-            const parts = dateString.split('-');
+            const sanitized = String(dateString).split(/[T\s]/)[0];
+            const parts = sanitized.split('-');
             if (parts.length !== 3) return null;
             const [year, month, day] = parts.map(Number);
             if (!year || !month || !day) return null;
@@ -123,46 +124,52 @@ export default {
         formatDateTime(dateInput: string | Date | null, timeInput?: string | null) {
             if (!dateInput && !timeInput) return "";
 
-            let date: Date;
+            const timeOnlyMode = timeInput === "time";
+            let date: Date | null = null;
 
             if (dateInput instanceof Date) {
                 date = new Date(dateInput.getTime());
             } else if (dateInput && !timeInput) {
-                // Single string: try native Date parse (for ISO) and fallback to YYYY-MM-DD
                 const parsed = new Date(dateInput);
                 if (!isNaN(parsed.getTime())) {
                     date = parsed;
                 } else {
-                    // Fallback: assume "YYYY-MM-DD HH:MM[:SS]" or "YYYY-MM-DD"
                     const [dPart, tPart] = dateInput.split(" ");
                     const base = this.parseDate(dPart);
-                    if (tPart) {
+                    if (base && tPart) {
                         const [h, m, s = "0"] = tPart.split(":");
                         base.setHours(Number(h), Number(m), Number(s));
                     }
                     date = base;
                 }
+            } else if (dateInput && timeOnlyMode) {
+                const parsed = new Date(dateInput);
+                date = !isNaN(parsed.getTime()) ? parsed : null;
             } else {
-                // Separate date + time strings
-                const base = typeof dateInput === 'string' && dateInput
+                const base = (typeof dateInput === "string" && dateInput)
                     ? this.parseDate(dateInput)
                     : new Date();
-                if (timeInput) {
+                const safeBase = base || new Date();
+                if (timeInput && timeInput !== "time") {
                     const [h, m, s = "0"] = timeInput.split(":");
-                    base.setHours(Number(h), Number(m), Number(s));
+                    safeBase.setHours(Number(h), Number(m), Number(s));
                 }
-                date = base;
+                date = safeBase;
             }
 
             if (!date || isNaN(date.getTime())) return "";
 
-            return new Intl.DateTimeFormat("en-US", {
-                year: "numeric",
-                month: "short",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-            }).format(date);
+            const options = timeOnlyMode
+                ? { hour: "numeric", minute: "2-digit" }
+                : {
+                    year: "numeric",
+                    month: "short",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                };
+
+            return new Intl.DateTimeFormat("en-US", options).format(date);
         },
         arrayToString(data: string[]) {
             if (Array.isArray(data)) {
