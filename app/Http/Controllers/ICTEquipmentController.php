@@ -111,6 +111,8 @@ class ICTEquipmentController extends BaseController
 
     public function activeEquipments($employee_id = null): JsonResponse
     {
+        $this->logService->markOverdue();
+
         return response()->json([
             'data' => $this->logService->getActiveEquipment($employee_id, 'ict'),
         ]);

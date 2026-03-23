@@ -295,7 +295,7 @@ class LaboratoryLogService
         $categoryIds = $this->categoryIdsForType($equipmentType);
 
         $query = LaboratoryEquipmentLog::with(['equipment', 'personnel'])
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'overdue'])
             ->whereHas('equipment.category', function (Builder $builder) use ($categoryIds, $equipmentType) {
                 $builder->whereIn('categories.id', $categoryIds);
 

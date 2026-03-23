@@ -120,6 +120,8 @@ class LaboratoryEquipmentController extends BaseController
 
     public function dashboard(): JsonResponse
     {
+        $this->logService->markOverdue();
+
         return response()->json([
             'data' => $this->logService->getDashboardMetrics(),
         ]);
@@ -127,6 +129,8 @@ class LaboratoryEquipmentController extends BaseController
 
     public function activeEquipments($employee_id = null): JsonResponse
     {
+        $this->logService->markOverdue();
+
         return response()->json([
             'data' => $this->logService->getActiveEquipment($employee_id),
         ]);
@@ -134,6 +138,8 @@ class LaboratoryEquipmentController extends BaseController
 
     public function logs(GetRequest $request): Collection
     {
+        $this->logService->markOverdue();
+
         $result = $this->logRepo()->search(new Collection($request->validated()));
 
         if (is_array($result) && isset($result['data']) && $result['data'] instanceof Collection) {

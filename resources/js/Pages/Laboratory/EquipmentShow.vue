@@ -494,13 +494,29 @@ export default {
 
             return `${year}-${month}-${day}T${hours}:${minutes}`;
         },
+        isActiveItemOverdue(item) {
+            if (!item) return false;
+            if (item.status === 'overdue') {
+                return true;
+            }
+            if (!item.end_use_at) {
+                return false;
+            }
+
+            const endAt = new Date(item.end_use_at);
+            if (Number.isNaN(endAt.getTime())) {
+                return false;
+            }
+
+            return endAt.getTime() < Date.now();
+        },
         getErrorMessage(error) {
             if (!error) return null;
             return typeof error === "string"
                 ? error
                 : Array.isArray(error)
-                  ? error[0]
-                  : error;
+                    ? error[0]
+                    : error;
         },
     },
     watch: {
@@ -562,30 +578,16 @@ export default {
 </script>
 
 <template>
+
     <Head :title="title" />
-    <SuccessModal
-        :show="showSuccessModal"
-        :title="message"
-        @close="showSuccessModal = false"
-    />
-    <GuestFormPage
-        :title="title"
-        :subtitle="subtitle"
-        :delay-ready="delayReady"
-        :max-width="'max-w-4xl'"
-    >
+    <SuccessModal :show="showSuccessModal" :title="message" @close="showSuccessModal = false" />
+    <GuestFormPage :title="title" :subtitle="subtitle" :delay-ready="delayReady" :max-width="'max-w-4xl'">
         <!-- Loading Overlay -->
         <transition name="fade">
-            <div
-                v-if="processing"
-                class="fixed top-0 left-0 w-full h-full z-[60] flex items-center justify-center bg-black bg-opacity-30"
-            >
-                <div
-                    class="flex flex-col items-center gap-3 p-6 bg-white rounded-lg shadow-lg"
-                >
-                    <div
-                        class="w-10 h-10 border-4 border-gray-300 rounded-full animate-spin border-t-AB"
-                    ></div>
+            <div v-if="processing"
+                class="fixed top-0 left-0 w-full h-full z-[60] flex items-center justify-center bg-black bg-opacity-30">
+                <div class="flex flex-col items-center gap-3 p-6 bg-white rounded-lg shadow-lg">
+                    <div class="w-10 h-10 border-4 border-gray-300 rounded-full animate-spin border-t-AB"></div>
                     <p class="text-sm font-medium text-gray-600">
                         Processing request...
                     </p>
@@ -593,29 +595,15 @@ export default {
             </div>
         </transition>
 
-        <transition-container
-            v-show="delayReady"
-            :duration="1000"
-            type="slide-bottom"
-        >
+        <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
             <div
-                class="grid grid-cols-1 md:grid-cols-4 w-full h-full max-w-6xl gap-4 p-2 mx-auto bg-gray-100 md:rounded-md md:h-fit overflow-visible"
-            >
-                <div
-                    class="flex flex-col flex-1 gap-4 col-span-2"
-                    :class="{ 'my-auto': notFound }"
-                >
-                    <div
-                        class="flex flex-col gap-2 p-4 bg-white border rounded-lg shadow-sm"
-                    >
+                class="grid grid-cols-1 md:grid-cols-4 w-full h-full max-w-6xl gap-4 p-2 mx-auto bg-gray-100 md:rounded-md md:h-fit overflow-visible">
+                <div class="flex flex-col flex-1 gap-4 col-span-2" :class="{ 'my-auto': notFound }">
+                    <div class="flex flex-col gap-2 p-4 bg-white border rounded-lg shadow-sm">
                         <div v-if="!hasEquipment" class="mt-3">
-                            <SelectSearchField
-                                id="equipment_selector"
-                                label="Select equipment"
-                                placeholder="Search by name, ID, brand, or barcode"
-                                :options="equipmentOptions"
-                                v-model="selectedEquipmentId"
-                            />
+                            <SelectSearchField id="equipment_selector" label="Select equipment"
+                                placeholder="Search by name, ID, brand, or barcode" :options="equipmentOptions"
+                                v-model="selectedEquipmentId" />
                             <p class="mt-2 text-xs text-gray-500">
                                 Scan the QR code if available, or search and
                                 select equipment from the list.
@@ -624,17 +612,10 @@ export default {
                         <div v-else-if="loading" class="text-sm text-gray-500">
                             Loading equipment details...
                         </div>
-                        <div
-                            v-else-if="notFound"
-                            class="flex flex-col items-center justify-center py-8"
-                        >
+                        <div v-else-if="notFound" class="flex flex-col items-center justify-center py-8">
                             <div class="text-center">
-                                <error-icon
-                                    class="w-12 h-12 mx-auto mb-3 text-red-500"
-                                />
-                                <h3
-                                    class="mb-2 text-lg font-semibold text-gray-800"
-                                >
+                                <error-icon class="w-12 h-12 mx-auto mb-3 text-red-500" />
+                                <h3 class="mb-2 text-lg font-semibold text-gray-800">
                                     Equipment Not Found
                                 </h3>
                                 <p class="mb-4 text-sm text-gray-500">
@@ -643,90 +624,61 @@ export default {
                                         "The equipment you are looking for could not be found."
                                     }}
                                 </p>
-                                <Link
-                                    :href="route(showPageRoute)"
+                                <Link :href="route(showPageRoute)"
                                     class="inline-flex items-center gap-2 px-4 py-2 text-sm text-white transition-opacity rounded bg-AB hover:bg-AB-dark"
-                                    :class="
-                                        isNavigating
+                                    :class="isNavigating
                                             ? 'opacity-70 pointer-events-none'
                                             : ''
-                                    "
-                                >
-                                    <span
-                                        v-if="isNavigating"
-                                        class="inline-flex"
-                                    >
-                                        <loader-icon
-                                            class="flex-shrink-0 w-4 h-4 animate-spin"
-                                        />
-                                    </span>
-                                    <span>Browse all equipment</span>
+                                        ">
+                                <span v-if="isNavigating" class="inline-flex">
+                                    <loader-icon class="flex-shrink-0 w-4 h-4 animate-spin" />
+                                </span>
+                                <span>Browse all equipment</span>
                                 </Link>
                             </div>
                         </div>
 
-                        <div
-                            v-else-if="equipment"
-                            class="grid grid-cols-1 gap-3 md:grid-cols-2"
-                        >
-                            <div
-                                class="flex justify-between col-span-2 pb-1 leading-none"
-                            >
+                        <div v-else-if="equipment" class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                            <div class="flex justify-between col-span-2 pb-1 leading-none">
                                 <h1 class="text-xl font-bold uppercase">
                                     {{ equipment.name }}
                                 </h1>
-                                <button
-                                    v-if="!equipment_id"
-                                    @click="selectedEquipmentId = null"
-                                >
+                                <button v-if="!equipment_id" @click="selectedEquipmentId = null">
                                     <close-icon class="w-6 h-6 text-red-600" />
                                 </button>
                             </div>
                             <div class="flex flex-col gap-1">
-                                <span class="text-xs text-gray-500 uppercase"
-                                    >Brand</span
-                                >
+                                <span class="text-xs text-gray-500 uppercase">Brand</span>
                                 <span class="font-semibold">{{
                                     equipment.brand || "-"
-                                }}</span>
+                                    }}</span>
                             </div>
                             <div class="flex flex-col gap-1">
-                                <span class="text-xs text-gray-500 uppercase"
-                                    >Description</span
-                                >
+                                <span class="text-xs text-gray-500 uppercase">Description</span>
                                 <span class="font-semibold">{{
                                     equipment.description || "-"
-                                }}</span>
+                                    }}</span>
                             </div>
                             <div class="flex flex-col gap-1">
-                                <span class="text-xs text-gray-500 uppercase"
-                                    >PhilRice Property No.</span
-                                >
+                                <span class="text-xs text-gray-500 uppercase">PhilRice Property No.</span>
                                 <span class="font-semibold">{{
                                     equipment.barcode_prri || "-"
-                                }}</span>
+                                    }}</span>
                             </div>
                             <div class="flex flex-col gap-1">
-                                <span class="text-xs text-gray-500 uppercase"
-                                    >CBC Barcode</span
-                                >
+                                <span class="text-xs text-gray-500 uppercase">CBC Barcode</span>
                                 <span class="font-semibold">{{
                                     equipment.barcode || "-"
-                                }}</span>
+                                    }}</span>
                             </div>
                             <div class="flex flex-col gap-1 col-span-2">
-                                <span class="text-xs text-gray-500 uppercase"
-                                    >Current Location</span
-                                >
+                                <span class="text-xs text-gray-500 uppercase">Current Location</span>
                                 <span class="font-semibold">{{
                                     currentLocation?.label || "Unknown Location"
-                                }}</span>
+                                    }}</span>
                             </div>
                         </div>
-                        <div
-                            v-if="shouldShowLocationSurvey && hasEquipment"
-                            class="flex flex-col gap-2 md:col-span-2"
-                        >
+                        <div v-if="shouldShowLocationSurvey && hasEquipment" class="flex flex-col gap-2 md:col-span-2">
                             <div>
                                 <span class="font-bold text-gray-800 uppercase">
                                     Temporary Location Survey
@@ -737,217 +689,136 @@ export default {
                                     track of equipment whereabouts.
                                 </p>
                             </div>
-                            <TextInput
-                                id="survey_location_employee_id"
-                                v-model="locationSurveyForm.employee_id"
-                                label="PhilRice ID"
-                                :error="
-                                    getErrorMessage(
-                                        locationSurveyErrors.employee_id,
-                                    )
-                                "
-                                @keydown.enter.prevent="submitLocationSurvey"
-                                required
-                            />
-                            <TextInput
-                                id="survey_location_label"
-                                v-model="locationSurveyForm.location_label"
-                                label="Temporary Current Location"
-                                :datalist-id="'storage-location-suggestions'"
-                                :datalist-options="storageLocationOptions"
-                                :error="
-                                    getErrorMessage(
-                                        locationSurveyErrors.location_label,
-                                    )
-                                "
-                                @keydown.enter.prevent="submitLocationSurvey"
-                                required
-                            />
-                            <div
-                                v-if="
-                                    getErrorMessage(locationSurveyErrors.base)
-                                "
-                                class="text-sm text-red-600"
-                            >
+                            <TextInput id="survey_location_employee_id" v-model="locationSurveyForm.employee_id"
+                                label="PhilRice ID" :error="getErrorMessage(
+                                    locationSurveyErrors.employee_id,
+                                )
+                                    " @keydown.enter.prevent="submitLocationSurvey" required />
+                            <TextInput id="survey_location_label" v-model="locationSurveyForm.location_label"
+                                label="Temporary Current Location" :datalist-id="'storage-location-suggestions'"
+                                :datalist-options="storageLocationOptions" :error="getErrorMessage(
+                                    locationSurveyErrors.location_label,
+                                )
+                                    " @keydown.enter.prevent="submitLocationSurvey" required />
+                            <div v-if="
+                                getErrorMessage(locationSurveyErrors.base)
+                            " class="text-sm text-red-600">
                                 {{ getErrorMessage(locationSurveyErrors.base) }}
                             </div>
-                            <button
-                                type="button"
+                            <button type="button"
                                 class="w-full px-4 py-2 text-sm text-white rounded bg-AB hover:bg-AB-dark"
-                                @click="submitLocationSurvey"
-                            >
+                                @click="submitLocationSurvey">
                                 Save Temporary Location
                             </button>
                         </div>
                     </div>
 
-                    <div
-                        v-if="hasEquipment && !notFound"
-                        class="grid grid-cols-1 gap-4"
-                    >
+                    <div v-if="hasEquipment && !notFound" class="grid grid-cols-1 gap-4">
                         <div class="p-4 bg-white border rounded-lg shadow-sm">
                             <div class="flex justify-between items-center">
-                                <h2
-                                    class="mb-2 text-base font-semibold uppercase"
-                                >
+                                <h2 class="mb-2 text-base font-semibold uppercase">
                                     Current Status
                                 </h2>
-                                <button
-                                    v-if="activeLog"
-                                    @click.prevent="
-                                        showEstimatedEndUseModal =
-                                            !showEstimatedEndUseModal
-                                    "
-                                    title="Edit Estimated time of use"
-                                >
-                                    <edit-icon
-                                        class="w-4 h-4 text-yellow-500"
-                                    />
+                                <button v-if="activeLog" @click.prevent="
+                                    showEstimatedEndUseModal =
+                                    !showEstimatedEndUseModal
+                                    " title="Edit Estimated time of use">
+                                    <edit-icon class="w-4 h-4 text-yellow-500" />
                                 </button>
                             </div>
-                            <div
-                                v-if="activeLog"
-                                class="flex flex-col gap-1 text-sm"
-                            >
+                            <div v-if="activeLog" class="flex flex-col gap-1 text-sm">
                                 <div class="flex justify-between gap-1">
                                     <span class="text-gray-500">Status</span>
-                                    <span
-                                        class="font-semibold uppercase flex items-center gap-2"
-                                    >
-                                        <div
-                                            class="p-1 shadow-md bg-lime-500 animate-pulse rounded-full w-2 h-2"
-                                        ></div>
-                                        {{ activeLog.status }}</span
-                                    >
+                                    <span class="font-semibold uppercase flex items-center gap-2">
+                                        <div class="p-1 shadow-md bg-lime-500 animate-pulse rounded-full w-2 h-2"></div>
+                                        {{ activeLog.status }}
+                                    </span>
                                 </div>
                                 <div class="flex justify-between gap-1">
-                                    <span class="text-gray-500"
-                                        >Checked in at</span
-                                    >
+                                    <span class="text-gray-500">Checked in at</span>
                                     <span>{{
                                         formatDateTime(activeLog.started_at)
-                                    }}</span>
+                                        }}</span>
                                 </div>
                                 <div class="flex justify-between gap-1">
-                                    <span class="text-gray-500"
-                                        >Expected end</span
-                                    >
+                                    <span class="text-gray-500">Expected end</span>
                                     <span>{{
                                         formatDateTime(activeLog.end_use_at)
-                                    }}</span>
+                                        }}</span>
                                 </div>
                                 <div class="flex justify-between gap-1">
                                     <span class="text-gray-500">User</span>
                                     <span>{{
                                         formatPersonnelName(activeLog.personnel)
-                                    }}</span>
+                                        }}</span>
                                 </div>
                             </div>
                             <div v-else class="text-sm text-gray-500">
                                 No active user for this equipment
                             </div>
 
-                            <DialogModal
-                                :show="showEstimatedEndUseModal && !!activeLog"
-                                @close="
-                                    resetUpdateEndUse;
-                                    showEstimatedEndUseModal = false;
-                                "
-                            >
+                            <DialogModal :show="showEstimatedEndUseModal && !!activeLog" @close="
+                                resetUpdateEndUse;
+                            showEstimatedEndUseModal = false;
+                            ">
                                 <template #title>
                                     Update Estimated End of Use
                                 </template>
                                 <template #content>
-                                    <div
-                                        class="pt-3 mt-3 border-t border-gray-100"
-                                    >
+                                    <div class="pt-3 mt-3 border-t border-gray-100">
                                         <div class="flex flex-col gap-2">
-                                            <TextInput
-                                                id="update_end_use_employee_id"
-                                                v-model="
-                                                    updateEndUseForm.employee_id
-                                                "
-                                                label="PhilRice ID"
-                                                :error="
-                                                    getErrorMessage(
-                                                        updateEndUseErrors.employee_id,
-                                                    )
-                                                "
-                                                @keydown.enter.prevent="
+                                            <TextInput id="update_end_use_employee_id" v-model="updateEndUseForm.employee_id
+                                                " label="PhilRice ID" :error="getErrorMessage(
+                                                    updateEndUseErrors.employee_id,
+                                                )
+                                                    " @keydown.enter.prevent="
                                                     submitUpdateEndUse
-                                                "
-                                                required
-                                            />
-                                            <TextInput
-                                                id="update_end_use_at"
-                                                v-model="
-                                                    updateEndUseForm.end_use_at
-                                                "
-                                                label="New Estimated End of Use"
-                                                type="datetime-local"
-                                                :error="
-                                                    getErrorMessage(
-                                                        updateEndUseErrors.end_use_at,
-                                                    )
-                                                "
-                                                @keydown.enter.prevent="
+                                                " required />
+                                            <TextInput id="update_end_use_at" v-model="updateEndUseForm.end_use_at
+                                                " label="New Estimated End of Use" type="datetime-local" :error="getErrorMessage(
+                                                    updateEndUseErrors.end_use_at,
+                                                )
+                                                    " @keydown.enter.prevent="
                                                     submitUpdateEndUse
-                                                "
-                                                required
-                                            />
-                                            <div
-                                                v-if="
-                                                    getErrorMessage(
-                                                        updateEndUseErrors.base,
-                                                    )
-                                                "
-                                                class="text-sm text-red-600"
-                                            >
+                                                " required />
+                                            <div v-if="
+                                                getErrorMessage(
+                                                    updateEndUseErrors.base,
+                                                )
+                                            " class="text-sm text-red-600">
                                                 {{
                                                     getErrorMessage(
                                                         updateEndUseErrors.base,
                                                     )
                                                 }}
                                             </div>
-                                            <div
-                                                class="flex flex-wrap gap-2 mt-2"
-                                            >
-                                                <button
-                                                    type="button"
+                                            <div class="flex flex-wrap gap-2 mt-2">
+                                                <button type="button"
                                                     class="px-3 py-1 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-md"
-                                                    @click="addMinutes(15)"
-                                                >
+                                                    @click="addMinutes(15)">
                                                     +15 min
                                                 </button>
 
-                                                <button
-                                                    type="button"
+                                                <button type="button"
                                                     class="px-3 py-1 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-md"
-                                                    @click="addMinutes(30)"
-                                                >
+                                                    @click="addMinutes(30)">
                                                     +30 min
                                                 </button>
 
-                                                <button
-                                                    type="button"
+                                                <button type="button"
                                                     class="px-3 py-1 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-md"
-                                                    @click="addMinutes(60)"
-                                                >
+                                                    @click="addMinutes(60)">
                                                     +60 min
                                                 </button>
 
-                                                <button
-                                                    type="button"
+                                                <button type="button"
                                                     class="px-3 py-1 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-md"
-                                                    @click="addMinutes(120)"
-                                                >
+                                                    @click="addMinutes(120)">
                                                     +120 min
                                                 </button>
-                                                <button
-                                                    type="button"
+                                                <button type="button"
                                                     class="px-3 py-1 text-xs font-medium bg-gray-100 hover:bg-gray-200 rounded-md"
-                                                    @click="addMinutes(0)"
-                                                >
+                                                    @click="addMinutes(0)">
                                                     Reset to default
                                                 </button>
                                             </div>
@@ -955,11 +826,9 @@ export default {
                                     </div>
                                 </template>
                                 <template #footer>
-                                    <button
-                                        type="button"
+                                    <button type="button"
                                         class="w-full px-4 py-2 text-sm text-white rounded bg-AB hover:bg-AB-dark"
-                                        @click="submitUpdateEndUse"
-                                    >
+                                        @click="submitUpdateEndUse">
                                         Update End of Use
                                     </button>
                                 </template>
@@ -967,10 +836,8 @@ export default {
                         </div>
                     </div>
 
-                    <div
-                        v-if="hasEquipment && !notFound && canCheckIn"
-                        class="p-4 bg-white border rounded-lg shadow-sm flex flex-col gap-2"
-                    >
+                    <div v-if="hasEquipment && !notFound && canCheckIn"
+                        class="p-4 bg-white border rounded-lg shadow-sm flex flex-col gap-2">
                         <div class="grid grid-cols-1 gap-2 mb-3">
                             <h2 class="text-base font-bold uppercase">
                                 Check-in Equipment
@@ -978,98 +845,58 @@ export default {
                         </div>
 
                         <div class="flex flex-col gap-1">
-                            <PersonnelLookup
-                                v-model="checkInForm.employee_id"
-                                @found="handlePersonnelFound"
-                                @error="handlePersonnelError"
-                            />
-                            <div
-                                v-if="personnelPreview"
-                                class="w-full text-xs text-center text-AC"
-                            >
+                            <PersonnelLookup v-model="checkInForm.employee_id" @found="handlePersonnelFound"
+                                @error="handlePersonnelError" />
+                            <div v-if="personnelPreview" class="w-full text-xs text-center text-AC">
                                 Hi! {{ personnelPreview.fullName }}
                             </div>
-                            <div
-                                v-if="
-                                    getErrorMessage(checkInErrors.employee_id)
-                                "
-                                class="w-full text-xs text-center text-red-600"
-                            >
+                            <div v-if="
+                                getErrorMessage(checkInErrors.employee_id)
+                            " class="w-full text-xs text-center text-red-600">
                                 {{ getErrorMessage(checkInErrors.employee_id) }}
                             </div>
                         </div>
 
-                        <TextInput
-                            id="end_use_at"
-                            v-model="checkInForm.end_use_at"
-                            label="Estimated End of Use"
-                            type="datetime-local"
-                            :error="getErrorMessage(checkInErrors.end_use_at)"
-                            @keydown.enter.prevent="submitCheckIn"
-                            required
-                        />
-                        <TextInput
-                            id="purpose"
-                            v-model="checkInForm.purpose"
-                            label="Purpose (optional)"
-                            :error="getErrorMessage(checkInErrors.purpose)"
-                            :datalist-id="'purpose-suggestions'"
-                            :datalist-options="purposeSuggestions"
-                            @keydown.enter.prevent="submitCheckIn"
-                        />
+                        <TextInput id="end_use_at" v-model="checkInForm.end_use_at" label="Estimated End of Use"
+                            type="datetime-local" :error="getErrorMessage(checkInErrors.end_use_at)"
+                            @keydown.enter.prevent="submitCheckIn" required />
+                        <TextInput id="purpose" v-model="checkInForm.purpose" label="Purpose (optional)"
+                            :error="getErrorMessage(checkInErrors.purpose)" :datalist-id="'purpose-suggestions'"
+                            :datalist-options="purposeSuggestions" @keydown.enter.prevent="submitCheckIn" />
 
-                        <div
-                            v-if="checkInErrors.base"
-                            class="mt-2 text-sm text-red-600"
-                        >
+                        <div v-if="checkInErrors.base" class="mt-2 text-sm text-red-600">
                             {{ checkInErrors.base }}
                         </div>
 
-                        <button
-                            type="button"
+                        <button type="button"
                             class="w-full px-4 py-2 mt-3 text-sm text-white rounded bg-AB hover:bg-AB-dark"
-                            @click="submitCheckIn"
-                        >
+                            @click="submitCheckIn">
                             Check In Equipment
                         </button>
                     </div>
 
-                    <div
-                        v-if="hasEquipment && !notFound && canCheckOut"
-                        class="flex flex-col justify-end gap-2 p-4 bg-white border rounded-lg shadow-sm"
-                    >
-                        <div
-                            class="flex items-center justify-between gap-5 px-2"
-                        >
+                    <div v-if="hasEquipment && !notFound && canCheckOut"
+                        class="flex flex-col justify-end gap-2 p-4 bg-white border rounded-lg shadow-sm">
+                        <div class="flex items-center justify-between gap-5 px-2">
                             <h2 class="text-base font-bold uppercase w-fit">
                                 Check-out Equipment
                             </h2>
-                            <a
-                                :href="
-                                    route(
-                                        'suppEquipReports.create.guest',
-                                        equipment.barcode,
-                                    )
-                                "
-                                target="_blank"
-                                title="Report an issue with this equipment"
-                                rel="noopener noreferrer"
-                                class="flex flex-row items-center gap-1 p-1 px-2 text-xs text-red-600 rounded-full w-fit"
-                            >
+                            <a :href="route(
+                                'suppEquipReports.create.guest',
+                                equipment.barcode,
+                            )
+                                " target="_blank" title="Report an issue with this equipment" rel="noopener noreferrer"
+                                class="flex flex-row items-center gap-1 p-1 px-2 text-xs text-red-600 rounded-full w-fit">
                                 <flag-icon class="w-3 h-5" />
                                 Report
                             </a>
                         </div>
 
                         <transition-container :duration="100" type="slide-left">
-                            <div
-                                v-if="
-                                    savedLaboratoryPersonnel &&
-                                    showPhilRiceField
-                                "
-                                key="saved-personnel"
-                                class="flex items-center justify-between gap-2 px-2 py-3"
-                            >
+                            <div v-if="
+                                savedLaboratoryPersonnel &&
+                                showPhilRiceField
+                            " key="saved-personnel" class="flex items-center justify-between gap-2 px-2 py-3">
                                 <div class="text-gray-600">
                                     As:
                                     <span class="font-semibold">
@@ -1082,113 +909,63 @@ export default {
                                     </span>
                                 </div>
 
-                                <button
-                                    type="button"
-                                    title="Switch Personnel"
+                                <button type="button" title="Switch Personnel"
                                     class="px-2 py-1 duration-200 bg-gray-200 rounded h-fit active:scale-90"
-                                    @click="handlePersonnelSwitch"
-                                >
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="20"
-                                        height="20"
-                                        fill="currentColor"
+                                    @click="handlePersonnelSwitch">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                                         :class="[
                                             'transition-transform duration-300',
                                             isRotating ? 'rotate-[360deg]' : '',
-                                        ]"
-                                        viewBox="0 0 16 16"
-                                    >
+                                        ]" viewBox="0 0 16 16">
                                         <path
-                                            d="M1.146 8.354a.5.5 0 0 1 0-.708l2-2a.5.5 0 1 1 .708.708L2.707 7.5h10.586l-1.147-1.146a.5.5 0 0 1 .708-.708l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L13.293 8.5H2.707l1.147 1.146a.5.5 0 0 1-.708.708z"
-                                        />
+                                            d="M1.146 8.354a.5.5 0 0 1 0-.708l2-2a.5.5 0 1 1 .708.708L2.707 7.5h10.586l-1.147-1.146a.5.5 0 0 1 .708-.708l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L13.293 8.5H2.707l1.147 1.146a.5.5 0 0 1-.708.708z" />
                                     </svg>
                                 </button>
                             </div>
 
-                            <div
-                                v-else
-                                key="manual-personnel"
-                                class="flex gap-0.5 flex-col"
-                            >
-                                <label
-                                    for="checkout_employee_id"
-                                    class="px-3 text-xs text-gray-500"
-                                    >Enter your PhilRice ID</label
-                                >
+                            <div v-else key="manual-personnel" class="flex gap-0.5 flex-col">
+                                <label for="checkout_employee_id" class="px-3 text-xs text-gray-500">Enter your PhilRice
+                                    ID</label>
                                 <div class="flex items-center gap-2 px-2">
                                     <div class="flex-1">
-                                        <TextInput
-                                            id="checkout_employee_id"
-                                            v-model="checkOutForm.employee_id"
-                                            :error="
-                                                getErrorMessage(
-                                                    checkOutErrors.employee_id,
-                                                )
-                                            "
-                                            @keydown.enter.prevent="
+                                        <TextInput id="checkout_employee_id" v-model="checkOutForm.employee_id" :error="getErrorMessage(
+                                            checkOutErrors.employee_id,
+                                        )
+                                            " @keydown.enter.prevent="
                                                 submitCheckOut
-                                            "
-                                        />
+                                            " />
                                     </div>
 
-                                    <button
-                                        type="button"
-                                        title="Switch Personnel"
+                                    <button type="button" title="Switch Personnel"
                                         class="px-2 py-1 duration-200 bg-gray-200 rounded h-fit active:scale-90"
-                                        @click="handlePersonnelSwitch"
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="20"
-                                            height="20"
-                                            fill="currentColor"
-                                            :class="[
+                                        @click="handlePersonnelSwitch">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                            fill="currentColor" :class="[
                                                 'transition-transform duration-300',
                                                 isRotating
                                                     ? 'rotate-[360deg]'
                                                     : '',
-                                            ]"
-                                            viewBox="0 0 16 16"
-                                        >
+                                            ]" viewBox="0 0 16 16">
                                             <path
-                                                d="M1.146 8.354a.5.5 0 0 1 0-.708l2-2a.5.5 0 1 1 .708.708L2.707 7.5h10.586l-1.147-1.146a.5.5 0 0 1 .708-.708l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L13.293 8.5H2.707l1.147 1.146a.5.5 0 0 1-.708.708z"
-                                            />
+                                                d="M1.146 8.354a.5.5 0 0 1 0-.708l2-2a.5.5 0 1 1 .708.708L2.707 7.5h10.586l-1.147-1.146a.5.5 0 0 1 .708-.708l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L13.293 8.5H2.707l1.147 1.146a.5.5 0 0 1-.708.708z" />
                                         </svg>
                                     </button>
                                 </div>
                             </div>
                         </transition-container>
 
-                        <div
-                            v-if="getErrorMessage(checkOutErrors.base)"
-                            class="mt-2 text-sm text-red-600"
-                        >
+                        <div v-if="getErrorMessage(checkOutErrors.base)" class="mt-2 text-sm text-red-600">
                             {{ getErrorMessage(checkOutErrors.base) }}
                         </div>
 
                         <div class="flex flex-col gap-1">
-                            <div
-                                v-if="isAdmin"
-                                class="flex items-center justify-end gap-2 px-2 w-fit"
-                            >
-                                <input
-                                    id="admin_override"
-                                    v-model="checkOutForm.admin_override"
-                                    type="checkbox"
-                                    class="rounded-full"
-                                />
-                                <label
-                                    for="admin_override"
-                                    class="text-xs leading-none"
-                                    >Admin Override</label
-                                >
+                            <div v-if="isAdmin" class="flex items-center justify-end gap-2 px-2 w-fit">
+                                <input id="admin_override" v-model="checkOutForm.admin_override" type="checkbox"
+                                    class="rounded-full" />
+                                <label for="admin_override" class="text-xs leading-none">Admin Override</label>
                             </div>
-                            <button
-                                type="button"
-                                class="w-full px-4 py-2 text-sm text-white rounded bg-AB hover:bg-AA"
-                                @click="submitCheckOut"
-                            >
+                            <button type="button" class="w-full px-4 py-2 text-sm text-white rounded bg-AB hover:bg-AA"
+                                @click="submitCheckOut">
                                 Check Out Equipment
                             </button>
                         </div>
@@ -1197,105 +974,85 @@ export default {
 
                 <!-- Active Equipments Sidebar -->
                 <div class="flex flex-col w-full gap-4 col-span-2">
-                    <div
-                        class="relative h-full p-4 bg-white border rounded-lg shadow-sm"
-                    >
+                    <div class="relative h-full p-4 bg-white border rounded-lg shadow-sm">
                         <div class="flex items-center justify-between mb-3">
                             <h2 class="text-sm font-bold uppercase">
                                 Currently Active
                             </h2>
-                            <span
-                                class="px-2 py-1 text-xs font-semibold text-white rounded-full bg-AB"
-                                >{{ filteredActiveEquipments.length }}</span
-                            >
+                            <span class="px-2 py-1 text-xs font-semibold text-white rounded-full bg-AB">{{
+                                filteredActiveEquipments.length }}</span>
                         </div>
-                        <button
-                            v-if="savedLaboratoryPersonnel"
-                            @click="
-                                filterActiveByPersonnel =
-                                    !filterActiveByPersonnel
-                            "
-                            :class="[
+                        <button v-if="savedLaboratoryPersonnel" @click="
+                            filterActiveByPersonnel =
+                            !filterActiveByPersonnel
+                            " :class="[
                                 'w-full mb-3 px-3 py-1.5 rounded text-xs font-semibold transition-colors',
                                 filterActiveByPersonnel
                                     ? 'bg-AB text-white'
                                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300',
-                            ]"
-                        >
+                            ]">
                             {{
                                 filterActiveByPersonnel
                                     ? "My Equipment"
                                     : "All Equipment"
                             }}
                         </button>
-                        <div
-                            v-if="loadingActiveEquipments"
-                            class="py-4 text-sm text-center text-gray-500"
-                        >
+                        <div v-if="loadingActiveEquipments" class="py-4 text-sm text-center text-gray-500">
                             Loading...
                         </div>
-                        <div
-                            v-else-if="filteredActiveEquipments.length === 0"
-                            class="py-4 text-sm text-center text-gray-500"
-                        >
+                        <div v-else-if="filteredActiveEquipments.length === 0"
+                            class="py-4 text-sm text-center text-gray-500">
                             No active equipments
                         </div>
-                        <div
-                            v-else
-                            class="flex flex-col gap-2 max-h-[29rem] h-fit overflow-y-auto overflow-x-hidden"
-                        >
-                            <Link
-                                v-for="item in filteredActiveEquipments"
-                                :key="item.id"
-                                class="relative flex items-start justify-between gap-2 p-3 leading-tight transition-colors border-l-4 rounded cursor-default border-AB bg-gray-50 hover:bg-gray-200"
-                                :class="{
-                                    'opacity-70 pointer-events-none':
-                                        isNavigating,
-                                    'pointer-events-none bg-gray-500 left-2 border-AA':
-                                        equipment?.id === item.equipment_id,
-                                }"
-                                :href="
-                                    route(
-                                        showPageRoute,
-                                        item.equipment_id,
-                                    )
-                                "
-                            >
-                                <div
-                                    class="flex-1 min-w-0"
-                                    :class="
-                                        equipment?.id === item.equipment_id
-                                            ? 'text-white'
-                                            : 'text-gray-600'
-                                    "
-                                >
-                                    <h3 class="text-sm font-semibold truncate">
-                                        {{ item.equipment?.name }}
-                                        {{ "(" + item.equipment?.brand + ")" }}
-                                    </h3>
-                                    <p class="text-xs truncate">
-                                        Checked in at
+                        <div v-else class="flex flex-col gap-2 h-full overflow-x-hidden" :class="{'max-h-[calc(100vh-500px)] overflow-y-auto' : filteredActiveEquipments?.length}">
+                            <Link v-for="item in filteredActiveEquipments" :key="item.id"
+                                class="relative flex items-start justify-between gap-2 p-3 leading-tight transition-colors border-l-4 rounded cursor-default"
+                                :class="[
+                                    isActiveItemOverdue(item)
+                                        ? 'border-red-500 bg-red-50 hover:bg-red-100'
+                                        : 'border-AB bg-gray-50 hover:bg-gray-200',
+                                    {
+                                        'opacity-70 pointer-events-none':
+                                            isNavigating,
+                                        'pointer-events-none bg-gray-500 left-2 border-AA':
+                                            equipment?.id === item.equipment_id,
+                                    },
+                                ]" :href="route(
+                                    showPageRoute,
+                                    item.equipment_id,
+                                )
+                                    ">
+                            <div class="flex-1 min-w-0" :class="equipment?.id === item.equipment_id
+                                    ? isActiveItemOverdue(item) ? 'text-red-700' :'text-white'
+                                    : isActiveItemOverdue(item) ? 'text-red-400' :'text-gray-600'
+                                ">
+                                <h3 class="text-sm font-semibold truncate">
+                                    {{ item.equipment?.name }}
+                                    {{ "(" + item.equipment?.brand + ")" }}
+                                </h3>
+                                <p class="text-xs truncate">
+                                    Checked in at
+                                    <b>{{
+                                        formatDateTime(item.started_at)
+                                    }}</b>
+                                </p>
+                                <p class="text-xs truncate">
+                                    Expected end at
+                                    <b>{{
+                                        formatDateTime(item.end_use_at)
+                                    }}</b>
+                                </p>
+                                <div class="space-y-1 text-xs">
+                                    <div v-if="item.personnel">
+                                        <span>User:</span>
                                         <b>{{
-                                            formatDateTime(item.started_at)
+                                            formatPersonnelName(
+                                                item.personnel,
+                                            )
                                         }}</b>
-                                    </p>
-                                    <p class="text-xs truncate">
-                                        Expected end at
-                                        <b>{{
-                                            formatDateTime(item.end_use_at)
-                                        }}</b>
-                                    </p>
-                                    <div class="space-y-1 text-xs">
-                                        <div v-if="item.personnel">
-                                            <span>User:</span>
-                                            <b>{{
-                                                formatPersonnelName(
-                                                    item.personnel,
-                                                )
-                                            }}</b>
-                                        </div>
                                     </div>
                                 </div>
+                            </div>
                             </Link>
                         </div>
                     </div>

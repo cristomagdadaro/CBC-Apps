@@ -34,8 +34,8 @@ export default {
     <main-bg></main-bg>
 
     <!-- Main content overlay -->
-    <div class="flex justify-center m-0 md:m-5 overflow-visible">
-        <div class="relative sm:flex flex-col md:gap-5 justify-start items-center w-full overflow-visible">
+    <div id="main-content-overlay" class="flex justify-center m-0 md:m-5 overflow-visible">
+        <div class="relative sm:flex flex-col md:gap-5 justify-start items-center w-full h-full overflow-visible">
             <div class="md:relative flex flex-col md:gap-5 w-full overflow-visible" :class="maxWidth">
                 <!-- Header / search / top content -->
                 <slot name="top">
