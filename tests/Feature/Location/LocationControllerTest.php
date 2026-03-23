@@ -21,6 +21,7 @@ class LocationControllerTest extends TestCase
 
         DB::table('loc_cities')->insert([
             [
+                'id' => 1,
                 'city' => 'Science City of Muñoz',
                 'province' => 'Nueva Ecija',
                 'region' => 'REGION III',
@@ -28,6 +29,7 @@ class LocationControllerTest extends TestCase
                 'longitude' => 120.9031,
             ],
             [
+                'id' => 2,
                 'city' => 'Cabanatuan City',
                 'province' => 'Nueva Ecija',
                 'region' => 'REGION III',
@@ -35,6 +37,7 @@ class LocationControllerTest extends TestCase
                 'longitude' => 120.9665,
             ],
             [
+                'id' => 3,
                 'city' => 'Baguio City',
                 'province' => 'Benguet',
                 'region' => 'CAR',

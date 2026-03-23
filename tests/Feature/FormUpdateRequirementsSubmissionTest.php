@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\EventSubform;
 use App\Models\Form;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -20,6 +21,9 @@ class FormUpdateRequirementsSubmissionTest extends TestCase
         $form = Form::latest()->first();
         $form->update(['is_suspended' => false]);
         $requirement = $form->requirements()->first();
+
+        $user = User::factory()->create(['is_admin' => true]);
+        $this->actingAs($user, 'sanctum');
 
         $newMaxSlots = 999;
 

@@ -572,6 +572,7 @@ export default {
         :title="title"
         :subtitle="subtitle"
         :delay-ready="delayReady"
+        :max-width="'max-w-4xl'"
     >
         <!-- Loading Overlay -->
         <transition name="fade">
@@ -598,7 +599,7 @@ export default {
             type="slide-bottom"
         >
             <div
-                class="grid grid-cols-1 md:grid-cols-3 w-full h-full max-w-6xl gap-4 p-2 mx-auto bg-gray-100 md:rounded-md md:h-fit"
+                class="grid grid-cols-1 md:grid-cols-4 w-full h-full max-w-6xl gap-4 p-2 mx-auto bg-gray-100 md:rounded-md md:h-fit overflow-visible"
             >
                 <div
                     class="flex flex-col flex-1 gap-4 col-span-2"
@@ -1195,7 +1196,7 @@ export default {
                 </div>
 
                 <!-- Active Equipments Sidebar -->
-                <div class="flex flex-col w-full gap-4">
+                <div class="flex flex-col w-full gap-4 col-span-2">
                     <div
                         class="relative h-full p-4 bg-white border rounded-lg shadow-sm"
                     >

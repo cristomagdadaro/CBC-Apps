@@ -5,8 +5,10 @@ namespace Tests\Feature\PDF;
 use App\Models\RequestFormPivot;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Barryvdh\DomPDF\PDF as PDFInstance;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
+use Mockery;
 use Tests\TestCase;
 
 class PDFGeneratorControllerTest extends TestCase
@@ -24,6 +26,7 @@ class PDFGeneratorControllerTest extends TestCase
     protected function tearDown(): void
     {
         File::deleteDirectory(public_path('generated-pdfs'));
+        Mockery::close();
 
         parent::tearDown();
     }
@@ -32,6 +35,11 @@ class PDFGeneratorControllerTest extends TestCase
     {
         $pivot = RequestFormPivot::factory()->create();
 
+        $pdfMock = Mockery::mock(PDFInstance::class);
+        $pdfMock->shouldReceive('output')
+            ->once()
+            ->andReturn('%PDF-1.4 fake-pdf');
+
         Pdf::shouldReceive('loadView')
             ->once()
             ->withArgs(function (string $view, array $data) use ($pivot) {
@@ -39,12 +47,7 @@ class PDFGeneratorControllerTest extends TestCase
                     && ($data['form']->id ?? null) === $pivot->id
                     && ($data['forPdf'] ?? false) === true;
             })
-            ->andReturn(new class {
-                public function output(): string
-                {
-                    return '%PDF-1.4 fake-pdf';
-                }
-            });
+            ->andReturn($pdfMock);
 
         $response = $this->getJson(route('forms.generate.pdf', [
             'id' => $pivot->id,
@@ -72,6 +75,18 @@ class PDFGeneratorControllerTest extends TestCase
 
     public function test_generate_barcode_labels_returns_download_response(): void
     {
+        $pdfMock = Mockery::mock(PDF::class);
+        $pdfMock->shouldReceive('setPaper')
+            ->once()
+            ->andReturnSelf();
+        $pdfMock->shouldReceive('download')
+            ->once()
+            ->andReturnUsing(function (string $filename) {
+                return response('fake-pdf', 200, [
+                    'content-disposition' => 'attachment; filename=' . $filename,
+                ]);
+            });
+
         Pdf::shouldReceive('loadView')
             ->once()
             ->withArgs(function (string $view, array $data) {
@@ -79,19 +94,7 @@ class PDFGeneratorControllerTest extends TestCase
                     && count($data['labels'] ?? []) === 1
                     && ($data['printMode'] ?? null) === 'barcode';
             })
-            ->andReturn(new class {
-                public function setPaper(array $paper, string $orientation): self
-                {
-                    return $this;
-                }
-
-                public function download(string $filename)
-                {
-                    return response('fake-pdf', 200, [
-                        'content-disposition' => 'attachment; filename=' . $filename,
-                    ]);
-                }
-            });
+            ->andReturn($pdfMock);
 
         $response = $this->post(route('inventory.generate-pdf'), [
             'type' => 'barcode-labels',

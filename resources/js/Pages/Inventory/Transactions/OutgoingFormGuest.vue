@@ -162,8 +162,8 @@ export default {
         :delay-ready="delayReady"
     >
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
-            <div class="py-4 flex flex-col md:flex-row gap-3 bg-gray-50 p-4 md:rounded-md  max-w-6xl h-full md:h-fit">
-                <div class="flex flex-col justify-start gap-2 md:mx-auto md:w-full lg:w-[60vw]">
+            <div class="border p-2 md:rounded-md flex flex-col gap-2 bg-white w-full h-full drop-shadow-lg mx-auto">
+                <div class="flex flex-col justify-start gap-2 w-full">
                     <div class="w-full flex gap-2 items-center lg:px-0">
                         <text-input placeholder="Search..." v-model="form.search" @update:model-value="form.filter = null; form.is_exact = false;" @keydown.enter="searchEvent" />
                         <search-btn @click="searchEvent" :disabled="model?.processing" class="text-center h-full">

@@ -34,9 +34,9 @@ export default {
     <main-bg></main-bg>
 
     <!-- Main content overlay -->
-    <div class="fixed top-0 left-0 w-full h-full flex justify-center overflow-y-auto">
-        <div class="relative sm:flex flex-col md:gap-5 justify-start items-center w-fit">
-            <div class="md:relative flex flex-col md:gap-5 w-full" :class="maxWidth">
+    <div class="flex justify-center m-0 md:m-5 overflow-visible">
+        <div class="relative sm:flex flex-col md:gap-5 justify-start items-center w-full overflow-visible">
+            <div class="md:relative flex flex-col md:gap-5 w-full overflow-visible" :class="maxWidth">
                 <!-- Header / search / top content -->
                 <slot name="top">
                     <div v-show="delayReady" class="p-0 md:rounded-md flex flex-col gap-2 md:drop-shadow-lg mb-0 w-full">

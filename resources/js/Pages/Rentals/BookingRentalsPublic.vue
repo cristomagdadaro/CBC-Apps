@@ -217,7 +217,7 @@ export default {
         subtitle="Unified page for Vehicle Rental, Venue Rental, and Center Calendar visibility."
         :delay-ready="true"
     >
-        <div class="flex flex-col gap-4 w-[95vw]">
+        <div class="flex flex-col gap-4 w-full">
             <div class="grid md:grid-cols-2 gap-3">
                 <a
                     :href="route('rental.vehicle.guest')"

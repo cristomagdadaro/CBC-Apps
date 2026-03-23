@@ -144,8 +144,8 @@ class CrudTest extends TestCase
         
         $data = $response->json('data');
         
-        // Should have all defined field types (19 as per FormFieldDefinition::FIELD_TYPES)
-        $this->assertCount(19, $data);
+        // Should have all defined field types (30 as per FormFieldDefinition::FIELD_TYPES)
+        $this->assertCount(30, $data);
     }
 
     // ========================================================================

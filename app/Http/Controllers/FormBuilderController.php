@@ -10,6 +10,7 @@ use App\Services\DynamicValidationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class FormBuilderController extends BaseController
 {

@@ -29,7 +29,7 @@ class MailablesTest extends TestCase
     public function test_generated_certificate_mail_renders_recipient_and_event_details(): void
     {
         $form = Form::factory()->create([
-            'event_id' => 'EVT-1001',
+            'event_id' => 'EVT1',
             'title' => 'Advanced Rice Workshop',
             'date_from' => now()->toDateString(),
             'date_to' => now()->addDay()->toDateString(),
@@ -44,7 +44,7 @@ class MailablesTest extends TestCase
 
         $this->assertStringContainsString('Jane Doe', $html);
         $this->assertStringContainsString('Advanced Rice Workshop', $html);
-        $this->assertStringContainsString('EVT-1001', $html);
+        $this->assertStringContainsString('EVT1', $html);
 
         @unlink($attachmentPath);
     }
@@ -100,6 +100,7 @@ class MailablesTest extends TestCase
     public function test_event_subform_response_notification_renders_response_details(): void
     {
         DB::table('loc_cities')->insert([
+            'id' => 1,
             'city' => 'Science City of Muñoz',
             'province' => 'Nueva Ecija',
             'region' => 'REGION III',
@@ -108,7 +109,7 @@ class MailablesTest extends TestCase
         ]);
 
         $form = Form::factory()->create([
-            'event_id' => 'EVT-2002',
+            'event_id' => 'EVT2',
             'title' => 'Seed Systems Seminar',
         ]);
 

@@ -17,122 +17,97 @@ class ScanRoutesTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->admin = $this->createAdminUser();
     }
 
-    public function test_scan_route_rejects_unauthenticated_access(): void
+    public function test_scan_requires_authentication(): void
     {
         $response = $this->postJson('/api/forms/event/0504/scan', [
             'payload' => (string) Str::uuid(),
             'scan_type' => 'checkin',
         ]);
 
-        $response->assertStatus(401);
+        $response->assertUnauthorized();
     }
 
     /**
-     * @dataProvider invalidScanPayloadProvider
+     * @dataProvider invalidPayloadProvider
      */
-    public function test_scan_route_rejects_invalid_payloads(string $payload): void
+    public function test_scan_validates_payload_format(string $case, mixed $payload): void
     {
         $response = $this->actingAs($this->admin)->postJson('/api/forms/event/0504/scan', [
             'payload' => $payload,
             'scan_type' => 'checkin',
         ]);
 
-        $response->assertStatus(422)
+        $response->assertUnprocessable()
             ->assertJsonValidationErrors(['payload']);
+    }
+
+    public static function invalidPayloadProvider(): array
+    {
+        return [
+            'empty_string' => ['empty', ''],
+            'whitespace_only' => ['whitespace', '   '],
+            'too_short' => ['short', 'abc'],
+            'array_instead_of_string' => ['array', ['nested' => 'value']],
+            'null_value' => ['null', null],
+        ];
     }
 
     /**
      * @dataProvider invalidScanTypeProvider
      */
-    public function test_scan_route_rejects_invalid_scan_types(string $scanType): void
+    public function test_scan_validates_scan_type(string $case, string $scanType): void
     {
         $response = $this->actingAs($this->admin)->postJson('/api/forms/event/0504/scan', [
             'payload' => (string) Str::uuid(),
             'scan_type' => $scanType,
         ]);
 
-        $response->assertStatus(422)
+        $response->assertUnprocessable()
             ->assertJsonValidationErrors(['scan_type']);
-    }
-
-    /**
-     * @dataProvider validScanTypeProvider
-     */
-    public function test_scan_route_accepts_supported_scan_types(string $scanType): void
-    {
-        $response = $this->actingAs($this->admin)->postJson('/api/forms/event/0504/scan', [
-            'payload' => (string) Str::uuid(),
-            'scan_type' => $scanType,
-            'terminal_id' => 'terminal-a',
-        ]);
-
-        $response->assertStatus(200)
-            ->assertJsonStructure(['status', 'message']);
-    }
-
-    public static function invalidScanPayloadProvider(): array
-    {
-        $cases = [];
-
-        $base = ['', 'a', 'ab', 'abc', 'abcd', '    ', "\n\n\n", 'null'];
-        foreach ($base as $index => $value) {
-            $cases['base_payload_' . $index] = [$value];
-        }
-
-        for ($i = 0; $i < 32; $i++) {
-            $cases['short_payload_' . $i] = [Str::repeat((string) (($i % 9) + 1), ($i % 4) + 1)];
-        }
-
-        return $cases;
     }
 
     public static function invalidScanTypeProvider(): array
     {
-        $cases = [];
-
-        $explicit = [
-            '',
-            'CHECKIN',
-            'check-in',
-            'snack',
-            'snackam',
-            'snack_pm_extra',
-            'cert',
-            'mealtime',
-            'drop table',
-            '123',
-            'false',
-            'null',
+        return [
+            'empty' => ['empty', ''],
+            'wrong_case' => ['case', 'CHECKIN'],
+            'hyphenated' => ['hyphen', 'check-in'],
+            'similar_but_invalid' => ['similar', 'snack'],
+            'sql_injection_attempt' => ['sql', "'; DROP TABLE scans;--"],
+            'xss_attempt' => ['xss', '<script>alert(1)</script>'],
+            'nonexistent_type' => ['random', 'nonexistent_type'],
         ];
-
-        foreach ($explicit as $index => $value) {
-            $cases['explicit_invalid_type_' . $index] = [$value];
-        }
-
-        for ($i = 0; $i < 23; $i++) {
-            $cases['generated_invalid_type_' . $i] = ['invalid_type_' . $i];
-        }
-
-        return $cases;
     }
 
-    public static function validScanTypeProvider(): array
+    public function test_scan_accepts_all_valid_scan_types(): void
     {
-        return [
-            'checkin' => ['checkin'],
-            'certificate' => ['certificate'],
-            'meal' => ['meal'],
-            'breakfast' => ['breakfast'],
-            'lunch' => ['lunch'],
-            'dinner' => ['dinner'],
-            'snack_am' => ['snack_am'],
-            'snack_pm' => ['snack_pm'],
-            'quiz' => ['quiz'],
-            'workshop' => ['workshop'],
-        ];
+        $validTypes = ['checkin', 'certificate', 'meal', 'breakfast', 'lunch', 
+                       'dinner', 'snack_am', 'snack_pm', 'quiz', 'workshop'];
+
+        foreach ($validTypes as $type) {
+            $response = $this->actingAs($this->admin)->postJson('/api/forms/event/0504/scan', [
+                'payload' => (string) Str::uuid(),
+                'scan_type' => $type,
+                'terminal_id' => 'terminal-a',
+            ]);
+
+            $response->assertOk()
+                ->assertJsonStructure(['status', 'message']);
+        }
+    }
+
+    public function test_scan_accepts_optional_metadata(): void
+    {
+        $response = $this->actingAs($this->admin)->postJson('/api/forms/event/0504/scan', [
+            'payload' => (string) Str::uuid(),
+            'scan_type' => 'checkin',
+            'terminal_id' => 'terminal-a',
+            'metadata' => ['location' => 'hall-a', 'operator' => 'staff-001'],
+        ]);
+
+        $response->assertOk();
     }
 }

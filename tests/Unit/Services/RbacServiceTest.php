@@ -67,8 +67,8 @@ class RbacServiceTest extends TestCase
         $user->roles()->attach($role->id);
 
         $rbac = app(RbacService::class);
-
         $this->assertTrue($rbac->hasPermission($user, 'event.certificates.manage'));
         $this->assertFalse($rbac->hasPermission($user, 'event.forms.manage'));
+        $this->assertTrue($rbac->hasPermission($user, 'rental.vehicle.manage'));
     }
 }

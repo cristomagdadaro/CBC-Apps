@@ -256,7 +256,7 @@ export default {
     <SuccessModal :show="showSuccessModal" title="Success!" :message="successMessage"
         @close="showSuccessModal = false" />
     <div class="grid md:grid-cols-4 grid-cols-1 gap-6 mt-3 md:mt-0">
-        <div v-if="form" class="bg-white p-2 rounded-md flex flex-col gap-2 max-w-xl drop-shadow-lg h-fit col-span-3 md:col-span-1">
+        <div v-if="form" class="bg-white p-2 md:rounded-md flex flex-col gap-2 md:max-w-xl drop-shadow-lg h-fit col-span-3 md:col-span-1">
             <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm">
                 <div class="flex items-start gap-3">
                     <svg class="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
@@ -427,7 +427,7 @@ export default {
                 </form>
             </div>
         </div>
-        <div class="bg-white p-4 rounded-lg shadow col-span-3 h-fit">
+        <div class="bg-white p-4 md:rounded-lg shadow col-span-3 h-fit">
             <h3 class="text-base font-semibold text-gray-900 mb-2">
                 Vehicle Availability Calendar
             </h3>

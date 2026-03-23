@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Form;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -19,6 +20,9 @@ class FormUpdateTest extends TestCase
         $this->seed(\Database\Seeders\FormSeeder::class);
 
         $form = Form::latest()->first();
+
+        $user = User::factory()->create(['is_admin' => true]);
+        $this->actingAs($user, 'sanctum');
 
         // Access the form update page
         $response = $this->get(route('forms.update', ['event_id' => $form->event_id]));
