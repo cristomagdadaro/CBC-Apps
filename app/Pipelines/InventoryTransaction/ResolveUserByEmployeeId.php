@@ -3,6 +3,7 @@
 namespace App\Pipelines\InventoryTransaction;
 
 use App\Models\User;
+use App\Models\Personnel;
 use Closure;
 
 class ResolveUserByEmployeeId
@@ -15,7 +16,12 @@ class ResolveUserByEmployeeId
             $user = User::where('employee_id', $payload['employee_id'])->first();
             if ($user) {
                 $payload['user_id'] = $user->id;
-                $payload['personnel_id'] = $user->id;
+                if (empty($payload['personnel_id'])) {
+                    $personnel = Personnel::where('employee_id', $payload['employee_id'])->first();
+                    if ($personnel) {
+                        $payload['personnel_id'] = $personnel->id;
+                    }
+                }
             }
         }
 
