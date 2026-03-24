@@ -311,15 +311,14 @@ export default {
             <LaboratoryLogHeaderAction />
         </template>
 
-        <div class="py-6">
-            <div class="max-w-[90vw] mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="space-y-6">
                 <div class="flex justify-end" v-if="loading">
                     <span class="text-xs text-gray-500">Refreshing...</span>
                 </div>
 
                 <TabNavigation v-model="activeTab" :tabs="tabs" />
 
-                <div v-show="activeTab === 'stats'" class="space-y-6">
+                <div v-show="activeTab === 'stats'" class="space-y-6 px-5">
                     <div class="grid gap-4 md:grid-cols-3">
                         <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
                             <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Current In Use</h3>
@@ -456,7 +455,7 @@ export default {
                     </div>
                 </div>
 
-                <div v-show="activeTab === 'calendar'" class="space-y-6">
+                <div v-show="activeTab === 'calendar'" class="space-y-6 px-5">
                     <CalendarModule title="Equipment Usage Calendar"
                         subtitle="Active and overdue equipment usage by day." :events="calendarEvents"
                         :type-options="[{ key: 'equipment', label: 'Equipment' }]"
@@ -480,6 +479,5 @@ export default {
                     </CRCMDatatable>
                 </div>
             </div>
-        </div>
     </AppLayout>
 </template>
