@@ -107,6 +107,16 @@ class TransactionRepo extends AbstractRepoService
         });
     }
 
+    public function applySearchFilters(Builder &$query, Collection $parameters): void
+    {
+        parent::applySearchFilters($query, $parameters);
+
+        $transacType = $parameters->get('transac_type');
+        if (in_array($transacType, [Inventory::INCOMING->value, Inventory::OUTGOING->value], true)) {
+            $query->where('transac_type', $transacType);
+        }
+    }
+
     public function getRemainingStocks(Collection $parameters, array $consumableCategoryIds = [1, 2, 3, 5, 6]): Collection
     {
         $search   = $parameters->get('search');

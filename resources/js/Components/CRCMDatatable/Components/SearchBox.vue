@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-col gap-0.5">
         <span class="text-xs text-gray-500">Search: </span>
-        <div class="flex flex-row items-center justify-between gap-0.5 bg-white rounded focus-within:ring-1 border-gray-200 border">
+        <div class="flex flex-row items-center justify-between gap-0.5 bg-white rounded focus-within:ring-1 border-gray-700 border">
             <input autocomplete="off" class="border-0 py-2 w-full rounded-l active:ring-0 focus:ring-0"
                    type="text" id="dtSearch"
                    v-model="search"

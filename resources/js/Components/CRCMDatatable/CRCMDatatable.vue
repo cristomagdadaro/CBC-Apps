@@ -38,7 +38,7 @@
 
                 <!-- Custom Filters Slot -->
                 <div class="flex flex-wrap gap-2 items-center">
-                    <slot name="custom-filters" :datatable="dt" :refresh="dt.refresh" />
+                    <slot name="custom-filters" :datatable="dt" :customFilters="dt.request" :refresh="() => dt.refresh()" />
                 </div>
             </div>
 
@@ -162,13 +162,13 @@
                                 <span class="sr-only">Select</span>
                             </th>
                             <th v-for="column in dt.model.getColumns()" :key="column.key + column.title"
-                                class="p-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer select-none transition-colors"
+                                class="p-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer select-none transition-colors "
                                 :class="[
                                     column.sortable ? 'hover:bg-black/5 dark:hover:bg-white/5' : '',
                                     column.visible !== false ? '' : 'hidden',
                                     getSortClasses(column)
                                 ]" @click="onColumnSort(column)">
-                                <div class="flex items-center gap-1.5">
+                                <div class="flex items-center gap-1.5" :class="column.align ? column.align : 'text-left'">
                                     <span>{{ column.title }}</span>
                                     <span v-if="column.sortable" class="text-[10px] opacity-50">
                                         <arrow-up-icon
