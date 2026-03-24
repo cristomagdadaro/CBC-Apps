@@ -1,7 +1,7 @@
 interface IUser extends IBaseClass {
     name: string;
     email: string;
-    email_verified_at: Date;
+    email_verified_at: Date | string | null;
     password: string;
     two_factor_secret: string;
     two_factor_recovery_codes: string;
@@ -9,4 +9,8 @@ interface IUser extends IBaseClass {
     remember_token: string;
     current_team_id: string;
     profile_photo_path: string;
+    is_admin: number | boolean;
+    permissions: string[];
+    employee_id: string | null;
+    roles?: string[];
 }

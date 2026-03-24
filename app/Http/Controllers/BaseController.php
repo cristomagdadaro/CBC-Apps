@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Repositories\AbstractRepoService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 abstract class BaseController extends Controller
@@ -53,6 +54,11 @@ abstract class BaseController extends Controller
         return response()->json([
             'data' => $deletedItems
         ]);
+    }
+
+    public function multiDestroy(Request $request): JsonResponse
+    {
+        return $this->_multiDestroy($request);
     }
 
     /**

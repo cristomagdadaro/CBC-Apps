@@ -1,5 +1,4 @@
 <script setup>
-import CRCMDatatable from '@/Components/CRCMDatatable/CRCMDatatable.vue';
 import Transaction from '@/Modules/domain/Transaction';
 import TransactionHeaderAction from '@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue';
 

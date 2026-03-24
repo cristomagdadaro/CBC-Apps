@@ -11,6 +11,10 @@ export default class DtoUser extends DtoBaseClass implements IUser {
     remember_token: string;
     current_team_id: string;
     profile_photo_path: string;
+    is_admin: number | boolean;
+    permissions: string[];
+    employee_id: string | null;
+    roles?: string[];
 
     constructor(data: IUser) {
         super(data);
@@ -25,5 +29,9 @@ export default class DtoUser extends DtoBaseClass implements IUser {
         this.remember_token = data?.remember_token ?? '';
         this.current_team_id = data?.current_team_id ?? '';
         this.profile_photo_path =  data?.profile_photo_path ?? '';
+        this.is_admin = data?.is_admin ?? 0;
+        this.permissions = data?.permissions ?? [];
+        this.employee_id = data?.employee_id ?? null;
+        this.roles = data?.roles ?? [];
     }
 }

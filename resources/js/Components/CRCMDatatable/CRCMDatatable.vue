@@ -396,7 +396,7 @@
                     class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
                     Cancel
                 </button>
-                <button @click="dt.delete(toDeleteId)" :disabled="dt.processing"
+                <button @click="confirmSingleDelete" :disabled="dt.processing"
                     class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center gap-2">
                     <trash-2-icon v-if="!dt.processing" class="w-4 h-4" />
                     <loader-2-icon v-else class="w-4 h-4 animate-spin" />
@@ -432,7 +432,7 @@
                     class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
                     Cancel
                 </button>
-                <button @click="dt.deleteSelected()" :disabled="dt.processing"
+                <button @click="confirmBulkDelete" :disabled="dt.processing"
                     class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center gap-2">
                     <trash-2-icon v-if="!dt.processing" class="w-4 h-4" />
                     <loader-2-icon v-else class="w-4 h-4 animate-spin" />
@@ -626,6 +626,11 @@ export default {
         },
         resolvedPutEndpoint() { return this.modelEndpoints.put || null; },
         resolvedDeleteEndpoint() { return this.modelEndpoints.delete || null; },
+        resolvedDeleteManyEndpoint() {
+            return this.modelEndpoints.deleteMany
+                || this.modelEndpoints.multiDestroy
+                || (this.resolvedDeleteEndpoint ? this.resolvedDeleteEndpoint.replace('.destroy', '.multi-destroy') : null);
+        },
         resolvedShowEndpoint() { return this.modelEndpoints.show || null; },
         dataDb() { return this.checkIfDataIsLoaded ? this.dt.response['data'] : []; },
         errorBag() { return this.dt?.errorBag?.errors || this.dt?.errorBag || null; },
@@ -674,6 +679,34 @@ export default {
             this.showImportModal = false; this.showDeleteSelectedDialog = false;
             this.dt.closeAllModal = false; this.dt.errorBag = null; this.toDeleteId = null;
         },
+        async confirmSingleDelete() {
+            if (!this.toDeleteId) return;
+
+            try {
+                await this.dt.delete(this.toDeleteId);
+                this.closeDialog();
+            } catch (error) {
+                // Keep modal open so user can review the error state.
+            }
+        },
+        async confirmBulkDelete() {
+            if (!this.dt.selected?.length) return;
+
+            const confirmed = window.confirm(
+                `Delete ${this.dt.selected.length} selected records? This action cannot be undone.`
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            try {
+                await this.dt.deleteSelected();
+                this.closeDialog();
+            } catch (error) {
+                // Keep modal open so user can review the error state.
+            }
+        },
         async initializeDatatable() {
             const requireEndpoint = (endpoint, action) => { if (!endpoint) throw new Error(`Missing ${action} endpoint`); return endpoint; };
             const apiAdapter = {
@@ -686,6 +719,15 @@ export default {
                     return this.fetchPutApi(putEndpoint, idKey ? payload[idKey] : null, payload);
                 },
                 delete: (id) => this.fetchDeleteApi(requireEndpoint(this.resolvedDeleteEndpoint, 'delete'), id),
+                deleteMany: (ids) => {
+                    const deleteManyEndpoint = this.resolvedDeleteManyEndpoint;
+                    if (deleteManyEndpoint) {
+                        return this.fetchDeleteApi(deleteManyEndpoint, null, { ids });
+                    }
+
+                    const deleteEndpoint = requireEndpoint(this.resolvedDeleteEndpoint, 'delete');
+                    return Promise.all((ids || []).map((id) => this.fetchDeleteApi(deleteEndpoint, id)));
+                },
             };
             this.dt = new CRCMDatatable(this.params, this.baseModel, apiAdapter);
             await this.dt.init();

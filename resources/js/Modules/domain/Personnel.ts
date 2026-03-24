@@ -2,11 +2,11 @@ import DtoPersonnel from "@/Modules/dto/DtoPersonnel";
 
 export default class Personnel extends DtoPersonnel {
     static endpoints = {
-        index: 'api.inventory.suppliers.index',
-        post: 'api.inventory.suppliers.store',
-        put: 'api.inventory.suppliers.update',
-        delete: 'api.inventory.suppliers.destroy',
-        show: 'suppliers.show',
+        index: 'api.inventory.personnels.index',
+        post: 'api.inventory.personnels.store',
+        put: 'api.inventory.personnels.update',
+        delete: 'api.inventory.personnels.destroy',
+        show: 'personnels.show',
     };
 
     constructor(response: DtoPersonnel) {
@@ -15,7 +15,7 @@ export default class Personnel extends DtoPersonnel {
         this.api._apiPost = Personnel.endpoints.post;
         this.api._apiPut = Personnel.endpoints.put;
         this.api._apiDelete = Personnel.endpoints.delete;
-
+    
         this.showPage = Personnel.endpoints.show;
     }
 
@@ -56,6 +56,14 @@ export default class Personnel extends DtoPersonnel {
                 title: 'ID',
                 key: 'id',
                 db_key: 'id',
+                align: 'text-center',
+                sortable: true,
+                visible: false,
+            },
+            {
+                title: 'PhilRice ID',
+                key: 'employee_id',
+                db_key: 'employee_id',
                 align: 'text-center',
                 sortable: true,
                 visible: true,
@@ -122,16 +130,9 @@ export default class Personnel extends DtoPersonnel {
                 db_key: 'email',
                 align: 'text-center',
                 sortable: true,
-                visible: false,
-            },
-            {
-                title: 'PhilRice ID',
-                key: 'employee_id',
-                db_key: 'employee_id',
-                align: 'text-center',
-                sortable: true,
                 visible: true,
             },
+           
         ]
     }
 }

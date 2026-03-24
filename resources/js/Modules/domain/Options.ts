@@ -2,15 +2,23 @@ import DtoOptions from "@/Modules/dto/DtoOptions";
 import IOptions from "@/Modules/interface/IOptions";
 
 export default class Options extends DtoOptions {
+    static endpoints = {
+        index: 'api.options.index',
+        post: 'api.options.store',
+        put: 'api.options.update',
+        delete: 'api.options.destroy',
+        show: 'system.options.show',
+    };
+
     constructor(response: DtoOptions) {
         super(response);
 
-        this.api._apiIndex = 'api.options.index';
-        this.api._apiPost = 'api.options.store';
-        this.api._apiPut = 'api.options.update';
-        this.api._apiDelete = 'api.options.destroy';
-
-        this.showPage = 'system.options.show';
+        this.api._apiIndex = Options.endpoints.index;
+        this.api._apiPost = Options.endpoints.post;
+        this.api._apiPut = Options.endpoints.put;
+        this.api._apiDelete = Options.endpoints.delete;
+        
+        this.showPage = Options.endpoints.show;
     }
 
     createFields(): object {

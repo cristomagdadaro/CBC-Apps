@@ -11,8 +11,8 @@ import {
 } from 'chart.js';
 import CalendarModule from '@/Components/CalendarModule.vue';
 import LaboratoryEquipmentLog from '@/Modules/domain/LaboratoryEquipmentLog';
-import LaboratoryLogsDataTable from '@/Pages/Laboratory/components/LaboratoryLogsDataTable.vue';
 import LaboratoryLogHeaderAction from '@/Pages/Laboratory/components/LaboratoryLogHeaderAction.vue';
+import ApiMixin from '@/Modules/mixins/ApiMixin';
 
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -22,6 +22,7 @@ export default {
         CalendarModule,
         LaboratoryLogHeaderAction,
     },
+    mixins: [ApiMixin],
     data() {
         return {
             dashboard: null,
@@ -285,7 +286,7 @@ export default {
     async mounted() {
         await this.loadDashboard();
         //this.refreshTimer = setInterval(this.loadDashboard, 30000);
-        
+
         this.$nextTick(() => {
             requestAnimationFrame(() => {
                 setTimeout(() => {
@@ -322,7 +323,8 @@ export default {
                     <div class="grid gap-4 md:grid-cols-3">
                         <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
                             <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Current In Use</h3>
-                            <p class="mt-2 text-3xl font-semibold text-gray-900 dark:text-white">{{ currentInUseCount }}</p>
+                            <p class="mt-2 text-3xl font-semibold text-gray-900 dark:text-white">{{ currentInUseCount }}
+                            </p>
                             <p class="mt-2 text-xs text-gray-500">Active + overdue equipment logs</p>
                         </div>
 
@@ -330,7 +332,8 @@ export default {
                             <Dropdown align="right" width="auto" max-height="24rem">
                                 <template #trigger>
                                     <button type="button" class="w-full text-left">
-                                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Active Equipment</h3>
+                                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Active
+                                            Equipment</h3>
                                         <p class="mt-2 text-3xl font-semibold text-green-600">{{ activeCount }}</p>
                                         <p class="mt-2 text-xs text-gray-500">Click to view details</p>
                                     </button>
@@ -339,20 +342,25 @@ export default {
                                 <template #content>
                                     <div class="w-[32rem] max-w-[85vw] p-2 text-sm">
                                         <div v-if="groupedActiveLogs.length" class="space-y-2">
-                                            <div v-for="group in groupedActiveLogs" :key="group.location" class="border rounded-md p-2">
-                                                <div class="font-semibold text-gray-700 px-2 py-1">{{ group.location }} ({{ group.items.length }})</div>
-                                                <DropdownOption v-for="log in group.items" :key="log.id" class="!px-2 !py-2 !whitespace-normal">
-                                                    <a
-                                                        class="font-semibold text-blue-600 hover:underline"
+                                            <div v-for="group in groupedActiveLogs" :key="group.location"
+                                                class="border rounded-md p-2">
+                                                <div class="font-semibold text-gray-700 px-2 py-1">{{ group.location }}
+                                                    ({{ group.items.length }})</div>
+                                                <DropdownOption v-for="log in group.items" :key="log.id"
+                                                    class="!px-2 !py-2 !whitespace-normal">
+                                                    <a class="font-semibold text-blue-600 hover:underline"
                                                         target="_blank"
-                                                        :href="route('laboratory.equipments.show', log.equipment?.id)"
-                                                    >
+                                                        :href="route('laboratory.equipments.show', log.equipment?.id)">
                                                         {{ log.equipment?.name || 'Equipment' }}
                                                     </a>
-                                                    <div class="text-gray-500 text-xs">Barcode: {{ log.equipment_barcode || '-' }}</div>
-                                                    <div class="text-gray-500 text-xs">Started: {{ formatDateTime(log.started_at) }}</div>
-                                                    <div class="text-gray-500 text-xs">Ends: {{ formatDateTime(log.end_use_at) }}</div>
-                                                    <div class="text-gray-500 text-xs">User: {{ formatPersonnelName(log.personnel) }}</div>
+                                                    <div class="text-gray-500 text-xs">Barcode: {{ log.equipment_barcode
+                                                        || '-' }}</div>
+                                                    <div class="text-gray-500 text-xs">Started: {{
+                                                        formatDateTime(log.started_at) }}</div>
+                                                    <div class="text-gray-500 text-xs">Ends: {{
+                                                        formatDateTime(log.end_use_at) }}</div>
+                                                    <div class="text-gray-500 text-xs">User: {{
+                                                        formatPersonnelName(log.personnel) }}</div>
                                                 </DropdownOption>
                                             </div>
                                         </div>
@@ -366,7 +374,8 @@ export default {
                             <Dropdown align="right" width="auto" max-height="24rem">
                                 <template #trigger>
                                     <button type="button" class="w-full text-left">
-                                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Overdue Equipment</h3>
+                                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Overdue
+                                            Equipment</h3>
                                         <p class="mt-2 text-3xl font-semibold text-red-600">{{ overdueCount }}</p>
                                         <p class="mt-2 text-xs text-gray-500">Click to view details</p>
                                     </button>
@@ -375,19 +384,23 @@ export default {
                                 <template #content>
                                     <div class="w-[32rem] max-w-[85vw] p-2 text-sm">
                                         <div v-if="groupedOverdueLogs.length" class="space-y-2">
-                                            <div v-for="group in groupedOverdueLogs" :key="group.location" class="border rounded-md p-2">
-                                                <div class="font-semibold text-gray-700 px-2 py-1">{{ group.location }} ({{ group.items.length }})</div>
-                                                <DropdownOption v-for="log in group.items" :key="log.id" class="!px-2 !py-2 !whitespace-normal">
-                                                    <a
-                                                        class="font-semibold text-red-600 hover:underline"
+                                            <div v-for="group in groupedOverdueLogs" :key="group.location"
+                                                class="border rounded-md p-2">
+                                                <div class="font-semibold text-gray-700 px-2 py-1">{{ group.location }}
+                                                    ({{ group.items.length }})</div>
+                                                <DropdownOption v-for="log in group.items" :key="log.id"
+                                                    class="!px-2 !py-2 !whitespace-normal">
+                                                    <a class="font-semibold text-red-600 hover:underline"
                                                         target="_blank"
-                                                        :href="route('laboratory.equipments.show', log.equipment?.id)"
-                                                    >
+                                                        :href="route('laboratory.equipments.show', log.equipment?.id)">
                                                         {{ log.equipment?.name || 'Equipment' }}
                                                     </a>
-                                                    <div class="text-gray-500 text-xs">Barcode: {{ log.equipment_barcode || '-' }}</div>
-                                                    <div class="text-gray-500 text-xs">Expected end: {{ formatDateTime(log.end_use_at) }}</div>
-                                                    <div class="text-gray-500 text-xs">User: {{ formatPersonnelName(log.personnel) }}</div>
+                                                    <div class="text-gray-500 text-xs">Barcode: {{ log.equipment_barcode
+                                                        || '-' }}</div>
+                                                    <div class="text-gray-500 text-xs">Expected end: {{
+                                                        formatDateTime(log.end_use_at) }}</div>
+                                                    <div class="text-gray-500 text-xs">User: {{
+                                                        formatPersonnelName(log.personnel) }}</div>
                                                 </DropdownOption>
                                             </div>
                                         </div>
@@ -405,7 +418,8 @@ export default {
                             <div class="mb-3 flex gap-2 items-center">
                                 <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200">LEGEND</h3>
                                 <div class="flex flex-wrap gap-3 text-xs text-gray-600">
-                                    <div v-for="legend in heatLegend" :key="legend.label" class="flex items-center gap-2">
+                                    <div v-for="legend in heatLegend" :key="legend.label"
+                                        class="flex items-center gap-2">
                                         <span :class="['inline-block h-3 w-6 rounded', legend.className]"></span>
                                         <span>{{ legend.label }}</span>
                                     </div>
@@ -420,59 +434,50 @@ export default {
                                     {{ hour - 1 }}
                                 </div>
                             </div>
-                            <div
-                                v-for="(row, dayIndex) in heatmap"
-                                :key="dayIndex"
-                                class="grid gap-1"
-                                style="grid-template-columns: repeat(25, minmax(0, 1fr));"
-                            >
+                            <div v-for="(row, dayIndex) in heatmap" :key="dayIndex" class="grid gap-1"
+                                style="grid-template-columns: repeat(25, minmax(0, 1fr));">
                                 <div class="text-[0.65rem] text-gray-500">
                                     {{ dayLabels[dayIndex] }}
                                 </div>
-                                <div
-                                    v-for="(cell, hourIndex) in row"
-                                    :key="hourIndex"
-                                    :class="['h-4 rounded-md mb-0.5', heatColor(cell)]"
-                                    :title="cell + ' logs'"
-                                ></div>
+                                <div v-for="(cell, hourIndex) in row" :key="hourIndex"
+                                    :class="['h-4 rounded-md mb-0.5', heatColor(cell)]" :title="cell + ' logs'"></div>
                             </div>
                         </div>
                     </div>
 
                     <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
-                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Top 5 Most-Used Equipment</h3>
+                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Top 5 Most-Used
+                            Equipment</h3>
                         <div v-if="mostUsed.length" class="h-72 w-full">
-                            <canvas 
-                                ref="mostUsedChartCanvas"
-                                :key="mostUsed.length"
-                                width="400"
-                                height="300"
-                                style="max-height: 100%; max-width: 100%;"
-                            ></canvas>
+                            <canvas ref="mostUsedChartCanvas" :key="mostUsed.length" width="400" height="300"
+                                style="max-height: 100%; max-width: 100%;"></canvas>
                         </div>
                         <div v-else class="text-sm text-gray-500">No usage data available.</div>
                     </div>
                 </div>
 
                 <div v-show="activeTab === 'calendar'" class="space-y-6">
-                    <CalendarModule
-                        title="Equipment Usage Calendar"
-                        subtitle="Active and overdue equipment usage by day."
-                        :events="calendarEvents"
+                    <CalendarModule title="Equipment Usage Calendar"
+                        subtitle="Active and overdue equipment usage by day." :events="calendarEvents"
                         :type-options="[{ key: 'equipment', label: 'Equipment' }]"
                         :status-options="[{ key: 'active', label: 'Active' }, { key: 'overdue', label: 'Overdue' }]"
-                        :status-colors="{ active: '#10B981', overdue: '#EF4444' }"
-                        :legend-groups="calendarLegend"
-                        :show-type-filter="false"
-                    />
+                        :status-colors="{ active: '#10B981', overdue: '#EF4444' }" :legend-groups="calendarLegend"
+                        :show-type-filter="false" />
                 </div>
-                <div v-show="activeTab === 'logs'" class="space-y-6">
-                    <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
-                        <search-comp
-                            :prop-model="LaboratoryEquipmentLog"
-                            :card-slot="LaboratoryLogsDataTable"
-                        />
-                    </div>
+                <div v-show="activeTab === 'logs'">
+                    <CRCMDatatable :base-model="LaboratoryEquipmentLog" :can-view="true" :can-create="false"
+                        :can-update="true" :can-delete="true">
+                        <!-- Custom Cell Rendering -->
+                        <template #cell-status="{ value }">
+                            <span class="px-4 py-1.5 rounded-full text-xs font-medium leading-none uppercase" :class="{
+                                'bg-yellow-300 text-yellow-700': value === 'active',
+                                'bg-red-300 text-red-700': value === 'overdue',
+                                'bg-green-300 text-green-700': value === 'completed',
+                            }">
+                                {{ value === 'active' ? 'Active' : value === 'overdue' ? 'Overdue' : value === 'completed' ? 'Completed' : value }}
+                            </span>
+                        </template>
+                    </CRCMDatatable>
                 </div>
             </div>
         </div>

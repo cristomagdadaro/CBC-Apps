@@ -117,9 +117,21 @@ export default class CRCMDatatable {
 
     async deleteSelected() {
         this.ensureApiAdapter();
-        const response = await this.api.delete(this.selected);
-        if (await this.checkForErrors(response))
+        const selectedIds = Array.isArray(this.selected) ? [...this.selected] : [];
+        if (!selectedIds.length) {
+            return;
+        }
+
+        let response = null;
+        if (typeof this.api.deleteMany === 'function') {
+            response = await this.api.deleteMany(selectedIds);
+        } else {
+            response = await Promise.all(selectedIds.map((id) => this.api.delete(id)));
+        }
+
+        if (await this.checkForErrors(response)) {
             await this.refresh();
+        }
         this.selected = [];
     }
 
@@ -237,6 +249,9 @@ export default class CRCMDatatable {
     async exportCSV() {
         this.ensureApiAdapter();
         let link = document.createElement("a");
+        const selectedIds = Array.isArray(this.selected) ? [...this.selected] : [];
+        const selectedIdSet = new Set(selectedIds);
+        const originalPerPage = this.request.getParam('per_page');
         try {
             // Update per_page parameter to fetch all data in one request
             this.request.updateParam('per_page', this.response?.meta?.total || this.response?.data?.length || 10);
@@ -244,6 +259,11 @@ export default class CRCMDatatable {
             // Fetch data from API
             let response = this.normalizeResponseShape(await this.api.get(this.request.toObject(), this.model));
             let data = response.data;
+
+            // If rows are selected, export should prioritize selected rows over active filters.
+            if (selectedIdSet.size > 0) {
+                data = data.filter((row) => selectedIdSet.has(row.id));
+            }
 
             // Filter and map visible columns
             let columnsTitles = this.model.visibleColumns()
@@ -283,6 +303,12 @@ export default class CRCMDatatable {
         } catch (error) {
 
         } finally {
+            if (originalPerPage === undefined || originalPerPage === null) {
+                this.request.removeParam('per_page');
+            } else {
+                this.request.updateParam('per_page', originalPerPage);
+            }
+
             // Clean up: remove link from body
             if (link) {
                 document.body.removeChild(link);

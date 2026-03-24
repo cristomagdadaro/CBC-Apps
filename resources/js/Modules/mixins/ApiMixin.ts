@@ -107,10 +107,10 @@ export default {
                 this.processing = false;
             });
         },
-        async fetchDeleteApi(url: string, id?: any) {
+        async fetchDeleteApi(url: string, id?: any, data?: object) {
             this.processing = true;
             const api = new ConcreteApiService();
-            return await api.delete(url, id).finally(() => {
+            return await api.delete(url, id, data).finally(() => {
                 this.processing = false;
             });
         },
