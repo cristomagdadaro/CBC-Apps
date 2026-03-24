@@ -1,5 +1,4 @@
 <script>
-import axios from "axios";
 import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import ConcreteApiService from "@/Modules/infrastructure/ConcreteApiService";
@@ -10,16 +9,40 @@ export default {
     components: { TransactionHeaderAction },
     mixins: [ApiMixin],
     data() {
+        const today = new Date();
+        const selectedDate = [
+            today.getFullYear(),
+            String(today.getMonth() + 1).padStart(2, "0"),
+            String(today.getDate()).padStart(2, "0"),
+        ].join("-");
+        const weekDate = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+        const weekDay = weekDate.getUTCDay() || 7;
+
+        weekDate.setUTCDate(weekDate.getUTCDate() + 4 - weekDay);
+
+        const yearStart = new Date(Date.UTC(weekDate.getUTCFullYear(), 0, 1));
+        const selectedWeek = `${weekDate.getUTCFullYear()}-W${String(Math.ceil((((weekDate - yearStart) / 86400000) + 1) / 7)).padStart(2, "0")}`;
+        const selectedMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+
         return {
             loading: false,
-            scope: "month",
+            scope: "monthly",
+            selectedDate,
+            selectedWeek,
+            selectedMonth,
+            selectedYear: String(today.getFullYear()),
             scopeOptions: [
-                { name: "day", label: "Day" },
-                { name: "week", label: "Week" },
-                { name: "month", label: "Month" },
-                { name: "year", label: "Year" },
+                { name: "day", label: "Day (Last 24 Hours)" },
+                { name: "daily", label: "Daily (Selected Day)" },
+                { name: "week", label: "Week (Last 168 Hours)" },
+                { name: "weekly", label: "Weekly (Selected Week)" },
+                { name: "month", label: "Month (Last 1 Month)" },
+                { name: "monthly", label: "Monthly (Selected Month)" },
+                { name: "year", label: "Year (Last 365 Days)" },
+                { name: "yearly", label: "Yearly (Selected Year)" },
             ],
             dashboard: {
+                range: { start: null, end: null },
                 totals: { incoming: 0, outgoing: 0 },
                 recent_transactions: [],
                 items_per_category: [],
@@ -30,6 +53,68 @@ export default {
         };
     },
     computed: {
+        dashboardParams() {
+            const params = { scope: this.scope };
+
+            if (this.scope === "daily") {
+                params.date = this.selectedDate;
+            }
+
+            if (this.scope === "weekly") {
+                params.week = this.selectedWeek;
+            }
+
+            if (this.scope === "monthly") {
+                params.month = this.selectedMonth;
+            }
+
+            if (this.scope === "yearly") {
+                params.year = this.selectedYear;
+            }
+
+            return params;
+        },
+        usesAnchoredPeriod() {
+            return ["daily", "weekly", "monthly", "yearly"].includes(this.scope);
+        },
+        periodInputLabel() {
+            return {
+                daily: "Date",
+                weekly: "Week",
+                monthly: "Month",
+                yearly: "Year",
+            }[this.scope] || "Period";
+        },
+        periodInputType() {
+            return {
+                daily: "date",
+                weekly: "week",
+                monthly: "month",
+                yearly: "number",
+            }[this.scope] || "text";
+        },
+        periodInputValue() {
+            return {
+                daily: this.selectedDate,
+                weekly: this.selectedWeek,
+                monthly: this.selectedMonth,
+                yearly: this.selectedYear,
+            }[this.scope] || "";
+        },
+        scopeCaption() {
+            const captions = {
+                day: "within the last 24 hours",
+                daily: this.selectedDate ? `within ${this.formatDisplayDate(this.selectedDate)}` : "within the selected day",
+                week: "within the last 168 hours",
+                weekly: this.selectedWeek ? `within week ${this.selectedWeek}` : "within the selected week",
+                month: "within the last 1 month",
+                monthly: this.selectedMonth ? `within ${this.formatDisplayMonth(this.selectedMonth)}` : "within the selected month",
+                year: "within the last 365 days",
+                yearly: this.selectedYear ? `within ${this.selectedYear}` : "within the selected year",
+            };
+
+            return captions[this.scope] || "within the current month";
+        },
         stockBucketRows() {
             const buckets = this.dashboard?.stock_buckets || {};
             const values = [
@@ -50,10 +135,12 @@ export default {
         async loadDashboard() {
             this.loading = true;
             try {
-                const response = await this.fetchGetApi("api.inventory.transactions.dashboard", {params: { scope: this.scope }});
+                const response = await this.fetchGetApi("api.inventory.transactions.dashboard", {
+                    params: this.dashboardParams,
+                });
                 const payload = response?.data?.data ?? response?.data ?? {};
-                console.log(payload?.recent_transactions);
                 this.dashboard = {
+                    range: payload?.range ?? { start: null, end: null },
                     totals: payload?.totals ?? { incoming: 0, outgoing: 0 },
                     recent_transactions: this.convertToTransaction(payload?.recent_transactions) ?? [],
                     items_per_category: payload?.items_per_category ?? [],
@@ -70,12 +157,97 @@ export default {
                 this.loading = false;
             }
         },
-        convertToTransaction(response) {
+        convertToTransaction(response = []) {
             const service = new ConcreteApiService();
 
-            return response.map(item => 
+            return response.map((item) =>
                 service.castToModel(item, Transaction)
             );
+        },
+        updatePeriodAnchor(value) {
+            if (this.scope === "daily") {
+                this.selectedDate = value;
+            }
+
+            if (this.scope === "weekly") {
+                this.selectedWeek = value;
+            }
+
+            if (this.scope === "monthly") {
+                this.selectedMonth = value;
+            }
+
+            if (this.scope === "yearly") {
+                this.selectedYear = value;
+            }
+        },
+        formatDateForInput(value) {
+            const date = new Date(value);
+
+            if (Number.isNaN(date.getTime())) {
+                return "";
+            }
+
+            return [
+                date.getFullYear(),
+                String(date.getMonth() + 1).padStart(2, "0"),
+                String(date.getDate()).padStart(2, "0"),
+            ].join("-");
+        },
+        formatWeekForInput(value) {
+            const date = new Date(value);
+
+            if (Number.isNaN(date.getTime())) {
+                return "";
+            }
+
+            const normalized = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const day = normalized.getUTCDay() || 7;
+
+            normalized.setUTCDate(normalized.getUTCDate() + 4 - day);
+
+            const yearStart = new Date(Date.UTC(normalized.getUTCFullYear(), 0, 1));
+            const week = Math.ceil((((normalized - yearStart) / 86400000) + 1) / 7);
+
+            return `${normalized.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
+        },
+        formatMonthForInput(value) {
+            const date = new Date(value);
+
+            if (Number.isNaN(date.getTime())) {
+                return "";
+            }
+
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+        },
+        formatDisplayDate(value) {
+            if (!value) return "the selected day";
+
+            const date = new Date(`${value}T00:00:00`);
+
+            if (Number.isNaN(date.getTime())) {
+                return value;
+            }
+
+            return date.toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+            });
+        },
+        formatDisplayMonth(value) {
+            if (!value) return "the selected month";
+
+            const date = new Date(`${value}-01T00:00:00`);
+
+            if (Number.isNaN(date.getTime())) {
+                return value;
+            }
+
+            return date.toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "long",
+            });
         },
         formatDateTime(value) {
             if (!value) return "-";
@@ -85,8 +257,32 @@ export default {
         },
     },
     watch: {
-        scope() {
-            this.loadDashboard();
+        dashboardParams: {
+            deep: true,
+            handler() {
+                this.loadDashboard();
+            },
+        },
+        scope(nextScope, previousScope) {
+            if (nextScope === previousScope) {
+                return;
+            }
+
+            if (nextScope === "daily" && !this.selectedDate) {
+                this.selectedDate = this.formatDateForInput(new Date());
+            }
+
+            if (nextScope === "weekly" && !this.selectedWeek) {
+                this.selectedWeek = this.formatWeekForInput(new Date());
+            }
+
+            if (nextScope === "monthly" && !this.selectedMonth) {
+                this.selectedMonth = this.formatMonthForInput(new Date());
+            }
+
+            if (nextScope === "yearly" && !this.selectedYear) {
+                this.selectedYear = String(new Date().getFullYear());
+            }
         },
     },
     mounted() {
@@ -104,32 +300,45 @@ export default {
         </template>
 
         <div class="default-container py-4 space-y-4">
-            <div class="flex justify-between items-end gap-3">
+            <div class="flex flex-wrap justify-between items-end gap-3">
                 <h2 class="text-xl font-bold">Inventory Dashboard</h2>
-                <div class="w-40">
-                    <custom-dropdown
-                        label="Period"
-                        :value="scope"
-                        :options="scopeOptions"
-                        :withAllOption="false"
-                        :show-clear="false"
-                        @selectedChange="scope = $event || 'month'"
-                    />
+                <div class="flex flex-wrap items-end gap-3">
+                    <div class="w-56">
+                        <custom-dropdown
+                            label="Period"
+                            :value="scope"
+                            :options="scopeOptions"
+                            :withAllOption="false"
+                            :show-clear="false"
+                            @selectedChange="scope = $event || 'monthly'"
+                        />
+                    </div>
+                    <div v-if="usesAnchoredPeriod" class="w-48">
+                        <label class="mb-1 block text-xs font-medium text-gray-500">{{ periodInputLabel }}</label>
+                        <input
+                            class="border w-full dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-AB dark:focus:border-AB focus:ring-AB dark:focus:ring-AB rounded-md shadow-sm"
+                            :type="periodInputType"
+                            :value="periodInputValue"
+                            min="2000"
+                            max="2100"
+                            @input="updatePeriodAnchor($event.target.value)"
+                        />
+                    </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="p-4 bg-white border rounded-lg shadow-sm">
                     <div class="flex flex-col leading-tight">
-                        <p class="text-sm text-g7ray-700 uppercase font-semibold">Total Incoming</p>
-                        <span class="text-gray-500 lowercase font-normal text-xs">{{ 'within a ' + scope }}</span>
+                        <p class="text-sm text-gray-700 uppercase font-semibold">Total Incoming</p>
+                        <span class="text-gray-500 font-normal text-xs">{{ scopeCaption }}</span>
                     </div>
                     <p class="mt-2 text-3xl font-bold text-green-600">{{ dashboard.totals.incoming }}</p>
                 </div>
                 <div class="p-4 bg-white border rounded-lg shadow-sm">
                     <div class="flex flex-col leading-tight">
                         <p class="text-sm text-gray-700 uppercase font-semibold">Total Outgoing</p>
-                        <span class="text-gray-500 lowercase font-normal text-xs">{{ 'within a ' + scope }}</span>
+                        <span class="text-gray-500 font-normal text-xs">{{ scopeCaption }}</span>
                     </div>
                     <p class="mt-2 text-3xl font-bold text-red-600">{{ dashboard.totals.outgoing }}</p>
                 </div>
@@ -175,7 +384,7 @@ export default {
                                     <td class="py-2 text-right">{{ row.quantity }}</td>
                                 </tr>
                                 <tr v-if="!dashboard.recent_transactions.length">
-                                    <td colspan="4" class="py-3 text-center text-gray-500">No transactions found.</td>
+                                    <td colspan="5" class="py-3 text-center text-gray-500">No transactions found.</td>
                                 </tr>
                             </tbody>
                         </table>

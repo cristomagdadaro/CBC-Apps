@@ -575,8 +575,8 @@ class TransactionRepo extends AbstractRepoService
 
     public function getInventoryDashboardMetrics(Collection $parameters): array
     {
-        $scope = strtolower((string) $parameters->get('scope', 'month'));
-        [$start, $end] = $this->resolveDashboardDateRange($scope);
+        $scope = strtolower((string) $parameters->get('scope', 'monthly'));
+        [$start, $end] = $this->resolveDashboardDateRange($scope, $parameters);
 
         $base = $this->model->newQuery()
             ->when($start && $end, function (Builder $query) use ($start, $end) {
@@ -666,6 +666,12 @@ class TransactionRepo extends AbstractRepoService
                 'start' => $start?->toDateTimeString(),
                 'end' => $end?->toDateTimeString(),
             ],
+            'filters' => [
+                'date' => $parameters->get('date'),
+                'week' => $parameters->get('week'),
+                'month' => $parameters->get('month'),
+                'year' => $parameters->get('year'),
+            ],
             'totals' => [
                 'incoming' => (float) $totalIncoming,
                 'outgoing' => (float) $totalOutgoing,
@@ -678,17 +684,80 @@ class TransactionRepo extends AbstractRepoService
         ];
     }
 
-    private function resolveDashboardDateRange(string $scope): array
+    private function resolveDashboardDateRange(string $scope, Collection $parameters): array
     {
         $now = Carbon::now();
 
         return match ($scope) {
-            'day' => [$now->copy()->startOfDay(), $now->copy()->endOfDay()],
-            'week' => [$now->copy()->startOfWeek(), $now->copy()->endOfWeek()],
-            'year' => [$now->copy()->startOfYear(), $now->copy()->endOfYear()],
-            'month' => [$now->copy()->startOfMonth(), $now->copy()->endOfMonth()],
-            default => [$now->copy()->startOfMonth(), $now->copy()->endOfMonth()],
+            'day' => [$now->copy()->subDay(), $now->copy()],
+            'daily' => $this->resolveDailyRange((string) $parameters->get('date')),
+            'week' => [$now->copy()->subHours(168), $now->copy()],
+            'weekly' => $this->resolveWeeklyRange((string) $parameters->get('week')),
+            'month' => [$now->copy()->subMonth(), $now->copy()],
+            'monthly' => $this->resolveMonthlyRange((string) $parameters->get('month')),
+            'year' => [$now->copy()->subDays(365), $now->copy()],
+            'yearly' => $this->resolveYearlyRange((string) $parameters->get('year')),
+            default => $this->resolveMonthlyRange((string) $parameters->get('month')),
         };
+    }
+
+    private function resolveDailyRange(?string $date): array
+    {
+        $selected = $this->parseDashboardDate($date) ?? Carbon::now();
+
+        return [$selected->copy()->startOfDay(), $selected->copy()->endOfDay()];
+    }
+
+    private function resolveWeeklyRange(?string $week): array
+    {
+        if (is_string($week) && preg_match('/^(\d{4})-W(\d{2})$/', $week, $matches)) {
+            $selected = Carbon::now()->setISODate((int) $matches[1], (int) $matches[2]);
+
+            return [$selected->copy()->startOfWeek(), $selected->copy()->endOfWeek()];
+        }
+
+        $selected = Carbon::now();
+
+        return [$selected->copy()->startOfWeek(), $selected->copy()->endOfWeek()];
+    }
+
+    private function resolveMonthlyRange(?string $month): array
+    {
+        if (is_string($month) && preg_match('/^(\d{4})-(\d{2})$/', $month, $matches)) {
+            $selected = Carbon::createFromDate((int) $matches[1], (int) $matches[2], 1);
+
+            return [$selected->copy()->startOfMonth(), $selected->copy()->endOfMonth()];
+        }
+
+        $selected = Carbon::now();
+
+        return [$selected->copy()->startOfMonth(), $selected->copy()->endOfMonth()];
+    }
+
+    private function resolveYearlyRange(?string $year): array
+    {
+        if (is_string($year) && preg_match('/^\d{4}$/', $year)) {
+            $selected = Carbon::createFromDate((int) $year, 1, 1);
+
+            return [$selected->copy()->startOfYear(), $selected->copy()->endOfYear()];
+        }
+
+        $selected = Carbon::now();
+
+        return [$selected->copy()->startOfYear(), $selected->copy()->endOfYear()];
+    }
+
+    private function parseDashboardDate(?string $date): ?Carbon
+    {
+        if (!is_string($date) || trim($date) === '') {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($date);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     private function buildStorageLocationLookup(): array
