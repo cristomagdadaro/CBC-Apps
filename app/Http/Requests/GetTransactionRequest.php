@@ -23,7 +23,7 @@ class GetTransactionRequest extends FormRequest
     public function rules(): array
     {
         return array_merge([
-            // insert validation rules here
+            'transac_type' => 'sometimes|string|in:incoming,outgoing',
         ],config('searching'));
     }
 }

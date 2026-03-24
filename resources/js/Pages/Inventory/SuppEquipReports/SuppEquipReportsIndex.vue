@@ -1,25 +1,17 @@
 <script>
-import {Head} from "@inertiajs/vue3";
-import {markRaw} from "vue";
-import SearchComp from "@/Components/Search/SearchComp.vue";
-import SuppEquipReport from "@/Modules/domain/SuppEquipReport";
-import SuppEquipReportsCard from "@/Pages/Inventory/SuppEquipReports/components/SuppEquipReportsCard.vue";
 import SuppEquipHeaderActions from "./components/SuppEquipHeaderActions.vue";
+import SuppEquipReport from '@/Modules/domain/SuppEquipReport';
 
 export default {
     name: "SuppEquipReportsIndex",
     components: {
         SuppEquipHeaderActions,
-        SuppEquipReportsCard,
-        SearchComp,
-        Head
     },
-    data() {
-        return {
-            reportModel: markRaw(SuppEquipReport),
-            reportsCard: markRaw(SuppEquipReportsCard),
-        };
-    },
+    computed: {
+        SuppEquipReport() {
+            return SuppEquipReport;
+        },
+    }
 }
 </script>
 
@@ -31,12 +23,7 @@ export default {
             <supp-equip-header-actions />
         </template>
 
-        <div class="mx-auto space-y-8 p-5">
-                <search-comp
-                    :propModel="reportModel"
-                    :cardSlot="reportsCard"
-                />
-            </div>
+        <CRCMDatatable :base-model="SuppEquipReport" :can-view="true" :can-create="true" :can-update="true" :can-delete="true" />
     </AppLayout>
 </template>
 

@@ -1,17 +1,24 @@
 import DtoItem from "@/Modules/dto/DtoItem";
 
 export default class Item extends DtoItem {
+    static endpoints = {
+        index: 'api.inventory.items.index',
+        post: 'api.inventory.items.store',
+        put: 'api.inventory.items.update',
+        delete: 'api.inventory.items.destroy',
+        show: 'items.show',
+    };
     constructor(response: DtoItem) {
         super(response);
 
-        this.api._apiIndex = 'api.inventory.items.index';
-        this.api._apiPost = 'api.inventory.items.store';
-        this.api._apiPut = 'api.inventory.items.update';
-        this.api._apiDelete = 'api.inventory.items.destroy';
+        this.api._apiIndex = Item.endpoints.index;
+        this.api._apiPost = Item.endpoints.post;
+        this.api._apiPut = Item.endpoints.put;
+        this.api._apiDelete = Item.endpoints.delete;
 
         this.api.appendWith = ['category', 'supplier'];
 
-        this.showPage = 'items.show';
+        this.showPage = Item.endpoints.show;
     }
 
     createFields(): object {

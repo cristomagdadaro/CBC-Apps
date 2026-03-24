@@ -82,6 +82,7 @@ import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
 // Transitions & Animation
 import TransitionContainer from "@/Components/Transitions/TransitionContrainer.vue";
 import DataTable from '@/Modules/DataTable/presentation/DataTable.vue';
+import CRCMDatatable from '@/Components/CRCMDatatable/CRCMDatatable.vue';
 import SearchComp from '@/Components/Search/SearchComp.vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
@@ -172,6 +173,7 @@ createInertiaApp({
         // Global Transitions & Animation
         vueApp.component('TransitionContainer', TransitionContainer);
         vueApp.component('DataTable', DataTable);
+        vueApp.component('CRCMDatatable', CRCMDatatable);
         vueApp.component('SearchComp', SearchComp);
         
 

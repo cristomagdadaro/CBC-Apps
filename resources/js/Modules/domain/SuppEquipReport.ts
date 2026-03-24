@@ -2,15 +2,23 @@ import DtoSuppEquipReport from "@/Modules/dto/DtoSuppEquipReport";
 import {usePage} from "@inertiajs/vue3";
 
 export default class SuppEquipReport extends DtoSuppEquipReport {
+    static endpoints = {
+        index: 'api.inventory.supp_equip_reports.index',
+        indexGuest: 'api.inventory.transactions.index.public',
+        post: 'api.inventory.supp_equip_reports.store',
+        put: 'api.inventory.supp_equip_reports.update',
+        delete: 'api.inventory.supp_equip_reports.destroy',
+        show: 'transactions.show',
+    }
     constructor(response: DtoSuppEquipReport = {} as DtoSuppEquipReport) {
         super(response);
 
         const page = usePage();
-        this.api._apiIndex = (!!page.props.auth?.user) ? 'api.inventory.supp_equip_reports.index':'api.inventory.transactions.index.public';
+        this.api._apiIndex = (!!page.props.auth?.user) ? SuppEquipReport.endpoints.index : SuppEquipReport.endpoints.indexGuest;
 
-        this.api._apiPost = 'api.inventory.supp_equip_reports.store' ;
-        this.api._apiPut = 'api.inventory.supp_equip_reports.update';
-        this.api._apiDelete = 'api.inventory.supp_equip_reports.destroy';
+        this.api._apiPost = SuppEquipReport.endpoints.post;
+        this.api._apiPut = SuppEquipReport.endpoints.put;
+        this.api._apiDelete = SuppEquipReport.endpoints.delete;
 
         this.api.appendWith = ['transaction.item', 'transaction.user', 'item', 'user'];
     }
@@ -36,12 +44,6 @@ export default class SuppEquipReport extends DtoSuppEquipReport {
         };
     }
 
-    deleteField(model: ISuppEquipReport): object {
-        return {
-            id: model?.id,
-        };
-    }
-
     static getColumns() {
         return [
             {
@@ -64,7 +66,15 @@ export default class SuppEquipReport extends DtoSuppEquipReport {
                 title: 'Barcode',
                 key: 'transaction.barcode',
                 db_key: 'barcode',
-                align: 'text-left',
+                align: 'text-center',
+                sortable: true,
+                visible: true,
+            },
+            {
+                title: 'Property No.',
+                key: 'transaction.ppri_no',
+                db_key: 'transaction.ppri_no',
+                align: 'text-center',
                 sortable: true,
                 visible: true,
             },
@@ -82,7 +92,7 @@ export default class SuppEquipReport extends DtoSuppEquipReport {
                 db_key: 'transac_type',
                 align: 'text-center',
                 sortable: true,
-                visible: true,
+                visible: false,
             },
             {
                 title: 'Reported At',

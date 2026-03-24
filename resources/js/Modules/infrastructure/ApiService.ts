@@ -374,8 +374,14 @@ export default abstract class ApiService {
         }
     }
 
-    async delete(url: string, id: any, data?: any) {
+    async delete(url: string, id?: any, data?: any) {
         this.processing = true;
+        // @ts-ignore
+        const routeUrl = (id !== undefined && id !== null && id !== '')
+            // @ts-ignore
+            ? route(url, id)
+            // @ts-ignore
+            : route(url);
         try {
             await this.ensureCsrfProtection();
             ConsoleLogger.debug({
@@ -383,10 +389,10 @@ export default abstract class ApiService {
                 id: id,
                 data: data,
             });
-            const config = data && Object.keys(data).length
+            const config = data && typeof data === 'object' && Object.keys(data).length
                 ? { data }
                 : undefined;
-            const response = await this.axiosInstance.delete(route(url, id), config);
+            const response = await this.axiosInstance.delete(routeUrl, config);
             this.processing = false;
             ConsoleLogger.log({
                 tag: 'API_DELETE_RESPONSE',
@@ -399,7 +405,7 @@ export default abstract class ApiService {
             this.processing = false;
             ConsoleLogger.error({
                 tag: 'API_DELETE_ERROR',
-                url: route(url, id),
+                url: routeUrl,
                 id: id,
                 error: error,
             });
