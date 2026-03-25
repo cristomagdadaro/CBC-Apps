@@ -43,6 +43,7 @@ class PDFGeneratorController extends BaseController
         }
         
         $form = $this->requestFormPivotRepo()->getForPdf($id);
+        $this->authorize('view', $form);
 
         // Prepare cache path based on template and id
         $templateSlug = Str::slug($template);

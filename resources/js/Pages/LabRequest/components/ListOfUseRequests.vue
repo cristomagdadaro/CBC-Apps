@@ -1,10 +1,9 @@
 <script>
 import UseRequestCard from "@/Pages/LabRequest/components/UseRequestCard.vue";
-import EventCard from "@/Pages/Forms/components/EventCard.vue";
 
 export default {
     name: "ListOfUseRequests",
-    components: {EventCard, UseRequestCard},
+    components: { UseRequestCard },
     props: {
         formsData: Array,
     },

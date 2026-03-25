@@ -2,73 +2,84 @@
 
 namespace App\Repositories;
 
+use App\Models\Item;
 use App\Models\Requester;
 use App\Models\RequestFormPivot;
 use App\Models\UseRequestForm;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\AbstractPaginator;
+use Illuminate\Support\Collection;
 use App\Pipelines\RequestApproval\AuthorizeApprovalAction;
 use App\Pipelines\RequestApproval\PrepareApprovalPayload;
 use App\Pipelines\RequestApproval\PersistApproval;
 
 class RequestFormPivotRepo extends AbstractRepoService
 {
-    public function __construct(RequestFormPivot $model)
+    public array $appendWith = ['requester', 'request_form'];
+
+    public function __construct(RequestFormPivot $model, private readonly OptionRepo $optionRepo)
     {
         parent::__construct($model);
     }
 
+    public function search(Collection $parameters, bool $withPagination = true, bool $isTrashed = false)
+    {
+        $result = parent::search($parameters, $withPagination, $isTrashed);
+
+        $this->hydrateRequestFormLabels($result);
+
+        return $result;
+    }
+
     public function createRequestPivot(array $data): Model
     {
-        $requesterData = [
-            'name' => $data['name'],
-            'affiliation' => $data['affiliation'],
-            'email' => $data['email'],
-            'position' => $data['position'] ?? null,
-            'phone' => $data['phone'],
-        ];
+        return DB::transaction(function () use ($data) {
+            $requester = Requester::query()->create([
+                'name' => $data['name'],
+                'affiliation' => $data['affiliation'],
+                'email' => $data['email'],
+                'position' => $data['position'] ?? null,
+                'phone' => $data['phone'],
+            ]);
 
-        $requester = isset($data['requester_id'])
-            ? Requester::findOrFail($data['requester_id'])
-            : Requester::create($requesterData);
+            $requestTypes = $data['request_type'];
+            if (!is_array($requestTypes)) {
+                $requestTypes = array_filter([$requestTypes]);
+            }
 
-        $requestTypes = $data['request_type'];
-        if (!is_array($requestTypes)) {
-            $requestTypes = array_filter([$requestTypes]);
-        }
+            $requestForm = UseRequestForm::query()->create([
+                'request_type' => array_values(array_unique($requestTypes)),
+                'request_details' => $data['request_details'] ?? null,
+                'request_purpose' => $data['request_purpose'],
+                'project_title' => $data['project_title'] ?? null,
+                'date_of_use' => $data['date_of_use'],
+                'date_of_use_end' => $data['date_of_use_end'] ?? null,
+                'time_of_use' => $data['time_of_use'],
+                'time_of_use_end' => $data['time_of_use_end'] ?? null,
+                'labs_to_use' => $this->sanitizeSelectionValues($data['labs_to_use'] ?? []),
+                'equipments_to_use' => $this->sanitizeSelectionValues($data['equipments_to_use'] ?? []),
+                'consumables_to_use' => $this->sanitizeSelectionValues($data['consumables_to_use'] ?? []),
+            ]);
 
-        $formData = [
-            'request_type' => array_values(array_unique($requestTypes)),
-            'request_details' => $data['request_details'] ?? null,
-            'request_purpose' => $data['request_purpose'],
-            'project_title' => $data['project_title'] ?? null,
-            'date_of_use' => $data['date_of_use'],
-            'date_of_use_end' => $data['date_of_use_end'] ?? null,
-            'time_of_use' => $data['time_of_use'],
-            'time_of_use_end' => $data['time_of_use_end'] ?? null,
-            'labs_to_use' => $data['labs_to_use'] ?? [],
-            'equipments_to_use' => $data['equipments_to_use'] ?? [],
-            'consumables_to_use' => $data['consumables_to_use'] ?? [],
-        ];
+            $pivot = new RequestFormPivot([
+                'requester_id' => $requester->id,
+                'form_id' => $requestForm->id,
+                'agreed_clause_1' => (bool) ($data['agreed_clause_1'] ?? false),
+                'agreed_clause_2' => (bool) ($data['agreed_clause_2'] ?? false),
+                'agreed_clause_3' => (bool) ($data['agreed_clause_3'] ?? false),
+            ]);
 
-        $requestForm = isset($data['form_id'])
-            ? UseRequestForm::findOrFail($data['form_id'])
-            : UseRequestForm::create($formData);
+            $pivot->forceFill([
+                'request_status' => 'pending',
+                'approval_constraint' => null,
+                'disapproved_remarks' => null,
+                'approved_by' => null,
+            ])->save();
 
-        $pivotData = [
-            'requester_id' => $requester->id,
-            'form_id' => $requestForm->id,
-            'request_status' => $data['request_status'] ?? 'pending',
-            'agreed_clause_1' => $data['agreed_clause_1'] ?? false,
-            'agreed_clause_2' => $data['agreed_clause_2'] ?? false,
-            'agreed_clause_3' => $data['agreed_clause_3'] ?? false,
-            'disapproved_remarks' => $data['disapproved_remarks'] ?? null,
-            'approval_constraint' => $data['approval_constraint'] ?? null,
-            'approved_by' => $data['approved_by'] ?? null,
-        ];
-
-        return RequestFormPivot::create($pivotData);
+            return $pivot->fresh(['requester', 'request_form']);
+        });
     }
 
     public function getGuestFormById(?string $requestId): ?RequestFormPivot
@@ -81,7 +92,8 @@ class RequestFormPivotRepo extends AbstractRepoService
             ->newQuery()
             ->where('id', $requestId)
             ->with(['requester','request_form'])
-            ->first();
+            ->first()
+            ?->makeHidden(['disapproved_remarks', 'approval_constraint', 'approved_by']);
     }
 
     public function getForPdf(string $id): RequestFormPivot
@@ -114,5 +126,97 @@ class RequestFormPivotRepo extends AbstractRepoService
 
             return $context['model'];
         });
+    }
+
+    private function hydrateRequestFormLabels(mixed $result): void
+    {
+        $collection = match (true) {
+            $result instanceof AbstractPaginator => $result->getCollection(),
+            $result instanceof Collection => $result,
+            is_array($result) && array_key_exists('data', $result) && $result['data'] instanceof Collection => $result['data'],
+            default => null,
+        };
+
+        if (!$collection instanceof Collection || $collection->isEmpty()) {
+            return;
+        }
+
+        $forms = $collection
+            ->pluck('request_form')
+            ->filter(fn ($form) => $form instanceof UseRequestForm)
+            ->values();
+
+        if ($forms->isEmpty()) {
+            return;
+        }
+
+        $itemIds = $forms
+            ->flatMap(fn (UseRequestForm $form) => array_merge(
+                $this->sanitizeSelectionValues($form->equipments_to_use ?? []),
+                $this->sanitizeSelectionValues($form->consumables_to_use ?? []),
+            ))
+            ->unique()
+            ->values();
+
+        $items = Item::query()
+            ->whereIn('id', $itemIds)
+            ->get(['id', 'name', 'description', 'brand'])
+            ->keyBy('id');
+
+        $laboratories = $this->optionRepo
+            ->getLaboratories()
+            ->mapWithKeys(fn ($lab) => [(string) ($lab['value'] ?? '') => $lab['label'] ?? null]);
+
+        $forms->each(function (UseRequestForm $form) use ($items, $laboratories) {
+            $equipmentLabels = collect($this->sanitizeSelectionValues($form->equipments_to_use ?? []))
+                ->map(function (string $id) use ($items) {
+                    $item = $items->get($id);
+
+                    if (!$item) {
+                        return null;
+                    }
+
+                    return trim($item->name . ($item->brand ? " - {$item->brand}" : '') . ($item->description ? " ({$item->description})" : ''));
+                })
+                ->filter()
+                ->values()
+                ->all();
+
+            $consumableLabels = collect($this->sanitizeSelectionValues($form->consumables_to_use ?? []))
+                ->map(function (string $id) use ($items) {
+                    $item = $items->get($id);
+
+                    if (!$item) {
+                        return null;
+                    }
+
+                    return trim($item->name . ($item->brand ? " - {$item->brand}" : '') . ($item->description ? " ({$item->description})" : ''));
+                })
+                ->filter()
+                ->values()
+                ->all();
+
+            $laboratoryLabels = collect($this->sanitizeSelectionValues($form->labs_to_use ?? []))
+                ->map(fn (string $value) => $laboratories->get($value))
+                ->filter()
+                ->values()
+                ->all();
+
+            $form->setResolvedSelectionLabels([
+                'equipments' => $equipmentLabels,
+                'laboratories' => $laboratoryLabels,
+                'consumables' => $consumableLabels,
+            ]);
+        });
+    }
+
+    private function sanitizeSelectionValues(array $values): array
+    {
+        return collect($values)
+            ->filter(fn ($value) => is_scalar($value) && trim((string) $value) !== '')
+            ->map(fn ($value) => mb_substr(trim((string) $value), 0, 191))
+            ->unique()
+            ->values()
+            ->all();
     }
 }

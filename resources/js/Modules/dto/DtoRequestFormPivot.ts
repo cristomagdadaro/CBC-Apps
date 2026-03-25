@@ -6,9 +6,9 @@ export default class DtoRequestFormPivot extends DtoBaseClass implements IReques
     requester_id: string;
     form_id: string;
     request_status: string;
-    agreed_clause_1: string;
-    agreed_clause_2: string;
-    agreed_clause_3: string;
+    agreed_clause_1: boolean;
+    agreed_clause_2: boolean;
+    agreed_clause_3: boolean;
     approval_constraint: string;
     disapproved_remarks: string;
     approved_by: string;
@@ -22,9 +22,9 @@ export default class DtoRequestFormPivot extends DtoBaseClass implements IReques
         this.requester_id = data?.requester_id ?? '';
         this.form_id = data?.form_id ?? '';
         this.request_status = data?.request_status ?? 'pending';
-        this.agreed_clause_1 = data?.agreed_clause_1 !== undefined ? String(data.agreed_clause_1) : 'false';
-        this.agreed_clause_2 = data?.agreed_clause_2 !== undefined ? String(data.agreed_clause_2) : 'false';
-        this.agreed_clause_3 = data?.agreed_clause_3 !== undefined ? String(data.agreed_clause_3) : 'false';
+        this.agreed_clause_1 = Boolean(data?.agreed_clause_1);
+        this.agreed_clause_2 = Boolean(data?.agreed_clause_2);
+        this.agreed_clause_3 = Boolean(data?.agreed_clause_3);
         this.approval_constraint = data?.approval_constraint ?? '';
         this.disapproved_remarks = data?.disapproved_remarks ?? '';
         this.approved_by = data?.approved_by ?? '';

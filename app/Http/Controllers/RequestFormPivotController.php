@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateRequestFormPivot;
 use App\Repositories\RequestFormPivotRepo;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\RequestFormPivot;
 
 class RequestFormPivotController extends BaseController
 {
@@ -34,6 +35,9 @@ class RequestFormPivotController extends BaseController
 
     public function update(UpdateRequestFormPivot $request, $request_pivot_id = null): Model
     {
+        $pivot = RequestFormPivot::query()->findOrFail($request_pivot_id);
+        $this->authorize('update', $pivot);
+
         return $this->repo()->updateApprovalWithPipeline($request_pivot_id, $request->validated());
     }
 }

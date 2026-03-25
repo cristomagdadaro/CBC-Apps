@@ -10,6 +10,11 @@ class RequestFormPivotPolicy
 {
     use AuthorizesByPermission;
 
+    public function view(?User $user, RequestFormPivot $requestFormPivot): bool
+    {
+        return $this->allowed($user, 'fes.request.approve');
+    }
+
     public function viewAny(?User $user): bool
     {
         return $this->allowed($user, 'fes.request.approve');

@@ -111,4 +111,15 @@ class PDFGeneratorControllerTest extends TestCase
         $response->assertOk();
         $this->assertStringContainsString('attachment;', (string) $response->headers->get('content-disposition'));
     }
+
+    public function test_guest_cannot_access_request_pdf(): void
+    {
+        auth()->logout();
+
+        $pivot = RequestFormPivot::factory()->create();
+
+        $response = $this->get(route('forms.generate.pdf', ['id' => $pivot->id]));
+
+        $response->assertForbidden();
+    }
 }

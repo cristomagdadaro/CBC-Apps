@@ -64,17 +64,17 @@ class CreateRequestFormPivot extends FormRequest
         $requestTypes = app(OptionRepo::class)->getRequestTypes()->pluck('label')->toArray();
         
         return [
-            'name' => 'required|string',
-            'affiliation' => 'required|string',
-            'email' => 'required|string|email',
-            'position' => 'nullable|string',
-            'phone' => 'required|string',
+            'name' => 'required|string|max:191',
+            'affiliation' => 'required|string|max:191',
+            'email' => 'required|string|email|max:191',
+            'position' => 'nullable|string|max:191',
+            'phone' => 'required|string|max:50',
 
             'request_type' => 'required|array|min:1',
             'request_type.*' => 'string|in:'.implode(',', $requestTypes),
-            'request_details' => 'nullable|string',
-            'request_purpose' => 'required|string',
-            'project_title' => 'nullable|string',
+            'request_details' => 'nullable|string|max:5000',
+            'request_purpose' => 'required|string|max:1000',
+            'project_title' => 'nullable|string|max:255',
             'date_of_use' => 'required|date',
             'time_of_use' => 'required|date_format:H:i:s',
             'date_of_use_end' => [
@@ -89,12 +89,11 @@ class CreateRequestFormPivot extends FormRequest
                 'date_format:H:i:s',
             ],
             'labs_to_use' => 'nullable|array',
+            'labs_to_use.*' => 'nullable|string|max:191',
             'equipments_to_use' => 'nullable|array',
+            'equipments_to_use.*' => 'nullable|string|max:191',
             'consumables_to_use' => 'nullable|array',
-
-            'requester_id' => 'sometimes|exists:requesters,id',
-            'form_id' => 'sometimes|exists:use_request_forms,id',
-            'request_status' => 'nullable|in:pending,approved,rejected',
+            'consumables_to_use.*' => 'nullable|string|max:191',
             'agreed_clause_1' => 'accepted',
             'agreed_clause_2'  => 'accepted',
             'agreed_clause_3' => 'accepted',

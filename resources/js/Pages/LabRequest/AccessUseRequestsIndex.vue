@@ -3,12 +3,14 @@ import ApiMixin from "@/Modules/mixins/ApiMixin";
 import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import ListOfUseRequests from "@/Pages/LabRequest/components/ListOfUseRequests.vue";
 import AccessUseHeaderActions from "@/Pages/LabRequest/components/AccessUseHeaderActions.vue";
+import PaginationControls from "@/Pages/LabRequest/components/PaginationControls.vue";
 
 export default {
     name: "AccessUseRequestsIndex",
     components: {
         AccessUseHeaderActions,
-        ListOfUseRequests
+        ListOfUseRequests,
+        PaginationControls,
     },
     mixins: [ApiMixin],
     data() {
@@ -37,11 +39,15 @@ export default {
             this.form.filter = 'request_status';
             this.form.is_exact = true;
             await this.searchEvent();
+        },
+        async changePage(page) {
+            this.form.page = page;
+            await this.searchEvent();
         }
     },
     watch: {
         'form.search': {
-            handler(newVal, oldVal) {
+            handler(newVal) {
                 if (!newVal) {
                     this.form.filter = null;
                     this.form.is_exact = null;
@@ -81,46 +87,11 @@ export default {
                     </search-btn>
                 </div>
                 <div v-if="eventFormFromApi" class="flex w-full gap-2 items-center">
-                    <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
-                        <!-- First Button -->
-                        <paginate-btn @click="form.page = 1; searchEvent();" :disabled="form.page === 1">
-                            First
-                        </paginate-btn>
-
-                        <!-- Previous Button -->
-                        <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchEvent();" :disabled="form.page === 1">
-                            <template v-slot:icon>
-                                <arrow-left class="h-auto w-6" />
-                            </template>
-                            Prev
-                        </paginate-btn>
-
-                        <!-- Current Page Indicator -->
-                        <div class="text-xs flex flex-col whitespace-nowrap text-center">
-                            <span class="font-medium mx-1" title="current page and total pages">
-                                <span>{{ eventFormFromApi?.current_page }}</span> / <span>{{ eventFormFromApi?.last_page }}</span>
-                            </span>
-                        </div>
-
-                        <!-- Next Button -->
-                        <paginate-btn
-                            @click="form.page = Math.min(eventFormFromApi?.last_page, form.page + 1); searchEvent();"
-                            :disabled="form.page === eventFormFromApi?.last_page"
-                        >
-                            Next
-                            <template v-slot:icon>
-                                <arrow-right class="h-auto w-6" />
-                            </template>
-                        </paginate-btn>
-
-                        <!-- Last Button -->
-                        <paginate-btn
-                            @click="form.page = eventFormFromApi?.last_page; searchEvent();"
-                            :disabled="form.page === eventFormFromApi?.last_page"
-                        >
-                            Last
-                        </paginate-btn>
-                    </div>
+                    <pagination-controls
+                        :current-page="eventFormFromApi?.current_page"
+                        :last-page="eventFormFromApi?.last_page"
+                        @change="changePage"
+                    />
                 </div>
             </div>
         </form>
@@ -148,46 +119,11 @@ export default {
             </div>
         </div>
         <div v-if="eventFormFromApi && eventFormFromApi.data?.length" class="flex w-full gap-2 py-5 items-center">
-            <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
-                <!-- First Button -->
-                <paginate-btn @click="form.page = 1; searchEvent();" :disabled="form.page === 1">
-                    First
-                </paginate-btn>
-
-                <!-- Previous Button -->
-                <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchEvent();" :disabled="form.page === 1">
-                    <template v-slot:icon>
-                        <arrow-left class="h-auto w-6" />
-                    </template>
-                    Prev
-                </paginate-btn>
-
-                <!-- Current Page Indicator -->
-                <div class="text-xs flex flex-col whitespace-nowrap text-center">
-                    <span class="font-medium mx-1" title="current page and total pages">
-                        <span>{{ eventFormFromApi?.current_page }}</span> / <span>{{ eventFormFromApi?.last_page }}</span>
-                    </span>
-                </div>
-
-                <!-- Next Button -->
-                <paginate-btn
-                    @click="form.page = Math.min(eventFormFromApi?.last_page, form.page + 1); searchEvent();"
-                    :disabled="form.page === eventFormFromApi?.last_page"
-                >
-                    Next
-                    <template v-slot:icon>
-                        <arrow-right class="h-auto w-6" />
-                    </template>
-                </paginate-btn>
-
-                <!-- Last Button -->
-                <paginate-btn
-                    @click="form.page = eventFormFromApi?.last_page; searchEvent();"
-                    :disabled="form.page === eventFormFromApi?.last_page"
-                >
-                    Last
-                </paginate-btn>
-            </div>
+            <pagination-controls
+                :current-page="eventFormFromApi?.current_page"
+                :last-page="eventFormFromApi?.last_page"
+                @change="changePage"
+            />
         </div>
     </div>
 </app-layout>

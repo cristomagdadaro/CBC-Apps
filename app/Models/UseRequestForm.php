@@ -31,7 +31,6 @@ class UseRequestForm extends Model
 
     protected $keyType = 'string';
     protected $fillable = [
-        'id',
         'request_type',
         'request_details',
         'request_purpose',
@@ -47,10 +46,10 @@ class UseRequestForm extends Model
 
     protected $casts = [
         'id' => 'string',
-        'request_type'     => 'array',
-        'labs_to_use'       => 'array',
+        'request_type' => 'array',
+        'labs_to_use' => 'array',
         'equipments_to_use' => 'array',
-        'consumables_to_use'=> 'array',
+        'consumables_to_use' => 'array',
     ];
 
     protected $appends = [
@@ -73,7 +72,13 @@ class UseRequestForm extends Model
 
     public function equipments(): Collection
     {
-        $ids = array_values(array_filter((array) $this->equipments_to_use));
+        $resolved = $this->getResolvedLabels('resolved_equipments_labels');
+
+        if ($resolved !== null) {
+            return collect($resolved);
+        }
+
+        $ids = $this->normalizeSelectionValues($this->equipments_to_use);
 
         if (empty($ids)) {
             return collect();
@@ -100,17 +105,25 @@ class UseRequestForm extends Model
 
     public function laboratories(): Collection
     {
-        $ids = array_values(array_filter((array) $this->labs_to_use));
+        $resolved = $this->getResolvedLabels('resolved_laboratories_labels');
+
+        if ($resolved !== null) {
+            return collect($resolved);
+        }
+
+        $ids = $this->normalizeSelectionValues($this->labs_to_use);
 
         if (empty($ids)) {
             return collect();
         }
 
-        $allLabs = app(OptionRepo::class)->getLaboratories()->keyBy('value');
+        $allLabs = app(OptionRepo::class)
+            ->getLaboratories()
+            ->mapWithKeys(fn ($lab) => [(string) ($lab['value'] ?? '') => $lab['label'] ?? null]);
 
         return collect($ids)
             ->map(function ($id) use ($allLabs) {
-                return $allLabs->get((int) $id)['label'] ?? null;
+                return $allLabs->get((string) $id);
             })
             ->filter()
             ->values();
@@ -119,7 +132,13 @@ class UseRequestForm extends Model
     //for consumables as well
     public function consumables(): Collection
     {
-        $ids = array_values(array_filter((array) $this->consumables_to_use));
+        $resolved = $this->getResolvedLabels('resolved_consumables_labels');
+
+        if ($resolved !== null) {
+            return collect($resolved);
+        }
+
+        $ids = $this->normalizeSelectionValues($this->consumables_to_use);
 
         if (empty($ids)) {
             return collect();
@@ -157,5 +176,35 @@ class UseRequestForm extends Model
     public function getConsumablesLabelsAttribute(): array
     {
         return $this->consumables()->all();
+    }
+
+    public function setResolvedSelectionLabels(array $labels): self
+    {
+        $this->setAttribute('resolved_equipments_labels', array_values(array_filter($labels['equipments'] ?? [])));
+        $this->setAttribute('resolved_laboratories_labels', array_values(array_filter($labels['laboratories'] ?? [])));
+        $this->setAttribute('resolved_consumables_labels', array_values(array_filter($labels['consumables'] ?? [])));
+
+        return $this;
+    }
+
+    private function normalizeSelectionValues(mixed $values): array
+    {
+        return collect((array) $values)
+            ->filter(fn ($value) => is_scalar($value) && trim((string) $value) !== '')
+            ->map(fn ($value) => mb_substr(trim((string) $value), 0, 191))
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function getResolvedLabels(string $attribute): ?array
+    {
+        if (!array_key_exists($attribute, $this->attributes)) {
+            return null;
+        }
+
+        $value = $this->attributes[$attribute];
+
+        return is_array($value) ? $value : null;
     }
 }

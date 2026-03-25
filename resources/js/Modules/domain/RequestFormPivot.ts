@@ -46,15 +46,9 @@ export default class RequestFormPivot extends DtoRequestFormPivot {
     updateFields(data: IRequestFormPivot): object {
         return {
             id: data?.id,
-            requester_id: data?.requester_id,
-            form_id: data?.form_id,
             request_status: data?.request_status,
-            agreed_clause_1: data?.agreed_clause_1,
-            agreed_clause_2: data?.agreed_clause_2,
-            agreed_clause_3: data?.agreed_clause_3,
             approval_constraint: data?.approval_constraint,
             disapproved_remarks: data?.disapproved_remarks,
-            approved_by: data?.approved_by,
         }
     }
 
@@ -89,40 +83,19 @@ export default class RequestFormPivot extends DtoRequestFormPivot {
                 sortable: true,
                 visible: true,
             }, {
-                title: 'Agreed Clause 1',
-                key: 'agreed_clause_1',
-                db_key: 'agreed_clause_1',
-                align: 'center',
-                sortable: true,
-                visible: true,
-            }, {
-                title: 'Agreed Clause 2',
-                key: 'agreed_clause_2',
-                db_key: 'agreed_clause_2',
-                align: 'center',
-                sortable: true,
-                visible: true,
-            }, {
-                title: 'Agreed Clause 3',
-                key: 'agreed_clause_3',
-                db_key: 'agreed_clause_3',
-                align: 'center',
-                sortable: true,
-                visible: true,
-            }, {
                 title: 'Disapproved Remarks',
                 key: 'disapproved_remarks',
                 db_key: 'disapproved_remarks',
                 align: 'center',
                 sortable: true,
-                visible: true,
+                visible: false,
             }, {
                 title: 'Reviewed By',
                 key: 'approved_by',
                 db_key: 'approved_by',
                 align: 'center',
                 sortable: true,
-                visible: true,
+                visible: false,
             },
         ]
     }

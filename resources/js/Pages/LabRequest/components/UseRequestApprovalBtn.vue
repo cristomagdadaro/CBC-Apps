@@ -3,6 +3,7 @@ import ApiMixin from "@/Modules/mixins/ApiMixin";
 import DtoError from "@/Modules/dto/DtoError";
 import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
+import { extractRequestErrorMessage } from "@/Pages/LabRequest/utils/requestErrorUtils";
 
 export default {
     name: "UseRequestApprovalBtn",
@@ -10,19 +11,28 @@ export default {
         data: Object
     },
     mixins: [ApiMixin, DataFormatterMixin],
+    data() {
+        return {
+            updateError: null,
+        };
+    },
     beforeMount() {
         this.model = new RequestFormPivot();
         this.setFormAction('update');
     },
     methods: {
         async handleUpdateApprovalBtn(status) {
+            this.updateError = null;
             this.form.request_status = status;
-            this.form.approved_by = this.$page.props.auth?.user?.name ?? this.form.approved_by;
             const response = await this.submitUpdate();
             if (!(response instanceof DtoError)) {
                 this.form.request_status = response.data.request_status;
+                this.form.approval_constraint = response.data.approval_constraint ?? '';
+                this.form.disapproved_remarks = response.data.disapproved_remarks ?? '';
+                this.form.approved_by = response.data.approved_by ?? '';
                 this.$emit("updated", response);
             } else {
+                this.updateError = extractRequestErrorMessage(response, 'Unable to update request approval.');
                 this.$emit("failedUpdate", response);
             }
         },
@@ -44,6 +54,7 @@ export default {
 <template>
     <div class="flex flex-col w-full gap-3">
         <h3 v-if="form.request_status === approved || form.request_status === rejected" class="text-left leading-none">To be filled by the Officer In-Charge</h3>
+        <p v-if="updateError" class="text-sm text-red-600">{{ updateError }}</p>
         <div class="flex flex-col w-full">
             <div class="flex flex-col w-full gap-1">
                 <div class="flex flex-col w-full">
@@ -75,6 +86,7 @@ export default {
                     type="submit"
                     :disabled="form.request_status === rejected || model.api.processing"
                     class="disabled:cursor-not-allowed"
+                    aria-label="Reject request"
                 >
                     <span v-if="model.api.processing && form.request_status === approved">Rejecting...</span>
                     <span v-else-if="form.request_status === rejected">Rejected</span>
@@ -90,6 +102,7 @@ export default {
                     type="submit"
                     :disabled="form.request_status === approved || model.api.processing"
                     class="disabled:cursor-not-allowed"
+                    aria-label="Approve request"
                 >
                     <span v-if="model.api.processing && form.request_status === rejected">Approving...</span>
                     <span v-else-if="form.request_status === approved">Approved</span>

@@ -31,7 +31,6 @@ class Requester extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'id',
         'name',
         'affiliation',
         'position',

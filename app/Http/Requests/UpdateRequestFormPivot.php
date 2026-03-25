@@ -10,7 +10,8 @@ class UpdateRequestFormPivot extends FormRequest
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
-    {        return $this->user()?->can('fes.request.approve') ?? false;
+    {
+        return $this->user()?->can('fes.request.approve') ?? false;
     }
 
     /**
@@ -21,15 +22,9 @@ class UpdateRequestFormPivot extends FormRequest
     public function rules(): array
     {
         return [
-            'requester_id' => 'required|exists:requesters,id',
-            'form_id' => 'required|exists:use_request_forms,id',
             'request_status' => 'required|in:pending,approved,rejected',
-            'agreed_clause_1' => 'required|boolean',
-            'agreed_clause_2'  => 'required|boolean',
-            'agreed_clause_3' => 'required|boolean',
-            'disapproved_remarks' => 'nullable|string',
-            'approved_by' => 'nullable|string',
-            'approval_constraint' => 'nullable|string',
+            'disapproved_remarks' => 'nullable|string|max:5000',
+            'approval_constraint' => 'nullable|string|max:5000',
         ];
     }
 }

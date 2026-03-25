@@ -30,32 +30,28 @@ class RequestFormPivot extends BaseModel
     protected $keyType = 'string';
 
     protected $fillable = [
-        'id',
         'requester_id',
         'form_id',
-        'request_status',
         'agreed_clause_1',
         'agreed_clause_2',
         'agreed_clause_3',
-        'disapproved_remarks',
-        'approval_constraint',
-        'approved_by',
     ];
 
     protected array $searchable = [
         'id',
-        'requester_id',
-        'form_id',
         'request_status',
-        'agreed_clause_1',
-        'agreed_clause_2',
-        'agreed_clause_3',
-        'disapproved_remarks',
-        'approved_by',
+        'requester.name',
+        'requester.affiliation',
+        'requester.position',
+        'request_form.project_title',
+        'request_form.request_purpose',
     ];
 
     protected $casts = [
         'id' => 'string',
+        'agreed_clause_1' => 'boolean',
+        'agreed_clause_2' => 'boolean',
+        'agreed_clause_3' => 'boolean',
     ];
 
     public function requester(): BelongsTo

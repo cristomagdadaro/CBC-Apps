@@ -13,10 +13,10 @@ class PersistApproval
         $model = $context['model'];
         $validated = $context['validated'];
 
-        $model->fill($validated);
+        $model->forceFill($validated);
         $model->save();
 
-        $context['model'] = $model;
+        $context['model'] = $model->fresh(['requester', 'request_form']);
 
         return $next($context);
     }

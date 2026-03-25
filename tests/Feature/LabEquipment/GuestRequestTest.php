@@ -91,4 +91,33 @@ class GuestRequestTest extends TestCase
 
         $this->assertContains('ICT-LAPTOP-01', (array) $requestForm->equipments_to_use);
     }
+
+    public function test_guest_cannot_mass_assign_approval_fields(): void
+    {
+        $payload = [
+            'name' => 'Guest Requester',
+            'affiliation' => 'CBC',
+            'email' => 'guest.approval@example.com',
+            'position' => 'Research Assistant',
+            'phone' => '09170000005',
+            'request_type' => ['Office Supplies'],
+            'request_purpose' => 'Research activity',
+            'date_of_use' => now()->addDays(3)->toDateString(),
+            'time_of_use' => '10:00:00',
+            'agreed_clause_1' => true,
+            'agreed_clause_2' => true,
+            'agreed_clause_3' => true,
+            'request_status' => 'approved',
+            'approved_by' => 'Spoofed Admin',
+        ];
+
+        $response = $this->postJson(route('api.requestFormPivot.post'), $payload);
+
+        $response->assertStatus(201);
+
+        $pivot = RequestFormPivot::query()->latest('created_at')->firstOrFail();
+
+        $this->assertSame('pending', $pivot->request_status);
+        $this->assertNull($pivot->approved_by);
+    }
 }
