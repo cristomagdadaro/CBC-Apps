@@ -45,6 +45,7 @@ class RentalVehicleController extends BaseController
 
         $rentals = collect($this->repo()->all($filters))
             ->when(!empty($statuses), fn ($items) => $items->whereIn('status', $statuses))
+            ->map(fn (RentalVehicle $rental) => $this->buildPublicRentalPayload($rental, false))
             ->values();
 
         return response()->json(['data' => $rentals]);
@@ -233,7 +234,6 @@ class RentalVehicleController extends BaseController
                 $response['message'] = "Vehicle is not available for the selected dates. Conflicts: {$conflictMessages}";
                 $response['conflicts'] = $conflicts->map(function ($rental) {
                     return [
-                        'requested_by' => $rental->requested_by,
                         'date_from' => $rental->date_from,
                         'date_to' => $rental->date_to,
                         'time_from' => $rental->time_from,
@@ -271,7 +271,7 @@ class RentalVehicleController extends BaseController
         $payload = $rental->toArray();
 
         if (!$includeContactNumber) {
-            $payload = Arr::except($payload, ['contact_number']);
+            $payload = Arr::except($payload, ['contact_number', 'requested_by', 'notes']);
         }
 
         return $payload;

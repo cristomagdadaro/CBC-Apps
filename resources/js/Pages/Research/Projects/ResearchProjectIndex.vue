@@ -22,6 +22,9 @@ export default {
                 subtitle="Create research portfolios, attach studies, and launch experiment monitoring."
                 :route-link="route('research.projects.index')"
             >
+                <Link :href="`${route('manuals.index')}?section=researchMonitoring`" class="rounded-lg border border-white/25 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
+                    Manuals & Guides
+                </Link>
                 <Link :href="route('research.dashboard')" class="rounded-lg border border-white/25 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
                     Dashboard
                 </Link>
@@ -35,7 +38,7 @@ export default {
             <section class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
                 <div class="flex flex-wrap items-start justify-between gap-4">
                     <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Module Scope</p>
+                        <p class="text-xs font-semibold uppercase tracking-widest text-emerald-700">Module Scope</p>
                         <h2 class="mt-2 text-2xl font-semibold text-gray-900">Rice-first, commodity-flexible research tracking</h2>
                         <p class="mt-3 max-w-3xl text-sm leading-6 text-gray-600">
                             Use a consistent profile structure for projects, studies, experiments, field samples, lab handoffs, storage, and monitoring records.
@@ -51,7 +54,11 @@ export default {
 
             <section class="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
                 <div v-if="!projects.length" class="rounded-3xl border border-dashed border-gray-300 bg-white p-8 text-center text-sm text-gray-500 lg:col-span-2 xl:col-span-3">
-                    No projects yet. Start by creating the research project profile, then build out studies and experiments.
+                    <LuFolderOpen class="mx-auto h-8 w-8 text-gray-400" />
+                    <p class="mt-3">No projects yet. Start by creating the research project profile, then build out studies and experiments.</p>
+                    <Link :href="route('research.projects.create')" class="mt-4 inline-flex rounded-lg bg-gray-900 px-4 py-2 text-xs font-semibold text-white hover:bg-black">
+                        Create Project
+                    </Link>
                 </div>
 
                 <Link

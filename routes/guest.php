@@ -13,6 +13,7 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ICTEquipmentController;
 use App\Repositories\OptionRepo;
 use App\Http\Controllers\LaboratoryEquipmentController;
+use App\Models\Personnel;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GoogleCalendarController;
 /*
@@ -44,7 +45,30 @@ Route::prefix('guest')->group(function () {
     Route::post('/', [RequestFormPivotController::class, 'create'])->name('api.requestFormPivot.post');
 
     // Personnel endpoints
-    Route::get('/personnel/public', [PersonnelController::class, 'index'])->name('api.inventory.personnels.index.guest');
+    Route::get('/personnel/public', function () {
+        $personnels = Personnel::query()
+            ->select(['id', 'fname', 'mname', 'lname', 'suffix', 'position'])
+            ->orderBy('lname')
+            ->orderBy('fname')
+            ->limit(100)
+            ->get()
+            ->map(function (Personnel $personnel) {
+                $fullName = trim(implode(' ', array_filter([
+                    $personnel->fname,
+                    $personnel->mname,
+                    $personnel->lname,
+                    $personnel->suffix,
+                ])));
+
+                return [
+                    'id' => $personnel->id,
+                    'name' => $fullName,
+                    'position' => $personnel->position,
+                ];
+            });
+
+        return response()->json(['data' => $personnels]);
+    })->name('api.inventory.personnels.index.guest');
 
     // Inventory public endpoints
     Route::prefix('inventory')->group(function () {
@@ -148,44 +172,19 @@ Route::prefix('guest')->group(function () {
     Route::get('/forms/event/{event_id}/participant-lookup', [EventWorkflowController::class, 'resolveParticipantByEmail'])
         ->name('api.event.participant.lookup.guest');
 
-    Route::get('/equipments/active/{employee_id?}', [LaboratoryEquipmentController::class, 'activeEquipments'])->name('api.laboratory.equipments.active');
+    Route::middleware(['auth:sanctum'])->get('/equipments/active/{employee_id?}', [LaboratoryEquipmentController::class, 'activeEquipments'])->name('api.laboratory.equipments.active');
     Route::get('/equipments/{identifier}', [LaboratoryEquipmentController::class, 'show'])->name('api.laboratory.equipments.show');
-    Route::post('/equipments/{identifier}/check-in', [LaboratoryEquipmentController::class, 'checkIn'])->name('api.laboratory.equipments.check-in');
-    Route::post('/equipments/{identifier}/check-out', [LaboratoryEquipmentController::class, 'checkOut'])->name('api.laboratory.equipments.check-out');
-    Route::post('/equipments/{identifier}/update-end-use', [LaboratoryEquipmentController::class, 'updateEndUse'])->name('api.laboratory.equipments.update-end-use');
-    Route::post('/equipments/{identifier}/report-location', [LaboratoryEquipmentController::class, 'reportLocation'])->name('api.laboratory.equipments.report-location');
+    Route::middleware(['auth:sanctum'])->post('/equipments/{identifier}/check-in', [LaboratoryEquipmentController::class, 'checkIn'])->name('api.laboratory.equipments.check-in');
+    Route::middleware(['auth:sanctum'])->post('/equipments/{identifier}/check-out', [LaboratoryEquipmentController::class, 'checkOut'])->name('api.laboratory.equipments.check-out');
+    Route::middleware(['auth:sanctum'])->post('/equipments/{identifier}/update-end-use', [LaboratoryEquipmentController::class, 'updateEndUse'])->name('api.laboratory.equipments.update-end-use');
+    Route::middleware(['auth:sanctum'])->post('/equipments/{identifier}/report-location', [LaboratoryEquipmentController::class, 'reportLocation'])->name('api.laboratory.equipments.report-location');
     Route::get('/equipments', [LaboratoryEquipmentController::class, 'index'])->name('api.laboratory.equipments.index');
 
-    Route::get('/ict/equipments/active/{employee_id?}', [ICTEquipmentController::class, 'activeEquipments'])->name('api.ict.equipments.active');
+    Route::middleware(['auth:sanctum'])->get('/ict/equipments/active/{employee_id?}', [ICTEquipmentController::class, 'activeEquipments'])->name('api.ict.equipments.active');
     Route::get('/ict/equipments/{identifier}', [ICTEquipmentController::class, 'show'])->name('api.ict.equipments.show');
-    Route::post('/ict/equipments/{identifier}/check-in', [ICTEquipmentController::class, 'checkIn'])->name('api.ict.equipments.check-in');
-    Route::post('/ict/equipments/{identifier}/check-out', [ICTEquipmentController::class, 'checkOut'])->name('api.ict.equipments.check-out');
-    Route::post('/ict/equipments/{identifier}/update-end-use', [ICTEquipmentController::class, 'updateEndUse'])->name('api.ict.equipments.update-end-use');
-    Route::post('/ict/equipments/{identifier}/report-location', [ICTEquipmentController::class, 'reportLocation'])->name('api.ict.equipments.report-location');
+    Route::middleware(['auth:sanctum'])->post('/ict/equipments/{identifier}/check-in', [ICTEquipmentController::class, 'checkIn'])->name('api.ict.equipments.check-in');
+    Route::middleware(['auth:sanctum'])->post('/ict/equipments/{identifier}/check-out', [ICTEquipmentController::class, 'checkOut'])->name('api.ict.equipments.check-out');
+    Route::middleware(['auth:sanctum'])->post('/ict/equipments/{identifier}/update-end-use', [ICTEquipmentController::class, 'updateEndUse'])->name('api.ict.equipments.update-end-use');
+    Route::middleware(['auth:sanctum'])->post('/ict/equipments/{identifier}/report-location', [ICTEquipmentController::class, 'reportLocation'])->name('api.ict.equipments.report-location');
     Route::get('/ict/equipments', [ICTEquipmentController::class, 'index'])->name('api.ict.equipments.index');
-
-    // Network connectivity test for local deployment redirect
-    Route::post('/test-local-network', function () {
-        $localNetworkUrl = '192.168.36.10';
-        $isReachable = false;
-
-        try {
-            $context = stream_context_create([
-                'http' => [
-                    'timeout' => 3,
-                    'method' => 'HEAD',
-                ]
-            ]);
-
-            $response = @fopen("http://{$localNetworkUrl}/", 'r', false, $context);
-            $isReachable = $response !== false;
-            if ($response) {
-                fclose($response);
-            }
-        } catch (\Exception $e) {
-            $isReachable = false;
-        }
-
-        return response()->json(['isReachable' => $isReachable]);
-    })->name('api.test-local-network');
 });

@@ -2,33 +2,27 @@
 
 namespace App\Http\Controllers\Research;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\BaseController;
 use App\Models\Research\ResearchExperiment;
 use App\Models\Research\ResearchProject;
-use App\Models\Research\ResearchSample;
-use App\Models\Research\ResearchStudy;
+use App\Repositories\ResearchPageRepo;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class ResearchPageController extends Controller
+class ResearchPageController extends BaseController
 {
+    public function __construct(private readonly ResearchPageRepo $pageRepo)
+    {
+    }
+
     public function dashboard(): Response
     {
-        $recentProjects = ResearchProject::query()
-            ->withCount('studies')
-            ->latest('updated_at')
-            ->limit(5)
-            ->get();
+        $payload = $this->pageRepo->dashboardPayload();
 
         return Inertia::render('Research/ResearchDashboard', [
-            'stats' => [
-                'projects' => ResearchProject::query()->count(),
-                'studies' => ResearchStudy::query()->count(),
-                'experiments' => ResearchExperiment::query()->count(),
-                'samples' => ResearchSample::query()->count(),
-            ],
-            'recentProjects' => $recentProjects,
+            'stats' => $payload['stats'],
+            'recentProjects' => $payload['recentProjects'],
             'catalog' => $this->catalog(),
             'permissionMatrix' => config('research.permission_matrix', []),
             'sampleIdentifierExample' => 'RI00010001Q',
@@ -38,15 +32,7 @@ class ResearchPageController extends Controller
 
     public function projectsIndex(): Response
     {
-        $projects = ResearchProject::query()
-            ->withCount('studies')
-            ->with([
-                'studies' => fn ($query) => $query
-                    ->withCount('experiments')
-                    ->latest('updated_at'),
-            ])
-            ->latest('updated_at')
-            ->get();
+        $projects = $this->pageRepo->projectsIndexData();
 
         return Inertia::render('Research/Projects/ResearchProjectIndex', [
             'projects' => $projects,
@@ -63,16 +49,7 @@ class ResearchPageController extends Controller
 
     public function projectShow(ResearchProject $project): Response
     {
-        $project->load([
-            'studies' => fn ($query) => $query
-                ->withCount('experiments')
-                ->with([
-                    'experiments' => fn ($experimentQuery) => $experimentQuery
-                        ->withCount('samples')
-                        ->latest('updated_at'),
-                ])
-                ->latest('updated_at'),
-        ]);
+        $project = $this->pageRepo->hydrateProject($project);
 
         return Inertia::render('Research/Projects/ResearchProjectShow', [
             'project' => $project,
@@ -82,17 +59,17 @@ class ResearchPageController extends Controller
 
     public function experimentShow(ResearchExperiment $experiment): Response
     {
-        $experiment->load([
-            'study.project',
-            'samples' => fn ($query) => $query
-                ->with([
-                    'monitoringRecords' => fn ($recordQuery) => $recordQuery->latest('recorded_on')->latest('id'),
-                ])
-                ->latest('updated_at'),
-        ]);
+        $experiment = $this->pageRepo->hydrateExperiment($experiment);
 
         return Inertia::render('Research/Experiments/ResearchExperimentShow', [
             'experiment' => $experiment,
+            'catalog' => $this->catalog(),
+        ]);
+    }
+
+    public function sampleInventory(): Response
+    {
+        return Inertia::render('Research/Samples/ResearchSampleInventory', [
             'catalog' => $this->catalog(),
         ]);
     }

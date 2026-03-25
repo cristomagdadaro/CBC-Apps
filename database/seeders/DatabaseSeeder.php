@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\User;
+use Database\Seeders\ResearchMonitoringSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,31 +15,34 @@ class DatabaseSeeder extends Seeder
     {
          //\App\Models\User::factory(10)->create();
 
-        (User::factory()->create([
-            'name' => 'DA-CBC Administrator',
-            'email' => 'dacropbiotechcenter@gmail.com',
-            'is_admin' => true,
-        ]))->roles()->syncWithoutDetaching([1]);
+        $admin = User::query()->firstOrCreate(
+            ['email' => 'dacropbiotechcenter@gmail.com'],
+            User::factory()->raw([
+                'name' => 'DA-CBC Administrator',
+                'is_admin' => true,
+            ])
+        );
+        $admin->roles()->syncWithoutDetaching([1]);
 
-        User::factory()->create([
-            'name' => 'Cristo Rey C. Magdadaro',
-            'email' => 'magdadaro.cristoreyc@gmail.com',
-        ]);
+        User::query()->firstOrCreate(
+            ['email' => 'magdadaro.cristoreyc@gmail.com'],
+            User::factory()->raw(['name' => 'Cristo Rey C. Magdadaro'])
+        );
 
-        User::factory()->create([
-            'name' => 'Ephraim Dioeve Yarcia',
-            'email' => 'ephraimdioeveyarcia@gmail.com',
-        ]);
+        User::query()->firstOrCreate(
+            ['email' => 'ephraimdioeveyarcia@gmail.com'],
+            User::factory()->raw(['name' => 'Ephraim Dioeve Yarcia'])
+        );
 
-        User::factory()->create([
-            'name' => 'Ma. Johna C. Doque',
-            'email' => 'unknown@gmail.com',
-        ]);
+        User::query()->firstOrCreate(
+            ['email' => 'unknown@gmail.com'],
+            User::factory()->raw(['name' => 'Ma. Johna C. Doque'])
+        );
 
-        User::factory()->create([
-            'name' => 'Al Jun Omandam',
-            'email' => 'unknown2@gmail.com',
-        ]);
+        User::query()->firstOrCreate(
+            ['email' => 'unknown2@gmail.com'],
+            User::factory()->raw(['name' => 'Al Jun Omandam'])
+        );
 
         $this->call([
             RolesSeeder::class,
@@ -52,6 +56,7 @@ class DatabaseSeeder extends Seeder
             InventoryIcf2026Seeder::class,
             LaboratoryEquipmentLogSeeder::class,
             RentalsSeeder::class,
+            ResearchMonitoringSeeder::class,
         ]);
     }
 }

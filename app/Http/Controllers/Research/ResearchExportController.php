@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers\Research;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\BaseController;
 use App\Models\Research\ResearchExperiment;
+use App\Repositories\ResearchExportRepo;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class ResearchExportController extends Controller
+class ResearchExportController extends BaseController
 {
+    public function __construct(private readonly ResearchExportRepo $exportRepo)
+    {
+    }
+
     public function experimentSamplesCsv(ResearchExperiment $experiment): StreamedResponse
     {
-        $experiment->load([
-            'study.project',
-            'samples.monitoringRecords',
-        ]);
+        $experiment = $this->exportRepo->hydrateExperimentForSampleExport($experiment);
 
         $filename = sprintf(
             '%s-sample-monitoring-%s.csv',

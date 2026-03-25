@@ -2,21 +2,22 @@
 
 namespace App\Http\Controllers\Research;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\BaseController;
 use App\Http\Requests\Research\StoreResearchSampleRequest;
 use App\Http\Requests\Research\UpdateResearchSampleRequest;
 use App\Models\Research\ResearchExperiment;
-use App\Models\Research\ResearchMonitoringRecord;
 use App\Models\Research\ResearchSample;
+use App\Repositories\ResearchSampleRepo;
 use App\Services\Research\ResearchIdentifierService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
 
-class ResearchSampleController extends Controller
+class ResearchSampleController extends BaseController
 {
     public function __construct(
+        ResearchSampleRepo $repository,
         protected ResearchIdentifierService $identifierService
     ) {
+        $this->service = $repository;
     }
 
     public function store(StoreResearchSampleRequest $request): JsonResponse
@@ -24,6 +25,7 @@ class ResearchSampleController extends Controller
         $userId = $request->user()?->id;
         $payload = $request->validated();
 
+        /** @var ResearchExperiment $experiment */
         $experiment = ResearchExperiment::query()->findOrFail($payload['experiment_id']);
         $identity = $this->identifierService->nextSampleIdentity($experiment, $payload['commodity'] ?? null);
 
@@ -53,13 +55,18 @@ class ResearchSampleController extends Controller
 
     public function destroy(ResearchSample $sample): JsonResponse
     {
-        DB::transaction(function () use ($sample) {
-            ResearchMonitoringRecord::query()->where('sample_id', $sample->id)->delete();
-            $sample->delete();
-        });
+        $this->repo()->deleteCascade($sample);
 
         return response()->json([
             'data' => ['id' => $sample->id],
         ]);
+    }
+
+    protected function repo(): ResearchSampleRepo
+    {
+        /** @var ResearchSampleRepo $repository */
+        $repository = $this->requireService();
+
+        return $repository;
     }
 }

@@ -27,16 +27,17 @@ class EventWorkflowController extends BaseController
 
     public function resolveParticipantByEmail(Request $request, string $event_id, EventWorkflowFeatureService $features): JsonResponse
     {
+        $genericSuccessResponse = [
+            'status' => 'success',
+            'data' => [
+                'found' => true,
+                'profile_found' => true,
+                'message' => 'If an eligible participant profile exists, proceed to the next registration step.',
+            ],
+        ];
+
         if (!$features->isParticipantVerificationEnabled()) {
-            return response()->json([
-                'status' => 'success',
-                'data' => [
-                    'found' => false,
-                    'profile_found' => false,
-                    'feature_disabled' => true,
-                    'message' => 'Participant verification is currently disabled for this form workflow.',
-                ],
-            ], 200);
+            return response()->json($genericSuccessResponse, 200);
         }
 
         $validated = $request->validate([
@@ -50,14 +51,7 @@ class EventWorkflowController extends BaseController
             ->first();
 
         if (!$participant) {
-            return response()->json([
-                'status' => 'success',
-                'data' => [
-                    'found' => false,
-                    'profile_found' => false,
-                    'message' => 'No participant profile found for this email. Please complete preregistration first.',
-                ],
-            ], 200);
+            return response()->json($genericSuccessResponse, 200);
         }
 
         $stepIds = EventSubform::query()
@@ -77,33 +71,6 @@ class EventWorkflowController extends BaseController
             ->latest('created_at')
             ->first();
 
-        if (!$registration) {
-            $registration = Registration::create([
-                'event_subform_id' => $event_id,
-                'participant_id' => $participant->id,
-                'attendance_type' => null,
-            ]);
-
-            return response()->json([
-                'status' => 'success',
-                'data' => [
-                    'found' => true,
-                    'profile_found' => true,
-                    'participant_hash' => $registration->id,
-                    'participant' => $participant,
-                    'message' => 'Profile found. Registration has been created automatically for this event.',
-                ],
-            ], 200);
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'data' => [
-                'found' => true,
-                'profile_found' => true,
-                'participant_hash' => $registration->id,
-                'participant' => $registration->participant,
-            ],
-        ], 200);
+        return response()->json($genericSuccessResponse, 200);
     }
 }

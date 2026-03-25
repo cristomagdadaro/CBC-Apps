@@ -5,7 +5,7 @@ export default class User extends DtoUser {
         index: 'api.users.index',
         put: 'api.users.update',
         delete: 'api.users.destroy',
-        show: 'transactions.show',
+        show: 'system.users.show',
     };
 
     constructor(response: DtoUser) {

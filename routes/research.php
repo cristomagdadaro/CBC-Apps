@@ -5,6 +5,7 @@ use App\Http\Controllers\Research\ResearchExportController;
 use App\Http\Controllers\Research\ResearchMonitoringRecordController;
 use App\Http\Controllers\Research\ResearchProjectController;
 use App\Http\Controllers\Research\ResearchSampleController;
+use App\Http\Controllers\Research\ResearchSampleInventoryController;
 use App\Http\Controllers\Research\ResearchStudyController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,10 @@ Route::prefix('research')->group(function () {
     Route::middleware(['can:research.samples.manage'])->post('/samples', [ResearchSampleController::class, 'store'])->name('api.research.samples.store');
     Route::middleware(['can:research.samples.manage'])->put('/samples/{sample}', [ResearchSampleController::class, 'update'])->name('api.research.samples.update');
     Route::middleware(['can:research.samples.manage'])->delete('/samples/{sample}', [ResearchSampleController::class, 'destroy'])->name('api.research.samples.destroy');
+    Route::middleware(['can:research.samples.manage'])->get('/samples/inventory', [ResearchSampleInventoryController::class, 'index'])->name('api.research.samples.inventory.index');
+    Route::middleware(['can:research.samples.manage'])->get('/samples/inventory/lookup/{uid}', [ResearchSampleInventoryController::class, 'lookup'])->name('api.research.samples.inventory.lookup');
+    Route::middleware(['can:research.samples.manage'])->post('/samples/inventory/scan', [ResearchSampleInventoryController::class, 'scan'])->name('api.research.samples.inventory.scan');
+    Route::middleware(['can:research.samples.manage'])->post('/samples/inventory/labels/print', [ResearchSampleInventoryController::class, 'printLabels'])->name('api.research.samples.inventory.labels.print');
 
     Route::middleware(['can:research.monitoring.manage'])->post('/records', [ResearchMonitoringRecordController::class, 'store'])->name('api.research.records.store');
     Route::middleware(['can:research.monitoring.manage'])->put('/records/{record}', [ResearchMonitoringRecordController::class, 'update'])->name('api.research.records.update');

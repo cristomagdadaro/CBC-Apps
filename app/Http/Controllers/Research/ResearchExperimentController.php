@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers\Research;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\BaseController;
 use App\Http\Requests\Research\StoreResearchExperimentRequest;
 use App\Http\Requests\Research\UpdateResearchExperimentRequest;
 use App\Models\Research\ResearchExperiment;
-use App\Models\Research\ResearchMonitoringRecord;
-use App\Models\Research\ResearchSample;
+use App\Repositories\ResearchExperimentRepo;
 use App\Services\Research\ResearchIdentifierService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
 
-class ResearchExperimentController extends Controller
+class ResearchExperimentController extends BaseController
 {
     public function __construct(
+        ResearchExperimentRepo $repository,
         protected ResearchIdentifierService $identifierService
     ) {
+        $this->service = $repository;
     }
 
     public function store(StoreResearchExperimentRequest $request): JsonResponse
@@ -48,16 +48,18 @@ class ResearchExperimentController extends Controller
 
     public function destroy(ResearchExperiment $experiment): JsonResponse
     {
-        DB::transaction(function () use ($experiment) {
-            $sampleIds = ResearchSample::query()->where('experiment_id', $experiment->id)->pluck('id');
-
-            ResearchMonitoringRecord::query()->whereIn('sample_id', $sampleIds)->delete();
-            ResearchSample::query()->whereIn('id', $sampleIds)->delete();
-            $experiment->delete();
-        });
+        $this->repo()->deleteCascade($experiment);
 
         return response()->json([
             'data' => ['id' => $experiment->id],
         ]);
+    }
+
+    protected function repo(): ResearchExperimentRepo
+    {
+        /** @var ResearchExperimentRepo $repository */
+        $repository = $this->requireService();
+
+        return $repository;
     }
 }

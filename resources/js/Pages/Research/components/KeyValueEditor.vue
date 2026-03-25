@@ -12,6 +12,12 @@ export default {
         },
     },
     emits: ['update:modelValue'],
+    data() {
+        return {
+            touched: {},
+            updateTimers: {},
+        }
+    },
     methods: {
         rows() {
             return Array.isArray(this.modelValue) ? this.modelValue : []
@@ -36,7 +42,33 @@ export default {
                 [field]: value,
             }
 
-            this.$emit('update:modelValue', rows)
+            const timerKey = `${index}-${field}`
+            clearTimeout(this.updateTimers[timerKey])
+            this.updateTimers[timerKey] = setTimeout(() => {
+                this.$emit('update:modelValue', rows)
+            }, 300)
+        },
+        markTouched(index, field) {
+            this.touched[`${index}-${field}`] = true
+        },
+        rowFieldError(index, field) {
+            const row = this.rows()[index] || {}
+            const key = String(row?.key || '').trim()
+            const value = String(row?.value || '').trim()
+
+            if (!this.touched[`${index}-${field}`]) {
+                return ''
+            }
+
+            if (field === 'key' && value && !key) {
+                return 'Parameter is required when a value is set.'
+            }
+
+            if (field === 'value' && key && !value) {
+                return 'Value is required when a parameter is set.'
+            }
+
+            return ''
         },
         removeRow(index) {
             this.$emit(
@@ -65,18 +97,30 @@ export default {
         </div>
 
         <div v-for="(row, index) in rows()" :key="`${title}-${index}`" class="grid gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)_auto]">
-            <input
-                :value="row.key"
-                class="rounded-lg border-gray-300"
-                placeholder="Parameter"
-                @input="updateRow(index, 'key', $event.target.value)"
-            />
-            <input
-                :value="row.value"
-                class="rounded-lg border-gray-300"
-                placeholder="Value"
-                @input="updateRow(index, 'value', $event.target.value)"
-            />
+            <div>
+                <input
+                    :value="row.key"
+                    :id="`${title}-key-${index}`"
+                    :aria-label="`${title} parameter ${index + 1}`"
+                    class="w-full rounded-lg border-gray-300"
+                    placeholder="Parameter"
+                    @input="updateRow(index, 'key', $event.target.value)"
+                    @blur="markTouched(index, 'key')"
+                />
+                <p v-if="rowFieldError(index, 'key')" class="mt-1 text-xs text-red-600">{{ rowFieldError(index, 'key') }}</p>
+            </div>
+            <div>
+                <input
+                    :value="row.value"
+                    :id="`${title}-value-${index}`"
+                    :aria-label="`${title} value ${index + 1}`"
+                    class="w-full rounded-lg border-gray-300"
+                    placeholder="Value"
+                    @input="updateRow(index, 'value', $event.target.value)"
+                    @blur="markTouched(index, 'value')"
+                />
+                <p v-if="rowFieldError(index, 'value')" class="mt-1 text-xs text-red-600">{{ rowFieldError(index, 'value') }}</p>
+            </div>
             <button type="button" class="rounded-lg border border-red-200 px-3 py-2 text-sm text-red-700 hover:bg-red-50" @click="removeRow(index)">
                 Remove
             </button>

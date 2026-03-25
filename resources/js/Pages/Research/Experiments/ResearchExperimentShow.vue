@@ -310,6 +310,12 @@ export default {
                 subtitle="Manage experiment setup, samples, and stage-based monitoring records."
                 :route-link="route('research.experiments.show', experiment.id)"
             >
+                <Link :href="`${route('manuals.index')}?section=researchMonitoring`" class="rounded-lg border border-white/25 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
+                    Manuals & Guides
+                </Link>
+                <Link :href="route('research.samples.inventory')" class="rounded-lg border border-white/25 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
+                    Sample Inventory
+                </Link>
                 <Link :href="route('research.projects.show', experiment.study?.project?.id)" class="rounded-lg border border-white/25 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
                     Back to Project
                 </Link>
@@ -320,6 +326,16 @@ export default {
         </template>
 
         <div class="mx-auto max-w-7xl space-y-6 px-4 py-6">
+            <nav class="flex items-center gap-2 text-sm text-gray-500">
+                <Link :href="route('research.dashboard')" class="hover:text-gray-700">Dashboard</Link>
+                <span>/</span>
+                <Link :href="route('research.projects.index')" class="hover:text-gray-700">Projects</Link>
+                <span>/</span>
+                <Link :href="route('research.projects.show', experiment.study?.project?.id)" class="hover:text-gray-700">{{ experiment.study?.project?.code || 'Project' }}</Link>
+                <span>/</span>
+                <span class="font-medium text-gray-700">{{ experiment.code }}</span>
+            </nav>
+
             <section class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
                 <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
                     <div class="flex flex-wrap items-start justify-between gap-4">
@@ -432,22 +448,17 @@ export default {
 
                 <div class="space-y-6">
                     <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Monitoring Stages</p>
-                        <h2 class="mt-2 text-xl font-semibold text-gray-900">Stage-ready data capture</h2>
-                        <div class="mt-4 space-y-3">
-                            <div v-for="(stage, key) in catalog.stages || {}" :key="key" class="rounded-2xl bg-gray-50 p-4">
-                                <p class="text-sm font-semibold text-gray-900">{{ stage.label }}</p>
-                                <p class="mt-1 text-sm leading-6 text-gray-600">{{ stage.description }}</p>
-                            </div>
+                        <p class="text-xs font-semibold uppercase tracking-widest text-emerald-700">Guides</p>
+                        <h2 class="mt-2 text-2xl font-semibold text-gray-900">Stage instructions and barcode strategy</h2>
+                        <p class="mt-3 text-sm leading-6 text-gray-600">Detailed stage descriptions and usage notes are now centralized in Manuals & Guides.</p>
+                        <div class="mt-4 flex flex-wrap gap-3">
+                            <Link :href="`${route('manuals.index')}?section=researchMonitoring`" class="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                Open Research Guide
+                            </Link>
+                            <Link :href="route('research.samples.inventory')" class="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-black">
+                                Open Sample Inventory
+                            </Link>
                         </div>
-                    </div>
-
-                    <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Barcode Strategy</p>
-                        <h2 class="mt-2 text-xl font-semibold text-gray-900">Sample IDs stay short and printable</h2>
-                        <p class="mt-3 text-sm leading-6 text-gray-600">
-                            New samples receive a compact barcode-friendly UID automatically, while you keep full field references like line, plant, and PR code in separate searchable fields.
-                        </p>
                     </div>
                 </div>
             </section>
@@ -555,7 +566,7 @@ export default {
 
             <section class="space-y-6">
                 <div class="flex items-center justify-between gap-4">
-                    <div>
+                    <div class="sticky top-0 z-10 rounded-xl bg-white/95 px-2 py-2 backdrop-blur">
                         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Samples</p>
                         <h2 class="mt-2 text-2xl font-semibold text-gray-900">Tracked samples and monitoring records</h2>
                     </div>
@@ -720,7 +731,7 @@ export default {
 
                     <div class="mt-6">
                         <div class="flex items-center justify-between gap-4">
-                            <div>
+                            <div class="sticky top-0 z-10 rounded-xl bg-white/95 px-2 py-2 backdrop-blur">
                                 <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Monitoring History</p>
                                 <h4 class="mt-2 text-lg font-semibold text-gray-900">Existing records</h4>
                             </div>

@@ -102,6 +102,12 @@ export default {
                             permission: 'research.projects.view',
                             icon: 'LuLayers',
                         },
+                        {
+                            label: 'Sample Inventory',
+                            href: 'research.samples.inventory',
+                            permission: 'research.samples.manage',
+                            icon: 'LuScanBarcode',
+                        },
                     ],
                 },{
                     label: 'Inventory',

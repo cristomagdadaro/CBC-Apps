@@ -217,10 +217,7 @@ class FormScanController extends BaseController
 
         if (Str::isUuid($raw)) {
             return [
-                'version' => 'legacy',
-                'rid' => $raw,
-                'eid' => null,
-                'sig' => null,
+                'version' => 'invalid',
                 'signature_valid' => false,
             ];
         }

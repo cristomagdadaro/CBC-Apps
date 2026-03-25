@@ -24,7 +24,7 @@ class PDFGeneratorController extends BaseController
     /**
      * Stream or download a cached/generated PDF for the given RequestFormPivot.
      * Accepts an optional 'template' query parameter pointing to a Blade view.
-     * Caches PDFs in public/generated-pdfs/{template-slug}/{id}.pdf and
+    * Caches PDFs in storage/app/private/generated-pdfs/{template-slug}/{id}.pdf and
      * regenerates when the model is updated (updated_at newer than file mtime).
      *
      * Query params:
@@ -47,7 +47,7 @@ class PDFGeneratorController extends BaseController
 
         // Prepare cache path based on template and id
         $templateSlug = Str::slug($template);
-        $cacheDir = public_path("generated-pdfs/{$templateSlug}");
+        $cacheDir = storage_path("app/private/generated-pdfs/{$templateSlug}");
         if (!File::exists($cacheDir)) {
             File::makeDirectory($cacheDir, 0775, true);
         }
@@ -116,7 +116,6 @@ class PDFGeneratorController extends BaseController
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Unable to generate PDF.',
-                    'details' => $e->getMessage(),
                 ], 500);
             }
         }

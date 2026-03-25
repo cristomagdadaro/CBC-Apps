@@ -265,6 +265,12 @@ export default {
                 subtitle="Manage the project profile, create studies, and launch experiment monitoring."
                 :route-link="route('research.projects.show', project.id)"
             >
+                <Link :href="`${route('manuals.index')}?section=researchMonitoring`" class="rounded-lg border border-white/25 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
+                    Manuals & Guides
+                </Link>
+                <Link :href="route('research.samples.inventory')" class="rounded-lg border border-white/25 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
+                    Sample Inventory
+                </Link>
                 <Link :href="route('research.projects.index')" class="rounded-lg border border-white/25 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
                     All Projects
                 </Link>
@@ -275,6 +281,14 @@ export default {
         </template>
 
         <div class="mx-auto max-w-7xl space-y-6 px-4 py-6">
+            <nav class="flex items-center gap-2 text-sm text-gray-500">
+                <Link :href="route('research.dashboard')" class="hover:text-gray-700">Dashboard</Link>
+                <span>/</span>
+                <Link :href="route('research.projects.index')" class="hover:text-gray-700">Projects</Link>
+                <span>/</span>
+                <span class="font-medium text-gray-700">{{ project.code }}</span>
+            </nav>
+
             <section class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
                 <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
                     <div class="flex flex-wrap items-start justify-between gap-4">
@@ -352,44 +366,17 @@ export default {
 
                 <div class="space-y-6">
                     <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Workflow</p>
-                        <h2 class="mt-2 text-xl font-semibold text-gray-900">Project to monitoring chain</h2>
-                        <div class="mt-4 space-y-3 text-sm text-gray-600">
-                            <div class="rounded-2xl bg-gray-50 p-4">
-                                <p class="font-medium text-gray-900">1. Project</p>
-                                <p class="mt-1">Capture funding, goals, duration, and project leadership.</p>
-                            </div>
-                            <div class="rounded-2xl bg-gray-50 p-4">
-                                <p class="font-medium text-gray-900">2. Study</p>
-                                <p class="mt-1">Define study objectives, staff, and supervising structure.</p>
-                            </div>
-                            <div class="rounded-2xl bg-gray-50 p-4">
-                                <p class="font-medium text-gray-900">3. Experiment</p>
-                                <p class="mt-1">Describe season, line background, generation, field setup, and sample context.</p>
-                            </div>
-                            <div class="rounded-2xl bg-gray-50 p-4">
-                                <p class="font-medium text-gray-900">4. Sample and records</p>
-                                <p class="mt-1">Track individual samples with short IDs, field references, and stage-based monitoring logs.</p>
-                            </div>
+                        <p class="text-xs font-semibold uppercase tracking-widest text-emerald-700">Guides</p>
+                        <h2 class="mt-2 text-2xl font-semibold text-gray-900">Need full workflow instructions?</h2>
+                        <p class="mt-2 text-sm leading-6 text-gray-600">Detailed process notes were moved to Manuals & Guides to keep this workspace focused on editing and monitoring.</p>
+                        <div class="mt-4 flex flex-wrap gap-3">
+                            <Link :href="`${route('manuals.index')}?section=researchMonitoring`" class="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                Open Research Guide
+                            </Link>
+                            <Link :href="route('research.samples.inventory')" class="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-black">
+                                Open Sample Inventory
+                            </Link>
                         </div>
-                    </div>
-
-                    <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Quick Tips</p>
-                        <ul class="mt-4 space-y-3 text-sm text-gray-600">
-                            <li class="flex gap-2">
-                                <LuCheckCircle2 class="mt-0.5 h-4 w-4 flex-none text-emerald-600" />
-                                <span>Keep the project commodity broad if the study portfolio spans more than one crop or sample family.</span>
-                            </li>
-                            <li class="flex gap-2">
-                                <LuCheckCircle2 class="mt-0.5 h-4 w-4 flex-none text-emerald-600" />
-                                <span>Use studies for separate breeding objectives, trials, or collaborating teams within the same project.</span>
-                            </li>
-                            <li class="flex gap-2">
-                                <LuCheckCircle2 class="mt-0.5 h-4 w-4 flex-none text-emerald-600" />
-                                <span>Launch experiments from the study card below, then manage samples and monitoring in the experiment detail page.</span>
-                            </li>
-                        </ul>
                     </div>
                 </div>
             </section>

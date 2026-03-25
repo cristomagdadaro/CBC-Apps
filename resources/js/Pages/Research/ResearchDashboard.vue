@@ -47,15 +47,21 @@ export default {
                 subtitle="Project, study, experiment, and sample monitoring for rice and other commodities."
                 :route-link="route('research.dashboard')"
             >
+                <Link :href="`${route('manuals.index')}?section=researchMonitoring`" class="rounded-lg border border-white/25 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
+                    Manuals & Guides
+                </Link>
+                <Link :href="route('research.samples.inventory')" class="rounded-lg border border-white/25 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
+                    Sample Inventory
+                </Link>
                 <Link :href="route('research.projects.index')" class="rounded-lg bg-white/15 px-4 py-2 text-sm font-medium text-white hover:bg-white/25">
                     Open Projects
                 </Link>
             </ActionHeaderLayout>
         </template>
 
-        <div class="mx-auto max-w-7xl space-y-8 px-4 py-6">
+        <div class="p-4 space-y-2 md:space-y-4">
             <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <div v-for="card in statCards" :key="card.label" class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                <div v-for="card in statCards" :key="card.label" class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                     <div class="flex items-center justify-between">
                         <p class="text-sm font-medium text-gray-500">{{ card.label }}</p>
                         <component :is="card.icon" class="h-5 w-5 text-gray-400" />
@@ -66,39 +72,35 @@ export default {
 
             <section class="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
                 <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-                    <div class="flex flex-wrap items-start justify-between gap-4">
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Identifier Strategy</p>
-                            <h2 class="mt-2 text-2xl font-semibold text-gray-900">Short barcode-safe IDs from field to lab to storage</h2>
-                            <p class="mt-3 max-w-2xl text-sm leading-6 text-gray-600">
-                                Each sample now gets a compact unique code built from the commodity prefix, the experiment sequence, the sample sequence, and a checksum.
-                            </p>
-                        </div>
-                        <div class="rounded-2xl bg-gray-900 px-5 py-4 text-white shadow-inner">
-                            <p class="text-xs uppercase tracking-[0.2em] text-gray-400">Example</p>
-                            <p class="mt-2 font-mono text-2xl font-semibold">{{ sampleIdentifierExample }}</p>
-                        </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-widest text-emerald-700">Research Inventory</p>
+                        <h2 class="mt-2 text-2xl font-semibold text-gray-900">Barcode and QR are now first-class sample workflows</h2>
                     </div>
 
-                    <div class="mt-6 grid gap-4 md:grid-cols-3">
+                    <div class="mt-6 grid gap-4 md:grid-cols-2">
                         <div class="rounded-2xl bg-gray-50 p-4">
-                            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Readable Context</p>
-                            <p class="mt-2 text-sm text-gray-700">Keep long field references like PR code, line label, and plot numbers in dedicated fields without overloading the barcode.</p>
+                            <p class="text-xs font-semibold uppercase tracking-widest text-gray-500">Barcode Example</p>
+                            <p class="mt-2 font-mono text-2xl font-semibold text-gray-900">{{ sampleIdentifierExample }}</p>
+                            <p class="mt-2 text-sm text-gray-700">Use barcode for inventory audit and quick shelf-level verification.</p>
                         </div>
                         <div class="rounded-2xl bg-gray-50 p-4">
-                            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Flexible Workflow</p>
-                            <p class="mt-2 text-sm text-gray-700">The monitoring stages support germination, sowing, agro-morphology, post-harvest, and environmental logs.</p>
-                        </div>
-                        <div class="rounded-2xl bg-gray-50 p-4">
-                            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Protected Data</p>
-                            <p class="mt-2 text-sm text-gray-700">Sensitive objectives, personnel details, and monitoring payloads are encrypted at rest at the application layer.</p>
+                            <p class="text-xs font-semibold uppercase tracking-widest text-gray-500">QR Retrieval</p>
+                            <p class="mt-2 text-sm text-gray-700">Use QR payloads to retrieve sample details for printing, entry, and display workflows.</p>
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                <Link :href="route('research.samples.inventory')" class="rounded-lg bg-gray-900 px-3 py-2 text-xs font-semibold text-white hover:bg-black">
+                                    Open Sample Inventory
+                                </Link>
+                                <Link :href="`${route('manuals.index')}?section=researchMonitoring`" class="rounded-lg border px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-100">
+                                    Open Guide
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Commodity Scope</p>
-                    <h2 class="mt-2 text-xl font-semibold text-gray-900">Generic by default</h2>
+                    <p class="text-xs font-semibold uppercase tracking-widest text-emerald-700">Commodity Scope</p>
+                    <h2 class="mt-2 text-2xl font-semibold text-gray-900">Generic by default</h2>
                     <p class="mt-3 text-sm leading-6 text-gray-600">
                         The module starts with rice-focused fields but accepts broader commodities and sample types for cross-program use.
                     </p>
@@ -114,8 +116,8 @@ export default {
                 <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
                     <div class="flex items-center justify-between gap-4">
                         <div>
-                            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Recent Work</p>
-                            <h2 class="mt-2 text-xl font-semibold text-gray-900">Active projects</h2>
+                            <p class="text-xs font-semibold uppercase tracking-widest text-emerald-700">Recent Work</p>
+                            <h2 class="mt-2 text-2xl font-semibold text-gray-900">Active projects</h2>
                         </div>
                         <Link :href="route('research.projects.create')" class="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
                             New Project
@@ -123,8 +125,12 @@ export default {
                     </div>
 
                     <div class="mt-5 space-y-3">
-                        <div v-if="!recentProjects.length" class="rounded-2xl border border-dashed border-gray-300 px-4 py-6 text-sm text-gray-500">
-                            No research projects yet. Start with a project profile, then add studies and experiments.
+                        <div v-if="!recentProjects.length" class="rounded-2xl border border-dashed border-gray-300 px-4 py-8 text-center text-sm text-gray-500">
+                            <LuFolderOpen class="mx-auto h-8 w-8 text-gray-400" />
+                            <p class="mt-3">No research projects yet. Start with a project profile, then add studies and experiments.</p>
+                            <Link :href="route('research.projects.create')" class="mt-4 inline-flex rounded-lg bg-gray-900 px-4 py-2 text-xs font-semibold text-white hover:bg-black">
+                                Create First Project
+                            </Link>
                         </div>
 
                         <Link
@@ -148,8 +154,8 @@ export default {
                 </div>
 
                 <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">RBAC Matrix</p>
-                    <h2 class="mt-2 text-xl font-semibold text-gray-900">Dedicated research roles</h2>
+                    <p class="text-xs font-semibold uppercase tracking-widest text-emerald-700">RBAC Matrix</p>
+                    <h2 class="mt-2 text-2xl font-semibold text-gray-900">Dedicated research roles</h2>
                     <div class="mt-4 space-y-4">
                         <div v-for="item in permissionMatrix" :key="item.role" class="rounded-2xl bg-gray-50 p-4">
                             <p class="text-sm font-semibold text-gray-900">{{ item.role }}</p>

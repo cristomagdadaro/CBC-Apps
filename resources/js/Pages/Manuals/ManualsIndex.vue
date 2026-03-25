@@ -15,6 +15,7 @@ import SystemOptionsTopic from './Topics/SystemOptionsTopic.vue';
 import CertificateGeneratorTopic from './Topics/CertificateGeneratorTopic.vue';
 import IconsLibraryTopic from './Topics/IconsLibraryTopic.vue';
 import GoogleCalendarTopic from './Topics/GoogleCalendarTopic.vue';
+import ResearchMonitoringTopic from './Topics/ResearchMonitoringTopic.vue';
 
 export default {
     name: 'ManualsIndex',
@@ -34,9 +35,13 @@ export default {
         CertificateGeneratorTopic,
         IconsLibraryTopic,
         GoogleCalendarTopic,
+        ResearchMonitoringTopic,
     },
     setup() {
-        const activeSection = ref('overview');
+        const initialSection = typeof window !== 'undefined'
+            ? new URLSearchParams(window.location.search).get('section')
+            : null;
+        const activeSection = ref(initialSection || 'overview');
 
         const sections = {
             overview: {
@@ -114,6 +119,11 @@ export default {
                 icon: '🗓️',
                 component: GoogleCalendarTopic,
             },
+            researchMonitoring: {
+                title: 'Research Monitoring Module',
+                icon: '🧬',
+                component: ResearchMonitoringTopic,
+            },
         };
 
         const menuItems = [
@@ -132,6 +142,7 @@ export default {
             { id: 'certificateGenerator', label: 'How to use Certificate Generator', icon: '🎓' },
             { id: 'iconsLibrary', label: 'Icons Library', icon: '🎨' },
             { id: 'googleCalendar', label: 'Google Calendar Integration', icon: '🗓️' },
+            { id: 'researchMonitoring', label: 'Research Monitoring Module', icon: '🧬' },
         ];
 
         return {

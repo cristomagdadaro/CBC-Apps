@@ -44,6 +44,7 @@ class RentalVenueController extends BaseController
 
         $rentals = collect($this->repo()->all($filters))
             ->when(!empty($statuses), fn ($items) => $items->whereIn('status', $statuses))
+            ->map(fn (RentalVenue $rental) => $this->buildPublicRentalPayload($rental, false))
             ->values();
 
         return response()->json(['data' => $rentals]);
@@ -196,7 +197,6 @@ class RentalVenueController extends BaseController
                 $response['message'] = "Venue is not available for the selected dates. Conflicts: {$conflictMessages}";
                 $response['conflicts'] = $conflicts->map(function ($rental) {
                     return [
-                        'requested_by' => $rental->requested_by,
                         'event_name' => $rental->event_name,
                         'date_from' => $rental->date_from,
                         'date_to' => $rental->date_to,
@@ -235,7 +235,7 @@ class RentalVenueController extends BaseController
         $payload = $rental->toArray();
 
         if (!$includeContactNumber) {
-            $payload = Arr::except($payload, ['contact_number']);
+            $payload = Arr::except($payload, ['contact_number', 'requested_by', 'notes']);
         }
 
         return $payload;

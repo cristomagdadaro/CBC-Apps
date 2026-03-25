@@ -76,6 +76,12 @@ class ResearchSample extends BaseModel
             ->orderByDesc('id');
     }
 
+    public function inventoryLogs(): HasMany
+    {
+        return $this->hasMany(ResearchSampleInventoryLog::class, 'sample_id')
+            ->latest('created_at');
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by', 'id');
