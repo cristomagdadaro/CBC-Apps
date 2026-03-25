@@ -35,6 +35,16 @@ class RolesSeeder extends Seeder
                 'label' => 'Administrative Assistant',
                 'description' => 'Vehicle, venue, and hostel rentals',
             ],
+            [
+                'name' => RoleEnum::RESEARCHER->value,
+                'label' => 'Researcher',
+                'description' => 'Research project, study, experiment, sample, and monitoring management',
+            ],
+            [
+                'name' => RoleEnum::RESEARCH_SUPERVISOR->value,
+                'label' => 'Research Supervisor',
+                'description' => 'Research oversight with export and elevated project control',
+            ],
         ];
 
         foreach ($roles as $roleData) {

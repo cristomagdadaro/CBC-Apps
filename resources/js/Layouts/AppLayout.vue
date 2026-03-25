@@ -85,6 +85,25 @@ export default {
                     permission: 'laboratory.logger.manage',
                     icon: 'LuMicroscope',
                 },{
+                    label: 'Research',
+                    href: null,
+                    icon: 'LuFlaskConical',
+                    permission: 'research.dashboard.view',
+                    children: [
+                        {
+                            label: 'Dashboard',
+                            href: 'research.dashboard',
+                            permission: 'research.dashboard.view',
+                            icon: 'LuLayoutDashboard',
+                        },
+                        {
+                            label: 'Projects',
+                            href: 'research.projects.index',
+                            permission: 'research.projects.view',
+                            icon: 'LuLayers',
+                        },
+                    ],
+                },{
                     label: 'Inventory',
                     href: null,
                     icon: 'LuPackage',

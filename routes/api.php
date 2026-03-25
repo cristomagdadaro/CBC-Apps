@@ -52,5 +52,7 @@ Route::middleware(['api', 'auth:sanctum'])->group(function () {
 
     require __DIR__.'/rental.php';
 
+    require __DIR__.'/research.php';
+
     require __DIR__.'/users.php';
 });

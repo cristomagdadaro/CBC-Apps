@@ -10,6 +10,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LabRequestFormController;
 use App\Http\Controllers\PDFGeneratorController;
 use App\Http\Controllers\PersonnelController;
+use App\Http\Controllers\Research\ResearchPageController;
 use App\Http\Controllers\SupplierController;
 use App\Models\Category;
 use App\Repositories\OptionRepo;
@@ -132,6 +133,14 @@ Route::middleware([
     'verified',
 ])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::middleware(['can:research.dashboard.view'])->prefix('research')->group(function () {
+        Route::get('/', [ResearchPageController::class, 'dashboard'])->name('research.dashboard');
+        Route::get('/projects', [ResearchPageController::class, 'projectsIndex'])->middleware('can:research.projects.view')->name('research.projects.index');
+        Route::get('/projects/create', [ResearchPageController::class, 'projectCreate'])->middleware('can:research.projects.create')->name('research.projects.create');
+        Route::get('/projects/{project}', [ResearchPageController::class, 'projectShow'])->middleware('can:research.projects.view')->name('research.projects.show');
+        Route::get('/experiments/{experiment}', [ResearchPageController::class, 'experimentShow'])->middleware('can:research.experiments.manage')->name('research.experiments.show');
+    });
 
     Route::prefix('apps')->group(function () {
         Route::prefix('laboratory')->group(function () {

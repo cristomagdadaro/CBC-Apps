@@ -1,0 +1,66 @@
+<?php
+
+namespace App\Models\Research;
+
+use App\Models\BaseModel;
+use App\Models\User;
+use App\Traits\Auditable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class ResearchProject extends BaseModel
+{
+    use HasFactory;
+    use SoftDeletes;
+    use Auditable;
+
+    protected $fillable = [
+        'code',
+        'title',
+        'commodity',
+        'duration_start',
+        'duration_end',
+        'overall_budget',
+        'objective',
+        'funding_agency',
+        'funding_code',
+        'project_leader',
+        'metadata',
+        'created_by',
+        'last_updated_by',
+    ];
+
+    protected $casts = [
+        'duration_start' => 'date',
+        'duration_end' => 'date',
+        'overall_budget' => 'decimal:2',
+        'objective' => 'encrypted',
+        'project_leader' => 'encrypted:array',
+        'metadata' => 'array',
+    ];
+
+    protected array $searchable = [
+        'code',
+        'title',
+        'commodity',
+        'funding_agency',
+        'funding_code',
+    ];
+
+    public function studies(): HasMany
+    {
+        return $this->hasMany(ResearchStudy::class, 'project_id');
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by', 'id');
+    }
+
+    public function updater(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'last_updated_by', 'id');
+    }
+}

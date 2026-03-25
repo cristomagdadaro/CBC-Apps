@@ -15,6 +15,16 @@ return [
         'rental.venue.manage',
         'rental.hostel.manage',
         'rental.request.approve',
+        'research.dashboard.view',
+        'research.projects.view',
+        'research.projects.create',
+        'research.projects.update',
+        'research.projects.delete',
+        'research.studies.manage',
+        'research.experiments.manage',
+        'research.samples.manage',
+        'research.monitoring.manage',
+        'research.exports.manage',
     ],
 
     'role_permissions' => [
@@ -40,6 +50,30 @@ return [
             'rental.venue.manage',
             'rental.hostel.manage',
             'rental.request.approve',
+        ],
+
+        Role::RESEARCHER->value => [
+            'research.dashboard.view',
+            'research.projects.view',
+            'research.projects.create',
+            'research.projects.update',
+            'research.studies.manage',
+            'research.experiments.manage',
+            'research.samples.manage',
+            'research.monitoring.manage',
+        ],
+
+        Role::RESEARCH_SUPERVISOR->value => [
+            'research.dashboard.view',
+            'research.projects.view',
+            'research.projects.create',
+            'research.projects.update',
+            'research.projects.delete',
+            'research.studies.manage',
+            'research.experiments.manage',
+            'research.samples.manage',
+            'research.monitoring.manage',
+            'research.exports.manage',
         ],
     ],
 ];
