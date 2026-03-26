@@ -68,7 +68,7 @@
 
         <hr class="my-6">
 
-        <section>
+        <section v-if="showDeveloperSections">
             <h3 class="text-lg font-bold mb-3">For Programmers (Form Customization & Integration)</h3>
             <p class="mb-3">The FES Request Form is built on a flexible form system. Modifications require changes to both the request model/validation and the Vue component.</p>
 
@@ -162,6 +162,12 @@
 
 <script>
 export default {
+    props: {
+        showDeveloperSections: {
+            type: Boolean,
+            default: true,
+        },
+    },
     name: 'FESRequestFormTopic',
 }
 </script>

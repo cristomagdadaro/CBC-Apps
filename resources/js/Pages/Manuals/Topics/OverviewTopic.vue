@@ -2,7 +2,8 @@
     <div class="space-y-6">
         <section>
             <h3 class="text-lg font-bold mb-3">Welcome to {{ $appName }}</h3>
-            <p class="mb-3">{{ $appName }} is a comprehensive resource management system designed to streamline operations for the center. This guide covers both <strong>administrative tasks</strong> (for end-users) and <strong>developer tasks</strong> (for technical staff).</p>
+            <p v-if="showDeveloperSections" class="mb-3">{{ $appName }} is a comprehensive resource management system designed to streamline operations for the center. This guide covers both <strong>administrative tasks</strong> (for end-users) and <strong>developer tasks</strong> (for technical staff).</p>
+            <p v-else class="mb-3">{{ $appName }} is a comprehensive resource management system designed to streamline operations for the center. This public guide focuses on <strong>end-user workflows</strong>, common tasks, and where to go when you need help inside the system.</p>
         </section>
 
         <section>
@@ -57,9 +58,9 @@
             <h3 class="text-lg font-bold mb-3">How to Use This Manual</h3>
             <ol class="list-decimal list-inside space-y-2">
                 <li><strong>Select a topic</strong> from the left menu based on what you need to do</li>
-                <li><strong>Look for your role:</strong> Most guides have sections for both administrators and developers</li>
-                <li><strong>Follow the step-by-step instructions</strong> or technical implementation details</li>
-                <li><strong>Refer to code snippets and file paths</strong> for developers</li>
+                <li><strong>Look for your role:</strong> Most guides focus on operational steps first, then deeper implementation notes for signed-in staff</li>
+                <li><strong>Follow the step-by-step instructions</strong> for the workflow you need</li>
+                <li v-if="showDeveloperSections"><strong>Refer to code snippets and file paths</strong> when you need implementation details</li>
                 <li><strong>Check the quick reference</strong> sections for common files and endpoints</li>
             </ol>
         </section>
@@ -71,7 +72,7 @@
                     <p class="font-semibold text-sm">📝 Administrators</p>
                     <p class="text-xs text-gray-600 dark:text-gray-400">How to add forms, file requests, manage inventory</p>
                 </div>
-                <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded">
+                <div v-if="showDeveloperSections" class="bg-gray-100 dark:bg-gray-700 p-3 rounded">
                     <p class="font-semibold text-sm">👨‍💻 Developers</p>
                     <p class="text-xs text-gray-600 dark:text-gray-400">API endpoints, models, validation, customization</p>
                 </div>
@@ -97,6 +98,12 @@
 
 <script>
 export default {
+    props: {
+        showDeveloperSections: {
+            type: Boolean,
+            default: true,
+        },
+    },
     name: 'OverviewTopic',
 }
 </script>

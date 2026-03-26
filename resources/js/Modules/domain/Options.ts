@@ -7,6 +7,7 @@ export default class Options extends DtoOptions {
         post: 'api.options.store',
         put: 'api.options.update',
         delete: 'api.options.destroy',
+        create: 'system.options.create',
         show: 'system.options.show',
     };
 
@@ -18,6 +19,7 @@ export default class Options extends DtoOptions {
         this.api._apiPut = Options.endpoints.put;
         this.api._apiDelete = Options.endpoints.delete;
         
+        this.createPage = Options.endpoints.create;
         this.showPage = Options.endpoints.show;
     }
 

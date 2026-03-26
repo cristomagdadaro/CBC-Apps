@@ -125,6 +125,10 @@ class ResearchAccessService
             return $query->whereRaw('1 = 0');
         }
 
+        if ($this->isAdministrator($user)) {
+            return $query;
+        }
+
         return $query->where(function (Builder $subQuery) use ($user) {
             $subQuery->where('created_by', $user->id)
                 ->orWhereHas('members', fn (Builder $memberQuery) => $memberQuery->where('users.id', $user->id));
@@ -142,6 +146,10 @@ class ResearchAccessService
             return false;
         }
 
+        if ($this->isAdministrator($user)) {
+            return true;
+        }
+
         if ((string) $project->created_by === (string) $user->id) {
             return true;
         }
@@ -153,6 +161,10 @@ class ResearchAccessService
 
     public function canAccessStudy(?User $user, ResearchStudy $study): bool
     {
+        if ($this->isAdministrator($user)) {
+            return true;
+        }
+
         $study->loadMissing('project.members');
 
         return $this->canAccessProject($user, $study->project);
@@ -160,6 +172,10 @@ class ResearchAccessService
 
     public function canAccessExperiment(?User $user, ResearchExperiment $experiment): bool
     {
+        if ($this->isAdministrator($user)) {
+            return true;
+        }
+
         $experiment->loadMissing('study.project.members');
 
         return $this->canAccessProject($user, $experiment->study->project);
@@ -167,6 +183,10 @@ class ResearchAccessService
 
     public function canAccessSample(?User $user, ResearchSample $sample): bool
     {
+        if ($this->isAdministrator($user)) {
+            return true;
+        }
+
         $sample->loadMissing('experiment.study.project.members');
 
         return $this->canAccessProject($user, $sample->experiment->study->project);
@@ -174,6 +194,10 @@ class ResearchAccessService
 
     public function canAccessRecord(?User $user, ResearchMonitoringRecord $record): bool
     {
+        if ($this->isAdministrator($user)) {
+            return true;
+        }
+
         $record->loadMissing('sample.experiment.study.project.members');
 
         return $this->canAccessProject($user, $record->sample->experiment->study->project);
@@ -214,5 +238,10 @@ class ResearchAccessService
         }
 
         return 'Research Member';
+    }
+
+    protected function isAdministrator(?User $user): bool
+    {
+        return (bool) $user && ($user->is_admin || $user->hasRole(Role::ADMIN->value));
     }
 }

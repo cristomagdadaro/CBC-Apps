@@ -25,7 +25,7 @@
 
         <hr class="my-6">
 
-        <section>
+        <section v-if="showDeveloperSections">
             <h3 class="text-lg font-bold mb-3">For Programmers (Adding a Brand-New Form Type)</h3>
             <p class="mb-3">A <strong>custom form type</strong> is identified by a unique slug (e.g., <code class="bg-gray-100 px-2 py-1 rounded">speaker_evaluation</code>). Adding a new type requires changes in both backend validation and frontend UI.</p>
 
@@ -124,6 +124,12 @@
 
 <script>
 export default {
+    props: {
+        showDeveloperSections: {
+            type: Boolean,
+            default: true,
+        },
+    },
     name: 'CustomFormTopic',
 }
 </script>

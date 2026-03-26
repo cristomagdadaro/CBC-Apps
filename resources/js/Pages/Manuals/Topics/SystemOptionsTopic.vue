@@ -193,7 +193,7 @@
     </section>
 
     <!-- Using Options in Code -->
-    <section>
+    <section v-if="showDeveloperSections">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
         Using Options in Code
       </h3>
@@ -257,6 +257,12 @@
 
 <script>
 export default {
+  props: {
+    showDeveloperSections: {
+      type: Boolean,
+      default: true,
+    },
+  },
   name: 'SystemOptionsTopic',
 };
 </script>

@@ -63,7 +63,7 @@
 
         <hr class="my-6">
 
-        <section>
+        <section v-if="showDeveloperSections">
             <h3 class="text-lg font-bold mb-3">For Programmers</h3>
             <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4">
                 <h4 class="font-semibold mb-2">Profile Management Components:</h4>
@@ -88,6 +88,12 @@
 
 <script>
 export default {
+    props: {
+        showDeveloperSections: {
+            type: Boolean,
+            default: true,
+        },
+    },
     name: 'ProfilePasswordTopic',
 }
 </script>

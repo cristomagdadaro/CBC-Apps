@@ -27,8 +27,8 @@ class UserObserver
         $adminRole = Role::query()->firstOrCreate(
             ['name' => RoleEnum::ADMIN->value],
             [
-                'label' => 'Admin',
-                'description' => 'Full system access',
+                'label' => RoleEnum::ADMIN->label(),
+                'description' => RoleEnum::ADMIN->description(),
             ]
         );
 

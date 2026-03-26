@@ -127,6 +127,27 @@ class ResearchAccessTest extends TestCase
             ]);
     }
 
+    public function test_administrator_can_access_all_research_project_data(): void
+    {
+        $creator = $this->createUserWithRole(RoleEnum::RESEARCHER->value);
+        $project = $this->createProjectWithStudyMembers($creator, $creator);
+        $sample = $this->createSampleForProject($project, 'RI00010003Q', 'Admin Visible Sample');
+        $admin = $this->createAdminUser();
+
+        $this->actingAs($admin)
+            ->get(route('research.projects.show', $project))
+            ->assertOk();
+
+        Sanctum::actingAs($admin);
+
+        $this->getJson(route('api.research.samples.inventory.index'))
+            ->assertOk()
+            ->assertJsonFragment([
+                'uid' => $sample->uid,
+                'accession_name' => $sample->accession_name,
+            ]);
+    }
+
     private function createProjectWithStudyMembers(User $creator, ?User $projectLeader = null, ?User $studyStaff = null): ResearchProject
     {
         $project = ResearchProject::factory()->create([

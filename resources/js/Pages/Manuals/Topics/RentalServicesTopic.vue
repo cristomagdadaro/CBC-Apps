@@ -1,10 +1,17 @@
 <script>
-import { ref } from 'vue';
+import { computed, ref, watchEffect } from 'vue';
 
 export default {
     name: 'RentalServicesTopic',
-    setup() {
+    props: {
+        showDeveloperSections: {
+            type: Boolean,
+            default: true,
+        },
+    },
+    setup(props) {
         const activeSubsection = ref('overview');
+        const developerSubsectionIds = ['api', 'validation', 'examples', 'testing'];
 
         const subsections = {
             overview: 'Overview',
@@ -18,9 +25,25 @@ export default {
             future: 'Future Enhancements',
         };
 
+        const visibleSubsections = computed(() => {
+            if (props.showDeveloperSections) {
+                return subsections;
+            }
+
+            return Object.fromEntries(
+                Object.entries(subsections).filter(([key]) => !developerSubsectionIds.includes(key))
+            );
+        });
+
+        watchEffect(() => {
+            if (!visibleSubsections.value[activeSubsection.value]) {
+                activeSubsection.value = 'overview';
+            }
+        });
+
         return {
             activeSubsection,
-            subsections
+            visibleSubsections,
         };
     },
 };
@@ -31,7 +54,7 @@ export default {
         <!-- Subsection Navigation -->
         <div class="mb-6 flex flex-wrap gap-2 border-b border-gray-200 dark:border-gray-700 pb-4">
             <button
-                v-for="(label, id) in subsections"
+                v-for="(label, id) in visibleSubsections"
                 :key="id"
                 @click="activeSubsection = id"
                 :class="[

@@ -73,7 +73,7 @@
                 <slot name="custom-actions" :datatable="dt" :selected="dt.selected" :processing="dt.processing" />
 
                 <!-- Standard Actions -->
-                <top-action-btn v-if="showActionBtns && canCreate" @click="showAddDialogFunc()"
+                <top-action-btn v-if="showActionBtns && canCreate" @click="handleCreateAction()"
                     :class="presetClasses.primaryBtn" title="Add new record">
                     <template #icon>
                         <plus-icon class="w-4 h-4 sm:w-5 sm:h-5" />
@@ -143,6 +143,14 @@
         <!-- Table Container -->
         <div id="dtTableContainer"
             class="relative z-10 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div v-if="actionWarnings.length"
+                class="border-b border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
+                <p class="text-sm font-semibold">Action configuration warning</p>
+                <ul class="mt-2 list-disc pl-5 text-sm">
+                    <li v-for="warning in actionWarnings" :key="warning">{{ warning }}</li>
+                </ul>
+            </div>
+
             <!-- Loading Overlay -->
             <transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0"
                 enter-to-class="opacity-100" leave-active-class="transition ease-in duration-150"
@@ -624,6 +632,9 @@ export default {
             if (this.isAuthenticated) return this.modelEndpoints.postAuth || this.modelEndpoints.post || this.modelEndpoints.postGuest || null;
             return this.modelEndpoints.postGuest || this.modelEndpoints.post || this.modelEndpoints.postAuth || null;
         },
+        resolvedCreateEndpoint() {
+            return this.modelEndpoints.create || this.baseModel?.createPage || null;
+        },
         resolvedPutEndpoint() { return this.modelEndpoints.put || null; },
         resolvedDeleteEndpoint() { return this.modelEndpoints.delete || null; },
         resolvedDeleteManyEndpoint() {
@@ -632,6 +643,33 @@ export default {
                 || (this.resolvedDeleteEndpoint ? this.resolvedDeleteEndpoint.replace('.destroy', '.multi-destroy') : null);
         },
         resolvedShowEndpoint() { return this.modelEndpoints.show || null; },
+        actionWarnings() {
+            const warnings = [];
+
+            if (this.canCreate) {
+                if (!this.resolvedCreateEndpoint && !this.addForm) {
+                    warnings.push('Create is enabled, but no create page endpoint or add-form component is defined for this model.');
+                }
+
+                if (this.addForm && !this.resolvedPostEndpoint) {
+                    warnings.push('Create modal is enabled, but the create API endpoint is not defined for this model.');
+                }
+            }
+
+            if (this.canView && !this.resolvedShowEndpoint) {
+                warnings.push('View is enabled, but the show page endpoint is not defined for this model.');
+            }
+
+            if (this.canUpdate && !this.resolvedShowEndpoint) {
+                warnings.push('Update is enabled, but the show page endpoint is not defined for this model.');
+            }
+
+            if (this.canDelete && !this.resolvedDeleteEndpoint) {
+                warnings.push('Delete is enabled, but the delete API endpoint is not defined for this model.');
+            }
+
+            return warnings;
+        },
         dataDb() { return this.checkIfDataIsLoaded ? this.dt.response['data'] : []; },
         errorBag() { return this.dt?.errorBag?.errors || this.dt?.errorBag || null; },
         visibleColumns() { return this.dt.model.getColumns().filter(column => column.visible !== false); },
@@ -671,9 +709,54 @@ export default {
         },
         // ... other methods remain similar to original
         getNestedValue(obj, path) { return path.split('.').reduce((acc, part) => acc && acc[part], obj); },
+        notifyActionWarning(message) {
+            if (!message || typeof window === 'undefined') {
+                return;
+            }
+
+            window.dispatchEvent(
+                new CustomEvent('cbc:notify', {
+                    detail: {
+                        type: 'warning',
+                        message,
+                    },
+                })
+            );
+        },
+        handleCreateAction() {
+            if (this.resolvedCreateEndpoint) {
+                router.visit(route(this.resolvedCreateEndpoint));
+                return;
+            }
+
+            if (this.addForm) {
+                this.showModal = true;
+                this.showAddDialog = true;
+                return;
+            }
+
+            this.notifyActionWarning(this.actionWarnings[0] || 'Create action is not configured for this model.');
+        },
         showAddDialogFunc() { this.showModal = true; this.showAddDialog = true; },
-        showDeleteDialogFunc(id) { this.showModal = true; this.showDeleteDialog = true; this.toDeleteId = id; },
-        showDeleteSelectedDialogFunc() { this.showModal = true; this.showDeleteSelectedDialog = true; },
+        showDeleteDialogFunc(id) {
+            if (!this.resolvedDeleteEndpoint) {
+                this.notifyActionWarning('Delete action is enabled, but the delete API endpoint is not defined for this model.');
+                return;
+            }
+
+            this.showModal = true;
+            this.showDeleteDialog = true;
+            this.toDeleteId = id;
+        },
+        showDeleteSelectedDialogFunc() {
+            if (!this.resolvedDeleteEndpoint) {
+                this.notifyActionWarning('Delete action is enabled, but the delete API endpoint is not defined for this model.');
+                return;
+            }
+
+            this.showModal = true;
+            this.showDeleteSelectedDialog = true;
+        },
         closeDialog() {
             this.showModal = false; this.showDeleteDialog = false; this.showAddDialog = false;
             this.showImportModal = false; this.showDeleteSelectedDialog = false;

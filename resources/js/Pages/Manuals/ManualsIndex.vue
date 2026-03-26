@@ -1,5 +1,6 @@
 <script>
-import { ref } from 'vue';
+import { computed, ref, watchEffect } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 import OverviewTopic from './Topics/OverviewTopic.vue';
 import CustomFormTopic from './Topics/CustomFormTopic.vue';
 import FESRequestFormTopic from './Topics/FESRequestFormTopic.vue';
@@ -38,10 +39,13 @@ export default {
         ResearchMonitoringTopic,
     },
     setup() {
+        const page = usePage();
         const initialSection = typeof window !== 'undefined'
             ? new URLSearchParams(window.location.search).get('section')
             : null;
         const activeSection = ref(initialSection || 'overview');
+        const developerOnlyTopicIds = ['consoleLogger', 'iconsLibrary'];
+        const showDeveloperSections = computed(() => Boolean(page.props?.auth?.user?.id));
 
         const sections = {
             overview: {
@@ -145,10 +149,35 @@ export default {
             { id: 'researchMonitoring', label: 'Research Monitoring Module', icon: '🧬' },
         ];
 
+        const visibleSections = computed(() => {
+            if (showDeveloperSections.value) {
+                return sections;
+            }
+
+            return Object.fromEntries(
+                Object.entries(sections).filter(([key]) => !developerOnlyTopicIds.includes(key))
+            );
+        });
+
+        const visibleMenuItems = computed(() => {
+            if (showDeveloperSections.value) {
+                return menuItems;
+            }
+
+            return menuItems.filter((item) => !developerOnlyTopicIds.includes(item.id));
+        });
+
+        watchEffect(() => {
+            if (!visibleSections.value[activeSection.value]) {
+                activeSection.value = 'overview';
+            }
+        });
+
         return {
             activeSection,
-            sections,
-            menuItems
+            showDeveloperSections,
+            visibleSections,
+            visibleMenuItems,
         };
     },
 }
@@ -157,7 +186,7 @@ export default {
 <template>
     <AppLayout title="System Manuals">
         <template #header>
-            <ActionHeaderLayout title="System Manuals & Guides" subtitle="Comprehensive guides to help you navigate and utilize the system effectively." />
+            <ActionHeaderLayout :title="showDeveloperSections ? 'System Manuals & Guides' : 'Public Manuals & Guides'" :subtitle="showDeveloperSections ? 'Comprehensive guides to help you navigate and utilize the system effectively.' : 'Step-by-step user guides for public visitors and operational staff.'" />
         </template>
 
         <div class="py-6 px-4 sm:px-6 lg:px-8">
@@ -167,7 +196,7 @@ export default {
                     <div class="lg:col-span-1">
                         <nav class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 space-y-2 sticky top-20">
                             <button
-                                v-for="item in menuItems"
+                                v-for="item in visibleMenuItems"
                                 :key="item.id"
                                 @click="activeSection = item.id"
                                 :class="[
@@ -187,14 +216,15 @@ export default {
                     <div class="lg:col-span-3">
                         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 sm:p-8">
                             <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-                                <span class="text-3xl">{{ sections[activeSection]?.icon }}</span>
+                                <span class="text-3xl">{{ visibleSections[activeSection]?.icon }}</span>
                                 <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                                    {{ sections[activeSection]?.title }}
+                                    {{ visibleSections[activeSection]?.title }}
                                 </h1>
                             </div>
 
                             <component 
-                                :is="sections[activeSection]?.component"
+                                :is="visibleSections[activeSection]?.component"
+                                :show-developer-sections="showDeveloperSections"
                                 class="prose prose-sm dark:prose-invert max-w-none"
                             />
                         </div>

@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Enums\Role as RoleEnum;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
@@ -69,9 +70,25 @@ class UserRepo extends AbstractRepoService
 
     protected function syncRoles(Model $user, array $roleNames): void
     {
-        $roleIds = Role::query()
-            ->whereIn('name', $roleNames)
-            ->pluck('id')
+        $roleIds = collect($roleNames)
+            ->filter(static fn ($roleName) => is_string($roleName) && $roleName !== '')
+            ->unique()
+            ->map(function (string $roleName) {
+                $role = RoleEnum::tryFrom($roleName);
+
+                if (! $role) {
+                    return null;
+                }
+
+                return Role::query()->firstOrCreate(
+                    ['name' => $role->value],
+                    [
+                        'label' => $role->label(),
+                        'description' => $role->description(),
+                    ]
+                )->id;
+            })
+            ->filter()
             ->all();
 
         $user->roles()->sync($roleIds);

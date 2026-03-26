@@ -8,6 +8,7 @@ export default class SuppEquipReport extends DtoSuppEquipReport {
         post: 'api.inventory.supp_equip_reports.store',
         put: 'api.inventory.supp_equip_reports.update',
         delete: 'api.inventory.supp_equip_reports.destroy',
+        create: 'suppEquipReports.create',
         show: 'transactions.show',
     }
     constructor(response: DtoSuppEquipReport = {} as DtoSuppEquipReport) {
@@ -21,6 +22,7 @@ export default class SuppEquipReport extends DtoSuppEquipReport {
         this.api._apiDelete = SuppEquipReport.endpoints.delete;
 
         this.api.appendWith = ['transaction.item', 'transaction.user', 'item', 'user'];
+        this.createPage = SuppEquipReport.endpoints.create;
     }
 
     createFields(): object {

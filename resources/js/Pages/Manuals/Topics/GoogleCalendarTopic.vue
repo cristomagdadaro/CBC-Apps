@@ -1,10 +1,17 @@
 <script>
-import { ref } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 
 export default {
     name: 'GoogleCalendarTopic',
-    setup() {
+    props: {
+        showDeveloperSections: {
+            type: Boolean,
+            default: true,
+        },
+    },
+    setup(props) {
         const activeSubsection = ref('overview')
+        const developerSubsectionIds = ['setup', 'troubleshooting']
 
         const subsections = {
             overview: 'Overview',
@@ -14,9 +21,25 @@ export default {
             troubleshooting: 'Troubleshooting',
         }
 
+        const visibleSubsections = computed(() => {
+            if (props.showDeveloperSections) {
+                return subsections
+            }
+
+            return Object.fromEntries(
+                Object.entries(subsections).filter(([key]) => !developerSubsectionIds.includes(key))
+            )
+        })
+
+        watchEffect(() => {
+            if (!visibleSubsections.value[activeSubsection.value]) {
+                activeSubsection.value = 'overview'
+            }
+        })
+
         return {
             activeSubsection,
-            subsections,
+            visibleSubsections,
         }
     },
 }
@@ -26,7 +49,7 @@ export default {
     <div>
         <div class="mb-6 flex flex-wrap gap-2 border-b border-gray-200 dark:border-gray-700 pb-4">
             <button
-                v-for="(label, id) in subsections"
+                v-for="(label, id) in visibleSubsections"
                 :key="id"
                 @click="activeSubsection = id"
                 :class="[
@@ -176,7 +199,7 @@ https://onecbc.philrice.gov.ph/apps/rentals/calendar/google/callback</code></pre
             </div>
         </div>
 
-        <div v-if="activeSubsection === 'troubleshooting'" class="space-y-4">
+        <div v-if="showDeveloperSections && activeSubsection === 'troubleshooting'" class="space-y-4">
             <h4 class="font-bold text-gray-900 dark:text-gray-100">Common issues</h4>
 
             <div class="space-y-3">
