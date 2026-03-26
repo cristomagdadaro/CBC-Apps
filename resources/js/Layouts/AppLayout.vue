@@ -113,7 +113,7 @@ export default {
               label: "Sample Inventory",
               href: "research.samples.inventory",
               permission: "research.samples.manage",
-              icon: "LuScanBarcode",
+              icon: "LuBox",
             },
           ],
         },
@@ -394,14 +394,14 @@ export default {
                   {{ $page.props.auth?.user?.name?.charAt(0)?.toUpperCase() || "U" }}
                 </div>
                 <div class="flex-1 min-w-0 leading-tight">
-                  <p
+                  <div
                     class="text-sm font-semibold text-gray-50 dark:text-gray-200 truncate uppercase"
                   >
                     {{ $page.props.auth?.user?.name || "User" }}
-                  </p>
-                  <p class="text-xs text-gray-200 dark:text-gray-500 truncate">
+                  </div>
+                  <div class="text-xs text-gray-200 dark:text-gray-500 truncate">
                     {{ singleRoleLabel || "Member" }}
-                  </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -423,21 +423,13 @@ export default {
                 {{ $page.props.auth?.user?.name?.charAt(0)?.toUpperCase() || "U" }}
               </div>
             </div>
-            <button
-              v-if="!sidebarCollapsed"
-              @click="toggleSidebarCollapse"
-              class="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors"
-              title="Collapse sidebar"
-            >
-              <LuPanelLeft class="w-5 h-5" />
-            </button>
           </div>
 
           <!-- Collapsed Toggle (when collapsed) -->
           <button
-            v-if="sidebarCollapsed"
             @click="toggleSidebarCollapse"
-            class="absolute -right-3 top-20 bg-blue-600 text-white p-1.5 rounded-full shadow-lg hover:bg-blue-700 transition-colors z-50"
+            :class="{ 'rotate-180': !sidebarCollapsed }"
+            class="absolute -right-3 top-20 bg-blue-600 text-white p-1.5 rounded-full shadow-lg hover:bg-blue-700 transition-colors z-50 duration-600 transition-transform hover:scale-110"
             title="Expand sidebar"
           >
             <LuChevronRight class="w-4 h-4" />

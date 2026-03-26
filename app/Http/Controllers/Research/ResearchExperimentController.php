@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Research;
 
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\Research\GetResearchExperimentRequest;
 use App\Http\Requests\Research\StoreResearchExperimentRequest;
 use App\Http\Requests\Research\UpdateResearchExperimentRequest;
 use App\Models\Research\ResearchExperiment;
 use App\Repositories\ResearchExperimentRepo;
 use App\Services\Research\ResearchIdentifierService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Collection;
 
 class ResearchExperimentController extends BaseController
 {
@@ -17,6 +19,11 @@ class ResearchExperimentController extends BaseController
         protected ResearchIdentifierService $identifierService
     ) {
         $this->service = $repository;
+    }
+
+    public function index(GetResearchExperimentRequest $request): Collection
+    {
+        return parent::_index($request);
     }
 
     public function store(StoreResearchExperimentRequest $request): JsonResponse

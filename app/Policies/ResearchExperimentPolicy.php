@@ -13,7 +13,7 @@ class ResearchExperimentPolicy
 
     public function view(?User $user, ResearchExperiment $experiment): bool
     {
-        return $this->allowed($user, 'research.experiments.manage')
+        return $this->allowed($user, 'research.projects.view')
             && app(ResearchAccessService::class)->canAccessExperiment($user, $experiment);
     }
 

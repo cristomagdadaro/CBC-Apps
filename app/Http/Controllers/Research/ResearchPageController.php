@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Research;
 use App\Http\Controllers\BaseController;
 use App\Models\Research\ResearchExperiment;
 use App\Models\Research\ResearchProject;
+use App\Models\Research\ResearchStudy;
 use App\Repositories\ResearchPageRepo;
 use App\Services\Research\ResearchAccessService;
 use Illuminate\Support\Facades\Auth;
@@ -52,6 +53,15 @@ class ResearchPageController extends BaseController
         ]);
     }
 
+    public function studyCreate(ResearchProject $project): Response
+    {
+        return Inertia::render('Research/Studies/ResearchStudyCreate', [
+            'project' => $project,
+            'catalog' => $this->catalog(),
+            'researchUsers' => $this->accessService->memberOptions(),
+        ]);
+    }
+
     public function projectShow(ResearchProject $project): Response
     {
         $project = $this->pageRepo->hydrateProject($project);
@@ -60,6 +70,27 @@ class ResearchPageController extends BaseController
             'project' => $project,
             'catalog' => $this->catalog(),
             'researchUsers' => $this->accessService->memberOptions(),
+        ]);
+    }
+
+    public function studyShow(ResearchStudy $study): Response
+    {
+        $study = $this->pageRepo->hydrateStudy($study);
+
+        return Inertia::render('Research/Studies/ResearchStudyShow', [
+            'study' => $study,
+            'catalog' => $this->catalog(),
+            'researchUsers' => $this->accessService->memberOptions(),
+        ]);
+    }
+
+    public function experimentCreate(ResearchStudy $study): Response
+    {
+        $study->load('project');
+
+        return Inertia::render('Research/Experiments/ResearchExperimentCreate', [
+            'study' => $study,
+            'catalog' => $this->catalog(),
         ]);
     }
 

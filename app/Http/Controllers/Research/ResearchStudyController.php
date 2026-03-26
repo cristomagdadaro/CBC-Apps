@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Research;
 
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\Research\GetResearchStudyRequest;
 use App\Http\Requests\Research\StoreResearchStudyRequest;
 use App\Http\Requests\Research\UpdateResearchStudyRequest;
 use App\Models\Research\ResearchStudy;
@@ -10,6 +11,7 @@ use App\Repositories\ResearchStudyRepo;
 use App\Services\Research\ResearchAccessService;
 use App\Services\Research\ResearchIdentifierService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Collection;
 
 class ResearchStudyController extends BaseController
 {
@@ -19,6 +21,11 @@ class ResearchStudyController extends BaseController
         protected ResearchAccessService $accessService
     ) {
         $this->service = $repository;
+    }
+
+    public function index(GetResearchStudyRequest $request): Collection
+    {
+        return parent::_index($request);
     }
 
     public function store(StoreResearchStudyRequest $request): JsonResponse

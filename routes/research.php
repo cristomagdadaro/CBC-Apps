@@ -10,6 +10,9 @@ use App\Http\Controllers\Research\ResearchStudyController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('research')->group(function () {
+    Route::middleware(['can:research.projects.view'])->get('/studies', [ResearchStudyController::class, 'index'])->name('api.research.studies.index');
+    Route::middleware(['can:research.projects.view'])->get('/experiments', [ResearchExperimentController::class, 'index'])->name('api.research.experiments.index');
+
     Route::middleware(['can:research.projects.create'])->post('/projects', [ResearchProjectController::class, 'store'])->name('api.research.projects.store');
     Route::middleware(['can:research.projects.update', 'can:update,project'])->put('/projects/{project}', [ResearchProjectController::class, 'update'])->name('api.research.projects.update');
     Route::middleware(['can:research.projects.delete', 'can:delete,project'])->delete('/projects/{project}', [ResearchProjectController::class, 'destroy'])->name('api.research.projects.destroy');

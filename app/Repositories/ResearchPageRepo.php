@@ -57,18 +57,24 @@ class ResearchPageRepo
 
     public function hydrateProject(ResearchProject $project): ResearchProject
     {
-        $project->load([
-            'studies' => fn ($query) => $query
-                ->withCount('experiments')
-                ->with([
-                    'experiments' => fn ($experimentQuery) => $experimentQuery
-                        ->withCount('samples')
-                        ->latest('updated_at'),
-                ])
-                ->latest('updated_at'),
-        ]);
+        $project->loadCount('studies');
+
+        $project->setAttribute(
+            'experiments_count',
+            ResearchExperiment::query()
+                ->whereHas('study', fn ($studyQuery) => $studyQuery->where('project_id', $project->id))
+                ->count()
+        );
 
         return $project;
+    }
+
+    public function hydrateStudy(ResearchStudy $study): ResearchStudy
+    {
+        $study->load('project');
+        $study->loadCount('experiments');
+
+        return $study;
     }
 
     public function hydrateExperiment(ResearchExperiment $experiment): ResearchExperiment

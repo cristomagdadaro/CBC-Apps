@@ -11,6 +11,12 @@ class ResearchStudyPolicy
 {
     use AuthorizesByPermission;
 
+    public function view(?User $user, ResearchStudy $study): bool
+    {
+        return $this->allowed($user, 'research.projects.view')
+            && app(ResearchAccessService::class)->canAccessStudy($user, $study);
+    }
+
     public function update(?User $user, ResearchStudy $study): bool
     {
         return $this->allowed($user, 'research.studies.manage')
