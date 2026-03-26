@@ -1,13 +1,9 @@
 <script>
 import axios from 'axios'
 import { router } from '@inertiajs/vue3'
-import PersonListEditor from '@/Pages/Research/components/PersonListEditor.vue'
 
 export default {
     name: 'ResearchProjectShow',
-    components: {
-        PersonListEditor,
-    },
     props: {
         project: {
             type: Object,
@@ -16,6 +12,10 @@ export default {
         catalog: {
             type: Object,
             default: () => ({}),
+        },
+        researchUsers: {
+            type: Array,
+            default: () => [],
         },
     },
     data() {
@@ -44,6 +44,12 @@ export default {
         canDeleteProject() {
             return this.permissions.includes('*') || this.permissions.includes('research.projects.delete')
         },
+        researchUserOptions() {
+            return (this.researchUsers || []).map((user) => ({
+                value: user.id,
+                label: `${user.name} (${user.position})`,
+            }))
+        },
     },
     methods: {
         buildProjectForm(project) {
@@ -56,7 +62,7 @@ export default {
                 objective: project?.objective || '',
                 funding_agency: project?.funding_agency || '',
                 funding_code: project?.funding_code || '',
-                project_leader: this.normalizePerson(project?.project_leader),
+                project_leader_id: this.resolvePersonId(project?.project_leader),
             }
         },
         defaultStudyForm(projectId) {
@@ -65,9 +71,9 @@ export default {
                 title: '',
                 objective: '',
                 budget: '',
-                study_leader: this.normalizePerson(),
-                supervisor: this.normalizePerson(),
-                staff_members: [],
+                study_leader_id: '',
+                supervisor_id: '',
+                staff_member_ids: [],
             }
         },
         buildStudyForms(studies) {
@@ -76,9 +82,9 @@ export default {
                     title: study.title || '',
                     objective: study.objective || '',
                     budget: study.budget || '',
-                    study_leader: this.normalizePerson(study.study_leader),
-                    supervisor: this.normalizePerson(study.supervisor),
-                    staff_members: this.normalizePeople(study.staff_members),
+                    study_leader_id: this.resolvePersonId(study.study_leader),
+                    supervisor_id: this.resolvePersonId(study.supervisor),
+                    staff_member_ids: this.resolvePersonIds(study.staff_members),
                 }
 
                 return forms
@@ -111,32 +117,26 @@ export default {
                 return forms
             }, {})
         },
-        normalizePerson(person = null) {
-            return {
-                name: person?.name || '',
-                position: person?.position || '',
-            }
+        resolvePersonId(person = null) {
+            return person?.id || ''
         },
-        normalizePeople(people = []) {
+        resolvePersonIds(people = []) {
             return Array.isArray(people)
-                ? people.map((person) => this.normalizePerson(person))
+                ? people.map((person) => person?.id).filter(Boolean)
                 : []
-        },
-        sanitizePeople(people = []) {
-            return this.normalizePeople(people).filter((person) => person.name || person.position)
         },
         sanitizeProjectPayload() {
             return {
                 ...this.projectForm,
-                project_leader: this.normalizePerson(this.projectForm.project_leader),
+                project_leader_id: this.projectForm.project_leader_id || null,
             }
         },
         sanitizeStudyPayload(form) {
             return {
                 ...form,
-                study_leader: this.normalizePerson(form.study_leader),
-                supervisor: this.normalizePerson(form.supervisor),
-                staff_members: this.sanitizePeople(form.staff_members),
+                study_leader_id: form.study_leader_id || null,
+                supervisor_id: form.supervisor_id || null,
+                staff_member_ids: Array.from(new Set(form.staff_member_ids || [])).filter(Boolean),
             }
         },
         sanitizeExperimentPayload(form) {
@@ -147,7 +147,19 @@ export default {
             }
         },
         fieldError(errors, field) {
-            return errors?.[field]?.[0] || ''
+            if (errors?.[field]?.[0]) {
+                return errors[field][0]
+            }
+
+            const nestedKey = Object.keys(errors || {}).find((key) => key.startsWith(`${field}.`))
+
+            return nestedKey ? errors?.[nestedKey]?.[0] || '' : ''
+        },
+        selectedResearchUser(userId) {
+            return (this.researchUsers || []).find((user) => user.id === userId) || null
+        },
+        selectedResearchUserPosition(userId) {
+            return this.selectedResearchUser(userId)?.position || 'Role will be pulled from the selected user.'
         },
         async saveProject() {
             this.savingProject = true
@@ -338,14 +350,16 @@ export default {
                             <input v-model="projectForm.funding_code" class="w-full rounded-xl border-gray-300" />
                         </div>
 
-                        <div>
-                            <label class="mb-2 block text-sm font-medium text-gray-700">Project leader name</label>
-                            <input v-model="projectForm.project_leader.name" class="w-full rounded-xl border-gray-300" />
-                        </div>
-
-                        <div>
-                            <label class="mb-2 block text-sm font-medium text-gray-700">Project leader position</label>
-                            <input v-model="projectForm.project_leader.position" class="w-full rounded-xl border-gray-300" />
+                        <div class="md:col-span-2">
+                            <label class="mb-2 block text-sm font-medium text-gray-700">Project leader</label>
+                            <select v-model="projectForm.project_leader_id" class="w-full rounded-xl border-gray-300">
+                                <option value="">Select a research user</option>
+                                <option v-for="option in researchUserOptions" :key="option.value" :value="option.value">
+                                    {{ option.label }}
+                                </option>
+                            </select>
+                            <p class="mt-2 text-xs text-gray-500">{{ selectedResearchUserPosition(projectForm.project_leader_id) }}</p>
+                            <p v-if="fieldError(projectErrors, 'project_leader_id')" class="mt-1 text-xs text-red-600">{{ fieldError(projectErrors, 'project_leader_id') }}</p>
                         </div>
 
                         <div class="md:col-span-2">
@@ -402,23 +416,27 @@ export default {
                     </div>
 
                     <div>
-                        <label class="mb-2 block text-sm font-medium text-gray-700">Study leader name</label>
-                        <input v-model="newStudyForm.study_leader.name" class="w-full rounded-xl border-gray-300" />
+                        <label class="mb-2 block text-sm font-medium text-gray-700">Study leader</label>
+                        <select v-model="newStudyForm.study_leader_id" class="w-full rounded-xl border-gray-300">
+                            <option value="">Select a research user</option>
+                            <option v-for="option in researchUserOptions" :key="option.value" :value="option.value">
+                                {{ option.label }}
+                            </option>
+                        </select>
+                        <p class="mt-2 text-xs text-gray-500">{{ selectedResearchUserPosition(newStudyForm.study_leader_id) }}</p>
+                        <p v-if="fieldError(studyCreateErrors, 'study_leader_id')" class="mt-1 text-xs text-red-600">{{ fieldError(studyCreateErrors, 'study_leader_id') }}</p>
                     </div>
 
                     <div>
-                        <label class="mb-2 block text-sm font-medium text-gray-700">Study leader position</label>
-                        <input v-model="newStudyForm.study_leader.position" class="w-full rounded-xl border-gray-300" />
-                    </div>
-
-                    <div>
-                        <label class="mb-2 block text-sm font-medium text-gray-700">Supervisor name</label>
-                        <input v-model="newStudyForm.supervisor.name" class="w-full rounded-xl border-gray-300" />
-                    </div>
-
-                    <div>
-                        <label class="mb-2 block text-sm font-medium text-gray-700">Supervisor position</label>
-                        <input v-model="newStudyForm.supervisor.position" class="w-full rounded-xl border-gray-300" />
+                        <label class="mb-2 block text-sm font-medium text-gray-700">Supervisor</label>
+                        <select v-model="newStudyForm.supervisor_id" class="w-full rounded-xl border-gray-300">
+                            <option value="">Select a research user</option>
+                            <option v-for="option in researchUserOptions" :key="option.value" :value="option.value">
+                                {{ option.label }}
+                            </option>
+                        </select>
+                        <p class="mt-2 text-xs text-gray-500">{{ selectedResearchUserPosition(newStudyForm.supervisor_id) }}</p>
+                        <p v-if="fieldError(studyCreateErrors, 'supervisor_id')" class="mt-1 text-xs text-red-600">{{ fieldError(studyCreateErrors, 'supervisor_id') }}</p>
                     </div>
 
                     <div class="md:col-span-2">
@@ -427,7 +445,13 @@ export default {
                     </div>
 
                     <div class="md:col-span-2">
-                        <PersonListEditor v-model="newStudyForm.staff_members" title="Study Staff" empty-label="No staff added yet." />
+                        <MultiSelectDropdown
+                            v-model="newStudyForm.staff_member_ids"
+                            :options="researchUserOptions"
+                            label="Study Staff"
+                            placeholder="Select study staff"
+                        />
+                        <p v-if="fieldError(studyCreateErrors, 'staff_member_ids')" class="mt-1 text-xs text-red-600">{{ fieldError(studyCreateErrors, 'staff_member_ids') }}</p>
                     </div>
                 </div>
 
@@ -474,23 +498,27 @@ export default {
                         </div>
 
                         <div>
-                            <label class="mb-2 block text-sm font-medium text-gray-700">Study leader name</label>
-                            <input v-model="studyForms[study.id].study_leader.name" class="w-full rounded-xl border-gray-300" />
+                            <label class="mb-2 block text-sm font-medium text-gray-700">Study leader</label>
+                            <select v-model="studyForms[study.id].study_leader_id" class="w-full rounded-xl border-gray-300">
+                                <option value="">Select a research user</option>
+                                <option v-for="option in researchUserOptions" :key="option.value" :value="option.value">
+                                    {{ option.label }}
+                                </option>
+                            </select>
+                            <p class="mt-2 text-xs text-gray-500">{{ selectedResearchUserPosition(studyForms[study.id].study_leader_id) }}</p>
+                            <p v-if="fieldError(studyErrors[study.id], 'study_leader_id')" class="mt-1 text-xs text-red-600">{{ fieldError(studyErrors[study.id], 'study_leader_id') }}</p>
                         </div>
 
                         <div>
-                            <label class="mb-2 block text-sm font-medium text-gray-700">Study leader position</label>
-                            <input v-model="studyForms[study.id].study_leader.position" class="w-full rounded-xl border-gray-300" />
-                        </div>
-
-                        <div>
-                            <label class="mb-2 block text-sm font-medium text-gray-700">Supervisor name</label>
-                            <input v-model="studyForms[study.id].supervisor.name" class="w-full rounded-xl border-gray-300" />
-                        </div>
-
-                        <div>
-                            <label class="mb-2 block text-sm font-medium text-gray-700">Supervisor position</label>
-                            <input v-model="studyForms[study.id].supervisor.position" class="w-full rounded-xl border-gray-300" />
+                            <label class="mb-2 block text-sm font-medium text-gray-700">Supervisor</label>
+                            <select v-model="studyForms[study.id].supervisor_id" class="w-full rounded-xl border-gray-300">
+                                <option value="">Select a research user</option>
+                                <option v-for="option in researchUserOptions" :key="option.value" :value="option.value">
+                                    {{ option.label }}
+                                </option>
+                            </select>
+                            <p class="mt-2 text-xs text-gray-500">{{ selectedResearchUserPosition(studyForms[study.id].supervisor_id) }}</p>
+                            <p v-if="fieldError(studyErrors[study.id], 'supervisor_id')" class="mt-1 text-xs text-red-600">{{ fieldError(studyErrors[study.id], 'supervisor_id') }}</p>
                         </div>
 
                         <div class="md:col-span-2">
@@ -499,7 +527,13 @@ export default {
                         </div>
 
                         <div class="md:col-span-2">
-                            <PersonListEditor v-model="studyForms[study.id].staff_members" title="Study Staff" empty-label="No staff added yet." />
+                            <MultiSelectDropdown
+                                v-model="studyForms[study.id].staff_member_ids"
+                                :options="researchUserOptions"
+                                label="Study Staff"
+                                placeholder="Select study staff"
+                            />
+                            <p v-if="fieldError(studyErrors[study.id], 'staff_member_ids')" class="mt-1 text-xs text-red-600">{{ fieldError(studyErrors[study.id], 'staff_member_ids') }}</p>
                         </div>
                     </div>
 

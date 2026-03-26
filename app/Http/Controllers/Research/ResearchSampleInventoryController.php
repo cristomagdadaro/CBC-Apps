@@ -19,7 +19,7 @@ class ResearchSampleInventoryController extends BaseController
             'search' => $request->query('search'),
             'experiment_id' => $request->query('experiment_id'),
             'limit' => (int) $request->query('limit', 100),
-        ]);
+        ], $request->user());
 
         return response()->json([
             'data' => $samples,
@@ -28,7 +28,7 @@ class ResearchSampleInventoryController extends BaseController
 
     public function lookup(string $uid, Request $request): JsonResponse
     {
-        $sample = $this->inventoryRepo->findByUid($uid);
+        $sample = $this->inventoryRepo->findByUid($uid, $request->user());
 
         if (!$sample) {
             return response()->json([
@@ -65,7 +65,7 @@ class ResearchSampleInventoryController extends BaseController
             ? trim(explode('|', $payload)[0])
             : trim(str_replace('sample:', '', $payload));
 
-        $sample = $this->inventoryRepo->findByUid($uid);
+        $sample = $this->inventoryRepo->findByUid($uid, $request->user());
 
         if (!$sample) {
             return response()->json([
@@ -98,9 +98,10 @@ class ResearchSampleInventoryController extends BaseController
         ]);
 
         $samples = $this->inventoryRepo
-            ->listSamples(['limit' => 500])
-            ->whereIn('id', $validated['sample_ids'])
-            ->values();
+            ->listSamples([
+                'limit' => 500,
+                'sample_ids' => $validated['sample_ids'],
+            ], $request->user());
 
         foreach ($samples as $sample) {
             $this->inventoryRepo->logAction(

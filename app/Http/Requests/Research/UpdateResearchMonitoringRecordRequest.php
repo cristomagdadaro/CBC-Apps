@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Research;
 
+use App\Models\Research\ResearchMonitoringRecord;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -9,7 +10,12 @@ class UpdateResearchMonitoringRecordRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('research.monitoring.manage') ?? false;
+        /** @var ResearchMonitoringRecord|null $record */
+        $record = $this->route('record');
+
+        return $record
+            ? ($this->user()?->can('update', $record) ?? false)
+            : false;
     }
 
     public function rules(): array

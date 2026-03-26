@@ -4,6 +4,11 @@ namespace App\Providers;
 
 use App\Models\Form;
 use App\Models\LaboratoryEquipmentLog;
+use App\Models\Research\ResearchExperiment;
+use App\Models\Research\ResearchMonitoringRecord;
+use App\Models\Research\ResearchProject;
+use App\Models\Research\ResearchSample;
+use App\Models\Research\ResearchStudy;
 use App\Models\RentalVehicle;
 use App\Models\RentalVenue;
 use App\Models\RequestFormPivot;
@@ -11,6 +16,11 @@ use App\Models\SuppEquipReport;
 use App\Models\Transaction;
 use App\Policies\FormPolicy;
 use App\Policies\LaboratoryEquipmentLogPolicy;
+use App\Policies\ResearchExperimentPolicy;
+use App\Policies\ResearchMonitoringRecordPolicy;
+use App\Policies\ResearchProjectPolicy;
+use App\Policies\ResearchSamplePolicy;
+use App\Policies\ResearchStudyPolicy;
 use App\Policies\RentalVehiclePolicy;
 use App\Policies\RentalVenuePolicy;
 use App\Policies\RequestFormPivotPolicy;
@@ -35,6 +45,11 @@ class AuthServiceProvider extends ServiceProvider
         LaboratoryEquipmentLog::class => LaboratoryEquipmentLogPolicy::class,
         RentalVehicle::class => RentalVehiclePolicy::class,
         RentalVenue::class => RentalVenuePolicy::class,
+        ResearchProject::class => ResearchProjectPolicy::class,
+        ResearchStudy::class => ResearchStudyPolicy::class,
+        ResearchExperiment::class => ResearchExperimentPolicy::class,
+        ResearchSample::class => ResearchSamplePolicy::class,
+        ResearchMonitoringRecord::class => ResearchMonitoringRecordPolicy::class,
     ];
 
     /**

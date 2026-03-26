@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -52,6 +53,12 @@ class ResearchProject extends BaseModel
     public function studies(): HasMany
     {
         return $this->hasMany(ResearchStudy::class, 'project_id');
+    }
+
+    public function members(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'research_project_user', 'project_id', 'user_id')
+            ->withTimestamps();
     }
 
     public function creator(): BelongsTo

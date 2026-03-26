@@ -1,0 +1,1 @@
+export { default as GuestFormPage } from './GuestFormPage.vue';

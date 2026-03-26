@@ -10,7 +10,18 @@ class StoreResearchMonitoringRecordRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('research.monitoring.manage') ?? false;
+        $sampleId = $this->input('sample_id');
+
+        if (! $sampleId) {
+            return false;
+        }
+
+        /** @var ResearchSample|null $sample */
+        $sample = ResearchSample::query()->find($sampleId);
+
+        return $sample
+            ? ($this->user()?->can('update', $sample) ?? false)
+            : false;
     }
 
     public function rules(): array

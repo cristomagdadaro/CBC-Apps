@@ -10,7 +10,18 @@ class StoreResearchExperimentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('research.experiments.manage') ?? false;
+        $studyId = $this->input('study_id');
+
+        if (! $studyId) {
+            return false;
+        }
+
+        /** @var ResearchStudy|null $study */
+        $study = ResearchStudy::query()->find($studyId);
+
+        return $study
+            ? ($this->user()?->can('update', $study) ?? false)
+            : false;
     }
 
     public function rules(): array

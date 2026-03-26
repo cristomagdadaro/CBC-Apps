@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Research;
 
+use App\Models\Research\ResearchExperiment;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -9,7 +10,12 @@ class UpdateResearchExperimentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('research.experiments.manage') ?? false;
+        /** @var ResearchExperiment|null $experiment */
+        $experiment = $this->route('experiment');
+
+        return $experiment
+            ? ($this->user()?->can('update', $experiment) ?? false)
+            : false;
     }
 
     public function rules(): array

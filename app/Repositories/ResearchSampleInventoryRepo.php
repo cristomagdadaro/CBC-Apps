@@ -4,13 +4,20 @@ namespace App\Repositories;
 
 use App\Models\Research\ResearchSample;
 use App\Models\Research\ResearchSampleInventoryLog;
+use App\Models\User;
+use App\Services\Research\ResearchAccessService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 class ResearchSampleInventoryRepo
 {
-    public function listSamples(array $filters = []): Collection
+    public function __construct(private readonly ResearchAccessService $accessService)
     {
-        $query = ResearchSample::query()->with('experiment.study.project');
+    }
+
+    public function listSamples(array $filters = [], ?User $user = null): Collection
+    {
+        $query = $this->baseQuery($user);
 
         $search = trim((string) ($filters['search'] ?? ''));
         if ($search !== '') {
@@ -26,14 +33,17 @@ class ResearchSampleInventoryRepo
             $query->where('experiment_id', $filters['experiment_id']);
         }
 
+        if (! empty($filters['sample_ids']) && is_array($filters['sample_ids'])) {
+            $query->whereIn('id', $filters['sample_ids']);
+        }
+
         return $query->latest('updated_at')->limit((int) ($filters['limit'] ?? 100))->get();
     }
 
-    public function findByUid(string $uid): ?ResearchSample
+    public function findByUid(string $uid, ?User $user = null): ?ResearchSample
     {
-        return ResearchSample::query()
+        return $this->baseQuery($user)
             ->with([
-                'experiment.study.project',
                 'monitoringRecords' => fn ($query) => $query->latest('recorded_on')->latest('id')->limit(10),
             ])
             ->where('uid', $uid)
@@ -53,5 +63,14 @@ class ResearchSampleInventoryRepo
         ]);
 
         return $log;
+    }
+
+    protected function baseQuery(?User $user): Builder
+    {
+        return ResearchSample::query()
+            ->with('experiment.study.project')
+            ->whereHas('experiment.study.project', function (Builder $query) use ($user) {
+                $query->whereIn('research_projects.id', $this->accessService->visibleProjectIdsQuery($user));
+            });
     }
 }

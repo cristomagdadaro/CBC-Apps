@@ -21,7 +21,7 @@ yarn-error.log
 .env
 /public/generated-pdfs
 public/build/manifest.json
-
+/public/build/manifest.json
 /coverage-report
 
 # Playwright

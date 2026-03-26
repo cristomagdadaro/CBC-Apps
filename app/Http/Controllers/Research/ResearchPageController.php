@@ -6,19 +6,23 @@ use App\Http\Controllers\BaseController;
 use App\Models\Research\ResearchExperiment;
 use App\Models\Research\ResearchProject;
 use App\Repositories\ResearchPageRepo;
+use App\Services\Research\ResearchAccessService;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ResearchPageController extends BaseController
 {
-    public function __construct(private readonly ResearchPageRepo $pageRepo)
+    public function __construct(
+        private readonly ResearchPageRepo $pageRepo,
+        private readonly ResearchAccessService $accessService
+    )
     {
     }
 
     public function dashboard(): Response
     {
-        $payload = $this->pageRepo->dashboardPayload();
+        $payload = $this->pageRepo->dashboardPayload(Auth::user());
 
         return Inertia::render('Research/ResearchDashboard', [
             'stats' => $payload['stats'],
@@ -32,7 +36,7 @@ class ResearchPageController extends BaseController
 
     public function projectsIndex(): Response
     {
-        $projects = $this->pageRepo->projectsIndexData();
+        $projects = $this->pageRepo->projectsIndexData(Auth::user());
 
         return Inertia::render('Research/Projects/ResearchProjectIndex', [
             'projects' => $projects,
@@ -44,6 +48,7 @@ class ResearchPageController extends BaseController
     {
         return Inertia::render('Research/Projects/ResearchProjectCreate', [
             'catalog' => $this->catalog(),
+            'researchUsers' => $this->accessService->memberOptions(),
         ]);
     }
 
@@ -54,6 +59,7 @@ class ResearchPageController extends BaseController
         return Inertia::render('Research/Projects/ResearchProjectShow', [
             'project' => $project,
             'catalog' => $this->catalog(),
+            'researchUsers' => $this->accessService->memberOptions(),
         ]);
     }
 

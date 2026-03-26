@@ -138,8 +138,8 @@ Route::middleware([
         Route::get('/', [ResearchPageController::class, 'dashboard'])->name('research.dashboard');
         Route::get('/projects', [ResearchPageController::class, 'projectsIndex'])->middleware('can:research.projects.view')->name('research.projects.index');
         Route::get('/projects/create', [ResearchPageController::class, 'projectCreate'])->middleware('can:research.projects.create')->name('research.projects.create');
-        Route::get('/projects/{project}', [ResearchPageController::class, 'projectShow'])->middleware('can:research.projects.view')->name('research.projects.show');
-        Route::get('/experiments/{experiment}', [ResearchPageController::class, 'experimentShow'])->middleware('can:research.experiments.manage')->name('research.experiments.show');
+        Route::get('/projects/{project}', [ResearchPageController::class, 'projectShow'])->middleware(['can:research.projects.view', 'can:view,project'])->name('research.projects.show');
+        Route::get('/experiments/{experiment}', [ResearchPageController::class, 'experimentShow'])->middleware(['can:research.experiments.manage', 'can:view,experiment'])->name('research.experiments.show');
         Route::get('/samples/inventory', [ResearchPageController::class, 'sampleInventory'])->middleware('can:research.samples.manage')->name('research.samples.inventory');
     });
 

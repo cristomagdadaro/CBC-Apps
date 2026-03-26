@@ -2,13 +2,19 @@
 
 namespace App\Http\Requests\Research;
 
+use App\Models\Research\ResearchSample;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateResearchSampleRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('research.samples.manage') ?? false;
+        /** @var ResearchSample|null $sample */
+        $sample = $this->route('sample');
+
+        return $sample
+            ? ($this->user()?->can('update', $sample) ?? false)
+            : false;
     }
 
     public function rules(): array

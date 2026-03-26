@@ -6,12 +6,20 @@ use App\Models\Research\ResearchExperiment;
 use App\Models\Research\ResearchProject;
 use App\Models\Research\ResearchSample;
 use App\Models\Research\ResearchStudy;
+use App\Models\User;
+use App\Services\Research\ResearchAccessService;
 
 class ResearchPageRepo
 {
-    public function dashboardPayload(): array
+    public function __construct(private readonly ResearchAccessService $accessService)
     {
-        $recentProjects = ResearchProject::query()
+    }
+
+    public function dashboardPayload(?User $user): array
+    {
+        $visibleProjectIds = $this->accessService->visibleProjectIdsQuery($user);
+
+        $recentProjects = $this->accessService->visibleProjectsQuery($user)
             ->withCount('studies')
             ->latest('updated_at')
             ->limit(5)
@@ -19,18 +27,24 @@ class ResearchPageRepo
 
         return [
             'stats' => [
-                'projects' => ResearchProject::query()->count(),
-                'studies' => ResearchStudy::query()->count(),
-                'experiments' => ResearchExperiment::query()->count(),
-                'samples' => ResearchSample::query()->count(),
+                'projects' => $this->accessService->visibleProjectsQuery($user)->count(),
+                'studies' => ResearchStudy::query()->whereIn('project_id', $visibleProjectIds)->count(),
+                'experiments' => ResearchExperiment::query()
+                    ->whereIn('study_id', ResearchStudy::query()->select('id')->whereIn('project_id', $visibleProjectIds))
+                    ->count(),
+                'samples' => ResearchSample::query()
+                    ->whereIn('experiment_id', ResearchExperiment::query()
+                        ->select('id')
+                        ->whereIn('study_id', ResearchStudy::query()->select('id')->whereIn('project_id', $visibleProjectIds)))
+                    ->count(),
             ],
             'recentProjects' => $recentProjects,
         ];
     }
 
-    public function projectsIndexData()
+    public function projectsIndexData(?User $user)
     {
-        return ResearchProject::query()
+        return $this->accessService->visibleProjectsQuery($user)
             ->withCount('studies')
             ->with([
                 'studies' => fn ($query) => $query

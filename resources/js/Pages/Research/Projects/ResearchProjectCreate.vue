@@ -9,6 +9,10 @@ export default {
             type: Object,
             default: () => ({}),
         },
+        researchUsers: {
+            type: Array,
+            default: () => [],
+        },
     },
     data() {
         return {
@@ -21,14 +25,19 @@ export default {
                 objective: '',
                 funding_agency: '',
                 funding_code: '',
-                project_leader: {
-                    name: '',
-                    position: '',
-                },
+                project_leader_id: '',
             },
             errors: {},
             submitting: false,
         }
+    },
+    computed: {
+        researchUserOptions() {
+            return (this.researchUsers || []).map((user) => ({
+                value: user.id,
+                label: `${user.name} (${user.position})`,
+            }))
+        },
     },
     methods: {
         async submit() {
@@ -121,12 +130,15 @@ export default {
 
                     <div class="space-y-4">
                         <div>
-                            <label class="mb-2 block text-sm font-medium text-gray-700">Leader name</label>
-                            <input v-model="form.project_leader.name" class="w-full rounded-xl border-gray-300" placeholder="Name" />
-                        </div>
-                        <div>
-                            <label class="mb-2 block text-sm font-medium text-gray-700">Leader position</label>
-                            <input v-model="form.project_leader.position" class="w-full rounded-xl border-gray-300" placeholder="Position" />
+                            <label class="mb-2 block text-sm font-medium text-gray-700">Project leader</label>
+                            <select v-model="form.project_leader_id" class="w-full rounded-xl border-gray-300">
+                                <option value="">Select a research user</option>
+                                <option v-for="option in researchUserOptions" :key="option.value" :value="option.value">
+                                    {{ option.label }}
+                                </option>
+                            </select>
+                            <p class="mt-2 text-xs text-gray-500">Options are limited to users with Researcher or Research Supervisor roles.</p>
+                            <p v-if="errors.project_leader_id" class="mt-1 text-xs text-red-600">{{ errors.project_leader_id[0] }}</p>
                         </div>
                     </div>
 
