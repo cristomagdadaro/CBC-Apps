@@ -22,6 +22,7 @@ yarn-error.log
 /public/generated-pdfs
 public/build/manifest.json
 /public/build/manifest.json
+manifest.json
 /coverage-report
 
 # Playwright

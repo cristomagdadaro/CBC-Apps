@@ -34,37 +34,69 @@ const colorClasses = {
         :href="href"
         :target="external ? '_blank' : undefined"
         :rel="external ? 'noopener noreferrer' : undefined"
-        class="group relative h-full overflow-hidden rounded-xl bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-800 dark:via-gray-900 dark:to-gray-950 border border-gray-200 dark:border-gray-700 p-4 transition-all duration-300 hover:border-AC dark:hover:border-AA hover:shadow-lg dark:hover:shadow-lg hover:shadow-AC/25 dark:hover:shadow-AA/20 hover:-translate-y-1"
+        class="group relative h-full overflow-hidden rounded-xl 
+               bg-white 
+               dark:bg-[#1e293b]
+               border border-gray-200/80 
+               dark:border-slate-600/50 
+               p-4 transition-all duration-300 
+               hover:border-AC/60 dark:hover:border-AA/60 
+               hover:shadow-lg hover:shadow-AC/10 
+               dark:hover:shadow-xl dark:hover:shadow-black/20 
+               hover:-translate-y-1"
     >
-        <!-- Background gradient on hover -->
-        <div class="absolute inset-0 bg-gradient-to-br from-AC/5 via-AB/5 to-AA/5 dark:from-AC/15 dark:to-AA/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <!-- Subtle background glow on hover -->
+        <div class="absolute inset-0 bg-gradient-to-br from-AC/[0.03] to-AB/[0.03] 
+                    dark:from-AA/[0.08] dark:to-AC/[0.05] 
+                    opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        </div>
 
         <!-- Top accent line -->
-        <div class="absolute top-0 left-0 h-1 bg-gradient-to-r from-AC via-AB to-transparent dark:from-AA dark:via-AD dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" style="width: 100%"></div>
+        <div class="absolute top-0 left-0 h-[2px] bg-gradient-to-r from-AC to-AB 
+                    dark:from-AA dark:to-AC 
+                    w-0 group-hover:w-full transition-all duration-500 ease-out">
+        </div>
 
         <!-- Content -->
         <div class="relative z-10 flex flex-col h-full">
             <!-- Icon container -->
-            <div :class="`${colorClasses[color]}`" class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-AC/10 to-AB/5 dark:from-AC/25 dark:to-AA/15 p-2 text-white dark:text-AA group-hover:from-AC/15 group-hover:to-AB/10 dark:group-hover:from-AC/35 dark:group-hover:to-AA/25 transition-all duration-300 shadow-sm dark:shadow-none">
+            <div :class="`${colorClasses[color]}`" 
+                 class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl 
+                        bg-gradient-to-br from-AC/10 to-AB/5 
+                        dark:from-AA/20 dark:to-AC/10 
+                        dark:ring-1 dark:ring-AA/20
+                        p-2 text-white 
+                        group-hover:scale-105 group-hover:rotate-1 
+                        transition-all duration-300 shadow-sm 
+                        dark:shadow-none">
                 <component :is="icon" class="w-6 h-6" v-if="typeof icon === 'object'" />
                 <span v-else class="text-lg">{{ icon }}</span>
             </div>
 
             <!-- Title -->
-            <h3 class="mb-2 text-lg font-bold text-gray-900 dark:text-white group-hover:text-AC dark:group-hover:text-AA transition-colors duration-300">
+            <h3 class="mb-2 text-lg font-bold text-gray-900 
+                       dark:text-slate-100 
+                       group-hover:text-AC dark:group-hover:text-AA 
+                       transition-colors duration-300 leading-none">
                 {{ title }}
             </h3>
 
             <!-- Description -->
-            <p class="mb-2 flex-grow text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-300 leading-relaxed">
+            <p class="mb-2 flex-grow text-sm text-gray-600 
+                      dark:text-slate-400 
+                      group-hover:text-gray-700 dark:group-hover:text-slate-300 
+                      transition-colors duration-300 leading-relaxed leading-snug text-xs md:text-base">
                 {{ description }}
             </p>
 
             <!-- Arrow indicator -->
-            <div class="inline-flex items-center text-AC dark:text-AA text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div class="flex items-center text-AC dark:text-AA 
+                        text-sm font-medium group-hover:opacity-100 opacity-0
+                        transition-all duration-300 translate-y-2 group-hover:translate-y-0 hidden md:flex">
                 <span>Explore</span>
-                <svg class="ml-2 w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
+                <svg class="ml-2 w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" 
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>
             </div>
         </div>

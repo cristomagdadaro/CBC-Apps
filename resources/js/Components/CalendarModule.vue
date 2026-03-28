@@ -438,7 +438,7 @@ export default {
                 class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-5">
                 <div class="flex items-center gap-3">
                     <div class="p-2.5 bg-primary-100 dark:bg-primary-900/30 rounded-xl">
-                        <lu-calendar-days class="text-primary-600 dark:text-primary-400" />
+                        <lu-calendar-days class="text-gray-800 dark:text-gray-100" />
                     </div>
                     <div>
                         <h2 class="text-lg font-bold text-slate-900 dark:text-white">
@@ -554,7 +554,7 @@ export default {
                     </div>
                     <div
                         class="bg-white dark:bg-slate-700 rounded-xl p-3 border border-slate-200 dark:border-slate-600 shadow-sm">
-                        <div class="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                        <div class="text-2xl font-bold text-slate-900 dark:text-white">
                             {{ stats.visible }}
                         </div>
                         <div class="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider">
@@ -682,7 +682,7 @@ export default {
                                             <Dropdown v-if="col === 1" align="left" width="auto" max-height="16rem">
                                                 <template #trigger>
                                                     <button type="button"
-                                                        class="text-xs w-full text-left px-1.5 py-1 rounded border border-slate-300 dark:border-slate-600 text-primary-600 dark:text-primary-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                                                        class="text-xs w-full text-left px-1.5 py-1 rounded border border-slate-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                                                         +{{ assignEventLanes(getEventsForWeek(week, weekIndex),
                                                         week).overflowCount }} more
                                                     </button>

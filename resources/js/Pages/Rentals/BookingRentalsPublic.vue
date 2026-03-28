@@ -249,7 +249,7 @@ export default {
 
             <div
                 id="center-calendar"
-                class="rounded-lg border border-gray-200 bg-white p-4"
+                class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"
             >
                 <div class="w-full mb-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1"

@@ -102,13 +102,6 @@ const services = [
     color: "indigo",
     visibilityKey: "research",
   },
-  {
-    title: "Manuals & Guides",
-    description: "Browse public help topics, operational instructions, and user guides",
-    icon: LuBookOpen,
-    href: route("manuals.index"),
-    color: "indigo",
-  },
 ];
 
 const visibleServices = computed(() => {
@@ -159,12 +152,12 @@ onMounted(() => {
   <main-bg />
   <div class="absolute top-0 left-0 w-full">
     <div class="relative sm:flex justify-center items-center min-h-screen">
-      <div class="flex flex-col gap-5 px-5">
+      <div class="flex flex-col gap-5 px-5 md:px-0 py-10 md:py-0">
         <div class="text-center text-gray-700 dark:text-gray-300">
           <div class="relative w-fit mx-auto">
             <div class="flex items-center gap-1">
               <h1
-                class="lg:text-6xl md:text-4xl text-3xl font-bold leading-none text-lime-500 dark:text-green-400 font-[Montserrat] drop-shadow-md whitespace-nowrap"
+                class="lg:text-6xl md:text-4xl text-3xl font-bold leading-none text-lime-500 font-[Montserrat] drop-shadow-md whitespace-nowrap"
               >
                 {{ $appName }}
               </h1>
@@ -174,27 +167,25 @@ onMounted(() => {
             </span>
           </div>
 
-          <p class="mt-4 max-w-2xl mx-auto text-gray-300 leading-none">
+          <p class="mt-4 max-w-2xl mx-auto text-gray-50 leading-none">
             Your gateway to DA-Crop Biotechnology Center's proprietary web apps and
             services.
           </p>
-          <blockquote class="mt-2 font-semibold text-gray-300 leading-none">
+          <blockquote class="mt-2 font-semibold text-gray-50 leading-none">
             Better Crops, Better Lives
           </blockquote>
         </div>
         <div class="flex flex-col items-center justify-center gap-6 text-sm w-full">
-          <div class="text-center">
+          <div class="text-center group cursor-default">
             <h3
-              class="text-lime-500 dark:text-white text-xl font-bold tracking-wider uppercase"
+              class="text-lime-500 text-xl font-bold tracking-wider uppercase"
             >
               Apps & Services
             </h3>
-            <div
-              class="h-1.5 w-16 bg-gradient-to-r from-AC via-AB to-AA dark:from-AA dark:via-AD dark:to-AB mt-3 mx-auto rounded-full shadow-lg dark:shadow-AC/30"
-            ></div>
+            <div class="h-1.5 w-16 mt-3 mx-auto rounded-full shadow-lg bg-gray-300 group-hover:w-full group-hover:h-0.5 group-hover:mt-0 group-hover:mb-4 duration-500"></div>
           </div>
           <div
-            class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 w-full max-w-7xl"
+            class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 w-full max-w-7xl"
           >
             <ServiceCard
               v-for="(service, index) in visibleServices"
