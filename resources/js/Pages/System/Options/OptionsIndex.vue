@@ -206,11 +206,11 @@ export default {
 </script>
 
 <template>
-  <app-layout title="System Options">
+  <app-layout title="Options Module">
     <template #header>
       <ActionHeaderLayout
-        title="System Options"
-        subtitle="Manage system-wide settings and configuration options"
+        title="Options Module"
+        subtitle="Manage module controls, workflow toggles, and configuration options"
         route-link="system.options.index"
       >
         <Link :href="route('system.options.create')">

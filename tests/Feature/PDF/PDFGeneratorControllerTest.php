@@ -4,7 +4,6 @@ namespace Tests\Feature\PDF;
 
 use App\Models\RequestFormPivot;
 use App\Models\User;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Barryvdh\DomPDF\PDF as PDFInstance;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;

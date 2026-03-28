@@ -30,17 +30,17 @@ export default {
       navigationMode: this.$page.props.layout_navigation_mode || "top",
       services: [
         {
-          label: "Dashboard",
+          label: "Main Dashboard",
           href: "dashboard",
           icon: "LuLayoutDashboard",
         },
         {
-          label: "Form Builder",
+          label: "Form Builder Module",
           href: null,
           icon: "LuWrench",
           children: [
             {
-              label: "Event Forms",
+              label: "Event Forms List",
               href: "forms.index",
               permission: "event.forms.manage",
               moduleKey: "forms",
@@ -56,19 +56,19 @@ export default {
           ],
         },
         {
-          label: "Bookings and Rentals",
+          label: "Bookings and Rentals Module",
           href: null,
           icon: "LuDollarSign",
           children: [
             {
-              label: "Vehicle",
+              label: "Vehicle Requests List",
               href: "rentals.vehicle.index",
               permission: "rental.vehicle.manage",
               moduleKey: "rentals",
               icon: "LuCar",
             },
             {
-              label: "Venue",
+              label: "Venue Requests List",
               href: "rentals.venue.index",
               permission: "rental.venue.manage",
               moduleKey: "rentals",
@@ -85,34 +85,34 @@ export default {
           permission: "rental.vehicle.manage",
         },
         {
-          label: "FES Request Form",
+          label: "FES Request Module",
           href: "accessUseRequest.index",
           permission: "fes.request.approve",
           moduleKey: "fes",
           icon: "LuShield",
         },
         {
-          label: "Equipment Logger",
+          label: "Equipment Logger Module",
           href: "laboratory.dashboard",
           permission: "laboratory.logger.manage",
           moduleKey: "laboratory_dashboard",
           icon: "LuMicroscope",
         },
         {
-          label: "Research",
+          label: "Research Module",
           href: null,
           icon: "LuFlaskConical",
           permission: "research.dashboard.view",
           children: [
             {
-              label: "Dashboard",
+              label: "Research Dashboard Summary",
               href: "research.dashboard",
               permission: "research.dashboard.view",
               moduleKey: "research",
               icon: "LuLayoutDashboard",
             },
             {
-              label: "Projects",
+              label: "Projects Dashboard",
               href: "research.projects.index",
               permission: "research.projects.view",
               moduleKey: "research",
@@ -128,19 +128,19 @@ export default {
           ],
         },
         {
-          label: "Inventory",
+          label: "Inventory Module",
           href: null,
           icon: "LuPackage",
           permission: "inventory.manage",
           children: [
             {
-              label: "Dashboard",
+              label: "Inventory Dashboard Summary",
               href: "transactions.dashboard",
               moduleKey: "inventory",
               icon: "LuBarChart3",
             },
             {
-              label: "Transactions",
+              label: "Transactions List",
               href: "transactions.index",
               moduleKey: "inventory",
               icon: "LuArrowLeftRight",
@@ -158,19 +158,19 @@ export default {
               icon: "LuBarcode",
             },
             {
-              label: "Items",
+              label: "Items List",
               href: "items.index",
               moduleKey: "inventory",
               icon: "LuBox",
             },
             {
-              label: "Suppliers",
+              label: "Suppliers List",
               href: "suppliers.index",
               moduleKey: "inventory",
               icon: "LuTruck",
             },
             {
-              label: "Personnels",
+              label: "Personnel List",
               href: "personnels.index",
               moduleKey: "inventory",
               icon: "LuUsers",
@@ -178,27 +178,27 @@ export default {
           ],
         },
         {
-          label: "File Reports",
+          label: "File Report Module",
           href: "suppEquipReports.index",
           permission: "equipment.report.manage",
           moduleKey: "inventory",
           icon: "LuFileText",
         },
         {
-          label: "System",
+          label: "System Module",
           href: null,
           icon: "LuSettings",
           roles: ["admin"],
           children: [
             {
-              label: "Options",
+              label: "Options Module",
               href: "system.options.index",
               roles: ["admin"],
               moduleKey: "options",
               icon: "LuSliders",
             },
             {
-              label: "Users Management",
+              label: "User Management",
               href: "system.users.index",
               permission: "users.manage",
               roles: ["admin"],
