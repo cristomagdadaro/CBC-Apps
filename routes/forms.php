@@ -7,6 +7,7 @@ use App\Http\Controllers\EventWorkflowController;
 use App\Http\Controllers\FormBuilderController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\FormScanController;
+use App\Services\DeploymentAccessService;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('forms')->group(function () {
+Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_FORMS])->prefix('forms')->group(function () {
 
     // Form Builder API (templates & field types)
     Route::prefix('builder')->middleware(['can:event.forms.manage'])->group(function () {

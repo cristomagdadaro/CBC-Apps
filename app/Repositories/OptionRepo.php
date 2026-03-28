@@ -74,6 +74,15 @@ class OptionRepo extends AbstractRepoService
             ->first()?->value;
     }
 
+    public function getValuesByKeys(array $keys): array
+    {
+        return $this->model
+            ->newQuery()
+            ->whereIn('key', $keys)
+            ->pluck('value', 'key')
+            ->toArray();
+    }
+
     public function getBooleanByKey(string $key, bool $default = false): bool
     {
         $value = $this->getByKey($key);
@@ -119,6 +128,26 @@ class OptionRepo extends AbstractRepoService
                     'group' => Arr::get($meta, 'group', 'forms'),
                     'options' => Arr::get($meta, 'options'),
                 ]
+            );
+    }
+
+    public function upsertOption(string $key, mixed $value, array $meta = []): Model
+    {
+        $payload = $this->normalizeOptionPayload([
+            'key' => $key,
+            'value' => $value,
+            'label' => Arr::get($meta, 'label', $key),
+            'description' => Arr::get($meta, 'description'),
+            'type' => Arr::get($meta, 'type', 'text'),
+            'group' => Arr::get($meta, 'group'),
+            'options' => Arr::get($meta, 'options'),
+        ]);
+
+        return $this->model
+            ->newQuery()
+            ->updateOrCreate(
+                ['key' => $payload['key']],
+                Arr::except($payload, ['key'])
             );
     }
 

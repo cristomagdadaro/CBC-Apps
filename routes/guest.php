@@ -3,6 +3,7 @@
 use App\Http\Controllers\EventSubformResponseController;
 use App\Http\Controllers\EventWorkflowController;
 use App\Http\Controllers\FormController;
+use App\Services\DeploymentAccessService;
 use App\Http\Controllers\RentalVehicleController;
 use App\Http\Controllers\RentalVenueController;
 use App\Http\Controllers\LocationController;
@@ -34,7 +35,7 @@ Route::prefix('guest')->group(function () {
     });
 
     // Event form endpoints
-    Route::prefix('forms')->group(function () {
+    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_FORMS])->prefix('forms')->group(function () {
         Route::get('/{event_id?}', [FormController::class, 'index'])->name('api.form.guest.index');
         Route::middleware(['check.form.suspended','check.form.expired','check.form.maxslot'])
             ->post('/registration/{event_id?}', [ParticipantController::class, 'post'])
@@ -42,10 +43,11 @@ Route::prefix('guest')->group(function () {
     });
 
     // Request form endpoints
-    Route::post('/', [RequestFormPivotController::class, 'create'])->name('api.requestFormPivot.post');
+    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_FES])
+        ->post('/', [RequestFormPivotController::class, 'create'])->name('api.requestFormPivot.post');
 
     // Personnel endpoints
-    Route::get('/personnel/public', function () {
+    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_INVENTORY])->get('/personnel/public', function () {
         $personnels = Personnel::query()
             ->select(['id', 'fname', 'mname', 'lname', 'suffix', 'position'])
             ->orderBy('lname')
@@ -72,78 +74,82 @@ Route::prefix('guest')->group(function () {
 
     // Inventory public endpoints
     Route::prefix('inventory')->group(function () {
-        Route::get('/category/{categoryName?}', [TransactionController::class, 'getRemainingStocksPerCategory'])->name('api.inventory.categories.public');
-        
-        Route::get('/items/public', function () {
-            $minRemaining = request()->query('min_remaining', 0);
-            $params = collect([
-                'filter' => 'category',
-                'filter_by' => 6,
-                'min_remaining' => $minRemaining,
-                'paginate' => false,
-                'per_page' => '*',
-            ]);
+        Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_INVENTORY])->group(function () {
+            Route::get('/category/{categoryName?}', [TransactionController::class, 'getRemainingStocksPerCategory'])->name('api.inventory.categories.public');
 
-            $stocks = app(\App\Repositories\TransactionRepo::class)
-                ->getRemainingStocks($params)
-                ->get('data', collect());
+            Route::get('/items/public', function () {
+                $minRemaining = request()->query('min_remaining', 0);
+                $params = collect([
+                    'filter' => 'category',
+                    'filter_by' => 6,
+                    'min_remaining' => $minRemaining,
+                    'paginate' => false,
+                    'per_page' => '*',
+                ]);
 
-            $items = collect($stocks)->map(function ($row) {
-                $baseLabel = $row->name . ($row->description ? " ({$row->description})" : '');
-                $stockInfo = $row->remaining_quantity !== null
-                    ? " - {$row->remaining_quantity}" . ($row->unit ? " {$row->unit}" : '')
-                    : '';
+                $stocks = app(\App\Repositories\TransactionRepo::class)
+                    ->getRemainingStocks($params)
+                    ->get('data', collect());
 
-                return [
-                    'value' => $baseLabel,
-                    'label' => $baseLabel . $stockInfo,
-                ];
-            })->values();
+                $items = collect($stocks)->map(function ($row) {
+                    $baseLabel = $row->name . ($row->description ? " ({$row->description})" : '');
+                    $stockInfo = $row->remaining_quantity !== null
+                        ? " - {$row->remaining_quantity}" . ($row->unit ? " {$row->unit}" : '')
+                        : '';
 
-            return ['data' => $items];
-        })->name('api.inventory.items.public');
+                    return [
+                        'value' => $baseLabel,
+                        'label' => $baseLabel . $stockInfo,
+                    ];
+                })->values();
 
-        Route::get('/equipments/public', function () {
-            $minRemaining = request()->query('min_remaining', 0);
-            $params = collect([
-                'filter' => 'category',
-                'filter_by' => [4, 5],
-                'min_remaining' => $minRemaining,
-                'paginate' => false,
-                'per_page' => '*',
-            ]);
+                return ['data' => $items];
+            })->name('api.inventory.items.public');
 
-            $stocks = app(\App\Repositories\TransactionRepo::class)
-                ->getRemainingStocks($params)
-                ->get('data', collect());
+            Route::get('/equipments/public', function () {
+                $minRemaining = request()->query('min_remaining', 0);
+                $params = collect([
+                    'filter' => 'category',
+                    'filter_by' => [4, 5],
+                    'min_remaining' => $minRemaining,
+                    'paginate' => false,
+                    'per_page' => '*',
+                ]);
 
-            $items = collect($stocks)->map(function ($row) {
-                $baseLabel = $row->name . ($row->description ? " ({$row->description})" : '');
-                $stockInfo = $row->remaining_quantity !== null
-                    ? " - {$row->remaining_quantity}" . ($row->unit ? " {$row->unit}" : '')
-                    : '';
+                $stocks = app(\App\Repositories\TransactionRepo::class)
+                    ->getRemainingStocks($params)
+                    ->get('data', collect());
 
-                return [
-                    'value' => $baseLabel,
-                    'label' => $baseLabel . $stockInfo,
-                ];
-            })->values();
+                $items = collect($stocks)->map(function ($row) {
+                    $baseLabel = $row->name . ($row->description ? " ({$row->description})" : '');
+                    $stockInfo = $row->remaining_quantity !== null
+                        ? " - {$row->remaining_quantity}" . ($row->unit ? " {$row->unit}" : '')
+                        : '';
 
-            return ['data' => $items];
-        })->name('api.inventory.equipments.public');
+                    return [
+                        'value' => $baseLabel,
+                        'label' => $baseLabel . $stockInfo,
+                    ];
+                })->values();
 
-        Route::get('/laboratories/public', function () {
-            return ['data' => app(OptionRepo::class)->getLaboratories()];
-        })->name('api.inventory.laboratories.public');
+                return ['data' => $items];
+            })->name('api.inventory.equipments.public');
 
-        Route::get('/transactions-public', [TransactionController::class, 'index'])->name('api.inventory.transactions.index.public');
-        Route::post('/outgoing', [TransactionController::class, 'outgoingStockStore'])->name('api.inventory.transactions.store.public');
-        Route::get('/remaining-stocks', [TransactionController::class, 'remainingStocks'])->name('api.inventory.transactions.remaining-stocks');
-        Route::get('/project-codes', [TransactionController::class, 'projectCodes'])->name('api.inventory.transactions.project-codes');
+            Route::get('/laboratories/public', function () {
+                return ['data' => app(OptionRepo::class)->getLaboratories()];
+            })->name('api.inventory.laboratories.public');
+        });
+
+        Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_SUPPLIES_CHECKOUT])->group(function () {
+            Route::get('/transactions-public', [TransactionController::class, 'index'])->name('api.inventory.transactions.index.public');
+            Route::post('/outgoing', [TransactionController::class, 'outgoingStockStore'])->name('api.inventory.transactions.store.public');
+            Route::get('/remaining-stocks', [TransactionController::class, 'remainingStocks'])->name('api.inventory.transactions.remaining-stocks');
+            Route::get('/project-codes', [TransactionController::class, 'projectCodes'])->name('api.inventory.transactions.project-codes');
+        });
     });
 
     // Rental public endpoints
-    Route::prefix('rental')->group(function () {
+    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_RENTALS])->prefix('rental')->group(function () {
         Route::prefix('vehicles')->group(function () {
             Route::get('/', [RentalVehicleController::class, 'publicIndex'])->name('api.guest.rental.vehicles.index');
             Route::get('/{id}', [RentalVehicleController::class, 'publicShow'])->name('api.guest.rental.vehicles.show');
@@ -162,29 +168,31 @@ Route::prefix('guest')->group(function () {
     });
 
     // Event subform responses
-    Route::middleware(['check.form.suspended','check.form.expired','check.form.maxslot'])
+    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_FORMS, 'check.form.suspended','check.form.expired','check.form.maxslot'])
         ->post('/forms/event', [EventSubformResponseController::class, 'create'])
         ->name('api.subform.response.store');
 
     // Event workflow
-    Route::get('/forms/event/{event_id}/workflow', [EventWorkflowController::class, 'state'])
+    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_FORMS])->get('/forms/event/{event_id}/workflow', [EventWorkflowController::class, 'state'])
         ->name('api.event.workflow.state.guest');
-    Route::get('/forms/event/{event_id}/participant-lookup', [EventWorkflowController::class, 'resolveParticipantByEmail'])
+    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_FORMS])->get('/forms/event/{event_id}/participant-lookup', [EventWorkflowController::class, 'resolveParticipantByEmail'])
         ->name('api.event.participant.lookup.guest');
 
-    Route::middleware(['auth:sanctum'])->get('/equipments/active/{employee_id?}', [LaboratoryEquipmentController::class, 'activeEquipments'])->name('api.laboratory.equipments.active');
-    Route::get('/equipments/{identifier}', [LaboratoryEquipmentController::class, 'show'])->name('api.laboratory.equipments.show');
-    Route::middleware(['auth:sanctum'])->post('/equipments/{identifier}/check-in', [LaboratoryEquipmentController::class, 'checkIn'])->name('api.laboratory.equipments.check-in');
-    Route::middleware(['auth:sanctum'])->post('/equipments/{identifier}/check-out', [LaboratoryEquipmentController::class, 'checkOut'])->name('api.laboratory.equipments.check-out');
-    Route::middleware(['auth:sanctum'])->post('/equipments/{identifier}/update-end-use', [LaboratoryEquipmentController::class, 'updateEndUse'])->name('api.laboratory.equipments.update-end-use');
-    Route::middleware(['auth:sanctum'])->post('/equipments/{identifier}/report-location', [LaboratoryEquipmentController::class, 'reportLocation'])->name('api.laboratory.equipments.report-location');
-    Route::get('/equipments', [LaboratoryEquipmentController::class, 'index'])->name('api.laboratory.equipments.index');
+    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_EQUIPMENT_LOGGER])->group(function () {
+        Route::middleware(['auth:sanctum'])->get('/equipments/active/{employee_id?}', [LaboratoryEquipmentController::class, 'activeEquipments'])->name('api.laboratory.equipments.active');
+        Route::get('/equipments/{identifier}', [LaboratoryEquipmentController::class, 'show'])->name('api.laboratory.equipments.show');
+        Route::middleware(['auth:sanctum'])->post('/equipments/{identifier}/check-in', [LaboratoryEquipmentController::class, 'checkIn'])->name('api.laboratory.equipments.check-in');
+        Route::middleware(['auth:sanctum'])->post('/equipments/{identifier}/check-out', [LaboratoryEquipmentController::class, 'checkOut'])->name('api.laboratory.equipments.check-out');
+        Route::middleware(['auth:sanctum'])->post('/equipments/{identifier}/update-end-use', [LaboratoryEquipmentController::class, 'updateEndUse'])->name('api.laboratory.equipments.update-end-use');
+        Route::middleware(['auth:sanctum'])->post('/equipments/{identifier}/report-location', [LaboratoryEquipmentController::class, 'reportLocation'])->name('api.laboratory.equipments.report-location');
+        Route::get('/equipments', [LaboratoryEquipmentController::class, 'index'])->name('api.laboratory.equipments.index');
 
-    Route::middleware(['auth:sanctum'])->get('/ict/equipments/active/{employee_id?}', [ICTEquipmentController::class, 'activeEquipments'])->name('api.ict.equipments.active');
-    Route::get('/ict/equipments/{identifier}', [ICTEquipmentController::class, 'show'])->name('api.ict.equipments.show');
-    Route::middleware(['auth:sanctum'])->post('/ict/equipments/{identifier}/check-in', [ICTEquipmentController::class, 'checkIn'])->name('api.ict.equipments.check-in');
-    Route::middleware(['auth:sanctum'])->post('/ict/equipments/{identifier}/check-out', [ICTEquipmentController::class, 'checkOut'])->name('api.ict.equipments.check-out');
-    Route::middleware(['auth:sanctum'])->post('/ict/equipments/{identifier}/update-end-use', [ICTEquipmentController::class, 'updateEndUse'])->name('api.ict.equipments.update-end-use');
-    Route::middleware(['auth:sanctum'])->post('/ict/equipments/{identifier}/report-location', [ICTEquipmentController::class, 'reportLocation'])->name('api.ict.equipments.report-location');
-    Route::get('/ict/equipments', [ICTEquipmentController::class, 'index'])->name('api.ict.equipments.index');
+        Route::middleware(['auth:sanctum'])->get('/ict/equipments/active/{employee_id?}', [ICTEquipmentController::class, 'activeEquipments'])->name('api.ict.equipments.active');
+        Route::get('/ict/equipments/{identifier}', [ICTEquipmentController::class, 'show'])->name('api.ict.equipments.show');
+        Route::middleware(['auth:sanctum'])->post('/ict/equipments/{identifier}/check-in', [ICTEquipmentController::class, 'checkIn'])->name('api.ict.equipments.check-in');
+        Route::middleware(['auth:sanctum'])->post('/ict/equipments/{identifier}/check-out', [ICTEquipmentController::class, 'checkOut'])->name('api.ict.equipments.check-out');
+        Route::middleware(['auth:sanctum'])->post('/ict/equipments/{identifier}/update-end-use', [ICTEquipmentController::class, 'updateEndUse'])->name('api.ict.equipments.update-end-use');
+        Route::middleware(['auth:sanctum'])->post('/ict/equipments/{identifier}/report-location', [ICTEquipmentController::class, 'reportLocation'])->name('api.ict.equipments.report-location');
+        Route::get('/ict/equipments', [ICTEquipmentController::class, 'index'])->name('api.ict.equipments.index');
+    });
 });

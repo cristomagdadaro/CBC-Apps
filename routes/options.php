@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\OptionController;
+use App\Services\DeploymentAccessService;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,13 +15,20 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('options')->group(function () {
     // Public workflow toggle access must be available without authentication for guests
-    Route::get('/workflow-toggles', [OptionController::class, 'getWorkflowToggles'])
+    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_OPTIONS])
+        ->get('/workflow-toggles', [OptionController::class, 'getWorkflowToggles'])
         ->name('api.options.workflow-toggles');
 
-    Route::middleware(['auth:sanctum', 'can:event.forms.manage'])->group(function () {
+    Route::middleware(['auth:sanctum', 'can:event.forms.manage', 'deployment.access:' . DeploymentAccessService::MODULE_OPTIONS])->group(function () {
         // Specific named routes must come before generic {id} routes to prevent conflicts
         Route::put('/workflow-toggles', [OptionController::class, 'updateWorkflowToggles'])
             ->name('api.options.workflow-toggles.update');
+
+        Route::get('/deployment-access', [OptionController::class, 'getDeploymentAccess'])
+            ->name('api.options.deployment-access');
+
+        Route::put('/deployment-access', [OptionController::class, 'updateDeploymentAccess'])
+            ->name('api.options.deployment-access.update');
 
         // Get options by group
         Route::get('/group/{group}', [OptionController::class, 'getByGroup'])

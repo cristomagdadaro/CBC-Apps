@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\RequestFormPivotController;
+use App\Services\DeploymentAccessService;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('forms/use-request-form')->group(function () {
+Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_FES])->prefix('forms/use-request-form')->group(function () {
     Route::get('/', [RequestFormPivotController::class, 'index'])
         ->name('api.requestFormPivot.index');
 

@@ -12,6 +12,7 @@ import {
   LuCpu,
 } from "@/Components/Icons";
 import { onMounted, ref, computed } from "vue";
+import { usePage } from "@inertiajs/vue3";
 import SocialLinks from "@/Components/SocialLinks.vue";
 import ServiceCard from "@/Components/ServiceCard.vue";
 import MainBg from "@/Pages/Shared/MainBg.vue";
@@ -25,11 +26,15 @@ defineProps({
 
 const showNetworkModal = ref(false);
 const isCheckingNetwork = ref(false);
-const localNetworkUrl = "http://192.168.36.10";
+const page = usePage();
+
+const deploymentAccess = computed(() => page.props.deployment_access ?? {});
+const localNetworkUrl = computed(
+  () => deploymentAccess.value?.local_url ?? "http://192.168.36.10",
+);
 
 const isInternetAccess = computed(() => {
-  // Check if current URL is the internet deployment
-  return window.location.origin.includes("dacbc.philrice.gov.ph");
+  return deploymentAccess.value?.channel === "internet";
 });
 
 const services = [
@@ -39,6 +44,7 @@ const services = [
     icon: LuCalendarDays,
     href: route("rental.bookings.guest"),
     color: "blue",
+    visibilityKey: "rentals",
   },
   {
     title: "Event Registration",
@@ -46,6 +52,7 @@ const services = [
     icon: LuCalendar,
     href: route("forms.guest.index"),
     color: "violet",
+    visibilityKey: "forms",
   },
   {
     title: "FES Requests",
@@ -53,6 +60,7 @@ const services = [
     icon: LuClipboardList,
     href: route("labReq.guest.index"),
     color: "amber",
+    visibilityKey: "fes",
   },
   {
     title: "Lab Equipment Log",
@@ -60,6 +68,7 @@ const services = [
     icon: LuMicroscope,
     href: route("laboratory.equipments.show"),
     color: "emerald",
+    visibilityKey: "equipment_logger",
   },
   {
     title: "ICT Equipment Log",
@@ -67,6 +76,7 @@ const services = [
     icon: LuCpu,
     href: route("ict.equipments.show"),
     color: "cyan",
+    visibilityKey: "equipment_logger",
   },
   {
     title: "Supplies Checkout",
@@ -74,6 +84,7 @@ const services = [
     icon: LuPackage,
     href: route("inventory.public.outgoing.index"),
     color: "orange",
+    visibilityKey: "supplies_checkout",
   },
   {
     title: "Incident Reports",
@@ -81,6 +92,7 @@ const services = [
     icon: LuFlag,
     href: route("suppEquipReports.create.guest"),
     color: "rose",
+    visibilityKey: "inventory",
   },
   {
     title: "Experiment Log",
@@ -88,6 +100,7 @@ const services = [
     icon: LuFlaskConical,
     href: route("laboratory.monitoring.guest"),
     color: "indigo",
+    visibilityKey: "research",
   },
   {
     title: "Manuals & Guides",
@@ -98,33 +111,26 @@ const services = [
   },
 ];
 
+const visibleServices = computed(() => {
+  const allowedServices = deploymentAccess.value?.services ?? {};
+
+  return services.filter(
+    (service) =>
+      !service.visibilityKey || allowedServices[service.visibilityKey] !== false,
+  );
+});
+
+const hasHiddenLocalServices = computed(() => {
+  return services.some(
+    (service) =>
+      service.visibilityKey &&
+      deploymentAccess.value?.services?.[service.visibilityKey] === false,
+  );
+});
+
 const testNetworkAndRedirect = async () => {
   isCheckingNetwork.value = true;
-  try {
-    // Call backend endpoint to test local network connectivity
-    const response = await fetch(route("api.test-local-network"), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Requested-With": "XMLHttpRequest",
-      },
-    });
-
-    const data = await response.json();
-
-    if (data.isReachable) {
-      // Local network is reachable, redirect
-      window.location.href = localNetworkUrl;
-    } else {
-      // Local network not reachable
-      isCheckingNetwork.value = false;
-      showNetworkModal.value = false;
-    }
-  } catch (error) {
-    // Error testing network, dismiss modal and stay on internet version
-    isCheckingNetwork.value = false;
-    showNetworkModal.value = false;
-  }
+  window.location.href = localNetworkUrl.value;
 };
 
 const dismissNetworkModal = () => {
@@ -136,11 +142,11 @@ const dismissNetworkModal = () => {
 onMounted(() => {
   particleMixin.methods.createFallingLogos();
 
-  // Show network modal only if:
-  // 1. Accessed from internet URL
-  // 2. Not already declined in this session
-  if (isInternetAccess.value && !sessionStorage.getItem("declinedLocalNetwork")) {
-    // Small delay to let page fully load first
+  if (
+    isInternetAccess.value &&
+    hasHiddenLocalServices.value &&
+    !sessionStorage.getItem("declinedLocalNetwork")
+  ) {
     setTimeout(() => {
       showNetworkModal.value = true;
     }, 500);
@@ -191,7 +197,7 @@ onMounted(() => {
             class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 w-full max-w-7xl"
           >
             <ServiceCard
-              v-for="(service, index) in services"
+              v-for="(service, index) in visibleServices"
               :key="index"
               :title="service.title"
               :description="service.description"
@@ -217,9 +223,9 @@ onMounted(() => {
         PhilRice Network Detected?
       </h3>
       <p class="text-gray-600 dark:text-gray-300 mb-6">
-        We detected you're accessing from the internet. If you're connected to the
-        PhilRice network, we can redirect you to the faster local deployment for better
-        performance.
+        Some services are only available from the PhilRice local deployment. If you're
+        connected to that network, you can switch now and see the full local-only
+        service list.
       </p>
       <div class="flex gap-3">
         <button

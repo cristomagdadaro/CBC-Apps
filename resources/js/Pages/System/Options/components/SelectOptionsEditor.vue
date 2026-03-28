@@ -15,9 +15,9 @@
       >
         <div class="flex-1 space-y-2">
           <input
-            v-model="option.name"
+            v-model="option.value"
             type="text"
-            placeholder="Name (e.g., option_1)"
+            placeholder="Value (e.g., option_1)"
             class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
           <input
@@ -67,12 +67,12 @@ watch(
   (newVal) => {
     if (typeof newVal === 'string') {
       try {
-        localOptions.value = JSON.parse(newVal) || []
+        localOptions.value = normalizeOptions(JSON.parse(newVal) || [])
       } catch {
         localOptions.value = []
       }
     } else if (Array.isArray(newVal)) {
-      localOptions.value = [...newVal]
+      localOptions.value = normalizeOptions(newVal)
     } else {
       localOptions.value = []
     }
@@ -91,5 +91,16 @@ const addOption = () => {
 
 const removeOption = (index) => {
   localOptions.value.splice(index, 1)
+}
+
+const normalizeOptions = (options) => {
+  if (!Array.isArray(options)) {
+    return []
+  }
+
+  return options.map((option) => ({
+    value: String(option?.value ?? option?.name ?? ''),
+    label: String(option?.label ?? option?.name ?? option?.value ?? ''),
+  }))
 }
 </script>

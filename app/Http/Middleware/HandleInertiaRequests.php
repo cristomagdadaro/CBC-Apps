@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Repositories\OptionRepo;
+use App\Services\DeploymentAccessService;
 use App\Services\RbacService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -40,6 +41,7 @@ class HandleInertiaRequests extends Middleware
     {
         $user = $request->user();
         $rbacService = app(RbacService::class);
+        $deploymentAccess = app(DeploymentAccessService::class);
 
         return array_merge(parent::share($request), [
             'auth' => [
@@ -48,6 +50,7 @@ class HandleInertiaRequests extends Middleware
                 'permissions' => $rbacService->permissionsFor($user),
             ],
             'layout_navigation_mode' => (app(OptionRepo::class)->getByKey('layout_navigation_mode') === 'true') ? 'sidebar' : 'top',
+            'deployment_access' => $deploymentAccess->sharedPayload($request),
         ]);
     }
 }

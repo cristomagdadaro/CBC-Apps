@@ -7,9 +7,10 @@ use App\Http\Controllers\Research\ResearchProjectController;
 use App\Http\Controllers\Research\ResearchSampleController;
 use App\Http\Controllers\Research\ResearchSampleInventoryController;
 use App\Http\Controllers\Research\ResearchStudyController;
+use App\Services\DeploymentAccessService;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('research')->group(function () {
+Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_RESEARCH])->prefix('research')->group(function () {
     Route::middleware(['can:research.projects.view'])->get('/studies', [ResearchStudyController::class, 'index'])->name('api.research.studies.index');
     Route::middleware(['can:research.projects.view'])->get('/experiments', [ResearchExperimentController::class, 'index'])->name('api.research.experiments.index');
 

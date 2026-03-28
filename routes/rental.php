@@ -2,9 +2,10 @@
 
 use App\Http\Controllers\RentalVehicleController;
 use App\Http\Controllers\RentalVenueController;
+use App\Services\DeploymentAccessService;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('rental')->group(function () {
+Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_RENTALS])->prefix('rental')->group(function () {
     // Vehicle Rentals
     Route::middleware(['can:rental.vehicle.manage'])->prefix('vehicles')->group(function () {
         Route::get('/', [RentalVehicleController::class, 'index'])->name('api.rental.vehicles.index');

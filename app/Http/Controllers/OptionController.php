@@ -15,9 +15,11 @@ use App\Repositories\LaboratoryEquipmentLogRepo;
 use App\Repositories\ParticipantRepo;
 use App\Repositories\PersonnelRepo;
 use App\Repositories\SupplierRepo;
+use App\Services\DeploymentAccessService;
 use App\Services\EventWorkflowFeatureService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\Rule;
 
 class OptionController extends BaseController
 {
@@ -210,6 +212,57 @@ class OptionController extends BaseController
             'status' => 'success',
             'message' => 'Workflow toggles updated successfully.',
             'data' => $workflowFeatures->toggles(),
+        ]);
+    }
+
+    public function getDeploymentAccess(DeploymentAccessService $deploymentAccess)
+    {
+        return response()->json([
+            'status' => 'success',
+            'data' => $deploymentAccess->managementPayload(),
+        ]);
+    }
+
+    public function updateDeploymentAccess(Request $request, DeploymentAccessService $deploymentAccess)
+    {
+        $validated = $request->validate([
+            'modules' => ['required', 'array', 'min:1'],
+            'modules.*' => ['required', 'array'],
+            'modules.*.access' => ['required', 'string', Rule::in(DeploymentAccessService::validAccessValues())],
+            'modules.*.mode' => ['required', 'string', Rule::in(DeploymentAccessService::validModeValues())],
+        ]);
+
+        $allowedKeys = DeploymentAccessService::validModuleKeys();
+        $invalidKeys = collect(array_keys($validated['modules']))
+            ->diff($allowedKeys)
+            ->values();
+
+        if ($invalidKeys->isNotEmpty()) {
+            return response()->json([
+                'message' => 'Unknown module keys provided.',
+                'invalid_keys' => $invalidKeys->all(),
+            ], 422);
+        }
+
+        $lockedModules = collect($validated['modules'])
+            ->filter(fn (array $settings, string $module) =>
+                $settings['mode'] === DeploymentAccessService::MODE_DEACTIVATED
+                && ! DeploymentAccessService::canBeDeactivated($module)
+            )
+            ->keys()
+            ->values();
+
+        if ($lockedModules->isNotEmpty()) {
+            return response()->json([
+                'message' => 'Protected modules cannot be deactivated from the UI.',
+                'invalid_keys' => $lockedModules->all(),
+            ], 422);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Module deployment settings updated successfully.',
+            'data' => $deploymentAccess->updateModules($validated['modules']),
         ]);
     }
 }

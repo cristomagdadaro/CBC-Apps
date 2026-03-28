@@ -12,6 +12,7 @@ use App\Http\Controllers\PDFGeneratorController;
 use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\Research\ResearchPageController;
 use App\Http\Controllers\SupplierController;
+use App\Services\DeploymentAccessService;
 use App\Models\Category;
 use App\Repositories\OptionRepo;
 use App\Repositories\TransactionRepo;
@@ -48,12 +49,14 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/inventory/outgoing', [InventoryFormController::class, 'outgoingForm'])->name('inventory.public.outgoing.index');
+Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_SUPPLIES_CHECKOUT])
+    ->get('/inventory/outgoing', [InventoryFormController::class, 'outgoingForm'])
+    ->name('inventory.public.outgoing.index');
 
 Route::prefix('forms')->group(function () {
-    Route::get('/event/{event?}', [FormController::class, 'formGuestView'])->name('forms.guest.index');
-    Route::get('/request-to-use/{request?}', [LabRequestFormController::class, 'labReqFormGuestView'])->name('labReq.guest.index');
-    Route::get('/{id}/pdf', [PDFGeneratorController::class, 'downloadPdf'])->name('forms.generate.pdf');
+    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_FORMS])->get('/event/{event?}', [FormController::class, 'formGuestView'])->name('forms.guest.index');
+    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_FES])->get('/request-to-use/{request?}', [LabRequestFormController::class, 'labReqFormGuestView'])->name('labReq.guest.index');
+    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_FORMS])->get('/{id}/pdf', [PDFGeneratorController::class, 'downloadPdf'])->name('forms.generate.pdf');
     //Route::get('/{id}/pdf', function(){ return view('generator.pdf.printable-request-form', [ 'form' => \App\Models\RequestFormPivot::with(['requester', 'request_form'])->findOrFail(request()->route('id')), 'forPdf' => false ]);})->name('forms.generate.pdf');
 });
 
@@ -64,20 +67,22 @@ Route::prefix('apps')->group(function () {
 });
 
 Route::prefix('/laboratory')->group(function () {
-        Route::get('/equipments/{equipment_id?}', function ($equipment_id = null) {
+    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_EQUIPMENT_LOGGER])
+        ->get('/equipments/{equipment_id?}', function ($equipment_id = null) {
             return Inertia::render('Laboratory/EquipmentShow', [
                 'equipment_id' => $equipment_id,
                 'logger_type' => 'laboratory',
             ]);
         })->name('laboratory.equipments.show');
 
-        Route::get('/experiments-monitoring', function () {
+        Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_RESEARCH])->get('/experiments-monitoring', function () {
             return Inertia::render('Laboratory/ExperimentsMonitoring/ExperimentsMonitoringGuest');
         })->name('laboratory.monitoring.guest');
 });
 
 Route::prefix('/ict')->group(function () {
-        Route::get('/equipments/{equipment_id?}', function ($equipment_id = null) {
+    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_EQUIPMENT_LOGGER])
+        ->get('/equipments/{equipment_id?}', function ($equipment_id = null) {
             return Inertia::render('Laboratory/EquipmentShow', [
                 'equipment_id' => $equipment_id,
                 'logger_type' => 'ict',
@@ -85,7 +90,7 @@ Route::prefix('/ict')->group(function () {
         })->name('ict.equipments.show');
 });
 
-Route::prefix('rental')->group(function () {
+Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_RENTALS])->prefix('rental')->group(function () {
     Route::get('/vehicle', function () {
         return Inertia::render('Rentals/VehicleRentalFormGuest', [
             'vehicleOptions' => app(OptionRepo::class)->getVehicles(),
@@ -119,7 +124,7 @@ Route::prefix('rental')->group(function () {
     })->name('google-calendar.rentals');
 });
 
-Route::prefix('file-report')->group(function () {
+Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_INVENTORY])->prefix('file-report')->group(function () {
     Route::get('/create-guest/{barcode?}', function ($barcode = null) {
         return Inertia::render('Inventory/SuppEquipReports/SuppEquipReportsCreateGuest', [
             'reportTemplates' => config('suppequipreportforms'),
@@ -134,7 +139,7 @@ Route::middleware([
 ])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::middleware(['can:research.dashboard.view'])->prefix('research')->group(function () {
+    Route::middleware(['can:research.dashboard.view', 'deployment.access:' . DeploymentAccessService::MODULE_RESEARCH])->prefix('research')->group(function () {
         Route::get('/', [ResearchPageController::class, 'dashboard'])->name('research.dashboard');
         Route::get('/projects', [ResearchPageController::class, 'projectsIndex'])->middleware('can:research.projects.view')->name('research.projects.index');
         Route::get('/projects/create', [ResearchPageController::class, 'projectCreate'])->middleware('can:research.projects.create')->name('research.projects.create');
@@ -148,12 +153,13 @@ Route::middleware([
 
     Route::prefix('apps')->group(function () {
         Route::prefix('laboratory')->group(function () {
-            Route::get('/', function () {
-                return Inertia::render('Laboratory/LaboratoryDashboard');
-            })->name('laboratory.dashboard');
+            Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_LABORATORY_DASHBOARD])
+                ->get('/', function () {
+                    return Inertia::render('Laboratory/LaboratoryDashboard');
+                })->name('laboratory.dashboard');
         });
 
-        Route::prefix('rentals')->group(function () {
+        Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_RENTALS])->prefix('rentals')->group(function () {
             Route::get('/vehicle', function () {
                 return Inertia::render('Rentals/RentalsVehicleIndex', [
                     'vehicleOptions' => app(OptionRepo::class)->getVehicles(),
@@ -175,7 +181,7 @@ Route::middleware([
                 ->name('rentals.calendar.oauth.callback');
         });
 
-        Route::prefix('event-forms')->group(function () {
+        Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_FORMS])->prefix('event-forms')->group(function () {
             Route::get('/', function () {
                 return Inertia::render('Forms/FormIndex');
             })->name('forms.index');
@@ -199,13 +205,13 @@ Route::middleware([
             Route::get('/update/{event_id?}', [EventSubformController::class, 'show'])->name('forms.update');
         });
 
-        Route::prefix('certificates')->group(function () {
+        Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_FORMS])->prefix('certificates')->group(function () {
             Route::get('/', function () {
                 return Inertia::render('Certificates/CertificateGenerator');
             })->name('certificates.index');
         });
 
-        Route::prefix('file-report')->group(function () {
+        Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_INVENTORY])->prefix('file-report')->group(function () {
             Route::get('/', function () {
                 return Inertia::render('Inventory/SuppEquipReports/SuppEquipReportsIndex');
             })->name('suppEquipReports.index');
@@ -217,13 +223,13 @@ Route::middleware([
             })->name('suppEquipReports.create');
         });
 
-        Route::prefix('access-use-requests')->group(function () {
+        Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_FES])->prefix('access-use-requests')->group(function () {
             Route::get('/', function () {
                 return Inertia::render('LabRequest/AccessUseRequestsIndex');
             })->name('accessUseRequest.index');
         });
 
-        Route::prefix('inventory')->group(function () {
+        Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_INVENTORY])->prefix('inventory')->group(function () {
             Route::prefix('items')->group(function () {
                 Route::get('/', function () {
                     return Inertia::render('Inventory/Items/Items', [
@@ -413,13 +419,13 @@ Route::middleware([
             });
         });
 
-        Route::prefix('event-forms')->group(function () {
+        Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_FORMS])->prefix('event-forms')->group(function () {
             Route::get('/{event_id}', [FormController::class, 'show'])->name('forms.show');
             Route::post('/{event_id}/requirements', [FormController::class, 'updateRequirements'])->name('forms.requirements.update');
         });
 
         Route::prefix('system')->group(function () {
-            Route::middleware(['can:event.forms.manage'])->prefix('options')->group(function () {
+            Route::middleware(['can:event.forms.manage', 'deployment.access:' . DeploymentAccessService::MODULE_OPTIONS])->prefix('options')->group(function () {
                 Route::get('/', function () {
                     return Inertia::render('System/Options/OptionsIndex', [
                         'options' => \App\Models\Option::all(),
@@ -427,12 +433,12 @@ Route::middleware([
                 })->name('system.options.index');
 
                 Route::get('/create', function () {
-                    return Inertia::render('System/Options/CreateOption');
+                    return Inertia::render('System/Options/OptionUpsert');
                 })->name('system.options.create');
 
                 Route::get('/{id}', function () {
-                    return Inertia::render('System/Options/EditOption', [
-                        'data' => \App\Models\Option::find(request()->route('id')),
+                    return Inertia::render('System/Options/OptionUpsert', [
+                        'data' => \App\Models\Option::query()->findOrFail(request()->route('id')),
                     ]);
                 })->name('system.options.show');
             });

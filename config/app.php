@@ -64,6 +64,8 @@ return [
 
     'url' => env('APP_URL', 'http://127.0.0.1'),
 
+    'local_url' => env('APP_URL_LOCAL', env('APP_URL', 'http://127.0.0.1')),
+
     'asset_url' => env('ASSET_URL'),
 
     /*

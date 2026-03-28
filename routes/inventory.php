@@ -6,10 +6,11 @@ use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SuppEquipReportController;
 use App\Http\Controllers\TransactionController;
+use App\Services\DeploymentAccessService;
 use Illuminate\Support\Facades\Route;
 use App\Models\Category;
 
-Route::prefix('inventory')->group(function () {
+Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_INVENTORY])->prefix('inventory')->group(function () {
     Route::middleware(['can:inventory.manage'])->group(function () {
         Route::get('categories', [CategoryController::class, 'index'])->name('api.inventory.categories.index');
 

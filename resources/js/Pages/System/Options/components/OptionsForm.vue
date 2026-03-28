@@ -34,6 +34,9 @@ export default {
     InputTextOptions() {
       return defineAsyncComponent(() => import("./ValueInputs/TextInput.vue"));
     },
+    SelectInputOptions() {
+      return defineAsyncComponent(() => import("./ValueInputs/SelectInput.vue"));
+    },
     NumberInputOptions() {
       return defineAsyncComponent(() =>
         import("./ValueInputs/NumberInput.vue")
@@ -55,8 +58,42 @@ export default {
     SelectOptionsEditorOptions() {
       return defineAsyncComponent(() => import("./SelectOptionsEditor.vue"));
     },
+    selectValueOptions() {
+      return this.normalizeSelectOptions(this.form?.options);
+    },
+    selectOptionsEmpty() {
+      return this.form?.type === "select" && this.selectValueOptions.length === 0;
+    },
   },
   methods: {
+    normalizeSelectOptions(rawOptions) {
+      let parsedOptions = rawOptions;
+
+      if (typeof parsedOptions === "string") {
+        try {
+          parsedOptions = JSON.parse(parsedOptions);
+        } catch (error) {
+          return [];
+        }
+      }
+
+      if (!Array.isArray(parsedOptions)) {
+        return [];
+      }
+
+      return parsedOptions
+        .map((option, index) => {
+          const value = option?.value ?? option?.name ?? option?.key ?? "";
+          const label =
+            option?.label ?? option?.name ?? option?.value ?? `Option ${index + 1}`;
+
+          return {
+            value: String(value),
+            label: String(label),
+          };
+        })
+        .filter((option) => option.value !== "" || option.label !== "");
+    },
     normalizePayload() {
       const payload = { ...this.form.data() };
 
@@ -95,7 +132,10 @@ export default {
         },
         textarea: { component: this.TextareaInputOptions, props: {} },
         boolean: { component: this.BooleanInputOptions, props: {} },
-        select: { component: this.SelectOptionsEditorOptions, props: {} },
+        select: {
+          component: this.SelectInputOptions,
+          props: { options: this.selectValueOptions },
+        },
         checkbox: { component: this.BooleanInputOptions, props: {} },
         json: { component: this.JsonInputOptions, props: {} },
       };
@@ -119,51 +159,22 @@ export default {
 };
 </script>
 <template>
-  <form
-    @submit.prevent="submitProxy"
-    class="space-y-6 rounded-lg p-6 border border-gray-500 bg-white"
-  >
+  <form @submit.prevent="submitProxy" class="space-y-6 rounded-lg p-6 border border-gray-500 bg-white">
     <!-- Key -->
-    <text-input
-      id="key"
-      label="Key"
-      v-model="form.key"
-      :error="form.errors?.key"
-      required
-      guide="Unique identifier in snake_case format"
-      placeholder="e.g., app_name (snake_case)"
-      @input="form.key = form.key.toLowerCase().replace(/\s+/g, '_')"
-    />
+    <text-input id="key" label="Key" v-model="form.key" :error="form.errors?.key" required
+      guide="Unique identifier in snake_case format" placeholder="e.g., app_name (snake_case)"
+      @input="form.key = form.key.toLowerCase().replace(/\s+/g, '_')" />
 
-    <text-input
-      id="label"
-      label="Label"
-      v-model="form.label"
-      :error="form.errors?.label"
-      required
-      guide="Human-readable name for the option"
-      placeholder="e.g., Application Name"
-    />
+    <text-input id="label" label="Label" v-model="form.label" :error="form.errors?.label" required
+      guide="Human-readable name for the option" placeholder="e.g., Application Name" />
 
     <!-- Description -->
-    <text-area
-      id="description"
-      label="Description"
-      v-model="form.description"
-      :error="form.errors?.description"
-      guide="What is this option used for?"
-      placeholder="Provide a brief description of the option's purpose"
-    />
+    <text-area id="description" label="Description" v-model="form.description" :error="form.errors?.description"
+      guide="What is this option used for?" placeholder="Provide a brief description of the option's purpose" />
 
     <!-- Type -->
-    <custom-dropdown
-      id="type"
-      label="Type"
-      required
-      :value="form.type"
-      @selectedChange="form.type = $event"
-      :error="form.errors?.type"
-      :options="[
+    <custom-dropdown id="type" label="Type" required :value="form.type" @selectedChange="form.type = $event"
+      :error="form.errors?.type" :options="[
         { name: 'text', label: 'Text' },
         { name: 'number', label: 'Number' },
         { name: 'textarea', label: 'Textarea' },
@@ -171,22 +182,13 @@ export default {
         { name: 'select', label: 'Select (with choices)' },
         { name: 'checkbox', label: 'Checkbox' },
         { name: 'json', label: 'JSON' },
-      ]"
-      :withAllOption="false"
-      placeholder="Select a type"
-      guide="Determines the input type and validation for the option value"
-    />
+      ]" :withAllOption="false" placeholder="Select a type"
+      guide="Determines the input type and validation for the option value" />
 
     <!-- Group -->
-    <text-input
-      id="group"
-      label="Group"
-      v-model="form.group"
-      :error="form.errors?.group"
+    <text-input id="group" label="Group" v-model="form.group" :error="form.errors?.group"
       guide="For organizing related options (e.g., system, forms, inventory)"
-      placeholder="e.g., system, forms, inventory"
-      datalist-id="group-list"
-      :datalist-options="[
+      placeholder="e.g., system, forms, inventory" datalist-id="group-list" :datalist-options="[
         'system',
         'email',
         'inventory',
@@ -195,59 +197,53 @@ export default {
         'requests',
         'locations',
         'reports',
-      ]"
-    />
+      ]" />
 
     <!-- Value -->
     <div>
       <label for="value" class="block text-sm font-medium text-gray-900">
         Value <span class="text-red-500">*</span>
       </label>
-      <component
-        :is="getValueComponent().component"
-        v-model="form.value"
-        v-bind="getValueComponent().props"
-        :errors="form.errors"
-      />
+      <component :is="getValueComponent().component" v-model="form.value" v-bind="getValueComponent().props"
+        :errors="form.errors" />
       <p v-if="form.errors.value" class="mt-1 text-sm text-red-600">
         {{ form.errors.value }}
+      </p>
+      <p v-else-if="selectOptionsEmpty" class="mt-1 text-xs text-amber-600">
+        Add select choices below before choosing the default stored value.
       </p>
     </div>
 
     <!-- Options (for select type) -->
     <!-- Removed duplicate SelectOptionsEditor -->
 
-    <!-- JSON Options (for select type metadata) -->
+    <!-- Select Options Metadata -->
     <div v-if="form.type === 'select'">
       <label for="options-metadata" class="block text-sm font-medium text-gray-900">
-        Options Metadata (JSON)
+        Select Choices
       </label>
-      <textarea
+      <div
         id="options-metadata"
-        v-model="form.options"
-        rows="5"
-        placeholder='[{"name": "option1", "label": "Option 1"}, {"name": "option2", "label": "Option 2"}]'
-        class="mt-2 block w-full font-mono text-sm rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-      ></textarea>
+        class="mt-2 rounded-lg border border-gray-200 bg-gray-50 p-4"
+      >
+        <component :is="SelectOptionsEditorOptions" v-model="form.options" />
+      </div>
       <p v-if="form.errors.options" class="mt-1 text-sm text-red-600">
         {{ form.errors.options }}
       </p>
-      <p class="mt-1 text-xs text-gray-500">JSON array of options for select/dropdown</p>
+      <p class="mt-1 text-xs text-gray-500">
+        Define the available stored values and labels for this select option. The Value field above uses these choices.
+      </p>
     </div>
 
     <!-- Form Actions -->
     <div class="flex gap-3 pt-6">
-      <Link
-        :href="route('system.options.index')"
-        class="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-50"
-      >
-        Cancel
+      <Link :href="route('system.options.index')"
+        class="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-50">
+      Cancel
       </Link>
-      <button
-        type="submit"
-        :disabled="processing"
-        class="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-      >
+      <button type="submit" :disabled="processing"
+        class="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
         {{ processing ? (isEdit ? "Saving..." : "Creating...") : (isEdit ? "Save Changes" : "Create Option") }}
       </button>
     </div>

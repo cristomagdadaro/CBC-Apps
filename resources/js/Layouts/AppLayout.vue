@@ -43,12 +43,14 @@ export default {
               label: "Event Forms",
               href: "forms.index",
               permission: "event.forms.manage",
+              moduleKey: "forms",
               icon: "LuCalendar",
             },
             {
               label: "Certificate Generator",
               href: "certificates.index",
               permission: "event.certificates.manage",
+              moduleKey: "forms",
               icon: "LuAward",
             },
           ],
@@ -62,18 +64,21 @@ export default {
               label: "Vehicle",
               href: "rentals.vehicle.index",
               permission: "rental.vehicle.manage",
+              moduleKey: "rentals",
               icon: "LuCar",
             },
             {
               label: "Venue",
               href: "rentals.venue.index",
               permission: "rental.venue.manage",
+              moduleKey: "rentals",
               icon: "LuBuilding",
             },
             {
               label: "Google Calendar Sync",
               href: "rentals.calendar.index",
               permission: "rental.vehicle.manage",
+              moduleKey: "rentals",
               icon: "LuCalendarDays",
             },
           ],
@@ -83,12 +88,14 @@ export default {
           label: "FES Request Form",
           href: "accessUseRequest.index",
           permission: "fes.request.approve",
+          moduleKey: "fes",
           icon: "LuShield",
         },
         {
           label: "Equipment Logger",
           href: "laboratory.dashboard",
           permission: "laboratory.logger.manage",
+          moduleKey: "laboratory_dashboard",
           icon: "LuMicroscope",
         },
         {
@@ -101,18 +108,21 @@ export default {
               label: "Dashboard",
               href: "research.dashboard",
               permission: "research.dashboard.view",
+              moduleKey: "research",
               icon: "LuLayoutDashboard",
             },
             {
               label: "Projects",
               href: "research.projects.index",
               permission: "research.projects.view",
+              moduleKey: "research",
               icon: "LuLayers",
             },
             {
               label: "Sample Inventory",
               href: "research.samples.inventory",
               permission: "research.samples.manage",
+              moduleKey: "research",
               icon: "LuBox",
             },
           ],
@@ -126,36 +136,43 @@ export default {
             {
               label: "Dashboard",
               href: "transactions.dashboard",
+              moduleKey: "inventory",
               icon: "LuBarChart3",
             },
             {
               label: "Transactions",
               href: "transactions.index",
+              moduleKey: "inventory",
               icon: "LuArrowLeftRight",
             },
             {
               label: "Recounting",
               href: "transactions.recounting",
+              moduleKey: "inventory",
               icon: "LuClipboardCheck",
             },
             {
               label: "Barcode Printing",
               href: "inventory.barcodes.print",
+              moduleKey: "inventory",
               icon: "LuBarcode",
             },
             {
               label: "Items",
               href: "items.index",
+              moduleKey: "inventory",
               icon: "LuBox",
             },
             {
               label: "Suppliers",
               href: "suppliers.index",
+              moduleKey: "inventory",
               icon: "LuTruck",
             },
             {
               label: "Personnels",
               href: "personnels.index",
+              moduleKey: "inventory",
               icon: "LuUsers",
             },
           ],
@@ -164,6 +181,7 @@ export default {
           label: "File Reports",
           href: "suppEquipReports.index",
           permission: "equipment.report.manage",
+          moduleKey: "inventory",
           icon: "LuFileText",
         },
         {
@@ -176,6 +194,7 @@ export default {
               label: "Options",
               href: "system.options.index",
               roles: ["admin"],
+              moduleKey: "options",
               icon: "LuSliders",
             },
             {
@@ -260,6 +279,9 @@ export default {
     currentRouteName() {
       return route().current();
     },
+    deploymentModules() {
+      return this.$page.props.deployment_access?.modules || {};
+    },
   },
   methods: {
     formatLabel(text) {
@@ -280,10 +302,20 @@ export default {
       const currentRoles = this.$page.props?.auth?.roles ?? [];
       return roles.some((role) => currentRoles.includes(role));
     },
+    hasVisibleModule(moduleKey) {
+      if (!moduleKey) return true;
+
+      const moduleState = this.deploymentModules?.[moduleKey];
+      if (!moduleState) return true;
+
+      return moduleState.available !== false && moduleState.mode !== "deactivated";
+    },
     canAccessService(service) {
       if (!service) return false;
       return (
-        this.hasPermission(service.permission) && this.hasAnyRole(service.roles || [])
+        this.hasPermission(service.permission) &&
+        this.hasAnyRole(service.roles || []) &&
+        this.hasVisibleModule(service.moduleKey)
       );
     },
     visibleChildren(service) {
@@ -369,7 +401,7 @@ export default {
       >
         <aside
           v-if="isSidebarModeResponsive"
-          class="hidden max-h-screen sticky top-0 lg:flex lg:flex-col lg:sticky inset-y-0 left-0 z-40 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg lg:shadow-none transition-all duration-300"
+          class="hidden max-h-screen overflow-visible sticky top-0 lg:flex lg:flex-col lg:sticky inset-y-0 left-0 z-40 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg lg:shadow-none transition-all duration-300"
           :class="sidebarCollapsed ? 'w-20' : 'w-64'"
         >
           <!-- Sidebar Header -->
@@ -436,7 +468,7 @@ export default {
           </button>
 
           <!-- Navigation Items -->
-          <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+          <nav class="flex-1 overflow-y-auto overflow-x-hidden overflow-visible py-4 px-3 space-y-1">
             <template v-for="service in visibleServices" :key="service.label">
               <!-- Single Link -->
               <Link

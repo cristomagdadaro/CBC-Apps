@@ -4,6 +4,7 @@ export { default as AddButton } from './Buttons/AddButton.vue';
 export { default as AuthenticationCard } from './AuthenticationCard.vue';
 export { default as AuthenticationCardLogo } from './AuthenticationCardLogo.vue';
 export { default as BaseBtn } from './Buttons/BaseBtn.vue';
+export { default as CancelBtn } from './Buttons/CancelBtn.vue';
 export { default as Checkbox } from './Checkbox.vue';
 export { default as ConfirmsPassword } from './ConfirmsPassword.vue';
 export { default as ConfirmationModal } from './ConfirmationModal.vue';
