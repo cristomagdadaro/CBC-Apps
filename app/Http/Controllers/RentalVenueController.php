@@ -235,7 +235,7 @@ class RentalVenueController extends BaseController
         $payload = $rental->toArray();
 
         if (!$includeContactNumber) {
-            $payload = Arr::except($payload, ['contact_number', 'requested_by', 'notes']);
+            $payload = Arr::except($payload, ['contact_number', 'notes']);
         }
 
         return $payload;

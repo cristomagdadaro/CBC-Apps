@@ -49,6 +49,7 @@ class StateApiTest extends TestCase
             'step_type' => 'preregistration',
             'step_order' => 1,
             'is_enabled' => true,
+            'max_slots' => 10,
             'open_from' => $openFrom,
             'open_to' => $openTo,
             'config' => [
@@ -63,6 +64,7 @@ class StateApiTest extends TestCase
             'step_type' => 'registration',
             'step_order' => 2,
             'is_enabled' => true,
+            'max_slots' => 10,
             'open_from' => $openFrom,
             'open_to' => $openTo,
             'config' => [

@@ -25,11 +25,13 @@ class RbacServiceTest extends TestCase
 
     public function test_ict_manager_permissions_are_applied_from_role_map(): void
     {
-        $role = Role::query()->create([
-            'name' => RoleEnum::ICT_MANAGER->value,
-            'label' => 'ICT Manager',
-            'description' => 'Inventory, reports, and event forms',
-        ]);
+        $role = Role::query()->firstOrCreate(
+            ['name' => RoleEnum::ICT_MANAGER->value],
+            [
+                'label' => 'ICT Manager',
+                'description' => 'Inventory, reports, and event forms',
+            ]
+        );
 
         $user = User::factory()->create(['is_admin' => false]);
         $user->roles()->attach($role->id);
@@ -57,11 +59,13 @@ class RbacServiceTest extends TestCase
 
     public function test_administrative_assistant_has_certificate_permission_only(): void
     {
-        $role = Role::query()->create([
-            'name' => RoleEnum::ADMINISTRATIVE_ASSISTANT->value,
-            'label' => 'Administrative Assistant',
-            'description' => 'Certificate and rental services access',
-        ]);
+        $role = Role::query()->firstOrCreate(
+            ['name' => RoleEnum::ADMINISTRATIVE_ASSISTANT->value],
+            [
+                'label' => 'Administrative Assistant',
+                'description' => 'Certificate and rental services access',
+            ]
+        );
 
         $user = User::factory()->create(['is_admin' => false]);
         $user->roles()->attach($role->id);

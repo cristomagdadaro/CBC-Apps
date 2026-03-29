@@ -3,12 +3,14 @@ import {useForm} from "@inertiajs/vue3";
 import Form from "@/Modules/domain/Form";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 import QrcodeVue from 'qrcode.vue';
+import GuestCard from "@/Pages/Forms/components/GuestCard.vue";
 
 export default {
     name: "FormGuest",
     mixins: [FormLocalMixin],
     components: {
-        QrcodeVue
+        QrcodeVue,
+        GuestCard,
     },
     props: {
         eventForm: { type: Object },

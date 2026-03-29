@@ -2,7 +2,10 @@
 
 namespace Tests;
 
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Foundation\Testing\RefreshDatabaseState;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\Config;
 use PDO;
 use PDOException;
 use RuntimeException;
@@ -12,12 +15,31 @@ abstract class TestCase extends BaseTestCase
     use CreatesApplication;
 
     protected static bool $testingDatabaseCreated = false;
+    protected static string|bool $refreshDatabaseBaseline = false;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Config::set('app.url', 'http://localhost');
+        Config::set('app.local_url', 'http://localhost');
+    }
 
     protected function setUpTraits()
     {
         $this->ensureTestingDatabaseExists();
 
-        return parent::setUpTraits();
+        $desiredBaseline = $this->desiredRefreshDatabaseBaseline();
+
+        if (RefreshDatabaseState::$migrated && static::$refreshDatabaseBaseline !== $desiredBaseline) {
+            $this->artisan('migrate:fresh', $this->migrateFreshUsing());
+            $this->app[Kernel::class]->setArtisan(null);
+        }
+
+        $uses = parent::setUpTraits();
+        static::$refreshDatabaseBaseline = $desiredBaseline;
+
+        return $uses;
     }
 
     protected function ensureTestingDatabaseExists(): void
@@ -63,5 +85,18 @@ abstract class TestCase extends BaseTestCase
         ]);
 
         $pdo->exec("CREATE DATABASE IF NOT EXISTS `{$databaseIdentifier}` CHARACTER SET {$charset} COLLATE {$collation}");
+    }
+
+    protected function desiredRefreshDatabaseBaseline(): string|bool
+    {
+        if (property_exists($this, 'seeder') && $this->seeder) {
+            return $this->seeder;
+        }
+
+        if (property_exists($this, 'seed') && $this->seed) {
+            return true;
+        }
+
+        return false;
     }
 }

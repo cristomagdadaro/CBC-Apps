@@ -5,6 +5,7 @@ namespace Tests\Feature\PDF;
 use App\Models\RequestFormPivot;
 use App\Models\User;
 use Barryvdh\DomPDF\PDF as PDFInstance;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
 use Mockery;
@@ -19,12 +20,12 @@ class PDFGeneratorControllerTest extends TestCase
         parent::setUp();
 
         $this->actingAs(User::factory()->create(['is_admin' => true]));
-        File::deleteDirectory(public_path('generated-pdfs'));
+        File::deleteDirectory(storage_path('app/private/generated-pdfs'));
     }
 
     protected function tearDown(): void
     {
-        File::deleteDirectory(public_path('generated-pdfs'));
+        File::deleteDirectory(storage_path('app/private/generated-pdfs'));
         Mockery::close();
 
         parent::tearDown();
@@ -59,7 +60,7 @@ class PDFGeneratorControllerTest extends TestCase
             ->assertJsonPath('url', route('forms.generate.pdf', ['id' => $pivot->id, 'template' => 'generator/pdf/printable-request-form']))
             ->assertJsonPath('download_url', route('forms.generate.pdf', ['id' => $pivot->id, 'template' => 'generator/pdf/printable-request-form', 'download' => 1]));
 
-        $this->assertTrue(File::exists(public_path('generated-pdfs/generator-pdf-printable-request-form/' . $pivot->id . '.pdf')));
+        $this->assertTrue(File::exists(storage_path('app/private/generated-pdfs/generator-pdf-printable-request-form/' . $pivot->id . '.pdf')));
     }
 
     public function test_generate_pdf_rejects_unknown_type(): void
@@ -74,7 +75,7 @@ class PDFGeneratorControllerTest extends TestCase
 
     public function test_generate_barcode_labels_returns_download_response(): void
     {
-        $pdfMock = Mockery::mock(PDF::class);
+        $pdfMock = Mockery::mock(PDFInstance::class);
         $pdfMock->shouldReceive('setPaper')
             ->once()
             ->andReturnSelf();

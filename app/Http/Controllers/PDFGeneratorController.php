@@ -46,7 +46,7 @@ class PDFGeneratorController extends BaseController
         $this->authorize('view', $form);
 
         // Prepare cache path based on template and id
-        $templateSlug = Str::slug($template);
+        $templateSlug = Str::slug(str_replace(['/', '\\'], '-', $template));
         $cacheDir = storage_path("app/private/generated-pdfs/{$templateSlug}");
         if (!File::exists($cacheDir)) {
             File::makeDirectory($cacheDir, 0775, true);

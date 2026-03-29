@@ -44,6 +44,10 @@ class RouteServiceProvider extends ServiceProvider
     public function boot(): void
     {
         RateLimiter::for('api', function (Request $request) {
+            if ($this->app->environment('testing')) {
+                return Limit::none();
+            }
+
             $routeName = $request->route()?->getName() ?? 'api.unknown';
             $actorKey = (string) ($request->user()?->id ?: $request->ip());
             $isAuthenticated = $request->user() !== null;

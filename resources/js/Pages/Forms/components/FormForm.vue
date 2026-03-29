@@ -5,6 +5,7 @@ import ApiMixin from "@/Modules/mixins/ApiMixin";
 import RequirementsManager from "@/Components/Forms/RequirementsManager.vue";
 import FormStyleDesigner from "@/Pages/Forms/components/FormStyleDesigner.vue";
 import SuspendFormBtn from "./SuspendFormBtn.vue";
+import GuestCard from "@/Pages/Forms/components/GuestCard.vue";
 
 export default {
   name: "FormCreate",
@@ -13,6 +14,7 @@ export default {
     RequirementsManager,
     ListOfForms,
     SuspendFormBtn,
+    GuestCard,
   },
   mixins: [ApiMixin],
   data() {

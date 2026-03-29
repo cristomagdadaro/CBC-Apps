@@ -33,3 +33,6 @@ node_modules/
 /playwright/.cache/
 /playwright/.auth/
 NUL
+venv/
+app/python/Certificate-Generator/venv/
+

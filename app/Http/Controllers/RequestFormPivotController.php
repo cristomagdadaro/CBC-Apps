@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateRequestFormPivot;
 use App\Repositories\RequestFormPivotRepo;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
 use App\Models\RequestFormPivot;
 
 class RequestFormPivotController extends BaseController
@@ -28,9 +29,12 @@ class RequestFormPivotController extends BaseController
         return parent::_index($request);
     }
 
-    public function create(CreateRequestFormPivot $request): Model
+    public function create(CreateRequestFormPivot $request): JsonResponse
     {
-        return $this->repo()->createRequestPivot($request->validated());
+        return response()->json(
+            $this->repo()->createRequestPivot($request->validated()),
+            201
+        );
     }
 
     public function update(UpdateRequestFormPivot $request, $request_pivot_id = null): Model

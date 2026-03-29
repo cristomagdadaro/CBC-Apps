@@ -61,6 +61,21 @@ class TransactionController extends BaseController
     public function destroy(Request $request, string $id): Model | JsonResponse
     {
         if ($request->boolean('force')) {
+            $transaction = $this->repo()->model->newQuery()->withTrashed()->findOrFail($id);
+
+            $validated = $request->validate([
+                'confirmation_barcode' => ['required', 'string'],
+            ]);
+
+            if ($validated['confirmation_barcode'] !== $transaction->barcode) {
+                return response()->json([
+                    'message' => 'Confirmation barcode does not match the transaction barcode.',
+                    'errors' => [
+                        'confirmation_barcode' => ['Confirmation barcode does not match the transaction barcode.'],
+                    ],
+                ], 422);
+            }
+
             $deleted = $this->repo()->forceDelete($id);
 
             return response()->json([

@@ -36,7 +36,7 @@ class RequestFormPivotObserver
      */
     protected function purgeCached(string $id): void
     {
-        $base = public_path('generated-pdfs');
+        $base = storage_path('app/private/generated-pdfs');
         if (!File::isDirectory($base)) {
             return;
         }
