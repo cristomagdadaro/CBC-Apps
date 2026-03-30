@@ -25,6 +25,7 @@ class RentalVenueController extends BaseController
             $request->only(['search', 'filter', 'is_exact', 'sort', 'order', 'page', 'per_page']),
             (int) $request->query('per_page', 15)
         );
+
         return response()->json($rentals);
     }
 
@@ -40,11 +41,11 @@ class RentalVenueController extends BaseController
             'venue_type' => $request->query('venue_type'),
             'date_from' => $request->query('date_from'),
             'date_to' => $request->query('date_to'),
+            'statuses' => $statuses,
         ];
 
         $rentals = collect($this->repo()->all($filters))
-            ->when(!empty($statuses), fn ($items) => $items->whereIn('status', $statuses))
-            ->map(fn (RentalVenue $rental) => $this->buildPublicRentalPayload($rental, false))
+            ->map(fn (RentalVenue $rental) => $this->buildPublicRentalPayload($rental))
             ->values();
 
         return response()->json(['data' => $rentals]);
@@ -54,7 +55,6 @@ class RentalVenueController extends BaseController
     {
         $data = $request->validated();
 
-        // Check for conflicts
         $dateFrom = Carbon::parse($data['date_from']);
         $dateTo = Carbon::parse($data['date_to']);
 
@@ -67,11 +67,11 @@ class RentalVenueController extends BaseController
         )) {
             return response()->json([
                 'message' => 'The selected venue is not available for the requested dates and time.',
-                'error' => 'conflict'
+                'error' => 'conflict',
             ], 409);
         }
 
-        $data['status'] = 'pending';
+        $data['status'] = RentalVenue::STATUS_PENDING;
         $rental = $this->repo()->create($data);
 
         return response()->json(['data' => $rental], 201);
@@ -88,7 +88,7 @@ class RentalVenueController extends BaseController
         return response()->json(['data' => $rental]);
     }
 
-    public function publicShow(Request $request, string $id): JsonResponse
+    public function publicShow(string $id): JsonResponse
     {
         $rental = $this->repo()->find($id);
 
@@ -97,7 +97,7 @@ class RentalVenueController extends BaseController
         }
 
         return response()->json([
-            'data' => $this->buildPublicRentalPayload($rental, $request->user() !== null),
+            'data' => $this->buildPublicRentalPayload($rental),
         ]);
     }
 
@@ -111,7 +111,6 @@ class RentalVenueController extends BaseController
 
         $data = $request->validated();
 
-        // Check for conflicts if dates are being updated
         if (isset($data['date_from']) || isset($data['date_to'])) {
             $dateFrom = Carbon::parse($data['date_from'] ?? $rental->date_from);
             $dateTo = Carbon::parse($data['date_to'] ?? $rental->date_to);
@@ -122,7 +121,7 @@ class RentalVenueController extends BaseController
             if ($this->repo()->checkConflict($venueType, $dateFrom, $dateTo, $timeFrom, $timeTo, $id)) {
                 return response()->json([
                     'message' => 'The selected venue is not available for the requested dates and time.',
-                    'error' => 'conflict'
+                    'error' => 'conflict',
                 ], 409);
             }
         }
@@ -185,33 +184,27 @@ class RentalVenueController extends BaseController
                 'venue_type' => $venueType,
                 'date_from' => $dateFrom,
                 'date_to' => $dateTo,
+                'message' => $isAvailable
+                    ? 'Venue is available for the selected dates.'
+                    : 'Venue is not available for the selected dates.',
             ];
 
-            if ($isAvailable) {
-                $response['message'] = 'Venue is available for the selected dates.';
-            } else {
-                // Build descriptive message about conflicts
-                $conflictMessages = $conflicts->map(function ($rental) {
-                    return "Booked by {$rental->requested_by} from {$rental->date_from} to {$rental->date_to}";
-                })->implode('; ');
-                $response['message'] = "Venue is not available for the selected dates. Conflicts: {$conflictMessages}";
-                $response['conflicts'] = $conflicts->map(function ($rental) {
-                    return [
-                        'event_name' => $rental->event_name,
-                        'date_from' => $rental->date_from,
-                        'date_to' => $rental->date_to,
-                        'time_from' => $rental->time_from,
-                        'time_to' => $rental->time_to,
-                        'status' => $rental->status,
-                    ];
-                });
+            if (!$isAvailable) {
+                $response['conflicts'] = $conflicts->map(function (RentalVenue $rental) {
+                    return $this->buildPublicAvailabilityWindow(
+                        $rental->date_from,
+                        $rental->time_from,
+                        $rental->date_to,
+                        $rental->time_to,
+                        $rental->status,
+                    );
+                })->values();
             }
 
             return response()->json($response);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return response()->json([
                 'message' => 'Invalid date format',
-                'error' => $e->getMessage()
             ], 400);
         }
     }
@@ -219,6 +212,7 @@ class RentalVenueController extends BaseController
     public function getByVenueType(string $venueType): JsonResponse
     {
         $rentals = $this->repo()->all(['venue_type' => $venueType]);
+
         return response()->json(['data' => $rentals]);
     }
 
@@ -230,14 +224,36 @@ class RentalVenueController extends BaseController
         return $repository;
     }
 
-    private function buildPublicRentalPayload(RentalVenue $rental, bool $includeContactNumber): array
+    private function buildPublicRentalPayload(RentalVenue $rental): array
     {
-        $payload = $rental->toArray();
+        return Arr::only($rental->toArray(), [
+            'id',
+            'venue_type',
+            'date_from',
+            'date_to',
+            'time_from',
+            'time_to',
+            'status',
+        ]);
+    }
 
-        if (!$includeContactNumber) {
-            $payload = Arr::except($payload, ['contact_number', 'notes']);
+    private function buildPublicAvailabilityWindow(?string $dateFrom, ?string $timeFrom, ?string $dateTo, ?string $timeTo, ?string $status): array
+    {
+        return [
+            'starts_at' => $this->formatAvailabilityTimestamp($dateFrom, $timeFrom, false),
+            'ends_at' => $this->formatAvailabilityTimestamp($dateTo, $timeTo, true),
+            'status' => $status,
+        ];
+    }
+
+    private function formatAvailabilityTimestamp(?string $date, ?string $time, bool $endOfDay): ?string
+    {
+        if (!$date) {
+            return null;
         }
 
-        return $payload;
+        $resolvedTime = $time ?: ($endOfDay ? '23:59:59' : '00:00:00');
+
+        return Carbon::parse($date . ' ' . $resolvedTime)->toIso8601String();
     }
 }

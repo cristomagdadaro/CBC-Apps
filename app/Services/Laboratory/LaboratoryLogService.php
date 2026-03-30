@@ -7,6 +7,7 @@ use App\Models\LaboratoryEquipmentLocationSurvey;
 use App\Models\LaboratoryEquipmentLog;
 use App\Models\Personnel;
 use App\Models\Transaction;
+use App\Models\User;
 use App\Repositories\OptionRepo;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -110,7 +111,7 @@ class LaboratoryLogService
 
         return [
             'equipment' => $equipment,
-            'active_log' => $activeLog,
+            'active_log' => $this->serializeActiveLog($activeLog),
             'allowed_actions' => $activeLog ? ['check-out'] : ['check-in'],
             'purpose_suggestions' => $this->getPurposeSuggestions($equipmentId),
             'current_location' => $resolvedLocation,
@@ -132,21 +133,17 @@ class LaboratoryLogService
             abort(404, 'Equipment not found.');
         }
 
-        return DB::transaction(function () use ($equipmentId, $payload) {
+        $personnel = $this->requireAuthenticatedPersonnel();
+
+        return DB::transaction(function () use ($equipmentId, $payload, $personnel) {
             $activeLog = $this->lockActiveLog($equipmentId);
             if ($activeLog) {
                 abort(409, 'Equipment already has an active log.');
             }
 
-            $personnel = Personnel::where('employee_id', $payload['employee_id'])->first();
-            if (!$personnel) {
-                abort(422, 'Personnel not found for the provided PhilRice ID.');
-            }
-            $personnelId = $personnel->id;
-
             $log = new LaboratoryEquipmentLog();
             $log->equipment_id = $equipmentId;
-            $log->personnel_id = $personnelId;
+            $log->personnel_id = $personnel->id;
             $log->status = 'active';
             $log->started_at = Carbon::now();
             $log->end_use_at = Carbon::parse($payload['end_use_at']);
@@ -186,22 +183,13 @@ class LaboratoryLogService
                 abort(409, 'No active log found for this equipment.');
             }
 
-            $isAdminOverride = !empty($payload['admin_override']) && (auth()->user()?->is_admin ?? false);
-            $checkedInPersonnel = $activeLog->personnel_id
-                ? Personnel::find($activeLog->personnel_id)
-                : null;
+            $isAdminOverride = $this->requestedAdminOverride($payload);
+            if (!$isAdminOverride) {
+                $personnel = $this->requireAuthenticatedPersonnel();
 
-            if (!$checkedInPersonnel) {
-                abort(409, 'No personnel record found for this log.');
-            }
-
-            $personnel = Personnel::where('employee_id', $payload['employee_id'])->first();
-            if (!$personnel) {
-                abort(422, 'Personnel not found for the provided PhilRice ID.');
-            }
-
-            if ($personnel->id !== $activeLog->personnel_id && !$isAdminOverride) {
-                abort(403, 'Only the original check-in personnel can check out this equipment.');
+                if ($personnel->id !== $activeLog->personnel_id) {
+                    abort(403, 'Only the original check-in personnel can check out this equipment.');
+                }
             }
 
             $activeLog->status = 'completed';
@@ -226,15 +214,12 @@ class LaboratoryLogService
             abort(404, 'Equipment not found.');
         }
 
-        return DB::transaction(function () use ($equipmentId, $payload) {
+        $personnel = $this->requireAuthenticatedPersonnel();
+
+        return DB::transaction(function () use ($equipmentId, $payload, $personnel) {
             $activeLog = $this->lockActiveLog($equipmentId);
             if (!$activeLog) {
                 abort(409, 'No active log found for this equipment.');
-            }
-
-            $personnel = Personnel::where('employee_id', $payload['employee_id'])->first();
-            if (!$personnel) {
-                abort(422, 'Personnel not found for the provided PhilRice ID.');
             }
 
             if ($personnel->id !== $activeLog->personnel_id) {
@@ -260,10 +245,7 @@ class LaboratoryLogService
             abort(404, 'Equipment not found.');
         }
 
-        $personnel = Personnel::where('employee_id', $payload['employee_id'])->first();
-        if (!$personnel) {
-            abort(422, 'Personnel not found for the provided PhilRice ID.');
-        }
+        $personnel = $this->requireAuthenticatedPersonnel();
 
         return DB::transaction(function () use ($equipmentId, $payload, $personnel) {
             $survey = LaboratoryEquipmentLocationSurvey::firstOrNew([
@@ -524,7 +506,7 @@ class LaboratoryLogService
 
     private function getActiveLog(string $equipmentId): ?LaboratoryEquipmentLog
     {
-        return LaboratoryEquipmentLog::with(['personnel'])
+        return LaboratoryEquipmentLog::query()
             ->where('equipment_id', $equipmentId)
             ->whereIn('status', ['active', 'overdue'])
             ->orderByDesc('started_at')
@@ -587,6 +569,55 @@ class LaboratoryLogService
             'code' => $locationCode,
             'label' => $locationCode ? ($locationByCode[$locationCode] ?? 'Unknown Location') : 'Unknown Location',
             'source' => 'barcode',
+        ];
+    }
+    private function requestedAdminOverride(array $payload): bool
+    {
+        return !empty($payload['admin_override']) && (auth()->user()?->is_admin ?? false);
+    }
+
+    private function requireAuthenticatedUser(): User
+    {
+        $user = auth()->user();
+
+        if (!$user instanceof User) {
+            abort(401, 'Authentication is required for equipment log actions.');
+        }
+
+        return $user;
+    }
+
+    private function requireAuthenticatedPersonnel(): Personnel
+    {
+        $user = $this->requireAuthenticatedUser();
+        $employeeId = trim((string) ($user->employee_id ?? ''));
+
+        if ($employeeId === '') {
+            abort(422, 'The authenticated user is not linked to a personnel record.');
+        }
+
+        $personnel = Personnel::where('employee_id', $employeeId)->first();
+
+        if (!$personnel) {
+            abort(422, 'The authenticated user is not linked to a personnel record.');
+        }
+
+        return $personnel;
+    }
+
+    private function serializeActiveLog(?LaboratoryEquipmentLog $activeLog): ?array
+    {
+        if (!$activeLog) {
+            return null;
+        }
+
+        return [
+            'id' => $activeLog->id,
+            'equipment_id' => $activeLog->equipment_id,
+            'status' => $activeLog->status,
+            'started_at' => $activeLog->started_at,
+            'end_use_at' => $activeLog->end_use_at,
+            'actual_end_at' => $activeLog->actual_end_at,
         ];
     }
 }

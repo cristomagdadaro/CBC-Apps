@@ -45,6 +45,32 @@ class RentalControllersTest extends TestCase
         ]);
     }
 
+    public function test_guest_vehicle_rental_allows_same_day_non_overlapping_time_window(): void
+    {
+        $date = now()->addDays(7)->toDateString();
+
+        RentalVehicle::query()->create(array_merge($this->vehiclePayload([
+            'vehicle_type' => 'innova',
+            'date_from' => $date,
+            'date_to' => $date,
+            'time_from' => '08:00:00',
+            'time_to' => '10:00:00',
+            'status' => 'approved',
+        ]), [
+            'status' => 'approved',
+        ]));
+
+        $this->postJson(route('api.guest.rental.vehicles.store'), $this->vehiclePayload([
+            'vehicle_type' => 'innova',
+            'date_from' => $date,
+            'date_to' => $date,
+            'time_from' => '10:00:00',
+            'time_to' => '12:00:00',
+        ]))
+            ->assertCreated()
+            ->assertJsonPath('data.status', 'pending');
+    }
+
     public function test_user_with_vehicle_manage_permission_can_update_vehicle_rental(): void
     {
         $user = $this->createUserWithRole(RoleEnum::ADMINISTRATIVE_ASSISTANT->value);
@@ -116,6 +142,92 @@ class RentalControllersTest extends TestCase
             ->assertJsonPath('data.notes', 'Assigned during approval');
     }
 
+    public function test_guest_public_vehicle_rental_list_is_sanitized(): void
+    {
+        $rental = RentalVehicle::query()->create(array_merge($this->vehiclePayload(), [
+            'status' => 'pending',
+        ]));
+
+        $this->getJson(route('api.guest.rental.vehicles.index'))
+            ->assertOk()
+            ->assertJsonPath('data.0.id', $rental->id)
+            ->assertJsonPath('data.0.vehicle_type', 'innova')
+            ->assertJsonMissingPath('data.0.requested_by')
+            ->assertJsonMissingPath('data.0.contact_number')
+            ->assertJsonMissingPath('data.0.destination_location')
+            ->assertJsonMissingPath('data.0.notes');
+    }
+
+    public function test_guest_public_vehicle_rental_detail_is_sanitized(): void
+    {
+        $rental = RentalVehicle::query()->create(array_merge($this->vehiclePayload(), [
+            'status' => 'pending',
+        ]));
+
+        $this->getJson(route('api.guest.rental.vehicles.show', $rental->id))
+            ->assertOk()
+            ->assertJsonPath('data.id', $rental->id)
+            ->assertJsonMissingPath('data.requested_by')
+            ->assertJsonMissingPath('data.contact_number')
+            ->assertJsonMissingPath('data.destination_location')
+            ->assertJsonMissingPath('data.notes');
+    }
+
+    public function test_authenticated_callers_still_receive_sanitized_public_vehicle_detail(): void
+    {
+        Sanctum::actingAs($this->createUserWithRole(RoleEnum::ADMINISTRATIVE_ASSISTANT->value));
+
+        $rental = RentalVehicle::query()->create(array_merge($this->vehiclePayload(), [
+            'status' => 'pending',
+        ]));
+
+        $this->getJson(route('api.guest.rental.vehicles.show', $rental->id))
+            ->assertOk()
+            ->assertJsonMissingPath('data.requested_by')
+            ->assertJsonMissingPath('data.contact_number')
+            ->assertJsonMissingPath('data.notes');
+    }
+
+    public function test_guest_public_vehicle_availability_hides_conflict_identities(): void
+    {
+        $dateFrom = now()->addDays(9)->toDateString();
+        $dateTo = now()->addDays(10)->toDateString();
+
+        RentalVehicle::query()->create(array_merge($this->vehiclePayload([
+            'vehicle_type' => 'van',
+            'date_from' => $dateFrom,
+            'date_to' => $dateTo,
+            'time_from' => '09:00:00',
+            'time_to' => '17:00:00',
+            'status' => 'approved',
+        ]), [
+            'status' => 'approved',
+        ]));
+
+        $this->getJson(route('api.guest.rental.vehicles.check-availability', [
+            'vehicleType' => 'van',
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+        ]))
+            ->assertOk()
+            ->assertJsonPath('available', false)
+            ->assertJsonStructure([
+                'available',
+                'vehicle_type',
+                'date_from',
+                'date_to',
+                'message',
+                'conflicts' => [[
+                    'starts_at',
+                    'ends_at',
+                    'status',
+                ]],
+            ])
+            ->assertJsonMissingPath('conflicts.0.requested_by')
+            ->assertJsonMissingPath('conflicts.0.contact_number')
+            ->assertJsonMissingPath('conflicts.0.event_name');
+    }
+
     public function test_guest_can_create_venue_rental_through_public_endpoint(): void
     {
         $response = $this->postJson(route('api.guest.rental.venues.store'), $this->venuePayload());
@@ -127,6 +239,30 @@ class RentalControllersTest extends TestCase
             'venue_type' => 'plenary',
             'status' => 'pending',
         ]);
+    }
+
+    public function test_guest_venue_rental_allows_same_day_non_overlapping_time_window(): void
+    {
+        $date = now()->addDays(12)->toDateString();
+
+        RentalVenue::query()->create(array_merge($this->venuePayload([
+            'date_from' => $date,
+            'date_to' => $date,
+            'time_from' => '08:00:00',
+            'time_to' => '10:00:00',
+            'status' => 'approved',
+        ]), [
+            'status' => 'approved',
+        ]));
+
+        $this->postJson(route('api.guest.rental.venues.store'), $this->venuePayload([
+            'date_from' => $date,
+            'date_to' => $date,
+            'time_from' => '10:00:00',
+            'time_to' => '12:00:00',
+        ]))
+            ->assertCreated()
+            ->assertJsonPath('data.status', 'pending');
     }
 
     public function test_user_with_venue_manage_permission_can_update_venue_rental(): void
@@ -162,33 +298,23 @@ class RentalControllersTest extends TestCase
         ])->assertForbidden();
     }
 
-    public function test_guest_public_vehicle_rental_detail_hides_contact_number(): void
+    public function test_guest_public_venue_rental_list_is_sanitized(): void
     {
-        $rental = RentalVehicle::query()->create(array_merge($this->vehiclePayload(), [
+        $rental = RentalVenue::query()->create(array_merge($this->venuePayload(), [
             'status' => 'pending',
         ]));
 
-        $this->getJson(route('api.guest.rental.vehicles.show', $rental->id))
+        $this->getJson(route('api.guest.rental.venues.index'))
             ->assertOk()
-            ->assertJsonPath('data.requested_by', 'Jane Doe')
-            ->assertJsonMissingPath('data.contact_number');
+            ->assertJsonPath('data.0.id', $rental->id)
+            ->assertJsonPath('data.0.venue_type', 'plenary')
+            ->assertJsonMissingPath('data.0.event_name')
+            ->assertJsonMissingPath('data.0.requested_by')
+            ->assertJsonMissingPath('data.0.contact_number')
+            ->assertJsonMissingPath('data.0.notes');
     }
 
-    public function test_authenticated_public_vehicle_rental_detail_includes_contact_number(): void
-    {
-        $user = $this->createUserWithRole(RoleEnum::ADMINISTRATIVE_ASSISTANT->value);
-        Sanctum::actingAs($user);
-
-        $rental = RentalVehicle::query()->create(array_merge($this->vehiclePayload(), [
-            'status' => 'pending',
-        ]));
-
-        $this->getJson(route('api.guest.rental.vehicles.show', $rental->id))
-            ->assertOk()
-            ->assertJsonPath('data.contact_number', '09171234567');
-    }
-
-    public function test_guest_public_venue_rental_detail_hides_contact_number(): void
+    public function test_guest_public_venue_rental_detail_is_sanitized(): void
     {
         $rental = RentalVenue::query()->create(array_merge($this->venuePayload(), [
             'status' => 'pending',
@@ -196,14 +322,16 @@ class RentalControllersTest extends TestCase
 
         $this->getJson(route('api.guest.rental.venues.show', $rental->id))
             ->assertOk()
-            ->assertJsonPath('data.requested_by', 'Jane Doe')
-            ->assertJsonMissingPath('data.contact_number');
+            ->assertJsonPath('data.id', $rental->id)
+            ->assertJsonMissingPath('data.event_name')
+            ->assertJsonMissingPath('data.requested_by')
+            ->assertJsonMissingPath('data.contact_number')
+            ->assertJsonMissingPath('data.notes');
     }
 
-    public function test_authenticated_public_venue_rental_detail_includes_contact_number(): void
+    public function test_authenticated_callers_still_receive_sanitized_public_venue_detail(): void
     {
-        $user = $this->createUserWithRole(RoleEnum::ADMINISTRATIVE_ASSISTANT->value);
-        Sanctum::actingAs($user);
+        Sanctum::actingAs($this->createUserWithRole(RoleEnum::ADMINISTRATIVE_ASSISTANT->value));
 
         $rental = RentalVenue::query()->create(array_merge($this->venuePayload(), [
             'status' => 'pending',
@@ -211,14 +339,56 @@ class RentalControllersTest extends TestCase
 
         $this->getJson(route('api.guest.rental.venues.show', $rental->id))
             ->assertOk()
-            ->assertJsonPath('data.contact_number', '09171234567');
+            ->assertJsonMissingPath('data.event_name')
+            ->assertJsonMissingPath('data.requested_by')
+            ->assertJsonMissingPath('data.contact_number')
+            ->assertJsonMissingPath('data.notes');
+    }
+
+    public function test_guest_public_venue_availability_hides_conflict_identities(): void
+    {
+        $date = now()->addDays(14)->toDateString();
+
+        RentalVenue::query()->create(array_merge($this->venuePayload([
+            'venue_type' => 'plenary',
+            'date_from' => $date,
+            'date_to' => $date,
+            'time_from' => '09:00:00',
+            'time_to' => '16:00:00',
+            'status' => 'approved',
+        ]), [
+            'status' => 'approved',
+        ]));
+
+        $this->getJson(route('api.guest.rental.venues.check-availability', [
+            'venueType' => 'plenary',
+            'dateFrom' => $date,
+            'dateTo' => $date,
+        ]))
+            ->assertOk()
+            ->assertJsonPath('available', false)
+            ->assertJsonStructure([
+                'available',
+                'venue_type',
+                'date_from',
+                'date_to',
+                'message',
+                'conflicts' => [[
+                    'starts_at',
+                    'ends_at',
+                    'status',
+                ]],
+            ])
+            ->assertJsonMissingPath('conflicts.0.requested_by')
+            ->assertJsonMissingPath('conflicts.0.contact_number')
+            ->assertJsonMissingPath('conflicts.0.event_name');
     }
 
     private function seedLocation(): void
     {
         DB::table('loc_cities')->insert([
             'id' => 1,
-            'city' => 'Science City of Muñoz',
+            'city' => 'Science City of Mu?oz',
             'province' => 'Nueva Ecija',
             'region' => 'REGION III',
             'latitude' => 15.7161,
@@ -267,7 +437,7 @@ class RentalControllersTest extends TestCase
             'time_to' => '17:00:00',
             'purpose' => 'Field visit',
             'destination_location' => 'Main Office',
-            'destination_city' => 'Science City of Muñoz',
+            'destination_city' => 'Science City of Mu?oz',
             'destination_province' => 'Nueva Ecija',
             'destination_region' => 'REGION III',
             'destination_stops' => [],
@@ -291,7 +461,7 @@ class RentalControllersTest extends TestCase
             'expected_attendees' => 120,
             'event_name' => 'Planning Workshop',
             'destination_location' => 'CBC Campus',
-            'destination_city' => 'Science City of Muñoz',
+            'destination_city' => 'Science City of Mu?oz',
             'destination_province' => 'Nueva Ecija',
             'destination_region' => 'REGION III',
             'requested_by' => 'Jane Doe',

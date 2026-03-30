@@ -8,6 +8,7 @@ use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class RentalVehicleRepository extends AbstractRepoService
 {
@@ -28,8 +29,13 @@ class RentalVehicleRepository extends AbstractRepoService
             $query->where('trip_type', $filters['trip_type']);
         }
 
-        if (!empty($filters['status'])) {
-            $query->where('status', $filters['status']);
+        if (!empty($filters['statuses'])) {
+            $query->whereIn('status', (array) $filters['statuses']);
+        } elseif (!empty($filters['status'])) {
+            $statusFilter = $filters['status'];
+            is_array($statusFilter)
+                ? $query->whereIn('status', $statusFilter)
+                : $query->where('status', $statusFilter);
         }
 
         if (!empty($filters['date_from'])) {
@@ -41,7 +47,9 @@ class RentalVehicleRepository extends AbstractRepoService
         }
 
         return $this->syncLifecycleStatuses(
-            $query->orderBy('date_from', 'asc')->get()
+            $query->orderBy('date_from', 'asc')
+                ->orderBy('time_from', 'asc')
+                ->get()
         );
     }
 
@@ -135,24 +143,17 @@ class RentalVehicleRepository extends AbstractRepoService
         return parent::delete($id);
     }
 
-    public function checkConflict(string $vehicleType, Carbon $dateFrom, Carbon $dateTo, string $timeFrom, string $timeTo, ?string $excludeId = null): bool
+    public function checkConflict(string $vehicleType, Carbon $dateFrom, Carbon $dateTo, ?string $timeFrom = null, ?string $timeTo = null, ?string $excludeId = null): bool
     {
         if (blank($vehicleType)) {
             return false;
         }
 
-        $query = $this->model->newQuery()->where('vehicle_type', $vehicleType)
-            ->whereIn('status', $this->blockingStatuses())
-            ->where(function ($q) use ($dateFrom, $dateTo) {
-                $q->where(function ($subQ) use ($dateFrom, $dateTo) {
-                    $subQ->whereBetween('date_from', [$dateFrom, $dateTo])
-                        ->orWhereBetween('date_to', [$dateFrom, $dateTo])
-                        ->orWhere(function ($innerQ) use ($dateFrom, $dateTo) {
-                            $innerQ->where('date_from', '<=', $dateFrom)
-                                ->where('date_to', '>=', $dateTo);
-                        });
-                });
-            });
+        $query = $this->model->newQuery()
+            ->where('vehicle_type', $vehicleType)
+            ->whereIn('status', $this->blockingStatuses());
+
+        $this->applyConflictWindow($query, $dateFrom, $dateTo, $timeFrom, $timeTo);
 
         if ($excludeId) {
             $query->where('id', '!=', $excludeId);
@@ -161,30 +162,48 @@ class RentalVehicleRepository extends AbstractRepoService
         return $query->exists();
     }
 
-    public function getConflicts(string $vehicleType, Carbon $dateFrom, Carbon $dateTo, ?string $excludeId = null)
+    public function getConflicts(string $vehicleType, Carbon $dateFrom, Carbon $dateTo, ?string $timeFrom = null, ?string $timeTo = null, ?string $excludeId = null)
     {
         if (blank($vehicleType)) {
             return collect();
         }
 
-        $query = $this->model->newQuery()->where('vehicle_type', $vehicleType)
-            ->whereIn('status', $this->blockingStatuses())
-            ->where(function ($q) use ($dateFrom, $dateTo) {
-                $q->where(function ($subQ) use ($dateFrom, $dateTo) {
-                    $subQ->whereBetween('date_from', [$dateFrom, $dateTo])
-                        ->orWhereBetween('date_to', [$dateFrom, $dateTo])
-                        ->orWhere(function ($innerQ) use ($dateFrom, $dateTo) {
-                            $innerQ->where('date_from', '<=', $dateFrom)
-                                ->where('date_to', '>=', $dateTo);
-                        });
-                });
-            });
+        $query = $this->model->newQuery()
+            ->where('vehicle_type', $vehicleType)
+            ->whereIn('status', $this->blockingStatuses());
+
+        $this->applyConflictWindow($query, $dateFrom, $dateTo, $timeFrom, $timeTo);
 
         if ($excludeId) {
             $query->where('id', '!=', $excludeId);
         }
 
-        return $this->syncLifecycleStatuses($query->get());
+        return $this->syncLifecycleStatuses($query->orderBy('date_from')->orderBy('time_from')->get());
+    }
+
+    private function applyConflictWindow($query, Carbon $dateFrom, Carbon $dateTo, ?string $timeFrom, ?string $timeTo): void
+    {
+        $requestedStart = $this->combineDateAndTime($dateFrom, $timeFrom, false);
+        $requestedEnd = $this->combineDateAndTime($dateTo, $timeTo, true);
+
+        $query->whereRaw($this->startTimestampExpression() . ' < ?', [$requestedEnd->toDateTimeString()])
+            ->whereRaw($this->endTimestampExpression() . ' > ?', [$requestedStart->toDateTimeString()]);
+    }
+
+    private function startTimestampExpression(): string
+    {
+        return match (DB::getDriverName()) {
+            'sqlite' => "datetime(date_from || ' ' || COALESCE(time_from, '00:00:00'))",
+            default => "TIMESTAMP(date_from, COALESCE(time_from, '00:00:00'))",
+        };
+    }
+
+    private function endTimestampExpression(): string
+    {
+        return match (DB::getDriverName()) {
+            'sqlite' => "datetime(date_to || ' ' || COALESCE(time_to, '23:59:59'))",
+            default => "TIMESTAMP(date_to, COALESCE(time_to, '23:59:59'))",
+        };
     }
 
     private function blockingStatuses(): array

@@ -66,10 +66,14 @@ export default {
 
                 this.$emit('found', {
                     fullName: record.fullName,
+                    fname: record.fname,
+                    mname: record.mname,
+                    lname: record.lname,
+                    suffix: record.suffix,
                     position: record.position,
-                    phone: record.phone,
-                    email: record.email,
-                    affiliation: "Philippine Rice Research Institute"
+                    phone: record.phone ?? null,
+                    email: record.email ?? null,
+                    affiliation: "Philippine Rice Research Institute",
                 });
 
             } catch (error) {

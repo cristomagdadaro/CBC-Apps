@@ -231,103 +231,63 @@ export default {
                         </div>
                     </div>
 
-                    <!-- Info Grid -->
+                    <!-- Public Details -->
                     <div class="grid gap-6 md:grid-cols-2">
-                        <!-- Requester Info -->
                         <div class="space-y-4">
                             <h3 class="flex items-center space-x-2 text-sm font-bold text-gray-900">
                                 <LuUser class="h-4 w-4 text-blue-600" />
-                                <span>Requester Information</span>
+                                <span>Booking Snapshot</span>
                             </h3>
                             <div class="space-y-3">
                                 <div class="flex items-start space-x-3">
                                     <div class="mt-0.5 h-2 w-2 rounded-full bg-blue-600"></div>
                                     <div>
-                                        <p class="text-xs text-gray-500">Requested By/HOP</p>
-                                        <p class="text-sm font-medium text-gray-900">{{ rental.requested_by || 'Not specified' }}</p>
+                                        <p class="text-xs text-gray-500">Booking Reference</p>
+                                        <p class="text-sm font-medium text-gray-900">{{ rental.id }}</p>
                                     </div>
                                 </div>
-                                <div v-if="canViewContactNumber" class="flex items-start space-x-3">
+                                <div class="flex items-start space-x-3">
                                     <div class="mt-0.5 h-2 w-2 rounded-full bg-blue-600"></div>
                                     <div>
-                                        <p class="text-xs text-gray-500">Contact Number</p>
-                                        <p class="text-sm font-medium text-gray-900">
-                                            <span class="inline-flex items-center gap-2">
-                                                <LuPhone class="h-3.5 w-3.5 text-gray-400" />
-                                                {{ rental.contact_number || 'Not specified' }}
-                                            </span>
-                                        </p>
+                                        <p class="text-xs text-gray-500">Trip Type</p>
+                                        <p class="text-sm font-medium text-gray-900">{{ tripTypeMeta.label }}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Destination Info -->
                         <div class="space-y-4">
                             <h3 class="flex items-center space-x-2 text-sm font-bold text-gray-900">
                                 <LuMapPin class="h-4 w-4 text-blue-600" />
-                                <span>Destination Details</span>
+                                <span>Public Details</span>
                             </h3>
                             <div class="space-y-3">
                                 <div class="flex items-start space-x-3">
                                     <div class="mt-0.5 h-2 w-2 rounded-full bg-blue-600"></div>
                                     <div>
-                                        <p class="text-xs text-gray-500">Region</p>
-                                        <p class="text-sm font-medium text-gray-900">{{ rental.destination_region || 'Not specified' }}</p>
+                                        <p class="text-xs text-gray-500">Vehicle Type</p>
+                                        <p class="text-sm font-medium text-gray-900">{{ rental.vehicle_type || 'To be assigned' }}</p>
                                     </div>
                                 </div>
                                 <div class="flex items-start space-x-3">
                                     <div class="mt-0.5 h-2 w-2 rounded-full bg-blue-600"></div>
                                     <div>
-                                        <p class="text-xs text-gray-500">Province / City</p>
-                                        <p class="text-sm font-medium text-gray-900">
-                                            {{ [rental.destination_province, rental.destination_city].filter(Boolean).join(', ') || 'Not specified' }}
-                                        </p>
+                                        <p class="text-xs text-gray-500">Current Status</p>
+                                        <p class="text-sm font-medium text-gray-900">{{ statusConfig.label }}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mt-6">
-                        <RentalTripRouteVisualizer
-                            :trip-type="rental.trip_type || 'dedicated_trip'"
-                            :destination-location="rental.destination_location || ''"
-                            :destination-stops="destinationStops"
-                            :is-shared-ride="Boolean(rental.is_shared_ride)"
-                            :shared-ride-reference="rental.shared_ride_reference || ''"
-                        />
-                    </div>
-
-                    <!-- Purpose -->
-                    <div v-if="rental.purpose" class="mt-6 rounded-xl bg-blue-50 p-4">
+                    <div class="mt-6 rounded-xl border border-blue-100 bg-blue-50 p-4">
                         <div class="flex items-start space-x-3">
-                            <LuFileText class="mt-0.5 h-5 w-5 text-blue-600" />
+                            <LuAlertCircle class="mt-0.5 h-5 w-5 text-blue-600" />
                             <div>
-                                <p class="text-xs font-semibold uppercase tracking-wider text-blue-900">Purpose of Trip</p>
-                                <p class="mt-1 text-sm text-blue-900">{{ rental.purpose }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Specific Location -->
-                    <div v-if="rental.destination_location" class="mt-4 rounded-xl border border-gray-200 p-4">
-                        <div class="flex items-start space-x-3">
-                            <LuMapPin class="mt-0.5 h-5 w-5 text-gray-400" />
-                            <div>
-                                <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Specific Location</p>
-                                <p class="mt-1 text-sm text-gray-900">{{ rental.destination_location }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Notes -->
-                    <div v-if="rental.notes" class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
-                        <div class="flex items-start space-x-3">
-                            <LuAlertCircle class="mt-0.5 h-5 w-5 text-amber-600" />
-                            <div>
-                                <p class="text-xs font-semibold uppercase tracking-wider text-amber-900">Additional Notes</p>
-                                <p class="mt-1 text-sm text-amber-900">{{ rental.notes }}</p>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-blue-900">Privacy Notice</p>
+                                <p class="mt-1 text-sm text-blue-900">
+                                    This public page only shows non-sensitive booking details. Contact the rentals team if you need the full internal request record.
+                                </p>
                             </div>
                         </div>
                     </div>

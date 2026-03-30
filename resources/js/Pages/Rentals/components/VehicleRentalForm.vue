@@ -119,8 +119,10 @@ export default {
             this.form.trip_type = value;
         },
         handlePersonnelFound(data) {
-            this.form.requested_by = data.fullName;
-            this.form.contact_number = data.phone;
+            this.form.requested_by = data.fullName || this.form.requested_by;
+            if (data.phone) {
+                this.form.contact_number = data.phone;
+            }
         },
         handleDestinationRegionChange(value) {
             this.form.destination_region = value;
@@ -174,8 +176,8 @@ export default {
         normalizeCalendarEvents(rows = []) {
             return rows.map((rental) => ({
                 id: rental.id,
-                label: `${rental.requested_by || "Unknown requester"} (${rental.vehicle_type || "Vehicle pending"})`,
-                subtitle: [rental.destination_location, rental.purpose]
+                label: `${rental.vehicle_type || "Vehicle"} booking`,
+                subtitle: [rental.trip_type, rental.status]
                     .filter(Boolean)
                     .join(" - "),
                 type: rental.vehicle_type || rental.trip_type || "vehicle",

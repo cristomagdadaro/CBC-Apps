@@ -9,6 +9,7 @@ use App\Http\Requests\Laboratory\LaboratoryUpdateEndUseRequest;
 use App\Repositories\LaboratoryEquipmentLogRepo;
 use App\Services\Laboratory\LaboratoryLogService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
@@ -127,12 +128,12 @@ class LaboratoryEquipmentController extends BaseController
         ]);
     }
 
-    public function activeEquipments($employee_id = null): JsonResponse
+    public function activeEquipments(Request $request, ?string $employee_id = null): JsonResponse
     {
         $this->logService->markOverdue();
 
         return response()->json([
-            'data' => $this->logService->getActiveEquipment($employee_id),
+            'data' => $this->logService->getActiveEquipment($this->resolveActiveEmployeeFilter($request, $employee_id)),
         ]);
     }
 
@@ -160,6 +161,23 @@ class LaboratoryEquipmentController extends BaseController
         }
 
         return new Collection($result);
+    }
+
+    private function resolveActiveEmployeeFilter(Request $request, ?string $requestedEmployeeId): ?string
+    {
+        $user = $request->user();
+
+        if ($user?->is_admin) {
+            return $requestedEmployeeId;
+        }
+
+        $employeeId = $user?->employee_id;
+
+        if (! $employeeId) {
+            abort(422, 'The authenticated user is not linked to a personnel record.');
+        }
+
+        return $employeeId;
     }
 
     private function logRepo(): LaboratoryEquipmentLogRepo

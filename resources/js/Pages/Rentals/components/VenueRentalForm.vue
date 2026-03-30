@@ -139,8 +139,10 @@ export default {
             this.checkAvailability();
         },
         handlePersonnelFound(data) {
-            this.form.requested_by = data.fullName;
-            this.form.contact_number = data.phone;
+            this.form.requested_by = data.fullName || this.form.requested_by;
+            if (data.phone) {
+                this.form.contact_number = data.phone;
+            }
         },
         handleDestinationRegionChange(value) {
             this.form.destination_region = value;
@@ -151,8 +153,8 @@ export default {
         normalizeCalendarEvents(rows = []) {
             return rows.map((rental) => ({
                 id: rental.id,
-                label: rental.event_name || "Untitled Event",
-                subtitle: rental.requested_by || "",
+                label: `${rental.venue_type || "Venue"} booking`,
+                subtitle: rental.status || "",
                 type: rental.venue_type || "venue",
                 status: rental.status || "pending",
                 date_from: rental.date_from,

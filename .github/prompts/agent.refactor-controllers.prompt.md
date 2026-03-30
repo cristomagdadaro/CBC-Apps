@@ -68,6 +68,18 @@ public function __construct(FormBuilderRepo $repository)
 - Request validation stays in `app/Http/Requests`
 - Side effects belong in observers, pipelines, or services instead of controllers
 
+### 6. Protect the guest/public surface
+- Refactors must preserve or reduce the data exposed by guest/public endpoints; never widen the payload surface as a side effect of standardization.
+- For guest list/show endpoints, return explicit safe payloads instead of raw model arrays.
+- Never trust request fields like `employee_id`, email, or participant identifiers for authorization; use authenticated user context or a signed callback/token flow.
+- Keep guest routes read-only by default. If a public mutation exists, document why it cannot be staff-authenticated or signed.
+- Remember that authenticated users calling guest endpoints should still receive the guest-safe payload.
+
+## Completion Checklist
+- Update or add feature tests whenever the refactor changes guest/public exposure, authorization, or validation.
+- Regenerate `resources/js/ziggy.js` when route names or guest-route exposure changes.
+- Record newly found issues or status changes in [docs/codebase-analysis-report-2026-03-25.md](../../docs/codebase-analysis-report-2026-03-25.md).
+
 ## Implementation Checklist
 
 For each controller:

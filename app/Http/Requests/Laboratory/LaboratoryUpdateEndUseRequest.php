@@ -16,7 +16,7 @@ class LaboratoryUpdateEndUseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'employee_id' => ['required', 'string', 'max:32'],
+            'employee_id' => ['nullable', 'string', 'max:32'],
             'end_use_at' => ['required', 'date'],
         ];
     }

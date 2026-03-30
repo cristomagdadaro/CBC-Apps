@@ -48,7 +48,6 @@ class FormRepo extends AbstractRepoService
             }])
             ->first();
 
-            
         if ($form) {
             $form->responses_count = $this->getResponsesCountByEventId($eventId);
         }
@@ -75,11 +74,21 @@ class FormRepo extends AbstractRepoService
 
     public function getParticipantsByEventId(string $eventId): Collection
     {
-        return Registration::where('event_id', $eventId)
+        $eventSubformIds = EventSubform::query()
+            ->where('event_id', $eventId)
+            ->pluck('id')
+            ->filter()
+            ->push($eventId)
+            ->unique()
+            ->values();
+
+        return Registration::query()
+            ->whereIn('event_subform_id', $eventSubformIds)
             ->with('participant')
             ->get()
             ->filter(fn ($registration) => $registration->participant !== null)
             ->pluck('participant')
+            ->unique('id')
             ->values();
     }
 
@@ -87,6 +96,7 @@ class FormRepo extends AbstractRepoService
     {
         $model = Participant::where('id', $participantId)->firstOrFail();
         $model->delete();
+
         return $model;
     }
 
@@ -107,12 +117,12 @@ class FormRepo extends AbstractRepoService
 
     public function createEventWithRequirements(array $data): Model
     {
-        // Extract requirements before creating the form to avoid mass assignment issues
         $requirements = $data['requirements'] ?? [];
         unset($data['requirements']);
-        
+
         $form = $this->model->create($data);
         $this->updateRequirements($form->event_id, $requirements);
+
         return $form;
     }
 
@@ -138,6 +148,7 @@ class FormRepo extends AbstractRepoService
             ->firstOrFail();
 
         $model->delete();
+
         return $model;
     }
 
@@ -148,41 +159,38 @@ class FormRepo extends AbstractRepoService
             ->where('event_id', $eventId)
             ->firstOrFail();
 
-        // Collect incoming form identifiers (form_type + template_id for custom forms)
         $incomingIdentifiers = collect($requirements)->map(function ($req) {
             if ($req['form_type'] === 'custom' && !empty($req['form_type_template_id'])) {
                 return 'custom:' . $req['form_type_template_id'];
             }
+
             return $req['form_type'];
         })->filter()->values()->all();
 
-        // Get existing subforms to determine which to keep/delete
         $existingSubforms = EventSubform::where('event_id', $form->event_id)->get();
-        
+
         foreach ($existingSubforms as $existing) {
             $identifier = $existing->form_type;
             if ($existing->form_type === 'custom' && $existing->form_type_template_id) {
                 $identifier = 'custom:' . $existing->form_type_template_id;
             }
-            
+
             if (!in_array($identifier, $incomingIdentifiers)) {
                 $existing->delete();
             }
         }
 
         foreach ($requirements as $index => $req) {
-            // Build query for finding existing subform
             $query = EventSubform::withTrashed()
                 ->where('event_id', $form->event_id)
                 ->where('form_type', $req['form_type']);
-            
-            // For custom forms, also match by template ID
+
             if ($req['form_type'] === 'custom' && !empty($req['form_type_template_id'])) {
                 $query->where('form_type_template_id', $req['form_type_template_id']);
             }
 
             $subform = $query->first();
-            
+
             if (!$subform) {
                 $subform = new EventSubform([
                     'event_id' => $form->event_id,
@@ -217,20 +225,17 @@ class FormRepo extends AbstractRepoService
 
     public function getTodayEvents(): Collection
     {
-        // We only need the start of today. 
-        // Anything ending *after* this point is valid.
         $startOfDay = Carbon::now()->startOfDay();
 
         return $this->model
             ->newQuery()
             ->select([
-                'event_id', 'title', 'venue', 
-                'date_from', 'date_to', 
-                'time_from', 'time_to'
+                'event_id', 'title', 'venue',
+                'date_from', 'date_to',
+                'time_from', 'time_to',
             ])
             ->where('is_suspended', false)
-            // Logic: Show any event that has NOT finished before today
-            ->where('date_to', '>=', $startOfDay) 
+            ->where('date_to', '>=', $startOfDay)
             ->orderBy('date_from')
             ->orderBy('time_from')
             ->get();

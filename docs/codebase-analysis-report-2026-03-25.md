@@ -16,11 +16,34 @@
 - Quick Wins: 4
 - Security Issues: 8
 
+## Tracker Updates (2026-03-30)
+- [ID-001] Resolved. Guest equipment mutation routes now require `auth:sanctum`, activity filters use the authenticated user's linked `employee_id`, and the log service no longer authorizes equipment actions with caller-supplied IDs.
+- [ID-002] Resolved earlier and re-verified. `config/cors.php` now uses explicit origins instead of wildcard credentialed CORS.
+- [ID-003] Resolved. Guest rental list/show endpoints now return sanitized DTO-style payloads instead of raw rental models.
+- [ID-004] Resolved. Rental availability endpoints now return generic availability plus normalized conflict windows only.
+- [ID-005] Resolved. Guest participant lookup now returns a generic verification-required response and no longer creates or reuses registrations.
+- [ID-006] Resolved earlier and re-verified. Generated request PDFs are cached under `storage/app/private/generated-pdfs`.
+- [ID-007] Resolved. The public internal reachability probe is no longer present in the regenerated frontend route map or in the sensitive guest route throttling list.
+- [ID-008] Resolved earlier and re-verified. Legacy unsigned QR payloads are rejected.
+- [ID-009] Resolved on 2026-03-30. `composer update laravel/framework league/commonmark spatie/laravel-google-calendar google/apiclient phpseclib/phpseclib --with-all-dependencies` upgraded `league/commonmark` to `2.8.2`, `phpseclib/phpseclib` to `3.0.50`, `google/apiclient` to `2.19.1`, and `spatie/laravel-google-calendar` to `3.8.5`; `composer audit --format=json` is now clean.
+- [ID-010] Resolved earlier and re-verified. Targeted PHPUnit runs execute without requiring a live MySQL bootstrap when the configured test connection is not MySQL.
+- [ID-011] Resolved in repo. `tests/setup.ts` now exists; local Vitest verification on this workstation is still blocked by a mixed Windows-node/WSL Rollup optional dependency issue rather than the missing setup file.
+- [ID-012] Resolved. `FormRepo::getParticipantsByEventId()` now queries by `event_subform_id` and preserves legacy direct event-id compatibility.
+- [ID-013] Resolved and covered by new same-day non-overlapping rental tests.
+- [ID-014] Open.
+- [ID-015] Open.
+- [ID-016] Resolved. `resources/js/ziggy.js` had drifted from the current route definitions and still exposed removed guest-route metadata until regeneration.
+
+### Verification Snapshot
+- `php artisan test tests/Feature/Laboratory/EquipmentControllersTest.php tests/Feature/Rental/RentalControllersTest.php tests/Feature/Inventory/GuestPersonnelLookupTest.php tests/Feature/Events/Registration/GuestLookupTest.php tests/Feature/Events/FormRepoParticipantsTest.php tests/Feature/Events/Workflow/TimelineIntegrationTest.php tests/Feature/Events/Workflow/ToggleSettingsTest.php`: 56 passed, 222 assertions, 0 failures.
+- `composer audit --format=json`: clean after dependency updates.
+- `php artisan ziggy:generate resources/js/ziggy.js`: regenerated the frontend route map; stale `api.test-local-network` entry is gone.
+- `npm test -- --run resources/js/smoke.spec.js`: the missing `tests/setup.ts` failure is resolved, but this workstation still routes through Windows `node/npm` from WSL and is missing Rollup's optional native package (`@rollup/rollup-win32-x64-msvc`).
+
 This is a modular Laravel monolith with a clear controller-repository-service split, but the public guest surface is unusually large for an app that also handles staff workflows, approvals, rentals, and document generation. The biggest risks are authorization-by-knowledge (`employee_id` as a credential), permissive cross-origin settings on a stateful Sanctum stack, public PII leakage in guest rental APIs, and cached PDFs being written into the webroot.
 
-There are also two strong delivery risks: the PHPUnit path is effectively pinned to a live MySQL instance while CI only provisions SQLite extensions, and the Vitest setup references a missing `tests/setup.ts`, so the backend and frontend test runners are both currently non-runnable in this workspace.
+At initial scan there were two strong delivery risks: the PHPUnit path was effectively pinned to a live MySQL instance while CI only provisioned SQLite extensions, and the Vitest setup referenced a missing `tests/setup.ts`. The tracker section above reflects the current status after remediation work.
 
----
 
 ## Discovery & Mapping
 ### Architecture
@@ -51,9 +74,9 @@ There are also two strong delivery risks: the PHPUnit path is effectively pinned
 
 ### Verification Notes
 - `npm audit --json`: no JS advisories reported.
-- `composer audit --format=json`: advisories reported for `league/commonmark` and `phpseclib/phpseclib`.
-- `vendor\bin\phpunit --testsuite Unit`: failed before assertions because [`tests/TestCase.php`](../tests/TestCase.php) requires a live MySQL server.
-- `npm test`: failed because [`vite.config.js`](../vite.config.js) points Vitest to missing `tests/setup.ts`.
+- `composer audit --format=json`: clean after the 2026-03-30 dependency update.
+- Targeted PHPUnit verification now passes without requiring a live MySQL bootstrap when the configured test connection is not MySQL.
+- The missing `tests/setup.ts` issue is fixed in-repo; local Vitest execution on this workstation is currently blocked by a mixed Windows-node/WSL Rollup optional dependency issue.
 
 ---
 
@@ -566,6 +589,12 @@ Test Strategy: `vendor\bin\phpunit --testsuite Unit` and `npm test` both execute
 💡 Suggestion: Remove tracked artifacts and keep them ignored.  
 📊 Impact: XS effort, low-to-medium benefit.
 
+[ID-016] [LOW] [Maintainability] - Generated Ziggy Route Map Drifted From Current Route Definitions  
+Location: `resources/js/ziggy.js`  
+Issue: The generated Ziggy file kept removed guest-route metadata until it was manually regenerated after the route hardening pass.  
+Suggestion: Regenerate Ziggy whenever route names, URIs, or guest-route exposure changes.  
+Impact: XS effort, low-to-medium correctness benefit.
+
 ---
 
 ## Metrics & Trends
@@ -575,11 +604,11 @@ Test Strategy: `vendor\bin\phpunit --testsuite Unit` and `npm test` both execute
   - e2e: 2
 - CI quality gate: 40% PHP line coverage threshold in [`/.github/workflows/tests.yml`](../.github/workflows/tests.yml)
 - Current executable test health:
-  - PHPUnit: blocked by DB bootstrap mismatch
-  - Vitest: blocked by missing setup file
+  - PHPUnit: targeted verification slice passing locally (56 tests / 222 assertions)
+  - Vitest: setup file restored; this workstation is still blocked by a Windows-node/WSL Rollup optional dependency mismatch
 - Dependency freshness:
   - npm audit: clean
-  - composer audit: 2 advisories
+  - composer audit: clean
 - Observability:
   - Audit logging exists
   - No explicit metrics/tracing pipeline found
@@ -593,18 +622,18 @@ Test Strategy: `vendor\bin\phpunit --testsuite Unit` and `npm test` both execute
 
 ## Action Plan
 ### Week 1 (Critical Path)
-- [ ] Remove public write access from equipment guest routes or replace it with signed/OTP-backed authorization.
-- [ ] Restrict CORS origins for Sanctum-backed credentialed requests.
-- [ ] Move generated request PDFs out of `public/`.
-- [ ] Sanitize all guest rental responses and stop returning requester identity in availability checks.
-- [ ] Update Composer dependencies until `composer audit` is clean.
+- [x] Remove public write access from equipment guest routes or replace it with signed/OTP-backed authorization.
+- [x] Restrict CORS origins for Sanctum-backed credentialed requests.
+- [x] Move generated request PDFs out of `public/`.
+- [x] Sanitize all guest rental responses and stop returning requester identity in availability checks.
+- [x] Update Composer dependencies until `composer audit` is clean.
 
 ### Month 1 (High Impact)
-- [ ] Replace public email participant lookup with a mailbox-verification flow.
-- [ ] Fix rental conflict detection to use full timestamp overlap.
-- [ ] Align PHPUnit config, test bootstrap, and CI services around one database strategy.
-- [ ] Restore frontend unit testing by adding or removing the missing Vitest setup file.
-- [ ] Remove internal network probe route from production.
+- [x] Replace public email participant lookup with a mailbox-verification flow.
+- [x] Fix rental conflict detection to use full timestamp overlap.
+- [x] Align PHPUnit config, test bootstrap, and CI services around one database strategy.
+- [x] Restore frontend unit testing by adding or removing the missing Vitest setup file.
+- [x] Remove internal network probe route from production.
 
 ### Quarter 1 (Strategic)
 - [ ] Introduce API resources/DTOs for every guest endpoint.

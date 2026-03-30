@@ -2,7 +2,10 @@
 
 namespace Tests\Feature\Events\Registration;
 
+use App\Models\Participant;
+use App\Models\Registration;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class GuestLookupTest extends TestCase
@@ -20,46 +23,44 @@ class GuestLookupTest extends TestCase
             ->assertJsonValidationErrors(['email']);
     }
 
-    public function test_guest_participant_lookup_returns_not_found_for_unknown_email(): void
+    public function test_guest_participant_lookup_returns_generic_response_for_unknown_email(): void
     {
         $response = $this->getJson('/api/guest/forms/event/0504/participant-lookup?email=' . urlencode('missing@example.test'));
 
         $response->assertStatus(200)
-            ->assertJsonPath('data.found', false)
-            ->assertJsonPath('data.profile_found', false);
+            ->assertJsonPath('status', 'success')
+            ->assertJsonPath('data.verification_required', true)
+            ->assertJsonPath('data.message', 'If this email is eligible, a verification link will be sent.')
+            ->assertJsonMissingPath('data.participant_hash');
+
+        $this->assertDatabaseCount('registrations', 0);
     }
 
-    public function test_guest_participant_lookup_auto_creates_registration_if_profile_exists(): void
+    public function test_guest_participant_lookup_returns_generic_response_without_creating_registration_for_existing_profile(): void
     {
-        $participant = \App\Models\Participant::factory()->create([
+        Participant::factory()->create([
             'email' => 'existing@example.test',
         ]);
 
         $response = $this->getJson('/api/guest/forms/event/0504/participant-lookup?email=' . urlencode('existing@example.test'));
 
         $response->assertStatus(200)
-            ->assertJsonPath('data.found', true)
-            ->assertJsonPath('data.profile_found', true)
-            ->assertJsonPath('data.participant.email', 'existing@example.test');
+            ->assertJsonPath('status', 'success')
+            ->assertJsonPath('data.verification_required', true)
+            ->assertJsonPath('data.message', 'If this email is eligible, a verification link will be sent.')
+            ->assertJsonMissingPath('data.participant_hash');
 
-        $participantHash = $response->json('data.participant_hash');
-
-        $this->assertNotEmpty($participantHash);
-        $this->assertDatabaseHas('registrations', [
-            'id' => $participantHash,
-            'participant_id' => $participant->id,
-            'event_subform_id' => '0504',
-        ]);
+        $this->assertDatabaseCount('registrations', 0);
     }
 
-    public function test_guest_participant_lookup_returns_existing_registration_hash(): void
+    public function test_guest_participant_lookup_keeps_existing_registration_unchanged_while_returning_generic_response(): void
     {
-        $participant = \App\Models\Participant::factory()->create([
+        $participant = Participant::factory()->create([
             'email' => 'registered@example.test',
         ]);
 
-        $registration = \App\Models\Registration::create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
+        $registration = Registration::create([
+            'id' => (string) Str::uuid(),
             'event_subform_id' => '0504',
             'participant_id' => $participant->id,
             'attendance_type' => null,
@@ -68,8 +69,16 @@ class GuestLookupTest extends TestCase
         $response = $this->getJson('/api/guest/forms/event/0504/participant-lookup?email=' . urlencode('registered@example.test'));
 
         $response->assertStatus(200)
-            ->assertJsonPath('data.found', true)
-            ->assertJsonPath('data.participant_hash', $registration->id);
+            ->assertJsonPath('status', 'success')
+            ->assertJsonPath('data.verification_required', true)
+            ->assertJsonPath('data.message', 'If this email is eligible, a verification link will be sent.')
+            ->assertJsonMissingPath('data.participant_hash');
+
+        $this->assertDatabaseHas('registrations', [
+            'id' => $registration->id,
+            'participant_id' => $participant->id,
+            'event_subform_id' => '0504',
+        ]);
     }
 
     public static function invalidEmailProvider(): array

@@ -5,6 +5,7 @@ namespace Tests\Feature\Laboratory;
 use App\Enums\Role as RoleEnum;
 use App\Models\Item;
 use App\Models\LaboratoryEquipmentLog;
+use App\Models\User;
 use App\Repositories\LaboratoryEquipmentLogRepo;
 use App\Services\Laboratory\LaboratoryLogService;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -56,7 +57,15 @@ class EquipmentControllersTest extends TestCase
             ]);
     }
 
-    public function test_guest_can_check_in_ict_equipment(): void
+    public function test_guest_cannot_check_in_ict_equipment_without_authentication(): void
+    {
+        $this->postJson(route('api.ict.equipments.check-in', ['identifier' => 'ICT-BC-001']), [
+            'end_use_at' => now()->addHour()->toIso8601String(),
+            'purpose' => 'Diagnostics',
+        ])->assertUnauthorized();
+    }
+
+    public function test_authenticated_user_can_check_in_ict_equipment_without_posting_employee_id(): void
     {
         $service = $this->createMock(LaboratoryLogService::class);
         $service->expects($this->once())
@@ -68,9 +77,9 @@ class EquipmentControllersTest extends TestCase
             ->with(
                 'equipment-1',
                 $this->callback(function (array $payload): bool {
-                    return $payload['employee_id'] === 'EMP-ICT-001'
-                        && $payload['purpose'] === 'Diagnostics'
-                        && ! empty($payload['end_use_at']);
+                    return !array_key_exists('employee_id', $payload)
+                        && ($payload['purpose'] ?? null) === 'Diagnostics'
+                        && !empty($payload['end_use_at']);
                 }),
                 'ict'
             )
@@ -80,8 +89,11 @@ class EquipmentControllersTest extends TestCase
 
         $this->app->instance(LaboratoryLogService::class, $service);
 
-        $this->postJson(route('api.ict.equipments.check-in', ['identifier' => 'ICT-BC-001']), [
+        Sanctum::actingAs(User::factory()->create([
             'employee_id' => 'EMP-ICT-001',
+        ]));
+
+        $this->postJson(route('api.ict.equipments.check-in', ['identifier' => 'ICT-BC-001']), [
             'end_use_at' => now()->addHour()->toIso8601String(),
             'purpose' => 'Diagnostics',
         ])
@@ -91,7 +103,13 @@ class EquipmentControllersTest extends TestCase
             ->assertJsonPath('data.status', 'active');
     }
 
-    public function test_guest_can_view_active_laboratory_equipments(): void
+    public function test_guest_cannot_view_active_laboratory_equipments_without_authentication(): void
+    {
+        $this->getJson(route('api.laboratory.equipments.active', ['employee_id' => 'EMP-LAB-100']))
+            ->assertUnauthorized();
+    }
+
+    public function test_authenticated_non_admin_user_views_only_linked_active_laboratory_equipments(): void
     {
         $service = $this->createMock(LaboratoryLogService::class);
         $service->expects($this->once())
@@ -108,7 +126,12 @@ class EquipmentControllersTest extends TestCase
         $this->app->instance(LaboratoryLogService::class, $service);
         $this->app->instance(LaboratoryEquipmentLogRepo::class, $repo);
 
-        $this->getJson(route('api.laboratory.equipments.active', ['employee_id' => 'EMP-LAB-100']))
+        Sanctum::actingAs(User::factory()->create([
+            'employee_id' => 'EMP-LAB-100',
+            'is_admin' => false,
+        ]));
+
+        $this->getJson(route('api.laboratory.equipments.active', ['employee_id' => 'EMP-LAB-999']))
             ->assertOk()
             ->assertJsonPath('data.0.id', 'LAB-1')
             ->assertJsonPath('data.0.status', 'active');

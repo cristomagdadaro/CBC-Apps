@@ -56,6 +56,22 @@
 - Keep Vue components small: let controllers/repositories prepare data and let Vue focus on presentation and interaction.
 - Avoid duplicating business logic in Vue; mirror backend validation through shared status codes/messages.
 
+## Guest API Guardrails
+- Treat every `api/guest/*` route as a public internet surface, even when authenticated staff can also hit it.
+- Default guest routes to read-only. If a guest-facing mutation is unavoidable, require authenticated staff context or a signed/OTP-backed workflow rather than knowledge-based identifiers.
+- Never authorize actions with caller-supplied identifiers such as `employee_id`, `participant_hash`, or email addresses; derive identity from the authenticated user or a signed callback/token.
+- Public list/show endpoints should return explicit DTO/resource-style payloads instead of raw `Model::toArray()` output.
+- Availability and conflict-check endpoints may expose boolean availability and normalized windows only; do not leak requester names, contact numbers, event names, notes, or other free text.
+- Authenticated callers hitting guest endpoints must still receive the guest-safe payload variant.
+- Public personnel lookup must stay exact-match-only and return display-safe identity fields only.
+- Generated PDFs belong under `storage/app/private/generated-pdfs` and should only be streamed through authorized controllers.
+
+## Tracker & Generated Assets
+- Update [docs/codebase-analysis-report-2026-03-25.md](../docs/codebase-analysis-report-2026-03-25.md) whenever you discover, resolve, or defer a codebase issue.
+- Regenerate `resources/js/ziggy.js` after route additions, removals, or guest-surface changes.
+- If `vite.config.js` references `tests/setup.ts`, keep the file present and minimal.
+- If local frontend verification is blocked by workstation toolchain issues, record the exact blocker separately from code fixes so the tracker stays accurate.
+
 ## Anti-Patterns
 - Don’t instantiate `Model` queries directly in controllers; always prefer the relevant repository.
 - Don’t overload controllers with pipeline logic—delegate to dedicated pipeline stages in [`app/Pipelines`](app/Pipelines).

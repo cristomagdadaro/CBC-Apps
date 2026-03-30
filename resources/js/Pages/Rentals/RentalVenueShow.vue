@@ -214,7 +214,7 @@ export default {
                                 <span class="uppercase tracking-wider">{{ rental.venue_type || 'Venue' }}</span>
                             </div>
                             <h2 class="text-2xl font-bold leading-tight">
-                                {{ rental.event_name || 'Untitled Event' }}
+                                {{ rental.venue_type || 'Venue booking' }}
                             </h2>
                             <p v-if="formatDuration" class="mt-2 flex items-center gap-2 text-indigo-100">
                                 <LuClock class="h-4 w-4" />
@@ -273,19 +273,16 @@ export default {
 
                     <!-- Details Grid -->
                     <div class="grid gap-8 lg:grid-cols-2">
-                        <!-- Attendance Info -->
                         <div class="space-y-4">
                             <h3 class="flex items-center gap-2 text-sm font-bold text-gray-900">
                                 <LuUsers class="h-4 w-4 text-indigo-600" />
-                                Attendance
+                                Booking Snapshot
                             </h3>
                             <div class="rounded-xl bg-indigo-50/50 p-4">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-xs font-medium text-indigo-600 uppercase tracking-wider">Expected Attendees</p>
-                                        <p class="mt-1 text-2xl font-bold text-indigo-900">
-                                            {{ rental.expected_attendees?.toLocaleString() || 'Not specified' }}
-                                        </p>
+                                        <p class="text-xs font-medium text-indigo-600 uppercase tracking-wider">Booking Reference</p>
+                                        <p class="mt-1 text-2xl font-bold text-indigo-900">{{ rental.id }}</p>
                                     </div>
                                     <div class="rounded-full bg-indigo-100 p-3">
                                         <LuUsers class="h-6 w-6 text-indigo-600" />
@@ -294,76 +291,38 @@ export default {
                             </div>
                         </div>
 
-                        <!-- Contact Info -->
                         <div class="space-y-4">
                             <h3 class="flex items-center gap-2 text-sm font-bold text-gray-900">
                                 <LuUser class="h-4 w-4 text-indigo-600" />
-                                Organizer Details
+                                Public Details
                             </h3>
                             <div class="space-y-3">
                                 <div class="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50/50 p-3">
-                                    <LuUser class="mt-0.5 h-4 w-4 text-gray-400" />
+                                    <LuBuilding2 class="mt-0.5 h-4 w-4 text-gray-400" />
                                     <div>
-                                        <p class="text-xs text-gray-500">Requested By</p>
-                                        <p class="font-medium text-gray-900">{{ rental.requested_by || 'Not specified' }}</p>
+                                        <p class="text-xs text-gray-500">Venue Type</p>
+                                        <p class="font-medium text-gray-900">{{ rental.venue_type || 'Not specified' }}</p>
                                     </div>
                                 </div>
-                                <div v-if="canViewContactNumber" class="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50/50 p-3">
-                                    <LuPhone class="mt-0.5 h-4 w-4 text-gray-400" />
+                                <div class="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50/50 p-3">
+                                    <LuClock3 class="mt-0.5 h-4 w-4 text-gray-400" />
                                     <div>
-                                        <p class="text-xs text-gray-500">Contact Number</p>
-                                        <p class="font-medium text-gray-900">{{ rental.contact_number || 'Not specified' }}</p>
+                                        <p class="text-xs text-gray-500">Current Status</p>
+                                        <p class="font-medium text-gray-900">{{ statusConfig.label }}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Location Section -->
-                    <div class="mt-8">
-                        <h3 class="mb-4 flex items-center gap-2 text-sm font-bold text-gray-900">
-                            <LuMapPin class="h-4 w-4 text-indigo-600" />
-                            Location Details
-                        </h3>
-                        <div class="overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
-                            <div class="border-b border-gray-200 bg-white p-4">
-                                <div class="flex items-start gap-3">
-                                    <div class="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100">
-                                        <LuMapPin class="h-4 w-4 text-indigo-600" />
-                                    </div>
-                                    <div class="flex-1">
-                                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Venue Address</p>
-                                        <p class="mt-1 text-base font-semibold text-gray-900">
-                                            {{ rental.destination_location || 'Location not specified' }}
-                                        </p>
-                                        <div class="mt-2 flex flex-wrap gap-2">
-                                            <span v-if="rental.destination_city" class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
-                                                {{ rental.destination_city }}
-                                            </span>
-                                            <span v-if="rental.destination_province" class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
-                                                {{ rental.destination_province }}
-                                            </span>
-                                            <span v-if="rental.destination_region" class="inline-flex items-center rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-800">
-                                                {{ rental.destination_region }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Notes Section -->
-                    <div v-if="rental.notes" class="mt-6">
-                        <div class="rounded-xl border-l-4 border-amber-400 bg-amber-50 p-5">
-                            <div class="flex items-start gap-3">
-                                <LuAlertCircle class="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
-                                <div>
-                                    <p class="text-xs font-bold uppercase tracking-wider text-amber-800">Special Instructions</p>
-                                    <p class="mt-1 text-sm leading-relaxed text-amber-900">
-                                        {{ rental.notes }}
-                                    </p>
-                                </div>
+                    <div class="mt-8 rounded-xl border border-indigo-100 bg-indigo-50/50 p-5">
+                        <div class="flex items-start gap-3">
+                            <LuAlertCircle class="mt-0.5 h-5 w-5 shrink-0 text-indigo-600" />
+                            <div>
+                                <p class="text-xs font-bold uppercase tracking-wider text-indigo-800">Privacy Notice</p>
+                                <p class="mt-1 text-sm leading-relaxed text-indigo-900">
+                                    This public page only shows non-sensitive booking details. Contact the rentals team if you need the full internal request record.
+                                </p>
                             </div>
                         </div>
                     </div>

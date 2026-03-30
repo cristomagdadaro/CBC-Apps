@@ -6,16 +6,16 @@ use App\Http\Requests\CreatePersonnelRequest;
 use App\Http\Requests\DeletePersonnelRequest;
 use App\Http\Requests\GetPersonnelRequest;
 use App\Http\Requests\UpdatePersonnelRequest;
+use App\Models\Personnel;
 use App\Repositories\PersonnelRepo;
-use Exception;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 class PersonnelController extends BaseController
 {
-
     public function __construct(PersonnelRepo $repository)
     {
         $this->service = $repository;
@@ -32,11 +32,13 @@ class PersonnelController extends BaseController
         if ($response instanceof LengthAwarePaginator) {
             $filtered = $response->getCollection()->filter($filterOutAdmin)->values();
             $response->setCollection($filtered);
+
             return $response;
         }
 
         if (is_array($response) && array_key_exists('data', $response)) {
             $response['data'] = collect($response['data'])->filter($filterOutAdmin)->values();
+
             return $response;
         }
 
@@ -45,6 +47,46 @@ class PersonnelController extends BaseController
         }
 
         return $response;
+    }
+
+    public function publicLookup(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:32'],
+        ]);
+
+        $search = trim((string) ($validated['search'] ?? ''));
+
+        if ($search === '') {
+            return response()->json(['data' => []]);
+        }
+
+        $personnels = Personnel::query()
+            ->select(['id', 'fname', 'mname', 'lname', 'suffix', 'position'])
+            ->where('employee_id', $search)
+            ->orderBy('lname')
+            ->orderBy('fname')
+            ->limit(5)
+            ->get()
+            ->map(function (Personnel $personnel) {
+                return [
+                    'id' => $personnel->id,
+                    'fname' => $personnel->fname,
+                    'mname' => $personnel->mname,
+                    'lname' => $personnel->lname,
+                    'suffix' => $personnel->suffix,
+                    'position' => $personnel->position,
+                    'fullName' => collect([
+                        $personnel->fname,
+                        $personnel->mname,
+                        $personnel->lname,
+                        $personnel->suffix,
+                    ])->filter()->implode(' '),
+                ];
+            })
+            ->values();
+
+        return response()->json(['data' => $personnels]);
     }
 
     public function create(CreatePersonnelRequest $request): Model
@@ -57,7 +99,7 @@ class PersonnelController extends BaseController
         return parent::_update($id, $request);
     }
 
-    public function destroy(DeletePersonnelRequest $request, string $id): Model | JsonResponse
+    public function destroy(DeletePersonnelRequest $request, string $id): Model|JsonResponse
     {
         return parent::_destroy($id);
     }

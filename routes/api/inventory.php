@@ -5,34 +5,15 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TransactionController;
-use App\Models\Personnel;
 use App\Repositories\OptionRepo;
 use App\Repositories\TransactionRepo;
 use App\Services\DeploymentAccessService;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('guest')->group(function () {
-    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_INVENTORY])->get('/personnel/public', function () {
-        $personnels = Personnel::query()
-            ->select(['id', 'fname', 'mname', 'lname', 'suffix', 'position'])
-            ->orderBy('lname')
-            ->orderBy('fname')
-            ->limit(100)
-            ->get()
-            ->map(function (Personnel $personnel) {
-                return [
-                    'id' => $personnel->id,
-                    'fname' => $personnel->fname,
-                    'mname' => $personnel->mname,
-                    'lname' => $personnel->lname,
-                    'suffix' => $personnel->suffix,
-                    'position' => $personnel->position,
-                ];
-            });
-
-        return response()->json(['data' => $personnels]);
-    })->name('api.inventory.personnels.index.guest');
-    Route::get('/personnel/public', [PersonnelController::class, 'index'])->name('api.inventory.personnels.index.guest');
+    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_INVENTORY])
+        ->get('/personnel/public', [PersonnelController::class, 'publicLookup'])
+        ->name('api.inventory.personnels.index.guest');
 
     Route::prefix('inventory')->group(function () {
         Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_INVENTORY])->group(function () {
