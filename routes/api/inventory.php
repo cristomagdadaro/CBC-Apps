@@ -32,6 +32,7 @@ Route::prefix('guest')->group(function () {
 
         return response()->json(['data' => $personnels]);
     })->name('api.inventory.personnels.index.guest');
+    Route::get('/personnel/public', [PersonnelController::class, 'index'])->name('api.inventory.personnels.index.guest');
 
     Route::prefix('inventory')->group(function () {
         Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_INVENTORY])->group(function () {
