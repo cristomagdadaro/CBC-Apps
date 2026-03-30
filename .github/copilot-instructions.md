@@ -72,6 +72,27 @@
 - If `vite.config.js` references `tests/setup.ts`, keep the file present and minimal.
 - If local frontend verification is blocked by workstation toolchain issues, record the exact blocker separately from code fixes so the tracker stays accurate.
 
+## Realtime / Websocket Standard
+- Use Laravel Reverb as the default websocket stack for CBC-Apps whenever realtime server push is required. Do not introduce third-party hosted websocket dependencies unless there is an explicit architectural decision to do so.
+- Treat realtime as an extension of the existing HTTP API surface, not a replacement for it. REST endpoints remain the source of truth; websocket messages should usually carry invalidation hints, compact summaries, or bounded DTO-style payloads.
+- Broadcast domain events from services, repositories, observers, jobs, or scheduled command flows after persistence succeeds. Do not shape websocket payloads directly inside controllers.
+- Prefer private or presence channels for staff operations. Public channels must be rare, explicitly justified, and safe for unauthenticated internet clients.
+- Reuse existing RBAC and ownership rules in outes/channels.php; channel authorization must match the sensitivity of the underlying module.
+- Never broadcast raw model arrays. Use sanitized resource/DTO payloads and keep guest-safe vs staff-safe payload variants separate.
+- Default datatable integrations to event-driven invalidation plus refetch instead of broadcasting full table payloads.
+- Priority realtime surfaces in this system are: datatables, rental calendars, inventory stock movement, supplies checkout, laboratory/ICT equipment loggers, dashboard counters, form-response monitoring, and certificate batch progress.
+- Certificate generation should move toward Reverb-backed progress events while preserving an HTTP fallback path until rollout is proven stable.
+- Any realtime feature that touches guest/public flows must preserve the same privacy boundaries already enforced on guest APIs.
+
+## Email / Notification Standard
+- Treat email delivery as a shared notification domain, not ad-hoc Mail::to(...)->send(...) logic spread across observers and controllers.
+- Prefer domain events plus queued listeners or notification dispatch services over direct mail sends.
+- Centralize recipient resolution, feature toggles, and module-specific routing rules so certificate emails, form-response alerts, equipment-log lifecycle notices, and supply checkout notices follow one policy layer.
+- Use queue-first delivery for operational emails by default. Immediate sending should be exceptional and documented.
+- Keep mailables or notifications focused on rendering and channel formatting. Business rules for who gets notified and when belong in dedicated notification services or listeners.
+- Log or otherwise audit notification attempts and failures for operational visibility.
+- Reuse notification domain events for websocket and in-app notifications when possible so what happened stays separate from how we notify.
+
 ## Anti-Patterns
 - Don’t instantiate `Model` queries directly in controllers; always prefer the relevant repository.
 - Don’t overload controllers with pipeline logic—delegate to dedicated pipeline stages in [`app/Pipelines`](app/Pipelines).
@@ -178,3 +199,5 @@ class LocationController extends BaseController
 - Use `requireService()` inside base controllers to fail fast when a repository is expected.
 - Load audit logs manually when `$this->service` is `null`; controllers must instantiate models directly and pass them to `loadAuditLogs()`.
 - Keep validation in `FormRequest` classes, and let repositories/repo services handle persistence logic.
+
+
