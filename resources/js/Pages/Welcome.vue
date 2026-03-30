@@ -150,9 +150,9 @@ onMounted(() => {
 <template>
   <Head title="Welcome" />
   <main-bg />
-  <div class="absolute top-0 left-0 w-full">
+  <div class="absolute top-0 left-0 w-full pointer-events-none">
     <div class="relative sm:flex justify-center items-center min-h-screen">
-      <div class="flex flex-col gap-5 px-5 md:px-0 py-10 md:py-0">
+      <div class="flex flex-col gap-5 px-5 md:px-0 py-10 md:py-0 pointer-events-auto">
         <div class="text-center text-gray-700 dark:text-gray-300">
           <div class="relative w-fit mx-auto">
             <div class="flex items-center gap-1">

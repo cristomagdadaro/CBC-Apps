@@ -31,7 +31,7 @@ export default {
 <template>
     <Head title="Forgot Password" />
     <main-bg />
-    <div class="absolute top-0 left-0 w-full ">
+    <div class="absolute top-0 left-0 w-full pointer-events-none">
         <AuthenticationCard>
             <template #logo>
                 <AuthenticationCardLogo />

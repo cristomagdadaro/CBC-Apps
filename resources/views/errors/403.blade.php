@@ -68,7 +68,7 @@
         
         <!-- Background Elements -->
         <div class="fixed inset-0 overflow-hidden pointer-events-none">
-            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-lime-100/30 via-transparent to-teal-100/30 dark:from-lime-900/20 dark:to-teal-900/20"></div>
+            <div class="absolute top-0 left-0 w-full pointer-events-none h-full bg-gradient-to-br from-lime-100/30 via-transparent to-teal-100/30 dark:from-lime-900/20 dark:to-teal-900/20"></div>
             <div class="absolute top-20 left-10 w-72 h-72 bg-AC/10 rounded-full blur-3xl animate-pulse-slow"></div>
             <div class="absolute bottom-20 right-10 w-96 h-96 bg-AB/10 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 1s;"></div>
         </div>

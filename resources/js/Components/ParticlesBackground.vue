@@ -1,39 +1,40 @@
 <script>
+import particlesConfig from '@/assets/particlesjs-config.json';
+
 export default {
     name: 'ParticlesBackground',
     props: {
-        id: { type: String, default: "particles-js" },
-        configPath: { type: String, default: "/particlesjs-config.json" }
+        id: { type: String, default: "particles-js" }
     },
-    data() {
-        return { particlesInstance: null };
-    },
-    async mounted() {
-        await this.initParticles();
+    mounted() {
+        this.initParticles();
+        window.addEventListener('resize', this.handleResize);
     },
     beforeUnmount() {
-        if (window.pJSDom && window.pJSDom.length) {
-            window.pJSDom = window.pJSDom.filter(p => {
-                if (p.pJS.canvas.el.id === this.id) {
+        window.removeEventListener('resize', this.handleResize);
+        if (window.pJSDom) {
+            window.pJSDom.forEach(p => {
+                if (p?.pJS?.canvas?.el?.id === this.id) {
                     p.pJS.fn.vendors.destroypJS();
-                    return false;
                 }
-                return true;
             });
+
+            window.pJSDom = window.pJSDom.filter(
+                p => p?.pJS?.canvas?.el?.id !== this.id
+            );
         }
     },
     methods: {
-        async initParticles() {
-            try {
-                const response = await fetch(this.configPath);
-                const config = await response.json();
-                
-                if (window.particlesJS) {
-                    window.particlesJS(this.id, config);
-                }
-            } catch (error) {
-                console.warn('Particles config failed to load:', error);
+        initParticles() {
+            if (!window.particlesJS) {
+                console.warn('particlesJS not loaded');
+                return;
             }
+
+            window.particlesJS(this.id, particlesConfig);
+        },
+        handleResize() {
+            this.initParticles();
         }
     }
 };
@@ -47,6 +48,6 @@ export default {
     position: absolute;
     width: 100%;
     height: 100%;
-    z-index: -1;
+    z-index: 0;
 }
 </style>

@@ -497,8 +497,7 @@ export default {
         </template>
 
         <template #content>
-            <div ref="privacyContent" @scroll="handleScroll"
-                class="max-h-[70vh] space-y-6 overflow-y-auto px-5 text-sm leading-6 text-gray-700">
+            <div ref="privacyContent" @scroll="handleScroll" class="max-h-[70vh] space-y-6 overflow-y-auto px-5 text-sm leading-6 text-gray-700 leading-snug">
                 <p>
                     This Data Privacy Notice is issued by the Department of Agriculture – Crop Biotechnology Center
                     (DA-CBC) pursuant to the <a href="https://privacy.gov.ph/data-privacy-act/"

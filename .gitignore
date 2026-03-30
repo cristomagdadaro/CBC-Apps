@@ -6,6 +6,7 @@
 /storage/*.key
 /storage/app/google-calendar/*.json
 /vendor
+.env.testing
 .env.backup
 .phpunit.result.cache
 Homestead.json
