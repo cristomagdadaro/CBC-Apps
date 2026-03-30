@@ -39,7 +39,7 @@ const colorClasses = {
                dark:bg-[#1e293b]
                border border-gray-200/80 
                dark:border-slate-600/50 
-               p-4 transition-all duration-300 
+               p-3 md:p-4 transition-all duration-300 
                hover:border-AC/60 dark:hover:border-AA/60 
                hover:shadow-lg hover:shadow-AC/10 
                dark:hover:shadow-xl dark:hover:shadow-black/20 
@@ -61,7 +61,7 @@ const colorClasses = {
         <div class="relative z-10 flex flex-col h-full">
             <!-- Icon container -->
             <div :class="`${colorClasses[color]}`" 
-                 class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl 
+                 class="mb-2 md:mb-4 inline-flex h-8 w-8 md:h-12 md:w-12 items-center justify-center rounded-md md:rounded-xl 
                         bg-gradient-to-br from-AC/10 to-AB/5 
                         dark:from-AA/20 dark:to-AC/10 
                         dark:ring-1 dark:ring-AA/20
@@ -69,12 +69,12 @@ const colorClasses = {
                         group-hover:scale-105 group-hover:rotate-1 
                         transition-all duration-300 shadow-sm 
                         dark:shadow-none">
-                <component :is="icon" class="w-6 h-6" v-if="typeof icon === 'object'" />
+                <component :is="icon" class="w-4 h-4 md:w-6 md:h-6" v-if="typeof icon === 'object'" />
                 <span v-else class="text-lg">{{ icon }}</span>
             </div>
 
             <!-- Title -->
-            <h3 class="mb-2 text-lg font-bold text-gray-900 
+            <h3 class="mb-1 md:mb-2 text-lg font-bold text-gray-900 
                        dark:text-slate-100 
                        group-hover:text-AC dark:group-hover:text-AA 
                        transition-colors duration-300 leading-none">

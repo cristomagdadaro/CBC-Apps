@@ -416,7 +416,7 @@ export default {
                     <section
                       v-for="section in deploymentAccessSections"
                       :key="section.key"
-                      class="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 p-4"
+                      class="rounded-xl bg-gray-50 dark:bg-gray-900/30 p-4"
                     >
                       <div class="mb-4">
                         <h4 class="text-sm font-semibold uppercase tracking-wide text-gray-900 dark:text-white">
@@ -498,13 +498,13 @@ export default {
                                     {{ isModuleProtected(item) && option.value === "deactivated" ? `${option.label} (locked)` : option.label }}
                                   </option>
                                 </select>
-                                <p
+                              </div>
+                              <p
                                   v-if="isModuleProtected(item)"
-                                  class="mt-2 text-xs text-sky-600 dark:text-sky-300"
+                                  class="text-xs text-sky-600 dark:text-sky-300 col-span-full bg-sky-50 dark:bg-sky-900/20 rounded-md p-2"
                                 >
                                   This module cannot be deactivated from the admin UI to avoid locking out system settings.
                                 </p>
-                              </div>
                             </div>
                           </div>
 

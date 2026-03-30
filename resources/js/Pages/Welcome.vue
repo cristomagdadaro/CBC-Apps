@@ -151,7 +151,7 @@ onMounted(() => {
   <Head title="Welcome" />
   <main-bg />
   <div class="absolute top-0 left-0 w-full pointer-events-none">
-    <div class="relative sm:flex justify-center items-center min-h-screen">
+    <div class="relative sm:flex justify-center items-center min-h-screen  pointer-events-none">
       <div class="flex flex-col gap-5 px-5 md:px-0 py-10 md:py-0 pointer-events-auto">
         <div class="text-center text-gray-700 dark:text-gray-300">
           <div class="relative w-fit mx-auto">
@@ -184,9 +184,7 @@ onMounted(() => {
             </h3>
             <div class="h-1.5 w-16 mt-3 mx-auto rounded-full shadow-lg bg-gray-300 group-hover:w-full group-hover:h-0.5 group-hover:mt-0 group-hover:mb-4 duration-500"></div>
           </div>
-          <div
-            class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 w-full max-w-7xl"
-          >
+          <div class="flex flex-wrap justify-center gap-4 w-full max-w-7xl relative">
             <ServiceCard
               v-for="(service, index) in visibleServices"
               :key="index"
@@ -196,6 +194,7 @@ onMounted(() => {
               :href="service.href"
               :color="service.color"
               :external="service.external"
+              class="min-w-[200px] w-[20%]"
             />
           </div>
         </div>
