@@ -20,16 +20,12 @@ Route::prefix('guest')->group(function () {
             ->limit(100)
             ->get()
             ->map(function (Personnel $personnel) {
-                $fullName = trim(implode(' ', array_filter([
-                    $personnel->fname,
-                    $personnel->mname,
-                    $personnel->lname,
-                    $personnel->suffix,
-                ])));
-
                 return [
                     'id' => $personnel->id,
-                    'name' => $fullName,
+                    'fname' => $personnel->fname,
+                    'mname' => $personnel->mname,
+                    'lname' => $personnel->lname,
+                    'suffix' => $personnel->suffix,
                     'position' => $personnel->position,
                 ];
             });
