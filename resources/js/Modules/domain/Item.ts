@@ -17,7 +17,7 @@ export default class Item extends DtoItem {
         this.api._apiDelete = Item.endpoints.delete;
 
         this.api.appendWith = ['category', 'supplier'];
-
+        console.log(this)
         this.showPage = Item.endpoints.show;
     }
 

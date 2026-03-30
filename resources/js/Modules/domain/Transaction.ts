@@ -122,21 +122,21 @@ export default class Transaction extends DtoTransaction {
                 title: 'Barcode',
                 key: 'barcode',
                 db_key: 'barcode',
-                align: 'text-center flex justify-center',
+                align: 'text-center justify-center',
                 sortable: true,
                 visible: true,
             },{
                 title: 'PRRI Barcode',
                 key: 'barcode_prri',
                 db_key: 'barcode_prri',
-                align: 'text-center flex justify-center',
+                align: 'text-center justify-center',
                 sortable: true,
                 visible: true,
             },{
                 title: 'Quantity',
                 key: 'quantityWithUnit',
                 db_key: 'quantity',
-                align: 'text-right ',
+                align: 'text-center justify-center',
                 sortable: true,
                 visible: true,
             },{
@@ -208,7 +208,7 @@ export default class Transaction extends DtoTransaction {
                 db_key: 'remarks',
                 align: 'dataColor',
                 sortable: true,
-                visible: false,
+                visible: true,
             },{
                 title: 'PAR No',
                 key: 'par_no',

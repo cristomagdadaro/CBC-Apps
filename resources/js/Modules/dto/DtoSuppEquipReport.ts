@@ -52,4 +52,8 @@ export default class DtoSuppEquipReport extends DtoBaseClass implements ISuppEqu
 
         return `${firstKey}: ${this.report_data[firstKey]}`;
     }
+
+    get getBarcode(): string {
+        return this.transaction?.barcode ?? null;
+    }
 }

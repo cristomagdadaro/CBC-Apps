@@ -35,6 +35,16 @@ class SuppEquipReportController extends BaseController
         return response()->json(['data' => $report], 201);
     }
 
+    public function publicStore(CreateSuppEquipReportRequest $request): JsonResponse
+    {
+        $report = $this->repo()->createWithTransaction(
+            $request->validated(),
+            null
+        );
+
+        return response()->json(['data' => $report], 201);
+    }
+
     public function update(UpdateSuppEquipReportRequest $request, string $id): JsonResponse
     {
         $report = $this->repo()->updateWithTransaction($id, $request->validated());

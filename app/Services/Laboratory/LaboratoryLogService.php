@@ -334,7 +334,7 @@ class LaboratoryLogService
             ->whereIn('status', ['completed', 'overdue'])
             ->groupBy('equipment_id')
             ->orderByDesc('usage_count')
-            ->limit(5)
+            ->limit(10)
             ->get();
 
         $equipmentMap = Item::whereIn('id', $mostUsedRows->pluck('equipment_id'))

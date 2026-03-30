@@ -2,6 +2,8 @@ import axios, {AxiosError, AxiosResponse} from "axios";
 import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
 import ConsoleLogger from "@/Modules/shared/infrastructure/ConsoleLogger";
 
+declare const route: (...args: any[]) => string;
+
 export default abstract class ApiService {
     public axiosInstance: any;
     public processing: boolean = false;
@@ -145,6 +147,36 @@ export default abstract class ApiService {
         return formData;
     }
 
+    private normalizeRelationParams(value: any): string[] {
+        if (!value) {
+            return [];
+        }
+
+        if (Array.isArray(value)) {
+            return value.filter(Boolean);
+        }
+
+        if (typeof value === 'string') {
+            return value
+                .split(',')
+                .map((entry) => entry.trim())
+                .filter(Boolean);
+        }
+
+        return [];
+    }
+
+    private resolveRelationParams(
+        params: any,
+        configuredValue: any,
+        paramKey: 'with' | 'count'
+    ): string[] {
+        const fromParams = this.normalizeRelationParams(params?.[paramKey]);
+        const fromConfig = this.normalizeRelationParams(configuredValue);
+
+        return Array.from(new Set([...fromConfig, ...fromParams]));
+    }
+
     private notifyError(error: unknown, fallbackMessage: string = 'Request failed. Please try again.') {
         if (typeof window === 'undefined') {
             return;
@@ -217,7 +249,7 @@ export default abstract class ApiService {
                 delete cleanedParams.routeParams;
             }
             
-            const id = model ? model.apiGet : null;
+            const id = model ? (model as any).apiGet : null;
             // @ts-ignore
             routeUrl = id
                 ? route(url, id)
@@ -227,15 +259,15 @@ export default abstract class ApiService {
                     // @ts-ignore
                     : route(url);
 
+            const apiSource: any = model?.api ?? this;
+            const appendedWith = this.resolveRelationParams(cleanedParams, apiSource?.appendedWith ?? apiSource?.appendWith, 'with');
+            const appendedCount = this.resolveRelationParams(cleanedParams, apiSource?.appendedCount ?? apiSource?.appendCount, 'count');
+
             const response = await this.axiosInstance.get(routeUrl, {
                 params: {
                     ...cleanedParams,
-                    ...(model?.api?.appendedWith && Array.isArray(model?.api?.appendedWith)
-                        ? { with: model.api.appendedWith.toString() }
-                        : {}),
-                    ...(model?.api?.appendedCount && Array.isArray(model?.api?.appendedCount)
-                        ? { count: model.api.appendedCount.toString() }
-                        : {})
+                    ...(appendedWith.length ? { with: appendedWith.toString() } : {}),
+                    ...(appendedCount.length ? { count: appendedCount.toString() } : {})
                 }
             }).then((response: AxiosResponse) => {
                 ConsoleLogger.debug({
@@ -515,11 +547,19 @@ export default abstract class ApiService {
         return this._appendedWith;
     }
 
+    get appendWith() {
+        return this._appendedWith;
+    }
+
     set appendWith(columns: string[]) {
         this._appendedWith = columns;
     }
 
     get appendedCount() {
+        return this._appendedCount;
+    }
+
+    get appendCount() {
         return this._appendedCount;
     }
 

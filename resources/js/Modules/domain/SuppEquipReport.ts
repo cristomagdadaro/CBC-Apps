@@ -4,25 +4,27 @@ import {usePage} from "@inertiajs/vue3";
 export default class SuppEquipReport extends DtoSuppEquipReport {
     static endpoints = {
         index: 'api.inventory.supp_equip_reports.index',
-        indexGuest: 'api.inventory.transactions.index.public',
-        post: 'api.inventory.supp_equip_reports.store',
+        postAuth: 'api.inventory.supp_equip_reports.store',
+        postGuest: 'api.inventory.supp_equip_reports.store.public',
         put: 'api.inventory.supp_equip_reports.update',
         delete: 'api.inventory.supp_equip_reports.destroy',
         create: 'suppEquipReports.create',
-        show: 'transactions.show',
+        show: 'suppEquipReports.show',
     }
     constructor(response: DtoSuppEquipReport = {} as DtoSuppEquipReport) {
         super(response);
 
         const page = usePage();
-        this.api._apiIndex = (!!page.props.auth?.user) ? SuppEquipReport.endpoints.index : SuppEquipReport.endpoints.indexGuest;
+        const isAuthenticated = !!(page.props as any)?.auth?.user;
 
-        this.api._apiPost = SuppEquipReport.endpoints.post;
+        this.api._apiIndex = SuppEquipReport.endpoints.index;
+        this.api._apiPost = isAuthenticated ? SuppEquipReport.endpoints.postAuth : SuppEquipReport.endpoints.postGuest;
         this.api._apiPut = SuppEquipReport.endpoints.put;
         this.api._apiDelete = SuppEquipReport.endpoints.delete;
 
-        this.api.appendWith = ['transaction.item', 'transaction.user', 'item', 'user'];
+        this.api.appendWith = ['transaction.item', 'transaction.user', 'transaction.personnel', 'item', 'user'];
         this.createPage = SuppEquipReport.endpoints.create;
+        this.showPage = SuppEquipReport.endpoints.show;
     }
 
     createFields(): object {
@@ -62,7 +64,7 @@ export default class SuppEquipReport extends DtoSuppEquipReport {
                 db_key: 'report_type',
                 align: 'text-left',
                 sortable: true,
-                visible: true,
+                visible: false,
             },
             {
                 title: 'Barcode',
@@ -74,11 +76,11 @@ export default class SuppEquipReport extends DtoSuppEquipReport {
             },
             {
                 title: 'Property No.',
-                key: 'transaction.ppri_no',
-                db_key: 'transaction.ppri_no',
+                key: 'transaction.barcode_prri',
+                db_key: 'barcode_prri',
                 align: 'text-center',
                 sortable: true,
-                visible: true,
+                visible: false,
             },
             {
                 title: 'Item',
@@ -117,6 +119,30 @@ export default class SuppEquipReport extends DtoSuppEquipReport {
                 key: 'notes',
                 db_key: 'notes',
                 align: 'text-left',
+                sortable: false,
+                visible: false,
+            },
+            {
+                title: 'Problem Summary',
+                key: 'report_data.impact_summary',
+                db_key: 'impact_summary',
+                align: 'text-left',
+                sortable: false,
+                visible: true,
+            },
+            {
+                title: 'Action Taken',
+                key: 'report_data.immediate_action',
+                db_key: 'immediate_action',
+                align: 'text-left',
+                sortable: false,
+                visible: true,
+            },
+            {
+                title: 'Status',
+                key: 'report_data.status',
+                db_key: 'status',
+                align: 'text-left uppercase',
                 sortable: false,
                 visible: true,
             },

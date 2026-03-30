@@ -38,7 +38,8 @@
 
                 <!-- Custom Filters Slot -->
                 <div class="flex flex-wrap gap-2 items-center">
-                    <slot name="custom-filters" :datatable="dt" :customFilters="dt.request" :refresh="() => dt.refresh()" />
+                    <slot name="custom-filters" :datatable="dt" :customFilters="dt.request"
+                        :refresh="() => dt.refresh()" />
                 </div>
             </div>
 
@@ -143,8 +144,7 @@
         <!-- Table Container -->
         <div id="dtTableContainer"
             class="relative z-10 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div v-if="actionWarnings.length"
-                class="border-b border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
+            <div v-if="actionWarnings.length" class="border-b border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
                 <p class="text-sm font-semibold">Action configuration warning</p>
                 <ul class="mt-2 list-disc pl-5 text-sm">
                     <li v-for="warning in actionWarnings" :key="warning">{{ warning }}</li>
@@ -176,7 +176,8 @@
                                     column.visible !== false ? '' : 'hidden',
                                     getSortClasses(column)
                                 ]" @click="onColumnSort(column)">
-                                <div class="flex items-center gap-1.5" :class="column.align ? column.align : 'text-left'">
+                                <div class="flex items-center gap-1.5"
+                                    :class="column.align ? column.align : 'text-left'">
                                     <span>{{ column.title }}</span>
                                     <span v-if="column.sortable" class="text-[10px] opacity-50">
                                         <arrow-up-icon
@@ -277,7 +278,7 @@
                 class="flex flex-col sm:flex-row justify-between items-center p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 text-xs text-gray-600 dark:text-gray-400 gap-2">
                 <div class="flex items-center gap-2">
                     <span>Showing <strong>{{ meta_from }}-{{ meta_to }}</strong> of <strong>{{ total_entries
-                            }}</strong></span>
+                    }}</strong></span>
                     <span v-if="dt.selected.length" class="px-2 py-0.5 rounded-full text-white text-[10px] font-medium"
                         :class="presetClasses.badge">
                         {{ dt.selected.length }} selected
@@ -400,16 +401,18 @@
                 </div>
             </template>
             <template #footer>
-                <button @click="closeDialog"
-                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
-                    Cancel
-                </button>
-                <button @click="confirmSingleDelete" :disabled="dt.processing"
-                    class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center gap-2">
-                    <trash-2-icon v-if="!dt.processing" class="w-4 h-4" />
-                    <loader-2-icon v-else class="w-4 h-4 animate-spin" />
-                    Delete
-                </button>
+                <div class="flex justify-between w-full">
+                    <button @click="confirmSingleDelete" :disabled="dt.processing"
+                        class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center gap-2">
+                        <trash-2-icon v-if="!dt.processing" class="w-4 h-4" />
+                        <loader-2-icon v-else class="w-4 h-4 animate-spin" />
+                        Delete
+                    </button>
+                    <button @click="closeDialog"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
+                        Cancel
+                    </button>
+                </div>
             </template>
         </dialog-modal>
 

@@ -445,8 +445,7 @@ export default {
                     </div>
 
                     <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
-                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Top 5 Most-Used
-                            Equipment</h3>
+                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Top 5 Most-Used Equipment</h3>
                         <div v-if="mostUsed.length" class="h-72 w-full">
                             <canvas ref="mostUsedChartCanvas" :key="mostUsed.length" width="400" height="300"
                                 style="max-height: 100%; max-width: 100%;"></canvas>
@@ -464,8 +463,7 @@ export default {
                         :show-type-filter="false" />
                 </div>
                 <div v-show="activeTab === 'logs'">
-                    <CRCMDatatable :base-model="LaboratoryEquipmentLog" :can-view="true" :can-create="false"
-                        :can-update="true" :can-delete="true">
+                    <CRCMDatatable :base-model="LaboratoryEquipmentLog" :can-view="true" :can-create="false" :can-update="true" :can-delete="false">
                         <!-- Custom Cell Rendering -->
                         <template #cell-status="{ value }">
                             <span class="px-4 py-1.5 rounded-full text-xs font-medium leading-none uppercase" :class="{

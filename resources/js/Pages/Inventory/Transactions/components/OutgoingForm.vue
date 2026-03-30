@@ -81,9 +81,7 @@ export default {
         },
         formatDate(value) {
             if (!value) return 'N/A';
-            const normalized = typeof value === 'string' && !value.includes('T')
-                ? value.replace(' ', 'T')
-                : value;
+            const normalized = typeof value === 'string' && !value.includes('T') ? value.replace(' ', 'T') : value;
             const date = new Date(normalized);
             if (Number.isNaN(date.getTime())) {
                 return value;

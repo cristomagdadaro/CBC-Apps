@@ -1,5 +1,6 @@
 <?php
 
+use App\Repositories\SuppEquipReportRepo;
 use App\Services\DeploymentAccessService;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -21,10 +22,19 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
             })->name('suppEquipReports.index');
 
             Route::get('/create', function () {
-                return Inertia::render('Inventory/SuppEquipReports/SuppEquipReportsCreate', [
+                return Inertia::render('Inventory/SuppEquipReports/SuppEquipReportsFormPage', [
                     'reportTemplates' => config('suppequipreportforms'),
+                    'mode' => 'create',
                 ]);
             })->name('suppEquipReports.create');
+
+            Route::get('/show/{id}', function (string $id, SuppEquipReportRepo $repo) {
+                return Inertia::render('Inventory/SuppEquipReports/SuppEquipReportsFormPage', [
+                    'reportTemplates' => config('suppequipreportforms'),
+                    'mode' => 'update',
+                    'data' => $repo->getFormData($id),
+                ]);
+            })->name('suppEquipReports.show');
         });
     });
 });
