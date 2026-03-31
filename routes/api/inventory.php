@@ -14,6 +14,9 @@ Route::prefix('guest')->group(function () {
     Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_INVENTORY])
         ->get('/personnel/public', [PersonnelController::class, 'publicLookup'])
         ->name('api.inventory.personnels.index.guest');
+    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_EQUIPMENT_LOGGER])
+        ->post('/personnel/public/initialize-profile', [PersonnelController::class, 'initializeProfile'])
+        ->name('api.inventory.personnels.initialize-profile.guest');
 
     Route::prefix('inventory')->group(function () {
         Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_INVENTORY])->group(function () {

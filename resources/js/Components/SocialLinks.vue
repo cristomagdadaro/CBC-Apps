@@ -360,21 +360,21 @@ export default {
 
                     <!-- Auth Section -->
                     <div class="p-2 space-y-1">
-                        <Link :href="route('login')"
+                        <Link :href="route('login')" data-guide='social-links-login'
                             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 group">
-                        <div
-                            class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-AB/10 group-hover:text-AB transition-colors">
-                            <LuUser class="w-4 h-4" />
-                        </div>
-                        <div class="flex-1">
-                            <span class="text-sm font-medium">Login</span>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">
-                                Access your account
-                            </p>
-                        </div>
+                            <div
+                                class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-AB/10 group-hover:text-AB transition-colors">
+                                <LuUser class="w-4 h-4" />
+                            </div>
+                            <div class="flex-1">
+                                <span class="text-sm font-medium">Login</span>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                    Access your account
+                                </p>
+                            </div>
                         </Link>
 
-                        <Link v-if="canRegister" :href="route('register')"
+                        <Link v-if="canRegister" :href="route('register')" data-guide='social-links-register'
                             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 group">
                         <div
                             class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-AB/10 group-hover:text-AB transition-colors">
@@ -393,7 +393,7 @@ export default {
 
                     <!-- External Links -->
                     <div class="p-2 space-y-1">
-                        <a href="https://www.facebook.com/DACropBiotechCenter" target="_blank" rel="noopener noreferrer"
+                        <a data-guide='social-links-facebook' href="https://www.facebook.com/DACropBiotechCenter" target="_blank" rel="noopener noreferrer"
                             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 group">
                             <div
                                 class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
@@ -405,7 +405,7 @@ export default {
                             </div>
                         </a>
 
-                        <a href="mailto:cropbiotechcenter@gmail.com"
+                        <a data-guide='social-links-email' href="mailto:cropbiotechcenter@gmail.com"
                             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 group">
                             <div
                                 class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 group-hover:bg-red-500 group-hover:text-white transition-all">
@@ -418,7 +418,7 @@ export default {
                             </div>
                         </a>
 
-                        <a href="https://dacbc.philrice.gov.ph/" target="_blank" rel="noopener noreferrer"
+                        <a data-guide='social-links-corporate-website' href="https://dacbc.philrice.gov.ph/" target="_blank" rel="noopener noreferrer"
                             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 group">
                             <div
                                 class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-AB/10 group-hover:text-AB transition-colors">
@@ -430,7 +430,7 @@ export default {
                             </div>
                         </a>
 
-                        <a href="https://cbc360tour.philrice.gov.ph/" target="_blank" rel="noopener noreferrer"
+                        <a data-guide='social-links-360tour' href="https://cbc360tour.philrice.gov.ph/" target="_blank" rel="noopener noreferrer"
                             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all duration-200 group">
                             <div
                                 class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-all">
@@ -442,7 +442,7 @@ export default {
                             </div>
                         </a>
 
-                        <a href="https://pin.philrice.gov.ph/" target="_blank" rel="noopener noreferrer"
+                        <a data-guide='social-links-pin' href="https://pin.philrice.gov.ph/" target="_blank" rel="noopener noreferrer"
                             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-200 group">
                             <div
                                 class="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 group-hover:bg-green-500 group-hover:text-white transition-all">
@@ -456,7 +456,7 @@ export default {
                             </div>
                         </a>
 
-                        <button type="button" @click="openPrivacyNotice"
+                        <button type="button" @click="openPrivacyNotice" data-guide='social-links-privacy-notice'
                             class="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-200 group">
                             <div data-guide='privacy-notice'
                                 class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-all">
@@ -475,6 +475,7 @@ export default {
 
             <!-- FAB Toggle Button -->
             <button type="button" @click="toggle"
+                data-guide='social-links'
                 class="w-14 h-14 rounded-full bg-AB text-white shadow-lg shadow-AB/30 flex items-center justify-center hover:shadow-xl hover:shadow-AB/40 hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-AB/20"
                 :class="{ 'rotate-90': open }" aria-label="Toggle quick links menu">
                 <Menu v-if="!open" class="w-6 h-6" />

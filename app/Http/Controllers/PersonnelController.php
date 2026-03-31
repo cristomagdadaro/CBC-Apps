@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreatePersonnelRequest;
 use App\Http\Requests\DeletePersonnelRequest;
 use App\Http\Requests\GetPersonnelRequest;
+use App\Http\Requests\InitializePersonnelProfileRequest;
 use App\Http\Requests\UpdatePersonnelRequest;
 use App\Models\Personnel;
 use App\Repositories\PersonnelRepo;
@@ -62,7 +63,7 @@ class PersonnelController extends BaseController
         }
 
         $personnels = Personnel::query()
-            ->select(['id', 'fname', 'mname', 'lname', 'suffix', 'position'])
+            ->select(['id', 'fname', 'mname', 'lname', 'suffix', 'position', 'updated_at'])
             ->where('employee_id', $search)
             ->orderBy('lname')
             ->orderBy('fname')
@@ -82,11 +83,49 @@ class PersonnelController extends BaseController
                         $personnel->lname,
                         $personnel->suffix,
                     ])->filter()->implode(' '),
+                    'profile_requires_update' => $personnel->updated_at === null,
                 ];
             })
             ->values();
 
         return response()->json(['data' => $personnels]);
+    }
+
+    public function initializeProfile(InitializePersonnelProfileRequest $request): JsonResponse
+    {
+        $personnel = Personnel::query()
+            ->where('employee_id', $request->validated('employee_id'))
+            ->firstOrFail();
+
+        if ($personnel->updated_at !== null) {
+            return response()->json([
+                'message' => 'Personnel information has already been initialized.',
+            ], 409);
+        }
+
+        $personnel->fill(collect($request->validated())
+            ->except('employee_id')
+            ->toArray());
+        $personnel->save();
+
+        return response()->json([
+            'message' => 'Personnel information updated successfully.',
+            'data' => [
+                'id' => $personnel->id,
+                'fname' => $personnel->fname,
+                'mname' => $personnel->mname,
+                'lname' => $personnel->lname,
+                'suffix' => $personnel->suffix,
+                'position' => $personnel->position,
+                'fullName' => collect([
+                    $personnel->fname,
+                    $personnel->mname,
+                    $personnel->lname,
+                    $personnel->suffix,
+                ])->filter()->implode(' '),
+                'profile_requires_update' => false,
+            ],
+        ]);
     }
 
     public function create(CreatePersonnelRequest $request): Model

@@ -10,6 +10,7 @@ use App\Models\Supplier;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Services\Laboratory\LaboratoryLogService;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -70,6 +71,48 @@ class LaboratoryLogServiceTest extends TestCase
         $this->assertSame(1, $count);
         $this->assertSame('overdue', $overdue->fresh()->status);
         $this->assertSame('active', $active->fresh()->status);
+    }
+
+    public function test_check_in_requires_personnel_profile_initialization(): void
+    {
+        $context = $this->createLaboratoryInventoryContext();
+        $item = $context['item'];
+        $user = $context['user'];
+
+        Transaction::query()->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-LAB-0002',
+            'transac_type' => InventoryEnum::INCOMING->value,
+            'quantity' => 1,
+            'unit_price' => 100,
+            'unit' => 'pc',
+            'total_cost' => 100,
+            'personnel_id' => Personnel::query()->first()->id,
+            'user_id' => $user->id,
+            'expiration' => now()->addMonth(),
+            'remarks' => 'Laboratory stock',
+        ]);
+
+        $freshPersonnel = Personnel::factory()->create([
+            'employee_id' => 'EMP-FRESH-LAB',
+            'updated_at' => null,
+        ]);
+
+        try {
+            app(LaboratoryLogService::class)->checkIn($item->id, [
+                'employee_id' => $freshPersonnel->employee_id,
+                'end_use_at' => now()->addHour()->toIso8601String(),
+                'purpose' => 'Calibration',
+            ]);
+
+            $this->fail('Expected a profile initialization exception.');
+        } catch (HttpException $exception) {
+            $this->assertSame(409, $exception->getStatusCode());
+            $this->assertSame(
+                'Please update your personnel information before checking in equipment.',
+                $exception->getMessage()
+            );
+        }
     }
 
     private function createLaboratoryInventoryContext(): array

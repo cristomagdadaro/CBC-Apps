@@ -44,14 +44,27 @@ export default {
             messageType: "success",
             showSuccessModal: false,
             personnelPreview: null,
+            profileRequiresUpdate: false,
             checkInErrors: {},
             checkOutErrors: {},
             updateEndUseErrors: {},
             locationSurveyErrors: {},
+            personnelProfileErrors: {},
             checkInForm: useForm({
                 employee_id: "",
                 end_use_at: "",
                 purpose: "",
+            }),
+            personnelProfileForm: useForm({
+                employee_id: "",
+                fname: "",
+                mname: "",
+                lname: "",
+                suffix: "",
+                position: "",
+                phone: "",
+                address: "",
+                email: "",
             }),
             checkOutForm: useForm({
                 employee_id: "",
@@ -234,7 +247,18 @@ export default {
         },
         handlePersonnelFound(data) {
             this.personnelPreview = data;
+            this.profileRequiresUpdate = !!data.profile_requires_update;
             this.checkInErrors = { ...this.checkInErrors, employee_id: null };
+            this.personnelProfileErrors = {};
+            this.personnelProfileForm.employee_id = data.employee_id || this.checkInForm.employee_id;
+            this.personnelProfileForm.fname = data.fname || "";
+            this.personnelProfileForm.mname = data.mname || "";
+            this.personnelProfileForm.lname = data.lname || "";
+            this.personnelProfileForm.suffix = data.suffix || "";
+            this.personnelProfileForm.position = data.position || "";
+            this.personnelProfileForm.phone = data.phone || "";
+            this.personnelProfileForm.address = data.address || "";
+            this.personnelProfileForm.email = data.email || "";
             this.saveLaboratoryPersonnel({
                 employee_id: this.checkInForm.employee_id,
                 fullName: data.fullName,
@@ -254,6 +278,7 @@ export default {
                 ...this.checkInErrors,
                 [error.field]: error.message,
             };
+            this.profileRequiresUpdate = false;
         },
         searchDifferentPersonnel() {
             this.checkOutErrors = {};
@@ -272,6 +297,9 @@ export default {
             this.checkInForm.reset();
             this.checkInErrors = {};
             this.personnelPreview = null;
+            this.profileRequiresUpdate = false;
+            this.personnelProfileErrors = {};
+            this.personnelProfileForm.reset();
         },
         resetCheckOut() {
             this.checkOutForm.reset();
@@ -327,6 +355,12 @@ export default {
         async submitCheckIn() {
             this.checkInErrors = {};
             this.message = null;
+            if (this.profileRequiresUpdate) {
+                this.checkInErrors = {
+                    base: "Please update your personnel information before checking in equipment.",
+                };
+                return;
+            }
             try {
                 await this.fetchPostApi(
                     `${this.apiRoutePrefix}.check-in`,
@@ -351,6 +385,48 @@ export default {
                 } else {
                     this.checkInErrors = {
                         base: error?.response?.data?.message || "Check-in failed",
+                    };
+                }
+            }
+        },
+        async submitPersonnelProfileUpdate() {
+            this.personnelProfileErrors = {};
+            this.message = null;
+
+            try {
+                const response = await this.fetchPostApi(
+                    "api.inventory.personnels.initialize-profile.guest",
+                    this.personnelProfileForm.data(),
+                );
+                const payload = response?.data ?? response ?? {};
+                const record = payload?.data ?? {};
+
+                this.profileRequiresUpdate = false;
+                this.personnelPreview = {
+                    ...this.personnelPreview,
+                    ...record,
+                    employee_id: this.personnelProfileForm.employee_id,
+                    profile_requires_update: false,
+                };
+                this.saveLaboratoryPersonnel({
+                    employee_id: this.personnelProfileForm.employee_id,
+                    fullName: this.personnelPreview.fullName,
+                    fname: this.personnelPreview.fname,
+                    mname: this.personnelPreview.mname,
+                    lname: this.personnelPreview.lname,
+                    suffix: this.personnelPreview.suffix,
+                });
+                this.messageType = "success";
+                this.message = payload?.message || "Personnel information updated successfully";
+            } catch (error) {
+                this.messageType = "error";
+                if (error?.response?.status === 422) {
+                    this.personnelProfileErrors = error.response.data.errors || {
+                        base: error.response.data.message,
+                    };
+                } else {
+                    this.personnelProfileErrors = {
+                        base: error?.response?.data?.message || "Unable to update personnel information.",
                     };
                 }
             }
@@ -808,6 +884,46 @@ export default {
                                 class="flex items-center gap-2 p-3 text-sm text-emerald-700 rounded-lg bg-emerald-50">
                                 <LuCheckCircle2 class="w-4 h-4" />
                                 <span class="font-medium">{{ personnelPreview.fullName }}</span>
+                            </div>
+
+                            <div
+                                v-if="profileRequiresUpdate"
+                                class="space-y-3 rounded-xl border border-amber-200 bg-amber-50 p-4"
+                            >
+                                <div>
+                                    <p class="text-sm font-semibold text-amber-900">
+                                        Update your personnel information first
+                                    </p>
+                                    <p class="mt-1 text-sm text-amber-800">
+                                        This employee record is marked as a fresh profile. Please complete the contact details below before checking in equipment.
+                                    </p>
+                                </div>
+                                <div class="grid gap-3 md:grid-cols-2">
+                                    <TextInput v-model="personnelProfileForm.fname" label="First Name" required
+                                        :error="getErrorMessage(personnelProfileErrors.fname)" />
+                                    <TextInput v-model="personnelProfileForm.mname" label="Middle Name"
+                                        :error="getErrorMessage(personnelProfileErrors.mname)" />
+                                    <TextInput v-model="personnelProfileForm.lname" label="Last Name" required
+                                        :error="getErrorMessage(personnelProfileErrors.lname)" />
+                                    <TextInput v-model="personnelProfileForm.suffix" label="Suffix"
+                                        :error="getErrorMessage(personnelProfileErrors.suffix)" />
+                                    <TextInput v-model="personnelProfileForm.position" label="Position" required
+                                        :error="getErrorMessage(personnelProfileErrors.position)" />
+                                    <TextInput v-model="personnelProfileForm.phone" label="Phone" required
+                                        :error="getErrorMessage(personnelProfileErrors.phone)" />
+                                    <TextInput v-model="personnelProfileForm.email" label="Email (optional)"
+                                        :error="getErrorMessage(personnelProfileErrors.email)" />
+                                    <TextInput v-model="personnelProfileForm.address" label="Address" required
+                                        :error="getErrorMessage(personnelProfileErrors.address)" />
+                                </div>
+                                <div v-if="getErrorMessage(personnelProfileErrors.base)" class="text-sm text-red-600">
+                                    {{ getErrorMessage(personnelProfileErrors.base) }}
+                                </div>
+                                <button type="button" @click="submitPersonnelProfileUpdate"
+                                    class="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-amber-700">
+                                    <LuSave class="w-4 h-4" />
+                                    Save Personnel Information
+                                </button>
                             </div>
 
                             <div v-if="getErrorMessage(checkInErrors.employee_id)" class="text-sm text-red-600">

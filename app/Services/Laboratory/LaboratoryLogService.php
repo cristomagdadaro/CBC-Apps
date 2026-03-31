@@ -135,6 +135,10 @@ class LaboratoryLogService
 
         $personnel = $this->resolvePersonnelFromPayload($payload);
 
+        if ($personnel->updated_at === null) {
+            abort(409, 'Please update your personnel information before checking in equipment.');
+        }
+
         return DB::transaction(function () use ($equipmentId, $payload, $personnel) {
             $activeLog = $this->lockActiveLog($equipmentId);
             if ($activeLog) {

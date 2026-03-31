@@ -65,6 +65,7 @@ export default {
                 delete this.clientErrors.employee_id;
 
                 this.$emit('found', {
+                    employee_id: this.modelValue,
                     fullName: record.fullName,
                     fname: record.fname,
                     mname: record.mname,
@@ -73,6 +74,7 @@ export default {
                     position: record.position,
                     phone: record.phone ?? null,
                     email: record.email ?? null,
+                    profile_requires_update: !!record.profile_requires_update,
                     affiliation: "Philippine Rice Research Institute",
                 });
 

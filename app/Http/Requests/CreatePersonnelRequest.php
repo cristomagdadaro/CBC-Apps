@@ -24,6 +24,7 @@ class CreatePersonnelRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'is_philrice_employee' => ['required', 'boolean'],
             'fname' => ['required', 'string', new UniqueFullName()],
             'mname' => ['string', 'nullable', new UniqueFullName()],
             'lname' =>  ['required', 'string', new UniqueFullName()],
@@ -31,8 +32,8 @@ class CreatePersonnelRequest extends FormRequest
             'position' => 'required|string',
             'phone' => 'string|nullable',
             'address' => 'string|nullable',
-            'email' => 'required|email|unique:personnels,email',
-            'employee_id' => 'required|string|max:32|unique:personnels,employee_id',
+            'email' => 'nullable|email|unique:personnels,email',
+            'employee_id' => 'nullable|string|max:32|unique:personnels,employee_id|required_if:is_philrice_employee,true',
         ];
     }
 
@@ -46,7 +47,7 @@ class CreatePersonnelRequest extends FormRequest
             'position.required' => 'Required field',
             'email.email' => 'Invalid email format',
             'email.unique' => 'Already been taken',
-            'employee_id.required' => 'Required field',
+            'employee_id.required_if' => 'Required field',
             'employee_id.unique' => 'Already been taken',
         ];
     }

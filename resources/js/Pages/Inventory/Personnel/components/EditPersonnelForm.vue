@@ -75,8 +75,7 @@ export default {
                         :error="form.errors.phone"
                     />
                     <text-input
-                        required
-                        label="Email"
+                        label="Email (optional)"
                         v-model="form.email"
                         :error="form.errors.email"
                     />
@@ -86,16 +85,8 @@ export default {
                     v-model="form.address"
                     :error="form.errors.address"
                 />
-                <span class="text-sm text-gray-600">
-                    For OJT, interns, thesis students, or other temporary
-                    personnel who do not have a PhilRice ID, please assign a
-                    temporary CBC ID using the format
-                    <strong>CBC-{YY}-{NNN}</strong> (e.g.,
-                    <strong>CBC-23-001</strong>).
-                </span>
-
                 <text-input
-                    label="PhilRice ID"
+                    label="Employee ID / CBC ID"
                     required
                     v-model="form.employee_id"
                     :error="form.errors.employee_id"

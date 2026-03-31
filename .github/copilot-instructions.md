@@ -72,6 +72,7 @@
 - Treat every `api/guest/*` route as a public internet surface, even when authenticated staff can also hit it.
 - Default guest routes to read-only. If a guest-facing mutation is unavoidable, require authenticated staff context or a signed/OTP-backed workflow rather than knowledge-based identifiers.
 - The Laboratory and ICT Equipment Logger guest flows are the current exception when they are intentionally constrained through `DeploymentAccessService` to a trusted local deployment. In that local-only trust model, employee ID verification is acceptable by product decision and the frontend should reflect the same expectation.
+- In that same local-trust logger flow, treat `personnels.updated_at === null` as a fresh-profile flag. Equipment check-in should prompt a one-time personnel/contact update before proceeding, and guest-safe profile initialization should stay narrowly scoped to that logger onboarding step.
 - Never authorize actions with caller-supplied identifiers such as `employee_id`, `participant_hash`, or email addresses; derive identity from the authenticated user or a signed callback/token.
 - Public list/show endpoints should return explicit DTO/resource-style payloads instead of raw `Model::toArray()` output.
 - Availability and conflict-check endpoints may expose boolean availability and normalized windows only; do not leak requester names, contact numbers, event names, notes, or other free text.
@@ -84,6 +85,11 @@
 - Regenerate `resources/js/ziggy.js` after route additions, removals, or guest-surface changes.
 - If `vite.config.js` references `tests/setup.ts`, keep the file present and minimal.
 - If local frontend verification is blocked by workstation toolchain issues, record the exact blocker separately from code fixes so the tracker stays accurate.
+
+## Personnel ID Standard
+- New PhilRice personnel records should still use their official employee ID supplied by the operator.
+- New outsider, OJT, thesis, or similar temporary personnel records should not rely on manually typed CBC IDs. Generate the next `CBC-YY-0000` identifier through the shared personnel ID service backed by `new_barcodes`.
+- Keep the create-form preview and the actual persisted ID generation aligned, but treat the backend generator as the source of truth so concurrent creates cannot duplicate IDs.
 
 ## Realtime / Websocket Standard
 - Use Laravel Reverb as the default websocket stack for CBC-Apps whenever realtime server push is required. Do not introduce third-party hosted websocket dependencies unless there is an explicit architectural decision to do so.

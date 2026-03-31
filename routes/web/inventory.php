@@ -181,6 +181,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                 Route::get('/create', function () {
                     return Inertia::render('Inventory/Personnel/components/CreatePersonnelForm', [
                         'fromUrl' => route('personnels.index'),
+                        'nextExternalEmployeeId' => app(\App\Repositories\PersonnelRepo::class)->previewNextExternalEmployeeId(),
                     ]);
                 })->name('personnels.create');
 

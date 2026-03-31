@@ -12,7 +12,7 @@ class GuestPersonnelLookupTest extends TestCase
 
     public function test_guest_personnel_lookup_returns_sanitized_exact_match_only(): void
     {
-        Personnel::query()->create([
+        $personnel = Personnel::query()->create([
             'fname' => 'Jane',
             'mname' => 'Q',
             'lname' => 'Public',
@@ -23,12 +23,14 @@ class GuestPersonnelLookupTest extends TestCase
             'email' => 'jane.public@example.test',
             'employee_id' => 'EMP-1001',
         ]);
+        $personnel->forceFill(['updated_at' => null])->saveQuietly();
 
         $this->getJson(route('api.inventory.personnels.index.guest', ['search' => 'EMP-1001']))
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.fullName', 'Jane Q Public Jr.')
             ->assertJsonPath('data.0.position', 'Science Research Specialist')
+            ->assertJsonPath('data.0.profile_requires_update', true)
             ->assertJsonMissingPath('data.0.employee_id')
             ->assertJsonMissingPath('data.0.phone')
             ->assertJsonMissingPath('data.0.email')
@@ -47,5 +49,37 @@ class GuestPersonnelLookupTest extends TestCase
         $this->getJson(route('api.inventory.personnels.index.guest'))
             ->assertOk()
             ->assertExactJson(['data' => []]);
+    }
+
+    public function test_guest_can_initialize_fresh_personnel_profile_by_employee_id(): void
+    {
+        $personnel = Personnel::query()->create([
+            'fname' => 'Fresh',
+            'lname' => 'Staff',
+            'position' => 'Technician',
+            'employee_id' => 'EMP-2002',
+        ]);
+        $personnel->forceFill(['updated_at' => null])->saveQuietly();
+
+        $this->postJson(route('api.inventory.personnels.initialize-profile.guest'), [
+            'employee_id' => 'EMP-2002',
+            'fname' => 'Fresh',
+            'mname' => 'M',
+            'lname' => 'Staff',
+            'suffix' => null,
+            'position' => 'Senior Technician',
+            'phone' => '09171234567',
+            'address' => 'Science City of Munoz',
+            'email' => null,
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.profile_requires_update', false)
+            ->assertJsonPath('data.fullName', 'Fresh M Staff');
+
+        $this->assertDatabaseHas('personnels', [
+            'employee_id' => 'EMP-2002',
+            'position' => 'Senior Technician',
+            'phone' => '09171234567',
+        ]);
     }
 }

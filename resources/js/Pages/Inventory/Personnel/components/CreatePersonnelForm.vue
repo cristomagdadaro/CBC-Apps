@@ -11,6 +11,15 @@ export default {
     beforeMount() {
         this.model = new Personnel();
         this.setFormAction("create");
+        this.form.is_philrice_employee = true;
+    },
+    computed: {
+        isPhilRiceEmployee() {
+            return this.form?.is_philrice_employee !== false;
+        },
+        externalEmployeeIdPreview() {
+            return this.$page.props.nextExternalEmployeeId || "CBC-YY-0001";
+        },
     },
 };
 </script>
@@ -62,6 +71,18 @@ export default {
                     />
                 </div>
                 <div class="flex flex-col gap-2">
+                    <div class="space-y-1">
+                        <label class="text-sm font-medium text-gray-700">
+                            Personnel Type
+                        </label>
+                        <select
+                            v-model="form.is_philrice_employee"
+                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-AB focus:ring-AB"
+                        >
+                            <option :value="true">PhilRice Employee</option>
+                            <option :value="false">OJT / Thesis / Outsider</option>
+                        </select>
+                    </div>
                     <text-input
                         required
                         label="Position"
@@ -74,8 +95,7 @@ export default {
                         :error="form.errors.phone"
                     />
                     <text-input
-                        required
-                        label="Email"
+                        label="Email (optional)"
                         v-model="form.email"
                         :error="form.errors.email"
                     />
@@ -85,20 +105,24 @@ export default {
                     v-model="form.address"
                     :error="form.errors.address"
                 />
-                <span class="text-sm text-gray-600">
-                    For OJT, interns, thesis students, or other temporary
-                    personnel who do not have a PhilRice ID, please assign a
-                    temporary CBC ID using the format
-                    <strong>CBC-{YY}-{NNN}</strong> (e.g.,
-                    <strong>CBC-23-001</strong>).
-                </span>
-
-                <text-input
-                    label="PhilRice ID"
-                    required
-                    v-model="form.employee_id"
-                    :error="form.errors.employee_id"
-                />
+                <div v-if="isPhilRiceEmployee" class="space-y-1">
+                    <span class="text-sm text-gray-600">
+                        Enter the employee's PhilRice ID.
+                    </span>
+                    <text-input
+                        label="PhilRice ID"
+                        required
+                        v-model="form.employee_id"
+                        :error="form.errors.employee_id"
+                    />
+                </div>
+                <div v-else class="rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
+                    <p class="font-semibold">Auto-generated CBC ID</p>
+                    <p class="mt-1">
+                        The next outsider/OJT/thesis identifier will be assigned automatically on save.
+                    </p>
+                    <p class="mt-2 font-mono text-base">{{ externalEmployeeIdPreview }}</p>
+                </div>
                 <div class="flex gap-1 justify-end">
                     <submit-btn :disabled="model.api.processing">
                         <span v-if="model.api.processing">Saving</span>
