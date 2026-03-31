@@ -91,15 +91,47 @@ export default {
         hasEquipment() {
             return !!this.equipmentId;
         },
+        authUser() {
+            const page = usePage();
+            return page.props.auth?.user ?? null;
+        },
+        isAuthenticated() {
+            return !!this.authUser;
+        },
         canCheckIn() {
-            return this.allowedActions.includes("check-in");
+            return this.canMutateLogger && this.allowedActions.includes("check-in");
         },
         canCheckOut() {
-            return this.allowedActions.includes("check-out");
+            return this.canMutateLogger && this.allowedActions.includes("check-out");
         },
         isAdmin() {
             const page = usePage();
-            return page.props.auth?.user?.is_admin ?? false;
+            const roles = page.props.auth?.roles ?? [];
+
+            return (page.props.auth?.user?.is_admin ?? false) || roles.includes("admin");
+        },
+        hasLinkedPersonnel() {
+            return this.isAdmin || !!this.authUser?.employee_id;
+        },
+        canMutateLogger() {
+            return this.isAuthenticated && this.hasLinkedPersonnel;
+        },
+        canEditActiveLog() {
+            return !!this.activeLog && this.canMutateLogger;
+        },
+        canReportLocation() {
+            return this.shouldShowLocationSurvey && this.canMutateLogger;
+        },
+        equipmentActionAccessMessage() {
+            if (!this.isAuthenticated) {
+                return "Sign in with a staff account to create or update equipment log entries.";
+            }
+
+            if (!this.hasLinkedPersonnel) {
+                return "Your account is missing a linked employee ID, so equipment log actions stay read-only until an administrator connects your account.";
+            }
+
+            return null;
         },
         shouldShowLocationSurvey() {
             return this.currentLocation?.source !== "temporary" || this.currentLocation?.label === "Unknown Location";
@@ -296,7 +328,7 @@ export default {
             }
         },
         openLocationSurveyModal() {
-            if (!this.shouldShowLocationSurvey) return;
+            if (!this.canReportLocation) return;
             this.resetLocationSurvey();
             this.showLocationSurveyModal = true;
         },
@@ -320,6 +352,13 @@ export default {
                 this.formatForDatetimeLocal(baseTime);
         },
         async submitCheckIn() {
+            if (!this.canMutateLogger) {
+                this.checkInErrors = {
+                    base: this.equipmentActionAccessMessage,
+                };
+                return;
+            }
+
             this.checkInErrors = {};
             this.message = null;
             try {
@@ -351,6 +390,13 @@ export default {
             }
         },
         async submitCheckOut() {
+            if (!this.canMutateLogger) {
+                this.checkOutErrors = {
+                    base: this.equipmentActionAccessMessage,
+                };
+                return;
+            }
+
             this.checkOutErrors = {};
             this.message = null;
             try {
@@ -381,6 +427,13 @@ export default {
             }
         },
         async submitUpdateEndUse() {
+            if (!this.canMutateLogger) {
+                this.updateEndUseErrors = {
+                    base: this.equipmentActionAccessMessage,
+                };
+                return;
+            }
+
             this.updateEndUseErrors = {};
             this.message = null;
             try {
@@ -410,6 +463,13 @@ export default {
             }
         },
         async submitLocationSurvey() {
+            if (!this.canMutateLogger) {
+                this.locationSurveyErrors = {
+                    base: this.equipmentActionAccessMessage,
+                };
+                return;
+            }
+
             this.locationSurveyErrors = {};
             this.message = null;
             try {
@@ -669,7 +729,7 @@ export default {
                                             Temporary
                                         </span>
                                     </div>
-                                    <button v-if="shouldShowLocationSurvey" type="button" @click="openLocationSurveyModal"
+                                    <button v-if="canReportLocation" type="button" @click="openLocationSurveyModal"
                                         class="mt-2 text-xs font-medium text-amber-700 transition-colors hover:text-amber-800">
                                         Update reported location
                                     </button>
@@ -711,7 +771,7 @@ export default {
                                     </div>
                                 </template>
                                 <template #footer>
-                                    <button type="button" @click="submitLocationSurvey(); closeLocationSurveyModal()"
+                                    <button type="button" @click="submitLocationSurvey"
                                         class="w-full px-4 py-2.5 text-sm font-medium text-white transition-colors bg-amber-600 rounded-lg hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2">
                                         Update Location
                                     </button>
@@ -737,7 +797,7 @@ export default {
                                     </p>
                                 </div>
                             </div>
-                            <button v-if="activeLog" @click="showEstimatedEndUseModal = true"
+                            <button v-if="canEditActiveLog" @click="showEstimatedEndUseModal = true"
                                 class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 transition-colors bg-emerald-50 rounded-lg hover:bg-emerald-100">
                                 <LuEdit class="w-3.5 h-3.5" />
                                 Edit Time
@@ -778,6 +838,13 @@ export default {
                                 </span>
                             </div>
                         </div>
+                    </div>
+
+                    <div
+                        v-if="hasEquipment && !notFound && equipmentActionAccessMessage"
+                        class="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800"
+                    >
+                        {{ equipmentActionAccessMessage }}
                     </div>
 
                     <!-- Check-in Form -->
@@ -996,7 +1063,7 @@ export default {
         <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 scale-95"
             enter-to-class="opacity-100 scale-100" leave-active-class="transition duration-150 ease-in"
             leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
-            <div v-if="showEstimatedEndUseModal && activeLog"
+            <div v-if="showEstimatedEndUseModal && canEditActiveLog"
                 class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                 <div class="w-full max-w-md p-4 bg-white shadow-2xl rounded-2xl">
                     <div class="flex items-center justify-between mb-6">

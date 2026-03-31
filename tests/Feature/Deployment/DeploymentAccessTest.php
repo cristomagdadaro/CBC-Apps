@@ -7,11 +7,14 @@ use App\Services\DeploymentAccessService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
 use Inertia\Testing\AssertableInertia as Assert;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
+use Tests\WithTestRoles;
 
 class DeploymentAccessTest extends TestCase
 {
     use RefreshDatabase;
+    use WithTestRoles;
 
     protected function setUp(): void
     {
@@ -166,6 +169,37 @@ class DeploymentAccessTest extends TestCase
                     'deployment_access.modules.' . DeploymentAccessService::MODULE_SUPPLIES_CHECKOUT . '.access',
                     DeploymentAccessService::ACCESS_BOTH,
                 )
+            );
+    }
+
+    public function test_admin_can_access_local_only_web_module_on_internet_host(): void
+    {
+        $this->actingAs($this->createAdminUser());
+
+        $this->get('http://onecbc.philrice.gov.ph/__test/deployment/web-supplies')
+            ->assertOk();
+    }
+
+    public function test_admin_can_access_local_only_api_module_on_internet_host(): void
+    {
+        Sanctum::actingAs($this->createAdminUser());
+
+        $this->getJson('http://onecbc.philrice.gov.ph/__test/deployment/api-supplies')
+            ->assertOk()
+            ->assertJson(['ok' => true]);
+    }
+
+    public function test_admin_welcome_payload_keeps_local_only_services_visible_on_internet_host(): void
+    {
+        $this->actingAs($this->createAdminUser());
+
+        $this->get('http://onecbc.philrice.gov.ph/')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Welcome')
+                ->where('deployment_access.admin_bypass', true)
+                ->where('deployment_access.services.equipment_logger', true)
+                ->where('deployment_access.services.supplies_checkout', true)
             );
     }
 

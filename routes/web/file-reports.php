@@ -5,7 +5,7 @@ use App\Services\DeploymentAccessService;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_INVENTORY])->prefix('file-report')->group(function () {
+Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_INCIDENT_REPORTS])->prefix('file-report')->group(function () {
     Route::get('/create-guest/{barcode?}', function ($barcode = null) {
         return Inertia::render('Inventory/SuppEquipReports/SuppEquipReportsCreateGuest', [
             'reportTemplates' => config('suppequipreportforms'),

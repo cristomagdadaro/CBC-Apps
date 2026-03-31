@@ -34,6 +34,11 @@
 - [ID-015] Open.
 - [ID-016] Resolved. `resources/js/ziggy.js` had drifted from the current route definitions and still exposed removed guest-route metadata until regeneration.
 
+## Tracker Updates (2026-03-31)
+- [ID-017] Resolved. Module Access Controls now grant authenticated administrator accounts a full backend and frontend bypass, so `deployment.access` middleware, shared Inertia props, app navigation, and welcome-page service cards stay aligned for admins regardless of module access or mode settings.
+- [ID-018] Resolved. Module Access Control grouping was not logically flawless because guest-facing Incident Reports and Experiment Monitoring were being governed by internal Inventory/Research module keys; they now use dedicated guest/shared module keys so the Options grouping matches the actual route surface.
+- [ID-019] Resolved. The guest Equipment Logger page now reflects the authenticated write requirements instead of advertising write actions that the backend rejects, and the location update modal no longer closes prematurely on failed submissions.
+
 ### Verification Snapshot
 - `php artisan test tests/Feature/Laboratory/EquipmentControllersTest.php tests/Feature/Rental/RentalControllersTest.php tests/Feature/Inventory/GuestPersonnelLookupTest.php tests/Feature/Events/Registration/GuestLookupTest.php tests/Feature/Events/FormRepoParticipantsTest.php tests/Feature/Events/Workflow/TimelineIntegrationTest.php tests/Feature/Events/Workflow/ToggleSettingsTest.php`: 56 passed, 222 assertions, 0 failures.
 - `composer audit --format=json`: clean after dependency updates.
@@ -594,6 +599,24 @@ Location: `resources/js/ziggy.js`
 Issue: The generated Ziggy file kept removed guest-route metadata until it was manually regenerated after the route hardening pass.  
 Suggestion: Regenerate Ziggy whenever route names, URIs, or guest-route exposure changes.  
 Impact: XS effort, low-to-medium correctness benefit.
+
+[ID-017] [MEDIUM] [Access Control] - Module Access Controls Did Not Honor Administrator Bypass End To End  
+Location: `app/Services/DeploymentAccessService.php`, `resources/js/Layouts/AppLayout.vue`, `resources/js/Pages/Welcome.vue`  
+Issue: Deployment-access evaluation and frontend visibility both hid or blocked modules for administrator accounts instead of reserving those restrictions for non-admin users.  
+Suggestion: Treat authenticated administrators as a deliberate deployment-access bypass on both the middleware and shared-prop/UI layers.  
+Impact: XS effort, medium operational benefit.
+
+[ID-018] [LOW] [Maintainability] - Guest Module Grouping Drifted From The Actual Route Surface  
+Location: `app/Services/DeploymentAccessService.php`, `routes/web/file-reports.php`, `routes/api/file-reports.php`, `routes/web/research.php`, `resources/js/Pages/Welcome.vue`  
+Issue: Guest-facing Incident Reports and Experiment Monitoring features were controlled by internal module keys, so the Options page grouping did not accurately represent what each control governed.  
+Suggestion: Give guest/shared routes their own module keys when they do not share the same exposure model as the internal module.  
+Impact: S effort, medium configuration clarity benefit.
+
+[ID-019] [LOW] [UX] - Guest Equipment Logger Advertised Write Actions The Backend Intentionally Protects  
+Location: `resources/js/Pages/Laboratory/EquipmentShow.vue`  
+Issue: The page rendered write actions even for unauthenticated or unlinked accounts, and the location modal closed immediately even when the API returned validation errors.  
+Suggestion: Gate write affordances with the same authenticated-capability checks used by the backend and keep mutation dialogs open until a submit succeeds.  
+Impact: XS effort, medium user-trust benefit.
 
 ---
 

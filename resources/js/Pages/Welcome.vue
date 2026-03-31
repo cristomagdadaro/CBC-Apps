@@ -29,6 +29,12 @@ const isCheckingNetwork = ref(false);
 const page = usePage();
 
 const deploymentAccess = computed(() => page.props.deployment_access ?? {});
+const isAdminUser = computed(() => {
+  const auth = page.props.auth ?? {};
+  const roles = Array.isArray(auth.roles) ? auth.roles : [];
+
+  return !!auth.user?.is_admin || roles.includes("admin");
+});
 const localNetworkUrl = computed(
   () => deploymentAccess.value?.local_url ?? "http://192.168.36.10",
 );
@@ -92,7 +98,7 @@ const services = [
     icon: LuFlag,
     href: route("suppEquipReports.create.guest"),
     color: "rose",
-    visibilityKey: "inventory",
+    visibilityKey: "incident_reports",
   },
   {
     title: "Experiment Log",
@@ -100,12 +106,16 @@ const services = [
     icon: LuFlaskConical,
     href: route("laboratory.monitoring.guest"),
     color: "indigo",
-    visibilityKey: "research",
+    visibilityKey: "experiment_monitoring",
   },
 ];
 
 const visibleServices = computed(() => {
   const allowedServices = deploymentAccess.value?.services ?? {};
+
+  if (isAdminUser.value) {
+    return services;
+  }
 
   return services.filter(
     (service) =>
@@ -114,6 +124,10 @@ const visibleServices = computed(() => {
 });
 
 const hasHiddenLocalServices = computed(() => {
+  if (isAdminUser.value) {
+    return false;
+  }
+
   return services.some(
     (service) =>
       service.visibilityKey &&

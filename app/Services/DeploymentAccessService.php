@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use App\Repositories\OptionRepo;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,9 +27,11 @@ class DeploymentAccessService
     public const MODULE_LABORATORY_DASHBOARD = 'laboratory_dashboard';
     public const MODULE_FORMS = 'forms';
     public const MODULE_FES = 'fes';
+    public const MODULE_INCIDENT_REPORTS = 'incident_reports';
     public const MODULE_INVENTORY = 'inventory';
     public const MODULE_RENTALS = 'rentals';
     public const MODULE_OPTIONS = 'options';
+    public const MODULE_EXPERIMENT_MONITORING = 'experiment_monitoring';
     public const MODULE_RESEARCH = 'research';
 
     private const LOCAL_FALLBACK_HOSTS = [
@@ -81,9 +84,25 @@ class DeploymentAccessService
                 'section' => 'guest',
                 'allows_deactivation' => true,
             ],
+            self::MODULE_INCIDENT_REPORTS => [
+                'label' => 'Incident Reports',
+                'description' => 'Controls the guest incident-report form and its related public submission API.',
+                'default_access' => self::ACCESS_BOTH,
+                'default_mode' => self::MODE_ACTIVE,
+                'section' => 'guest',
+                'allows_deactivation' => true,
+            ],
             self::MODULE_RENTALS => [
                 'label' => 'Rentals',
                 'description' => 'Controls guest and authenticated rental pages together with the rentals API module.',
+                'default_access' => self::ACCESS_BOTH,
+                'default_mode' => self::MODE_ACTIVE,
+                'section' => 'guest',
+                'allows_deactivation' => true,
+            ],
+            self::MODULE_EXPERIMENT_MONITORING => [
+                'label' => 'Experiment Monitoring',
+                'description' => 'Controls the guest laboratory experiment monitoring page.',
                 'default_access' => self::ACCESS_BOTH,
                 'default_mode' => self::MODE_ACTIVE,
                 'section' => 'guest',
@@ -207,6 +226,21 @@ class DeploymentAccessService
         $channel = $this->currentChannel($request);
         $access = $this->accessFor($module);
         $mode = $this->modeFor($module);
+        $adminBypass = $this->hasAdministratorBypass($request);
+
+        if ($adminBypass) {
+            return [
+                'allowed' => true,
+                'reason' => null,
+                'message' => null,
+                'status' => Response::HTTP_OK,
+                'channel' => $channel,
+                'access' => $access,
+                'mode' => $mode,
+                'read_only' => false,
+                'admin_bypass' => true,
+            ];
+        }
 
         if (! $this->allowsChannel($channel, $access)) {
             return [
@@ -253,6 +287,7 @@ class DeploymentAccessService
             'access' => $access,
             'mode' => $mode,
             'read_only' => $mode === self::MODE_MAINTENANCE,
+            'admin_bypass' => false,
         ];
     }
 
@@ -263,6 +298,10 @@ class DeploymentAccessService
 
     public function isVisibleOnWelcome(Request $request, string $module): bool
     {
+        if ($this->hasAdministratorBypass($request)) {
+            return true;
+        }
+
         $channel = $this->currentChannel($request);
         $config = $this->moduleConfigMap()[$module] ?? [
             'access' => self::ACCESS_BOTH,
@@ -277,9 +316,11 @@ class DeploymentAccessService
     {
         $channel = $this->currentChannel($request);
         $modules = $this->moduleStateMap($request);
+        $adminBypass = $this->hasAdministratorBypass($request);
 
         return [
             'channel' => $channel,
+            'admin_bypass' => $adminBypass,
             'local_url' => (string) config('app.local_url'),
             'internet_url' => (string) config('app.url'),
             'modules' => $modules,
@@ -288,7 +329,9 @@ class DeploymentAccessService
                 self::MODULE_SUPPLIES_CHECKOUT => $this->isVisibleOnWelcome($request, self::MODULE_SUPPLIES_CHECKOUT),
                 self::MODULE_FORMS => $this->isVisibleOnWelcome($request, self::MODULE_FORMS),
                 self::MODULE_FES => $this->isVisibleOnWelcome($request, self::MODULE_FES),
+                self::MODULE_INCIDENT_REPORTS => $this->isVisibleOnWelcome($request, self::MODULE_INCIDENT_REPORTS),
                 self::MODULE_RENTALS => $this->isVisibleOnWelcome($request, self::MODULE_RENTALS),
+                self::MODULE_EXPERIMENT_MONITORING => $this->isVisibleOnWelcome($request, self::MODULE_EXPERIMENT_MONITORING),
                 self::MODULE_INVENTORY => $this->isVisibleOnWelcome($request, self::MODULE_INVENTORY),
                 self::MODULE_RESEARCH => $this->isVisibleOnWelcome($request, self::MODULE_RESEARCH),
                 self::MODULE_LABORATORY_DASHBOARD => $this->isVisibleOnWelcome($request, self::MODULE_LABORATORY_DASHBOARD),
@@ -446,6 +489,7 @@ class DeploymentAccessService
                     $module => $settings + [
                         'available' => $this->allows($request, $module),
                         'visible' => $this->isVisibleOnWelcome($request, $module),
+                        'admin_bypass' => $this->hasAdministratorBypass($request),
                     ],
                 ];
             })
@@ -475,6 +519,17 @@ class DeploymentAccessService
     private function isReadOnlyRequest(Request $request): bool
     {
         return in_array($request->getMethod(), ['GET', 'HEAD', 'OPTIONS'], true);
+    }
+
+    private function hasAdministratorBypass(Request $request): bool
+    {
+        $user = $request->user();
+
+        if (! $user instanceof User) {
+            return false;
+        }
+
+        return (bool) $user->is_admin || $user->hasRole('admin');
     }
 
     private static function accessOptions(): array

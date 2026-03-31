@@ -38,7 +38,7 @@ class DeploymentAccessOptionsApiTest extends TestCase
             )
             ->assertJsonPath('data.sections.0.key', 'guest')
             ->assertJsonPath('data.sections.1.key', 'internal')
-            ->assertJsonCount(5, 'data.sections.0.items')
+            ->assertJsonCount(7, 'data.sections.0.items')
             ->assertJsonCount(4, 'data.sections.1.items');
     }
 

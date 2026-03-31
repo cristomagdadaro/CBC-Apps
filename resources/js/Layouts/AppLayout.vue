@@ -279,6 +279,12 @@ export default {
     currentRouteName() {
       return route().current();
     },
+    isAdminUser() {
+      const auth = this.$page.props.auth || {};
+      const roles = Array.isArray(auth.roles) ? auth.roles : [];
+
+      return !!auth.user?.is_admin || roles.includes("admin");
+    },
     deploymentModules() {
       return this.$page.props.deployment_access?.modules || {};
     },
@@ -304,6 +310,7 @@ export default {
     },
     hasVisibleModule(moduleKey) {
       if (!moduleKey) return true;
+      if (this.isAdminUser) return true;
 
       const moduleState = this.deploymentModules?.[moduleKey];
       if (!moduleState) return true;

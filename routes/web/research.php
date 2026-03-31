@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::prefix('laboratory')->group(function () {
-    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_RESEARCH])->get('/experiments-monitoring', function () {
+    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_EXPERIMENT_MONITORING])->get('/experiments-monitoring', function () {
         return Inertia::render('Laboratory/ExperimentsMonitoring/ExperimentsMonitoringGuest');
     })->name('laboratory.monitoring.guest');
 });

@@ -56,6 +56,14 @@
 - Keep Vue components small: let controllers/repositories prepare data and let Vue focus on presentation and interaction.
 - Avoid duplicating business logic in Vue; mirror backend validation through shared status codes/messages.
 
+## Module Access Control Standard
+- Deployment access is controlled centrally through [`app/Services/DeploymentAccessService.php`](../app/Services/DeploymentAccessService.php) and enforced by the `deployment.access:<module>` middleware. Treat that backend evaluation as the source of truth.
+- Keep module keys aligned across web routes, API routes, shared Inertia props, and frontend visibility checks. If a page and its related API surface are meant to be governed together, they must use the same module key.
+- Separate guest/shared module keys from internal-only module keys when the exposure model differs. Do not hide a guest-facing feature behind an internal module key just because they share a broader business domain.
+- Authenticated administrator accounts bypass Module Access Control restrictions in both backend middleware and frontend visibility. Non-admin users must continue to follow the configured access and mode rules.
+- Frontend hiding is only a UX mirror of backend policy. If you change module access behavior, update both the backend shared payload and the Vue consumers so navigation, cards, forms, and API authorization stay synchronized.
+- When a guest page relies on authenticated mutations, the page must reflect that requirement in the UI instead of presenting write actions that the backend will reject.
+
 ## Guest API Guardrails
 - Treat every `api/guest/*` route as a public internet surface, even when authenticated staff can also hit it.
 - Default guest routes to read-only. If a guest-facing mutation is unavoidable, require authenticated staff context or a signed/OTP-backed workflow rather than knowledge-based identifiers.
