@@ -8,6 +8,7 @@ import Personnel from "@/Modules/domain/Personnel";
 import CameraScanner from "@/Components/CameraScanner.vue";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import OutgoingItemCard from "@/Pages/Inventory/Transactions/components/presentation/OutgoingItemCard.vue";
+import { subscribeToRealtimeChannels } from "@/Modules/realtime/subscriptions";
 
 export default {
     name: "OutgoingFormGuest",
@@ -36,6 +37,8 @@ export default {
             processing: false,
             showSuccessModal: false,
             successMessage: 'Your transaction has been recorded.',
+            realtimeCleanup: null,
+            realtimeRefreshTimer: null,
         }
     },
     beforeMount() {
@@ -45,10 +48,18 @@ export default {
     },
     async mounted() {
         await this.searchEvent();
+        this.configureRealtime();
 
         setTimeout(() => {
             this.delayReady = true;
         }, 200);
+    },
+    beforeUnmount() {
+        if (this.realtimeRefreshTimer) {
+            clearTimeout(this.realtimeRefreshTimer);
+        }
+
+        this.cleanupRealtime();
     },
     computed: {
         DataTable() {
@@ -142,6 +153,35 @@ export default {
             if (!this.form) return;
             this.form.sort = 'name';
             this.form.order = 'asc';
+        },
+        cleanupRealtime() {
+            if (typeof this.realtimeCleanup === 'function') {
+                this.realtimeCleanup();
+            }
+
+            this.realtimeCleanup = null;
+        },
+        scheduleRealtimeRefresh() {
+            if (this.realtimeRefreshTimer) {
+                clearTimeout(this.realtimeRefreshTimer);
+            }
+
+            this.realtimeRefreshTimer = setTimeout(() => {
+                this.searchEvent();
+            }, 400);
+        },
+        configureRealtime() {
+            this.cleanupRealtime();
+
+            this.realtimeCleanup = subscribeToRealtimeChannels([
+                {
+                    type: 'public',
+                    channel: 'public.inventory.stock',
+                    event: 'inventory.transaction.changed',
+                    feature: 'inventory',
+                    handler: () => this.scheduleRealtimeRefresh(),
+                },
+            ]);
         },
     }
 }

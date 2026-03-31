@@ -83,6 +83,8 @@
 - Priority realtime surfaces in this system are: datatables, rental calendars, inventory stock movement, supplies checkout, laboratory/ICT equipment loggers, dashboard counters, form-response monitoring, and certificate batch progress.
 - Certificate generation should move toward Reverb-backed progress events while preserving an HTTP fallback path until rollout is proven stable.
 - Any realtime feature that touches guest/public flows must preserve the same privacy boundaries already enforced on guest APIs.
+- Feature-flag realtime rollout through [`config/realtime.php`](../config/realtime.php) and the `REALTIME_*` env keys. New subscriptions should honor the shared feature flags instead of assuming websocket availability everywhere.
+- Google Calendar sync status is a staff-only realtime surface. Keep sync-result broadcasts on private rental/calendar channels and never mirror OAuth or sync-status details onto guest channels.
 
 ## Email / Notification Standard
 - Treat email delivery as a shared notification domain, not ad-hoc Mail::to(...)->send(...) logic spread across observers and controllers.
@@ -92,6 +94,8 @@
 - Keep mailables or notifications focused on rendering and channel formatting. Business rules for who gets notified and when belong in dedicated notification services or listeners.
 - Log or otherwise audit notification attempts and failures for operational visibility.
 - Reuse notification domain events for websocket and in-app notifications when possible so what happened stays separate from how we notify.
+- Notification recipient options must resolve through the `users` table. Store user-backed recipient selections in `Option` values and resolve current email addresses from `User` records instead of treating arbitrary raw emails as the source of truth.
+- Prefer module-scoped option keys under the notification config map, and keep certificate, form-response, equipment-log, and inventory recipient policy in [`config/notifications.php`](../config/notifications.php).
 
 ## Anti-Patterns
 - Don’t instantiate `Model` queries directly in controllers; always prefer the relevant repository.

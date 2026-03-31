@@ -486,6 +486,7 @@ import { router } from "@inertiajs/vue3";
 import { defineAsyncComponent } from "vue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
+import { resolveDatatableRealtimeSubscriptions, subscribeToRealtimeChannels } from "@/Modules/realtime/subscriptions";
 
 // Icon mapping for template usage
 const icons = {
@@ -549,6 +550,9 @@ export default {
             showIconText: localStorage.getItem('dt_show_icon_text') !== 'false',
             colorPreset: localStorage.getItem('dt_color_preset') || this.defaultColorPreset,
             clickSortCtr: 0,
+            realtimeCleanup: null,
+            realtimeRefreshTimer: null,
+            themeMenuClickHandler: null,
         }
     },
     computed: {
@@ -832,14 +836,66 @@ export default {
                 const menu = this.$refs.contextMenu;
                 if (menu && typeof menu.showMenu === 'function') menu.showMenu(event);
             });
+        },
+        cleanupRealtime() {
+            if (typeof this.realtimeCleanup === 'function') {
+                this.realtimeCleanup();
+            }
+
+            this.realtimeCleanup = null;
+        },
+        scheduleRealtimeRefresh() {
+            if (this.realtimeRefreshTimer) {
+                clearTimeout(this.realtimeRefreshTimer);
+            }
+
+            this.realtimeRefreshTimer = setTimeout(() => {
+                if (this.dt && typeof this.dt.refresh === 'function') {
+                    this.dt.refresh();
+                }
+            }, 400);
+        },
+        configureRealtime() {
+            this.cleanupRealtime();
+
+            const subscriptions = resolveDatatableRealtimeSubscriptions(this.resolvedIndexEndpoint)
+                .map((subscription) => ({
+                    ...subscription,
+                    handler: (payload) => {
+                        if (typeof subscription.shouldRefresh === 'function' && !subscription.shouldRefresh(payload)) {
+                            return;
+                        }
+
+                        this.scheduleRealtimeRefresh();
+                    },
+                }));
+
+            if (!subscriptions.length) {
+                return;
+            }
+
+            this.realtimeCleanup = subscribeToRealtimeChannels(subscriptions);
         }
     },
     async mounted() {
         if (this.resolvedIndexEndpoint) await this.initializeDatatable();
+        this.configureRealtime();
         // Close theme menu when clicking outside
-        document.addEventListener('click', (e) => {
+        this.themeMenuClickHandler = (e) => {
             if (!e.target.closest('.group')) this.showThemeMenu = false;
-        });
+        };
+        document.addEventListener('click', this.themeMenuClickHandler);
+    },
+    beforeUnmount() {
+        if (this.realtimeRefreshTimer) {
+            clearTimeout(this.realtimeRefreshTimer);
+        }
+
+        this.cleanupRealtime();
+
+        if (this.themeMenuClickHandler) {
+            document.removeEventListener('click', this.themeMenuClickHandler);
+        }
     },
     setup() { return { CRCMDatatable, router }; }
 };

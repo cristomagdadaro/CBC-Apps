@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\RentalCalendarChanged;
 use App\Http\Requests\CreateRentalVehicleRequest;
 use App\Http\Requests\UpdateRentalVehicleRequest;
 use App\Models\RentalVehicle;
@@ -77,6 +78,7 @@ class RentalVehicleController extends BaseController
         $data['vehicle_type'] = $data['vehicle_type'] ?? null;
         $data['status'] = RentalVehicle::STATUS_PENDING;
         $rental = $this->repo()->create($data);
+        $this->broadcastRentalChange($rental, 'created');
 
         return response()->json(['data' => $rental], 201);
     }
@@ -131,6 +133,7 @@ class RentalVehicleController extends BaseController
         }
 
         $updated = $this->repo()->update($id, $data);
+        $this->broadcastRentalChange($updated, 'updated');
 
         return response()->json(['data' => $updated]);
     }
@@ -191,6 +194,7 @@ class RentalVehicleController extends BaseController
             'vehicle_type' => $vehicleType,
             'notes' => $validated['notes'] ?? $rental->notes,
         ]);
+        $this->broadcastRentalChange($updated, 'status_changed');
 
         return response()->json(['data' => $this->repo()->find((string) $updated->id)]);
     }
@@ -204,6 +208,7 @@ class RentalVehicleController extends BaseController
         }
 
         $this->repo()->delete($id);
+        $this->broadcastRentalChange($rental, 'deleted');
 
         return response()->json(['message' => 'Rental deleted successfully']);
     }
@@ -294,5 +299,19 @@ class RentalVehicleController extends BaseController
         $resolvedTime = $time ?: ($endOfDay ? '23:59:59' : '00:00:00');
 
         return Carbon::parse($date . ' ' . $resolvedTime)->toIso8601String();
+    }
+
+    private function broadcastRentalChange(RentalVehicle $rental, string $action): void
+    {
+        event(new RentalCalendarChanged([
+            'domain' => 'vehicle',
+            'action' => $action,
+            'id' => $rental->id,
+            'resource_type' => $rental->vehicle_type,
+            'status' => $rental->status,
+            'starts_at' => $this->formatAvailabilityTimestamp($rental->date_from, $rental->time_from, false),
+            'ends_at' => $this->formatAvailabilityTimestamp($rental->date_to, $rental->time_to, true),
+            'invalidate' => ['rentals.calendar', 'rentals.vehicles'],
+        ]));
     }
 }

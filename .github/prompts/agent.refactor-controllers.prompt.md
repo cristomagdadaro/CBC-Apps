@@ -74,6 +74,8 @@ public function __construct(FormBuilderRepo $repository)
 - Never trust request fields like `employee_id`, email, or participant identifiers for authorization; use authenticated user context or a signed callback/token flow.
 - Keep guest routes read-only by default. If a public mutation exists, document why it cannot be staff-authenticated or signed.
 - Remember that authenticated users calling guest endpoints should still receive the guest-safe payload.
+- If a controller touches realtime flows, keep websocket dispatch outside the controller and reuse the shared Reverb conventions and feature flags from `config/realtime.php`.
+- If a controller touches notification routing, keep recipient resolution user-backed through the `users` table and the shared notification services rather than ad-hoc email lists.
 
 ## Completion Checklist
 - Update or add feature tests whenever the refactor changes guest/public exposure, authorization, or validation.

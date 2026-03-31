@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\QueueCertificateGenerationRequest;
+use App\Events\CertificateBatchStatusUpdated;
 use App\Jobs\ProcessCertificateBatchJob;
 use App\Models\EventCertificateTemplate;
 use App\Models\Form;
@@ -69,6 +70,16 @@ class EventCertificateController extends BaseController
             'created_at' => now()->toIso8601String(),
             'updated_at' => now()->toIso8601String(),
         ], now()->addHours(6));
+
+        event(new CertificateBatchStatusUpdated([
+            'event_id' => $event_id,
+            'batch_id' => $batchId,
+            'status' => 'queued',
+            'message' => 'Certificate request queued.',
+            'zip_path' => null,
+            'summary' => null,
+            'error' => null,
+        ]));
 
         try {
             ProcessCertificateBatchJob::dispatch(

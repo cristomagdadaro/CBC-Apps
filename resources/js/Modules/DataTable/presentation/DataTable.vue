@@ -8,6 +8,7 @@ import DtHead from './components/DtHead.vue';
 import DtData from './components/DtData.vue';
 import DtLinkButton from './components/DtLinkButton.vue';
 import DataTableApi from '../infrastructure/DataTableApi';
+import { resolveDatatableRealtimeSubscriptions, subscribeToRealtimeChannels } from '@/Modules/realtime/subscriptions';
 
 export default {
         name: 'DataTable',
@@ -126,6 +127,8 @@ export default {
                         internalProcessing: false,
                         searchDebounceTimer: null,
                         dataApi: null,
+                        realtimeCleanup: null,
+                        realtimeRefreshTimer: null,
                         tableState: {
                                 search: '',
                                 filter: null,
@@ -293,6 +296,7 @@ export default {
                         handler() {
                                 this.syncColumns();
                                 this.resetDataApi();
+                                this.configureRealtime();
                                 if (this.isOnlineMode) {
                                         this.fetchOnlineData(true);
                                 }
@@ -301,12 +305,14 @@ export default {
                 },
                 indexApi() {
                         this.resetDataApi();
+                        this.configureRealtime();
                         if (this.isOnlineMode) {
                                 this.fetchOnlineData(true);
                         }
                 },
                 mode() {
                         this.resetDataApi();
+                        this.configureRealtime();
                         if (this.isOnlineMode) {
                                 this.fetchOnlineData(true);
                         }
@@ -327,11 +333,18 @@ export default {
                 if (this.isOnlineMode) {
                         this.fetchOnlineData(true);
                 }
+                this.configureRealtime();
         },
         beforeUnmount() {
                 if (this.searchDebounceTimer) {
                         clearTimeout(this.searchDebounceTimer);
                 }
+
+                if (this.realtimeRefreshTimer) {
+                        clearTimeout(this.realtimeRefreshTimer);
+                }
+
+                this.cleanupRealtime();
         },
         methods: {
                 normalizeApiResponse(response) {
@@ -423,6 +436,51 @@ export default {
                 },
                 resetDataApi() {
                         this.dataApi = null;
+                },
+                cleanupRealtime() {
+                        if (typeof this.realtimeCleanup === 'function') {
+                                this.realtimeCleanup();
+                        }
+
+                        this.realtimeCleanup = null;
+                },
+                configureRealtime() {
+                        this.cleanupRealtime();
+
+                        if (!this.isOnlineMode) {
+                                return;
+                        }
+
+                        const subscriptions = resolveDatatableRealtimeSubscriptions(this.resolveIndexApi())
+                                .map((subscription) => ({
+                                        ...subscription,
+                                        handler: (payload) => {
+                                                if (typeof subscription.shouldRefresh === 'function' && !subscription.shouldRefresh(payload)) {
+                                                        return;
+                                                }
+
+                                                this.scheduleRealtimeRefresh();
+                                        },
+                                }));
+
+                        if (!subscriptions.length) {
+                                return;
+                        }
+
+                        this.realtimeCleanup = subscribeToRealtimeChannels(subscriptions);
+                },
+                scheduleRealtimeRefresh() {
+                        if (!this.isOnlineMode) {
+                                return;
+                        }
+
+                        if (this.realtimeRefreshTimer) {
+                                clearTimeout(this.realtimeRefreshTimer);
+                        }
+
+                        this.realtimeRefreshTimer = setTimeout(() => {
+                                this.fetchOnlineData();
+                        }, 400);
                 },
                 resolveIndexApi() {
                         if (this.indexApi) {

@@ -1,5 +1,6 @@
 <script>
 import CalendarModule from "@/Components/CalendarModule.vue";
+import { subscribeToRealtimeChannels } from "@/Modules/realtime/subscriptions";
 
 export default {
     components: {
@@ -14,6 +15,8 @@ export default {
             venueRentals: [],
             searchKeyword: "",
             selectedMonth: "",
+            realtimeCleanup: null,
+            realtimeRefreshTimer: null,
 
             statusColors: {
                 pending: "#FBBF24",
@@ -131,6 +134,34 @@ export default {
     },
 
     methods: {
+        cleanupRealtime() {
+            if (typeof this.realtimeCleanup === "function") {
+                this.realtimeCleanup();
+            }
+
+            this.realtimeCleanup = null;
+        },
+        configureRealtime() {
+            this.cleanupRealtime();
+
+            this.realtimeCleanup = subscribeToRealtimeChannels([
+                {
+                    type: "public",
+                    channel: "public.rentals.calendar",
+                    event: "rentals.calendar.changed",
+                    handler: () => this.scheduleRealtimeRefresh(),
+                },
+            ]);
+        },
+        scheduleRealtimeRefresh() {
+            if (this.realtimeRefreshTimer) {
+                clearTimeout(this.realtimeRefreshTimer);
+            }
+
+            this.realtimeRefreshTimer = setTimeout(() => {
+                this.loadBookings();
+            }, 400);
+        },
         monthToLabel(monthKey) {
             const [year, month] = monthKey.split("-").map((v) => Number(v));
 
@@ -205,6 +236,14 @@ export default {
 
     mounted() {
         this.loadBookings();
+        this.configureRealtime();
+    },
+    beforeUnmount() {
+        if (this.realtimeRefreshTimer) {
+            clearTimeout(this.realtimeRefreshTimer);
+        }
+
+        this.cleanupRealtime();
     },
 };
 </script>

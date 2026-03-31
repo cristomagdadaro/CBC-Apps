@@ -5,6 +5,12 @@
 - It covers transactional email delivery for generated certificates, form builder responses, equipment log lifecycle notifications, supply checkout notifications, and future module-level updates.
 - The goal is to replace scattered `Mail::to(...)->send(...)` usage with a centralized, queue-first, policy-driven notification layer.
 
+## Implementation Status
+- Core notification orchestration is now implemented through shared config, recipient resolution, queued dispatch jobs, and `notification_logs` auditing.
+- Certificate recipient delivery, form-response notifications, outgoing inventory notifications, and equipment-log lifecycle notifications are now routed through the unified notification layer.
+- Recipient resolution now treats `Option` values as user-backed selections and resolves the actual email addresses from the `users` table.
+- Remaining follow-through is mainly admin UX for selecting recipients, plus broader automated coverage across every notification domain.
+
 ## Current Baseline
 - Certificates are emailed from [`app/Jobs/ProcessCertificateBatchJob.php`](/home/cris/dev/CBC-Apps/app/Jobs/ProcessCertificateBatchJob.php) using [`app/Mail/GeneratedCertificateMail.php`](/home/cris/dev/CBC-Apps/app/Mail/GeneratedCertificateMail.php).
 - Form builder response notifications are sent directly from [`app/Observers/EventSubformResponseObserver.php`](/home/cris/dev/CBC-Apps/app/Observers/EventSubformResponseObserver.php) using [`app/Mail/EventSubformResponseNotification.php`](/home/cris/dev/CBC-Apps/app/Mail/EventSubformResponseNotification.php).
@@ -241,7 +247,7 @@
 - staff websocket update through Reverb
 - email notification to managers
 - dashboard counter refresh
-- This keeps “what happened” separate from “how we notify”.
+- This keeps ï¿½what happenedï¿½ separate from ï¿½how we notifyï¿½.
 
 ## Security and Compliance Requirements
 - Do not send sensitive raw payload dumps by email.
@@ -281,24 +287,29 @@
 - Add admin UI or system-options controls for per-module recipients and toggles if needed.
 
 ## Implementation Checklist
-- [ ] Create `config/notifications.php`.
-- [ ] Add notification preferences and recipient resolution service layer.
-- [ ] Add `notification_logs` migration, model, and audit service.
-- [ ] Standardize queue-first notification dispatch.
-- [ ] Refactor form response emails off direct observer `Mail::send()`.
-- [ ] Refactor outgoing inventory or supply checkout emails off direct observer `Mail::send()`.
-- [ ] Extract certificate email dispatch into a dedicated notification dispatcher.
-- [ ] Add staff-facing certificate batch summary notifications.
-- [ ] Add laboratory equipment log lifecycle notification events and listeners.
-- [ ] Add ICT equipment log lifecycle notification events and listeners if separate domain logic exists.
-- [ ] Wire overdue command processing to notification dispatch.
-- [ ] Add recipient deduplication and validation safeguards.
-- [ ] Add feature tests for each notification domain.
-- [ ] Add operational failure logging and retry guidance.
-- [ ] Update Copilot instructions and manuals after implementation.
+- [x] Create `config/notifications.php`.
+- [x] Add notification preferences and recipient resolution service layer.
+- [x] Add `notification_logs` migration, model, and audit service.
+- [x] Standardize queue-first notification dispatch.
+- [x] Refactor form response emails off direct observer `Mail::send()`.
+- [x] Refactor outgoing inventory or supply checkout emails off direct observer `Mail::send()`.
+- [x] Extract certificate email dispatch into a dedicated notification dispatcher.
+- [x] Add staff-facing certificate batch summary notifications.
+- [x] Add laboratory equipment log lifecycle notification events and listeners.
+- [x] Add ICT equipment log lifecycle notification events and listeners if separate domain logic exists.
+- [x] Wire overdue command processing to notification dispatch.
+- [x] Add recipient deduplication and validation safeguards.
+- [x] Add feature tests for recipient resolution and dispatch flow.
+- [x] Add operational failure logging and retry guidance.
+- [x] Update Copilot instructions and manuals after implementation.
+- [ ] Add or refine admin UX for selecting notification recipients from the `users` table without raw JSON editing.
 
 ## Agent Handoff Notes
 - Start by centralizing recipient resolution and audit logging before converting every mail flow.
 - Preserve current templates initially where they already work; unify orchestration first, redesign visuals second.
 - Prefer queued listeners or notifications over direct observer mail sends.
 - If new gaps or risks appear during implementation, record them in [`docs/codebase-analysis-report-2026-03-25.md`](/home/cris/dev/CBC-Apps/docs/codebase-analysis-report-2026-03-25.md) before proceeding.
+
+
+## Special Note
+Allow the administrator to chose who will get system notifications could be multiple emails one notification. Use Option Model to set who will receive notifications it must be from the users table email only.

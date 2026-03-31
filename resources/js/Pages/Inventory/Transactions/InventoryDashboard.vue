@@ -3,6 +3,7 @@ import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/T
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import ConcreteApiService from "@/Modules/infrastructure/ConcreteApiService";
 import Transaction from "@/Modules/domain/Transaction";
+import { subscribeToRealtimeChannels } from "@/Modules/realtime/subscriptions";
 
 export default {
     name: "InventoryDashboard",
@@ -50,6 +51,8 @@ export default {
                 items_per_project_code: [],
                 stock_buckets: { empty: 0, low: 0, mid: 0, high: 0 },
             },
+            realtimeCleanup: null,
+            realtimeRefreshTimer: null,
         };
     },
     computed: {
@@ -255,6 +258,35 @@ export default {
             if (Number.isNaN(date.getTime())) return value;
             return date.toLocaleString();
         },
+        cleanupRealtime() {
+            if (typeof this.realtimeCleanup === "function") {
+                this.realtimeCleanup();
+            }
+
+            this.realtimeCleanup = null;
+        },
+        scheduleRealtimeRefresh() {
+            if (this.realtimeRefreshTimer) {
+                clearTimeout(this.realtimeRefreshTimer);
+            }
+
+            this.realtimeRefreshTimer = setTimeout(() => {
+                this.loadDashboard();
+            }, 400);
+        },
+        configureRealtime() {
+            this.cleanupRealtime();
+
+            this.realtimeCleanup = subscribeToRealtimeChannels([
+                {
+                    type: "private",
+                    channel: "inventory.transactions",
+                    event: "inventory.transaction.changed",
+                    feature: "inventory",
+                    handler: () => this.scheduleRealtimeRefresh(),
+                },
+            ]);
+        },
     },
     watch: {
         dashboardParams: {
@@ -287,6 +319,14 @@ export default {
     },
     mounted() {
         this.loadDashboard();
+        this.configureRealtime();
+    },
+    beforeUnmount() {
+        if (this.realtimeRefreshTimer) {
+            clearTimeout(this.realtimeRefreshTimer);
+        }
+
+        this.cleanupRealtime();
     },
 };
 </script>

@@ -2,8 +2,10 @@
 
 namespace App\Jobs;
 
+use App\Events\CertificateBatchStatusUpdated;
 use App\Mail\GeneratedCertificateMail;
 use App\Models\CertificateLog;
+use App\Services\Notifications\NotificationDispatchService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -11,7 +13,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -57,6 +58,16 @@ class ProcessCertificateBatchJob implements ShouldQueue
             'updated_at' => now()->toIso8601String(),
         ], now()->addHours(6));
 
+        event(new CertificateBatchStatusUpdated([
+            'event_id' => $this->eventId,
+            'batch_id' => $this->batchId,
+            'status' => 'processing',
+            'message' => 'Processing on server...',
+            'zip_path' => null,
+            'summary' => null,
+            'error' => null,
+        ]));
+
         $libreOfficePath = config('services.certificate_generator.libreoffice_path', 'soffice');
         $scriptPath = base_path('app/python/Certificate-Generator/certificate_generator.py');
 
@@ -92,11 +103,21 @@ class ProcessCertificateBatchJob implements ShouldQueue
                 'updated_at' => now()->toIso8601String(),
             ], now()->addHours(6));
 
+            event(new CertificateBatchStatusUpdated([
+                'event_id' => $this->eventId,
+                'batch_id' => $this->batchId,
+                'status' => 'failed',
+                'message' => 'Certificate generation failed.',
+                'zip_path' => null,
+                'summary' => null,
+                'error' => $message,
+            ]));
+
             return;
         }
 
         $records = $this->readManifest($manifestAbsolutePath);
-        $stats = $this->persistLogsAndQueueEmails($records);
+        $stats = $this->persistLogsAndQueueEmails($records, app(NotificationDispatchService::class));
 
         $zipRelativePath = "{$batchRelativeDir}/certificates-{$this->batchId}.zip";
         $zipAbsolutePath = Storage::path($zipRelativePath);
@@ -114,6 +135,16 @@ class ProcessCertificateBatchJob implements ShouldQueue
             'summary' => $stats,
             'updated_at' => now()->toIso8601String(),
         ], now()->addHours(6));
+
+        event(new CertificateBatchStatusUpdated([
+            'event_id' => $this->eventId,
+            'batch_id' => $this->batchId,
+            'status' => 'completed',
+            'message' => 'Certificate generation completed.',
+            'zip_path' => $zipRelativePath,
+            'summary' => $stats,
+            'error' => null,
+        ]));
     }
 
     public function failed(Throwable $exception): void
@@ -134,9 +165,19 @@ class ProcessCertificateBatchJob implements ShouldQueue
             'batch_dir' => $batchRelativeDir,
             'updated_at' => now()->toIso8601String(),
         ], now()->addHours(6));
+
+        event(new CertificateBatchStatusUpdated([
+            'event_id' => $this->eventId,
+            'batch_id' => $this->batchId,
+            'status' => 'failed',
+            'message' => 'Certificate generation failed.',
+            'zip_path' => null,
+            'summary' => null,
+            'error' => $message,
+        ]));
     }
 
-    private function persistLogsAndQueueEmails(array $records): array
+    private function persistLogsAndQueueEmails(array $records, NotificationDispatchService $notifications): array
     {
         $success = 0;
         $fail = 0;
@@ -164,12 +205,23 @@ class ProcessCertificateBatchJob implements ShouldQueue
             }
 
             if ($status === 'success' && $recipientEmail && $attachmentPath && File::exists($attachmentPath)) {
-                Mail::to($recipientEmail)->queue(
-                    (new GeneratedCertificateMail(
+                $notifications->dispatchMailable(
+                    domain: 'certificates.delivery',
+                    eventKey: 'certificates.recipient.delivered',
+                    mailableClass: GeneratedCertificateMail::class,
+                    constructorArguments: [
                         $attachmentPath,
                         $filename ?? basename($attachmentPath),
-                        $this->eventId
-                    ))->withRecipientName($recipientName)
+                        $this->eventId,
+                        $recipientName,
+                    ],
+                    meta: [
+                        'batch_id' => $this->batchId,
+                        'recipient_name' => $recipientName,
+                    ],
+                    notifiableType: CertificateLog::class,
+                    notifiableId: null,
+                    recipients: [$recipientEmail],
                 );
             }
         }

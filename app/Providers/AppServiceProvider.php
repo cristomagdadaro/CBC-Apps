@@ -2,17 +2,23 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use App\Models\RequestFormPivot;
-use App\Models\Transaction;
-use App\Observers\RequestFormPivotObserver;
-use App\Observers\TransactionObserver;
-use Inertia\Inertia;
-use Symfony\Component\Process\Process;
 use App\Models\EventSubformResponse;
+use App\Models\Item;
+use App\Models\Personnel;
+use App\Models\RequestFormPivot;
+use App\Models\Supplier;
+use App\Models\Transaction;
 use App\Observers\EventSubformResponseObserver;
+use App\Observers\ItemObserver;
+use App\Observers\PersonnelObserver;
+use App\Observers\RequestFormPivotObserver;
+use App\Observers\SupplierObserver;
+use App\Observers\TransactionObserver;
 use App\Models\User;
 use App\Observers\UserObserver;
+use Illuminate\Support\ServiceProvider;
+use Inertia\Inertia;
+use Symfony\Component\Process\Process;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,12 +36,16 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Inertia::share('appVersion', $this->buildAppVersion());
+        Inertia::share('realtime', fn () => config('realtime'));
 
         if (class_exists(RequestFormPivot::class)) {
             RequestFormPivot::observe(RequestFormPivotObserver::class);
         }
         Transaction::observe(TransactionObserver::class);
         EventSubformResponse::observe(EventSubformResponseObserver::class);
+        Item::observe(ItemObserver::class);
+        Personnel::observe(PersonnelObserver::class);
+        Supplier::observe(SupplierObserver::class);
         User::observe(UserObserver::class);
 
         // Audit logging for models with Auditable trait is automatically registered

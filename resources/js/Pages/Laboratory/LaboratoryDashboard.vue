@@ -11,6 +11,7 @@ import {
 } from 'chart.js';
 import CalendarModule from '@/Components/CalendarModule.vue';
 import LaboratoryEquipmentLog from '@/Modules/domain/LaboratoryEquipmentLog';
+import { subscribeToRealtimeChannels } from '@/Modules/realtime/subscriptions';
 import LaboratoryLogHeaderAction from '@/Pages/Laboratory/components/LaboratoryLogHeaderAction.vue';
 import ApiMixin from '@/Modules/mixins/ApiMixin';
 
@@ -28,6 +29,8 @@ export default {
             dashboard: null,
             loading: false,
             refreshTimer: null,
+            realtimeCleanup: null,
+            realtimeRefreshTimer: null,
             activeTab: 'stats',
             tabs: [
                 { key: 'stats', label: 'Statistics' },
@@ -262,6 +265,34 @@ export default {
                 this.loading = false;
             }
         },
+        cleanupRealtime() {
+            if (typeof this.realtimeCleanup === 'function') {
+                this.realtimeCleanup();
+            }
+
+            this.realtimeCleanup = null;
+        },
+        configureRealtime() {
+            this.cleanupRealtime();
+
+            this.realtimeCleanup = subscribeToRealtimeChannels([
+                {
+                    type: 'private',
+                    channel: 'laboratory.logs',
+                    event: 'equipment.log.changed',
+                    handler: () => this.scheduleRealtimeRefresh(),
+                },
+            ]);
+        },
+        scheduleRealtimeRefresh() {
+            if (this.realtimeRefreshTimer) {
+                clearTimeout(this.realtimeRefreshTimer);
+            }
+
+            this.realtimeRefreshTimer = setTimeout(() => {
+                this.loadDashboard();
+            }, 400);
+        },
     },
     watch: {
         mostUsed() {
@@ -285,6 +316,7 @@ export default {
     },
     async mounted() {
         await this.loadDashboard();
+        this.configureRealtime();
         //this.refreshTimer = setInterval(this.loadDashboard, 30000);
 
         this.$nextTick(() => {
@@ -300,6 +332,11 @@ export default {
             clearInterval(this.refreshTimer);
         }
 
+        if (this.realtimeRefreshTimer) {
+            clearTimeout(this.realtimeRefreshTimer);
+        }
+
+        this.cleanupRealtime();
         this.destroyCharts();
     },
 };

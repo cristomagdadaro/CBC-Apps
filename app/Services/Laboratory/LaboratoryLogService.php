@@ -2,6 +2,7 @@
 
 namespace App\Services\Laboratory;
 
+use App\Events\EquipmentLogChanged;
 use App\Models\Item;
 use App\Models\LaboratoryEquipmentLocationSurvey;
 use App\Models\LaboratoryEquipmentLog;
@@ -160,7 +161,10 @@ class LaboratoryLogService
                 throw $exception;
             }
 
-            return $log->fresh(['personnel', 'equipment']);
+            $freshLog = $log->fresh(['personnel', 'equipment']);
+            event(new EquipmentLogChanged('created', $equipmentType, $equipmentId, $freshLog));
+
+            return $freshLog;
         });
     }
 
@@ -198,7 +202,10 @@ class LaboratoryLogService
             $activeLog->checked_out_by = optional(auth()->user())->id;
             $activeLog->save();
 
-            return $activeLog->fresh(['personnel', 'equipment']);
+            $freshLog = $activeLog->fresh(['personnel', 'equipment']);
+            event(new EquipmentLogChanged('completed', $equipmentType, $equipmentId, $freshLog));
+
+            return $freshLog;
         });
     }
 
@@ -229,7 +236,10 @@ class LaboratoryLogService
             $activeLog->end_use_at = Carbon::parse($payload['end_use_at']);
             $activeLog->save();
 
-            return $activeLog->fresh(['personnel', 'equipment']);
+            $freshLog = $activeLog->fresh(['personnel', 'equipment']);
+            event(new EquipmentLogChanged('end_use_updated', $equipmentType, $equipmentId, $freshLog));
+
+            return $freshLog;
         });
     }
 
@@ -258,18 +268,40 @@ class LaboratoryLogService
             $survey->reported_at = Carbon::now();
             $survey->save();
 
-            return $survey->fresh(['personnel', 'equipment']);
+            $freshSurvey = $survey->fresh(['personnel', 'equipment']);
+            $activeLog = $this->getActiveLog($equipmentId)?->loadMissing(['personnel', 'equipment']);
+            event(new EquipmentLogChanged('location_reported', $equipmentType, $equipmentId, $activeLog, $freshSurvey));
+
+            return $freshSurvey;
         });
     }
 
     public function markOverdue(): int
     {
-        return LaboratoryEquipmentLog::where('status', 'active')
-            ->where('end_use_at', '<', Carbon::now())
-            ->update([
-                'status' => 'overdue',
-                'active_lock' => true,
-            ]);
+        return DB::transaction(function () {
+            $logs = LaboratoryEquipmentLog::query()
+                ->with(['personnel', 'equipment.category'])
+                ->where('status', 'active')
+                ->where('end_use_at', '<', Carbon::now())
+                ->lockForUpdate()
+                ->get();
+
+            foreach ($logs as $log) {
+                $log->status = 'overdue';
+                $log->active_lock = true;
+                $log->save();
+
+                $equipmentType = $this->determineEquipmentType($log->equipment);
+                event(new EquipmentLogChanged(
+                    action: 'overdue',
+                    equipmentType: $equipmentType,
+                    equipmentId: (string) $log->equipment_id,
+                    log: $log->fresh(['personnel', 'equipment']),
+                ));
+            }
+
+            return $logs->count();
+        });
     }
 
     public function getActiveEquipment($employee_id = null, string $equipmentType = 'laboratory'): Collection
@@ -502,6 +534,18 @@ class LaboratoryLogService
     private function equipmentLabel(string $equipmentType): string
     {
         return $equipmentType === 'ict' ? 'ICT equipment' : 'laboratory equipment';
+    }
+
+    private function determineEquipmentType(?Item $item): string
+    {
+        $categoryId = (int) ($item?->category_id ?? 0);
+        $categoryName = strtolower((string) ($item?->category?->name ?? ''));
+
+        if ($categoryId === 4 || str_contains($categoryName, 'ict')) {
+            return 'ict';
+        }
+
+        return 'laboratory';
     }
 
     private function getActiveLog(string $equipmentId): ?LaboratoryEquipmentLog

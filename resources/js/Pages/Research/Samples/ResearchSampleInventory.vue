@@ -5,6 +5,7 @@ import JsBarcode from "jsbarcode";
 import QrcodeVue from "qrcode.vue";
 import CameraScanner from "@/Components/CameraScanner.vue";
 import LabelCard from "@/Pages/Inventory/Barcodes/components/LabelCard.vue";
+import { subscribeToRealtimeChannels } from "@/Modules/realtime/subscriptions";
 
 export default {
   name: "ResearchSampleInventory",
@@ -47,6 +48,8 @@ export default {
       selectedSample: null,
       scanMessage: "",
       scanError: "",
+      realtimeCleanup: null,
+      realtimeRefreshTimer: null,
     };
   },
   computed: {
@@ -291,9 +294,14 @@ export default {
     window.addEventListener("resize", this.checkMobile);
     this.applyPrintPageSize();
     this.loadSamples();
+    this.configureRealtime();
   },
   beforeUnmount() {
     window.removeEventListener("resize", this.checkMobile);
+    if (this.realtimeRefreshTimer) {
+      clearTimeout(this.realtimeRefreshTimer);
+    }
+    this.cleanupRealtime();
   },
   methods: {
     checkMobile() {
@@ -601,6 +609,35 @@ export default {
         displayValue: false,
         margin: 0,
       });
+    },
+    cleanupRealtime() {
+      if (typeof this.realtimeCleanup === "function") {
+        this.realtimeCleanup();
+      }
+
+      this.realtimeCleanup = null;
+    },
+    scheduleRealtimeRefresh() {
+      if (this.realtimeRefreshTimer) {
+        clearTimeout(this.realtimeRefreshTimer);
+      }
+
+      this.realtimeRefreshTimer = setTimeout(() => {
+        this.loadSamples();
+      }, 400);
+    },
+    configureRealtime() {
+      this.cleanupRealtime();
+
+      this.realtimeCleanup = subscribeToRealtimeChannels([
+        {
+          type: "private",
+          channel: "research.samples",
+          event: "research.sample.inventory.changed",
+          feature: "research",
+          handler: () => this.scheduleRealtimeRefresh(),
+        },
+      ]);
     },
   },
 };

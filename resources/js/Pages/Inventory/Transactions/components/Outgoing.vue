@@ -7,6 +7,7 @@ import OutgoingForm from "@/Pages/Inventory/Transactions/components/OutgoingForm
 import OutgoingItemCard from "@/Pages/Inventory/Transactions/components/presentation/OutgoingItemCard.vue";
 import Personnel from "@/Modules/domain/Personnel.js";
 import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
+import { subscribeToRealtimeChannels } from "@/Modules/realtime/subscriptions";
 
 export default {
     name: "Outgoing",
@@ -47,6 +48,8 @@ export default {
             showModel: false,
             selectedItem: null,
             outgoingFromApi: null,
+            realtimeCleanup: null,
+            realtimeRefreshTimer: null,
         }
     },
     beforeMount() {
@@ -63,6 +66,14 @@ export default {
         }
 
         await this.searchEvent();
+        this.configureRealtime();
+    },
+    beforeUnmount() {
+        if (this.realtimeRefreshTimer) {
+            clearTimeout(this.realtimeRefreshTimer);
+        }
+
+        this.cleanupRealtime();
     },
     computed: {
         isUpdateView() {
@@ -126,6 +137,41 @@ export default {
             this.form.search = barcodePrefix;
             this.form.is_exact = false;
             this.searchEvent();
+        },
+        cleanupRealtime() {
+            if (typeof this.realtimeCleanup === 'function') {
+                this.realtimeCleanup();
+            }
+
+            this.realtimeCleanup = null;
+        },
+        scheduleRealtimeRefresh() {
+            if (this.realtimeRefreshTimer) {
+                clearTimeout(this.realtimeRefreshTimer);
+            }
+
+            this.realtimeRefreshTimer = setTimeout(() => {
+                if (!this.isUpdateView) {
+                    this.searchEvent();
+                }
+            }, 400);
+        },
+        configureRealtime() {
+            this.cleanupRealtime();
+
+            if (this.isUpdateView) {
+                return;
+            }
+
+            this.realtimeCleanup = subscribeToRealtimeChannels([
+                {
+                    type: 'private',
+                    channel: 'inventory.checkout',
+                    event: 'inventory.transaction.changed',
+                    feature: 'inventory',
+                    handler: () => this.scheduleRealtimeRefresh(),
+                },
+            ]);
         },
     }
 }

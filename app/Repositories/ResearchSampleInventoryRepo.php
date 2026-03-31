@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Events\ResearchSampleInventoryChanged;
 use App\Models\Research\ResearchSample;
 use App\Models\Research\ResearchSampleInventoryLog;
 use App\Models\User;
@@ -61,6 +62,10 @@ class ResearchSampleInventoryRepo
             'context' => $context,
             'performed_by' => $performedBy,
         ]);
+
+        $log->loadMissing('sample');
+
+        event(new ResearchSampleInventoryChanged($log));
 
         return $log;
     }

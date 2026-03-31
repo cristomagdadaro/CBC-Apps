@@ -2,10 +2,17 @@
 
 namespace App\Providers;
 
+use App\Events\CertificateBatchStatusUpdated;
+use App\Events\EquipmentLogChanged;
+use App\Events\FormResponseChanged;
+use App\Events\InventoryTransactionChanged;
+use App\Listeners\SendCertificateBatchSummaryNotification;
+use App\Listeners\SendEquipmentLogLifecycleNotification;
+use App\Listeners\SendFormResponseNotification;
+use App\Listeners\SendSupplyCheckoutNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -17,6 +24,18 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         Registered::class => [
             SendEmailVerificationNotification::class,
+        ],
+        FormResponseChanged::class => [
+            SendFormResponseNotification::class,
+        ],
+        InventoryTransactionChanged::class => [
+            SendSupplyCheckoutNotification::class,
+        ],
+        EquipmentLogChanged::class => [
+            SendEquipmentLogLifecycleNotification::class,
+        ],
+        CertificateBatchStatusUpdated::class => [
+            SendCertificateBatchSummaryNotification::class,
         ],
     ];
 

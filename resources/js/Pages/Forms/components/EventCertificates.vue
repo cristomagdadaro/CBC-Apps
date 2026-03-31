@@ -1,5 +1,6 @@
 <script>
 import ApiMixin from '@/Modules/mixins/ApiMixin';
+import { subscribeToRealtimeChannels } from '@/Modules/realtime/subscriptions';
 
 export default {
     name: 'EventCertificates',
@@ -38,6 +39,7 @@ export default {
             namingTemplate: '{event}_{Fullname}_{date}',
             batchId: null,
             poller: null,
+            realtimeCleanup: null,
             serverStatus: 'idle',
             maxFileSizeBytes: 10 * 1024 * 1024,
             dragOver: { template: false, data: false },
@@ -117,8 +119,57 @@ export default {
     },
     beforeUnmount() {
         this.stopPolling();
+        this.cleanupRealtime();
     },
     methods: {
+        cleanupRealtime() {
+            if (typeof this.realtimeCleanup === 'function') {
+                this.realtimeCleanup();
+            }
+
+            this.realtimeCleanup = null;
+        },
+        configureRealtime() {
+            this.cleanupRealtime();
+
+            if (!this.batchId) {
+                return;
+            }
+
+            this.realtimeCleanup = subscribeToRealtimeChannels([
+                {
+                    type: 'private',
+                    channel: `certificates.batch.${this.batchId}`,
+                    event: 'certificates.batch.updated',
+                    handler: (payload) => this.applyBatchStatus(payload),
+                },
+            ]);
+        },
+        applyBatchStatus(data = {}) {
+            const status = data?.status || 'processing';
+            this.serverStatus = status;
+
+            if (data?.message) {
+                this.message = data.message;
+            }
+
+            if (status === 'failed') {
+                this.processingOnServer = false;
+                this.stopPolling();
+                this.errorMessage = data?.error || data?.message || 'Server processing failed.';
+                return;
+            }
+
+            if (status === 'completed') {
+                this.processingOnServer = false;
+                this.stopPolling();
+                const summary = data?.summary || {};
+                this.message = `Completed! Success: ${summary.success ?? 0}, Failed: ${summary.fail ?? 0}`;
+                return;
+            }
+
+            this.processingOnServer = true;
+        },
         resetMessages() {
             this.message = '';
             this.errorMessage = '';
@@ -393,6 +444,7 @@ export default {
                 this.serverStatus = 'queued';
                 this.processingOnServer = true;
                 this.message = hasFileUpload ? 'Upload complete. Processing...' : 'Request submitted. Processing...';
+                this.configureRealtime();
                 this.startPolling();
             } catch (error) {
                 this.processingOnServer = false;
@@ -421,20 +473,7 @@ export default {
                 const response = await this.fetchGetApi('api.event.certificates.status', {
                     routeParams: [this.eventId, this.batchId],
                 });
-                const data = response?.data || {};
-                this.serverStatus = data?.status || 'processing';
-
-                if (data?.status === 'failed') {
-                    this.processingOnServer = false;
-                    this.stopPolling();
-                    this.errorMessage = data?.error || data?.message || 'Server processing failed.';
-                }
-                if (data?.status === 'completed') {
-                    this.processingOnServer = false;
-                    this.stopPolling();
-                    const summary = data?.summary || {};
-                    this.message = `Completed! Success: ${summary.success ?? 0}, Failed: ${summary.fail ?? 0}`;
-                }
+                this.applyBatchStatus(response?.data || {});
             } catch (error) {
                 this.processingOnServer = false;
                 this.stopPolling();

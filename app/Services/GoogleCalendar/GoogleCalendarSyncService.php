@@ -2,6 +2,7 @@
 
 namespace App\Services\GoogleCalendar;
 
+use App\Events\RentalCalendarSyncStatusChanged;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Google\Client as GoogleClient;
@@ -129,8 +130,94 @@ class GoogleCalendarSyncService
 
     public function syncPortalEvent(array $payload): array
     {
-        $this->guardConfiguration();
+        try {
+            $this->guardConfiguration();
 
+            $portalEventKey = $this->portalEventKey($payload);
+            $existingEvent = $this->findByPortalEventKey($portalEventKey, $payload);
+
+            $attributes = $this->buildGoogleAttributes($payload, $portalEventKey);
+
+            $event = $existingEvent
+                ? $existingEvent->update($attributes)
+                : Event::create($attributes);
+
+            $result = $this->transformGoogleEvent($event);
+
+            $this->broadcastSyncStatus([
+                'status' => 'success',
+                'scope' => 'single',
+                'message' => 'Event synced to Google Calendar.',
+                'synced_count' => 1,
+                'portal_event_keys' => [$portalEventKey],
+            ]);
+
+            return $result;
+        } catch (Throwable $exception) {
+            $this->broadcastSyncStatus([
+                'status' => 'failed',
+                'scope' => 'single',
+                'message' => $exception->getMessage(),
+                'synced_count' => 0,
+                'portal_event_keys' => array_filter([(string) ($payload['id'] ?? '')]),
+            ]);
+
+            throw $exception;
+        }
+    }
+
+    public function syncPortalEvents(array $events): array
+    {
+        try {
+            $this->guardConfiguration();
+
+            $syncedEvents = collect($events)
+                ->map(fn (array $event) => $this->syncPortalEventSilently($event))
+                ->all();
+
+            $this->broadcastSyncStatus([
+                'status' => 'success',
+                'scope' => 'batch',
+                'message' => 'Loaded events synced to Google Calendar.',
+                'synced_count' => count($syncedEvents),
+                'portal_event_keys' => collect($events)
+                    ->pluck('id')
+                    ->filter()
+                    ->map(fn ($id) => (string) $id)
+                    ->values()
+                    ->all(),
+            ]);
+
+            return $syncedEvents;
+        } catch (Throwable $exception) {
+            $this->broadcastSyncStatus([
+                'status' => 'failed',
+                'scope' => 'batch',
+                'message' => $exception->getMessage(),
+                'synced_count' => 0,
+                'portal_event_keys' => collect($events)
+                    ->pluck('id')
+                    ->filter()
+                    ->map(fn ($id) => (string) $id)
+                    ->values()
+                    ->all(),
+            ]);
+
+            throw $exception;
+        }
+    }
+
+    private function guardConfiguration(): void
+    {
+        $configuration = $this->configurationStatus();
+
+        if (!$configuration['configured']) {
+            throw new RuntimeException($configuration['message']);
+        }
+    }
+
+    private function syncPortalEventSilently(array $payload): array
+    {
         $portalEventKey = $this->portalEventKey($payload);
         $existingEvent = $this->findByPortalEventKey($portalEventKey, $payload);
 
@@ -143,22 +230,16 @@ class GoogleCalendarSyncService
         return $this->transformGoogleEvent($event);
     }
 
-    public function syncPortalEvents(array $events): array
+    private function broadcastSyncStatus(array $payload): void
     {
-        $this->guardConfiguration();
-
-        return collect($events)
-            ->map(fn (array $event) => $this->syncPortalEvent($event))
-            ->all();
-    }
-
-    private function guardConfiguration(): void
-    {
-        $configuration = $this->configurationStatus();
-
-        if (!$configuration['configured']) {
-            throw new RuntimeException($configuration['message']);
-        }
+        event(new RentalCalendarSyncStatusChanged([
+            'status' => $payload['status'] ?? 'success',
+            'scope' => $payload['scope'] ?? 'single',
+            'message' => $payload['message'] ?? null,
+            'synced_count' => (int) ($payload['synced_count'] ?? 0),
+            'portal_event_keys' => $payload['portal_event_keys'] ?? [],
+            'occurred_at' => now()->toIso8601String(),
+        ]));
     }
 
     private function configurationStatus(): array

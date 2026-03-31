@@ -2,6 +2,7 @@
 import RentalVehicle from "@/Modules/domain/RentalVehicle";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
+import { subscribeToRealtimeChannels } from "@/Modules/realtime/subscriptions";
 import SuccessModal from "@/Components/SuccessModal.vue";
 import CalendarModule from "@/Components/CalendarModule.vue";
 import { rentalVehicleTripOptions, getTripTypeMeta } from "@/Pages/Rentals/constants/tripWorkflows";
@@ -31,6 +32,8 @@ export default {
             successMessage: "",
             calendarLoading: false,
             calendarEvents: [],
+            realtimeCleanup: null,
+            realtimeRefreshTimer: null,
             membersOfPartyRows: [],
             destinationStopInput: "",
         };
@@ -105,6 +108,34 @@ export default {
         },
     },
     methods: {
+        cleanupRealtime() {
+            if (typeof this.realtimeCleanup === "function") {
+                this.realtimeCleanup();
+            }
+
+            this.realtimeCleanup = null;
+        },
+        configureRealtime() {
+            this.cleanupRealtime();
+
+            this.realtimeCleanup = subscribeToRealtimeChannels([
+                {
+                    type: this.isGuestContext ? "public" : "private",
+                    channel: this.isGuestContext ? "public.rentals.calendar" : "rentals.calendar",
+                    event: "rentals.calendar.changed",
+                    handler: () => this.scheduleRealtimeRefresh(),
+                },
+            ]);
+        },
+        scheduleRealtimeRefresh() {
+            if (this.realtimeRefreshTimer) {
+                clearTimeout(this.realtimeRefreshTimer);
+            }
+
+            this.realtimeRefreshTimer = setTimeout(() => {
+                this.loadCalendarEvents();
+            }, 400);
+        },
         routeNameFor(type) {
             const routeMap = {
                 index: "api.guest.rental.vehicles.index",
@@ -250,6 +281,14 @@ export default {
             ? this.form.destination_stops.join("\n")
             : "";
         this.loadCalendarEvents();
+        this.configureRealtime();
+    },
+    beforeUnmount() {
+        if (this.realtimeRefreshTimer) {
+            clearTimeout(this.realtimeRefreshTimer);
+        }
+
+        this.cleanupRealtime();
     },
 };
 </script>

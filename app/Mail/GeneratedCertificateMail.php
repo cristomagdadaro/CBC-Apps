@@ -18,8 +18,10 @@ class GeneratedCertificateMail extends Mailable implements ShouldQueue
     public function __construct(
         public string $attachmentPath,
         public string $displayName,
-        public string $eventId
+        public string $eventId,
+        ?string $recipientName = null,
     ) {
+        $this->recipientName = $recipientName;
     }
 
     public function withRecipientName(?string $recipientName): self

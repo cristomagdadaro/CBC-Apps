@@ -1,5 +1,6 @@
 <script>
 import GoogleCalendarModule from '@/Components/GoogleCalendarModule.vue'
+import { subscribeToRealtimeChannels } from '@/Modules/realtime/subscriptions'
 import RentalsHeaderAction from '@/Pages/Rentals/components/RentalsHeaderAction.vue'
 
 export default {
@@ -14,6 +15,8 @@ export default {
             error: '',
             vehicleRentals: [],
             venueRentals: [],
+            realtimeCleanup: null,
+            realtimeRefreshTimer: null,
             statusColors: {
                 pending: '#F59E0B',
                 approved: '#10B981',
@@ -71,8 +74,44 @@ export default {
     },
     mounted() {
         this.loadBookings()
+        this.configureRealtime()
+    },
+    beforeUnmount() {
+        if (this.realtimeRefreshTimer) {
+            clearTimeout(this.realtimeRefreshTimer)
+        }
+
+        this.cleanupRealtime()
     },
     methods: {
+        cleanupRealtime() {
+            if (typeof this.realtimeCleanup === 'function') {
+                this.realtimeCleanup()
+            }
+
+            this.realtimeCleanup = null
+        },
+        configureRealtime() {
+            this.cleanupRealtime()
+
+            this.realtimeCleanup = subscribeToRealtimeChannels([
+                {
+                    type: 'private',
+                    channel: 'rentals.calendar',
+                    event: 'rentals.calendar.changed',
+                    handler: () => this.scheduleRealtimeRefresh(),
+                },
+            ])
+        },
+        scheduleRealtimeRefresh() {
+            if (this.realtimeRefreshTimer) {
+                clearTimeout(this.realtimeRefreshTimer)
+            }
+
+            this.realtimeRefreshTimer = setTimeout(() => {
+                this.loadBookings()
+            }, 400)
+        },
         async loadBookings() {
             this.loading = true
             this.error = ''

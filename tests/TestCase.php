@@ -23,6 +23,7 @@ abstract class TestCase extends BaseTestCase
 
         Config::set('app.url', 'http://localhost');
         Config::set('app.local_url', 'http://localhost');
+        Config::set('broadcasting.default', 'log');
     }
 
     protected function setUpTraits()

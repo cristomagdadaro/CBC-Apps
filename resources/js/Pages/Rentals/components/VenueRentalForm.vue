@@ -3,6 +3,7 @@ import RentalVenue from "@/Modules/domain/RentalVenue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 import CalendarModule from "@/Components/CalendarModule.vue";
+import { subscribeToRealtimeChannels } from "@/Modules/realtime/subscriptions";
 
 export default {
     name: "VenueRentalForm",
@@ -28,6 +29,8 @@ export default {
             employee_id: null,
             calendarLoading: false,
             calendarEvents: [],
+            realtimeCleanup: null,
+            realtimeRefreshTimer: null,
         };
     },
     computed: {
@@ -89,6 +92,34 @@ export default {
         },
     },
     methods: {
+        cleanupRealtime() {
+            if (typeof this.realtimeCleanup === "function") {
+                this.realtimeCleanup();
+            }
+
+            this.realtimeCleanup = null;
+        },
+        configureRealtime() {
+            this.cleanupRealtime();
+
+            this.realtimeCleanup = subscribeToRealtimeChannels([
+                {
+                    type: this.isGuestContext ? "public" : "private",
+                    channel: this.isGuestContext ? "public.rentals.calendar" : "rentals.calendar",
+                    event: "rentals.calendar.changed",
+                    handler: () => this.scheduleRealtimeRefresh(),
+                },
+            ]);
+        },
+        scheduleRealtimeRefresh() {
+            if (this.realtimeRefreshTimer) {
+                clearTimeout(this.realtimeRefreshTimer);
+            }
+
+            this.realtimeRefreshTimer = setTimeout(() => {
+                this.loadCalendarEvents();
+            }, 400);
+        },
         routeNameFor(type) {
             const routeMap = {
                 index: "api.guest.rental.venues.index",
@@ -223,6 +254,14 @@ export default {
     },
     mounted() {
         this.loadCalendarEvents();
+        this.configureRealtime();
+    },
+    beforeUnmount() {
+        if (this.realtimeRefreshTimer) {
+            clearTimeout(this.realtimeRefreshTimer);
+        }
+
+        this.cleanupRealtime();
     },
 };
 </script>

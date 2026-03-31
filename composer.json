@@ -11,9 +11,11 @@
         "inertiajs/inertia-laravel": "^0.6.8",
         "laravel/framework": "^10.10",
         "laravel/jetstream": "^4.3",
+        "laravel/reverb": "^1.9",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
         "milon/barcode": "11.0",
+        "pusher/pusher-php-server": "^7.2",
         "spatie/laravel-google-calendar": "^3.6",
         "tightenco/ziggy": "^2.5"
     },

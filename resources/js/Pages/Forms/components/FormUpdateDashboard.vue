@@ -18,6 +18,8 @@ import PreregistrationQuizBeeCard from '@/Pages/Forms/components/Preregistration
 import PreregistrationQuizbeeTeamCard from '@/Pages/Forms/components/PreregistrationQuizbeeTeamCard.vue';
 import RegistrationCard from '@/Pages/Forms/components/RegistrationCard.vue';
 import FeedbackCard from '@/Pages/Forms/components/FeedbackCard.vue';
+import { router } from '@inertiajs/vue3';
+import { subscribeToRealtimeChannels } from '@/Modules/realtime/subscriptions';
 
 Chart.register(BarController, PieController, BarElement, ArcElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -82,6 +84,8 @@ export default {
             selectedChartFormType: null,
             selectedChartColumn: null,
             selectedChartType: null,
+            realtimeCleanup: null,
+            realtimeRefreshTimer: null,
         };
     },
     computed: {
@@ -627,6 +631,53 @@ export default {
                 chart.chartType = availableTypes[0];
             }
             this.buildCharts();
+        },
+        cleanupRealtime() {
+            if (typeof this.realtimeCleanup === 'function') {
+                this.realtimeCleanup();
+            }
+
+            this.realtimeCleanup = null;
+        },
+        scheduleRealtimeRefresh() {
+            if (!this.eventId) {
+                return;
+            }
+
+            if (this.realtimeRefreshTimer) {
+                clearTimeout(this.realtimeRefreshTimer);
+            }
+
+            this.realtimeRefreshTimer = setTimeout(() => {
+                router.reload({
+                    only: ['eventStats', 'eventResponsesByType'],
+                    preserveScroll: true,
+                    preserveState: true,
+                });
+            }, 400);
+        },
+        configureRealtime() {
+            this.cleanupRealtime();
+
+            if (!this.eventId) {
+                return;
+            }
+
+            this.realtimeCleanup = subscribeToRealtimeChannels([
+                {
+                    type: 'private',
+                    channel: `forms.event.${this.eventId}`,
+                    event: 'forms.response.changed',
+                    feature: 'forms',
+                    handler: (payload) => {
+                        if (String(payload?.event_id || '') !== String(this.eventId)) {
+                            return;
+                        }
+
+                        this.scheduleRealtimeRefresh();
+                    },
+                },
+            ]);
         },
         aggregateCounts(field, normalizer) {
             const counts = {};
@@ -1200,8 +1251,14 @@ export default {
     },
     mounted() {
         this.buildCharts();
+        this.configureRealtime();
     },
     beforeUnmount() {
+        if (this.realtimeRefreshTimer) {
+            clearTimeout(this.realtimeRefreshTimer);
+        }
+
+        this.cleanupRealtime();
         this.destroyCharts();
     },
 };
