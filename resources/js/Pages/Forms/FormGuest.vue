@@ -287,7 +287,7 @@ export default {
         v-if="showTodayPanel && todayEvents && todayEvents.length"
         class="hidden md:block fixed left-4 top-1/2 -translate-y-1/2 z-[1000] pointer-events-auto"
     >
-        <div class="bg-white/95 text-gray-800 shadow-2xl rounded-2xl border border-AB/30 w-64 max-h-[80vh] flex flex-col backdrop-blur">
+        <div data-guide='form-cards' class="bg-white/95 text-gray-800 shadow-2xl rounded-2xl border border-AB/30 w-64 max-h-[80vh] flex flex-col backdrop-blur">
             <div class="px-4 py-3 border-b border-gray-100">
                 <p class="text-lg font-bold uppercase text-gray-500">Events</p>
                 <p class="text-xs text-gray-400">{{ todayEvents.length }} ongoing</p>

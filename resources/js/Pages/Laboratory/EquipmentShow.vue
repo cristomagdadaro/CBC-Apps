@@ -148,9 +148,7 @@ export default {
     methods: {
         async loadEquipmentOptions() {
             try {
-                const response = await this.fetchGetApi(
-                    `${this.apiRoutePrefix}.index`,
-                );
+                const response = await this.fetchGetApi(`${this.apiRoutePrefix}.index`);
                 const payload = response?.data ?? response;
                 const list = Array.isArray(payload)
                     ? payload

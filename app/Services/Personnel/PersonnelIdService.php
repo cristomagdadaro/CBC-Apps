@@ -3,6 +3,7 @@
 namespace App\Services\Personnel;
 
 use App\Models\NewBarcode;
+use App\Models\Personnel;
 use Illuminate\Support\Facades\DB;
 
 class PersonnelIdService
@@ -49,18 +50,29 @@ class PersonnelIdService
     private function nextValueFromCurrent(?string $currentValue): string
     {
         $currentYear = now()->format('y');
+        $maxExistingSequence = Personnel::query()
+            ->where('employee_id', 'like', "CBC-{$currentYear}-%")
+            ->pluck('employee_id')
+            ->map(function (string $employeeId) use ($currentYear) {
+                if (preg_match('/^CBC-' . preg_quote($currentYear, '/') . '-(\d{3,4})$/', $employeeId, $matches)) {
+                    return (int) $matches[1];
+                }
 
-        if (! $currentValue || ! preg_match('/^CBC-(\d{2})-(\d{4})$/', $currentValue, $matches)) {
-            return sprintf('CBC-%s-%03d', $currentYear, 1);
+                return 0;
+            })
+            ->max() ?? 0;
+
+        if (! $currentValue || ! preg_match('/^CBC-(\d{2})-(\d{3,4})$/', $currentValue, $matches)) {
+            return sprintf('CBC-%s-%03d', $currentYear, max($maxExistingSequence, 0) + 1);
         }
 
         $valueYear = $matches[1];
         $sequence = (int) $matches[2];
 
         if ($valueYear !== $currentYear) {
-            return sprintf('CBC-%s-%03d', $currentYear, 1);
+            return sprintf('CBC-%s-%03d', $currentYear, max($maxExistingSequence, 0) + 1);
         }
 
-        return sprintf('CBC-%s-%03d', $currentYear, $sequence + 1);
+        return sprintf('CBC-%s-%03d', $currentYear, max($sequence, $maxExistingSequence) + 1);
     }
 }

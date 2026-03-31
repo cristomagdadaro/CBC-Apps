@@ -139,7 +139,7 @@ class LaboratoryLogService
             abort(409, 'Please update your personnel information before checking in equipment.');
         }
 
-        return DB::transaction(function () use ($equipmentId, $payload, $personnel) {
+        return DB::transaction(function () use ($equipmentId, $payload, $personnel, $equipmentType) {
             $activeLog = $this->lockActiveLog($equipmentId);
             if ($activeLog) {
                 abort(409, 'Equipment already has an active log.');
@@ -184,7 +184,7 @@ class LaboratoryLogService
             abort(404, 'Equipment not found.');
         }
 
-        return DB::transaction(function () use ($equipmentId, $payload) {
+        return DB::transaction(function () use ($equipmentId, $payload, $equipmentType) {
             $activeLog = $this->lockActiveLog($equipmentId);
             if (!$activeLog) {
                 abort(409, 'No active log found for this equipment.');

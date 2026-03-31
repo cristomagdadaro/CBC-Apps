@@ -26,6 +26,13 @@ import {
 
 export default {
     name: "UseRequestCard",
+    props: {
+        data: {
+            type: Object,
+            required: true,
+        },
+    },
+    emits: ["deletedModel", "updated", "failedUpdate"],
     components: {
         UseRequestApprovalBtn,
         Printer,

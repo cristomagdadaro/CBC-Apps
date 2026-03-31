@@ -136,4 +136,70 @@ class RequirementsTest extends TestCase
         $showResponse->assertOk()
             ->assertJsonStructure(['requirements']);
     }
+
+    public function test_updating_form_state_without_requirements_preserves_attached_preregistration(): void
+    {
+        Sanctum::actingAs($this->createAdminUser());
+
+        $payload = [
+            'title' => 'National Biotechnology Week 2026',
+            'description' => 'Annual event for biotech updates.',
+            'details' => 'Detailed agenda for the event.',
+            'date_from' => Carbon::now()->addDay()->format('Y-m-d'),
+            'date_to' => Carbon::now()->addDays(2)->format('Y-m-d'),
+            'time_from' => '09:00:00',
+            'time_to' => '17:00:00',
+            'venue' => 'Main Hall',
+            'is_suspended' => false,
+            'max_slots' => 100,
+        ];
+
+        $createResponse = $this->postJson(route('api.form.post'), $payload)->assertCreated();
+        $eventId = $createResponse->json('event_id');
+
+        $requirementsPayload = [
+            'requirements' => [
+                [
+                    'form_type' => Subform::PREREGISTRATION->value,
+                    'is_required' => true,
+                    'max_slots' => 50,
+                    'config' => [
+                        'open_from' => now()->subDay()->toDateTimeString(),
+                        'open_to' => now()->addDay()->toDateTimeString(),
+                    ],
+                ],
+            ],
+        ];
+
+        $this->postJson(route('forms.requirements.update', ['event_id' => $eventId]), $requirementsPayload)
+            ->assertOk();
+
+        $this->assertDatabaseHas('event_subforms', [
+            'event_id' => $eventId,
+            'form_type' => Subform::PREREGISTRATION->value,
+        ]);
+
+        $this->putJson(route('api.form.put', ['event_id' => $eventId]), [
+            'event_id' => $eventId,
+            'title' => 'National Biotechnology Week 2026',
+            'description' => 'Annual event for biotech updates.',
+            'details' => 'Detailed agenda for the event.',
+            'date_from' => Carbon::now()->addDay()->format('Y-m-d'),
+            'date_to' => Carbon::now()->addDays(2)->format('Y-m-d'),
+            'time_from' => '09:00:00',
+            'time_to' => '17:00:00',
+            'venue' => 'Main Hall',
+            'is_suspended' => true,
+        ])->assertOk();
+
+        $this->assertEquals(1, \App\Models\EventSubform::where('event_id', $eventId)->count());
+
+        $showResponse = $this->getJson(route('api.form.show', ['event_id' => $eventId]));
+        $showResponse->assertOk();
+        $requirements = collect($showResponse->json('requirements'));
+
+        $this->assertTrue(
+            $requirements->contains(fn (array $requirement) => ($requirement['form_type'] ?? null) === Subform::PREREGISTRATION->value)
+        );
+    }
 }

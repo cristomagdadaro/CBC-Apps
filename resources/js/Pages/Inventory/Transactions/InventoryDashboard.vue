@@ -139,7 +139,7 @@ export default {
             this.loading = true;
             try {
                 const response = await this.fetchGetApi("api.inventory.transactions.dashboard", {
-                    params: this.dashboardParams,
+                    ...this.dashboardParams,
                 });
                 const payload = response?.data?.data ?? response?.data ?? {};
                 this.dashboard = {

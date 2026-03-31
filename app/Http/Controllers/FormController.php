@@ -70,7 +70,9 @@ class FormController extends BaseController
     public function update(UpdateFormRequest $request, $event_id = null): Model
     {
         $model = $this->repo()->updateByEventId($event_id, $request->validated());
-        $this->updateRequirements($request, $event_id);
+        if ($request->has('requirements')) {
+            $this->updateRequirements($request, $event_id);
+        }
         return $model;
     }
 

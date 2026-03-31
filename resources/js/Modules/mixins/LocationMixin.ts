@@ -21,26 +21,21 @@ export default {
             }
         },
         async loadProvinces(region) {
-            if (!region) {
-                this.locationProvinces = [];
-                return;
-            }
             this.locationLoading = true;
             try {
-                const response = await this.fetchGetApi('api.locations.provinces', { region });
+                const response = await this.fetchGetApi('api.locations.provinces', region ? { region } : {});
                 this.locationProvinces = response?.data ?? [];
             } finally {
                 this.locationLoading = false;
             }
         },
         async loadCities(province, region = null) {
-            if (!province && !region) {
-                this.locationCities = [];
-                return;
-            }
             this.locationLoading = true;
             try {
-                const response = await this.fetchGetApi('api.locations.cities', { province, region });
+                const params = {};
+                if (province) params.province = province;
+                if (region) params.region = region;
+                const response = await this.fetchGetApi('api.locations.cities', params);
                 this.locationCities = response?.data ?? [];
             } finally {
                 this.locationLoading = false;

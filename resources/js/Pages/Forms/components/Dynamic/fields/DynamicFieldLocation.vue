@@ -3,8 +3,13 @@
  * DynamicFieldLocation.vue - Philippine location selector field component
  * Handles region, province, and city selection
  */
+import SelectSearchField from "@/Components/SelectSearchField.vue";
+
 export default {
     name: "DynamicFieldLocation",
+    components: {
+        SelectSearchField,
+    },
     props: {
         modelValue: { type: String, default: null },
         field: { type: Object, required: true },
@@ -78,23 +83,14 @@ export default {
                 <InputError v-show="!!error" class="" :message="error" />
             </transition-container>
         </div>
-        <select
+        <SelectSearchField
             :id="field.field_key"
             v-model="inputValue"
+            :options="options"
             :required="required"
             :disabled="disabled"
-            class="w-full px-3 py-2 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-AB focus:border-transparent bg-white"
-            :class="{'border-red-500': error}"
-        >
-            <option value="" disabled>{{ placeholder }}</option>
-            <option 
-                v-for="option in options" 
-                :key="option.value" 
-                :value="option.value"
-            >
-                {{ option.label }}
-            </option>
-        </select>
+            :placeholder="placeholder"
+        />
         <div v-if="field.description" class="text-xs text-gray-500 mt-1">{{ field.description }}</div>
         
     </div>

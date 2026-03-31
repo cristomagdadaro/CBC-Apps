@@ -102,7 +102,7 @@ class PersonnelTest extends TestCase
         $response->assertCreated();
 
         $personnelId = $response->json('id');
-        $expectedEmployeeId = 'CBC-' . now()->format('y') . '-0008';
+        $expectedEmployeeId = 'CBC-' . now()->format('y') . '-008';
 
         $this->assertDatabaseHas('personnels', [
             'id' => $personnelId,
@@ -114,5 +114,50 @@ class PersonnelTest extends TestCase
         ]);
 
         $this->assertNull(Personnel::query()->findOrFail($personnelId)->updated_at);
+    }
+
+    public function test_non_philrice_personnel_generation_skips_existing_personnel_ids(): void
+    {
+        Sanctum::actingAs($this->createAdminUser());
+
+        $currentYear = now()->format('y');
+
+        NewBarcode::query()->create([
+            'room' => 'personnel_external_id',
+            'barcode' => "CBC-{$currentYear}-001",
+            'name' => 'For OJT/Thesis/Outsider ID',
+        ]);
+
+        Personnel::factory()->create([
+            'employee_id' => "CBC-{$currentYear}-018",
+            'fname' => 'Existing',
+            'lname' => 'Student',
+        ]);
+
+        $response = $this->postJson(route('api.inventory.personnels.store'), [
+            'fname' => 'Fresh',
+            'mname' => null,
+            'lname' => 'Student',
+            'suffix' => null,
+            'position' => 'OJT Student',
+            'phone' => '09170000003',
+            'address' => 'Dormitory',
+            'email' => null,
+            'is_philrice_employee' => false,
+        ]);
+
+        $response->assertCreated();
+
+        $expectedEmployeeId = "CBC-{$currentYear}-019";
+
+        $this->assertDatabaseHas('personnels', [
+            'id' => $response->json('id'),
+            'employee_id' => $expectedEmployeeId,
+        ]);
+
+        $this->assertDatabaseHas('new_barcodes', [
+            'room' => 'personnel_external_id',
+            'barcode' => $expectedEmployeeId,
+        ]);
     }
 }

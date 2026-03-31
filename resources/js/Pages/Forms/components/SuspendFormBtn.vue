@@ -5,6 +5,7 @@ import DtoError from "@/Modules/dto/DtoError";
 
 export default {
     name: "SuspendFormBtn",
+    emits: ["updated", "failedUpdate"],
     props: {
         data: Object
     },
@@ -60,7 +61,6 @@ export default {
         async handleUpdateSuspended() {
             this.showConfirm = false;
             this.form.is_suspended = !this.form.is_suspended;
-            this.form.requirements = [];
             const response = await this.submitUpdate();
             if(!(response instanceof DtoError)) {
                 this.form.is_suspended = response.data.is_suspended;
