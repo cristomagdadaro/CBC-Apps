@@ -199,12 +199,13 @@ export default {
     <guest-form-page
         :title="'Supplies Checkout Form'"
         :subtitle="'Kindly fill out the form below to record your transaction'"
+        guide-key="supplies-checkout-guest"
         :delay-ready="delayReady"
     >
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
             <div class="border p-2 md:rounded-md flex flex-col gap-2 bg-white w-full h-full drop-shadow-lg mx-auto">
                 <div class="flex flex-col justify-start gap-2 w-full">
-                    <div class="w-full flex gap-2 items-center lg:px-0">
+                    <div data-guide="supplies-search" class="w-full flex gap-2 items-center lg:px-0">
                         <text-input placeholder="Search..." v-model="form.search" @update:model-value="form.filter = null; form.is_exact = false;" @keydown.enter="searchEvent" />
                         <search-btn @click="searchEvent" :disabled="model?.processing" class="text-center h-full">
                             <span v-if="!model?.processing" class="hidden md:flex">Search</span>
@@ -221,7 +222,7 @@ export default {
                             <camera-scanner class="md:col-span-5 col-span-3" @decoded="searchFromBarcode" />
                         </div>
                         <h3>There are {{outgoingFromApi?.data?.length || 0}} items registered</h3>
-                        <div class="w-full max-h-[60vh] overflow-y-auto overflow-x-hidden">
+                        <div data-guide="supplies-results" class="w-full max-h-[60vh] overflow-y-auto overflow-x-hidden">
                             <div v-show="processing" class="text-center py-3 border border-AB rounded-lg w-full h-full z-50">
                                 <div class="flex items-center justify-center gap-3 py-2 px-4 h-full">
                                     <loader-icon />

@@ -167,17 +167,11 @@ class LaboratoryEquipmentController extends BaseController
     {
         $user = $request->user();
 
-        if ($user?->is_admin) {
-            return $requestedEmployeeId;
+        if ($user && ! $user->is_admin) {
+            return $user->employee_id ?: $requestedEmployeeId;
         }
 
-        $employeeId = $user?->employee_id;
-
-        if (! $employeeId) {
-            abort(422, 'The authenticated user is not linked to a personnel record.');
-        }
-
-        return $employeeId;
+        return $requestedEmployeeId;
     }
 
     private function logRepo(): LaboratoryEquipmentLogRepo

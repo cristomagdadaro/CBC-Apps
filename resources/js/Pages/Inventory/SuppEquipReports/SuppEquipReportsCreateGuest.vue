@@ -53,9 +53,12 @@ export default {
         title="Supplies and Equipment Report Form"
         subtitle="Link a supplies or equipment incident to a transaction for faster auditing and compliance reviews."
         :delay-ready="delayReady"
+        guide-key="incident-report-guest"
         :max-width="'max-w-2xl'"
     >
-        <supp-equip-report-form :report-templates="reportTemplates" :barcode="barcode" @saved="closeForm"/>
+        <div data-guide="incident-report-form">
+            <supp-equip-report-form :report-templates="reportTemplates" :barcode="barcode" @saved="closeForm"/>
+        </div>
     </GuestFormPage>
 </template>
 

@@ -8,7 +8,6 @@ use App\Models\LaboratoryEquipmentLocationSurvey;
 use App\Models\LaboratoryEquipmentLog;
 use App\Models\Personnel;
 use App\Models\Transaction;
-use App\Models\User;
 use App\Repositories\OptionRepo;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -134,7 +133,7 @@ class LaboratoryLogService
             abort(404, 'Equipment not found.');
         }
 
-        $personnel = $this->requireAuthenticatedPersonnel();
+        $personnel = $this->resolvePersonnelFromPayload($payload);
 
         return DB::transaction(function () use ($equipmentId, $payload, $personnel) {
             $activeLog = $this->lockActiveLog($equipmentId);
@@ -189,7 +188,7 @@ class LaboratoryLogService
 
             $isAdminOverride = $this->requestedAdminOverride($payload);
             if (!$isAdminOverride) {
-                $personnel = $this->requireAuthenticatedPersonnel();
+                $personnel = $this->resolvePersonnelFromPayload($payload);
 
                 if ($personnel->id !== $activeLog->personnel_id) {
                     abort(403, 'Only the original check-in personnel can check out this equipment.');
@@ -221,7 +220,7 @@ class LaboratoryLogService
             abort(404, 'Equipment not found.');
         }
 
-        $personnel = $this->requireAuthenticatedPersonnel();
+        $personnel = $this->resolvePersonnelFromPayload($payload);
 
         return DB::transaction(function () use ($equipmentId, $payload, $personnel) {
             $activeLog = $this->lockActiveLog($equipmentId);
@@ -255,7 +254,7 @@ class LaboratoryLogService
             abort(404, 'Equipment not found.');
         }
 
-        $personnel = $this->requireAuthenticatedPersonnel();
+        $personnel = $this->resolvePersonnelFromPayload($payload);
 
         return DB::transaction(function () use ($equipmentId, $payload, $personnel) {
             $survey = LaboratoryEquipmentLocationSurvey::firstOrNew([
@@ -620,30 +619,18 @@ class LaboratoryLogService
         return !empty($payload['admin_override']) && (auth()->user()?->is_admin ?? false);
     }
 
-    private function requireAuthenticatedUser(): User
+    private function resolvePersonnelFromPayload(array $payload): Personnel
     {
-        $user = auth()->user();
-
-        if (!$user instanceof User) {
-            abort(401, 'Authentication is required for equipment log actions.');
-        }
-
-        return $user;
-    }
-
-    private function requireAuthenticatedPersonnel(): Personnel
-    {
-        $user = $this->requireAuthenticatedUser();
-        $employeeId = trim((string) ($user->employee_id ?? ''));
+        $employeeId = trim((string) ($payload['employee_id'] ?? ''));
 
         if ($employeeId === '') {
-            abort(422, 'The authenticated user is not linked to a personnel record.');
+            abort(422, 'Employee ID is required.');
         }
 
         $personnel = Personnel::where('employee_id', $employeeId)->first();
 
         if (!$personnel) {
-            abort(422, 'The authenticated user is not linked to a personnel record.');
+            abort(422, 'Personnel record not found for the provided employee ID.');
         }
 
         return $personnel;

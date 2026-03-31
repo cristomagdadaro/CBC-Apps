@@ -33,6 +33,7 @@
     "@zxing/browser": "^0.1.5",
     "canvas": "^3.1.2",
     "chart.js": "^4.5.1",
+    "driver.js": "^1.4.0",
     "html2canvas": "^1.4.1",
     "jsbarcode": "^3.12.1",
     "laravel-echo": "^2.3.1",

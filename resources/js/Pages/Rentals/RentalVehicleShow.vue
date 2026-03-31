@@ -140,6 +140,7 @@ export default {
     <GuestFormPage
         title="Vehicle Rental Details"
         subtitle="View booking details and current status."
+        guide-key="rental-vehicle-detail"
         :delay-ready="true"
     >
         <!-- Loading State -->
@@ -182,7 +183,7 @@ export default {
         </div>
 
         <!-- Content State -->
-        <div v-else class="space-y-6 w-fit mx-auto">
+        <div v-else data-guide="rental-details" class="space-y-6 w-fit mx-auto">
             <!-- Status Banner -->
             <div :class="['rounded-2xl border-2 p-6', statusConfig.color]">
                 <div class="flex items-center justify-between gap-5">

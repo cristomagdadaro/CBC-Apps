@@ -35,10 +35,11 @@ export default {
         :title="title"
         :subtitle="subtitle"
         :delay-ready="delayReady"
+        guide-key="fes-request-guest"
         max-width="max-w-3xl"
     >
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
-            <div class="flex gap-5 flex-col w-full">
+            <div data-guide="fes-request-card" class="flex gap-5 flex-col w-full">
                 <requester-guest-card :data="requestForm" :request-type-options="requestTypeOptions" />
             </div>
         </transition-container>

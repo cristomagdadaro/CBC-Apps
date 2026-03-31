@@ -14,7 +14,7 @@ class LaboratoryReportLocationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'employee_id' => ['nullable', 'string', 'max:32'],
+            'employee_id' => ['required', 'string', 'max:32'],
             'location_label' => ['required', 'string', 'max:120'],
             'location_code' => ['nullable', 'string', 'max:32'],
         ];

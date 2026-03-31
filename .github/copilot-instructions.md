@@ -55,6 +55,8 @@
 - Guest routes stay public; guard only authenticated modules and surface the shared `auth.*` props on every Inertia visit.
 - Keep Vue components small: let controllers/repositories prepare data and let Vue focus on presentation and interaction.
 - Avoid duplicating business logic in Vue; mirror backend validation through shared status codes/messages.
+- Centralize frontend auth state, admin detection, current-user roles, current-user permissions, and public-service metadata through `resources/js/Modules/composables/useAppContext.js` and the global app properties (`$isAdminUser`, `$currentRoles`, `$currentPermissions`, `$publicServices`). Do not re-implement ad-hoc `is_admin`, role, or permission checks in page components when the shared context already covers them.
+- Whenever a new public-facing feature or guest page is added, include a Driver.js guide entry, stable `data-guide` anchors, and a manuals update so onboarding ships with the feature.
 
 ## Module Access Control Standard
 - Deployment access is controlled centrally through [`app/Services/DeploymentAccessService.php`](../app/Services/DeploymentAccessService.php) and enforced by the `deployment.access:<module>` middleware. Treat that backend evaluation as the source of truth.
@@ -63,10 +65,13 @@
 - Authenticated administrator accounts bypass Module Access Control restrictions in both backend middleware and frontend visibility. Non-admin users must continue to follow the configured access and mode rules.
 - Frontend hiding is only a UX mirror of backend policy. If you change module access behavior, update both the backend shared payload and the Vue consumers so navigation, cards, forms, and API authorization stay synchronized.
 - When a guest page relies on authenticated mutations, the page must reflect that requirement in the UI instead of presenting write actions that the backend will reject.
+- Public service cards on `Welcome.vue`, internal navigation in `AppLayout.vue`, and any page-level action guards must all derive from the same deployment-access payload plus the shared auth globals. Do not maintain separate hard-coded visibility lists per page.
+- If a local-trust guest workflow intentionally accepts employee ID or other typed staff identifiers, keep that exception explicitly limited to the module key that is set to local-only. If the module later becomes internet-accessible, revisit the workflow before expanding exposure.
 
 ## Guest API Guardrails
 - Treat every `api/guest/*` route as a public internet surface, even when authenticated staff can also hit it.
 - Default guest routes to read-only. If a guest-facing mutation is unavoidable, require authenticated staff context or a signed/OTP-backed workflow rather than knowledge-based identifiers.
+- The Laboratory and ICT Equipment Logger guest flows are the current exception when they are intentionally constrained through `DeploymentAccessService` to a trusted local deployment. In that local-only trust model, employee ID verification is acceptable by product decision and the frontend should reflect the same expectation.
 - Never authorize actions with caller-supplied identifiers such as `employee_id`, `participant_hash`, or email addresses; derive identity from the authenticated user or a signed callback/token.
 - Public list/show endpoints should return explicit DTO/resource-style payloads instead of raw `Model::toArray()` output.
 - Availability and conflict-check endpoints may expose boolean availability and normalized windows only; do not leak requester names, contact numbers, event names, notes, or other free text.
@@ -85,7 +90,7 @@
 - Treat realtime as an extension of the existing HTTP API surface, not a replacement for it. REST endpoints remain the source of truth; websocket messages should usually carry invalidation hints, compact summaries, or bounded DTO-style payloads.
 - Broadcast domain events from services, repositories, observers, jobs, or scheduled command flows after persistence succeeds. Do not shape websocket payloads directly inside controllers.
 - Prefer private or presence channels for staff operations. Public channels must be rare, explicitly justified, and safe for unauthenticated internet clients.
-- Reuse existing RBAC and ownership rules in outes/channels.php; channel authorization must match the sensitivity of the underlying module.
+- Reuse existing RBAC and ownership rules in `routes/channels.php`; channel authorization must match the sensitivity of the underlying module.
 - Never broadcast raw model arrays. Use sanitized resource/DTO payloads and keep guest-safe vs staff-safe payload variants separate.
 - Default datatable integrations to event-driven invalidation plus refetch instead of broadcasting full table payloads.
 - Priority realtime surfaces in this system are: datatables, rental calendars, inventory stock movement, supplies checkout, laboratory/ICT equipment loggers, dashboard counters, form-response monitoring, and certificate batch progress.

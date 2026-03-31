@@ -151,6 +151,7 @@ export default {
     <GuestFormPage
         title="Venue Rental Details"
         subtitle="View your event booking details and status."
+        guide-key="rental-venue-detail"
         :delay-ready="true"
     >
         <!-- Loading State -->
@@ -199,7 +200,7 @@ export default {
         </div>
 
         <!-- Content State -->
-        <div v-else class="space-y-6 w-fit mx-auto">
+        <div v-else data-guide="rental-details" class="space-y-6 w-fit mx-auto">
             <!-- Status Banner -->
             <div :class="['relative overflow-hidden rounded-2xl border-2 p-6 bg-gradient-to-br from-AB to-AB text-white', statusConfig.color]">
                 <div class="absolute -right-6 -top-6 opacity-10">

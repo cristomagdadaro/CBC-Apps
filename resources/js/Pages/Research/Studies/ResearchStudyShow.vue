@@ -32,7 +32,7 @@ export default {
       return ResearchExperiment;
     },
     permissions() {
-      return this.$page.props.auth?.permissions || [];
+      return this.$currentPermissions || [];
     },
     canManageStudies() {
       return this.hasPermission("research.studies.manage");
@@ -54,7 +54,7 @@ export default {
   },
   methods: {
     hasPermission(permission) {
-      return this.permissions.includes("*") || this.permissions.includes(permission);
+      return this.$isAdminUser || this.permissions.includes("*") || this.permissions.includes(permission);
     },
     formatCurrency(value) {
       if (value === null || value === undefined || value === "") {

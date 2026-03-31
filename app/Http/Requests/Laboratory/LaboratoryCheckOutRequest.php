@@ -14,7 +14,7 @@ class LaboratoryCheckOutRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'employee_id' => ['nullable', 'string', 'max:32'],
+            'employee_id' => ['required', 'string', 'max:32'],
             'admin_override' => ['nullable', 'boolean'],
         ];
     }

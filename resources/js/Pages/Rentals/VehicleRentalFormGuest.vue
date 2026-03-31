@@ -30,10 +30,11 @@ export default {
     <GuestFormPage
         :title="title"
         :subtitle="subtitle"
+        guide-key="rental-vehicle-guest"
         :delay-ready="delayReady"
         >
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
-            <div class="flex gap-5 flex-col w-full">
+            <div data-guide="rental-form-shell" class="flex gap-5 flex-col w-full">
                 <vehicle-rental-form :vehicle-options="vehicleOptions" />
             </div>
         </transition-container>

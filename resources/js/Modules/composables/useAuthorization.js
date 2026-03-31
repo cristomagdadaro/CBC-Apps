@@ -1,27 +1,28 @@
 import { computed } from 'vue';
-import { usePage } from '@inertiajs/vue3';
+import { useAppContext } from '@/Modules/composables/useAppContext';
 
 export function useAuthorization() {
-    const page = usePage();
+    const { currentRoles, currentPermissions, isAdminUser } = useAppContext();
 
-    const roles = computed(() => page.props?.auth?.roles ?? []);
-    const permissions = computed(() => page.props?.auth?.permissions ?? []);
+    const roles = computed(() => currentRoles.value);
+    const permissions = computed(() => currentPermissions.value);
 
-    const hasRole = (role) => roles.value.includes(role);
+    const hasRole = (role) => isAdminUser.value || roles.value.includes(role);
 
     const hasAnyRole = (requiredRoles = []) => {
         if (!requiredRoles.length) return true;
-        return requiredRoles.some((role) => hasRole(role));
+        return isAdminUser.value || requiredRoles.some((role) => hasRole(role));
     };
 
     const hasPermission = (permission) => {
         if (!permission) return true;
-        return permissions.value.includes('*') || permissions.value.includes(permission);
+        return isAdminUser.value || permissions.value.includes('*') || permissions.value.includes(permission);
     };
 
     return {
         roles,
         permissions,
+        isAdminUser,
         hasRole,
         hasAnyRole,
         hasPermission,

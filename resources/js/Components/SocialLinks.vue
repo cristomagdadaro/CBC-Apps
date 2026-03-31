@@ -247,17 +247,17 @@ export default {
     </transition>
 
     <!-- Main Container -->
-    <div class="fixed bottom-6 right-6 z-[1000] flex flex-col items-end gap-3">
+    <div data-guide="social-links" class="fixed bottom-6 right-6 z-[1000] flex flex-col items-end gap-3">
         <!-- Desktop View: Floating Pill -->
         <div class="hidden md:flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 rounded-full px-2 py-1.5 shadow-xl shadow-gray-900/10 dark:shadow-black/30 backdrop-blur-md bg-opacity-90 dark:bg-opacity-90 transition-all duration-300 hover:shadow-2xl hover:shadow-gray-900/15 hover:scale-[1.02]"
             @mouseenter="isHovered = true" @mouseleave="isHovered = false">
             <!-- Auth Links -->
-            <Link v-if="$page.props.auth.user" :href="route('dashboard')"
+            <Link v-if="$page.props.auth.user" data-guide='social-links-dashboard' :href="route('dashboard')"
                 class="group relative p-2.5 flex items-center gap-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white">
             <LuLayoutGrid class="w-5 h-5" />
             Dashboard
             </Link>
-            <Link v-else :href="route('login')"
+            <Link v-else :href="route('login')" data-guide='social-links-login'
                 class="group relative p-2.5 flex items-center gap-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white"
                 title="Login">
             <LuUser class="w-5 h-5" />
@@ -267,7 +267,7 @@ export default {
                 Login
             </span>
             </Link>
-            <Link v-if="canRegister" :href="route('register')"
+            <Link v-if="canRegister" :href="route('register')" data-guide='social-links-register'
                 class="group relative p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white"
                 title="Register">
             <LuUser class="w-5 h-5" />
@@ -282,7 +282,7 @@ export default {
             <!-- External Links -->
             <a href="https://dacbc.philrice.gov.ph/" target="_blank" rel="noopener noreferrer"
                 class="group relative p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white">
-                <LuGlobe class="w-5 h-5" />
+                <LuGlobe data-guide='social-links-corporate-website' class="w-5 h-5" />
                 <span
                     class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
                     Corporate Website
@@ -291,7 +291,7 @@ export default {
 
             <a href="https://cbc360tour.philrice.gov.ph/" target="_blank" rel="noopener noreferrer"
                 class="group relative p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white">
-                <LuStar class="w-5 h-5" />
+                <LuStar data-guide='social-links-360tour' class="w-5 h-5" />
                 <span
                     class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
                     Virtual Tour
@@ -300,7 +300,7 @@ export default {
 
             <a href="https://pin.philrice.gov.ph/" target="_blank" rel="noopener noreferrer"
                 class="group relative p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white">
-                <LuMapPin class="w-5 h-5" />
+                <LuMapPin data-guide='social-links-pin' class="w-5 h-5" />
                 <span
                     class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
                     PIN System
@@ -309,7 +309,7 @@ export default {
 
             <a href="https://www.facebook.com/DACropBiotechCenter" target="_blank" rel="noopener noreferrer"
                 class="group relative p-2.5 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/30 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-blue-600 dark:hover:text-blue-400">
-                <LuFacebook class="w-5 h-5" />
+                <LuFacebook data-guide='social-links-facebook' class="w-5 h-5" />
                 <span
                     class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
                     Facebook
@@ -318,7 +318,7 @@ export default {
 
             <a href="mailto:cropbiotechcenter@gmail.com"
                 class="group relative p-2.5 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-red-500 dark:hover:text-red-400">
-                <LuMail class="w-5 h-5" />
+                <LuMail data-guide='social-links-email' class="w-5 h-5" />
                 <span
                     class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
                     Email Us
@@ -328,7 +328,7 @@ export default {
             <button type="button" @click="openPrivacyNotice"
                 class="group relative p-2.5 rounded-full hover:bg-emerald-50 dark:hover:bg-emerald-900/30 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-emerald-600 dark:hover:text-emerald-400"
                 title="Data Privacy Notice">
-                <LuShield class="w-5 h-5" />
+                <LuShield data-guide='privacy-notice' class="w-5 h-5" />
                 <span
                     class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
                     Data Privacy Notice
@@ -458,7 +458,7 @@ export default {
 
                         <button type="button" @click="openPrivacyNotice"
                             class="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-200 group">
-                            <div
+                            <div data-guide='privacy-notice'
                                 class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-all">
                                 <LuShield class="w-4 h-4" />
                             </div>

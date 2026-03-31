@@ -254,10 +254,11 @@ export default {
     <GuestFormPage
         title="Booking and Rentals"
         subtitle="Unified page for Vehicle Rental, Venue Rental, and Center Calendar visibility."
+        guide-key="rental-bookings-public"
         :delay-ready="true"
     >
         <div class="flex flex-col gap-4 w-full">
-            <div class="grid md:grid-cols-2 gap-3">
+            <div data-guide="rental-quick-links" class="grid md:grid-cols-2 gap-3">
                 <a
                     :href="route('rental.vehicle.guest')"
                     class="flex gap-2 items-center rounded-lg border border-gray-200 bg-white px-4 py-3 hover:bg-gray-50"
@@ -287,6 +288,7 @@ export default {
             </div>
 
             <div
+                data-guide="rental-calendar"
                 id="center-calendar"
                 class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"
             >

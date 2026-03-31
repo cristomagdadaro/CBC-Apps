@@ -57,15 +57,7 @@ class EquipmentControllersTest extends TestCase
             ]);
     }
 
-    public function test_guest_cannot_check_in_ict_equipment_without_authentication(): void
-    {
-        $this->postJson(route('api.ict.equipments.check-in', ['identifier' => 'ICT-BC-001']), [
-            'end_use_at' => now()->addHour()->toIso8601String(),
-            'purpose' => 'Diagnostics',
-        ])->assertUnauthorized();
-    }
-
-    public function test_authenticated_user_can_check_in_ict_equipment_without_posting_employee_id(): void
+    public function test_guest_can_check_in_ict_equipment_with_employee_id(): void
     {
         $service = $this->createMock(LaboratoryLogService::class);
         $service->expects($this->once())
@@ -77,7 +69,42 @@ class EquipmentControllersTest extends TestCase
             ->with(
                 'equipment-1',
                 $this->callback(function (array $payload): bool {
-                    return !array_key_exists('employee_id', $payload)
+                    return ($payload['employee_id'] ?? null) === 'EMP-ICT-001'
+                        && ($payload['purpose'] ?? null) === 'Diagnostics'
+                        && !empty($payload['end_use_at']);
+                }),
+                'ict'
+            )
+            ->willReturn(tap(new LaboratoryEquipmentLog(), function (LaboratoryEquipmentLog $log): void {
+                $log->forceFill(['id' => 'log-1', 'status' => 'active']);
+            }));
+
+        $this->app->instance(LaboratoryLogService::class, $service);
+
+        $this->postJson(route('api.ict.equipments.check-in', ['identifier' => 'ICT-BC-001']), [
+            'employee_id' => 'EMP-ICT-001',
+            'end_use_at' => now()->addHour()->toIso8601String(),
+            'purpose' => 'Diagnostics',
+        ])
+            ->assertCreated()
+            ->assertJsonPath('message', 'Equipment checked in successfully.')
+            ->assertJsonPath('data.id', 'log-1')
+            ->assertJsonPath('data.status', 'active');
+    }
+
+    public function test_authenticated_user_can_still_check_in_ict_equipment(): void
+    {
+        $service = $this->createMock(LaboratoryLogService::class);
+        $service->expects($this->once())
+            ->method('resolveEquipmentId')
+            ->with('ICT-BC-001')
+            ->willReturn('equipment-1');
+        $service->expects($this->once())
+            ->method('checkIn')
+            ->with(
+                'equipment-1',
+                $this->callback(function (array $payload): bool {
+                    return ($payload['employee_id'] ?? null) === 'EMP-ICT-001'
                         && ($payload['purpose'] ?? null) === 'Diagnostics'
                         && !empty($payload['end_use_at']);
                 }),
@@ -94,6 +121,7 @@ class EquipmentControllersTest extends TestCase
         ]));
 
         $this->postJson(route('api.ict.equipments.check-in', ['identifier' => 'ICT-BC-001']), [
+            'employee_id' => 'EMP-ICT-001',
             'end_use_at' => now()->addHour()->toIso8601String(),
             'purpose' => 'Diagnostics',
         ])
@@ -103,10 +131,26 @@ class EquipmentControllersTest extends TestCase
             ->assertJsonPath('data.status', 'active');
     }
 
-    public function test_guest_cannot_view_active_laboratory_equipments_without_authentication(): void
+    public function test_guest_can_view_active_laboratory_equipments_without_authentication(): void
     {
+        $service = $this->createMock(LaboratoryLogService::class);
+        $service->expects($this->once())
+            ->method('getActiveEquipment')
+            ->with('EMP-LAB-100')
+            ->willReturn(new EloquentCollection([
+                tap(new LaboratoryEquipmentLog(), function (LaboratoryEquipmentLog $log): void {
+                    $log->forceFill(['id' => 'LAB-1', 'status' => 'active']);
+                }),
+            ]));
+
+        $repo = $this->createMock(LaboratoryEquipmentLogRepo::class);
+
+        $this->app->instance(LaboratoryLogService::class, $service);
+        $this->app->instance(LaboratoryEquipmentLogRepo::class, $repo);
+
         $this->getJson(route('api.laboratory.equipments.active', ['employee_id' => 'EMP-LAB-100']))
-            ->assertUnauthorized();
+            ->assertOk()
+            ->assertJsonPath('data.0.id', 'LAB-1');
     }
 
     public function test_authenticated_non_admin_user_views_only_linked_active_laboratory_equipments(): void

@@ -35,9 +35,11 @@
 - [ID-016] Resolved. `resources/js/ziggy.js` had drifted from the current route definitions and still exposed removed guest-route metadata until regeneration.
 
 ## Tracker Updates (2026-03-31)
+- [ID-001] Reopened by product decision. The Equipment Logger guest mutations were switched back to the local-only employee-ID trust model, so this remains an accepted risk unless the module is exposed outside the trusted local deployment.
 - [ID-017] Resolved. Module Access Controls now grant authenticated administrator accounts a full backend and frontend bypass, so `deployment.access` middleware, shared Inertia props, app navigation, and welcome-page service cards stay aligned for admins regardless of module access or mode settings.
 - [ID-018] Resolved. Module Access Control grouping was not logically flawless because guest-facing Incident Reports and Experiment Monitoring were being governed by internal Inventory/Research module keys; they now use dedicated guest/shared module keys so the Options grouping matches the actual route surface.
-- [ID-019] Resolved. The guest Equipment Logger page now reflects the authenticated write requirements instead of advertising write actions that the backend rejects, and the location update modal no longer closes prematurely on failed submissions.
+- [ID-019] Resolved. The guest Equipment Logger page no longer closes the location update modal prematurely on failed submissions, and its tour metadata now matches the intended local-trust guest workflow.
+- [ID-020] Resolved. Authenticated non-admin users still need their linked `employee_id` enforced on active-equipment lookups, while administrator navigation and approval cards must honor the centralized global admin/permission context. The active-equipment filter, app navigation, rental approvals, and research permission gates are now aligned to the shared auth globals.
 
 ### Verification Snapshot
 - `php artisan test tests/Feature/Laboratory/EquipmentControllersTest.php tests/Feature/Rental/RentalControllersTest.php tests/Feature/Inventory/GuestPersonnelLookupTest.php tests/Feature/Events/Registration/GuestLookupTest.php tests/Feature/Events/FormRepoParticipantsTest.php tests/Feature/Events/Workflow/TimelineIntegrationTest.php tests/Feature/Events/Workflow/ToggleSettingsTest.php`: 56 passed, 222 assertions, 0 failures.
@@ -612,10 +614,10 @@ Issue: Guest-facing Incident Reports and Experiment Monitoring features were con
 Suggestion: Give guest/shared routes their own module keys when they do not share the same exposure model as the internal module.  
 Impact: S effort, medium configuration clarity benefit.
 
-[ID-019] [LOW] [UX] - Guest Equipment Logger Advertised Write Actions The Backend Intentionally Protects  
+[ID-019] [LOW] [UX] - Guest Equipment Logger Location Modal Closed On Failed Submit  
 Location: `resources/js/Pages/Laboratory/EquipmentShow.vue`  
-Issue: The page rendered write actions even for unauthenticated or unlinked accounts, and the location modal closed immediately even when the API returned validation errors.  
-Suggestion: Gate write affordances with the same authenticated-capability checks used by the backend and keep mutation dialogs open until a submit succeeds.  
+Issue: The location update dialog closed immediately even when the API returned validation errors, which made guest corrections harder during equipment logging.  
+Suggestion: Keep the dialog open until the request succeeds and preserve the entered values so the user can fix validation errors in place.  
 Impact: XS effort, medium user-trust benefit.
 
 ---

@@ -16,7 +16,7 @@ class LaboratoryCheckInRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'employee_id' => ['nullable', 'string', 'max:32'],
+            'employee_id' => ['required', 'string', 'max:32'],
             'end_use_at' => ['required', 'date'],
             'purpose' => ['nullable', 'string', 'max:1000'],
         ];

@@ -3,9 +3,10 @@
     <guest-form-page
         title="Experiment Monitoring"
         subtitle="Monitor and track status of experiments in the laboratory"
+        guide-key="experiment-monitoring-guest"
         :max-width="'max-w-2xl'"
     >
-        <div class="flex flex-col gap-6">
+        <div data-guide="experiment-monitoring-content" class="flex flex-col gap-6">
             <div class="flex flex-col gap-4">
                 <div class="flex flex-col gap-2">
                     <h2 class="text-lg font-medium text-gray-50">Ongoing Experiments</h2>

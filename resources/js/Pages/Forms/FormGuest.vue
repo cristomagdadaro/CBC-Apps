@@ -328,9 +328,10 @@ export default {
         :title="'Event Forms'"
         :subtitle="'For the event id, kindly check the invitation or ask the organizers.'"
         :delay-ready="delayReady"
+        guide-key="event-forms-guest"
         :max-width="'max-w-2xl'">
         <template #search>
-            <form v-if="!eventForm" class="flex gap-2 items-center pr-2 bg-white md:rounded-md"  @submit.prevent="searchEvent">
+            <form v-if="!eventForm" data-guide="form-search" class="flex gap-2 items-center pr-2 bg-white md:rounded-md"  @submit.prevent="searchEvent">
                 <div class="flex flex-col w-full items-center gap-3">
                     <div class="flex flex-row w-full items-center justify-between py-2 pl-2">
                         <input
@@ -494,7 +495,7 @@ export default {
     </transition>
 
         <!-- Cards row -->
-        <div class="flex gap-5 md:flex-row flex-col justify-center">
+        <div data-guide="form-cards" class="flex gap-5 md:flex-row flex-col justify-center">
             <transition-container :duration="300" type="pop-in">
                 <div v-if="eventFormFromApi?.data?.length">
                     <guest-card

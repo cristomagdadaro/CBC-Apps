@@ -1,21 +1,12 @@
 <script setup>
 import particleMixin from "@/Modules/mixins/ParticleMixin.js";
-import {
-  LuCalendarDays,
-  LuMicroscope,
-  LuCalendar,
-  LuBookOpen,
-  LuPackage,
-  LuFlag,
-  LuFlaskConical,
-  LuClipboardList,
-  LuCpu,
-} from "@/Components/Icons";
 import { onMounted, ref, computed } from "vue";
-import { usePage } from "@inertiajs/vue3";
 import SocialLinks from "@/Components/SocialLinks.vue";
 import ServiceCard from "@/Components/ServiceCard.vue";
 import MainBg from "@/Pages/Shared/MainBg.vue";
+import GuideTourControls from "@/Components/GuideTourControls.vue";
+import { useAppContext } from "@/Modules/composables/useAppContext";
+import { useGuideTour } from "@/Modules/composables/useGuideTour";
 
 defineProps({
   canLogin: Boolean,
@@ -25,16 +16,10 @@ defineProps({
 });
 
 const showNetworkModal = ref(false);
+const showPrivacyNotice = ref(false);
 const isCheckingNetwork = ref(false);
-const page = usePage();
-
-const deploymentAccess = computed(() => page.props.deployment_access ?? {});
-const isAdminUser = computed(() => {
-  const auth = page.props.auth ?? {};
-  const roles = Array.isArray(auth.roles) ? auth.roles : [];
-
-  return !!auth.user?.is_admin || roles.includes("admin");
-});
+const { deploymentAccess, isAdminUser, publicServices } = useAppContext();
+const welcomeGuide = useGuideTour("welcome", { autoStart: false });
 const localNetworkUrl = computed(
   () => deploymentAccess.value?.local_url ?? "http://192.168.36.10",
 );
@@ -43,81 +28,14 @@ const isInternetAccess = computed(() => {
   return deploymentAccess.value?.channel === "internet";
 });
 
-const services = [
-  {
-    title: "Bookings & Rentals",
-    description: "Reserve vehicles, venues, and equipment for your events",
-    icon: LuCalendarDays,
-    href: route("rental.bookings.guest"),
-    color: "blue",
-    visibilityKey: "rentals",
-  },
-  {
-    title: "Event Registration",
-    description: "Register and participate in DA-CBC events and activities",
-    icon: LuCalendar,
-    href: route("forms.guest.index"),
-    color: "violet",
-    visibilityKey: "forms",
-  },
-  {
-    title: "FES Requests",
-    description: "Request facilities, equipment, and supplies",
-    icon: LuClipboardList,
-    href: route("labReq.guest.index"),
-    color: "amber",
-    visibilityKey: "fes",
-  },
-  {
-    title: "Lab Equipment Log",
-    description: "Track and manage laboratory equipment usage",
-    icon: LuMicroscope,
-    href: route("laboratory.equipments.show"),
-    color: "emerald",
-    visibilityKey: "equipment_logger",
-  },
-  {
-    title: "ICT Equipment Log",
-    description: "Monitor ICT assets and equipment availability",
-    icon: LuCpu,
-    href: route("ict.equipments.show"),
-    color: "cyan",
-    visibilityKey: "equipment_logger",
-  },
-  {
-    title: "Supplies Checkout",
-    description: "Request and track inventory and supply items",
-    icon: LuPackage,
-    href: route("inventory.public.outgoing.index"),
-    color: "orange",
-    visibilityKey: "supplies_checkout",
-  },
-  {
-    title: "Incident Reports",
-    description: "Report issues, damages, or maintenance needs",
-    icon: LuFlag,
-    href: route("suppEquipReports.create.guest"),
-    color: "rose",
-    visibilityKey: "incident_reports",
-  },
-  {
-    title: "Experiment Log",
-    description: "Monitor ongoing laboratory experiments and research",
-    icon: LuFlaskConical,
-    href: route("laboratory.monitoring.guest"),
-    color: "indigo",
-    visibilityKey: "experiment_monitoring",
-  },
-];
-
 const visibleServices = computed(() => {
   const allowedServices = deploymentAccess.value?.services ?? {};
 
   if (isAdminUser.value) {
-    return services;
+    return publicServices.value;
   }
 
-  return services.filter(
+  return publicServices.value.filter(
     (service) =>
       !service.visibilityKey || allowedServices[service.visibilityKey] !== false,
   );
@@ -128,7 +46,7 @@ const hasHiddenLocalServices = computed(() => {
     return false;
   }
 
-  return services.some(
+  return publicServices.value.some(
     (service) =>
       service.visibilityKey &&
       deploymentAccess.value?.services?.[service.visibilityKey] === false,
@@ -146,8 +64,23 @@ const dismissNetworkModal = () => {
   sessionStorage.setItem("declinedLocalNetwork", "true");
 };
 
+const agreeToPrivacyNotice = async () => {
+  showPrivacyNotice.value = false;
+  welcomeGuide.setPrivacyConsent(true);
+
+  if (!welcomeGuide.hasSeenGuide("welcome")) {
+    await welcomeGuide.startGuide("welcome");
+  }
+};
+
 onMounted(() => {
   particleMixin.methods.createFallingLogos();
+
+  if (!welcomeGuide.hasPrivacyConsent()) {
+    showPrivacyNotice.value = true;
+  } else if (!welcomeGuide.hasSeenGuide("welcome")) {
+    welcomeGuide.maybeStartGuide();
+  }
 
   if (
     isInternetAccess.value &&
@@ -164,10 +97,14 @@ onMounted(() => {
 <template>
   <Head title="Welcome" />
   <main-bg />
+  <GuideTourControls guide-key="welcome" :auto-start="false" />
   <div class="absolute top-0 left-0 w-full pointer-events-none">
     <div class="relative sm:flex justify-center items-center min-h-screen  pointer-events-none">
       <div class="flex flex-col gap-5 px-5 md:px-0 py-10 md:py-0 pointer-events-auto">
-        <div class="text-center text-gray-700 dark:text-gray-300">
+        <div
+          data-guide="welcome-hero"
+          class="text-center text-gray-700 dark:text-gray-300"
+        >
           <div class="relative w-fit mx-auto">
             <div class="flex items-center gap-1">
               <h1
@@ -198,18 +135,20 @@ onMounted(() => {
             </h3>
             <div class="h-1.5 w-16 mt-3 mx-auto rounded-full shadow-lg bg-gray-300 group-hover:w-full group-hover:h-0.5 group-hover:mt-0 group-hover:mb-4 duration-500"></div>
           </div>
-          <div class="flex flex-wrap justify-center gap-4 w-full max-w-7xl relative">
+          <div data-guide="welcome-services" class="flex flex-wrap justify-center gap-4 w-full max-w-7xl relative">
+            <div class="contents">
             <ServiceCard
               v-for="(service, index) in visibleServices"
-              :key="index"
+              :key="service.id || index"
               :title="service.title"
               :description="service.description"
               :icon="service.icon"
-              :href="service.href"
+              :href="route(service.routeName)"
               :color="service.color"
               :external="service.external"
               class="min-w-[200px] w-[20%]"
             />
+            </div>
           </div>
         </div>
       </div>

@@ -38,28 +38,32 @@ export default {
   },
   computed: {
     permissions() {
-      return this.$page.props.auth?.permissions || [];
+      return this.$currentPermissions || [];
     },
     canExport() {
       return (
+        this.$isAdminUser ||
         this.permissions.includes("*") ||
         this.permissions.includes("research.exports.manage")
       );
     },
     canManageExperiment() {
       return (
+        this.$isAdminUser ||
         this.permissions.includes("*") ||
         this.permissions.includes("research.experiments.manage")
       );
     },
     canManageSamples() {
       return (
+        this.$isAdminUser ||
         this.permissions.includes("*") ||
         this.permissions.includes("research.samples.manage")
       );
     },
     canManageMonitoring() {
       return (
+        this.$isAdminUser ||
         this.permissions.includes("*") ||
         this.permissions.includes("research.monitoring.manage")
       );

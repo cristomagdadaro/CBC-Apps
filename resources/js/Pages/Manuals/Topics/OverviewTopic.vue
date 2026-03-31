@@ -60,9 +60,20 @@
                 <li><strong>Select a topic</strong> from the left menu based on what you need to do</li>
                 <li><strong>Look for your role:</strong> Most guides focus on operational steps first, then deeper implementation notes for signed-in staff</li>
                 <li><strong>Follow the step-by-step instructions</strong> for the workflow you need</li>
+                <li><strong>Use the on-screen tour controls</strong> on public pages if you want an interactive walkthrough instead of only reading the manual</li>
                 <li v-if="showDeveloperSections"><strong>Refer to code snippets and file paths</strong> when you need implementation details</li>
                 <li><strong>Check the quick reference</strong> sections for common files and endpoints</li>
             </ol>
+        </section>
+
+        <section>
+            <h3 class="text-lg font-bold mb-3">Interactive Guides</h3>
+            <p class="mb-3">
+                Public-facing pages now include Driver.js-powered tours. New guests can be shown a startup guide after acknowledging the privacy notice, and every public page includes controls to replay or disable automatic guides.
+            </p>
+            <p v-if="showDeveloperSections" class="text-sm">
+                Developers should treat these tours as part of the public user experience and update the guide registry whenever a public workflow changes materially.
+            </p>
         </section>
 
         <section>

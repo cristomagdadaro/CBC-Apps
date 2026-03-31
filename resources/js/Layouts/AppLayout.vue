@@ -254,7 +254,7 @@ export default {
       });
     },
     formattedPermissions() {
-      const permissions = this.$page.props.auth?.permissions || [];
+      const permissions = this.$currentPermissions || [];
       if (permissions.length === 1 && permissions[0] === "*") {
         return [{ name: "*", label: "All Permissions" }];
       }
@@ -267,7 +267,7 @@ export default {
       });
     },
     rolesList() {
-      return this.$page.props.auth?.roles || [];
+      return this.$currentRoles || [];
     },
     singleRole() {
       return this.rolesList.length === 1;
@@ -278,12 +278,6 @@ export default {
     },
     currentRouteName() {
       return route().current();
-    },
-    isAdminUser() {
-      const auth = this.$page.props.auth || {};
-      const roles = Array.isArray(auth.roles) ? auth.roles : [];
-
-      return !!auth.user?.is_admin || roles.includes("admin");
     },
     deploymentModules() {
       return this.$page.props.deployment_access?.modules || {};
@@ -300,17 +294,19 @@ export default {
     },
     hasPermission(permission) {
       if (!permission) return true;
-      const permissions = this.$page.props?.auth?.permissions ?? [];
+      if (this.$isAdminUser) return true;
+      const permissions = this.$currentPermissions ?? [];
       return permissions.includes("*") || permissions.includes(permission);
     },
     hasAnyRole(roles = []) {
       if (!roles.length) return true;
-      const currentRoles = this.$page.props?.auth?.roles ?? [];
+      if (this.$isAdminUser) return true;
+      const currentRoles = this.$currentRoles ?? [];
       return roles.some((role) => currentRoles.includes(role));
     },
     hasVisibleModule(moduleKey) {
       if (!moduleKey) return true;
-      if (this.isAdminUser) return true;
+      if (this.$isAdminUser) return true;
 
       const moduleState = this.deploymentModules?.[moduleKey];
       if (!moduleState) return true;

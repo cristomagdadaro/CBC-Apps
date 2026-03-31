@@ -1,5 +1,5 @@
 <script>
-import { useForm, usePage, router } from "@inertiajs/vue3";
+import { useForm, router } from "@inertiajs/vue3";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import LaboratoryPersonnelMixin from "@/Modules/mixins/LaboratoryPersonnelMixin";
@@ -91,47 +91,20 @@ export default {
         hasEquipment() {
             return !!this.equipmentId;
         },
-        authUser() {
-            const page = usePage();
-            return page.props.auth?.user ?? null;
-        },
-        isAuthenticated() {
-            return !!this.authUser;
-        },
         canCheckIn() {
-            return this.canMutateLogger && this.allowedActions.includes("check-in");
+            return this.allowedActions.includes("check-in");
         },
         canCheckOut() {
-            return this.canMutateLogger && this.allowedActions.includes("check-out");
+            return this.allowedActions.includes("check-out");
         },
         isAdmin() {
-            const page = usePage();
-            const roles = page.props.auth?.roles ?? [];
-
-            return (page.props.auth?.user?.is_admin ?? false) || roles.includes("admin");
-        },
-        hasLinkedPersonnel() {
-            return this.isAdmin || !!this.authUser?.employee_id;
-        },
-        canMutateLogger() {
-            return this.isAuthenticated && this.hasLinkedPersonnel;
+            return this.$isAdminUser;
         },
         canEditActiveLog() {
-            return !!this.activeLog && this.canMutateLogger;
+            return !!this.activeLog;
         },
         canReportLocation() {
-            return this.shouldShowLocationSurvey && this.canMutateLogger;
-        },
-        equipmentActionAccessMessage() {
-            if (!this.isAuthenticated) {
-                return "Sign in with a staff account to create or update equipment log entries.";
-            }
-
-            if (!this.hasLinkedPersonnel) {
-                return "Your account is missing a linked employee ID, so equipment log actions stay read-only until an administrator connects your account.";
-            }
-
-            return null;
+            return this.shouldShowLocationSurvey;
         },
         shouldShowLocationSurvey() {
             return this.currentLocation?.source !== "temporary" || this.currentLocation?.label === "Unknown Location";
@@ -352,13 +325,6 @@ export default {
                 this.formatForDatetimeLocal(baseTime);
         },
         async submitCheckIn() {
-            if (!this.canMutateLogger) {
-                this.checkInErrors = {
-                    base: this.equipmentActionAccessMessage,
-                };
-                return;
-            }
-
             this.checkInErrors = {};
             this.message = null;
             try {
@@ -390,13 +356,6 @@ export default {
             }
         },
         async submitCheckOut() {
-            if (!this.canMutateLogger) {
-                this.checkOutErrors = {
-                    base: this.equipmentActionAccessMessage,
-                };
-                return;
-            }
-
             this.checkOutErrors = {};
             this.message = null;
             try {
@@ -427,13 +386,6 @@ export default {
             }
         },
         async submitUpdateEndUse() {
-            if (!this.canMutateLogger) {
-                this.updateEndUseErrors = {
-                    base: this.equipmentActionAccessMessage,
-                };
-                return;
-            }
-
             this.updateEndUseErrors = {};
             this.message = null;
             try {
@@ -463,13 +415,6 @@ export default {
             }
         },
         async submitLocationSurvey() {
-            if (!this.canMutateLogger) {
-                this.locationSurveyErrors = {
-                    base: this.equipmentActionAccessMessage,
-                };
-                return;
-            }
-
             this.locationSurveyErrors = {};
             this.message = null;
             try {
@@ -614,7 +559,7 @@ export default {
         </div>
     </Transition>
 
-    <GuestFormPage :title="title" :subtitle="subtitle" :delay-ready="delayReady" max-width="max-w-7xl">
+    <GuestFormPage :title="title" :subtitle="subtitle" :delay-ready="delayReady" guide-key="equipment-logger-guest" max-width="max-w-7xl">
         <!-- Loading Overlay -->
         <Transition enter-active-class="transition-opacity duration-300" enter-from-class="opacity-0"
             enter-to-class="opacity-100" leave-active-class="transition-opacity duration-200"
@@ -678,7 +623,7 @@ export default {
                         </div>
 
                         <!-- Equipment Details -->
-                        <div v-else-if="equipment" class="divide-y divide-gray-100">
+                        <div v-else-if="equipment" data-guide="equipment-summary" class="divide-y divide-gray-100">
                             <!-- Header -->
                             <div class="flex items-start justify-between p-4">
                                 <div class="flex items-center gap-4">
@@ -840,15 +785,8 @@ export default {
                         </div>
                     </div>
 
-                    <div
-                        v-if="hasEquipment && !notFound && equipmentActionAccessMessage"
-                        class="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800"
-                    >
-                        {{ equipmentActionAccessMessage }}
-                    </div>
-
                     <!-- Check-in Form -->
-                    <div v-if="hasEquipment && !notFound && canCheckIn"
+                    <div v-if="hasEquipment && !notFound && canCheckIn" data-guide="equipment-actions"
                         class="overflow-hidden bg-white border border-gray-200 shadow-sm md:rounded-xl">
                         <div class="p-4 border-b border-gray-100 bg-emerald-50/30">
                             <div class="flex items-center gap-3">
@@ -898,7 +836,7 @@ export default {
                     </div>
 
                     <!-- Check-out Form -->
-                    <div v-if="hasEquipment && !notFound && canCheckOut"
+                    <div v-if="hasEquipment && !notFound && canCheckOut" data-guide="equipment-actions"
                         class="overflow-hidden bg-white border border-gray-200 shadow-sm md:rounded-xl">
                         <div class="p-4 border-b border-gray-100 bg-amber-50/30">
                             <div class="flex items-center justify-between">
@@ -978,7 +916,7 @@ export default {
 
                 <!-- Sidebar: Active Equipment -->
                 <div class="lg:col-span-5">
-                    <div class="sticky overflow-hidden bg-white border border-gray-200 shadow-sm top-4 md:rounded-xl">
+                    <div data-guide="equipment-active" class="sticky overflow-hidden bg-white border border-gray-200 shadow-sm top-4 md:rounded-xl">
                         <div class="flex items-center justify-between p-4 border-b border-gray-100">
                             <div class="flex items-center gap-3">
                                 <div class="p-2 rounded-lg bg-blue-100">

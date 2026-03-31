@@ -121,18 +121,6 @@ class ICTEquipmentController extends BaseController
 
     private function resolveActiveEmployeeFilter(Request $request, ?string $requestedEmployeeId): ?string
     {
-        $user = $request->user();
-
-        if ($user?->is_admin) {
-            return $requestedEmployeeId;
-        }
-
-        $employeeId = $user?->employee_id;
-
-        if (! $employeeId) {
-            abort(422, 'The authenticated user is not linked to a personnel record.');
-        }
-
-        return $employeeId;
+        return $requestedEmployeeId;
     }
 }
