@@ -55,6 +55,9 @@ export default {
         overdueLogs() {
             return this.dashboard?.overdue ?? [];
         },
+        completedLogs() {
+            return this.dashboard?.completed ?? [];
+        },
         mostUsed() {
             return this.dashboard?.most_used ?? [];
         },
@@ -79,16 +82,20 @@ export default {
                 type: 'equipment',
                 status: log.status,
                 date_from: log.started_at,
-                date_to: log.end_use_at,
+                date_to: log.actual_end_at || log.end_use_at,
                 label: log.equipment?.name || 'Equipment',
                 subtitle: this.formatPersonnelName(log.personnel),
-                color: log.status === 'overdue' ? '#EF4444' : '#10B981',
+                color: log.status === 'overdue' ? '#EF4444' : log.status === 'completed' ? '#9CA3AF' : '#10B981',
                 checkoutPage: 'laboratory.equipments.show',
                 checkoutPageId: log.id,
                 checkoutPageTarget: '_blank',
             });
 
-            return [...this.activeLogs.map(mapLog), ...this.overdueLogs.map(mapLog)];
+            return [
+                ...this.activeLogs.map(mapLog),
+                ...this.overdueLogs.map(mapLog),
+                ...this.completedLogs.map(mapLog),
+            ];
         },
         calendarLegend() {
             return [
@@ -97,6 +104,7 @@ export default {
                     items: [
                         { label: 'Active', color: '#10B981' },
                         { label: 'Overdue', color: '#EF4444' },
+                        { label: 'Completed', color: '#9CA3AF' },
                     ],
                 },
             ];
@@ -493,10 +501,10 @@ export default {
 
                 <div v-show="activeTab === 'calendar'" class="space-y-6 px-5">
                     <CalendarModule title="Equipment Usage Calendar"
-                        subtitle="Active and overdue equipment usage by day." :events="calendarEvents"
+                        subtitle="Active, overdue, and completed equipment usage by day." :events="calendarEvents"
                         :type-options="[{ key: 'equipment', label: 'Equipment' }]"
-                        :status-options="[{ key: 'active', label: 'Active' }, { key: 'overdue', label: 'Overdue' }]"
-                        :status-colors="{ active: '#10B981', overdue: '#EF4444' }" :legend-groups="calendarLegend"
+                        :status-options="[{ key: 'active', label: 'Active' }, { key: 'overdue', label: 'Overdue' }, { key: 'completed', label: 'Completed' }]"
+                        :status-colors="{ active: '#10B981', overdue: '#EF4444', completed: '#9CA3AF' }" :legend-groups="calendarLegend"
                         :show-type-filter="false" />
                 </div>
                 <div v-show="activeTab === 'logs'">

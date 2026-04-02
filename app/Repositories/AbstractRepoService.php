@@ -3,10 +3,12 @@ namespace App\Repositories;
 
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Throwable;
 
 abstract class AbstractRepoService {
@@ -117,57 +119,54 @@ abstract class AbstractRepoService {
 
     protected function applySearch(Builder $query, string $search, ?string $filter, bool $is_exact): void
     {
-        if (empty($search)) {
+        $search = trim($search);
+
+        if ($search === '') {
             return;
         }
 
-        if ($filter) {
-            if (str_contains($filter, '.')) {
-                [$relation, $column] = explode('.', $filter, 2);
-                $operator = $is_exact ? '=' : 'like';
-                $value = $is_exact ? $search : "%{$search}%";
-                
-                $query->whereHas($relation, function ($subQuery) use ($column, $operator, $value) {
-                    $subQuery->where($column, $operator, $value);
-                });
-                return;
-            }
-            
-            $operator = $is_exact ? '=' : 'like';
-            $value = $is_exact ? $search : "%{$search}%";
-            $query->where($filter, $operator, $value);
+        $operator = $is_exact ? '=' : 'like';
+        $value = $is_exact ? $search : "%{$search}%";
+
+        if ($filter && $this->applyFilteredSearch($query, $filter, $operator, $value)) {
             return;
         }
 
-        $columns = collect($query->getModel()->getSearchable());
-        
+        $columns = $this->getSearchableColumns($query->getModel());
+
         if ($columns->isEmpty()) {
             return;
         }
 
-        if ($columns->contains('fname') && $columns->contains('lname')) {
-            $query->orWhereRaw("CONCAT_WS(' ', fname, mname, lname, suffix) LIKE ?", ["%{$search}%"]);
-            return;
-        }
-
-        if (request()->has('filter') && request('filter') === 'name') {
-            $query->where('name', 'like', "%{$search}%");
-            return;
-        }
-
-        $query->where(function ($subQuery) use ($columns, $search, $is_exact) {
-            $operator = $is_exact ? '=' : 'like';
-            $value = $is_exact ? $search : "%{$search}%";
-
-            foreach ($columns as $column) {
-                if ($this->isRelationColumn($column)) {
-                    $this->applyRelationColumnSearch($subQuery, $column, $operator, $value);
-                    continue;
-                }
-
-                $subQuery->orWhere($column, $operator, $value);
-            }
+        $query->where(function (Builder $subQuery) use ($columns, $query, $operator, $value) {
+            $this->applyModelSearchColumns($subQuery, $query->getModel(), $columns, $operator, $value);
         });
+    }
+
+    protected function applyFilteredSearch(Builder $query, string $filter, string $operator, string $value): bool
+    {
+        if (str_contains($filter, '.')) {
+            return $this->applyRelationColumnSearch($query, $filter, $operator, $value, 'and');
+        }
+
+        if ($this->shouldApplyFullNameSearch($query->getModel(), $filter)) {
+            $this->applyFullNameSearch($query, $query->getModel(), $operator, $value);
+
+            return true;
+        }
+
+        $relationName = $this->resolveRelationNameForFilter($query->getModel(), $filter);
+        if ($relationName) {
+            return $this->applyRelationModelSearch($query, $query->getModel(), $relationName, $operator, $value, 'and');
+        }
+
+        if ($this->hasColumn($query->getModel(), $filter)) {
+            $query->where($filter, $operator, $value);
+
+            return true;
+        }
+
+        return false;
     }
 
     protected function isRelationColumn(string $column): bool
@@ -175,17 +174,49 @@ abstract class AbstractRepoService {
         return str_contains($column, '.');
     }
 
-    protected function applyRelationColumnSearch(Builder $query, string $relationColumn, string $operator, string $value): void
+    protected function applyRelationColumnSearch(Builder $query, string $relationColumn, string $operator, string $value, string $boolean = 'or'): bool
     {
         [$relationPath, $columnName] = $this->splitRelationColumn($relationColumn);
 
         if (!$relationPath || !$columnName) {
-            return;
+            return false;
         }
 
-        $query->orWhereHas($relationPath, function (Builder $relatedQuery) use ($columnName, $operator, $value) {
-            $relatedQuery->where($columnName, $operator, $value);
+        $method = $boolean === 'and' ? 'whereHas' : 'orWhereHas';
+
+        $query->{$method}($relationPath, function (Builder $relatedQuery) use ($columnName, $operator, $value) {
+            $relatedModel = $relatedQuery->getModel();
+
+            if ($this->shouldApplyFullNameSearch($relatedModel, $columnName)) {
+                $this->applyFullNameSearch($relatedQuery, $relatedModel, $operator, $value);
+
+                return;
+            }
+
+            if ($this->hasColumn($relatedModel, $columnName)) {
+                $relatedQuery->where($columnName, $operator, $value);
+
+                return;
+            }
+
+            $relationName = $this->resolveRelationNameForFilter($relatedModel, $columnName);
+            if ($relationName) {
+                $this->applyRelationModelSearch($relatedQuery, $relatedModel, $relationName, $operator, $value, 'and');
+
+                return;
+            }
+
+            $columns = $this->getSearchableColumns($relatedModel);
+            if ($columns->isEmpty()) {
+                return;
+            }
+
+            $relatedQuery->where(function (Builder $nestedQuery) use ($relatedModel, $columns, $operator, $value) {
+                $this->applyModelSearchColumns($nestedQuery, $relatedModel, $columns, $operator, $value);
+            });
         });
+
+        return true;
     }
 
     protected function splitRelationColumn(string $relationColumn): array
@@ -199,6 +230,174 @@ abstract class AbstractRepoService {
         $columnName = array_pop($segments);
 
         return [implode('.', $segments), $columnName];
+    }
+
+    protected function applyModelSearchColumns(Builder $query, Model $model, Collection $columns, string $operator, string $value): void
+    {
+        $hasCondition = false;
+
+        if ($this->supportsFullNameSearch($model)) {
+            $this->applyFullNameSearch($query, $model, $operator, $value);
+            $hasCondition = true;
+        }
+
+        foreach ($columns as $column) {
+            $applied = $this->applySearchableColumn(
+                $query,
+                $model,
+                $column,
+                $operator,
+                $value,
+                $hasCondition ? 'or' : 'and',
+            );
+
+            $hasCondition = $hasCondition || $applied;
+        }
+    }
+
+    protected function applySearchableColumn(
+        Builder $query,
+        Model $model,
+        string $column,
+        string $operator,
+        string $value,
+        string $boolean = 'or',
+    ): bool {
+        if ($this->isRelationColumn($column)) {
+            return $this->applyRelationColumnSearch($query, $column, $operator, $value, $boolean);
+        }
+
+        $applied = false;
+
+        if ($this->hasColumn($model, $column)) {
+            $method = $boolean === 'and' ? 'where' : 'orWhere';
+            $query->{$method}($column, $operator, $value);
+            $applied = true;
+        }
+
+        $relationName = $this->resolveRelationNameForFilter($model, $column);
+        if ($relationName) {
+            $this->applyRelationModelSearch($query, $model, $relationName, $operator, $value, $applied ? 'or' : $boolean);
+
+            return true;
+        }
+
+        return $applied;
+    }
+
+    protected function applyRelationModelSearch(
+        Builder $query,
+        Model $model,
+        string $relationName,
+        string $operator,
+        string $value,
+        string $boolean = 'or',
+    ): bool {
+        $relation = $this->resolveRelationInstance($model, $relationName);
+
+        if (!$relation) {
+            return false;
+        }
+
+        $method = $boolean === 'and' ? 'whereHas' : 'orWhereHas';
+
+        $query->{$method}($relationName, function (Builder $relatedQuery) use ($relation, $operator, $value) {
+            $relatedModel = $relation->getRelated();
+            $columns = $this->getSearchableColumns($relatedModel);
+
+            if ($columns->isEmpty() && !$this->supportsFullNameSearch($relatedModel)) {
+                return;
+            }
+
+            $relatedQuery->where(function (Builder $nestedQuery) use ($relatedModel, $columns, $operator, $value) {
+                $this->applyModelSearchColumns($nestedQuery, $relatedModel, $columns, $operator, $value);
+            });
+        });
+
+        return true;
+    }
+
+    protected function getSearchableColumns(Model $model): Collection
+    {
+        return collect($model->getSearchable())
+            ->filter(fn ($column) => is_string($column) && $column !== '')
+            ->unique()
+            ->values();
+    }
+
+    protected function resolveRelationNameForFilter(Model $model, string $filter): ?string
+    {
+        $candidates = [$filter];
+
+        if (Str::endsWith($filter, '_id')) {
+            $candidates[] = Str::beforeLast($filter, '_id');
+        }
+
+        foreach (array_unique($candidates) as $candidate) {
+            if ($this->resolveRelationInstance($model, $candidate)) {
+                return $candidate;
+            }
+        }
+
+        return null;
+    }
+
+    protected function resolveRelationInstance(Model $model, string $relationName): ?Relation
+    {
+        if (!method_exists($model, $relationName)) {
+            return null;
+        }
+
+        try {
+            $relation = $model->{$relationName}();
+        } catch (Throwable) {
+            return null;
+        }
+
+        return $relation instanceof Relation ? $relation : null;
+    }
+
+    protected function hasColumn(Model $model, string $column): bool
+    {
+        return Schema::connection($model->getConnectionName())
+            ->hasColumn($model->getTable(), $column);
+    }
+
+    protected function supportsFullNameSearch(Model $model): bool
+    {
+        $columns = $this->getSearchableColumns($model);
+
+        return $columns->contains('fname') && $columns->contains('lname');
+    }
+
+    protected function shouldApplyFullNameSearch(Model $model, ?string $column = null): bool
+    {
+        if (!$this->supportsFullNameSearch($model)) {
+            return false;
+        }
+
+        if ($column === null) {
+            return true;
+        }
+
+        return in_array($column, ['name', 'full_name', 'fullName'], true);
+    }
+
+    protected function applyFullNameSearch(Builder $query, Model $model, string $operator, string $value): void
+    {
+        $expression = $this->fullNameExpression($model);
+
+        $query->whereRaw("{$expression} {$operator} ?", [$value]);
+    }
+
+    protected function fullNameExpression(Model $model): string
+    {
+        $driver = $model->getConnection()->getDriverName();
+
+        return match ($driver) {
+            'sqlite' => "TRIM(REPLACE(REPLACE(COALESCE(fname, '') || ' ' || COALESCE(mname, '') || ' ' || COALESCE(lname, '') || ' ' || COALESCE(suffix, ''), '  ', ' '), '  ', ' '))",
+            default => "TRIM(CONCAT_WS(' ', fname, mname, lname, suffix))",
+        };
     }
 
     public function applyAppends(Builder &$model, Collection $parameters): void

@@ -189,6 +189,7 @@ class EquipmentControllersTest extends TestCase
             ->willReturn([
                 'active' => 3,
                 'overdue' => 1,
+                'completed' => 2,
             ]);
 
         $repo = $this->createMock(LaboratoryEquipmentLogRepo::class);
@@ -205,6 +206,7 @@ class EquipmentControllersTest extends TestCase
                 'data' => [
                     'active' => 3,
                     'overdue' => 1,
+                    'completed' => 2,
                 ],
             ]);
     }

@@ -226,7 +226,7 @@ class LaboratoryLogService
 
         $personnel = $this->resolvePersonnelFromPayload($payload);
 
-        return DB::transaction(function () use ($equipmentId, $payload, $personnel) {
+        return DB::transaction(function () use ($equipmentId, $payload, $personnel, $equipmentType) {
             $activeLog = $this->lockActiveLog($equipmentId);
             if (!$activeLog) {
                 abort(409, 'No active log found for this equipment.');
@@ -260,7 +260,7 @@ class LaboratoryLogService
 
         $personnel = $this->resolvePersonnelFromPayload($payload);
 
-        return DB::transaction(function () use ($equipmentId, $payload, $personnel) {
+        return DB::transaction(function () use ($equipmentId, $payload, $personnel, $equipmentType) {
             $survey = LaboratoryEquipmentLocationSurvey::firstOrNew([
                 'equipment_id' => $equipmentId,
             ]);
@@ -335,12 +335,10 @@ class LaboratoryLogService
     {
         $activeLogs = $this->getActiveEquipment();
 
-        $overdueLogs = LaboratoryEquipmentLog::with(['equipment', 'personnel'])
-            ->where('status', 'overdue')
-            ->orderBy('end_use_at')
-            ->get();
+        $overdueLogs = $this->getDashboardLogsByStatuses(['overdue']);
+        $completedLogs = $this->getDashboardLogsByStatuses(['completed']);
 
-        $this->enrichLogsWithLocationDetails($activeLogs, $overdueLogs);
+        $this->enrichLogsWithLocationDetails($activeLogs, $overdueLogs, $completedLogs);
 
         $mostUsedRows = LaboratoryEquipmentLog::query()
             ->select([
@@ -380,9 +378,29 @@ class LaboratoryLogService
         return [
             'active' => $activeLogs,
             'overdue' => $overdueLogs,
+            'completed' => $completedLogs,
             'most_used' => $mostUsed,
             'heatmap' => $heatmap,
         ];
+    }
+
+    private function getDashboardLogsByStatuses(array $statuses, string $equipmentType = 'laboratory'): Collection
+    {
+        $categoryIds = $this->categoryIdsForType($equipmentType);
+
+        return LaboratoryEquipmentLog::query()
+            ->with(['equipment', 'personnel'])
+            ->whereIn('status', $statuses)
+            ->whereHas('equipment.category', function (Builder $builder) use ($categoryIds, $equipmentType) {
+                $builder->whereIn('categories.id', $categoryIds);
+
+                if ($equipmentType === 'laboratory') {
+                    $builder->orWhere('categories.name', 'Laboratory Equipment');
+                }
+            })
+            ->orderByDesc('actual_end_at')
+            ->orderBy('end_use_at')
+            ->get();
     }
 
     protected function totalDurationExpression(): string

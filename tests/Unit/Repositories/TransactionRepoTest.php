@@ -5,10 +5,13 @@ namespace Tests\Unit\Repositories;
 use App\Enums\Inventory as InventoryEnum;
 use App\Models\Category;
 use App\Models\Item;
+use App\Models\LaboratoryEquipmentLog;
 use App\Models\Personnel;
 use App\Models\Supplier;
 use App\Models\User;
+use App\Repositories\LaboratoryEquipmentLogRepo;
 use App\Repositories\TransactionRepo;
+use Illuminate\Support\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -107,15 +110,142 @@ class TransactionRepoTest extends TestCase
         $this->assertSame('Updated stock', $updated->remarks);
     }
 
-    private function createInventoryContext(): array
+    public function test_search_without_filter_matches_transaction_related_item_and_personnel_names(): void
+    {
+        ['item' => $item, 'personnel' => $personnel, 'user' => $user] = $this->createInventoryContext([
+            'item' => [
+                'name' => 'Atomic Spectrometer',
+                'brand' => 'LabWorks',
+            ],
+            'personnel' => [
+                'fname' => 'Alice',
+                'mname' => null,
+                'lname' => 'Cruz',
+                'suffix' => null,
+            ],
+        ]);
+
+        $transaction = app(TransactionRepo::class)->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-01-900003',
+            'transac_type' => InventoryEnum::INCOMING->value,
+            'quantity' => 5,
+            'unit_price' => 5,
+            'unit' => 'pc',
+            'total_cost' => 25,
+            'personnel_id' => $personnel->id,
+            'user_id' => $user->id,
+            'remarks' => 'Search seed',
+        ]);
+
+        $itemResults = app(TransactionRepo::class)->search(new Collection([
+            'search' => 'Atomic Spectrometer',
+        ]), false);
+
+        $personnelResults = app(TransactionRepo::class)->search(new Collection([
+            'search' => 'Alice Cruz',
+        ]), false);
+
+        $this->assertCount(1, $itemResults);
+        $this->assertSame($transaction->id, $itemResults->first()->id);
+        $this->assertCount(1, $personnelResults);
+        $this->assertSame($transaction->id, $personnelResults->first()->id);
+    }
+
+    public function test_search_with_relation_filters_matches_transaction_relations(): void
+    {
+        ['item' => $item, 'personnel' => $personnel, 'user' => $user] = $this->createInventoryContext([
+            'item' => [
+                'name' => 'Benchtop Centrifuge',
+                'brand' => 'SpinTech',
+            ],
+            'personnel' => [
+                'fname' => 'Maria',
+                'mname' => null,
+                'lname' => 'Santos',
+                'suffix' => null,
+            ],
+        ]);
+
+        $transaction = app(TransactionRepo::class)->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-01-900004',
+            'transac_type' => InventoryEnum::OUTGOING->value,
+            'quantity' => 1,
+            'unit_price' => 10,
+            'unit' => 'pc',
+            'total_cost' => 10,
+            'personnel_id' => $personnel->id,
+            'user_id' => $user->id,
+            'remarks' => 'Filtered search seed',
+        ]);
+
+        $itemResults = app(TransactionRepo::class)->search(new Collection([
+            'search' => 'Benchtop Centrifuge',
+            'filter' => 'item',
+        ]), false);
+
+        $personnelResults = app(TransactionRepo::class)->search(new Collection([
+            'search' => 'Maria Santos',
+            'filter' => 'personnel_id',
+        ]), false);
+
+        $this->assertCount(1, $itemResults);
+        $this->assertSame($transaction->id, $itemResults->first()->id);
+        $this->assertCount(1, $personnelResults);
+        $this->assertSame($transaction->id, $personnelResults->first()->id);
+    }
+
+    public function test_laboratory_log_search_matches_related_equipment_and_personnel_names(): void
+    {
+        ['item' => $item, 'personnel' => $personnel, 'user' => $user] = $this->createInventoryContext([
+            'item' => [
+                'name' => 'Microplate Reader',
+                'brand' => 'ReaderCo',
+            ],
+            'personnel' => [
+                'fname' => 'Nina',
+                'mname' => null,
+                'lname' => 'Reyes',
+                'suffix' => null,
+            ],
+        ]);
+
+        $log = LaboratoryEquipmentLog::factory()->create([
+            'equipment_id' => $item->id,
+            'personnel_id' => $personnel->id,
+            'checked_in_by' => $user->id,
+            'status' => 'active',
+            'actual_end_at' => null,
+        ]);
+
+        $equipmentResults = app(LaboratoryEquipmentLogRepo::class)->search(new Collection([
+            'search' => 'Microplate Reader',
+            'filter' => 'equipment_id',
+        ]), false);
+
+        $personnelResults = app(LaboratoryEquipmentLogRepo::class)->search(new Collection([
+            'search' => 'Nina Reyes',
+            'filter' => 'personnel.name',
+        ]), false);
+
+        $this->assertCount(1, $equipmentResults);
+        $this->assertSame($log->id, $equipmentResults->first()->id);
+        $this->assertCount(1, $personnelResults);
+        $this->assertSame($log->id, $personnelResults->first()->id);
+    }
+
+    private function createInventoryContext(array $overrides = []): array
     {
         $category = Category::factory()->create();
         $supplier = Supplier::factory()->create();
-        $item = Item::factory()->create([
+        $item = Item::factory()->create(array_merge([
             'category_id' => $category->id,
             'supplier_id' => $supplier->id,
-        ]);
-        $personnel = Personnel::factory()->create(['employee_id' => 'EMP-REPO']);
+        ], $overrides['item'] ?? []));
+        $personnel = Personnel::factory()->create(array_merge([
+            'employee_id' => 'EMP-REPO',
+        ], $overrides['personnel'] ?? []));
         $user = User::factory()->create();
 
         return compact('item', 'personnel', 'user');
