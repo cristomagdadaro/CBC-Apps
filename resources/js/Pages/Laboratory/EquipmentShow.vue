@@ -120,6 +120,27 @@ export default {
         isAdmin() {
             return this.$isAdminUser;
         },
+        authenticatedPersonnel() {
+            const user = this.$currentUser;
+            if (!user?.employee_id) {
+                return null;
+            }
+
+            return {
+                employee_id: user.employee_id,
+                fullName: user.name || user.employee_id,
+                fname: user.name || "",
+                mname: "",
+                lname: "",
+                suffix: "",
+            };
+        },
+        currentLaboratoryPersonnel() {
+            return this.savedLaboratoryPersonnel || this.authenticatedPersonnel;
+        },
+        statusCardPersonnel() {
+            return this.activeLog?.personnel || this.currentLaboratoryPersonnel;
+        },
         canEditActiveLog() {
             return !!this.activeLog;
         },
@@ -132,14 +153,14 @@ export default {
         filteredActiveEquipments() {
             if (
                 !this.filterActiveByPersonnel ||
-                !this.savedLaboratoryPersonnel?.employee_id
+                !this.currentLaboratoryPersonnel?.employee_id
             ) {
                 return this.activeEquipments;
             }
             return this.activeEquipments.filter(
                 (item) =>
                     item.personnel?.employee_id ===
-                    this.savedLaboratoryPersonnel.employee_id,
+                    this.currentLaboratoryPersonnel.employee_id,
             );
         },
         statusColor() {
@@ -216,11 +237,11 @@ export default {
                 }
 
                 if (
-                    this.savedLaboratoryPersonnel?.employee_id &&
+                    this.currentLaboratoryPersonnel.employee_id &&
                     !this.updateEndUseForm.employee_id
                 ) {
                     this.updateEndUseForm.employee_id =
-                        this.savedLaboratoryPersonnel.employee_id;
+                        this.currentLaboratoryPersonnel.employee_id;
                 }
 
                 if (!this.locationSurveyForm.location_label) {
@@ -229,11 +250,11 @@ export default {
                 }
 
                 if (
-                    this.savedLaboratoryPersonnel?.employee_id &&
+                    this.currentLaboratoryPersonnel.employee_id &&
                     !this.locationSurveyForm.employee_id
                 ) {
                     this.locationSurveyForm.employee_id =
-                        this.savedLaboratoryPersonnel.employee_id;
+                        this.currentLaboratoryPersonnel.employee_id;
                 }
 
                 if (!this.shouldShowLocationSurvey) {
@@ -297,10 +318,10 @@ export default {
             this.showPhilRiceField = !this.showPhilRiceField;
             if (
                 this.showPhilRiceField &&
-                this.savedLaboratoryPersonnel?.employee_id
+                this.currentLaboratoryPersonnel?.employee_id
             ) {
                 this.checkOutForm.employee_id =
-                    this.savedLaboratoryPersonnel.employee_id;
+                    this.currentLaboratoryPersonnel.employee_id;
                 return;
             }
             this.checkOutForm.employee_id = "";
@@ -328,9 +349,9 @@ export default {
                     this.activeLog.end_use_at,
                 );
             }
-            if (this.savedLaboratoryPersonnel?.employee_id) {
+            if (this.currentLaboratoryPersonnel?.employee_id) {
                 this.updateEndUseForm.employee_id =
-                    this.savedLaboratoryPersonnel.employee_id;
+                    this.currentLaboratoryPersonnel.employee_id;
             } else {
                 this.updateEndUseForm.employee_id = "";
             }
@@ -339,9 +360,31 @@ export default {
             this.locationSurveyErrors = {};
             this.locationSurveyForm.location_label =
                 this.currentLocation?.label || "";
-            if (this.savedLaboratoryPersonnel?.employee_id) {
+            if (this.currentLaboratoryPersonnel?.employee_id) {
                 this.locationSurveyForm.employee_id =
-                    this.savedLaboratoryPersonnel.employee_id;
+                    this.currentLaboratoryPersonnel.employee_id;
+            } else {
+                this.locationSurveyForm.employee_id = "";
+            }
+        },
+        syncCurrentPersonnelContext() {
+            if (!this.currentLaboratoryPersonnel?.employee_id) {
+                return;
+            }
+
+            this.showPhilRiceField = true;
+            this.checkOutForm.employee_id =
+                this.currentLaboratoryPersonnel.employee_id;
+            this.updateEndUseForm.employee_id =
+                this.currentLaboratoryPersonnel.employee_id;
+            this.locationSurveyForm.employee_id =
+                this.currentLaboratoryPersonnel.employee_id;
+
+            if (
+                !this.savedLaboratoryPersonnel?.employee_id &&
+                this.authenticatedPersonnel?.employee_id
+            ) {
+                this.saveLaboratoryPersonnel(this.authenticatedPersonnel);
             }
         },
         openLocationSurveyModal() {
@@ -637,22 +680,15 @@ export default {
         },
     },
     mounted() {
+        this.loadLaboratoryPersonnel();
+        this.syncCurrentPersonnelContext();
+
         if (this.equipmentId) {
             this.loadEquipment();
         } else {
             this.loadEquipmentOptions();
         }
-        this.loadLaboratoryPersonnel();
         this.loadActiveEquipments();
-        if (this.savedLaboratoryPersonnel?.employee_id) {
-            this.showPhilRiceField = true;
-            this.checkOutForm.employee_id =
-                this.savedLaboratoryPersonnel.employee_id;
-            this.updateEndUseForm.employee_id =
-                this.savedLaboratoryPersonnel.employee_id;
-            this.locationSurveyForm.employee_id =
-                this.savedLaboratoryPersonnel.employee_id;
-        }
         setTimeout(() => (this.delayReady = true), 200);
         
         const unsubscribeStart = router.on(
@@ -786,7 +822,7 @@ export default {
                             </div>
 
                             <!-- Details Grid -->
-                            <div class="grid grid-cols-2 gap-4 px-4 pb-4">
+                            <div class="grid grid-cols-2 gap-4 px-4 py-4">
                                 <div class="space-y-1">
                                     <label
                                         class="flex items-center gap-1.5 text-xs font-medium text-gray-500 uppercase tracking-wide">
@@ -922,7 +958,7 @@ export default {
                                 <span class="text-sm text-gray-500">Current User</span>
                                 <span class="flex items-center gap-1.5 text-sm font-medium text-gray-900">
                                     <LuUser class="w-4 h-4 text-gray-400" />
-                                    {{ formatPersonnelName(activeLog.personnel) }}
+                                    {{ formatPersonnelName(statusCardPersonnel) }}
                                 </span>
                             </div>
                         </div>
@@ -1042,7 +1078,7 @@ export default {
 
                         <div class="px-4 pb-4 space-y-4">
                             <Transition mode="out-in" name="fade-slide">
-                                <div v-if="savedLaboratoryPersonnel && showPhilRiceField" key="saved"
+                                <div v-if="currentLaboratoryPersonnel && showPhilRiceField" key="saved"
                                     class="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-200">
                                     <div class="flex items-center gap-3">
                                         <div class="p-2 rounded-lg bg-emerald-100">
@@ -1050,8 +1086,8 @@ export default {
                                         </div>
                                         <div>
                                             <p class="text-sm font-medium text-gray-900">{{
-                                                savedLaboratoryPersonnel.fullName }}</p>
-                                            <p class="text-xs text-gray-500">{{ savedLaboratoryPersonnel.employee_id }}
+                                                currentLaboratoryPersonnel.fullName }}</p>
+                                            <p class="text-xs text-gray-500">{{ currentLaboratoryPersonnel.employee_id }}
                                             </p>
                                         </div>
                                     </div>
@@ -1113,7 +1149,25 @@ export default {
                             </div>
                         </div>
 
-                        <div v-if="savedLaboratoryPersonnel" class="p-4 border-b border-gray-100 bg-gray-50/50">
+                        <div v-if="currentLaboratoryPersonnel" class="space-y-3 p-4 border-b border-gray-100 bg-gray-50/50">
+                            <div class="flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="rounded-lg bg-emerald-100 p-2">
+                                        <LuUser class="h-4 w-4 text-emerald-600" />
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">
+                                            {{ currentLaboratoryPersonnel.fullName }}
+                                        </p>
+                                        <p class="text-xs text-gray-500">
+                                            {{ currentLaboratoryPersonnel.employee_id }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
+                                    Current User
+                                </span>
+                            </div>
                             <button @click="filterActiveByPersonnel = !filterActiveByPersonnel"
                                 class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium transition-colors rounded-lg"
                                 :class="filterActiveByPersonnel ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'">

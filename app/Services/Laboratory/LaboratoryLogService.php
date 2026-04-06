@@ -581,6 +581,7 @@ class LaboratoryLogService
     private function getActiveLog(string $equipmentId): ?LaboratoryEquipmentLog
     {
         return LaboratoryEquipmentLog::query()
+            ->with(['personnel', 'equipment'])
             ->where('equipment_id', $equipmentId)
             ->whereIn('status', ['active', 'overdue'])
             ->orderByDesc('started_at')
@@ -680,6 +681,14 @@ class LaboratoryLogService
             'started_at' => $activeLog->started_at,
             'end_use_at' => $activeLog->end_use_at,
             'actual_end_at' => $activeLog->actual_end_at,
+            'personnel' => $activeLog->personnel ? [
+                'id' => $activeLog->personnel->id,
+                'employee_id' => $activeLog->personnel->employee_id,
+                'fname' => $activeLog->personnel->fname,
+                'mname' => $activeLog->personnel->mname,
+                'lname' => $activeLog->personnel->lname,
+                'suffix' => $activeLog->personnel->suffix,
+            ] : null,
         ];
     }
 

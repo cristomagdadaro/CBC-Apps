@@ -1,6 +1,49 @@
 <?php
 
+use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
+
+$configuredStatefulDomains = array_filter(array_map(
+    static fn (string $domain) => trim($domain),
+    explode(',', (string) env('SANCTUM_STATEFUL_DOMAINS', ''))
+));
+
+$defaultStatefulDomains = [
+    'localhost',
+    'localhost:3000',
+    '127.0.0.1',
+    '127.0.0.1:8000',
+    '::1',
+    'onecbc.philrice.gov.ph',
+    '192.168.36.10',
+];
+
+$localAppUrl = (string) env('APP_URL_LOCAL', '');
+$currentAppUrlWithPort = Sanctum::currentApplicationUrlWithPort();
+
+$derivedStatefulDomains = collect([
+    env('APP_URL'),
+    $localAppUrl,
+    $currentAppUrlWithPort,
+])
+    ->filter(fn ($url) => is_string($url) && trim($url) !== '')
+    ->flatMap(function (string $url) {
+        $host = parse_url($url, PHP_URL_HOST);
+        $port = parse_url($url, PHP_URL_PORT);
+
+        if (! is_string($host) || trim($host) === '') {
+            return [];
+        }
+
+        $host = Str::lower(trim($host));
+
+        return array_filter([
+            $host,
+            $port ? "{$host}:{$port}" : null,
+        ]);
+    })
+    ->values()
+    ->all();
 
 return [
 
@@ -15,11 +58,11 @@ return [
     |
     */
 
-    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
-        '%s%s',
-        'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1,onecbc.philrice.gov.ph,192.168.36.10',
-        Sanctum::currentApplicationUrlWithPort()
-    ))),
+    'stateful' => array_values(array_unique(array_filter([
+        ...$defaultStatefulDomains,
+        ...$configuredStatefulDomains,
+        ...$derivedStatefulDomains,
+    ]))),
 
     /*
     |--------------------------------------------------------------------------
