@@ -217,6 +217,13 @@ export default {
   created() {
     if (typeof window === "undefined") return;
 
+    this.services = this.services.map((service) => ({
+      ...service,
+      isOpen: Array.isArray(service.children)
+        ? route().current(service.href || "") || !!service.children.find((child) => route().current(child.href))
+        : false,
+    }));
+
     if (this.$page.props.layout_navigation_mode) {
       this.navigationMode = this.$page.props.layout_navigation_mode;
     }
@@ -292,6 +299,14 @@ export default {
         .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
         .join(" ");
     },
+    canAccessDirectService(service) {
+      if (!service) return false;
+      return (
+        this.hasPermission(service.permission) &&
+        this.hasAnyRole(service.roles || []) &&
+        this.hasVisibleModule(service.moduleKey)
+      );
+    },
     hasPermission(permission) {
       if (!permission) return true;
       if (this.$isAdminUser) return true;
@@ -315,15 +330,26 @@ export default {
     },
     canAccessService(service) {
       if (!service) return false;
-      return (
-        this.hasPermission(service.permission) &&
-        this.hasAnyRole(service.roles || []) &&
-        this.hasVisibleModule(service.moduleKey)
-      );
+      if (Array.isArray(service.children) && service.children.length) {
+        if (
+          !this.hasAnyRole(service.roles || []) ||
+          !this.hasVisibleModule(service.moduleKey)
+        ) {
+          return false;
+        }
+
+        if (service.href && this.canAccessDirectService(service)) {
+          return true;
+        }
+
+        return this.visibleChildren(service).length > 0;
+      }
+
+      return this.canAccessDirectService(service);
     },
     visibleChildren(service) {
       if (!Array.isArray(service?.children)) return [];
-      return service.children.filter((child) => this.canAccessService(child));
+      return service.children.filter((child) => this.canAccessDirectService(child));
     },
     isServiceActive(service) {
       if (!service) return false;

@@ -6,6 +6,7 @@ use App\Http\Requests\CreatePersonnelRequest;
 use App\Http\Requests\DeletePersonnelRequest;
 use App\Http\Requests\GetPersonnelRequest;
 use App\Http\Requests\InitializePersonnelProfileRequest;
+use App\Http\Requests\UpdateGuestPersonnelEmailRequest;
 use App\Http\Requests\UpdatePersonnelRequest;
 use App\Models\Personnel;
 use App\Repositories\PersonnelRepo;
@@ -63,7 +64,7 @@ class PersonnelController extends BaseController
         }
 
         $personnels = Personnel::query()
-            ->select(['id', 'fname', 'mname', 'lname', 'suffix', 'position', 'updated_at'])
+            ->select(['id', 'fname', 'mname', 'lname', 'suffix', 'position', 'email', 'updated_at'])
             ->where('employee_id', $search)
             ->orderBy('lname')
             ->orderBy('fname')
@@ -84,6 +85,7 @@ class PersonnelController extends BaseController
                         $personnel->suffix,
                     ])->filter()->implode(' '),
                     'profile_requires_update' => $personnel->updated_at === null,
+                    'has_email' => filled($personnel->email),
                 ];
             })
             ->values();
@@ -124,6 +126,28 @@ class PersonnelController extends BaseController
                     $personnel->suffix,
                 ])->filter()->implode(' '),
                 'profile_requires_update' => false,
+                'has_email' => filled($personnel->email),
+            ],
+        ]);
+    }
+
+    public function updateGuestEmail(UpdateGuestPersonnelEmailRequest $request): JsonResponse
+    {
+        $personnel = Personnel::query()
+            ->where('employee_id', $request->validated('employee_id'))
+            ->firstOrFail();
+
+        $personnel->forceFill([
+            'email' => $request->validated('email'),
+        ])->save();
+
+        return response()->json([
+            'message' => 'Email updated successfully.',
+            'data' => [
+                'id' => $personnel->id,
+                'employee_id' => $personnel->employee_id,
+                'email' => $personnel->email,
+                'has_email' => filled($personnel->email),
             ],
         ]);
     }

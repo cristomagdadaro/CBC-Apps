@@ -45,11 +45,13 @@ export default {
             showSuccessModal: false,
             personnelPreview: null,
             profileRequiresUpdate: false,
+            emailRequired: false,
             checkInErrors: {},
             checkOutErrors: {},
             updateEndUseErrors: {},
             locationSurveyErrors: {},
             personnelProfileErrors: {},
+            emailCaptureErrors: {},
             checkInForm: useForm({
                 employee_id: "",
                 end_use_at: "",
@@ -64,6 +66,10 @@ export default {
                 position: "",
                 phone: "",
                 address: "",
+                email: "",
+            }),
+            emailCaptureForm: useForm({
+                employee_id: "",
                 email: "",
             }),
             checkOutForm: useForm({
@@ -86,6 +92,7 @@ export default {
             unsubscribeRouterEvents: null,
             showEstimatedEndUseModal: false,
             showLocationSurveyModal: false,
+            showEmailCaptureModal: false,
         };
     },
     computed: {
@@ -246,6 +253,7 @@ export default {
         handlePersonnelFound(data) {
             this.personnelPreview = data;
             this.profileRequiresUpdate = !!data.profile_requires_update;
+            this.emailRequired = !data.profile_requires_update && !data.has_email;
             this.checkInErrors = { ...this.checkInErrors, employee_id: null };
             this.personnelProfileErrors = {};
             this.personnelProfileForm.employee_id = data.employee_id || this.checkInForm.employee_id;
@@ -257,6 +265,12 @@ export default {
             this.personnelProfileForm.phone = data.phone || "";
             this.personnelProfileForm.address = data.address || "";
             this.personnelProfileForm.email = data.email || "";
+            this.emailCaptureForm.employee_id = data.employee_id || this.checkInForm.employee_id;
+            this.emailCaptureForm.email = data.email || "";
+            if (this.emailRequired) {
+                this.emailCaptureErrors = {};
+                this.showEmailCaptureModal = true;
+            }
             this.saveLaboratoryPersonnel({
                 employee_id: this.checkInForm.employee_id,
                 fullName: data.fullName,
@@ -296,8 +310,12 @@ export default {
             this.checkInErrors = {};
             this.personnelPreview = null;
             this.profileRequiresUpdate = false;
+            this.emailRequired = false;
             this.personnelProfileErrors = {};
             this.personnelProfileForm.reset();
+            this.emailCaptureErrors = {};
+            this.emailCaptureForm.reset();
+            this.showEmailCaptureModal = false;
         },
         resetCheckOut() {
             this.checkOutForm.reset();
@@ -359,6 +377,13 @@ export default {
                 };
                 return;
             }
+            if (this.emailRequired) {
+                this.checkInErrors = {
+                    base: "Please provide your email before checking in equipment.",
+                };
+                this.showEmailCaptureModal = true;
+                return;
+            }
             try {
                 await this.fetchPostApi(
                     `${this.apiRoutePrefix}.check-in`,
@@ -384,6 +409,14 @@ export default {
                     this.checkInErrors = {
                         base: error?.response?.data?.message || "Check-in failed",
                     };
+                    if (
+                        String(error?.response?.data?.message || "")
+                            .toLowerCase()
+                            .includes("provide your email")
+                    ) {
+                        this.showEmailCaptureModal = true;
+                        this.emailRequired = true;
+                    }
                 }
             }
         },
@@ -406,6 +439,7 @@ export default {
                     employee_id: this.personnelProfileForm.employee_id,
                     profile_requires_update: false,
                 };
+                this.emailRequired = !record?.has_email;
                 this.saveLaboratoryPersonnel({
                     employee_id: this.personnelProfileForm.employee_id,
                     fullName: this.personnelPreview.fullName,
@@ -425,6 +459,41 @@ export default {
                 } else {
                     this.personnelProfileErrors = {
                         base: error?.response?.data?.message || "Unable to update personnel information.",
+                    };
+                }
+            }
+        },
+        async submitEmailCapture() {
+            this.emailCaptureErrors = {};
+            this.message = null;
+
+            try {
+                const response = await this.fetchPutApi(
+                    "api.inventory.personnels.email.guest",
+                    null,
+                    this.emailCaptureForm.data(),
+                );
+                const payload = response?.data ?? response ?? {};
+                const record = payload?.data ?? {};
+
+                this.emailRequired = !record?.has_email;
+                this.showEmailCaptureModal = false;
+                this.personnelPreview = {
+                    ...this.personnelPreview,
+                    email: record?.email || this.emailCaptureForm.email,
+                    has_email: record?.has_email !== false,
+                };
+                this.messageType = "success";
+                this.message = payload?.message || "Email updated successfully.";
+            } catch (error) {
+                this.messageType = "error";
+                if (error?.response?.status === 422) {
+                    this.emailCaptureErrors = error.response.data.errors || {
+                        base: error.response.data.message,
+                    };
+                } else {
+                    this.emailCaptureErrors = {
+                        base: error?.response?.data?.message || "Unable to update email.",
                     };
                 }
             }
@@ -1106,6 +1175,44 @@ export default {
                             </div>
                             </Link>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+
+        <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 scale-95"
+            enter-to-class="opacity-100 scale-100" leave-active-class="transition duration-150 ease-in"
+            leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
+            <div v-if="showEmailCaptureModal"
+                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                <div class="w-full max-w-md p-5 bg-white shadow-2xl rounded-2xl">
+                    <div class="flex items-start justify-between gap-3 mb-5">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Email Required</h3>
+                            <p class="mt-1 text-sm text-gray-500">
+                                We need your email so the system can send overdue equipment reminders.
+                            </p>
+                        </div>
+                        <button @click="showEmailCaptureModal = false"
+                            class="p-2 text-gray-400 transition-colors rounded-lg hover:bg-gray-100">
+                            <LuX class="w-5 h-5" />
+                        </button>
+                    </div>
+
+                    <div class="space-y-4">
+                        <TextInput v-model="emailCaptureForm.email" label="Email Address" type="email" required
+                            :error="getErrorMessage(emailCaptureErrors.email)"
+                            @keydown.enter.prevent="submitEmailCapture" />
+
+                        <div v-if="getErrorMessage(emailCaptureErrors.base)" class="p-3 text-sm text-red-600 rounded-lg bg-red-50">
+                            {{ getErrorMessage(emailCaptureErrors.base) }}
+                        </div>
+
+                        <button type="button" @click="submitEmailCapture"
+                            class="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-emerald-700">
+                            <LuSave class="w-4 h-4" />
+                            Save Email
+                        </button>
                     </div>
                 </div>
             </div>

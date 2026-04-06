@@ -3,6 +3,7 @@
 namespace App\Services\Laboratory;
 
 use App\Events\EquipmentLogChanged;
+use App\Mail\LaboratoryEquipmentLogOverdueMail;
 use App\Models\Item;
 use App\Models\LaboratoryEquipmentLocationSurvey;
 use App\Models\LaboratoryEquipmentLog;
@@ -14,6 +15,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class LaboratoryLogService
@@ -137,6 +140,10 @@ class LaboratoryLogService
 
         if ($personnel->updated_at === null) {
             abort(409, 'Please update your personnel information before checking in equipment.');
+        }
+
+        if (! filled($personnel->email)) {
+            abort(409, 'Please provide your email before checking in equipment.');
         }
 
         return DB::transaction(function () use ($equipmentId, $payload, $personnel, $equipmentType) {
@@ -301,6 +308,8 @@ class LaboratoryLogService
                     equipmentId: (string) $log->equipment_id,
                     log: $log->fresh(['personnel', 'equipment']),
                 ));
+
+                $this->sendOverdueEmailNotification($log, $equipmentType);
             }
 
             return $logs->count();
@@ -672,5 +681,28 @@ class LaboratoryLogService
             'end_use_at' => $activeLog->end_use_at,
             'actual_end_at' => $activeLog->actual_end_at,
         ];
+    }
+
+    private function sendOverdueEmailNotification(LaboratoryEquipmentLog $log, string $equipmentType): void
+    {
+        $recipient = trim((string) ($log->personnel?->email ?? ''));
+
+        if ($recipient === '') {
+            return;
+        }
+
+        try {
+            Mail::to($recipient)->send(new LaboratoryEquipmentLogOverdueMail(
+                $log->fresh(['personnel', 'equipment']),
+                $equipmentType,
+            ));
+        } catch (\Throwable $exception) {
+            Log::warning('Failed to send overdue equipment log email.', [
+                'log_id' => $log->id,
+                'equipment_id' => $log->equipment_id,
+                'recipient' => $recipient,
+                'message' => $exception->getMessage(),
+            ]);
+        }
     }
 }

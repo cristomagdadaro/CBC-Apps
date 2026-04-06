@@ -15,12 +15,26 @@ export default {
             default: '',
         },
     },
-    setup(props) {
-        return {
-            routeLink: props.routeLink,
-            title: props.title,
-            subtitle: props.subtitle,
-        };
+    computed: {
+        resolvedRouteLink() {
+            if (!this.routeLink) {
+                return null;
+            }
+
+            if (
+                this.routeLink.startsWith('/') ||
+                this.routeLink.startsWith('http://') ||
+                this.routeLink.startsWith('https://')
+            ) {
+                return this.routeLink;
+            }
+
+            try {
+                return route(this.routeLink);
+            } catch (error) {
+                return this.routeLink;
+            }
+        },
     },
 }
 </script>
@@ -28,7 +42,7 @@ export default {
 <template>
     <div class="flex justify-between items-center py-2 select-none text-gray-100 drop-shadow-md">
         <div class="leading-tight flex flex-col">
-          <Link v-if="routeLink" :href="routeLink" class="font-medium uppercase hover:underline">
+          <Link v-if="resolvedRouteLink" :href="resolvedRouteLink" class="font-medium uppercase hover:underline">
               {{ title }}
           </Link>
           <label v-else class="font-medium uppercase">

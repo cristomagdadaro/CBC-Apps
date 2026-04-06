@@ -9,10 +9,12 @@ use App\Models\Personnel;
 use App\Models\Supplier;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Mail\LaboratoryEquipmentLogOverdueMail;
 use App\Services\Laboratory\LaboratoryLogService;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class LaboratoryLogServiceTest extends TestCase
@@ -73,6 +75,30 @@ class LaboratoryLogServiceTest extends TestCase
         $this->assertSame('active', $active->fresh()->status);
     }
 
+    public function test_mark_overdue_sends_email_when_personnel_has_email(): void
+    {
+        Mail::fake();
+
+        ['item' => $item, 'personnel' => $personnel, 'user' => $user] = $this->createLaboratoryInventoryContext();
+        $personnel->forceFill(['email' => 'lab.user@example.test'])->save();
+
+        LaboratoryEquipmentLog::query()->create([
+            'equipment_id' => $item->id,
+            'personnel_id' => $personnel->id,
+            'status' => 'active',
+            'started_at' => now()->subDay(),
+            'end_use_at' => now()->subHour(),
+            'active_lock' => true,
+            'checked_in_by' => $user->id,
+        ]);
+
+        app(LaboratoryLogService::class)->markOverdue();
+
+        Mail::assertSent(LaboratoryEquipmentLogOverdueMail::class, function (LaboratoryEquipmentLogOverdueMail $mail) use ($personnel) {
+            return $mail->hasTo($personnel->email);
+        });
+    }
+
     public function test_check_in_requires_personnel_profile_initialization(): void
     {
         $context = $this->createLaboratoryInventoryContext();
@@ -110,6 +136,49 @@ class LaboratoryLogServiceTest extends TestCase
             $this->assertSame(409, $exception->getStatusCode());
             $this->assertSame(
                 'Please update your personnel information before checking in equipment.',
+                $exception->getMessage()
+            );
+        }
+    }
+
+    public function test_check_in_requires_personnel_email(): void
+    {
+        $context = $this->createLaboratoryInventoryContext();
+        $item = $context['item'];
+        $user = $context['user'];
+
+        Transaction::query()->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-LAB-0003',
+            'transac_type' => InventoryEnum::INCOMING->value,
+            'quantity' => 1,
+            'unit_price' => 100,
+            'unit' => 'pc',
+            'total_cost' => 100,
+            'personnel_id' => Personnel::query()->first()->id,
+            'user_id' => $user->id,
+            'expiration' => now()->addMonth(),
+            'remarks' => 'Laboratory stock',
+        ]);
+
+        $personnelWithoutEmail = Personnel::factory()->create([
+            'employee_id' => 'EMP-NO-EMAIL',
+            'updated_at' => now(),
+            'email' => null,
+        ]);
+
+        try {
+            app(LaboratoryLogService::class)->checkIn($item->id, [
+                'employee_id' => $personnelWithoutEmail->employee_id,
+                'end_use_at' => now()->addHour()->toIso8601String(),
+                'purpose' => 'Calibration',
+            ]);
+
+            $this->fail('Expected an email-required exception.');
+        } catch (HttpException $exception) {
+            $this->assertSame(409, $exception->getStatusCode());
+            $this->assertSame(
+                'Please provide your email before checking in equipment.',
                 $exception->getMessage()
             );
         }

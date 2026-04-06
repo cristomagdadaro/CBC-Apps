@@ -12,7 +12,7 @@ Route::prefix('options')->group(function () {
 
 Route::middleware(['api', 'auth:sanctum'])->group(function () {
     Route::prefix('options')->group(function () {
-        Route::middleware(['auth:sanctum', 'can:event.forms.manage', 'deployment.access:' . DeploymentAccessService::MODULE_OPTIONS])->group(function () {
+        Route::middleware(['auth:sanctum', 'options.manage', 'deployment.access:' . DeploymentAccessService::MODULE_OPTIONS])->group(function () {
             Route::put('/workflow-toggles', [OptionController::class, 'updateWorkflowToggles'])
                 ->name('api.options.workflow-toggles.update');
 

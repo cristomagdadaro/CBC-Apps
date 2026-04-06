@@ -31,6 +31,7 @@ class GuestPersonnelLookupTest extends TestCase
             ->assertJsonPath('data.0.fullName', 'Jane Q Public Jr.')
             ->assertJsonPath('data.0.position', 'Science Research Specialist')
             ->assertJsonPath('data.0.profile_requires_update', true)
+            ->assertJsonPath('data.0.has_email', true)
             ->assertJsonMissingPath('data.0.employee_id')
             ->assertJsonMissingPath('data.0.phone')
             ->assertJsonMissingPath('data.0.email')
@@ -70,16 +71,41 @@ class GuestPersonnelLookupTest extends TestCase
             'position' => 'Senior Technician',
             'phone' => '09171234567',
             'address' => 'Science City of Munoz',
-            'email' => null,
+            'email' => 'fresh.staff@example.test',
         ])
             ->assertOk()
             ->assertJsonPath('data.profile_requires_update', false)
-            ->assertJsonPath('data.fullName', 'Fresh M Staff');
+            ->assertJsonPath('data.fullName', 'Fresh M Staff')
+            ->assertJsonPath('data.has_email', true);
 
         $this->assertDatabaseHas('personnels', [
             'employee_id' => 'EMP-2002',
             'position' => 'Senior Technician',
             'phone' => '09171234567',
+        ]);
+    }
+
+    public function test_guest_can_update_missing_personnel_email_by_employee_id(): void
+    {
+        Personnel::query()->create([
+            'fname' => 'Email',
+            'lname' => 'Missing',
+            'position' => 'Technician',
+            'employee_id' => 'EMP-EMAIL-1',
+            'email' => null,
+        ]);
+
+        $this->putJson(route('api.inventory.personnels.email.guest'), [
+            'employee_id' => 'EMP-EMAIL-1',
+            'email' => 'email.missing@example.test',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.has_email', true)
+            ->assertJsonPath('data.email', 'email.missing@example.test');
+
+        $this->assertDatabaseHas('personnels', [
+            'employee_id' => 'EMP-EMAIL-1',
+            'email' => 'email.missing@example.test',
         ]);
     }
 }
