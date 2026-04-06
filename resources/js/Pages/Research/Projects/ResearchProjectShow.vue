@@ -2,10 +2,11 @@
 import ResearchStudy from '@/Modules/domain/ResearchStudy'
 import ResearchExperiment from '@/Modules/domain/ResearchExperiment'
 import ResearchProjectForm from '@/Pages/Research/components/ResearchProjectForm.vue'
+import ActionHeaderLayout from '@/Layouts/ActionHeaderLayout.vue'
 
 export default {
     name: 'ResearchProjectShow',
-    components: { ResearchProjectForm },
+    components: { ResearchProjectForm, ActionHeaderLayout },
     props: {
         project: { type: Object, required: true },
         catalog: { type: Object, default: () => ({}) },
@@ -28,6 +29,23 @@ export default {
         experimentTableParams() {
             return { project_id: this.project.id, per_page: 10, sort: 'updated_at', order: 'desc' }
         },
+        projectRouteIdentifier() {
+            return this.project.route_identifier || this.project.funding_code || this.project.code || this.project.id
+        },
+        headerTitle() {
+            return this.project.funding_code || this.project.code || this.project.id
+        },
+        headerSubtitle() {
+            const secondary = this.project.funding_code && this.project.code ? this.project.code : this.project.title
+            return secondary || this.project.title || 'Research project'
+        },
+        headerBreadcrumbs() {
+            return [
+                { label: 'Research', route: 'research.dashboard' },
+                { label: 'Projects', route: 'research.projects.index' },
+                { label: this.headerTitle, current: true },
+            ]
+        },
     },
     methods: {
         hasPermission(permission) {
@@ -48,30 +66,22 @@ export default {
 <template>
     <AppLayout :title="project.title">
         <template #header>
-            <div class="border-b border-slate-200 bg-white px-4 py-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div class="min-w-0">
-                        <div class="flex items-center gap-2 text-sm text-slate-500 mb-1">
-                            <Link :href="route('research.projects.index')" class="hover:text-slate-700">Projects</Link>
-                            <LuChevronRight class="h-4 w-4" />
-                            <span class="truncate">{{ project.code }}</span>
-                        </div>
-                        <h1 class="text-xl font-semibold text-slate-900 sm:text-2xl truncate">{{ project.title }}</h1>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <Link :href="route('research.samples.inventory')" 
-                            class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
-                            <LuBarcode class="h-4 w-4" />
-                            Inventory
-                        </Link>
-                        <Link v-if="canManageStudies" :href="route('research.studies.create', project.id)" 
-                            class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
-                            <LuPlus class="h-4 w-4" />
-                            Add Study
-                        </Link>
-                    </div>
-                </div>
-            </div>
+            <ActionHeaderLayout
+                :subtitle="project.title"
+                :route-link="route('research.projects.index')"
+                :breadcrumbs="headerBreadcrumbs"
+            >
+                <Link :href="route('research.samples.inventory')" 
+                    class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+                    <LuBarcode class="h-4 w-4" />
+                    Inventory
+                </Link>
+                <Link v-if="canManageStudies" :href="route('research.studies.create', projectRouteIdentifier)" 
+                    class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
+                    <LuPlus class="h-4 w-4" />
+                    Add Study
+                </Link>
+            </ActionHeaderLayout>
         </template>
 
         <div class="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
@@ -143,7 +153,7 @@ export default {
                         <h2 class="text-lg font-semibold text-slate-900">Studies</h2>
                         <p class="text-sm text-slate-500">{{ project.studies_count || 0 }} active studies</p>
                     </div>
-                    <Link v-if="canManageStudies" :href="route('research.studies.create', project.id)" 
+                    <Link v-if="canManageStudies" :href="route('research.studies.create', projectRouteIdentifier)" 
                         class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700">
                         <LuPlus class="h-4 w-4" />
                         New Study

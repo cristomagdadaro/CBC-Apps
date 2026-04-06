@@ -5,32 +5,34 @@ export default {
         projects: { type: Array, default: () => [] },
         catalog: { type: Object, default: () => ({}) },
     },
+    methods: {
+        projectRouteIdentifier(project) {
+            return project?.route_identifier || project?.funding_code || project?.code || project?.id
+        },
+    },
 }
 </script>
 
 <template>
     <AppLayout title="Research Projects">
         <template #header>
-            <div class="border-b border-slate-200 bg-white px-4 py-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h1 class="text-xl font-semibold text-slate-900 sm:text-2xl">Research Projects</h1>
-                        <p class="mt-1 text-sm text-slate-500">Manage portfolios, studies, and experimental workflows</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <Link :href="`${route('manuals.index')}?section=researchMonitoring`" 
-                            class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
-                            <LuBookOpen class="h-4 w-4" />
-                            Guides
-                        </Link>
-                        <Link :href="route('research.projects.create')" 
-                            class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
-                            <LuPlus class="h-4 w-4" />
-                            New Project
-                        </Link>
-                    </div>
-                </div>
-            </div>
+            <ActionHeaderLayout
+                title="Research Projects"
+                subtitle="Manage projects, studies, and experimental workflows"
+                :route-link="route('research.projects.index')"
+                :breadcrumbs="headerBreadcrumbs"
+            >
+                <Link :href="`${route('manuals.index')}?section=researchMonitoring`" 
+                    class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+                    <LuBookOpen class="h-4 w-4" />
+                    Guides
+                </Link>
+                <Link :href="route('research.projects.create')" 
+                    class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
+                    <LuPlus class="h-4 w-4" />
+                    New Project
+                </Link>
+            </ActionHeaderLayout>
         </template>
 
         <div class="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
@@ -51,7 +53,7 @@ export default {
             <!-- Project Grid -->
             <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <Link v-for="project in projects" :key="project.id"
-                    :href="route('research.projects.show', project.id)"
+                    :href="route('research.projects.show', projectRouteIdentifier(project))"
                     class="group relative flex flex-col rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition-all hover:shadow-md hover:ring-indigo-200">
                     
                     <div class="flex items-start justify-between">

@@ -21,6 +21,11 @@ export default {
             return (this.catalog.commodities || []).slice(0, 6)
         },
     },
+    methods: {
+        projectRouteIdentifier(project) {
+            return project?.route_identifier || project?.funding_code || project?.code || project?.id
+        },
+    },
 }
 </script>
 
@@ -157,7 +162,7 @@ export default {
                         </div>
 
                         <Link v-for="project in recentProjects" :key="project.id"
-                            :href="route('research.projects.show', project.id)"
+                            :href="route('research.projects.show', projectRouteIdentifier(project))"
                             class="group flex items-start justify-between px-6 py-4 hover:bg-slate-50 transition-colors">
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-center gap-2">

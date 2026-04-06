@@ -18,7 +18,13 @@ export default {
     computed: {
         isEdit() { return !!this.data },
         researchUserOptions() {
-            return (this.researchUsers || []).map(u => ({ value: u.id, label: `${u.name} — ${u.position}` }))
+            return (this.researchUsers || []).map((user) => ({
+                value: user.id,
+                label: `${user.name} - ${user.position}`,
+            }))
+        },
+        projectRouteIdentifier() {
+            return this.data?.route_identifier || this.data?.funding_code || this.data?.code || this.data?.id || null
         },
     },
     beforeMount() {
@@ -34,7 +40,9 @@ export default {
         async submitProxy() {
             const response = this.isEdit ? await this.submitUpdate() : await this.submitCreate()
             if (response instanceof DtoResponse) {
-                router.visit(route('research.projects.show', response?.data?.data?.id ?? this.data?.id))
+                const project = response?.data?.data ?? this.data ?? {}
+                const identifier = project?.route_identifier || project?.funding_code || project?.code || project?.id || this.projectRouteIdentifier
+                router.visit(route('research.projects.show', identifier))
             }
         },
         async deleteProxy() {
@@ -70,29 +78,29 @@ export default {
                     <label class="block text-sm font-medium text-slate-700">Primary Commodity</label>
                     <input v-model="form.commodity" list="commodities" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Rice" />
                     <datalist id="commodities">
-                        <option v-for="c in catalog.commodities || []" :key="c" :value="c" />
+                        <option v-for="commodity in catalog.commodities || []" :key="commodity" :value="commodity" />
                     </datalist>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-slate-700">Overall Budget</label>
+                    <label class="block text-sm font-medium text-slate-700">Project Overall Budget</label>
                     <div class="relative mt-1 rounded-md shadow-sm">
                         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                             <span class="text-slate-500 sm:text-sm">$</span>
                         </div>
-                        <input v-model="form.overall_budget" type="number" min="0" step="0.01" 
+                        <input v-model="form.overall_budget" type="number" min="0" step="0.01"
                             class="block w-full rounded-lg border-slate-300 pl-7 pr-12 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="0.00" />
                     </div>
                     <p v-if="form.errors.overall_budget" class="mt-1 text-xs text-red-600">{{ form.errors.overall_budget }}</p>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-slate-700">Start Date</label>
+                    <label class="block text-sm font-medium text-slate-700">Project Start Date</label>
                     <input v-model="form.duration_start" type="date" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-slate-700">End Date</label>
+                    <label class="block text-sm font-medium text-slate-700">Project End Date</label>
                     <input v-model="form.duration_end" type="date" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                 </div>
 
@@ -103,13 +111,23 @@ export default {
 
                 <div>
                     <label class="block text-sm font-medium text-slate-700">Grant Code</label>
-                    <input v-model="form.funding_code" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="e.g., 2024-001" />
+                    <input v-model="form.funding_code" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="e.g., RTF-000-000" />
                 </div>
 
-                                <div class="md:col-span-2">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Project Leader</label>
+                    <select v-model="form.project_leader_id"
+                        class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        <option value="">Select project leader...</option>
+                        <option v-for="opt in researchUserOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                    </select>
+                    <p v-if="form.errors.project_leader_id" class="mt-1 text-xs text-red-600">{{ form.errors.project_leader_id }}</p>
+                </div>
+
+                <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-slate-700">Research Objective</label>
-                    <textarea v-model="form.objective" rows="4" 
-                        class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
+                    <textarea v-model="form.objective" rows="4"
+                        class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                         placeholder="Describe the primary research goals, breeding targets, or experimental hypotheses..." />
                     <p v-if="form.errors.objective" class="mt-1 text-xs text-red-600">{{ form.errors.objective }}</p>
                 </div>

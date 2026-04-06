@@ -3,10 +3,12 @@ import axios from "axios";
 import { router } from "@inertiajs/vue3";
 import KeyValueEditor from "@/Pages/Research/components/KeyValueEditor.vue";
 import ResearchExperimentForm from "@/Pages/Research/components/ResearchExperimentForm.vue";
+import ActionHeaderLayout from "@/Layouts/ActionHeaderLayout.vue";
 
 export default {
   name: "ResearchExperimentShow",
   components: {
+    ActionHeaderLayout,
     KeyValueEditor,
     ResearchExperimentForm,
   },
@@ -67,6 +69,18 @@ export default {
         this.permissions.includes("*") ||
         this.permissions.includes("research.monitoring.manage")
       );
+    },
+    projectRouteIdentifier() {
+      return this.experiment.study?.project?.route_identifier || this.experiment.study?.project?.funding_code || this.experiment.study?.project?.code || this.experiment.study?.project?.id || null;
+    },
+    headerBreadcrumbs() {
+      return [
+        { label: "Research", route: "research.dashboard" },
+        { label: "Projects", route: "research.projects.index" },
+        { label: this.experiment.study?.project?.funding_code || this.experiment.study?.project?.code || "Project", route: "research.projects.show", params: this.projectRouteIdentifier },
+        { label: this.experiment.study?.code || "Study", route: "research.studies.show", params: this.experiment.study?.id },
+        { label: this.experiment.code || "Experiment", current: true },
+      ];
     },
   },
   methods: {
@@ -286,36 +300,22 @@ export default {
 <template>
     <AppLayout :title="experiment.title">
         <template #header>
-            <div class="border-b border-slate-200 bg-white px-4 py-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div class="min-w-0">
-                        <div class="flex items-center gap-2 text-sm text-slate-500 mb-1">
-                            <Link :href="route('research.projects.show', experiment.study?.project?.id)" class="hover:text-slate-700">
-                                {{ experiment.study?.project?.code || "Project" }}
-                            </Link>
-                            <LuChevronRight class="h-4 w-4" />
-                            <Link :href="route('research.studies.show', experiment.study?.id)" class="hover:text-slate-700">
-                                {{ experiment.study?.code || "Study" }}
-                            </Link>
-                            <LuChevronRight class="h-4 w-4" />
-                            <span class="text-slate-900">{{ experiment.code }}</span>
-                        </div>
-                        <h1 class="text-xl font-semibold text-slate-900 sm:text-2xl">{{ experiment.title }}</h1>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <a v-if="canExport" :href="route('api.research.experiments.export.samples', experiment.id)"
-                            class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
-                            <LuDownload class="h-4 w-4" />
-                            Export CSV
-                        </a>
-                        <button v-if="canManageExperiment" @click="editingExperiment = !editingExperiment"
-                            class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
-                            <LuPencil class="h-4 w-4" />
-                            {{ editingExperiment ? 'Cancel' : 'Edit' }}
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <ActionHeaderLayout
+                :subtitle="experiment.title"
+                :route-link="route('research.studies.show', experiment.study?.id)"
+                :breadcrumbs="headerBreadcrumbs"
+            >
+                <a v-if="canExport" :href="route('api.research.experiments.export.samples', experiment.id)"
+                    class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+                    <LuDownload class="h-4 w-4" />
+                    Export CSV
+                </a>
+                <button v-if="canManageExperiment" @click="editingExperiment = !editingExperiment"
+                    class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
+                    <LuPencil class="h-4 w-4" />
+                    {{ editingExperiment ? 'Cancel' : 'Edit' }}
+                </button>
+            </ActionHeaderLayout>
         </template>
 
         <div class="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8 space-y-6">

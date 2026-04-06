@@ -18,10 +18,22 @@ export default {
     computed: {
         isEdit() { return !!this.data },
         researchUserOptions() {
-            return (this.researchUsers || []).map(u => ({ value: u.id, label: `${u.name} — ${u.position}` }))
+            return (this.researchUsers || []).map((user) => ({
+                value: user.id,
+                label: `${user.name} - ${user.position}`,
+            }))
         },
         parentProjectId() {
             return this.project?.id ?? this.data?.project_id ?? this.data?.project?.id ?? null
+        },
+        parentProjectRouteIdentifier() {
+            return this.project?.route_identifier
+                || this.project?.funding_code
+                || this.project?.code
+                || this.data?.project?.route_identifier
+                || this.data?.project?.funding_code
+                || this.data?.project?.code
+                || this.parentProjectId
         },
     },
     beforeMount() {
@@ -47,7 +59,7 @@ export default {
             this.toDelete = { id: this.data?.id }
             const response = await this.submitDelete()
             if (response instanceof DtoResponse) {
-                router.visit(route('research.projects.show', this.parentProjectId))
+                router.visit(route('research.projects.show', this.parentProjectRouteIdentifier))
             }
         },
         fieldError(field) {
@@ -72,8 +84,8 @@ export default {
             <div class="grid gap-6 md:grid-cols-2">
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-slate-700">Study Title <span class="text-red-500">*</span></label>
-                    <input v-model="form.title" 
-                        class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
+                    <input v-model="form.title"
+                        class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                         placeholder="e.g., BC1F1 Population Development for Drought Tolerance" />
                     <p v-if="fieldError('title')" class="mt-1 text-xs text-red-600">{{ fieldError('title') }}</p>
                 </div>
@@ -85,7 +97,7 @@ export default {
                             <span class="text-slate-500 sm:text-sm">$</span>
                         </div>
                         <input v-model="form.budget" type="number" min="0" step="0.01"
-                            class="block w-full rounded-lg border-slate-300 pl-7 pr-12 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
+                            class="block w-full rounded-lg border-slate-300 pl-7 pr-12 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                             placeholder="0.00" />
                     </div>
                     <p v-if="fieldError('budget')" class="mt-1 text-xs text-red-600">{{ fieldError('budget') }}</p>

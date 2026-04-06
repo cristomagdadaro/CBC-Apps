@@ -20,6 +20,11 @@ export default {
             default: () => [],
         },
     },
+    computed: {
+        projectRouteIdentifier() {
+            return this.project.route_identifier || this.project.funding_code || this.project.code || this.project.id
+        },
+    },
 }
 </script>
 
@@ -29,9 +34,9 @@ export default {
             <ActionHeaderLayout
                 title="Create Study"
                 :subtitle="`Add a study under ${project.title} before launching experiments.`"
-                :route-link="route('research.projects.show', project.id)"
+                :route-link="route('research.projects.show', projectRouteIdentifier)"
             >
-                <Link :href="route('research.projects.show', project.id)" class="rounded-lg border border-white/25 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
+                <Link :href="route('research.projects.show', projectRouteIdentifier)" class="rounded-lg border border-white/25 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
                     Back to Project
                 </Link>
             </ActionHeaderLayout>
