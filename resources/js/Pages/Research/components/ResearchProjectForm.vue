@@ -106,15 +106,32 @@ export default {
                     <input v-model="form.funding_code" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="e.g., 2024-001" />
                 </div>
 
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-slate-700">Project Leader</label>
-                    <select v-model="form.project_leader_id" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                        <option value="">Select researcher...</option>
-                        <option v-for="opt in researchUserOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
-                    </select>
-                    <p class="mt-1 text-xs text-slate-500">Limited to users with Researcher role</p>
-                </div>
-
-                <div class="md:col-span-2">
+                                <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-slate-700">Research Objective</label>
-                    <textarea v-model="form.objective" rows="4"
+                    <textarea v-model="form.objective" rows="4" 
+                        class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
+                        placeholder="Describe the primary research goals, breeding targets, or experimental hypotheses..." />
+                    <p v-if="form.errors.objective" class="mt-1 text-xs text-red-600">{{ form.errors.objective }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 border-t border-slate-100 px-6 py-4 bg-slate-50 rounded-b-xl">
+            <button v-if="showCancelButton" type="button" @click="$emit('cancel')"
+                class="inline-flex items-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                Cancel
+            </button>
+            <button v-if="isEdit && showDeleteButton" type="button" :disabled="processing" @click="deleteProxy"
+                class="inline-flex items-center rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-700 shadow-sm hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                <LuTrash2 class="mr-2 h-4 w-4" />
+                Delete
+            </button>
+            <button type="submit" :disabled="processing"
+                class="inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                <LuLoader2 v-if="processing" class="mr-2 h-4 w-4 animate-spin" />
+                <LuSave v-else class="mr-2 h-4 w-4" />
+                {{ processing ? 'Saving...' : (isEdit ? 'Save Changes' : 'Create Project') }}
+            </button>
+        </div>
+    </form>
+</template>

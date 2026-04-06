@@ -8,37 +8,17 @@ export default {
     name: 'ResearchStudyForm',
     mixins: [ApiMixin],
     props: {
-        data: {
-            type: Object,
-            default: null,
-        },
-        project: {
-            type: Object,
-            default: null,
-        },
-        researchUsers: {
-            type: Array,
-            default: () => [],
-        },
-        showCancelButton: {
-            type: Boolean,
-            default: false,
-        },
-        showDeleteButton: {
-            type: Boolean,
-            default: false,
-        },
+        data: { type: Object, default: null },
+        project: { type: Object, default: null },
+        researchUsers: { type: Array, default: () => [] },
+        showCancelButton: { type: Boolean, default: false },
+        showDeleteButton: { type: Boolean, default: false },
     },
     emits: ['cancel'],
     computed: {
-        isEdit() {
-            return !!this.data
-        },
+        isEdit() { return !!this.data },
         researchUserOptions() {
-            return (this.researchUsers || []).map((user) => ({
-                value: user.id,
-                label: `${user.name} (${user.position})`,
-            }))
+            return (this.researchUsers || []).map(u => ({ value: u.id, label: `${u.name} — ${u.position}` }))
         },
         parentProjectId() {
             return this.project?.id ?? this.data?.project_id ?? this.data?.project?.id ?? null
@@ -53,35 +33,19 @@ export default {
             const action = this.isEdit ? 'update' : 'create'
             const payload = this.isEdit
                 ? this.model.updateFields(this.data)
-                : {
-                    ...this.model.createFields(),
-                    project_id: this.parentProjectId,
-                }
-
+                : { ...this.model.createFields(), project_id: this.parentProjectId }
             this.form = this.createFormWithRemember(payload, action)
         },
         async submitProxy() {
-            const response = this.isEdit
-                ? await this.submitUpdate()
-                : await this.submitCreate()
-
+            const response = this.isEdit ? await this.submitUpdate() : await this.submitCreate()
             if (response instanceof DtoResponse) {
-                const studyId = response?.data?.data?.id ?? this.data?.id
-                router.visit(route('research.studies.show', studyId))
+                router.visit(route('research.studies.show', response?.data?.data?.id ?? this.data?.id))
             }
         },
         async deleteProxy() {
-            if (!this.isEdit) {
-                return
-            }
-
-            if (!window.confirm('Delete this study and all linked experiments?')) {
-                return
-            }
-
+            if (!this.isEdit || !window.confirm('Delete this study and all linked experiments? This cannot be undone.')) return
             this.toDelete = { id: this.data?.id }
             const response = await this.submitDelete()
-
             if (response instanceof DtoResponse) {
                 router.visit(route('research.projects.show', this.parentProjectId))
             }
@@ -94,79 +58,91 @@ export default {
 </script>
 
 <template>
-    <form v-if="form" class="space-y-6 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm" @submit.prevent="submitProxy">
-        <div class="flex flex-wrap items-start justify-between gap-4 border-b border-gray-100 pb-5">
-            <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">{{ isEdit ? 'Update Study' : 'New Study' }}</p>
-                <h2 class="mt-2 text-2xl font-semibold text-gray-900">{{ isEdit ? 'Study update form' : 'Create project study' }}</h2>
-                <p class="mt-2 text-sm leading-6 text-gray-600">Use a dedicated study profile to define its leadership, budget, and experiment scope before launching experiments.</p>
-            </div>
-            <div class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
-                {{ isEdit ? 'Editing active study' : 'Create mode' }}
+    <form v-if="form" @submit.prevent="submitProxy" class="rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+        <div class="border-b border-slate-100 px-6 py-4">
+            <h3 class="text-lg font-semibold text-slate-900">
+                {{ isEdit ? 'Edit Study' : 'Create New Study' }}
+            </h3>
+            <p class="mt-1 text-sm text-slate-500">
+                {{ isEdit ? 'Update study details and team assignments.' : `Add a study under ${project?.title || 'selected project'}.` }}
+            </p>
+        </div>
+
+        <div class="p-6 space-y-6">
+            <div class="grid gap-6 md:grid-cols-2">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-slate-700">Study Title <span class="text-red-500">*</span></label>
+                    <input v-model="form.title" 
+                        class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
+                        placeholder="e.g., BC1F1 Population Development for Drought Tolerance" />
+                    <p v-if="fieldError('title')" class="mt-1 text-xs text-red-600">{{ fieldError('title') }}</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Study Budget</label>
+                    <div class="relative mt-1 rounded-md shadow-sm">
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <span class="text-slate-500 sm:text-sm">$</span>
+                        </div>
+                        <input v-model="form.budget" type="number" min="0" step="0.01"
+                            class="block w-full rounded-lg border-slate-300 pl-7 pr-12 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
+                            placeholder="0.00" />
+                    </div>
+                    <p v-if="fieldError('budget')" class="mt-1 text-xs text-red-600">{{ fieldError('budget') }}</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Study Leader</label>
+                    <select v-model="form.study_leader_id"
+                        class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        <option value="">Select researcher...</option>
+                        <option v-for="opt in researchUserOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                    </select>
+                    <p v-if="fieldError('study_leader_id')" class="mt-1 text-xs text-red-600">{{ fieldError('study_leader_id') }}</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Supervisor</label>
+                    <select v-model="form.supervisor_id"
+                        class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        <option value="">Select supervisor...</option>
+                        <option v-for="opt in researchUserOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                    </select>
+                    <p v-if="fieldError('supervisor_id')" class="mt-1 text-xs text-red-600">{{ fieldError('supervisor_id') }}</p>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-slate-700">Study Objective</label>
+                    <textarea v-model="form.objective" rows="4"
+                        class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        placeholder="Define specific research objectives, target traits, and expected outcomes..." />
+                    <p v-if="fieldError('objective')" class="mt-1 text-xs text-red-600">{{ fieldError('objective') }}</p>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-slate-700">Study Staff</label>
+                    <MultiSelectDropdown v-model="form.staff_member_ids" :options="researchUserOptions"
+                        label="Select team members" placeholder="Choose researchers..." />
+                    <p v-if="fieldError('staff_member_ids')" class="mt-1 text-xs text-red-600">{{ fieldError('staff_member_ids') }}</p>
+                </div>
             </div>
         </div>
 
-        <div class="grid gap-4 md:grid-cols-2">
-            <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-medium text-gray-700">Study title</label>
-                <input v-model="form.title" class="w-full rounded-xl border-gray-300" placeholder="Study title" />
-                <p v-if="fieldError('title')" class="mt-1 text-xs text-red-600">{{ fieldError('title') }}</p>
-            </div>
-
-            <div>
-                <label class="mb-2 block text-sm font-medium text-gray-700">Study budget</label>
-                <input v-model="form.budget" type="number" min="0" step="0.01" class="w-full rounded-xl border-gray-300" placeholder="0.00" />
-                <p v-if="fieldError('budget')" class="mt-1 text-xs text-red-600">{{ fieldError('budget') }}</p>
-            </div>
-
-            <div>
-                <label class="mb-2 block text-sm font-medium text-gray-700">Study leader</label>
-                <select v-model="form.study_leader_id" class="w-full rounded-xl border-gray-300">
-                    <option value="">Select a research user</option>
-                    <option v-for="option in researchUserOptions" :key="option.value" :value="option.value">
-                        {{ option.label }}
-                    </option>
-                </select>
-                <p v-if="fieldError('study_leader_id')" class="mt-1 text-xs text-red-600">{{ fieldError('study_leader_id') }}</p>
-            </div>
-
-            <div>
-                <label class="mb-2 block text-sm font-medium text-gray-700">Supervisor</label>
-                <select v-model="form.supervisor_id" class="w-full rounded-xl border-gray-300">
-                    <option value="">Select a research user</option>
-                    <option v-for="option in researchUserOptions" :key="option.value" :value="option.value">
-                        {{ option.label }}
-                    </option>
-                </select>
-                <p v-if="fieldError('supervisor_id')" class="mt-1 text-xs text-red-600">{{ fieldError('supervisor_id') }}</p>
-            </div>
-
-            <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-medium text-gray-700">Study objective</label>
-                <textarea v-model="form.objective" rows="4" class="w-full rounded-xl border-gray-300" />
-                <p v-if="fieldError('objective')" class="mt-1 text-xs text-red-600">{{ fieldError('objective') }}</p>
-            </div>
-
-            <div class="md:col-span-2">
-                <MultiSelectDropdown
-                    v-model="form.staff_member_ids"
-                    :options="researchUserOptions"
-                    label="Study Staff"
-                    placeholder="Select study staff"
-                />
-                <p v-if="fieldError('staff_member_ids')" class="mt-1 text-xs text-red-600">{{ fieldError('staff_member_ids') }}</p>
-            </div>
-        </div>
-
-        <div class="flex flex-wrap justify-end gap-3">
-            <button v-if="showCancelButton" type="button" class="rounded-xl border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" @click="$emit('cancel')">
+        <div class="flex items-center justify-end gap-3 border-t border-slate-100 px-6 py-4 bg-slate-50 rounded-b-xl">
+            <button v-if="showCancelButton" type="button" @click="$emit('cancel')"
+                class="inline-flex items-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
                 Cancel
             </button>
-            <button v-if="isEdit && showDeleteButton" type="button" :disabled="processing" class="rounded-xl border border-red-200 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50" @click="deleteProxy">
-                Delete Study
+            <button v-if="isEdit && showDeleteButton" type="button" :disabled="processing" @click="deleteProxy"
+                class="inline-flex items-center rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-700 shadow-sm hover:bg-red-50">
+                <LuTrash2 class="mr-2 h-4 w-4" />
+                Delete
             </button>
-            <button :disabled="processing" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">
-                {{ processing ? 'Saving...' : (isEdit ? 'Save Study' : 'Create Study') }}
+            <button type="submit" :disabled="processing"
+                class="inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50">
+                <LuLoader2 v-if="processing" class="mr-2 h-4 w-4 animate-spin" />
+                <LuSave v-else class="mr-2 h-4 w-4" />
+                {{ processing ? 'Saving...' : (isEdit ? 'Save Changes' : 'Create Study') }}
             </button>
         </div>
     </form>
