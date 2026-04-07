@@ -38,7 +38,7 @@ class LaboratoryLogService
         }
 
         // 2 Try barcode or barcode_prri (via transactions table directly)
-        $itemId = Transaction::query()
+        $itemId = Transaction::withTrashed()
             ->where('barcode', $identifier)
             ->orWhere('barcode_prri', $identifier)
             ->value('item_id');
@@ -48,7 +48,7 @@ class LaboratoryLogService
         }
 
         // 3 Try transaction ID
-        $itemId = Transaction::where('id', $identifier)
+        $itemId = Transaction::withTrashed()->where('id', $identifier)
             ->value('item_id');
 
         return $itemId ?: null;
@@ -59,7 +59,7 @@ class LaboratoryLogService
     {
         $categoryIds = $this->categoryIdsForType($equipmentType);
 
-        $query = Transaction::query()
+        $query = Transaction::withTrashed()
             ->select([
                 'items.id as equipment_id',
                 'items.name',
@@ -552,7 +552,9 @@ class LaboratoryLogService
                     $query->orWhere('categories.name', 'Laboratory Equipment');
                 }
             })
-            ->whereHas('transactions')
+            ->whereHas('transactions', function (Builder $query) {
+                $query->withTrashed();
+            })
             ->first();
     }
 

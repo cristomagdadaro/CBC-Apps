@@ -18,6 +18,11 @@
 - Observers in [`app/Observers`](app/Observers) handle side effects (cache busting, mail, file cleanups) so we keep controllers declarative.
 - Validation lives in [`app/Http/Requests`](app/Http/Requests) and domain-specific rules live in [`app/Rules`](app/Rules).
 
+## Deployment Topology
+- CBC-Apps runs across two deployment surfaces: the trusted local server at `192.168.36.10` and the public web server at `onecbc.philrice.gov.ph`.
+- Treat deployment behavior, Module Access Control, and guest-surface hardening as deployment-aware concerns. Features may intentionally behave differently between the local trusted server and the public internet server, but those differences must be explicit in backend middleware, shared Inertia props, and frontend visibility logic.
+- When adding or changing host-sensitive behavior, make sure local development and Sanctum/session configuration continue to account for both the local deployment host and the public deployment host.
+
 ## Data Access Pattern
 - All repository logic lives in [`app/Repositories`](app/Repositories) and extends [`AbstractRepoService`](app/Repositories/AbstractRepoService.php) unless the repository is read-only and clearly documented.
 - Repositories expose helper methods named by intent: `get{Entity}`, `find{Criteria}`, `getOptions` and `search()` for pageable lists.

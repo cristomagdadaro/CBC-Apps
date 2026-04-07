@@ -44,6 +44,31 @@ class LaboratoryLogServiceTest extends TestCase
         $this->assertSame($item->id, $resolved);
     }
 
+    public function test_resolve_equipment_id_from_soft_deleted_barcode_returns_item_id(): void
+    {
+        ['item' => $item] = $this->createLaboratoryInventoryContext();
+
+        $transaction = Transaction::query()->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-LAB-TRASHED-01',
+            'transac_type' => InventoryEnum::INCOMING->value,
+            'quantity' => 1,
+            'unit_price' => 100,
+            'unit' => 'pc',
+            'total_cost' => 100,
+            'personnel_id' => Personnel::query()->first()->id,
+            'user_id' => User::query()->first()->id,
+            'expiration' => now()->addMonth(),
+            'remarks' => 'Archived barcode source',
+        ]);
+
+        $transaction->delete();
+
+        $resolved = app(LaboratoryLogService::class)->resolveEquipmentId('CBC-LAB-TRASHED-01');
+
+        $this->assertSame($item->id, $resolved);
+    }
+
     public function test_mark_overdue_updates_only_expired_active_logs(): void
     {
         ['item' => $item, 'personnel' => $personnel, 'user' => $user] = $this->createLaboratoryInventoryContext();
