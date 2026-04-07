@@ -26,6 +26,10 @@ export default {
             type: String,
             default: null,
         },
+        autocomplete: {
+            type: String,
+            default: "off",
+        },
         disabled: {
             type: Boolean,
             default: false,
@@ -555,6 +559,7 @@ export default {
             <div class="flex items-center gap-1">
                 <text-input
                     :id="id"
+                    :name="id"
                     ref="textInput"
                     :title="title"
                     :label="dynamicLabel"
@@ -564,6 +569,7 @@ export default {
                     :disabled="disabled"
                     v-model="displayedInput"
                     :placeholder="placeholder"
+                    :autocomplete="autocomplete"
                     @focusin="toggleDropdown()"
                     @click="toggleDropdown()"
                     @input="debounceApiCall($event)"

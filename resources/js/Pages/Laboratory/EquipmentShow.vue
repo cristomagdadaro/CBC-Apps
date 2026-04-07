@@ -913,9 +913,7 @@ export default {
                                     <p class="text-sm text-gray-500">Scan QR code or search manually</p>
                                 </div>
                             </div>
-                            <SelectSearchField id="equipment_selector"
-                                placeholder="Search by name, brand, or barcode..." :options="equipmentOptions"
-                                v-model="selectedEquipmentId" />
+                            <SelectSearchField id="equipment_selector" placeholder="Search by name, brand, or barcode..." :options="equipmentOptions" v-model="selectedEquipmentId" />
                             <p class="flex items-center gap-2 text-xs text-gray-500">
                                 <LuSearch class="w-3.5 h-3.5" />
                                 Type to search or scan barcode

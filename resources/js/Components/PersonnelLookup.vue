@@ -134,7 +134,7 @@ export default {
                 :required="required"
                 placeholder="**-****"
                 name="employee_id"
-                autocomplete="employee_id"
+                autocomplete="username"
                 @update:modelValue="onInput"
                 @keydown.enter.prevent="searchPersonnel"
                 @input="delete clientErrors.employee_id"

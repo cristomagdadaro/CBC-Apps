@@ -4,6 +4,7 @@ export default {
     props: {
         modelValue: { type: [String, Number], default: '' },
         autocomplete: { type: String, default: '' },
+        name: { type: String, default: '' },
         placeholder: { type: String, default: '' },
         error: { type: String, default: '' },
         type: { type: String, default: 'text' },
@@ -35,6 +36,20 @@ export default {
             this.isChameleon = newVal;
         }
     },
+    computed: {
+        inputAutocomplete() {
+            const value = String(this.autocomplete || '').trim();
+            return value === '' ? null : value;
+        },
+        inputId() {
+            const value = String(this.id || '').trim();
+            return value === '' ? null : value;
+        },
+        inputName() {
+            const value = String(this.name || this.id || '').trim();
+            return value === '' ? null : value;
+        },
+    },
     methods: {
         focus() {
             this.$refs.input?.focus();
@@ -56,11 +71,11 @@ export default {
         </div>
         <div class="flex items-center">
             <input
-                :id="id"
-                :name="id"
+                :id="inputId"
+                :name="inputName"
                 ref="input"
                 :class="{'border-red-500': error}"
-                :autocomplete="autocomplete"
+                :autocomplete="inputAutocomplete"
                 class="w-full placeholder:text-gray-300 focus:border-AB focus:ring-AB rounded-md shadow-sm px-3 py-2"
                 :value="modelValue"
                 :placeholder="placeholder"
