@@ -296,7 +296,7 @@ export default {
                 }
 
                 if (
-                    this.currentLaboratoryPersonnel.employee_id &&
+                    this.currentLaboratoryPersonnel?.employee_id &&
                     !this.updateEndUseForm.employee_id
                 ) {
                     this.updateEndUseForm.employee_id =
@@ -309,7 +309,7 @@ export default {
                 }
 
                 if (
-                    this.currentLaboratoryPersonnel.employee_id &&
+                    this.currentLaboratoryPersonnel?.employee_id &&
                     !this.locationSurveyForm.employee_id
                 ) {
                     this.locationSurveyForm.employee_id =
