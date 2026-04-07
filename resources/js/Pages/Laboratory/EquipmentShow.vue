@@ -96,14 +96,45 @@ export default {
         };
     },
     computed: {
+        equipmentIdFromUrl() {
+            if (typeof window === "undefined") {
+                return null;
+            }
+
+            const segments = window.location.pathname
+                .split("/")
+                .map((segment) => segment.trim())
+                .filter(Boolean);
+
+            if (segments.length < 3) {
+                return null;
+            }
+
+            const [scope, resource, ...rest] = segments;
+            if (
+                (scope !== "laboratory" && scope !== "ict") ||
+                resource !== "equipments" ||
+                rest.length === 0
+            ) {
+                return null;
+            }
+
+            const identifier = rest.join("/");
+            return identifier ? decodeURIComponent(identifier) : null;
+        },
         equipmentId() {
-            return this.selectedEquipmentId || this.equipment_id || null;
+            return this.selectedEquipmentId || this.equipment_id || this.equipmentIdFromUrl || null;
         },
         loggerType() {
             return this.logger_type === "ict" ? "ict" : "laboratory";
         },
         apiRoutePrefix() {
             return `api.${this.loggerType}.equipments`;
+        },
+        apiGuestBasePath() {
+            return this.loggerType === "ict"
+                ? "/api/guest/ict/equipments"
+                : "/api/guest/lab/equipments";
         },
         showPageRoute() {
             return `${this.loggerType}.equipments.show`;
@@ -174,9 +205,27 @@ export default {
         },
     },
     methods: {
+        equipmentApiPath(identifier = null, action = null) {
+            const encodedIdentifier = identifier
+                ? encodeURIComponent(String(identifier))
+                : null;
+
+            if (!encodedIdentifier) {
+                return this.apiGuestBasePath;
+            }
+
+            return action
+                ? `${this.apiGuestBasePath}/${encodedIdentifier}/${action}`
+                : `${this.apiGuestBasePath}/${encodedIdentifier}`;
+        },
         async loadEquipmentOptions() {
             try {
-                const response = await this.fetchGetApi(`${this.apiRoutePrefix}.index`);
+                let response;
+                try {
+                    response = await this.fetchGetApi(`${this.apiRoutePrefix}.index`);
+                } catch (error) {
+                    response = await window.axios.get(this.equipmentApiPath());
+                }
                 const payload = response?.data ?? response;
                 const list = Array.isArray(payload)
                     ? payload
@@ -198,9 +247,14 @@ export default {
         async loadActiveEquipments() {
             this.loadingActiveEquipments = true;
             try {
-                const response = await this.fetchGetApi(
-                    `${this.apiRoutePrefix}.active`,
-                );
+                let response;
+                try {
+                    response = await this.fetchGetApi(
+                        `${this.apiRoutePrefix}.active`,
+                    );
+                } catch (error) {
+                    response = await window.axios.get(`${this.apiGuestBasePath}/active`);
+                }
                 const payload = response?.data ?? response;
                 this.activeEquipments = Array.isArray(payload)
                     ? payload
@@ -216,10 +270,15 @@ export default {
             this.loading = true;
             this.notFound = false;
             try {
-                const response = await this.fetchGetApi(
-                    `${this.apiRoutePrefix}.show`,
-                    { routeParams: this.equipmentId },
-                );
+                let response;
+                try {
+                    response = await this.fetchGetApi(
+                        `${this.apiRoutePrefix}.show`,
+                        { routeParams: this.equipmentId },
+                    );
+                } catch (error) {
+                    response = await window.axios.get(this.equipmentApiPath(this.equipmentId));
+                }
                 const details = response?.data ?? response;
 
                 this.equipment = details?.equipment ?? null;
@@ -680,6 +739,10 @@ export default {
         },
     },
     mounted() {
+        if (!this.selectedEquipmentId && this.equipmentIdFromUrl) {
+            this.selectedEquipmentId = this.equipmentIdFromUrl;
+        }
+
         this.loadLaboratoryPersonnel();
         this.syncCurrentPersonnelContext();
 
