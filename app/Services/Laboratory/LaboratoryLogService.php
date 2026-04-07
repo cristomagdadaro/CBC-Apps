@@ -661,7 +661,9 @@ class LaboratoryLogService
             abort(422, 'Employee ID is required.');
         }
 
-        $personnel = Personnel::where('employee_id', $employeeId)->first();
+        $personnel = Personnel::query()
+            ->preferredEmployeeId($employeeId)
+            ->first();
 
         if (!$personnel) {
             abort(422, 'Personnel record not found for the provided employee ID.');

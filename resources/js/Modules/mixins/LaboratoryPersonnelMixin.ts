@@ -9,7 +9,7 @@ export default {
             if (!personnelData?.employee_id) {
                 return;
             }
-
+            
             const personnel = {
                 employee_id: personnelData.employee_id,
                 fullName: personnelData.fullName || "",
@@ -17,6 +17,13 @@ export default {
                 mname: personnelData.mname || "",
                 lname: personnelData.lname || "",
                 suffix: personnelData.suffix || "",
+                position: personnelData.position || "",
+                phone: personnelData.phone || "",
+                address: personnelData.address || "",
+                email: personnelData.email || "",
+                has_email: personnelData.has_email === true,
+                profile_requires_update:
+                    personnelData.profile_requires_update === true,
             };
 
             // Update localStorage & ensure Vue reactivity

@@ -8,4 +8,6 @@ interface IPersonnel extends IBaseClass {
     address: string;
     email: string;
     employee_id: string;
+    has_email?: boolean;
+    profile_requires_update?: boolean;
 }

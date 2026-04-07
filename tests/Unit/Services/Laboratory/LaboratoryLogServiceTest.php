@@ -209,6 +209,47 @@ class LaboratoryLogServiceTest extends TestCase
         }
     }
 
+    public function test_check_in_prefers_duplicate_personnel_record_with_email(): void
+    {
+        $context = $this->createLaboratoryInventoryContext();
+        $item = $context['item'];
+        $user = $context['user'];
+
+        Transaction::query()->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-LAB-0004',
+            'transac_type' => InventoryEnum::INCOMING->value,
+            'quantity' => 1,
+            'unit_price' => 100,
+            'unit' => 'pc',
+            'total_cost' => 100,
+            'personnel_id' => Personnel::query()->first()->id,
+            'user_id' => $user->id,
+            'expiration' => now()->addMonth(),
+            'remarks' => 'Laboratory stock',
+        ]);
+
+        Personnel::factory()->create([
+            'employee_id' => 'EMP-DUPE-LAB',
+            'updated_at' => now(),
+            'email' => null,
+        ]);
+
+        $personnelWithEmail = Personnel::factory()->create([
+            'employee_id' => 'EMP-DUPE-LAB',
+            'updated_at' => now(),
+            'email' => 'duplicate.lab@example.test',
+        ]);
+
+        $log = app(LaboratoryLogService::class)->checkIn($item->id, [
+            'employee_id' => 'EMP-DUPE-LAB',
+            'end_use_at' => now()->addHour()->toIso8601String(),
+            'purpose' => 'Duplicate email preference',
+        ]);
+
+        $this->assertSame($personnelWithEmail->id, $log->personnel_id);
+    }
+
     private function createLaboratoryInventoryContext(): array
     {
         DB::table('categories')->insert([

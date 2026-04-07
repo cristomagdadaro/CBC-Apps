@@ -64,13 +64,12 @@ class PersonnelController extends BaseController
         }
 
         $personnels = Personnel::query()
-            ->select(['id', 'fname', 'mname', 'lname', 'suffix', 'position', 'email', 'updated_at'])
-            ->where('employee_id', $search)
-            ->orderBy('lname')
-            ->orderBy('fname')
-            ->limit(5)
+            ->select(['id', 'fname', 'mname', 'lname', 'suffix', 'position', 'phone', 'address', 'email', 'updated_at'])
+            ->preferredEmployeeId($search)
+            ->limit(1)
             ->get()
             ->map(function (Personnel $personnel) {
+                $email = trim((string) $personnel->email);
                 return [
                     'id' => $personnel->id,
                     'fname' => $personnel->fname,
@@ -78,14 +77,17 @@ class PersonnelController extends BaseController
                     'lname' => $personnel->lname,
                     'suffix' => $personnel->suffix,
                     'position' => $personnel->position,
+                    'phone' => $personnel->phone,
+                    'address' => $personnel->address,
+                    'email' => $personnel->email,
                     'fullName' => collect([
                         $personnel->fname,
                         $personnel->mname,
                         $personnel->lname,
                         $personnel->suffix,
                     ])->filter()->implode(' '),
-                    'profile_requires_update' => $personnel->updated_at === null,
-                    'has_email' => filled($personnel->email),
+                    'profile_requires_update' => is_null($personnel->updated_at),
+                    'has_email' => $email !== '',
                 ];
             })
             ->values();
@@ -96,7 +98,7 @@ class PersonnelController extends BaseController
     public function initializeProfile(InitializePersonnelProfileRequest $request): JsonResponse
     {
         $personnel = Personnel::query()
-            ->where('employee_id', $request->validated('employee_id'))
+            ->preferredEmployeeId($request->validated('employee_id'))
             ->firstOrFail();
 
         if ($personnel->updated_at !== null) {
@@ -109,7 +111,7 @@ class PersonnelController extends BaseController
             ->except('employee_id')
             ->toArray());
         $personnel->save();
-
+        $email = trim((string) $personnel->email);
         return response()->json([
             'message' => 'Personnel information updated successfully.',
             'data' => [
@@ -126,7 +128,7 @@ class PersonnelController extends BaseController
                     $personnel->suffix,
                 ])->filter()->implode(' '),
                 'profile_requires_update' => false,
-                'has_email' => filled($personnel->email),
+                'has_email' =>  $email !== '',
             ],
         ]);
     }
@@ -134,20 +136,20 @@ class PersonnelController extends BaseController
     public function updateGuestEmail(UpdateGuestPersonnelEmailRequest $request): JsonResponse
     {
         $personnel = Personnel::query()
-            ->where('employee_id', $request->validated('employee_id'))
+            ->preferredEmployeeId($request->validated('employee_id'))
             ->firstOrFail();
 
         $personnel->forceFill([
             'email' => $request->validated('email'),
         ])->save();
-
+        $email = trim((string) $personnel->email);
         return response()->json([
             'message' => 'Email updated successfully.',
             'data' => [
                 'id' => $personnel->id,
                 'employee_id' => $personnel->employee_id,
                 'email' => $personnel->email,
-                'has_email' => filled($personnel->email),
+                'has_email' => $email !== '',
             ],
         ]);
     }

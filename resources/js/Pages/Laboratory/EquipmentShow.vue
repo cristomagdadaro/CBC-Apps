@@ -40,6 +40,7 @@ export default {
             loading: false,
             loadingActiveEquipments: false,
             activeEquipments: [],
+            activeEquipmentsRequest: null,
             message: null,
             messageType: "success",
             showSuccessModal: false,
@@ -93,6 +94,7 @@ export default {
             showEstimatedEndUseModal: false,
             showLocationSurveyModal: false,
             showEmailCaptureModal: false,
+            lastResolvedPersonnelId: null,
         };
     },
     computed: {
@@ -164,6 +166,9 @@ export default {
                 mname: "",
                 lname: "",
                 suffix: "",
+                email: user.email || "",
+                has_email: !!user.email,
+                profile_requires_update: false,
             };
         },
         currentLaboratoryPersonnel() {
@@ -245,25 +250,35 @@ export default {
             }
         },
         async loadActiveEquipments() {
-            this.loadingActiveEquipments = true;
-            try {
-                let response;
-                try {
-                    response = await this.fetchGetApi(
-                        `${this.apiRoutePrefix}.active`,
-                    );
-                } catch (error) {
-                    response = await window.axios.get(`${this.apiGuestBasePath}/active`);
-                }
-                const payload = response?.data ?? response;
-                this.activeEquipments = Array.isArray(payload)
-                    ? payload
-                    : (payload?.data ?? []);
-            } catch (error) {
-                this.activeEquipments = [];
-            } finally {
-                this.loadingActiveEquipments = false;
+            if (this.activeEquipmentsRequest) {
+                return this.activeEquipmentsRequest;
             }
+
+            this.loadingActiveEquipments = true;
+            const request = (async () => {
+                try {
+                    let response;
+                    try {
+                        response = await this.fetchGetApi(
+                            `${this.apiRoutePrefix}.active`,
+                        );
+                    } catch (error) {
+                        response = await window.axios.get(`${this.apiGuestBasePath}/active`);
+                    }
+                    const payload = response?.data ?? response;
+                    this.activeEquipments = Array.isArray(payload)
+                        ? payload
+                        : (payload?.data ?? []);
+                } catch (error) {
+                    this.activeEquipments = [];
+                } finally {
+                    this.loadingActiveEquipments = false;
+                    this.activeEquipmentsRequest = null;
+                }
+            })();
+
+            this.activeEquipmentsRequest = request;
+            return request;
         },
         async loadEquipment() {
             if (!this.equipmentId) return;
@@ -332,8 +347,10 @@ export default {
         },
         handlePersonnelFound(data) {
             this.personnelPreview = data;
+            this.lastResolvedPersonnelId = data.employee_id || this.checkInForm.employee_id || null;
             this.profileRequiresUpdate = !!data.profile_requires_update;
             this.emailRequired = !data.profile_requires_update && !data.has_email;
+            this.showEmailCaptureModal = this.emailRequired;
             this.checkInErrors = { ...this.checkInErrors, employee_id: null };
             this.personnelProfileErrors = {};
             this.personnelProfileForm.employee_id = data.employee_id || this.checkInForm.employee_id;
@@ -349,15 +366,20 @@ export default {
             this.emailCaptureForm.email = data.email || "";
             if (this.emailRequired) {
                 this.emailCaptureErrors = {};
-                this.showEmailCaptureModal = true;
             }
             this.saveLaboratoryPersonnel({
-                employee_id: this.checkInForm.employee_id,
+                employee_id: data.employee_id || this.checkInForm.employee_id,
                 fullName: data.fullName,
                 fname: data.fname,
                 mname: data.mname,
                 lname: data.lname,
                 suffix: data.suffix,
+                position: data.position,
+                phone: data.phone,
+                address: data.address,
+                email: data.email,
+                has_email: data.has_email,
+                profile_requires_update: data.profile_requires_update,
             });
         },
         handlePersonnelSwitch() {
@@ -371,6 +393,35 @@ export default {
                 [error.field]: error.message,
             };
             this.profileRequiresUpdate = false;
+            this.emailRequired = false;
+            this.showEmailCaptureModal = false;
+        },
+        resetPersonnelLookupState() {
+            this.personnelPreview = null;
+            this.profileRequiresUpdate = false;
+            this.emailRequired = false;
+            this.personnelProfileErrors = {};
+            this.emailCaptureErrors = {};
+            this.showEmailCaptureModal = false;
+            this.lastResolvedPersonnelId = null;
+        },
+        async ensurePersonnelResolved(force = false) {
+            const employeeId = (this.checkInForm.employee_id || "").trim();
+
+            if (!employeeId) {
+                this.checkInErrors = {
+                    ...this.checkInErrors,
+                    employee_id: "PhilRice ID or CBC ID is required",
+                };
+                return false;
+            }
+
+            if (!force && this.lastResolvedPersonnelId === employeeId && this.personnelPreview) {
+                return true;
+            }
+
+            const payload = await this.$refs.personnelLookup?.searchPersonnel?.();
+            return !!payload;
         },
         searchDifferentPersonnel() {
             this.checkOutErrors = {};
@@ -388,14 +439,12 @@ export default {
         resetCheckIn() {
             this.checkInForm.reset();
             this.checkInErrors = {};
-            this.personnelPreview = null;
-            this.profileRequiresUpdate = false;
-            this.emailRequired = false;
-            this.personnelProfileErrors = {};
+            if (this.currentLaboratoryPersonnel?.employee_id) {
+                this.checkInForm.employee_id = this.currentLaboratoryPersonnel.employee_id;
+            }
+            this.resetPersonnelLookupState();
             this.personnelProfileForm.reset();
-            this.emailCaptureErrors = {};
             this.emailCaptureForm.reset();
-            this.showEmailCaptureModal = false;
         },
         resetCheckOut() {
             this.checkOutForm.reset();
@@ -431,6 +480,8 @@ export default {
                 return;
             }
 
+            this.checkInForm.employee_id =
+                this.checkInForm.employee_id || this.currentLaboratoryPersonnel.employee_id;
             this.showPhilRiceField = true;
             this.checkOutForm.employee_id =
                 this.currentLaboratoryPersonnel.employee_id;
@@ -473,6 +524,10 @@ export default {
         async submitCheckIn() {
             this.checkInErrors = {};
             this.message = null;
+            const resolved = await this.ensurePersonnelResolved();
+            if (!resolved) {
+                return;
+            }
             if (this.profileRequiresUpdate) {
                 this.checkInErrors = {
                     base: "Please update your personnel information before checking in equipment.",
@@ -549,6 +604,12 @@ export default {
                     mname: this.personnelPreview.mname,
                     lname: this.personnelPreview.lname,
                     suffix: this.personnelPreview.suffix,
+                    position: this.personnelPreview.position,
+                    phone: this.personnelPreview.phone,
+                    address: this.personnelPreview.address,
+                    email: this.personnelPreview.email,
+                    has_email: record?.has_email,
+                    profile_requires_update: false,
                 });
                 this.messageType = "success";
                 this.message = payload?.message || "Personnel information updated successfully";
@@ -585,6 +646,14 @@ export default {
                     email: record?.email || this.emailCaptureForm.email,
                     has_email: record?.has_email !== false,
                 };
+                this.saveLaboratoryPersonnel({
+                    ...(this.currentLaboratoryPersonnel || {}),
+                    ...(this.personnelPreview || {}),
+                    employee_id: this.emailCaptureForm.employee_id,
+                    email: record?.email || this.emailCaptureForm.email,
+                    has_email: record?.has_email !== false,
+                    profile_requires_update: false,
+                });
                 this.messageType = "success";
                 this.message = payload?.message || "Email updated successfully.";
             } catch (error) {
@@ -737,11 +806,20 @@ export default {
             }
             this.loadEquipment();
         },
+        "checkInForm.employee_id"(newValue, oldValue) {
+            if ((newValue || "").trim() === (oldValue || "").trim()) {
+                return;
+            }
+
+            if ((newValue || "").trim() !== (this.lastResolvedPersonnelId || "").trim()) {
+                this.resetPersonnelLookupState();
+            }
+        },
     },
-    mounted() {
-        if (!this.selectedEquipmentId && this.equipmentIdFromUrl) {
-            this.selectedEquipmentId = this.equipmentIdFromUrl;
-        }
+        mounted() {
+            if (!this.selectedEquipmentId && this.equipmentIdFromUrl) {
+                this.selectedEquipmentId = this.equipmentIdFromUrl;
+            }
 
         this.loadLaboratoryPersonnel();
         this.syncCurrentPersonnelContext();
@@ -750,8 +828,8 @@ export default {
             this.loadEquipment();
         } else {
             this.loadEquipmentOptions();
+            this.loadActiveEquipments();
         }
-        this.loadActiveEquipments();
         setTimeout(() => (this.delayReady = true), 200);
         
         const unsubscribeStart = router.on(
@@ -1043,7 +1121,7 @@ export default {
                         </div>
 
                         <div class="px-4 pb-4 space-y-4">
-                            <PersonnelLookup v-model="checkInForm.employee_id" @found="handlePersonnelFound" required
+                            <PersonnelLookup ref="personnelLookup" v-model="checkInForm.employee_id" @found="handlePersonnelFound" required
                                 @error="handlePersonnelError" />
 
                             <div v-if="personnelPreview"
