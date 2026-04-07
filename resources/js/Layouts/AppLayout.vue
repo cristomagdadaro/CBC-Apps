@@ -881,9 +881,8 @@ export default {
                 </button>
 
                 <!-- User Dropdown -->
-                <Dropdown align="right" width="64">
-                  <template #trigger>
-                    <button
+                <button
+                  @click="showingNavigationDropdown = !showingNavigationDropdown"
                       class="flex items-center gap-3 p-1.5 pr-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors"
                     >
                       <img
@@ -914,47 +913,6 @@ export default {
                       </div>
                       <LuChevronDown class="w-4 h-4 text-gray-400 hidden sm:block" />
                     </button>
-                  </template>
-
-                  <template #content>
-                    <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                      <p class="text-sm font-medium text-gray-900 dark:text-white">
-                        {{ $page.props.auth?.user?.name }}
-                      </p>
-                      <p class="text-sm text-gray-500 dark:text-gray-400">
-                        {{ $page.props.auth?.user?.email }}
-                      </p>
-                    </div>
-
-                    <div class="py-1">
-                      <DropdownLink
-                        :href="route('profile.show')"
-                        class="flex items-center gap-2"
-                      >
-                        <LuUser class="w-4 h-4" />
-                        Profile
-                      </DropdownLink>
-
-                      <DropdownLink
-                        v-if="$page.props.jetstream.hasApiFeatures"
-                        :href="route('api-tokens.index')"
-                      >
-                        <LuKey class="w-4 h-4 mr-2" />
-                        API Tokens
-                      </DropdownLink>
-                    </div>
-
-                    <div class="border-t border-gray-100 dark:border-gray-700 py-1">
-                      <button
-                        @click="logout"
-                        class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                      >
-                        <LuLogOut class="w-4 h-4" />
-                        Log Out
-                      </button>
-                    </div>
-                  </template>
-                </Dropdown>
               </div>
             </div>
           </div>

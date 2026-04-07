@@ -195,15 +195,15 @@ export default {
         <template #header>
             <transaction-header-action />
         </template>
-        <div class="min-h-screen bg-gray-50/50 dark:bg-gray-900/50 py-8">
-            <div class="mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div class="min-h-screen bg-gray-50/50 dark:bg-gray-900/50 px-4 sm:p-6 lg:p-8">
+            <div class="space-y-6">
                 <!-- Process Overview -->
                 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-3">
                     <div class="flex items-center gap-4">
                         <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
                             <History class="w-6 h-6 text-blue-600 dark:text-blue-400" />
                         </div>
-                        <div class="flex items-center gap-4">
+                        <div class="flex flex-col md:flex-row items-center gap-4">
                             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Recounting Workflow</h2>
                             <div class="flex flex-wrap items-center gap-2">
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
@@ -252,7 +252,7 @@ export default {
                 </transition-group>
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <!-- Left Column: Scanning -->
-                    <div class="lg:col-span-4 space-y-6">
+                    <div class="lg:col-span-5 space-y-6">
                         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                             <div class="p-5 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-blue-50/50 to-transparent dark:from-blue-900/10 dark:to-transparent">
                                 <div class="flex items-center gap-3">
@@ -324,7 +324,7 @@ export default {
                         </div>
                     </div>
                     <!-- Right Column: Recount & Adjust -->
-                    <div class="lg:col-span-8">
+                    <div class="lg:col-span-7">
                         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden min-h-[500px]">
                             <div class="p-5 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-indigo-50/50 to-transparent dark:from-indigo-900/10 dark:to-transparent">
                                 <div class="flex items-center gap-3">
