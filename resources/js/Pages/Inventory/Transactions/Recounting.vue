@@ -4,23 +4,23 @@ import ApiMixin from '@/Modules/mixins/ApiMixin';
 import CameraScanner from '@/Components/CameraScanner.vue';
 import TransactionHeaderAction from '@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue';
 import { 
-  ScanLine, 
-  Package, 
-  MapPin, 
-  Calculator, 
-  ArrowRightLeft, 
-  CheckCircle2, 
-  AlertCircle, 
-  Loader2, 
-  Search,
-  Save,
-  History,
-  Box,
-  Barcode,
-  Warehouse,
-  TrendingUp,
-  TrendingDown,
-  Minus
+    ScanLine, 
+    Package, 
+    MapPin, 
+    Calculator, 
+    ArrowRightLeft, 
+    CheckCircle2, 
+    AlertCircle, 
+    Loader2, 
+    Search,
+    Save,
+    History,
+    Box,
+    Barcode,
+    Warehouse,
+    TrendingUp,
+    TrendingDown,
+    Minus
 } from 'lucide-vue-next';
 
 export default {
@@ -68,7 +68,6 @@ export default {
             if (!Array.isArray(this.$page.props?.storage_locations)) {
                 return [];
             }
-
             return this.$page.props.storage_locations.map((location) => ({
                 code: String(location?.name ?? '').trim(),
                 label: String(location?.label ?? '').trim(),
@@ -85,7 +84,6 @@ export default {
             if (this.form.physical_count === null || this.form.physical_count === '' || Number.isNaN(Number(this.form.physical_count))) {
                 return null;
             }
-
             return Number(this.form.physical_count) - this.systemCount;
         },
         adjustmentType() {
@@ -129,15 +127,12 @@ export default {
                 this.errorMessage = 'Scan or enter a barcode first.';
                 return;
             }
-
             this.lookupLoading = true;
             this.clearAlerts();
-
             try {
                 const response = await this.fetchGetApi('api.inventory.transactions.recounting.lookup', {
                     barcode: value,
                 });
-
                 this.lookupResult = response?.data ?? null;
                 this.form.physical_count = this.lookupResult?.remaining_quantity ?? 0;
                 this.fillLocationFromResult();
@@ -163,10 +158,8 @@ export default {
                 this.errorMessage = 'Enter a valid physical count before applying adjustment.';
                 return;
             }
-
             this.submitLoading = true;
             this.clearAlerts();
-
             try {
                 const payload = {
                     barcode: String(this.barcode ?? '').trim(),
@@ -178,12 +171,9 @@ export default {
                         }
                         : {}),
                 };
-
                 const response = await this.fetchPostApi('api.inventory.transactions.recounting.adjust', payload);
                 const data = response?.data?.data ?? null;
-
                 this.successMessage = response?.data?.message || 'Inventory recount saved.';
-
                 if (data?.item) {
                     this.lookupResult = data.item;
                     this.form.physical_count = data.item.remaining_quantity ?? 0;
@@ -201,51 +191,44 @@ export default {
 
 <template>
     <Head title="Inventory Recounting" />
-
     <AppLayout>
         <template #header>
             <transaction-header-action />
         </template>
-
         <div class="min-h-screen bg-gray-50/50 dark:bg-gray-900/50 py-8">
             <div class="mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-                
                 <!-- Process Overview -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                    <div class="flex items-start gap-4">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-3">
+                    <div class="flex items-center gap-4">
                         <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
                             <History class="w-6 h-6 text-blue-600 dark:text-blue-400" />
                         </div>
-                        <div class="flex-1">
+                        <div class="flex items-center gap-4">
                             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Recounting Workflow</h2>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                Scan barcode → review system count → input physical count → apply adjustment transaction.
-                            </p>
-                            <div class="flex flex-wrap items-center gap-2 mt-3">
+                            <div class="flex flex-wrap items-center gap-2">
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                                     <ScanLine class="w-3.5 h-3.5" />
-                                    Scan
+                                    Scan barcode
                                 </span>
                                 <ArrowRightLeft class="w-4 h-4 text-gray-400" />
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
                                     <Box class="w-3.5 h-3.5" />
-                                    Review
+                                    Review system count
                                 </span>
                                 <ArrowRightLeft class="w-4 h-4 text-gray-400" />
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
                                     <Calculator class="w-3.5 h-3.5" />
-                                    Count
+                                    Input physical count
                                 </span>
                                 <ArrowRightLeft class="w-4 h-4 text-gray-400" />
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
                                     <Save class="w-3.5 h-3.5" />
-                                    Adjust
+                                    Apply adjustment transaction
                                 </span>
                             </div>
                         </div>
                     </div>
                 </div>
-
                 <!-- Alert Messages -->
                 <transition-group name="fade">
                     <div v-if="successMessage" key="success" class="flex items-center gap-3 p-4 rounded-xl border border-emerald-200 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 shadow-sm">
@@ -257,7 +240,6 @@ export default {
                             <p class="text-sm opacity-90">{{ successMessage }}</p>
                         </div>
                     </div>
-
                     <div v-if="errorMessage" key="error" class="flex items-center gap-3 p-4 rounded-xl border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800 text-red-800 dark:text-red-200 shadow-sm">
                         <div class="p-2 bg-red-100 dark:bg-red-800 rounded-lg">
                             <AlertCircle class="w-5 h-5 text-red-600 dark:text-red-400" />
@@ -268,7 +250,6 @@ export default {
                         </div>
                     </div>
                 </transition-group>
-
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <!-- Left Column: Scanning -->
                     <div class="lg:col-span-4 space-y-6">
@@ -318,7 +299,6 @@ export default {
                                 </div>
                             </div>
                         </div>
-
                         <!-- Quick Stats -->
                         <div v-if="hasLookupResult" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
                             <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
@@ -343,7 +323,6 @@ export default {
                             </div>
                         </div>
                     </div>
-
                     <!-- Right Column: Recount & Adjust -->
                     <div class="lg:col-span-8">
                         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden min-h-[500px]">
@@ -358,7 +337,6 @@ export default {
                                     </div>
                                 </div>
                             </div>
-
                             <div class="p-6">
                                 <div v-if="hasLookupResult" class="space-y-6">
                                     <!-- Item Info Cards -->
@@ -375,7 +353,6 @@ export default {
                                                 </div>
                                             </div>
                                         </div>
-
                                         <div class="group p-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-700 transition-all">
                                             <div class="flex items-start gap-3">
                                                 <div class="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
@@ -389,7 +366,6 @@ export default {
                                             </div>
                                         </div>
                                     </div>
-
                                     <!-- Input Section -->
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div class="space-y-2">
@@ -411,7 +387,6 @@ export default {
                                                 </span>
                                             </div>
                                         </div>
-
                                         <div class="space-y-2">
                                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                                 <MapPin class="w-4 h-4 inline mr-1.5 text-gray-400" />
@@ -437,7 +412,6 @@ export default {
                                                 <MapPin class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                                             </div>
                                         </div>
-
                                         <!-- Adjustment Preview -->
                                         <div 
                                             class="p-4 rounded-xl border-2 transition-all duration-300"
@@ -462,7 +436,6 @@ export default {
                                             </p>
                                         </div>
                                     </div>
-
                                     <!-- Action Button -->
                                     <div class="flex justify-end pt-4 border-t border-gray-100 dark:border-gray-700">
                                         <button
@@ -476,7 +449,6 @@ export default {
                                         </button>
                                     </div>
                                 </div>
-
                                 <!-- Empty State -->
                                 <div v-else class="flex flex-col items-center justify-center py-16 text-center">
                                     <div class="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
