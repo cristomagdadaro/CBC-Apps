@@ -6,7 +6,9 @@ use App\Enums\Inventory as InventoryEnum;
 use App\Enums\Subform;
 use App\Mail\EventSubformResponseNotification;
 use App\Mail\GeneratedCertificateMail;
+use App\Mail\LaboratoryEquipmentLogOverdueMail;
 use App\Mail\OutgoingTransactionNotification;
+use App\Models\LaboratoryEquipmentLog;
 use App\Models\Category;
 use App\Models\EventSubform;
 use App\Models\EventSubformResponse;
@@ -95,6 +97,42 @@ class MailablesTest extends TestCase
         $this->assertStringContainsString('Buffer Solution', $html);
         $this->assertStringContainsString('6 pc', $html);
         $this->assertStringContainsString('Issued to laboratory', $html);
+    }
+
+    public function test_laboratory_equipment_log_overdue_mail_renders_equipment_link_and_ignore_notice(): void
+    {
+        $category = Category::factory()->create([
+            'name' => 'Laboratory Equipment',
+        ]);
+        $supplier = Supplier::factory()->create();
+        $item = Item::factory()->create([
+            'name' => 'PCR Machine',
+            'category_id' => $category->id,
+            'supplier_id' => $supplier->id,
+        ]);
+        $personnel = Personnel::factory()->create([
+            'fname' => 'Maria',
+            'lname' => 'Santos',
+            'email' => 'maria.santos@example.test',
+        ]);
+
+        $log = LaboratoryEquipmentLog::query()->create([
+            'equipment_id' => $item->id,
+            'personnel_id' => $personnel->id,
+            'status' => 'overdue',
+            'started_at' => now()->subHours(3),
+            'end_use_at' => now()->subHour(),
+            'active_lock' => false,
+        ]);
+
+        $html = (new LaboratoryEquipmentLogOverdueMail(
+            $log->load(['personnel', 'equipment']),
+            'laboratory',
+        ))->render();
+
+        $this->assertStringContainsString('PCR Machine', $html);
+        $this->assertStringContainsString(route('laboratory.equipments.show', ['equipment_id' => $item->id]), $html);
+        $this->assertStringContainsString('you may ignore this notice', $html);
     }
 
     public function test_event_subform_response_notification_renders_response_details(): void
