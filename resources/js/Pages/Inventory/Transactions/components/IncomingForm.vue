@@ -206,27 +206,15 @@ export default {
                 }
 
                 const doc = printWindow.document;
-                doc.open();
 
-                const html = doc.createElement('html');
-                const head = doc.createElement('head');
-                const title = doc.createElement('title');
-                title.textContent = 'Barcode';
-                head.appendChild(title);
-
-                const body = doc.createElement('body');
-                body.style.margin = '96px';
+                doc.title = 'Barcode';
+                doc.body.style.margin = '96px';
 
                 const barcodeImg = doc.createElement('img');
                 barcodeImg.src = img.src;
                 barcodeImg.alt = 'barcode generated';
-                body.appendChild(barcodeImg);
+                doc.body.appendChild(barcodeImg);
 
-                html.appendChild(head);
-                html.appendChild(body);
-                doc.appendChild(html);
-
-                doc.close();
                 printWindow.print();
                 printWindow.close();
             } catch (error) {
