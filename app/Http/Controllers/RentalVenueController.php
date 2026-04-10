@@ -233,6 +233,7 @@ class RentalVenueController extends BaseController
     {
         return Arr::only($rental->toArray(), [
             'id',
+            'requested_by',
             'venue_type',
             'date_from',
             'date_to',

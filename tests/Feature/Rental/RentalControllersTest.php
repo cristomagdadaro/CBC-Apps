@@ -151,8 +151,8 @@ class RentalControllersTest extends TestCase
         $this->getJson(route('api.guest.rental.vehicles.index'))
             ->assertOk()
             ->assertJsonPath('data.0.id', $rental->id)
+            ->assertJsonPath('data.0.requested_by', $rental->requested_by)
             ->assertJsonPath('data.0.vehicle_type', 'innova')
-            ->assertJsonMissingPath('data.0.requested_by')
             ->assertJsonMissingPath('data.0.contact_number')
             ->assertJsonMissingPath('data.0.destination_location')
             ->assertJsonMissingPath('data.0.notes');
@@ -167,7 +167,7 @@ class RentalControllersTest extends TestCase
         $this->getJson(route('api.guest.rental.vehicles.show', $rental->id))
             ->assertOk()
             ->assertJsonPath('data.id', $rental->id)
-            ->assertJsonMissingPath('data.requested_by')
+            ->assertJsonPath('data.requested_by', $rental->requested_by)
             ->assertJsonMissingPath('data.contact_number')
             ->assertJsonMissingPath('data.destination_location')
             ->assertJsonMissingPath('data.notes');
@@ -183,7 +183,7 @@ class RentalControllersTest extends TestCase
 
         $this->getJson(route('api.guest.rental.vehicles.show', $rental->id))
             ->assertOk()
-            ->assertJsonMissingPath('data.requested_by')
+            ->assertJsonPath('data.requested_by', $rental->requested_by)
             ->assertJsonMissingPath('data.contact_number')
             ->assertJsonMissingPath('data.notes');
     }
@@ -309,7 +309,7 @@ class RentalControllersTest extends TestCase
             ->assertJsonPath('data.0.id', $rental->id)
             ->assertJsonPath('data.0.venue_type', 'plenary')
             ->assertJsonMissingPath('data.0.event_name')
-            ->assertJsonMissingPath('data.0.requested_by')
+            ->assertJsonPath('data.0.requested_by', $rental->requested_by)
             ->assertJsonMissingPath('data.0.contact_number')
             ->assertJsonMissingPath('data.0.notes');
     }
@@ -324,7 +324,7 @@ class RentalControllersTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.id', $rental->id)
             ->assertJsonMissingPath('data.event_name')
-            ->assertJsonMissingPath('data.requested_by')
+            ->assertJsonPath('data.requested_by', $rental->requested_by)
             ->assertJsonMissingPath('data.contact_number')
             ->assertJsonMissingPath('data.notes');
     }
@@ -340,7 +340,7 @@ class RentalControllersTest extends TestCase
         $this->getJson(route('api.guest.rental.venues.show', $rental->id))
             ->assertOk()
             ->assertJsonMissingPath('data.event_name')
-            ->assertJsonMissingPath('data.requested_by')
+            ->assertJsonPath('data.requested_by', $rental->requested_by)
             ->assertJsonMissingPath('data.contact_number')
             ->assertJsonMissingPath('data.notes');
     }
