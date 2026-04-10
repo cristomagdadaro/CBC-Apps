@@ -205,17 +205,28 @@ export default {
                     throw new Error('Failed to open print window.');
                 }
 
-                printWindow.document.write(`
-                    <html>
-                        <head>
-                            <title>Barcode</title>
-                        </head>
-                        <body style="margin: 96px;">
-                            <img src="${img.src}"  alt="barcode generated"/>
-                        </body>
-                    </html>
-                `);
-                printWindow.document.close();
+                const doc = printWindow.document;
+                doc.open();
+
+                const html = doc.createElement('html');
+                const head = doc.createElement('head');
+                const title = doc.createElement('title');
+                title.textContent = 'Barcode';
+                head.appendChild(title);
+
+                const body = doc.createElement('body');
+                body.style.margin = '96px';
+
+                const barcodeImg = doc.createElement('img');
+                barcodeImg.src = img.src;
+                barcodeImg.alt = 'barcode generated';
+                body.appendChild(barcodeImg);
+
+                html.appendChild(head);
+                html.appendChild(body);
+                doc.appendChild(html);
+
+                doc.close();
                 printWindow.print();
                 printWindow.close();
             } catch (error) {
