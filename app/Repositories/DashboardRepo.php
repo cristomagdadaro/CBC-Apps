@@ -102,7 +102,7 @@ class DashboardRepo extends AbstractRepoService
     {
         return LaboratoryEquipmentLog::query()
             ->with([
-                'equipment:id,name,brand',
+                'equipment:id,name,brand,category_id',
                 'personnel:id,fname,mname,lname,suffix,employee_id',
             ])
             ->orderByRaw('COALESCE(actual_end_at, started_at) desc')

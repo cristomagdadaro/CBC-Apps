@@ -270,6 +270,20 @@ export default {
                 className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
             };
         },
+        equipmentShowRoute(log) {
+            const categoryId = Number(log?.equipment?.category_id ?? 0);
+            const equipmentId = log?.equipment?.id ?? log?.equipment_id;
+
+            if (!equipmentId) {
+                return '#';
+            }
+
+            const routeName = categoryId === 4
+                ? 'ict.equipments.show'
+                : 'laboratory.equipments.show';
+
+            return route(routeName, equipmentId);
+        },
     },
     mounted() {
         this.buildCharts();
@@ -300,10 +314,10 @@ export default {
                         This dashboard now follows Module Access Controls and your assigned permissions. If you expected more sections here, verify the deployment-access settings and your current role permissions.
                     </p>
                 </div>
-                
+
                 <!-- Summary Stats Grid -->
                 <div v-if="hasSummaryCards" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mx-5 md:m-0 ">
-                    
+
                     <!-- Event Forms Card -->
                     <div v-if="dashboardAccess.events" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow duration-200 flex flex-col justify-between">
                         <div class="p-5">
@@ -321,7 +335,7 @@ export default {
                                     <LuArrowRight class="w-5 h-5" />
                                 </Link>
                             </div>
-                            
+
                             <div class="mt-4 flex items-center justify-between text-xs">
                                 <div class="flex items-center gap-1.5">
                                     <span class="w-2 h-2 rounded-full bg-green-500"></span>
@@ -336,7 +350,7 @@ export default {
                                     <span class="text-gray-600 dark:text-gray-300">{{ stats.events.suspended }} Suspended</span>
                                 </div>
                             </div>
-                            
+
                             <div class="mt-4 h-28">
                                 <canvas ref="eventsChartCanvas"></canvas>
                             </div>
@@ -366,7 +380,7 @@ export default {
                                     <LuArrowRight class="w-5 h-5" />
                                 </Link>
                             </div>
-                            
+
                             <div class="mt-4 flex items-center justify-between text-xs">
                                 <div class="flex items-center gap-1.5">
                                     <LuClock class="w-3.5 h-3.5 text-yellow-500" />
@@ -381,7 +395,7 @@ export default {
                                     <span class="text-gray-600 dark:text-gray-300">{{ stats.access_requests.rejected }} Rejected</span>
                                 </div>
                             </div>
-                            
+
                             <div class="mt-4 h-28">
                                 <canvas ref="accessChartCanvas"></canvas>
                             </div>
@@ -413,7 +427,7 @@ export default {
                                     </Link>
                                 </div>
                             </div>
-                            
+
                             <div class="mt-4 grid grid-cols-2 gap-2 text-xs">
                                 <div class="flex items-center gap-1.5 px-2 py-1.5 bg-gray-50 dark:bg-gray-700/50 rounded-md">
                                     <span class="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
@@ -432,7 +446,7 @@ export default {
                                     <span class="text-green-700 dark:text-green-300">{{ stats.inventory.stock_buckets?.high ?? 0 }} High</span>
                                 </div>
                             </div>
-                            
+
                             <div class="mt-4 h-28">
                                 <canvas ref="inventoryChartCanvas"></canvas>
                             </div>
@@ -466,7 +480,7 @@ export default {
                                     <LuArrowRight class="w-5 h-5" />
                                 </Link>
                             </div>
-                            
+
                             <div class="mt-4 grid grid-cols-4 gap-1 text-center text-xs">
                                 <div class="p-1.5 rounded-md bg-yellow-50 dark:bg-yellow-900/20">
                                     <p class="font-semibold text-yellow-700 dark:text-yellow-300">{{ stats.vehicle_rentals.pending }}</p>
@@ -485,7 +499,7 @@ export default {
                                     <p class="text-red-600/70 dark:text-red-400/70">Rejected</p>
                                 </div>
                             </div>
-                            
+
                             <div class="mt-4 h-28">
                                 <canvas ref="vehicleChartCanvas"></canvas>
                             </div>
@@ -515,7 +529,7 @@ export default {
                                     <LuArrowRight class="w-5 h-5" />
                                 </Link>
                             </div>
-                            
+
                             <div class="mt-4 grid grid-cols-4 gap-1 text-center text-xs">
                                 <div class="p-1.5 rounded-md bg-yellow-50 dark:bg-yellow-900/20">
                                     <p class="font-semibold text-yellow-700 dark:text-yellow-300">{{ stats.venue_rentals.pending }}</p>
@@ -534,7 +548,7 @@ export default {
                                     <p class="text-red-600/70 dark:text-red-400/70">Rejected</p>
                                 </div>
                             </div>
-                            
+
                             <div class="mt-4 h-28">
                                 <canvas ref="venueChartCanvas"></canvas>
                             </div>
@@ -564,7 +578,7 @@ export default {
                                     <LuArrowRight class="w-5 h-5" />
                                 </Link>
                             </div>
-                            
+
                             <div class="mt-4 flex items-center justify-around text-xs">
                                 <div class="flex flex-col items-center gap-1">
                                     <div class="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 dark:bg-green-900/20 rounded-full">
@@ -588,7 +602,7 @@ export default {
                                     <span class="text-gray-500 dark:text-gray-400">Done</span>
                                 </div>
                             </div>
-                            
+
                             <div class="mt-4 h-28">
                                 <canvas ref="labChartCanvas"></canvas>
                             </div>
@@ -648,76 +662,76 @@ export default {
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Equipment logs</p>
                     </Link>
                 </div>
-
-                <!-- Recent Activity Section -->
-                <div v-if="dashboardAccess.inventory" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden m-5 md:m-0">
-                    <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <LuActivity class="w-5 h-5 text-gray-400" />
-                            <h3 class="font-semibold text-gray-900 dark:text-white">Recent Transactions</h3>
-                        </div>
-                        <Link :href="route('transactions.index')" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
-                            View all
-                        </Link>
-                    </div>
-                    
-                    <div class="divide-y divide-gray-100 dark:divide-gray-700">
-                        <Link 
-                            v-for="transaction in recentTransactions" 
-                            :key="transaction.id" 
-                            :href="route('transactions.show', transaction.id)" 
-                            class="flex items-center justify-between px-5 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group"
-                        >
-                            <div class="flex items-center gap-4">
-                                <div 
-                                    class="p-2 rounded-full"
-                                    :class="transaction.transac_type === 'incoming' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'"
-                                >
-                                    <LuArrowDownLeft 
-                                        v-if="transaction.transac_type === 'incoming'" 
-                                        class="w-4 h-4"
-                                    />
-                                    <LuArrowUpRight 
-                                        v-else 
-                                        class="w-4 h-4"
-                                    />
-                                </div>
-                                <div>
-                                    <p class="font-medium text-gray-900 dark:text-white">
-                                        {{ transaction?.item?.name ?? 'Unknown Item' }}
-                                        <span 
-                                            class="text-xs font-normal px-2 py-0.5 rounded-full ml-2"
-                                            :class="transaction.transac_type === 'incoming' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'"
-                                        >
-                                            {{ transaction.transac_type }}
-                                        </span>
-                                    </p>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                                        {{ transaction?.quantity }} {{ transaction?.unit }} by 
-                                        <span class="font-medium text-gray-700 dark:text-gray-300">
-                                            {{ transaction?.personnel ? `${transaction.personnel.fname} ${transaction.personnel.lname}` : 'Unknown' }}
-                                        </span>
-                                    </p>
-                                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 m-5 md:m-0">
+                    <!-- Recent Activity Section -->
+                    <div v-if="dashboardAccess.inventory" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden m-5 md:m-0">
+                        <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <LuActivity class="w-5 h-5 text-gray-400" />
+                                <h3 class="font-semibold text-gray-900 dark:text-white">Recent Transactions</h3>
                             </div>
-                            <div class="text-right">
-                                <p class="text-sm text-gray-500 dark:text-gray-400">
-                                    {{ new Date(transaction?.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) }}
-                                </p>
-                                <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                                    {{ new Date(transaction?.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }}
-                                </p>
+                            <Link :href="route('transactions.index')" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
+                                View all
+                            </Link>
+                        </div>
+
+                        <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                            <Link
+                                v-for="transaction in recentTransactions"
+                                :key="transaction.id"
+                                :href="route('transactions.show', transaction.id)"
+                                class="flex items-center justify-between px-5 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group"
+                            >
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="p-2 rounded-full hidden md:block"
+                                        :class="transaction.transac_type === 'incoming' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'"
+                                    >
+                                        <LuArrowDownLeft
+                                            v-if="transaction.transac_type === 'incoming'"
+                                            class="w-4 h-4"
+                                        />
+                                        <LuArrowUpRight
+                                            v-else
+                                            class="w-4 h-4"
+                                        />
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-900 dark:text-white">
+                                            {{ transaction?.item?.name ?? 'Unknown Item' }}
+                                            <span
+                                                class="text-xs font-normal uppercase px-2 py-0.5 rounded-full ml-2"
+                                                :class="transaction.transac_type === 'incoming' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'"
+                                            >
+                                                {{ transaction.transac_type }}
+                                            </span>
+                                        </p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                                            {{ transaction?.quantity }} {{ transaction?.unit }} by
+                                            <span class="font-medium text-gray-700 dark:text-gray-300">
+                                                {{ transaction?.personnel ? `${transaction.personnel.fname} ${transaction.personnel.lname}` : 'Unknown' }}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                        {{ new Date(transaction?.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) }}
+                                    </p>
+                                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                                        {{ new Date(transaction?.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) }}
+                                    </p>
+                                </div>
+                            </Link>
+
+                            <div v-if="!recentTransactions?.length" class="px-5 py-8 text-center text-gray-500 dark:text-gray-400">
+                                <LuPackage class="w-12 h-12 mx-auto mb-3 opacity-20" />
+                                <p>No recent transactions</p>
                             </div>
-                        </Link>
-                        
-                        <div v-if="!recentTransactions?.length" class="px-5 py-8 text-center text-gray-500 dark:text-gray-400">
-                            <LuPackage class="w-12 h-12 mx-auto mb-3 opacity-20" />
-                            <p>No recent transactions</p>
                         </div>
                     </div>
-                </div>
 
-                <div v-if="dashboardAccess.laboratory" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden m-5 md:m-0">
+                    <div v-if="dashboardAccess.laboratory" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden m-5 md:m-0">
                     <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <LuMicroscope class="w-5 h-5 text-gray-400" />
@@ -729,18 +743,37 @@ export default {
                     </div>
 
                     <div class="divide-y divide-gray-100 dark:divide-gray-700">
-                        <div
+                        <a
                             v-for="log in recentEquipmentLogs"
                             :key="log.id"
-                            class="flex items-center justify-between gap-4 px-5 py-4"
+                            class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 px-5 py-4"
+                            :href="equipmentShowRoute(log)"
+                            target="_blank"
                         >
+                            <div
+                                class="p-2 rounded-full hidden md:block"
+                                :class="equipmentStatusBadge(log.status).className"
+                            >
+                                <LuTimer
+                                    v-if="log.status === 'active'"
+                                    class="w-4 h-4"
+                                />
+                                <LuCircleCheckIcon
+                                    v-else-if="log.status === 'completed'"
+                                    class="w-4 h-4"
+                                />
+                                <LuTriangleAlertIcon
+                                    v-else
+                                    class="w-4 h-4"
+                                />
+                            </div>
                             <div class="min-w-0 flex-1">
-                                <div class="flex flex-wrap items-center gap-2">
+                                <div class="flex flex-wrap flex-start md:items-center gap-2">
                                     <p class="font-medium text-gray-900 dark:text-white">
                                         {{ log?.equipment?.name ?? 'Unknown Equipment' }}
                                     </p>
                                     <span
-                                        class="text-xs font-medium px-2 py-0.5 rounded-full"
+                                        class="text-xs uppercase px-2 py-0.5 rounded-full"
                                         :class="equipmentStatusBadge(log.status).className"
                                     >
                                         {{ equipmentStatusBadge(log.status).label }}
@@ -750,22 +783,23 @@ export default {
                                     {{ formatPersonnelName(log?.personnel) }}
                                     <span v-if="log?.purpose"> - {{ log.purpose }}</span>
                                 </p>
-                                <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
-                                    Started {{ formatDateTime(log?.started_at) }}
-                                    <span v-if="log?.actual_end_at"> - Ended {{ formatDateTime(log.actual_end_at) }}</span>
-                                    <span v-else-if="log?.end_use_at"> - Due {{ formatDateTime(log.end_use_at) }}</span>
-                                </p>
+
                             </div>
                             <div class="text-right text-xs text-gray-500 dark:text-gray-400">
-                                <p>{{ log?.equipment_id }}</p>
+                                <p class="flex flex-col text-xs text-gray-400 dark:text-gray-500">
+                                    Started {{ formatDateTime(log?.started_at) }}
+                                    <span v-if="log?.actual_end_at" class="py-1 px-2 rounded-md font-medium" :class="equipmentStatusBadge(log.status).className">Ended {{ formatDateTime(log.actual_end_at) }}</span>
+                                    <span v-else-if="log?.end_use_at" class="py-1 px-2 rounded-md font-medium" :class="equipmentStatusBadge(log.status).className">Due {{ formatDateTime(log.end_use_at) }}</span>
+                                </p>
                             </div>
-                        </div>
+                        </a>
 
                         <div v-if="!recentEquipmentLogs?.length" class="px-5 py-8 text-center text-gray-500 dark:text-gray-400">
                             <LuMicroscope class="w-12 h-12 mx-auto mb-3 opacity-20" />
                             <p>No recent equipment logs</p>
                         </div>
                     </div>
+                </div>
                 </div>
             </div>
         </div>

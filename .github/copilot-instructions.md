@@ -104,6 +104,7 @@
 - Update [docs/codebase-analysis-report-2026-03-25.md](../docs/codebase-analysis-report-2026-03-25.md) whenever you discover, resolve, or defer a codebase issue.
 - Regenerate `resources/js/ziggy.js` after route additions, removals, or guest-surface changes.
 - If `vite.config.js` references `tests/setup.ts`, keep the file present and minimal.
+- PHPUnit must use a dedicated testing database/schema instead of inheriting the primary application database from `.env`. Keep the test database override explicit in [`phpunit.xml`](../phpunit.xml) and preserve isolation when changing test bootstrap logic.
 - If local frontend verification is blocked by workstation toolchain issues, record the exact blocker separately from code fixes so the tracker stays accurate.
 
 ## Personnel ID Standard
