@@ -64,12 +64,49 @@
 - [ID-2026-04-07-025] Resolved. The repeated Equipment Logger email-required modal was also caused by a frontend contract gap: `resources/js/Modules/dto/DtoPersonnel.ts` and `resources/js/Modules/interface/IPersonnel.ts` were not carrying `has_email` and `profile_requires_update`, so normalized personnel payloads could silently drop the lookup flags coming from the backend and the page would fall back to the email-required state even when the database record already had an email. The DTO/interface contract is now aligned with the guest personnel lookup payload.
 - [ID-2026-04-07-026] Resolved. `ActionHeaderLayout` interpreted `route-link` as a raw URL while several pages passed route names, which made shared page headers inconsistent and prone to broken links. The shared header now resolves route names safely before rendering links.
 - [ID-2026-04-07-027] Resolved. Shared form inputs were still rendering invalid or empty `autocomplete` attributes, and the personnel lookup field used the non-standard token `employee_id`, which triggered browser warnings about incorrect autocomplete usage. `TextInput.vue` now omits blank `id`, `name`, and `autocomplete` attributes, `SelectSearchField.vue` uses a valid explicit autocomplete mode, and `PersonnelLookup.vue` now uses the standards-compliant `username` token.
+- [ID-2026-04-07-028] Resolved. The main authenticated dashboard was not honoring Module Access Controls or per-user RBAC, so users could still see counts, quick actions, and activity feeds for modules that were unavailable on the current deployment or outside their assigned permissions. The dashboard now receives server-side access flags, zeroes inaccessible module metrics, filters module cards and quick actions in the UI, and adds a recent equipment logs panel that only appears when the laboratory dashboard is actually available to the current user.
 
 ### Verification Snapshot
 - `php artisan test tests/Feature/Laboratory/EquipmentControllersTest.php tests/Feature/Rental/RentalControllersTest.php tests/Feature/Inventory/GuestPersonnelLookupTest.php tests/Feature/Events/Registration/GuestLookupTest.php tests/Feature/Events/FormRepoParticipantsTest.php tests/Feature/Events/Workflow/TimelineIntegrationTest.php tests/Feature/Events/Workflow/ToggleSettingsTest.php`: 56 passed, 222 assertions, 0 failures.
 - `composer audit --format=json`: clean after dependency updates.
 - `php artisan ziggy:generate resources/js/ziggy.js`: regenerated the frontend route map; stale `api.test-local-network` entry is gone.
 - `npm test -- --run resources/js/smoke.spec.js`: the missing `tests/setup.ts` failure is resolved, but this workstation still routes through Windows `node/npm` from WSL and is missing Rollup's optional native package (`@rollup/rollup-win32-x64-msvc`).
+
+## Module Access Control Assessment (2026-04-07)
+The current Module Access Control approach is operationally strong for CBC-Apps because the same web app is deployed on both the trusted local server (`192.168.36.10`) and the public internet server (`onecbc.philrice.gov.ph`) while intentionally exposing different services on each surface. The core policy is centralized in [`app/Services/DeploymentAccessService.php`](../app/Services/DeploymentAccessService.php), enforced by [`app/Http/Middleware/EnsureDeploymentAccess.php`](../app/Http/Middleware/EnsureDeploymentAccess.php), surfaced in the options UI through [`resources/js/Pages/System/Options/OptionsIndex.vue`](../resources/js/Pages/System/Options/OptionsIndex.vue), and mirrored into frontend visibility through shared Inertia props consumed by [`resources/js/Pages/Welcome.vue`](../resources/js/Pages/Welcome.vue) and [`resources/js/Layouts/AppLayout.vue`](../resources/js/Layouts/AppLayout.vue).
+
+### Strengths
+- Centralized policy model. Deployment access, mode, defaults, grouping, and administrator bypass are defined in one backend service instead of being scattered across pages and routes.
+- Good fit for the real deployment topology. The `local` / `internet` / `both` channel model maps directly to how CBC-Apps is actually operated.
+- Backend and frontend can stay aligned. The same state can govern route middleware, welcome-page visibility, sidebar visibility, and options management.
+- Operational flexibility. Module `active`, `deactivated`, and `maintenance` modes are useful for phased rollouts and temporary read-only behavior without redeploying code.
+- Explicit administrator bypass. This reduces accidental lockouts and allows system management even when a module is restricted to one deployment channel.
+
+### Weaknesses
+- Policy drift is the biggest ongoing risk. New routes, APIs, pages, buttons, websocket subscriptions, generated links, or queued side effects can bypass the intended module key if they are added outside the centralized flow.
+- Host-based channel detection can be brittle. Reverse proxies, unexpected hostnames, tunnels, misconfigured `APP_URL` / `APP_LOCAL_URL`, or proxy-header mistakes can classify requests into the wrong channel.
+- Some module boundaries are still broad. A single module key can end up governing guest and internal surfaces with different threat models, which increases the chance of frontend/backend mismatches.
+- This is not a full security boundary by itself. `deployment.access` is an operational gate and visibility system; it must complement authentication, permissions, network controls, and data minimization rather than replace them.
+- Shared configuration means shared blast radius. A mistaken option change immediately affects both deployments because the policy is data-driven and centralized.
+- Maintenance mode depends on HTTP semantics. If a supposedly read-only `GET` endpoint performs side effects, the maintenance contract becomes misleading.
+
+### What To Watch For
+- Route coverage: every web route and API route related to a module must carry the same `deployment.access:<module>` policy.
+- UI/API symmetry: if a page or action is hidden on one deployment, the related backend endpoint must also reject it, and vice versa.
+- Module-key boundaries: split guest/shared and internal-only surfaces when their exposure model differs.
+- Administrator bypass consistency: middleware, shared props, navigation, welcome-page services, and page-level action guards must all treat admins the same way.
+- Channel detection correctness: validate behavior on the real local host, the real public host, localhost, and direct private-IP access.
+- Background features: Reverb channels, mail links, queued jobs, notifications, exports, and generated URLs should not assume only one deployment surface.
+- Read-only expectations: maintenance mode should block all writes, including indirect writes triggered by GET endpoints or background callbacks.
+
+### Recommended Verification Matrix
+- Local deployment + guest user
+- Local deployment + authenticated non-admin user
+- Local deployment + administrator
+- Internet deployment + guest user
+- Internet deployment + authenticated non-admin user
+- Internet deployment + administrator
+- Repeat the matrix for each module mode: `active`, `maintenance`, and `deactivated`
 
 This is a modular Laravel monolith with a clear controller-repository-service split, but the public guest surface is unusually large for an app that also handles staff workflows, approvals, rentals, and document generation. The biggest risks are authorization-by-knowledge (`employee_id` as a credential), permissive cross-origin settings on a stateful Sanctum stack, public PII leakage in guest rental APIs, and cached PDFs being written into the webroot.
 

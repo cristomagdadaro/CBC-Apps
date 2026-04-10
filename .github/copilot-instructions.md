@@ -65,13 +65,28 @@
 
 ## Module Access Control Standard
 - Deployment access is controlled centrally through [`app/Services/DeploymentAccessService.php`](../app/Services/DeploymentAccessService.php) and enforced by the `deployment.access:<module>` middleware. Treat that backend evaluation as the source of truth.
+- Treat Module Access Control as an operational deployment/access matrix, not as a replacement for authentication, RBAC, signed workflows, or network restrictions.
 - Keep module keys aligned across web routes, API routes, shared Inertia props, and frontend visibility checks. If a page and its related API surface are meant to be governed together, they must use the same module key.
 - Separate guest/shared module keys from internal-only module keys when the exposure model differs. Do not hide a guest-facing feature behind an internal module key just because they share a broader business domain.
 - Authenticated administrator accounts bypass Module Access Control restrictions in both backend middleware and frontend visibility. Non-admin users must continue to follow the configured access and mode rules.
 - Frontend hiding is only a UX mirror of backend policy. If you change module access behavior, update both the backend shared payload and the Vue consumers so navigation, cards, forms, and API authorization stay synchronized.
 - When a guest page relies on authenticated mutations, the page must reflect that requirement in the UI instead of presenting write actions that the backend will reject.
 - Public service cards on `Welcome.vue`, internal navigation in `AppLayout.vue`, and any page-level action guards must all derive from the same deployment-access payload plus the shared auth globals. Do not maintain separate hard-coded visibility lists per page.
+- Dashboard summaries, quick actions, and recent-activity widgets must follow the same deployment-access and RBAC rules as their underlying modules. Do not leave aggregated counts or shortcuts visible for modules the current user cannot access on the current deployment surface.
 - If a local-trust guest workflow intentionally accepts employee ID or other typed staff identifiers, keep that exception explicitly limited to the module key that is set to local-only. If the module later becomes internet-accessible, revisit the workflow before expanding exposure.
+- `currentChannel()` depends on real hostnames and deployment URLs. When changing deployment-aware logic, validate behavior against the actual local host (`192.168.36.10`), the public host (`onecbc.philrice.gov.ph`), localhost, and direct private-IP access where applicable.
+- A Module Access Control change is not complete until all of these stay aligned: route middleware, shared Inertia payload, welcome-page services, sidebar visibility, page-level action buttons, and the related APIs.
+- When adding a new deployment-controlled module, update all of the following together: `DeploymentAccessService::moduleDefinitions()`, option definitions, route middleware usage, the options-management UI, shared frontend consumers, and coverage for guest/non-admin/admin behavior across both deployments.
+- Watch for drift outside normal page rendering. Reverb channels, mail links, queued notifications, exports, generated URLs, and background jobs can accidentally bypass deployment assumptions if they hard-code only one deployment surface.
+- Maintenance mode promises read-only behavior. Before using it for a module, verify that all non-GET writes are blocked and that no GET endpoint or background callback still performs side effects.
+
+### Next-Agent Checklist For Module Access Control
+- Confirm the module key is the same across every related web route, API route, and page that belongs to the same user-facing feature.
+- Confirm the backend denies the feature on the blocked deployment surface even if the frontend accidentally still shows it.
+- Confirm the frontend hides or disables the feature for non-admin users on the blocked surface while administrators still retain explicit bypass access.
+- Confirm the module grouping is logically correct in the Options page: guest/shared vs internal-only should match the actual route surface and threat model.
+- Confirm local-only trust assumptions are still safe. If a module moved from local-only to internet or both, remove any knowledge-based trust shortcuts before rollout.
+- Confirm the six-way verification matrix for the affected module: local/internet x guest/non-admin/admin, then repeat for `active`, `maintenance`, and `deactivated` if the mode logic changed.
 
 ## Guest API Guardrails
 - Treat every `api/guest/*` route as a public internet surface, even when authenticated staff can also hit it.
@@ -227,5 +242,3 @@ class LocationController extends BaseController
 - Use `requireService()` inside base controllers to fail fast when a repository is expected.
 - Load audit logs manually when `$this->service` is `null`; controllers must instantiate models directly and pass them to `loadAuditLogs()`.
 - Keep validation in `FormRequest` classes, and let repositories/repo services handle persistence logic.
-
-

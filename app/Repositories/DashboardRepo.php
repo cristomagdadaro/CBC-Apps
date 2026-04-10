@@ -9,6 +9,7 @@ use App\Models\RentalVenue;
 use App\Models\LaboratoryEquipmentLog;
 use App\Models\Transaction;
 use App\Models\RequestFormPivot;
+use Illuminate\Support\Collection;
 class DashboardRepo extends AbstractRepoService
 {
     private TransactionRepo $transactionRepo;
@@ -95,5 +96,17 @@ class DashboardRepo extends AbstractRepoService
         ];
 
         return $stats;
+    }
+
+    public function getRecentEquipmentLogs(int $limit = 5): Collection
+    {
+        return LaboratoryEquipmentLog::query()
+            ->with([
+                'equipment:id,name,brand',
+                'personnel:id,fname,mname,lname,suffix,employee_id',
+            ])
+            ->orderByRaw('COALESCE(actual_end_at, started_at) desc')
+            ->limit($limit)
+            ->get();
     }
 }

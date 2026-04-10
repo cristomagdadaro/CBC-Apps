@@ -183,7 +183,7 @@ export default {
             <transaction-header-action />
         </template>
         <div v-if="isUpdateView" class="py-4">
-            <div class="max-w-xl mx-auto">
+            <div class="max-w-5xl mx-auto">
                 <outgoing-form
                     :data="data"
                     :summary="summary"
