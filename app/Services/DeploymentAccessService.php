@@ -45,6 +45,14 @@ class DeploymentAccessService
         'internal' => 'Internal Modules',
     ];
 
+    private ?array $moduleConfigCache = null;
+    private ?array $managementPayloadCache = null;
+    private array $requestChannelCache = [];
+    private array $requestAdminBypassCache = [];
+    private array $requestEvaluationCache = [];
+    private array $requestModuleStateCache = [];
+    private array $requestSharedPayloadCache = [];
+
     public function __construct(private readonly OptionRepo $optionRepo)
     {
     }
@@ -185,30 +193,36 @@ class DeploymentAccessService
 
     public function currentChannel(Request $request): string
     {
+        $requestKey = $this->requestCacheKey($request);
+
+        if (array_key_exists($requestKey, $this->requestChannelCache)) {
+            return $this->requestChannelCache[$requestKey];
+        }
+
         $host = strtolower($request->getHost());
 
         $localHost = $this->configuredHost(config('app.local_url'));
         $internetHost = $this->configuredHost(config('app.url'));
 
         if ($localHost !== null && $host === $localHost) {
-            return self::CHANNEL_LOCAL;
+            return $this->requestChannelCache[$requestKey] = self::CHANNEL_LOCAL;
         }
 
         if ($internetHost !== null && $host === $internetHost) {
-            return self::CHANNEL_INTERNET;
+            return $this->requestChannelCache[$requestKey] = self::CHANNEL_INTERNET;
         }
 
         if (in_array($host, self::LOCAL_FALLBACK_HOSTS, true)) {
-            return self::CHANNEL_LOCAL;
+            return $this->requestChannelCache[$requestKey] = self::CHANNEL_LOCAL;
         }
 
         if (filter_var($host, FILTER_VALIDATE_IP)) {
             $isPublicIp = filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
 
-            return $isPublicIp === false ? self::CHANNEL_LOCAL : self::CHANNEL_INTERNET;
+            return $this->requestChannelCache[$requestKey] = ($isPublicIp === false ? self::CHANNEL_LOCAL : self::CHANNEL_INTERNET);
         }
 
-        return self::CHANNEL_INTERNET;
+        return $this->requestChannelCache[$requestKey] = self::CHANNEL_INTERNET;
     }
 
     public function accessFor(string $module): string
@@ -223,13 +237,19 @@ class DeploymentAccessService
 
     public function evaluate(Request $request, string $module): array
     {
+        $cacheKey = $this->requestCacheKey($request) . ':' . $module;
+
+        if (array_key_exists($cacheKey, $this->requestEvaluationCache)) {
+            return $this->requestEvaluationCache[$cacheKey];
+        }
+
         $channel = $this->currentChannel($request);
         $access = $this->accessFor($module);
         $mode = $this->modeFor($module);
         $adminBypass = $this->hasAdministratorBypass($request);
 
         if ($adminBypass) {
-            return [
+            return $this->requestEvaluationCache[$cacheKey] = [
                 'allowed' => true,
                 'reason' => null,
                 'message' => null,
@@ -243,7 +263,7 @@ class DeploymentAccessService
         }
 
         if (! $this->allowsChannel($channel, $access)) {
-            return [
+            return $this->requestEvaluationCache[$cacheKey] = [
                 'allowed' => false,
                 'reason' => 'deployment_access',
                 'message' => $this->accessMessage($module),
@@ -255,7 +275,7 @@ class DeploymentAccessService
         }
 
         if ($mode === self::MODE_DEACTIVATED) {
-            return [
+            return $this->requestEvaluationCache[$cacheKey] = [
                 'allowed' => false,
                 'reason' => 'deactivated',
                 'message' => 'This module is currently deactivated.',
@@ -267,7 +287,7 @@ class DeploymentAccessService
         }
 
         if ($mode === self::MODE_MAINTENANCE && ! $this->isReadOnlyRequest($request)) {
-            return [
+            return $this->requestEvaluationCache[$cacheKey] = [
                 'allowed' => false,
                 'reason' => 'maintenance',
                 'message' => 'This module is currently in maintenance mode. Read-only access is still available.',
@@ -278,7 +298,7 @@ class DeploymentAccessService
             ];
         }
 
-        return [
+        return $this->requestEvaluationCache[$cacheKey] = [
             'allowed' => true,
             'reason' => null,
             'message' => null,
@@ -314,28 +334,25 @@ class DeploymentAccessService
 
     public function sharedPayload(Request $request): array
     {
+        $requestKey = $this->requestCacheKey($request);
+
+        if (array_key_exists($requestKey, $this->requestSharedPayloadCache)) {
+            return $this->requestSharedPayloadCache[$requestKey];
+        }
+
         $channel = $this->currentChannel($request);
         $modules = $this->moduleStateMap($request);
         $adminBypass = $this->hasAdministratorBypass($request);
 
-        return [
+        return $this->requestSharedPayloadCache[$requestKey] = [
             'channel' => $channel,
             'admin_bypass' => $adminBypass,
             'local_url' => (string) config('app.local_url'),
             'internet_url' => (string) config('app.url'),
             'modules' => $modules,
-            'services' => [
-                self::MODULE_EQUIPMENT_LOGGER => $this->isVisibleOnWelcome($request, self::MODULE_EQUIPMENT_LOGGER),
-                self::MODULE_SUPPLIES_CHECKOUT => $this->isVisibleOnWelcome($request, self::MODULE_SUPPLIES_CHECKOUT),
-                self::MODULE_FORMS => $this->isVisibleOnWelcome($request, self::MODULE_FORMS),
-                self::MODULE_FES => $this->isVisibleOnWelcome($request, self::MODULE_FES),
-                self::MODULE_INCIDENT_REPORTS => $this->isVisibleOnWelcome($request, self::MODULE_INCIDENT_REPORTS),
-                self::MODULE_RENTALS => $this->isVisibleOnWelcome($request, self::MODULE_RENTALS),
-                self::MODULE_EXPERIMENT_MONITORING => $this->isVisibleOnWelcome($request, self::MODULE_EXPERIMENT_MONITORING),
-                self::MODULE_INVENTORY => $this->isVisibleOnWelcome($request, self::MODULE_INVENTORY),
-                self::MODULE_RESEARCH => $this->isVisibleOnWelcome($request, self::MODULE_RESEARCH),
-                self::MODULE_LABORATORY_DASHBOARD => $this->isVisibleOnWelcome($request, self::MODULE_LABORATORY_DASHBOARD),
-            ],
+            'services' => collect($modules)
+                ->mapWithKeys(fn (array $state, string $module) => [$module => $state['visible'] ?? false])
+                ->toArray(),
         ];
     }
 
@@ -350,6 +367,10 @@ class DeploymentAccessService
 
     public function managementPayload(): array
     {
+        if ($this->managementPayloadCache !== null) {
+            return $this->managementPayloadCache;
+        }
+
         $definitions = self::moduleDefinitions();
         $modules = $this->moduleConfigMap();
 
@@ -376,7 +397,7 @@ class DeploymentAccessService
             ];
         })->values()->all();
 
-        return [
+        return $this->managementPayloadCache = [
             'modules' => $modules,
             'sections' => $sections,
             'access_choices' => self::accessOptions(),
@@ -408,6 +429,8 @@ class DeploymentAccessService
                 $optionDefinitions[self::modeOptionKey($module)],
             );
         }
+
+        $this->flushRuntimeCaches();
 
         return $this->managementPayload();
     }
@@ -460,10 +483,14 @@ class DeploymentAccessService
 
     private function moduleConfigMap(): array
     {
+        if ($this->moduleConfigCache !== null) {
+            return $this->moduleConfigCache;
+        }
+
         $definitions = self::moduleDefinitions();
         $values = $this->optionRepo->getValuesByKeys(array_keys(self::optionDefinitions()));
 
-        return collect($definitions)
+        return $this->moduleConfigCache = collect($definitions)
             ->mapWithKeys(function (array $definition, string $module) use ($values) {
                 return [
                     $module => [
@@ -483,17 +510,60 @@ class DeploymentAccessService
 
     private function moduleStateMap(Request $request): array
     {
-        return collect($this->moduleConfigMap())
-            ->mapWithKeys(function (array $settings, string $module) use ($request) {
+        $requestKey = $this->requestCacheKey($request);
+
+        if (array_key_exists($requestKey, $this->requestModuleStateCache)) {
+            return $this->requestModuleStateCache[$requestKey];
+        }
+
+        $adminBypass = $this->hasAdministratorBypass($request);
+        $channel = $this->currentChannel($request);
+
+        return $this->requestModuleStateCache[$requestKey] = collect($this->moduleConfigMap())
+            ->mapWithKeys(function (array $settings, string $module) use ($request, $adminBypass, $channel) {
+                $visible = $this->visibleForState($channel, $settings['access'], $settings['mode'], $adminBypass);
+                $available = $this->availableForState($request, $channel, $settings['access'], $settings['mode'], $adminBypass);
+
                 return [
                     $module => $settings + [
-                        'available' => $this->allows($request, $module),
-                        'visible' => $this->isVisibleOnWelcome($request, $module),
-                        'admin_bypass' => $this->hasAdministratorBypass($request),
+                        'available' => $available,
+                        'visible' => $visible,
+                        'admin_bypass' => $adminBypass,
                     ],
                 ];
             })
             ->toArray();
+    }
+
+    private function visibleForState(string $channel, string $access, string $mode, bool $adminBypass): bool
+    {
+        if ($adminBypass) {
+            return true;
+        }
+
+        return $this->allowsChannel($channel, $access)
+            && $mode !== self::MODE_DEACTIVATED;
+    }
+
+    private function availableForState(Request $request, string $channel, string $access, string $mode, bool $adminBypass): bool
+    {
+        if ($adminBypass) {
+            return true;
+        }
+
+        if (! $this->allowsChannel($channel, $access)) {
+            return false;
+        }
+
+        if ($mode === self::MODE_DEACTIVATED) {
+            return false;
+        }
+
+        if ($mode === self::MODE_MAINTENANCE && ! $this->isReadOnlyRequest($request)) {
+            return false;
+        }
+
+        return true;
     }
 
     private function allowsChannel(string $channel, string $requiredAccess): bool
@@ -523,13 +593,35 @@ class DeploymentAccessService
 
     private function hasAdministratorBypass(Request $request): bool
     {
+        $requestKey = $this->requestCacheKey($request);
+
+        if (array_key_exists($requestKey, $this->requestAdminBypassCache)) {
+            return $this->requestAdminBypassCache[$requestKey];
+        }
+
         $user = $request->user();
 
         if (! $user instanceof User) {
-            return false;
+            return $this->requestAdminBypassCache[$requestKey] = false;
         }
 
-        return (bool) $user->is_admin || $user->hasRole('admin');
+        return $this->requestAdminBypassCache[$requestKey] = ((bool) $user->is_admin || $user->hasRole('admin'));
+    }
+
+    private function requestCacheKey(Request $request): string
+    {
+        return (string) spl_object_id($request);
+    }
+
+    private function flushRuntimeCaches(): void
+    {
+        $this->moduleConfigCache = null;
+        $this->managementPayloadCache = null;
+        $this->requestChannelCache = [];
+        $this->requestAdminBypassCache = [];
+        $this->requestEvaluationCache = [];
+        $this->requestModuleStateCache = [];
+        $this->requestSharedPayloadCache = [];
     }
 
     private static function accessOptions(): array

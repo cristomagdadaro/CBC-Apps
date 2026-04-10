@@ -4,10 +4,13 @@ namespace App\Repositories;
 
 use App\Models\Option;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class OptionRepo extends AbstractRepoService
 {
+    private const REQUEST_CACHE_ATTRIBUTE = '__option_repo_resolved_values';
+
     public function __construct(Option $model)
     {
         parent::__construct($model);
@@ -15,12 +18,20 @@ class OptionRepo extends AbstractRepoService
 
     public function create(array $data)
     {
-        return parent::create($this->normalizeOptionPayload($data));
+        $model = parent::create($this->normalizeOptionPayload($data));
+
+        $this->flushRequestCache();
+
+        return $model;
     }
 
     public function update(int|string $id, array $data): Model
     {
-        return parent::update($id, $this->normalizeOptionPayload($data));
+        $model = parent::update($id, $this->normalizeOptionPayload($data));
+
+        $this->flushRequestCache();
+
+        return $model;
     }
 
     protected function normalizeOptionPayload(array $data): array
@@ -68,18 +79,46 @@ class OptionRepo extends AbstractRepoService
      */
     public function getByKey($key)
     {
-        return $this->model
+        $cache = $this->requestCache();
+
+        if (array_key_exists($key, $cache)) {
+            return $cache[$key];
+        }
+
+        $value = $this->model
             ->newQuery()
             ->where('key', $key)
             ->first()?->value;
+
+        $cache[$key] = $value;
+        $this->storeRequestCache($cache);
+
+        return $value;
     }
 
     public function getValuesByKeys(array $keys): array
     {
-        return $this->model
-            ->newQuery()
-            ->whereIn('key', $keys)
-            ->pluck('value', 'key')
+        $keys = array_values(array_unique($keys));
+        $cache = $this->requestCache();
+        $missingKeys = array_values(array_filter($keys, fn ($key) => ! array_key_exists($key, $cache)));
+
+        if ($missingKeys !== []) {
+            $resolved = $this->model
+                ->newQuery()
+                ->whereIn('key', $missingKeys)
+                ->pluck('value', 'key')
+                ->toArray();
+
+            foreach ($missingKeys as $missingKey) {
+                $cache[$missingKey] = $resolved[$missingKey] ?? null;
+            }
+
+            $this->storeRequestCache($cache);
+        }
+
+        return collect($keys)
+            ->filter(fn ($key) => array_key_exists($key, $cache) && $cache[$key] !== null)
+            ->mapWithKeys(fn ($key) => [$key => $cache[$key]])
             ->toArray();
     }
 
@@ -116,7 +155,7 @@ class OptionRepo extends AbstractRepoService
 
     public function upsertBooleanOption(string $key, bool $value, array $meta = []): Model
     {
-        return $this->model
+        $model = $this->model
             ->newQuery()
             ->updateOrCreate(
                 ['key' => $key],
@@ -129,6 +168,10 @@ class OptionRepo extends AbstractRepoService
                     'options' => Arr::get($meta, 'options'),
                 ]
             );
+
+        $this->flushRequestCache();
+
+        return $model;
     }
 
     public function upsertOption(string $key, mixed $value, array $meta = []): Model
@@ -143,12 +186,60 @@ class OptionRepo extends AbstractRepoService
             'options' => Arr::get($meta, 'options'),
         ]);
 
-        return $this->model
+        $model = $this->model
             ->newQuery()
             ->updateOrCreate(
                 ['key' => $payload['key']],
                 Arr::except($payload, ['key'])
             );
+
+        $this->flushRequestCache();
+
+        return $model;
+    }
+
+    private function requestCache(): array
+    {
+        $request = $this->currentRequest();
+
+        if (! $request) {
+            return [];
+        }
+
+        return $request->attributes->get(self::REQUEST_CACHE_ATTRIBUTE, []);
+    }
+
+    private function storeRequestCache(array $cache): void
+    {
+        $request = $this->currentRequest();
+
+        if (! $request) {
+            return;
+        }
+
+        $request->attributes->set(self::REQUEST_CACHE_ATTRIBUTE, $cache);
+    }
+
+    private function flushRequestCache(): void
+    {
+        $request = $this->currentRequest();
+
+        if (! $request) {
+            return;
+        }
+
+        $request->attributes->remove(self::REQUEST_CACHE_ATTRIBUTE);
+    }
+
+    private function currentRequest(): ?Request
+    {
+        if (! app()->bound('request')) {
+            return null;
+        }
+
+        $request = request();
+
+        return $request instanceof Request ? $request : null;
     }
 
     /**

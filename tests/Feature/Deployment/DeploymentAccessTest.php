@@ -5,6 +5,7 @@ namespace Tests\Feature\Deployment;
 use App\Models\Option;
 use App\Services\DeploymentAccessService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Sanctum\Sanctum;
@@ -47,7 +48,7 @@ class DeploymentAccessTest extends TestCase
         $this->get('http://onecbc.philrice.gov.ph/inventory/outgoing')
             ->assertForbidden();
 
-        $this->getJson('http://onecbc.philrice.gov.ph/api/guest/equipments')
+        $this->getJson('http://onecbc.philrice.gov.ph/api/guest/lab/equipments')
             ->assertForbidden()
             ->assertJsonPath('required_access', DeploymentAccessService::ACCESS_LOCAL);
 
@@ -170,6 +171,28 @@ class DeploymentAccessTest extends TestCase
                     DeploymentAccessService::ACCESS_BOTH,
                 )
             );
+    }
+
+    public function test_welcome_page_loads_module_access_snapshot_once_per_request(): void
+    {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $this->get('http://onecbc.philrice.gov.ph/')
+            ->assertOk();
+
+        $moduleAccessQueries = collect(DB::getQueryLog())
+            ->pluck('query')
+            ->filter(fn (string $query) => str_contains($query, 'from `options`') && str_contains($query, 'where `key` in'))
+            ->values();
+
+        DB::disableQueryLog();
+
+        $this->assertCount(
+            1,
+            $moduleAccessQueries,
+            'Deployment access options should be queried once per request.'
+        );
     }
 
     public function test_admin_can_access_local_only_web_module_on_internet_host(): void
