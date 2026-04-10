@@ -16,6 +16,22 @@ export default {
             this.$emit('select-item', item);
         },
     },
+    data() {
+        return {
+            randomIndex: null
+        };
+    },
+    watch: {
+        outgoingFromApi: {
+            immediate: true,
+            handler(val) {
+                if (val?.data?.length && this.randomIndex === null) {
+                    const limit = Math.min(20, val.data.length); // handle <20 items
+                    this.randomIndex = Math.floor(Math.random() * limit);
+                }
+            }
+        }
+    }
 };
 </script>
 
@@ -33,6 +49,7 @@ export default {
             :key="`${item.item_id || item.id}-${item.unit}-${item.barcode || 'nobarcode'}-${index}`"
             @click="selectItem(item)"
             class="flex flex-col bg-white shadow hover:bg-gray-200 hover:border-gray-500 border rounded active:scale-95 duration-75"
+            :data-guide="index === randomIndex ? 'supplies-sample-item' : null"
         >
             <div class="flex flex-col justify-between py-2 px-4 h-full">
                 <div class="flex justify-between items-center gap-5">

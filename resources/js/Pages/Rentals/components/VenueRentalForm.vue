@@ -276,7 +276,8 @@ export default {
     <div class="grid grid-cols-4 gap-6">
         <div
             v-if="form"
-            class="bg-white s p-2 rounded-md flex gap-2 drop-shadow-lg h-fit"
+            data-guide='rental-form-shell'
+            class="bg-white p-2 rounded-md flex gap-2 drop-shadow-lg h-fit"
         >
             <form
                 @submit.prevent="submitProxyCreate"

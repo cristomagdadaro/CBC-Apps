@@ -452,7 +452,7 @@ export default {
             </div>
 
             <!-- Filters -->
-            <div
+            <div data-guide='calendar-filters'
                 class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-5 space-y-4">
                 <h3
                     class="text-xs font-semibold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
@@ -502,7 +502,7 @@ export default {
             </div>
 
             <!-- Legend -->
-            <div v-if="showLegend"
+            <div v-if="showLegend" data-guide='calendar-legends'
                 class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-5 space-y-4">
                 <h3
                     class="text-xs font-semibold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
@@ -566,7 +566,7 @@ export default {
         </aside>
 
         <!-- Main Calendar Area -->
-        <main class="flex-1 min-w-0">
+        <main class="flex-1 min-w-0" data-guide='calendar-main-area'>
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
                 <!-- Calendar Header -->
                 <div

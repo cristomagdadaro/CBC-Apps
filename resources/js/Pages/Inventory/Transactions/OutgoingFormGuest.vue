@@ -213,13 +213,13 @@ export default {
                         </search-btn>
                     </div>
                     <div v-if="outgoingFromApi" class="flex flex-col w-full gap-2 items-center">
-                        <div class="grid grid-cols-2 md:grid-cols-5 gap-2 items-center w-full justify-center">
+                        <div data-guide='supplies-filters' class="grid grid-cols-2 md:grid-cols-5 gap-2 items-center w-full justify-center">
                             <custom-dropdown :with-all-option="false" placeholder="Category" label="Filter by Category" @selectedChange="setFilter('category', $event)" :options="categories" />
                             <custom-dropdown v-if="projectCodes"  placeholder="Project Code"  label="Filter by Project Code"  :options="projectCodes" @selectedChange="setFilter('project_code', $event)" />
                             <custom-dropdown :with-all-option="false" placeholder="Storage Room" label="Filter by Storage Room" @selectedChange="applyStorageRoomFilter($event)" :options="storage_locations" />
                             <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
                             <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
-                            <camera-scanner class="md:col-span-5 col-span-3" @decoded="searchFromBarcode" />
+                            <camera-scanner data-guide='supplies-barcode-scanner' class="md:col-span-5 col-span-3" @decoded="searchFromBarcode" />
                         </div>
                         <h3>There are {{outgoingFromApi?.data?.length || 0}} items registered</h3>
                         <div data-guide="supplies-results" class="w-full max-h-[60vh] overflow-y-auto overflow-x-hidden">

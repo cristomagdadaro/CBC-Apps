@@ -42,37 +42,37 @@ const handleToggleAuto = () => {
 
 <template>
     <!-- Mobile Backdrop -->
-    <transition 
-        enter-active-class="transition-opacity duration-300" 
+    <transition
+        enter-active-class="transition-opacity duration-300"
         enter-from-class="opacity-0"
-        enter-to-class="opacity-100" 
-        leave-active-class="transition-opacity duration-200" 
+        enter-to-class="opacity-100"
+        leave-active-class="transition-opacity duration-200"
         leave-from-class="opacity-100"
         leave-to-class="opacity-0"
     >
-        <div 
-            v-if="open" 
-            class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[999] md:hidden" 
-            @click="close" 
+        <div
+            v-if="open"
+            class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[999] md:hidden"
+            @click="close"
         />
     </transition>
 
     <!-- Main Container -->
-    <div 
+    <div
         data-guide="guide-controls"
         class="fixed bottom-6 left-6 z-[1000] flex flex-col items-start gap-3"
     >
         <!-- Desktop: Floating Pill -->
-        <div 
+        <div
             class="hidden md:flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 rounded-full px-2 py-1.5 shadow-xl shadow-gray-900/10 dark:shadow-black/30 backdrop-blur-md bg-opacity-90 dark:bg-opacity-90 transition-all duration-300 hover:shadow-2xl hover:shadow-gray-900/15 hover:scale-[1.02]"
             :class="compact ? 'scale-90 origin-bottom-left' : ''"
-            @mouseenter="isHovered = true" 
+            @mouseenter="isHovered = true"
             @mouseleave="isHovered = false"
         >
             <!-- Guide Icon -->
-            <div class="p-2.5 rounded-full text-AB dark:text-emerald-400">
+            <button class="p-2.5 rounded-full text-AB dark:text-emerald-400" @click="startGuide()">
                 <LuHelpCircle class="w-5 h-5" />
-            </div>
+            </button>
 
             <div class="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
 
@@ -84,7 +84,7 @@ const handleToggleAuto = () => {
             >
                 <LuPlay class="w-5 h-5" />
                 <span v-if="!compact" class="text-sm font-medium pr-1">
-                    Start {{ guideLabel }}
+                    {{ guideLabel }}
                 </span>
                 <span
                     class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap"
@@ -98,8 +98,8 @@ const handleToggleAuto = () => {
                 type="button"
                 @click="toggleAutoGuides()"
                 class="group relative p-2.5 rounded-full transition-all duration-200"
-                :class="autoEnabled 
-                    ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50' 
+                :class="autoEnabled
+                    ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50'
                     : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-AB dark:hover:text-emerald-400'"
             >
                 <LuSettings2 class="w-5 h-5" />
@@ -114,15 +114,15 @@ const handleToggleAuto = () => {
         <!-- Mobile: FAB with Expandable Menu -->
         <div class="md:hidden flex flex-col items-start gap-3">
             <!-- Menu Panel -->
-            <transition 
+            <transition
                 enter-active-class="transition-all duration-300 ease-out"
-                enter-from-class="opacity-0 translate-y-8 scale-95" 
+                enter-from-class="opacity-0 translate-y-8 scale-95"
                 enter-to-class="opacity-100 translate-y-0 scale-100"
                 leave-active-class="transition-all duration-200 ease-in"
-                leave-from-class="opacity-100 translate-y-0 scale-100" 
+                leave-from-class="opacity-100 translate-y-0 scale-100"
                 leave-to-class="opacity-0 translate-y-8 scale-95"
             >
-                <div 
+                <div
                     v-if="open"
                     class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden min-w-[280px] mb-2"
                 >
@@ -132,7 +132,7 @@ const handleToggleAuto = () => {
                             <LuHelpCircle class="w-4 h-4" />
                             Guided Tour
                         </span>
-                        <button 
+                        <button
                             @click="close"
                             class="text-white/80 hover:text-white transition-colors p-1 rounded-full hover:bg-white/20"
                         >
@@ -164,14 +164,14 @@ const handleToggleAuto = () => {
                             type="button"
                             @click="handleToggleAuto"
                             class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group"
-                            :class="autoEnabled 
-                                ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30' 
+                            :class="autoEnabled
+                                ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30'
                                 : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'"
                         >
-                            <div 
+                            <div
                                 class="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
-                                :class="autoEnabled 
-                                    ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white' 
+                                :class="autoEnabled
+                                    ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white'
                                     : 'bg-gray-100 dark:bg-gray-700 text-gray-600 group-hover:bg-gray-500 group-hover:text-white'"
                             >
                                 <LuSettings2 class="w-4 h-4" />

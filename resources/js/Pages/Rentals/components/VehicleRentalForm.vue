@@ -297,7 +297,7 @@ export default {
     <SuccessModal :show="showSuccessModal" title="Success!" :message="successMessage"
         @close="showSuccessModal = false" />
     <div class="grid md:grid-cols-4 grid-cols-1 gap-6 mt-3 md:mt-0">
-        <div v-if="form" class="bg-white p-2 md:rounded-md flex flex-col gap-2 md:max-w-xl drop-shadow-lg h-fit col-span-3 md:col-span-1">
+        <div data-guide='rental-form-shell' v-if="form" class="bg-white p-2 md:rounded-md flex flex-col gap-2 md:max-w-xl drop-shadow-lg h-fit col-span-3 md:col-span-1">
             <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm">
                 <div class="flex items-start gap-3">
                     <svg class="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"

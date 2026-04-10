@@ -288,7 +288,6 @@ export default {
             </div>
 
             <div
-                data-guide="rental-calendar"
                 id="center-calendar"
                 class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"
             >
@@ -299,6 +298,7 @@ export default {
                     <input
                         v-model="searchKeyword"
                         type="text"
+                        data-guide='rental-calendar-search'
                         placeholder="Search by requester, event, type, or status"
                         class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-AB focus:ring-AB"
                     />

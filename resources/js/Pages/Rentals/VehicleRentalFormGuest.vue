@@ -34,7 +34,7 @@ export default {
         :delay-ready="delayReady"
         >
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
-            <div data-guide="rental-form-shell" class="flex gap-5 flex-col w-full">
+            <div class="flex gap-5 flex-col w-full">
                 <vehicle-rental-form :vehicle-options="vehicleOptions" />
             </div>
         </transition-container>

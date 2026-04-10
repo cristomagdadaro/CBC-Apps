@@ -146,7 +146,7 @@ onMounted(() => {
               :href="route(service.routeName)"
               :color="service.color"
               :external="service.external"
-              class="min-w-[200px] w-[20%]"
+              class="min-w-[300px] md:min-w-[200px] w-[20%]"
             />
             </div>
           </div>
