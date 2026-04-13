@@ -7,6 +7,9 @@ on:
       - main
       - FormBuilder
 
+permissions:
+  contents: read
+
 jobs:
   phpunit:
     runs-on: ubuntu-latest
