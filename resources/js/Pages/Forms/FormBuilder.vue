@@ -1,7 +1,7 @@
 <script>
 /**
  * FormBuilder.vue
- * 
+ *
  * Page for managing form templates - create new templates or edit existing ones.
  * Uses the DragDropFieldBuilder component for the visual form building experience.
  */
@@ -102,7 +102,7 @@ export default {
 
         async deleteTemplate(template) {
             if (!confirm(`Are you sure you want to delete "${template.name}"?`)) return;
-            
+
             try {
                 await this.api.delete('api.form-builder.templates.destroy', { id: template.id });
                 await this.loadTemplates();
@@ -115,7 +115,7 @@ export default {
         async handleSave(data) {
             this.saving = true;
             this.error = null;
-            
+
             const payload = {
                 name: data.template.name,
                 description: data.template.description,
@@ -123,14 +123,14 @@ export default {
                 form_config: data.template.form_config || {},
                 fields: data.fields,
             };
-            
+
             try {
                 if (this.isCreatingNew) {
                     await this.fetchPostApi('api.form-builder.templates.store', payload);
-                } else if (this.selectedTemplate) { console.log(this.selectedTemplate.id)
+                } else if (this.selectedTemplate) {
                     await this.api.put('api.form-builder.templates.update', this.selectedTemplate.id, payload);
                 }
-                
+
                 await this.loadTemplates();
                 this.handleCancel();
             } catch (err) {
@@ -171,7 +171,7 @@ export default {
         <template #header>
             <forms-header-actions />
         </template>
-        
+
         <div class="default-container py-6">
             <!-- Error Alert -->
             <div v-if="error" class="mb-4 p-4 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg flex justify-between items-center">
@@ -214,8 +214,8 @@ export default {
                                 <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-4">System Templates</h3>
                                 <p class="my-3 text-sm text-gray-600">Note: Kindly duplicate system templates to attach them to your event form.</p>
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    <div 
-                                        v-for="template in systemTemplates" 
+                                    <div
+                                        v-for="template in systemTemplates"
                                         :key="template.id"
                                         class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
                                     >
@@ -231,13 +231,13 @@ export default {
                                             </div>
                                         </div>
                                         <div class="mt-4 flex gap-2">
-                                            <button 
+                                            <button
                                                 @click="selectTemplate(template)"
                                                 class="px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
                                             >
                                                 Edit
                                             </button>
-                                            <button 
+                                            <button
                                                 @click="duplicateTemplate(template)"
                                                 class="px-3 py-1.5 text-sm bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded hover:bg-green-200 dark:hover:bg-green-800/30"
                                             >
@@ -252,8 +252,8 @@ export default {
                             <div>
                                 <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-4">Custom Templates</h3>
                                 <div v-if="customTemplates.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    <div 
-                                        v-for="template in customTemplates" 
+                                    <div
+                                        v-for="template in customTemplates"
                                         :key="template.id"
                                         class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
                                     >
@@ -268,19 +268,19 @@ export default {
                                             </div>
                                         </div>
                                         <div class="mt-4 flex gap-2">
-                                            <button 
+                                            <button
                                                 @click="selectTemplate(template)"
                                                 class="px-3 py-1.5 text-sm bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-800/30"
                                             >
                                                 Edit
                                             </button>
-                                            <button 
+                                            <button
                                                 @click="duplicateTemplate(template)"
                                                 class="px-3 py-1.5 text-sm bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded hover:bg-green-200 dark:hover:bg-green-800/30"
                                             >
                                                 Duplicate
                                             </button>
-                                            <button 
+                                            <button
                                                 @click="deleteTemplate(template)"
                                                 class="px-3 py-1.5 text-sm bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded hover:bg-red-200 dark:hover:bg-red-800/30"
                                             >
@@ -313,7 +313,7 @@ export default {
                             @save="handleSave"
                             @cancel="handleCancel"
                         />
-                        
+
                         <div v-if="saving" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
                             <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl">
                                 <p class="text-gray-700 dark:text-gray-300">Saving template...</p>

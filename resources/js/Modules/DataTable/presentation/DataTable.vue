@@ -174,7 +174,6 @@ export default {
                         return this.allColumns.filter((column) => column.visible !== false);
                 },
                 filterOptions() {
-                        console.log(this.allColumns)
                         return this.allColumns.map((column) => ({
                                 key: this.isOnlineMode ? (column.db_key || column.key) : column.key,
                                 localKey: column.key,
@@ -554,7 +553,7 @@ export default {
                                 this.internalResponse = this.normalizeApiResponse(null);
                         } finally {
                                 this.internalProcessing = false;
-                        } console.log(this.internalResponse)
+                        }
                 },
                 normalizeString(value) {
                         if (value == null) {

@@ -94,7 +94,14 @@ class TransactionController extends BaseController
 
     public function remainingStocks(Request $request): Collection
     {
-        return $this->repo()->getRemainingStocks(new Collection($request->all()), [1,2,3,5,6,11,12]);
+        $params = new Collection($request->all());
+
+        // Guest-facing remaining stocks should not surface negative values by default.
+        if ($request->is('api/guest/*') && ! $params->has('min_remaining')) {
+            $params->put('min_remaining', 0);
+        }
+
+        return $this->repo()->getRemainingStocks($params, [1,2,3,5,6,11,12]);
     }
 
     public function projectCodes(): JsonResponse

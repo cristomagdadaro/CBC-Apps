@@ -25,7 +25,7 @@ class GuestOutgoingTest extends TestCase
 
         // Consumable category names that are included in remaining-stocks query (IDs 1,2,3,5,6)
         $consumableCategoryNames = ['Office Supplies', 'IEC Materials', 'Tokens', 'ICT Supplies', 'Laboratory Consumables'];
-        $category = Category::query()->whereIn('name', $consumableCategoryNames)->first() 
+        $category = Category::query()->whereIn('name', $consumableCategoryNames)->first()
             ?? Category::factory()->create(['name' => 'Office Supplies']);
         $supplier = Supplier::query()->first() ?? Supplier::factory()->create();
         $item = Item::factory()->create([
@@ -49,6 +49,21 @@ class GuestOutgoingTest extends TestCase
             'project_code' => 'PC-3000',
         ]);
 
+        $negativeItem = Item::factory()->create([
+            'category_id' => $category->id,
+            'supplier_id' => $supplier->id,
+        ]);
+
+        Transaction::factory()->create([
+            'item_id' => $negativeItem->id,
+            'barcode' => 'CBC-01-000099',
+            'transac_type' => Inventory::OUTGOING->value,
+            'quantity' => 1,
+            'unit' => 'pc',
+            'user_id' => $user->id,
+            'personnel_id' => $personnel->id,
+        ]);
+
         $this->getJson(route('api.inventory.items.public'))
             ->assertOk()
             ->assertJsonStructure(['data']);
@@ -67,6 +82,10 @@ class GuestOutgoingTest extends TestCase
             ->assertJsonStructure(['data']);
 
         $this->assertNotEmpty($remainingResponse->json('data'));
+        $this->assertNotContains(
+            (string) $negativeItem->id,
+            collect($remainingResponse->json('data'))->pluck('item_id')->map(fn ($id) => (string) $id)->all()
+        );
 
         $outgoingPayload = [
             'item_id' => $incoming->item_id,
