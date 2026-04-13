@@ -18,8 +18,6 @@ export default {
         <IncommingTransactionLink />
         <OutgoingTransactionLink />
         <RecountingTransactionLink />
-        <CreatePersonnelLink />
-        <AttachReportLink />
     </ActionHeaderLayout>
 </template>
 

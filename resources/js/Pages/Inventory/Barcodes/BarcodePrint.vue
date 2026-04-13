@@ -4,10 +4,16 @@ import Transaction from "@/Modules/domain/Transaction";
 import JsBarcode from "jsbarcode";
 import QrcodeVue from "qrcode.vue";
 import LabelCard from "./components/LabelCard.vue";
+import OutgoingTransactionLink
+    from "@/Pages/Inventory/Transactions/components/presentation/OutgoingTransactionLink.vue";
+import IncommingTransactionLink
+    from "@/Pages/Inventory/Transactions/components/presentation/IncommingTransactionLink.vue";
+import CreateItemLink from "@/Pages/Inventory/Transactions/components/presentation/CreateItemLink.vue";
 
 export default {
     name: "BarcodePrint",
     components: {
+        CreateItemLink, IncommingTransactionLink, OutgoingTransactionLink,
         QrcodeVue,
         LabelCard,
     },
@@ -521,20 +527,10 @@ export default {
 
     <AppLayout title="Barcode Printing">
         <template #header>
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                        <LuPrinter class="w-6 h-6" />
-                        Barcode Printing
-                    </h2>
-                    <p class="text-sm text-white/80 mt-1">Generate and print labels for inventory items</p>
-                </div>
-                <div v-if="previewReady" class="flex items-center gap-2">
-                    <span class="text-sm text-white/90 bg-white/10 px-3 py-1 rounded-full">
-                        {{ totalLabels }} labels ready
-                    </span>
-                </div>
-            </div>
+            <ActionHeaderLayout title="Barcode Printing" subtitle="Generate and print labels for inventory items" :route-link="route('transactions.index')">
+                <IncommingTransactionLink />
+                <OutgoingTransactionLink />
+            </ActionHeaderLayout>
         </template>
         <div class="md:grid md:grid-cols-12 gap-5 p-5">
             <!-- Help Section -->

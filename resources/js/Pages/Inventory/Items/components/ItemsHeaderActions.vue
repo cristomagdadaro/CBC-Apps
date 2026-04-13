@@ -16,9 +16,6 @@ export default {
 <template>
     <ActionHeaderLayout title="Inventory Items" subtitle="Manage your inventory items and related actions." :route-link="route('items.index')">
         <CreateItemLink />
-        <BarcodePrintingLink />
-        <CreatePersonnelLink />
-        <CreateSupplierLink />
         <IncommingTransactionLink />
         <OutgoingTransactionLink />
     </ActionHeaderLayout>
