@@ -9,10 +9,28 @@ import FeedbackCard from "@/Pages/Forms/components/FeedbackCard.vue";
 import { mergeFormStyleTokens } from "@/Modules/shared/formStyleTokens";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
+import {
+    MapPin, Clock, Calendar, Users, Hash, Timer,
+    CircleCheck, CircleX, ChevronRight, Menu, X,
+    Shield, UserCheck, UserPlus, Mail, Search,
+    Loader2, AlertTriangle, AlertCircle, CheckCircle,
+    XCircle, Lock, Ban, LogOut, ArrowRight, Sparkles,
+    CalendarDays, Hourglass, Radio
+} from 'lucide-vue-next';
 
 export default {
     name: "GuestCard",
-    components: { FeedbackCard, RegistrationCard, PreregistrationCard, PreregistrationQuizBeeCard, PreregistrationQuizbeeTeamCard, DynamicFormRenderer },
+    components: {
+        FeedbackCard, RegistrationCard, PreregistrationCard,
+        PreregistrationQuizBeeCard, PreregistrationQuizbeeTeamCard,
+        DynamicFormRenderer,
+        MapPin, Clock, Calendar, Users, Hash, Timer,
+        CircleCheck, CircleX, ChevronRight, Menu, X,
+        Shield, UserCheck, UserPlus, Mail, Search,
+        Loader2, AlertTriangle, AlertCircle, CheckCircle,
+        XCircle, Lock, Ban, LogOut, ArrowRight, Sparkles,
+        CalendarDays, Hourglass, Radio
+    },
     mixins: [ApiMixin, FormLocalMixin, DataFormatterMixin],
     props: {
         data: {
@@ -73,9 +91,7 @@ export default {
             return this.workflowSteps.find((step) => step.id === this.activeTab) || null;
         },
         currentRequirement() {
-            if (this.activeStep) {
-                return this.activeStep;
-            }
+            if (this.activeStep) return this.activeStep;
             const formType = this.activeTab;
             return formType ? this.whatForm(formType) : null;
         },
@@ -89,10 +105,19 @@ export default {
             return this.data?.responses_count ?? 0;
         },
         slotsAvailable() {
-            if (!this.currentMaxSlots || this.currentMaxSlots <= 0) {
-                return null;
-            }
+            if (!this.currentMaxSlots || this.currentMaxSlots <= 0) return null;
             return Math.max(0, this.currentMaxSlots - (this.currentResponsesCount ?? 0));
+        },
+        slotFillPercent() {
+            if (!this.currentMaxSlots || this.currentMaxSlots <= 0) return 0;
+            return Math.round(((this.currentMaxSlots - (this.slotsAvailable ?? 0)) / this.currentMaxSlots) * 100);
+        },
+        slotStatusClass() {
+            if (this.slotsAvailable === 0) return 'slot-full';
+            const ratio = (this.slotsAvailable ?? 0) / (this.currentMaxSlots ?? 1);
+            if (ratio <= 0.25) return 'slot-critical';
+            if (ratio <= 0.5) return 'slot-low';
+            return 'slot-ok';
         },
         eventStartAt() {
             const startDate = this.data?.date_from;
@@ -141,14 +166,26 @@ export default {
             if (this.eventState === 'ongoing') return this.effectiveEventEndAt;
             return null;
         },
-        eventCountdownDisplay() {
+        countdownParts() {
             const target = this.eventCountdownTargetAt;
-            if (!target) return '0d 0h 0m 0s';
+            if (!target) return { d: '00', h: '00', m: '00', s: '00' };
             const remaining = target.getTime() - this.formCountdownNow;
-            return this.formatCountdownDuration(remaining);
+            if (remaining <= 0) return { d: '00', h: '00', m: '00', s: '00' };
+            const totalSeconds = Math.floor(remaining / 1000);
+            const d = Math.floor(totalSeconds / 86400);
+            const h = Math.floor((totalSeconds % 86400) / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+            return {
+                d: String(d).padStart(2, '0'),
+                h: String(h).padStart(2, '0'),
+                m: String(m).padStart(2, '0'),
+                s: String(s).padStart(2, '0'),
+            };
         },
         countdownDisplay() {
-            return this.eventCountdownDisplay;
+            const p = this.countdownParts;
+            return `${p.d}d ${p.h}h ${p.m}m ${p.s}s`;
         },
         isExpired() {
             return this.eventState === 'expired';
@@ -178,9 +215,7 @@ export default {
             },
         },
         selectedParticipantHash(newValue) {
-            if (this.isInitialized) {
-                this.persistParticipantContext(newValue);
-            }
+            if (this.isInitialized) this.persistParticipantContext(newValue);
         },
     },
     beforeDestroy() {
@@ -189,9 +224,7 @@ export default {
         window.removeEventListener('resize', this.handleResize);
     },
     methods: {
-        handleResize() {
-            this.$forceUpdate();
-        },
+        handleResize() { this.$forceUpdate(); },
         normalizeParticipantHash(value) {
             if (!value || typeof value !== 'string') return null;
             const normalized = value.trim();
@@ -213,18 +246,10 @@ export default {
             const normalizedHash = this.normalizeParticipantHash(hash);
             if (typeof sessionStorage !== 'undefined') {
                 const sessionKey = `event_participant_hash_${this.data.event_id}`;
-                if (normalizedHash) {
-                    sessionStorage.setItem(sessionKey, normalizedHash);
-                } else {
-                    sessionStorage.removeItem(sessionKey);
-                }
+                normalizedHash ? sessionStorage.setItem(sessionKey, normalizedHash) : sessionStorage.removeItem(sessionKey);
             }
             const url = new URL(window.location.href);
-            if (normalizedHash) {
-                url.searchParams.set('participant', normalizedHash);
-            } else {
-                url.searchParams.delete('participant');
-            }
+            normalizedHash ? url.searchParams.set('participant', normalizedHash) : url.searchParams.delete('participant');
             window.history.replaceState({}, '', url.toString());
         },
         initializeParticipantContext() {
@@ -234,9 +259,7 @@ export default {
         },
         startFormCountdownTicker() {
             this.formCountdownNow = Date.now();
-            this.formCountdownIntervalId = setInterval(() => {
-                this.formCountdownNow = Date.now();
-            }, 1000);
+            this.formCountdownIntervalId = setInterval(() => { this.formCountdownNow = Date.now(); }, 1000);
         },
         parseDateTimeValue(value) {
             if (!value) return null;
@@ -264,15 +287,11 @@ export default {
             const openTo = this.parseDateTimeValue(step.open_to ?? step.config?.open_to);
             if (step.status === 'not_yet_open' && openFrom) {
                 const remaining = openFrom.getTime() - now;
-                if (remaining > 0) {
-                    return { label: 'Opens in', value: this.formatCountdownDuration(remaining) };
-                }
+                if (remaining > 0) return { label: 'Opens in', value: this.formatCountdownDuration(remaining) };
             }
             if (step.status === 'available' && openTo) {
                 const remaining = openTo.getTime() - now;
-                if (remaining > 0) {
-                    return { label: 'Closes in', value: this.formatCountdownDuration(remaining) };
-                }
+                if (remaining > 0) return { label: 'Closes in', value: this.formatCountdownDuration(remaining) };
             }
             return null;
         },
@@ -332,9 +351,7 @@ export default {
             this.participantFlowChoice = choice;
             this.participantLookupError = null;
             this.participantLookupSuccess = null;
-            if (choice === 'yes') {
-                this.hydrateParticipantLookupEmail();
-            }
+            if (choice === 'yes') this.hydrateParticipantLookupEmail();
         },
         normalizeEmail(value) {
             if (!value || typeof value !== 'string') return null;
@@ -359,9 +376,7 @@ export default {
             const selectedEmail = this.normalizeEmail(this.getStoredParticipantByHash(this.selectedParticipantHash)?.participant?.email);
             const rememberedEmail = this.getRememberedParticipantLookupEmail();
             const preferredEmail = selectedEmail || rememberedEmail;
-            if (preferredEmail) {
-                this.participantLookupEmail = preferredEmail;
-            }
+            if (preferredEmail) this.participantLookupEmail = preferredEmail;
         },
         inferEmailFromPayload(payload) {
             const directEmail = this.normalizeEmail(payload?.participant?.email);
@@ -382,15 +397,10 @@ export default {
             return null;
         },
         extractParticipantHash(payload) {
-            return payload?.participant_hash
-                || payload?.data?.participant_hash
-                || payload?.registration?.id
-                || null;
+            return payload?.participant_hash || payload?.data?.participant_hash || payload?.registration?.id || null;
         },
         extractParticipant(payload) {
-            return payload?.participant
-                || payload?.data?.participant
-                || null;
+            return payload?.participant || payload?.data?.participant || null;
         },
         async lookupRegisteredParticipant() {
             this.participantLookupError = null;
@@ -415,10 +425,7 @@ export default {
                 this.selectedParticipantHash = data.participant_hash;
                 this.participantLookupSuccess = 'Registration found! Continuing with your saved profile.';
                 this.rememberParticipantLookupEmail(data?.participant?.email || normalizedEmail);
-                this.saveLocalHashedIds({
-                    participant_hash: data.participant_hash,
-                    participant: data.participant,
-                });
+                this.saveLocalHashedIds({ participant_hash: data.participant_hash, participant: data.participant });
                 await this.loadWorkflow();
             } catch (error) {
                 this.participantLookupError = 'Unable to validate your registration. Please try again.';
@@ -445,9 +452,7 @@ export default {
         },
         async handleCreatedModel(payload) {
             const inferredEmail = this.inferEmailFromPayload(payload);
-            if (inferredEmail) {
-                this.rememberParticipantLookupEmail(inferredEmail);
-            }
+            if (inferredEmail) this.rememberParticipantLookupEmail(inferredEmail);
             const participantHash = this.extractParticipantHash(payload);
             const participant = this.extractParticipant(payload);
             if (participantHash) {
@@ -508,12 +513,8 @@ export default {
                     styles.backgroundColor = token.value;
                 }
             }
-            if (textColorToken?.value) {
-                styles.color = textColorToken.value;
-            }
-            if (textShadowToken?.value) {
-                styles.textShadow = textShadowToken.value;
-            }
+            if (textColorToken?.value) styles.color = textColorToken.value;
+            if (textShadowToken?.value) styles.textShadow = textShadowToken.value;
             return styles;
         },
         isFormFull(formType) {
@@ -526,40 +527,23 @@ export default {
         getStepMessage(step) {
             if (!step) return 'This step is not available';
             switch (step.status) {
-                case 'locked':
-                    return 'Complete the previous step to continue';
-                case 'not_yet_open':
-                    return step.open_from 
-                        ? `Available on ${this.formatDateTime(step.open_from)}`
-                        : 'Not yet available';
-                case 'expired':
-                    return 'Closed on ' + (step.open_to ? this.formatDateTime(step.open_to) : 'an earlier date');
-                case 'full':
-                    return 'No slots available';
-                case 'disabled':
-                    return 'Currently disabled';
-                case 'hidden':
-                    return 'Not available';
-                case 'completed':
-                    return 'Already completed';
-                default:
-                    return 'Not available';
+                case 'locked': return 'Complete the previous step to continue';
+                case 'not_yet_open': return step.open_from ? `Available on ${this.formatDateTime(step.open_from)}` : 'Not yet available';
+                case 'expired': return 'Closed on ' + (step.open_to ? this.formatDateTime(step.open_to) : 'an earlier date');
+                case 'full': return 'No slots available';
+                case 'disabled': return 'Currently disabled';
+                case 'hidden': return 'Not available';
+                case 'completed': return 'Already completed';
+                default: return 'Not available';
             }
         },
         formatDateTime(dateString) {
             try {
-                const date = new Date(dateString);
-                return date.toLocaleString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
+                return new Date(dateString).toLocaleString('en-US', {
+                    month: 'short', day: 'numeric', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit', hour12: true
                 });
-            } catch (error) {
-                return dateString;
-            }
+            } catch { return dateString; }
         },
         hasDynamicSchema(step) {
             return step?.field_schema && Array.isArray(step.field_schema) && step.field_schema.length > 0;
@@ -590,209 +574,219 @@ export default {
             const legacyTypes = ['preregistration', 'preregistration_biotech', 'preregistration_quizbee', 'registration', 'feedback'];
             return legacyTypes.includes(formType);
         },
+        getStepIcon(status) {
+            const map = {
+                locked: 'Lock',
+                not_yet_open: 'Clock',
+                expired: 'XCircle',
+                full: 'Users',
+                completed: 'CheckCircle',
+                disabled: 'Ban',
+            };
+            return map[status] || 'Lock';
+        }
     }
 }
 </script>
 
 <template>
-    <div v-if="!!data" class="rounded-md bg-gray-50 dark:bg-gray-900 pb-20 md:pb-0">
-        <!-- Mobile Header (Sticky) -->
-        <div class="md:hidden sticky top-0 z-50 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-2 min-w-0">
-                <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
-                    <span class="text-white font-bold text-sm">{{ data.event_id }}</span>
+    <div v-if="!!data" class="pin-guest-card">
+
+        <!-- ─── Mobile Header ─── -->
+        <div class="mobile-header md:hidden">
+            <div class="mobile-header-inner">
+                <div class="mobile-id-chip">
+                    <Hash :size="10" :stroke-width="2" />
+                    {{ data.event_id }}
                 </div>
-                <h1 class="font-semibold text-gray-900 dark:text-white text-sm truncate">{{ data.title }}</h1>
+                <h1 class="mobile-title">{{ data.title }}</h1>
             </div>
-            <button 
+            <button
                 v-if="workflowTabs.length > 1"
                 @click="showMobileMenu = !showMobileMenu"
-                class="p-2 -mr-2 text-gray-600 dark:text-gray-300"
+                class="mobile-menu-btn"
             >
-                <LuMenu class="w-5 h-5" />
+                <Menu :size="18" :stroke-width="1.75" />
             </button>
         </div>
 
-        <!-- Mobile Step Menu (Sheet) -->
-        <Transition
-            enter-active-class="transition duration-200 ease-out"
-            enter-from-class="opacity-0"
-            enter-to-class="opacity-100"
-            leave-active-class="transition duration-150 ease-in"
-            leave-from-class="opacity-100"
-            leave-to-class="opacity-0"
-        >
-            <div 
+        <!-- ─── Mobile Drawer ─── -->
+        <Transition name="drawer">
+            <div
                 v-if="showMobileMenu && workflowTabs.length > 1"
-                class="fixed inset-0 z-40 bg-black/50 md:hidden"
+                class="drawer-overlay md:hidden"
                 @click="showMobileMenu = false"
             >
-                <div 
-                    class="absolute right-0 top-0 h-full w-64 bg-white dark:bg-gray-800 shadow-xl p-4"
-                    @click.stop
-                >
-                    <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
-                        <span class="font-semibold text-gray-900 dark:text-white">Steps</span>
-                        <button @click="showMobileMenu = false" class="p-1">
-                            <LuX class="w-5 h-5 text-gray-500" />
+                <div class="drawer-panel" @click.stop>
+                    <div class="drawer-header">
+                        <span class="drawer-title">Form Steps</span>
+                        <button @click="showMobileMenu = false" class="drawer-close">
+                            <X :size="16" :stroke-width="1.75" />
                         </button>
                     </div>
-                    <div class="space-y-2">
+                    <div class="drawer-steps">
                         <button
-                            v-for="tab in workflowTabs"
+                            v-for="(tab, i) in workflowTabs"
                             :key="tab.key"
                             @click="activeTab = tab.key; showMobileMenu = false"
-                            class="w-full text-left px-3 py-3 rounded-lg text-sm transition-colors flex items-center gap-3"
-                            :class="activeTab === tab.key ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'"
+                            class="drawer-step-btn"
+                            :class="{ 'active': activeTab === tab.key, 'disabled': tab.disabled }"
                             :disabled="tab.disabled"
                         >
-                            <div 
-                                class="w-2 h-2 rounded-full"
-                                :class="tab.status === 'available' ? 'bg-green-500' : tab.status === 'completed' ? 'bg-blue-500' : 'bg-gray-300'"
+                            <span class="step-num">{{ i + 1 }}</span>
+                            <span class="step-label">{{ tab.label }}</span>
+                            <span
+                                class="step-dot"
+                                :class="`dot-${tab.status}`"
                             />
-                            {{ tab.label }}
-                            <span v-if="tab.disabled" class="ml-auto text-xs text-gray-400">Locked</span>
                         </button>
                     </div>
                 </div>
             </div>
         </Transition>
 
-        <!-- Main Container -->
-        <div class="max-w-2xl mx-auto p-2 md:p-4 space-y-4">
-            
-            <!-- Event Header Card -->
-            <div 
-                class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
-                :style="styleFor('form-background')"
-            >
-                <!-- Header Banner -->
-                <div 
-                    class="px-4 md:px-6 py-4 md:py-6"
-                    :style="styleFor('form-header-box')"
-                >
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="flex-1 min-w-0">
-                            <h2 class="text-xl md:text-2xl font-bold leading-tight" :style="{ color: resolvedStyleTokens?.['form-header-box-text-color']?.value }">
+        <!-- ─── Main layout ─── -->
+        <div class="card-shell">
+
+            <!-- ══ EVENT HEADER CARD ══ -->
+            <div class="event-card" :style="styleFor('form-background')">
+
+                <!-- Header block -->
+                <div class="event-header" :style="styleFor('form-header-box')">
+                    <div class="event-header-content">
+                        <div class="event-meta">
+                            <div class="event-id-badge">
+                                <Hash :size="11" :stroke-width="2.5" />
+                                <span>{{ data.event_id }}</span>
+                            </div>
+                            <h2 class="event-title" :style="{ color: resolvedStyleTokens?.['form-header-box-text-color']?.value }">
                                 {{ data.title }}
                             </h2>
-                            <p class="mt-1 text-sm opacity-90" :style="{ color: resolvedStyleTokens?.['form-header-box-text-color']?.value }">
+                            <p class="event-desc" :style="{ color: resolvedStyleTokens?.['form-header-box-text-color']?.value }">
                                 {{ data.description }}
                             </p>
                         </div>
-                        <div 
-                            class="flex-shrink-0 text-center px-3 py-2 rounded-lg bg-white/20 backdrop-blur"
-                        >
-                            <span class="block text-2xl font-black leading-none">#{{ data.event_id }}</span>
-                            <span class="text-xs opacity-75">ID</span>
-                        </div>
                     </div>
                 </div>
 
-                <!-- Event Status Bar -->
-                <div class="px-4 md:px-6 py-3 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-100 dark:border-gray-700 flex flex-wrap items-center justify-between gap-2">
-                    <div class="flex items-center gap-2">
-                        <span 
-                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
-                            :class="{
-                                'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300': eventState === 'ongoing',
-                                'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300': eventState === 'upcoming',
-                                'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300': eventState === 'expired'
-                            }"
-                        >
-                            <span class="w-1.5 h-1.5 rounded-full" :class="{
-                                'bg-green-500 animate-pulse': eventState === 'ongoing',
-                                'bg-amber-500': eventState === 'upcoming',
-                                'bg-red-500': eventState === 'expired'
-                            }" />
+                <!-- Status ribbon -->
+                <div class="status-ribbon">
+                    <div class="status-left">
+                        <span class="status-badge" :class="`badge-${eventState}`">
+                            <span v-if="eventState === 'ongoing'" class="live-ring">
+                                <span class="live-ring-ping" />
+                                <span class="live-ring-dot" />
+                            </span>
+                            <span v-else class="status-dot" :class="`dot-state-${eventState}`" />
                             {{ eventState === 'ongoing' ? 'Live' : eventState === 'upcoming' ? 'Upcoming' : 'Ended' }}
                         </span>
                     </div>
-                    <div class="text-sm font-mono font-medium text-gray-700 dark:text-gray-300">
-                        {{ countdownDisplay }}
+                    <div class="countdown-ticker">
+                        <template v-if="eventCountdownTargetAt">
+                            <div class="ticker-unit">
+                                <span class="ticker-num">{{ countdownParts.d }}</span>
+                                <span class="ticker-label">d</span>
+                            </div>
+                            <span class="ticker-sep">:</span>
+                            <div class="ticker-unit">
+                                <span class="ticker-num">{{ countdownParts.h }}</span>
+                                <span class="ticker-label">h</span>
+                            </div>
+                            <span class="ticker-sep">:</span>
+                            <div class="ticker-unit">
+                                <span class="ticker-num">{{ countdownParts.m }}</span>
+                                <span class="ticker-label">m</span>
+                            </div>
+                            <span class="ticker-sep">:</span>
+                            <div class="ticker-unit">
+                                <span class="ticker-num">{{ countdownParts.s }}</span>
+                                <span class="ticker-label">s</span>
+                            </div>
+                        </template>
+                        <span v-else class="ticker-ended">—</span>
                     </div>
                 </div>
 
-                <!-- Date/Time Info -->
-                <div class="grid grid-cols-2 divide-x divide-gray-200 dark:divide-gray-700 border-t border-gray-200 dark:border-gray-700">
-                    <div class="p-3 md:p-4 text-center" :style="styleFor('form-time-from')">
-                        <p class="text-xs opacity-75 mb-1" :style="{ color: resolvedStyleTokens?.['form-time-from-text-color']?.value }">Starts</p>
-                        <p class="font-semibold text-sm" :style="{ color: resolvedStyleTokens?.['form-time-from-text-color']?.value }">
+                <!-- Dates grid -->
+                <div class="dates-grid">
+                    <div class="date-cell" :style="styleFor('form-time-from')">
+                        <div class="date-cell-label">
+                            <CalendarDays :size="12" :stroke-width="1.75" />
+                            Starts
+                        </div>
+                        <p class="date-cell-value" :style="{ color: resolvedStyleTokens?.['form-time-from-text-color']?.value }">
                             {{ formatDate(data.date_from) }}
                         </p>
-                        <p class="text-xs opacity-75" :style="{ color: resolvedStyleTokens?.['form-time-from-text-color']?.value }">
+                        <p class="date-cell-time" :style="{ color: resolvedStyleTokens?.['form-time-from-text-color']?.value }">
                             {{ formatTime(data.time_from) }}
                         </p>
                     </div>
-                    <div class="p-3 md:p-4 text-center" :style="styleFor('form-time-to')">
-                        <p class="text-xs opacity-75 mb-1" :style="{ color: resolvedStyleTokens?.['form-time-to-text-color']?.value }">Ends</p>
-                        <p class="font-semibold text-sm" :style="{ color: resolvedStyleTokens?.['form-time-to-text-color']?.value }">
+                    <div class="date-divider" />
+                    <div class="date-cell" :style="styleFor('form-time-to')">
+                        <div class="date-cell-label">
+                            <CalendarDays :size="12" :stroke-width="1.75" />
+                            Ends
+                        </div>
+                        <p class="date-cell-value" :style="{ color: resolvedStyleTokens?.['form-time-to-text-color']?.value }">
                             {{ formatDate(data.date_to) }}
                         </p>
-                        <p class="text-xs opacity-75" :style="{ color: resolvedStyleTokens?.['form-time-to-text-color']?.value }">
+                        <p class="date-cell-time" :style="{ color: resolvedStyleTokens?.['form-time-to-text-color']?.value }">
                             {{ formatTime(data.time_to) }}
                         </p>
                     </div>
                 </div>
 
-                <!-- Venue & Details -->
-                <div v-if="data.venue" class="px-4 md:px-6 py-4 border-t border-gray-200 dark:border-gray-700">
-                    <div class="flex items-start gap-2">
-                        <LuMapPin class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                        <div>
-                            <p class="font-medium text-sm text-gray-900 dark:text-white">{{ data.venue }}</p>
-                            <p v-if="data.details" class="mt-1 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                                {{ data.details }}
-                            </p>
-                        </div>
+                <!-- Venue -->
+                <div v-if="data.venue" class="venue-row">
+                    <MapPin :size="14" :stroke-width="1.75" class="venue-icon" />
+                    <div class="venue-text">
+                        <p class="venue-name">{{ data.venue }}</p>
+                        <p v-if="data.details" class="venue-details">{{ data.details }}</p>
                     </div>
                 </div>
 
-                <!-- Slots Info -->
-                <div v-if="currentMaxSlots && currentMaxSlots > 0" class="px-4 md:px-6 py-3 bg-gray-50 dark:bg-gray-700/30 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                    <span class="text-sm text-gray-600 dark:text-gray-400">
-                        {{ slotsAvailable }} of {{ currentMaxSlots }} slots available
-                    </span>
-                    <div class="w-24 h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
-                        <div 
-                            class="h-full rounded-full transition-all duration-500"
-                            :class="slotsAvailable === 0 ? 'bg-red-500' : slotsAvailable < currentMaxSlots * 0.2 ? 'bg-amber-500' : 'bg-green-500'"
-                            :style="{ width: `${(slotsAvailable / currentMaxSlots) * 100}%` }"
+                <!-- Slots -->
+                <div v-if="currentMaxSlots && currentMaxSlots > 0" class="slots-row">
+                    <div class="slots-info">
+                        <Users :size="13" :stroke-width="1.75" class="slots-icon" />
+                        <span class="slots-text">
+                            <strong>{{ slotsAvailable }}</strong> of {{ currentMaxSlots }} slots available
+                        </span>
+                    </div>
+                    <div class="slots-bar-track">
+                        <div
+                            class="slots-bar-fill"
+                            :class="slotStatusClass"
+                            :style="{ width: `${slotFillPercent}%` }"
                         />
                     </div>
                 </div>
             </div>
 
-            <!-- Status Alerts -->
-            <div 
-                v-if="data.is_suspended" 
-                class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start gap-3"
-            >
-                <LuAlertTriangle class="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            <!-- ══ STATUS ALERTS ══ -->
+            <div v-if="data.is_suspended" class="alert alert-warning">
+                <AlertTriangle :size="16" :stroke-width="1.75" class="alert-icon" />
                 <div>
-                    <p class="font-medium text-amber-800 dark:text-amber-200">Event Temporarily Unavailable</p>
-                    <p class="text-sm text-amber-700 dark:text-amber-300 mt-1">This event is currently suspended and not accepting responses.</p>
+                    <p class="alert-title">Event Temporarily Unavailable</p>
+                    <p class="alert-body">This event is currently suspended and not accepting responses.</p>
                 </div>
             </div>
 
-            <div 
-                v-else-if="isExpired" 
-                class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 flex items-start gap-3"
-            >
-                <LuXCircle class="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+            <div v-else-if="isExpired" class="alert alert-danger">
+                <XCircle :size="16" :stroke-width="1.75" class="alert-icon" />
                 <div>
-                    <p class="font-medium text-red-800 dark:text-red-200">Event Has Ended</p>
-                    <p class="text-sm text-red-700 dark:text-red-300 mt-1">This event is no longer accepting responses.</p>
+                    <p class="alert-title">Event Has Ended</p>
+                    <p class="alert-body">This event is no longer accepting responses.</p>
                 </div>
             </div>
 
-            <!-- Participant Selector -->
-            <div 
-                v-if="participantHashes?.length && !data.is_suspended && !isExpired" 
-                class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4"
+            <!-- ══ PARTICIPANT SELECTOR ══ -->
+            <div
+                v-if="participantHashes?.length && !data.is_suspended && !isExpired"
+                class="section-card"
             >
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Continue as</label>
-                <div class="flex items-center gap-2">
+                <label class="field-label">Continue as</label>
+                <div class="participant-row">
                     <custom-dropdown
                         @selectedChange="onParticipantHashChange"
                         :value="selectedParticipantHash"
@@ -806,175 +800,141 @@ export default {
                         :withAllOption="false"
                         class="flex-1"
                     />
-                    <button
-                        v-if="selectedParticipantHash"
-                        @click="clearParticipant"
-                        class="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                    >
-                        <LuLogOut class="w-4 h-4" />
+                    <button v-if="selectedParticipantHash" @click="clearParticipant" class="btn-ghost-danger">
+                        <LogOut :size="15" :stroke-width="1.75" />
                     </button>
                 </div>
             </div>
 
-            <!-- Participant Verification Flow -->
-            <div 
+            <!-- ══ PARTICIPANT VERIFICATION ══ -->
+            <div
                 v-if="activeStep?.status === 'available' && participantWorkflowEnabled && participantVerificationEnabled && requiresParticipant(activeTab) && !selectedParticipantHash && !data.is_suspended && !isExpired"
-                class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
+                class="section-card verify-card"
             >
-                <div class="px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-100 dark:border-blue-800">
-                    <div class="flex items-center gap-2">
-                        <LuShield class="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                        <h3 class="font-semibold text-blue-900 dark:text-blue-100">Verify Your Registration</h3>
-                    </div>
+                <div class="verify-header">
+                    <Shield :size="15" :stroke-width="1.75" class="verify-icon" />
+                    <span>Verify Your Registration</span>
                 </div>
-                
-                <div class="p-4 space-y-4">
-                    <p class="text-sm text-gray-600 dark:text-gray-300">
-                        This step requires a registered participant profile. Have you used this form before?
-                    </p>
+                <p class="verify-body">This step requires a registered participant profile. Have you used this form before?</p>
 
-                    <!-- Choice Buttons -->
-                    <div v-if="!participantFlowChoice" class="grid grid-cols-2 gap-3">
-                        <button
-                            @click="setParticipantFlowChoice('yes')"
-                            class="flex flex-col items-center gap-2 p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
-                        >
-                            <LuUserCheck class="w-8 h-8 text-blue-600" />
-                            <span class="font-medium text-sm">Yes, I have</span>
-                        </button>
-                        <button
-                            @click="setParticipantFlowChoice('no')"
-                            class="flex flex-col items-center gap-2 p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all"
-                        >
-                            <LuUserPlus class="w-8 h-8 text-green-600" />
-                            <span class="font-medium text-sm">No, I'm new</span>
-                        </button>
-                    </div>
-
-                    <!-- Email Lookup -->
-                    <div v-if="participantFlowChoice === 'yes'" class="space-y-3">
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Enter your registered email address:</p>
-                        <div class="flex gap-2">
-                            <div class="relative flex-1">
-                                <LuMail class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                <input
-                                    v-model="participantLookupEmail"
-                                    type="email"
-                                    placeholder="your@email.com"
-                                    class="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
-                                    @keyup.enter="lookupRegisteredParticipant"
-                                />
-                            </div>
-                            <button
-                                @click="lookupRegisteredParticipant"
-                                :disabled="participantLookupLoading"
-                                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium rounded-lg transition-colors flex items-center gap-2"
-                            >
-                                <LuLoader2 v-if="participantLookupLoading" class="w-4 h-4 animate-spin" />
-                                <LuSearch v-else class="w-4 h-4" />
-                                <span class="hidden sm:inline">Find</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Go to Preregistration -->
-                    <div v-if="participantFlowChoice === 'no'" class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Complete preregistration first:</p>
-                        <button
-                            @click="goToPreregistrationStep"
-                            class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm transition-colors"
-                        >
-                            Go to Preregistration
-                        </button>
-                    </div>
-
-                    <!-- Messages -->
-                    <div v-if="participantLookupSuccess" class="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded-lg text-sm">
-                        <LuCheckCircle class="w-4 h-4 flex-shrink-0" />
-                        {{ participantLookupSuccess }}
-                    </div>
-                    <div v-if="participantLookupError" class="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-lg text-sm">
-                        <LuAlertCircle class="w-4 h-4 flex-shrink-0" />
-                        {{ participantLookupError }}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Loading State -->
-            <div v-if="workflowLoading" class="flex items-center justify-center gap-2 py-8 text-gray-500 dark:text-gray-400">
-                <LuLoader2 class="w-5 h-5 animate-spin" />
-                <span class="text-sm">Loading forms...</span>
-            </div>
-
-            <!-- Error State -->
-            <div v-if="workflowError" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 text-center">
-                <LuAlertCircle class="w-6 h-6 text-red-600 dark:text-red-400 mx-auto mb-2" />
-                <p class="text-sm text-red-700 dark:text-red-300">{{ workflowError }}</p>
-            </div>
-
-            <!-- Desktop Tab Navigation -->
-            <div v-if="workflowTabs.length > 1 && !workflowLoading" class="hidden md:block">
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-1 flex gap-1 overflow-x-auto">
-                    <button
-                        v-for="tab in workflowTabs"
-                        :key="tab.key"
-                        @click="activeTab = tab.key"
-                        class="flex-1 min-w-0 px-3 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
-                        :class="activeTab === tab.key 
-                            ? 'bg-blue-600 text-white shadow-sm' 
-                            : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'"
-                        :disabled="tab.disabled"
-                    >
-                        <div 
-                            class="w-2 h-2 rounded-full"
-                            :class="tab.status === 'available' ? 'bg-green-400' : tab.status === 'completed' ? 'bg-blue-400' : 'bg-gray-400'"
-                        />
-                        <span class="truncate">{{ tab.label }}</span>
+                <div v-if="!participantFlowChoice" class="choice-grid">
+                    <button @click="setParticipantFlowChoice('yes')" class="choice-btn choice-yes">
+                        <UserCheck :size="22" :stroke-width="1.5" />
+                        <span class="choice-label">Yes, I have</span>
+                        <span class="choice-sub">Continue with my profile</span>
+                    </button>
+                    <button @click="setParticipantFlowChoice('no')" class="choice-btn choice-no">
+                        <UserPlus :size="22" :stroke-width="1.5" />
+                        <span class="choice-label">No, I'm new</span>
+                        <span class="choice-sub">Start preregistration</span>
                     </button>
                 </div>
+
+                <div v-if="participantFlowChoice === 'yes'" class="email-lookup">
+                    <p class="lookup-hint">Enter your registered email address:</p>
+                    <div class="lookup-row">
+                        <div class="input-with-icon">
+                            <Mail :size="14" :stroke-width="1.75" class="input-icon" />
+                            <input
+                                v-model="participantLookupEmail"
+                                type="email"
+                                placeholder="your@email.com"
+                                class="pin-input"
+                                @keyup.enter="lookupRegisteredParticipant"
+                            />
+                        </div>
+                        <button
+                            @click="lookupRegisteredParticipant"
+                            :disabled="participantLookupLoading"
+                            class="btn-primary"
+                        >
+                            <Loader2 v-if="participantLookupLoading" :size="14" :stroke-width="1.75" class="spin" />
+                            <Search v-else :size="14" :stroke-width="1.75" />
+                            <span>Find</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div v-if="participantFlowChoice === 'no'" class="prereg-nudge">
+                    <p class="nudge-text">Complete preregistration first to get started.</p>
+                    <button @click="goToPreregistrationStep" class="btn-success">
+                        Go to Preregistration
+                        <ArrowRight :size="13" :stroke-width="2" />
+                    </button>
+                </div>
+
+                <div v-if="participantLookupSuccess" class="inline-alert inline-success">
+                    <CheckCircle :size="13" :stroke-width="1.75" />
+                    {{ participantLookupSuccess }}
+                </div>
+                <div v-if="participantLookupError" class="inline-alert inline-danger">
+                    <AlertCircle :size="13" :stroke-width="1.75" />
+                    {{ participantLookupError }}
+                </div>
             </div>
 
-            <!-- Mobile Step Indicator -->
-            <div v-if="workflowTabs.length > 1 && !workflowLoading" class="md:hidden flex items-center justify-between px-2">
-                <span class="text-sm text-gray-600 dark:text-gray-400">
-                    Step {{ workflowTabs.findIndex(t => t.key === activeTab) + 1 }} of {{ workflowTabs.length }}
-                </span>
-                <span class="text-sm font-medium text-blue-600 dark:text-blue-400">
-                    {{ workflowTabs.find(t => t.key === activeTab)?.label }}
-                </span>
+            <!-- ══ LOADING ══ -->
+            <div v-if="workflowLoading" class="loading-state">
+                <Loader2 :size="18" :stroke-width="1.75" class="spin" />
+                <span>Loading forms…</span>
             </div>
 
-            <!-- Form Content -->
-            <div v-if="activeTab && !workflowLoading" class="space-y-4">
-                <!-- Step Countdown -->
-                <div 
-                    v-if="getStepCountdownMeta(getStep(activeTab))"
-                    class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between"
+            <!-- ══ ERROR ══ -->
+            <div v-if="workflowError" class="alert alert-danger text-center">
+                <AlertCircle :size="16" :stroke-width="1.75" class="alert-icon" />
+                <div>
+                    <p class="alert-title">Failed to load</p>
+                    <p class="alert-body">{{ workflowError }}</p>
+                </div>
+            </div>
+
+            <!-- ══ TABS — Desktop ══ -->
+            <div v-if="workflowTabs.length > 1 && !workflowLoading" class="tabs-bar hidden md:flex">
+                <button
+                    v-for="(tab, i) in workflowTabs"
+                    :key="tab.key"
+                    @click="activeTab = tab.key"
+                    class="tab-btn"
+                    :class="{ 'tab-active': activeTab === tab.key, 'tab-disabled': tab.disabled }"
+                    :disabled="tab.disabled"
                 >
-                    <span class="text-sm text-gray-600 dark:text-gray-400">
-                        {{ getStepCountdownMeta(getStep(activeTab)).label }}
-                    </span>
-                    <span 
-                        class="font-mono font-medium"
-                        :class="getStepCountdownMeta(getStep(activeTab)).label === 'Closes in' ? 'text-amber-600 dark:text-amber-400' : 'text-blue-600 dark:text-blue-400'"
+                    <span class="tab-index">{{ i + 1 }}</span>
+                    <span class="tab-dot" :class="`dot-${tab.status}`" />
+                    <span class="tab-label">{{ tab.label }}</span>
+                </button>
+            </div>
+
+            <!-- ══ STEP INDICATOR — Mobile ══ -->
+            <div v-if="workflowTabs.length > 1 && !workflowLoading" class="step-indicator md:hidden">
+                <span class="step-prog">{{ workflowTabs.findIndex(t => t.key === activeTab) + 1 }} / {{ workflowTabs.length }}</span>
+                <span class="step-cur-label">{{ workflowTabs.find(t => t.key === activeTab)?.label }}</span>
+            </div>
+
+            <!-- ══ FORM CONTENT ══ -->
+            <div v-if="activeTab && !workflowLoading">
+
+                <!-- Step countdown banner -->
+                <div v-if="getStepCountdownMeta(getStep(activeTab))" class="step-countdown">
+                    <div class="step-countdown-inner">
+                        <Hourglass :size="13" :stroke-width="1.75" />
+                        <span>{{ getStepCountdownMeta(getStep(activeTab)).label }}</span>
+                    </div>
+                    <span
+                        class="step-countdown-value"
+                        :class="getStepCountdownMeta(getStep(activeTab)).label === 'Closes in' ? 'countdown-warn' : 'countdown-info'"
                     >
                         {{ getStepCountdownMeta(getStep(activeTab)).value }}
                     </span>
                 </div>
 
-                <!-- Form Container -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <!-- Form Header -->
-                    <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-700/30">
-                        <h3 class="font-semibold text-gray-900 dark:text-white">{{ getStepTitle(activeTab) }}</h3>
-                        <p v-if="getDescription(activeTab)" class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                            {{ getDescription(activeTab) }}
-                        </p>
+                <!-- Form shell -->
+                <div class="form-shell">
+                    <div class="form-shell-header">
+                        <h3 class="form-title">{{ getStepTitle(activeTab) }}</h3>
+                        <p v-if="getDescription(activeTab)" class="form-desc">{{ getDescription(activeTab) }}</p>
                     </div>
 
-                    <!-- Form Content -->
-                    <div class="p-4">
-                        <!-- Dynamic Form Renderer -->
+                    <div class="form-body">
                         <template v-if="activeStep?.status === 'available' && canRenderForm(activeTab)">
                             <DynamicFormRenderer
                                 v-if="hasDynamicSchema(activeStep)"
@@ -987,8 +947,6 @@ export default {
                                 :description="getDescription(activeTab)"
                                 @createdModel="handleCreatedModel"
                             />
-                            
-                            <!-- Legacy Components -->
                             <preregistration-card
                                 v-else-if="getStep(activeTab)?.form_type === 'preregistration'"
                                 :event-id="getRequirementFormId(activeTab)"
@@ -1023,71 +981,863 @@ export default {
                             />
                         </template>
 
-                        <!-- Unavailable State -->
-                        <div v-else class="text-center py-8">
-                            <div 
-                                class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
-                                :class="{
-                                    'bg-gray-100 dark:bg-gray-700': activeStep?.status === 'locked',
-                                    'bg-amber-100 dark:bg-amber-900/30': activeStep?.status === 'not_yet_open',
-                                    'bg-red-100 dark:bg-red-900/30': activeStep?.status === 'expired' || activeStep?.status === 'full',
-                                    'bg-blue-100 dark:bg-blue-900/30': activeStep?.status === 'completed'
-                                }"
-                            >
-                                <component 
-                                    :is="{
-                                        'locked': 'LuLock',
-                                        'not_yet_open': 'LuClock',
-                                        'expired': 'LuXCircle',
-                                        'full': 'LuUsers',
-                                        'completed': 'LuCheckCircle',
-                                        'disabled': 'LuBan'
-                                    }[activeStep?.status] || 'LuLock'"
-                                    class="w-8 h-8"
-                                    :class="{
-                                        'text-gray-500 dark:text-gray-400': activeStep?.status === 'locked',
-                                        'text-amber-600 dark:text-amber-400': activeStep?.status === 'not_yet_open',
-                                        'text-red-600 dark:text-red-400': activeStep?.status === 'expired' || activeStep?.status === 'full',
-                                        'text-blue-600 dark:text-blue-400': activeStep?.status === 'completed'
-                                    }"
+                        <!-- Unavailable state -->
+                        <div v-else class="unavailable-state">
+                            <div class="unavail-icon-ring" :class="`ring-${activeStep?.status}`">
+                                <component
+                                    :is="getStepIcon(activeStep?.status)"
+                                    :size="24"
+                                    :stroke-width="1.5"
+                                    class="unavail-icon"
+                                    :class="`icon-${activeStep?.status}`"
                                 />
                             </div>
-                            <p class="font-medium text-gray-900 dark:text-white mb-1">
-                                {{ getStepMessage(getStep(activeTab)) }}
-                            </p>
-                            <p v-if="activeStep?.status === 'locked'" class="text-sm text-gray-500 dark:text-gray-400">
-                                Complete previous steps to unlock this form
+                            <p class="unavail-title">{{ getStepMessage(getStep(activeTab)) }}</p>
+                            <p v-if="activeStep?.status === 'locked'" class="unavail-sub">
+                                Complete previous steps to unlock this form.
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </template>
 
 <style scoped>
-/* Smooth scrolling */
-html {
-    scroll-behavior: smooth;
+/* ─── Design Tokens ─── */
+.pin-guest-card {
+    --pin-green: #1a7a4a;
+    --pin-green-light: #e8f5ee;
+    --pin-green-muted: #b4d9c5;
+    --pin-green-dark: #115233;
+    --pin-surface: #ffffff;
+    --pin-surface-2: #f8faf9;
+    --pin-surface-3: #f2f5f3;
+    --pin-border: #e2ebe6;
+    --pin-border-strong: #c8d9d1;
+    --pin-text: #111c16;
+    --pin-text-2: #3d5448;
+    --pin-text-3: #6b8578;
+    --pin-text-4: #9ab4a8;
+    --pin-red: #c0392b;
+    --pin-red-light: #fdf0ee;
+    --pin-amber: #b45309;
+    --pin-amber-light: #fef9ee;
+    --pin-blue: #1d5fa8;
+    --pin-blue-light: #eef4fc;
+    --pin-radius: 12px;
+    --pin-radius-sm: 8px;
+    --pin-radius-xs: 6px;
+    --pin-font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    background: var(--pin-surface-2);
+    padding-bottom: 5rem;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
+@media (min-width: 768px) {
+    .pin-guest-card { padding-bottom: 0; }
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
-.no-scrollbar {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+/* ─── Mobile Header ─── */
+.mobile-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--pin-surface);
+    border-bottom: 1px solid var(--pin-border);
+    padding: 0.625rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+.mobile-header-inner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    flex: 1;
+}
+.mobile-id-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: var(--pin-green-light);
+    color: var(--pin-green-dark);
+    font-size: 10px;
+    font-weight: 600;
+    font-family: var(--pin-font-mono);
+    padding: 3px 7px;
+    border-radius: 999px;
+    flex-shrink: 0;
+    letter-spacing: 0.04em;
+}
+.mobile-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pin-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mobile-menu-btn {
+    padding: 6px;
+    color: var(--pin-text-2);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    border-radius: var(--pin-radius-xs);
+    transition: background 0.15s;
+}
+.mobile-menu-btn:hover { background: var(--pin-surface-3); }
+
+/* ─── Drawer ─── */
+.drawer-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: rgba(0,0,0,0.45);
+}
+.drawer-panel {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 260px;
+    background: var(--pin-surface);
+    padding: 1.25rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--pin-border);
+    margin-bottom: 0.25rem;
+}
+.drawer-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pin-text);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+.drawer-close {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--pin-text-3);
+    padding: 4px;
+    border-radius: var(--pin-radius-xs);
+}
+.drawer-steps { display: flex; flex-direction: column; gap: 4px; }
+.drawer-step-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--pin-radius-sm);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s;
+    width: 100%;
+}
+.drawer-step-btn:hover:not(.disabled) { background: var(--pin-surface-3); }
+.drawer-step-btn.active { background: var(--pin-green-light); }
+.drawer-step-btn.disabled { opacity: 0.45; cursor: not-allowed; }
+.step-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--pin-surface-3);
+    color: var(--pin-text-2);
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.drawer-step-btn.active .step-num {
+    background: var(--pin-green);
+    color: #fff;
+}
+.step-label { font-size: 13px; color: var(--pin-text-2); flex: 1; }
+.drawer-step-btn.active .step-label { color: var(--pin-green-dark); font-weight: 500; }
+
+/* ─── Shell ─── */
+.card-shell {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+}
+@media (min-width: 768px) {
+    .card-shell { padding: 1.5rem; }
 }
 
-/* Line clamp utility */
-.line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+/* ─── Event Card ─── */
+.event-card {
+    background: var(--pin-surface);
+    border: 1px solid var(--pin-border);
+    border-radius: var(--pin-radius);
     overflow: hidden;
 }
+
+/* Header block */
+.event-header {
+    padding: 1.25rem 1.25rem 1rem;
+    border-left: 3px solid var(--pin-green);
+    background: var(--pin-surface);
+}
+.event-header-content { display: flex; flex-direction: column; gap: 0.5rem; }
+.event-id-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: var(--pin-green-light);
+    color: var(--pin-green-dark);
+    font-family: var(--pin-font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+    width: fit-content;
+    margin-bottom: 2px;
+}
+.event-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--pin-text);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+}
+.event-desc {
+    font-size: 13px;
+    color: var(--pin-text-3);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Status ribbon */
+.status-ribbon {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.625rem 1.25rem;
+    background: var(--pin-surface-2);
+    border-top: 1px solid var(--pin-border);
+    border-bottom: 1px solid var(--pin-border);
+    gap: 0.75rem;
+}
+.status-left { display: flex; align-items: center; }
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.03em;
+}
+.badge-ongoing {
+    background: #dcfce7;
+    color: #15803d;
+}
+.badge-upcoming {
+    background: #fef9c3;
+    color: #92400e;
+}
+.badge-expired {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Live ring animation */
+.live-ring {
+    position: relative;
+    display: inline-flex;
+    width: 8px;
+    height: 8px;
+}
+.live-ring-ping {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: #4ade80;
+    opacity: 0.75;
+    animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+.live-ring-dot {
+    position: relative;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #16a34a;
+}
+@keyframes ping {
+    75%, 100% { transform: scale(2); opacity: 0; }
+}
+.status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+}
+.dot-state-upcoming { background: #f59e0b; }
+.dot-state-expired { background: #ef4444; }
+
+/* Countdown ticker */
+.countdown-ticker {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.ticker-unit {
+    display: flex;
+    align-items: baseline;
+    gap: 1px;
+}
+.ticker-num {
+    font-family: var(--pin-font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pin-text);
+    letter-spacing: -0.02em;
+    min-width: 22px;
+    text-align: center;
+}
+.ticker-label {
+    font-size: 10px;
+    color: var(--pin-text-4);
+    font-weight: 500;
+}
+.ticker-sep {
+    font-size: 12px;
+    color: var(--pin-border-strong);
+    font-family: var(--pin-font-mono);
+    padding: 0 1px;
+}
+.ticker-ended {
+    font-size: 13px;
+    color: var(--pin-text-4);
+}
+
+/* Dates grid */
+.dates-grid {
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+    border-top: 1px solid var(--pin-border);
+}
+.date-cell {
+    padding: 0.875rem 1.25rem;
+    text-align: center;
+}
+.date-divider {
+    background: var(--pin-border);
+}
+.date-cell-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--pin-text-4);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+.date-cell-value {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--pin-text);
+    margin: 0;
+}
+.date-cell-time {
+    font-size: 12px;
+    color: var(--pin-text-3);
+    margin: 0;
+    margin-top: 1px;
+}
+
+/* Venue */
+.venue-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 0.875rem 1.25rem;
+    border-top: 1px solid var(--pin-border);
+}
+.venue-icon { color: var(--pin-text-4); margin-top: 1px; flex-shrink: 0; }
+.venue-text { display: flex; flex-direction: column; gap: 2px; }
+.venue-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pin-text);
+    margin: 0;
+}
+.venue-details {
+    font-size: 12px;
+    color: var(--pin-text-3);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Slots */
+.slots-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--pin-border);
+    background: var(--pin-surface-2);
+}
+.slots-info {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.slots-icon { color: var(--pin-text-4); }
+.slots-text {
+    font-size: 12.5px;
+    color: var(--pin-text-3);
+}
+.slots-text strong {
+    color: var(--pin-text);
+    font-weight: 600;
+}
+.slots-bar-track {
+    width: 80px;
+    height: 5px;
+    background: var(--pin-border);
+    border-radius: 999px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.slots-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.6s ease;
+}
+.slot-ok { background: var(--pin-green); }
+.slot-low { background: #f59e0b; }
+.slot-critical { background: #f97316; }
+.slot-full { background: #ef4444; }
+
+/* ─── Alerts ─── */
+.alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 0.875rem 1rem;
+    border-radius: var(--pin-radius);
+    border: 1px solid;
+}
+.alert-warning {
+    background: var(--pin-amber-light);
+    border-color: #fcd34d;
+}
+.alert-warning .alert-icon { color: var(--pin-amber); margin-top: 1px; }
+.alert-warning .alert-title { color: #78350f; }
+.alert-warning .alert-body { color: #92400e; }
+.alert-danger {
+    background: var(--pin-red-light);
+    border-color: #fca5a5;
+}
+.alert-danger .alert-icon { color: var(--pin-red); margin-top: 1px; }
+.alert-danger .alert-title { color: #7f1d1d; }
+.alert-danger .alert-body { color: #991b1b; }
+.alert-icon { flex-shrink: 0; }
+.alert-title { font-size: 13.5px; font-weight: 600; margin: 0; }
+.alert-body { font-size: 12.5px; margin: 2px 0 0; line-height: 1.5; }
+
+/* ─── Section Card ─── */
+.section-card {
+    background: var(--pin-surface);
+    border: 1px solid var(--pin-border);
+    border-radius: var(--pin-radius);
+    padding: 1rem 1.125rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+.field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--pin-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.participant-row { display: flex; align-items: center; gap: 8px; }
+.btn-ghost-danger {
+    padding: 7px;
+    color: var(--pin-red);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--pin-radius-xs);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+}
+.btn-ghost-danger:hover {
+    background: var(--pin-red-light);
+    border-color: #fca5a5;
+}
+
+/* ─── Verify Card ─── */
+.verify-card { gap: 0.875rem; }
+.verify-header {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--pin-blue);
+}
+.verify-icon { color: var(--pin-blue); }
+.verify-body { font-size: 13px; color: var(--pin-text-3); margin: 0; line-height: 1.6; }
+
+/* Choice grid */
+.choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.choice-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 1rem 0.75rem;
+    border: 1.5px solid var(--pin-border-strong);
+    border-radius: var(--pin-radius-sm);
+    background: var(--pin-surface);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    text-align: center;
+}
+.choice-btn:hover { border-color: var(--pin-green); background: var(--pin-green-light); }
+.choice-yes:hover { color: var(--pin-green-dark); }
+.choice-no:hover { border-color: var(--pin-green); color: var(--pin-green-dark); }
+.choice-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pin-text);
+    display: block;
+}
+.choice-sub {
+    font-size: 11px;
+    color: var(--pin-text-4);
+    display: block;
+}
+
+/* Email lookup */
+.email-lookup { display: flex; flex-direction: column; gap: 8px; }
+.lookup-hint { font-size: 12.5px; color: var(--pin-text-3); margin: 0; }
+.lookup-row { display: flex; gap: 8px; }
+.input-with-icon { position: relative; flex: 1; }
+.input-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--pin-text-4);
+    pointer-events: none;
+}
+.pin-input {
+    width: 100%;
+    padding: 8px 10px 8px 32px;
+    border: 1px solid var(--pin-border-strong);
+    border-radius: var(--pin-radius-xs);
+    font-size: 13px;
+    color: var(--pin-text);
+    background: var(--pin-surface);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+.pin-input:focus {
+    border-color: var(--pin-green);
+    box-shadow: 0 0 0 3px rgba(26,122,74,0.12);
+}
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 14px;
+    background: var(--pin-green);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--pin-radius-xs);
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.btn-primary:hover { background: var(--pin-green-dark); }
+.btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* Prereg nudge */
+.prereg-nudge {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: var(--pin-surface-2);
+    border-radius: var(--pin-radius-xs);
+    border: 1px solid var(--pin-border);
+    flex-wrap: wrap;
+}
+.nudge-text { font-size: 12.5px; color: var(--pin-text-3); margin: 0; }
+.btn-success {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 13px;
+    background: var(--pin-green);
+    color: #fff;
+    font-size: 12.5px;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--pin-radius-xs);
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+}
+.btn-success:hover { background: var(--pin-green-dark); }
+
+/* Inline alerts */
+.inline-alert {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 10px;
+    border-radius: var(--pin-radius-xs);
+    font-size: 12.5px;
+}
+.inline-success { background: #f0fdf4; color: #15803d; }
+.inline-danger { background: var(--pin-red-light); color: var(--pin-red); }
+
+/* ─── Loading ─── */
+.loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 2.5rem 0;
+    color: var(--pin-text-3);
+    font-size: 13px;
+}
+.spin { animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── Tabs ─── */
+.tabs-bar {
+    background: var(--pin-surface);
+    border: 1px solid var(--pin-border);
+    border-radius: var(--pin-radius);
+    padding: 4px;
+    display: flex;
+    gap: 3px;
+    overflow-x: auto;
+}
+.tab-btn {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 7px 10px;
+    border-radius: var(--pin-radius-sm);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--pin-text-3);
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+}
+.tab-btn:hover:not(.tab-disabled) {
+    background: var(--pin-surface-3);
+    color: var(--pin-text-2);
+}
+.tab-active {
+    background: var(--pin-green) !important;
+    color: #fff !important;
+    font-weight: 600;
+}
+.tab-disabled { opacity: 0.45; cursor: not-allowed; }
+.tab-index {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.tab-btn:not(.tab-active) .tab-index {
+    background: var(--pin-surface-3);
+    color: var(--pin-text-3);
+}
+.tab-label { overflow: hidden; text-overflow: ellipsis; }
+.tab-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.tab-btn.tab-active .tab-dot { background: rgba(255,255,255,0.7); }
+
+/* Step dots (shared) */
+.dot-available { background: #22c55e; }
+.dot-completed { background: #3b82f6; }
+.dot-locked, .dot-not_yet_open, .dot-disabled, .dot-hidden { background: #d1d5db; }
+.dot-expired, .dot-full { background: #ef4444; }
+
+/* Step indicator mobile */
+.step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0.25rem;
+}
+.step-prog { font-size: 12px; color: var(--pin-text-4); }
+.step-cur-label { font-size: 12.5px; font-weight: 600; color: var(--pin-green); }
+
+/* ─── Step countdown ─── */
+.step-countdown {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.625rem 1rem;
+    background: var(--pin-surface);
+    border: 1px solid var(--pin-border);
+    border-radius: var(--pin-radius-sm);
+    gap: 0.75rem;
+}
+.step-countdown-inner {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--pin-text-3);
+}
+.step-countdown-value {
+    font-family: var(--pin-font-mono);
+    font-size: 13px;
+    font-weight: 600;
+}
+.countdown-warn { color: var(--pin-amber); }
+.countdown-info { color: var(--pin-blue); }
+
+/* ─── Form Shell ─── */
+.form-shell {
+    background: var(--pin-surface);
+    border: 1px solid var(--pin-border);
+    border-radius: var(--pin-radius);
+    overflow: hidden;
+}
+.form-shell-header {
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid var(--pin-border);
+    background: var(--pin-surface-2);
+}
+.form-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--pin-text);
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+.form-desc {
+    font-size: 12.5px;
+    color: var(--pin-text-3);
+    margin: 4px 0 0;
+    line-height: 1.5;
+}
+.form-body { padding: 1.25rem; }
+
+/* ─── Unavailable state ─── */
+.unavailable-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    gap: 8px;
+    text-align: center;
+}
+.unavail-icon-ring {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+}
+.ring-locked, .ring-disabled { background: var(--pin-surface-3); }
+.ring-not_yet_open { background: var(--pin-amber-light); }
+.ring-expired, .ring-full { background: var(--pin-red-light); }
+.ring-completed { background: var(--pin-blue-light); }
+.icon-locked, .icon-disabled { color: var(--pin-text-4); }
+.icon-not_yet_open { color: var(--pin-amber); }
+.icon-expired, .icon-full { color: var(--pin-red); }
+.icon-completed { color: var(--pin-blue); }
+.unavail-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--pin-text);
+    margin: 0;
+}
+.unavail-sub {
+    font-size: 12.5px;
+    color: var(--pin-text-3);
+    margin: 0;
+}
+
+/* ─── Transitions ─── */
+.drawer-enter-active, .drawer-leave-active { transition: opacity 0.2s ease; }
+.drawer-enter-from, .drawer-leave-to { opacity: 0; }
+
+/* ─── Dark Mode ─── */
+.dark .pin-guest-card {
+    --pin-surface: #111916;
+    --pin-surface-2: #161e1a;
+    --pin-surface-3: #1c2721;
+    --pin-border: #243020;
+    --pin-border-strong: #2d3d32;
+    --pin-text: #e8f0eb;
+    --pin-text-2: #a8c4b0;
+    --pin-text-3: #6b9278;
+    --pin-text-4: #415c4a;
+    --pin-green-light: #0f2d1c;
+    --pin-green-dark: #6dd49a;
+    --pin-red-light: #2d1212;
+    --pin-amber-light: #2d1f08;
+    --pin-blue-light: #0d1f35;
+}
+.dark .badge-ongoing { background: #14532d; color: #86efac; }
+.dark .badge-upcoming { background: #451a03; color: #fde68a; }
+.dark .badge-expired { background: #450a0a; color: #fca5a5; }
+.dark .inline-success { background: #14532d; color: #86efac; }
+.dark .inline-danger { background: #2d1212; color: #fca5a5; }
 </style>
