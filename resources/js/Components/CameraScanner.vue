@@ -85,7 +85,7 @@ export default {
         // Styling
         scannerHeight: {
             type: String,
-            default: '300px',
+            default: '150px',
         },
         borderColor: {
             type: String,
@@ -497,7 +497,7 @@ export default {
 
 <template>
     <div class="camera-scanner gap-2 flex flex-col" :class="[`variant-${variant}`]">
-        <div class="flex flex-row gap-1 w-screen overflow-x-autor">
+        <div class="flex flex-row gap-1 w-full overflow-x-autor">
             <!-- Toggle Button -->
             <div v-if="showToggle" class="scanner-controls w-full">
                 <button type="button" @click="toggleScanner" :disabled="!enabled"
