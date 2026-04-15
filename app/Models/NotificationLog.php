@@ -30,6 +30,7 @@ class NotificationLog extends BaseModel
         'notifiable_id',
         'recipient_email',
         'channel',
+        'delivery_mode',
         'status',
         'queued_at',
         'sent_at',
@@ -37,6 +38,7 @@ class NotificationLog extends BaseModel
         'failure_reason',
         'payload_meta',
         'correlation_id',
+        'delivery_group_id',
     ];
 
     protected $casts = [
