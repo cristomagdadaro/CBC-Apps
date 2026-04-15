@@ -22,6 +22,7 @@
 - CBC-Apps runs across two deployment surfaces: the trusted local server at `192.168.36.10` and the public web server at `onecbc.philrice.gov.ph`.
 - Treat deployment behavior, Module Access Control, and guest-surface hardening as deployment-aware concerns. Features may intentionally behave differently between the local trusted server and the public internet server, but those differences must be explicit in backend middleware, shared Inertia props, and frontend visibility logic.
 - When adding or changing host-sensitive behavior, make sure local development and Sanctum/session configuration continue to account for both the local deployment host and the public deployment host.
+- On the main Linux production server, keep long-lived background processes under Supervisor instead of the web request lifecycle. Queue workers should run from a dedicated `onecbc-worker` program (typically in `/etc/supervisor/conf.d/onecbc-workers.conf`), and Reverb should run from its own Supervisor program (for example `/etc/supervisor/conf.d/onecbc-reverb.conf`). Use `supervisorctl reread`, `supervisorctl update`, and targeted restarts after deploys so queued notifications, exports, and broadcast updates keep flowing.
 
 ## Data Access Pattern
 - All repository logic lives in [`app/Repositories`](app/Repositories) and extends [`AbstractRepoService`](app/Repositories/AbstractRepoService.php) unless the repository is read-only and clearly documented.
