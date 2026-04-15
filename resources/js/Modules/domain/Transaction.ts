@@ -91,6 +91,20 @@ export default class Transaction extends DtoTransaction {
         };
     }
 
+    get itemWithPrriCode() {
+        return {
+            ...this.item,
+            barcode_prri: this.barcode_prri
+        };
+    }
+
+    get actorWithRemarks() {
+        return {
+            actor_display_name: this.actor_display_name,
+            remarks: this.remarks
+        }
+    }
+
     get dataColor( ){
         return `${this.transac_type && this.transac_type === 'incoming' ? 'text-green-600' : 'text-red-600'}`;
     }
@@ -113,7 +127,7 @@ export default class Transaction extends DtoTransaction {
                 visible: true,
             },{
                 title: 'Item',
-                key: 'item.name',
+                key: 'itemWithPrriCode',
                 db_key: 'item',
                 align: 'dataColor',
                 sortable: true,
@@ -131,7 +145,7 @@ export default class Transaction extends DtoTransaction {
                 db_key: 'barcode_prri',
                 align: 'text-center justify-center',
                 sortable: true,
-                visible: true,
+                visible: false,
             },{
                 title: 'Quantity',
                 key: 'quantityWithUnit',
@@ -180,7 +194,7 @@ export default class Transaction extends DtoTransaction {
                 db_key: 'personnel_id',
                 align: 'dataColor',
                 sortable: true,
-                visible: true,
+                visible: false,
             },{
                 title: 'Project Code',
                 key: 'project_code',
@@ -201,13 +215,20 @@ export default class Transaction extends DtoTransaction {
                 db_key: 'created_at',
                 align: 'flex justify-center',
                 sortable: true,
-                visible: true,
+                visible: false,
             },{
                 title: 'Remarks',
                 key: 'remarks',
                 db_key: 'remarks',
                 align: 'dataColor',
                 sortable: true,
+                visible: false,
+            },{
+                title: 'Actor',
+                key: 'actorWithRemarks',
+                db_key: 'user',
+                align: 'dataColor',
+                sortable: false,
                 visible: true,
             },{
                 title: 'PAR No',

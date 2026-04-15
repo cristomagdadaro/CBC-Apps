@@ -9,7 +9,6 @@ const transactionTypeOptions = [
 </script>
 
 <template>
-
     <Head title="Transactions" />
     <AppLayout>
         <template #header>
@@ -35,6 +34,25 @@ const transactionTypeOptions = [
                 }">
                     {{ value === 'incoming' ? 'Incoming' : value === 'outgoing' ? 'Outgoing' : value }}
                 </span>
+            </template>
+            <template #cell-itemWithPrriCode="{ value }">
+                <div class="py-1.5 leading-tight whitespace-normal w-full">
+                    <div class="font-medium"><span>{{ value.name }}</span> <span v-if="value.description">({{ value.description }})</span></div>
+                    <div class="text-xs" v-if="value.brand">{{value.brand}}</div>
+                    <div class="text-xs" v-if="value.barcode_prri">PN: {{ value.barcode_prri }}</div>
+
+                </div>
+            </template>
+            <template #cell-remarks="{ value }">
+                <div class="py-1.5 leading-tight whitespace-normal w-full">
+                    {{ value }}
+                </div>
+            </template>
+            <template #cell-actorWithRemarks="{ value }">
+                <div class="py-1.5 leading-tight whitespace-normal w-full">
+                    <div v-if="value.actor_display_name" class="font-medium uppercase">{{ value.actor_display_name }}</div>
+                    <div v-if="value.remarks">{{ value.remarks }}</div>
+                </div>
             </template>
         </CRCMDatatable>
     </AppLayout>
