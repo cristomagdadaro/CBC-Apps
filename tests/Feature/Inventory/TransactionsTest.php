@@ -202,4 +202,36 @@ class TransactionsTest extends TestCase
         $this->assertDatabaseMissing('transactions', ['id' => $transaction->id]);
         $this->assertDatabaseMissing('transaction_components', ['transaction_id' => $transaction->id]);
     }
+
+    public function test_public_transaction_index_exposes_actor_display_name_for_user_only_records(): void
+    {
+        $category = Category::factory()->create();
+        $supplier = Supplier::factory()->create();
+        $item = Item::factory()->create([
+            'category_id' => $category->id,
+            'supplier_id' => $supplier->id,
+        ]);
+        $user = User::factory()->create([
+            'name' => 'Recount Operator',
+        ]);
+
+        Transaction::factory()->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-23-000217',
+            'transac_type' => Inventory::OUTGOING->value,
+            'quantity' => 1,
+            'unit' => 'pc',
+            'personnel_id' => null,
+            'user_id' => $user->id,
+            'remarks' => 'Inventory adjustment via recounting.',
+        ]);
+
+        $this->getJson(route('api.inventory.transactions.index.public', [
+            'per_page' => 5,
+            'sort' => 'created_at',
+            'order' => 'desc',
+        ]))
+            ->assertOk()
+            ->assertJsonPath('data.0.actor_display_name', 'Recount Operator');
+    }
 }

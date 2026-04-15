@@ -22,6 +22,7 @@ interface ITransaction extends IBaseClass {
     project_code: string;
     par_no: string;
     condition: string;
+    actor_display_name?: string;
 
     item: IItem;
     user: IUser;

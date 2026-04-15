@@ -160,9 +160,9 @@ class TransactionRepo extends AbstractRepoService
         $orderByRaw = match ($sort) {
             'name'               => 'items.name',
             'brand'              => 'items.brand',
-            'unit'               => 'transactions.unit',
+            'unit'               => 'unit',
             'barcode'            => 'transactions.barcode',
-            'barcode_prri'       => 'transactions.barcode_prri',
+            'barcode_prri'       => 'barcode_prri',
             'total_ingoing'      => 'total_ingoing',
             'total_outgoing'     => 'total_outgoing',
             'remaining_quantity' => 'remaining_quantity',
@@ -171,20 +171,25 @@ class TransactionRepo extends AbstractRepoService
         };
 
         $query = $this->model->newQuery()->selectRaw(
-            'items.name, items.description, items.brand, transactions.unit, items.id as item_id, transactions.barcode, transactions.barcode_prri, MAX(transactions.project_code) as project_code,' .
+            'items.name, items.description, items.brand, items.id as item_id, transactions.barcode,' .
+                ' ' . $this->canonicalTransactionFieldExpression('unit') . ' as unit,' .
+                ' ' . $this->canonicalTransactionFieldExpression('barcode_prri') . ' as barcode_prri,' .
+                ' ' . $this->canonicalTransactionFieldExpression('project_code') . ' as project_code,' .
                 ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,' .
                 ' SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END) as total_outgoing,' .
                 ' (SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) - ' .
                 '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity,' .
-                ' MIN(transactions.expiration) as expiration,' .
+                ' MIN(CASE WHEN transactions.transac_type = "incoming" THEN transactions.expiration END) as expiration,' .
                 ' CASE ' .
-                '   WHEN MIN(transactions.expiration) IS NULL THEN 0 ' .
-                '   WHEN MIN(transactions.expiration) < CURDATE() THEN 3 ' .
-                '   WHEN MIN(transactions.expiration) <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) THEN 2 ' .
+                '   WHEN MIN(CASE WHEN transactions.transac_type = "incoming" THEN transactions.expiration END) IS NULL THEN 0 ' .
+                '   WHEN MIN(CASE WHEN transactions.transac_type = "incoming" THEN transactions.expiration END) < CURDATE() THEN 3 ' .
+                '   WHEN MIN(CASE WHEN transactions.transac_type = "incoming" THEN transactions.expiration END) <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) THEN 2 ' .
                 '   ELSE 1 ' .
                 ' END as expiration_priority'
             )->join('items', 'transactions.item_id', '=', 'items.id')
-            ->groupBy('items.id', 'items.name', 'items.description', 'items.brand', 'transactions.unit', 'transactions.barcode', 'transactions.barcode_prri');
+            ->whereNotNull('transactions.barcode')
+            ->whereRaw('TRIM(transactions.barcode) <> ""')
+            ->groupBy('items.id', 'items.name', 'items.description', 'items.brand', 'transactions.barcode');
 
         if ($filter === 'category' && $filterBy) {
             $values = is_array($filterBy) ? $filterBy : [$filterBy];
@@ -371,9 +376,9 @@ class TransactionRepo extends AbstractRepoService
                 items.brand,
                 items.description,
                 transactions.barcode,
-                transactions.barcode_prri,
-                transactions.unit,
-                MAX(transactions.project_code) as project_code,
+                ' . $this->canonicalTransactionFieldExpression('barcode_prri') . ' as barcode_prri,
+                ' . $this->canonicalTransactionFieldExpression('unit') . ' as unit,
+                ' . $this->canonicalTransactionFieldExpression('project_code') . ' as project_code,
                 SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_incoming,
                 SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END) as total_outgoing,
                 (SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END)
@@ -390,9 +395,7 @@ class TransactionRepo extends AbstractRepoService
                 'items.name',
                 'items.brand',
                 'items.description',
-                'transactions.barcode',
-                'transactions.barcode_prri',
-                'transactions.unit'
+                'transactions.barcode'
             )
             ->orderByDesc('latest_transaction_at')
             ->first();
@@ -555,7 +558,7 @@ class TransactionRepo extends AbstractRepoService
     {
         return $this->model
             ->newQuery()
-            ->with(['item', 'personnel'])
+            ->with(['item', 'personnel', 'user'])
             ->orderBy('created_at', 'desc')
             ->limit($limit)
             ->get();
@@ -800,5 +803,15 @@ class TransactionRepo extends AbstractRepoService
         }
 
         return null;
+    }
+
+    private function canonicalTransactionFieldExpression(string $field): string
+    {
+        $qualifiedField = "transactions.{$field}";
+
+        return 'COALESCE(' .
+            'NULLIF(MAX(CASE WHEN transactions.transac_type = "incoming" AND ' . $qualifiedField . ' IS NOT NULL AND TRIM(' . $qualifiedField . ') <> "" THEN ' . $qualifiedField . ' END), ""), ' .
+            'NULLIF(MAX(CASE WHEN ' . $qualifiedField . ' IS NOT NULL AND TRIM(' . $qualifiedField . ') <> "" THEN ' . $qualifiedField . ' END), "")' .
+            ')';
     }
 }

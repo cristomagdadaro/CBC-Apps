@@ -31,6 +31,7 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
     project_code: string;
     par_no: string;
     condition: string;
+    actor_display_name?: string;
 
     item: IItem;
     user: IUser;
@@ -56,6 +57,7 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
         this.project_code = data?.project_code;
         this.par_no = data?.par_no;
         this.condition = data?.condition;
+        this.actor_display_name = data?.actor_display_name;
 
         if (data?.item)
             this.item = new DtoItem(data?.item);
@@ -81,5 +83,9 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
 
     get quantityWithUnit(): string {
         return `${this.quantity} ${this.unit}`;
+    }
+
+    get actorDisplayName(): string {
+        return this.actor_display_name || this.personnel?.fullName || this.user?.fullName || this.user?.name || '-';
     }
 }

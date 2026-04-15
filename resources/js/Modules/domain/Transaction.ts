@@ -21,7 +21,7 @@ export default class Transaction extends DtoTransaction {
 
     constructor(response: DtoTransaction) {
         super(response);
-        
+
         // @ts-ignore
         this.api._apiIndex = (Transaction.page.props.auth && Transaction.page.props.auth.user) ? Transaction.endpoints.index : Transaction.endpoints.indexGuest;
         // @ts-ignore
@@ -175,8 +175,8 @@ export default class Transaction extends DtoTransaction {
                 sortable: true,
                 visible: false,
             },{
-                title: 'Personnel',
-                key: 'personnel.fullName',
+                title: 'Actor',
+                key: 'actor_display_name',
                 db_key: 'personnel_id',
                 align: 'dataColor',
                 sortable: true,

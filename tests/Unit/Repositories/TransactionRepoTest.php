@@ -8,6 +8,7 @@ use App\Models\Item;
 use App\Models\LaboratoryEquipmentLog;
 use App\Models\Personnel;
 use App\Models\Supplier;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Repositories\LaboratoryEquipmentLogRepo;
 use App\Repositories\TransactionRepo;
@@ -194,6 +195,109 @@ class TransactionRepoTest extends TestCase
         $this->assertSame($transaction->id, $itemResults->first()->id);
         $this->assertCount(1, $personnelResults);
         $this->assertSame($transaction->id, $personnelResults->first()->id);
+    }
+
+    public function test_get_remaining_stocks_returns_one_row_per_barcode_even_when_transaction_metadata_differs(): void
+    {
+        ['item' => $item, 'personnel' => $personnel, 'user' => $user] = $this->createInventoryContext();
+        $repo = app(TransactionRepo::class);
+
+        $repo->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-01-900005',
+            'barcode_prri' => 'PRRI-900005',
+            'transac_type' => InventoryEnum::INCOMING->value,
+            'quantity' => 10,
+            'unit_price' => 5,
+            'unit' => 'roll',
+            'total_cost' => 50,
+            'personnel_id' => $personnel->id,
+            'user_id' => $user->id,
+            'remarks' => 'Incoming stock',
+            'project_code' => 'PC-STOCK',
+            'expiration' => now()->addDays(10)->toDateString(),
+        ]);
+
+        $repo->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-01-900005',
+            'barcode_prri' => null,
+            'transac_type' => InventoryEnum::OUTGOING->value,
+            'quantity' => 2,
+            'unit_price' => 5,
+            'unit' => 'box',
+            'total_cost' => 10,
+            'personnel_id' => $personnel->id,
+            'user_id' => $user->id,
+            'remarks' => 'Outgoing stock',
+            'project_code' => null,
+        ]);
+
+        $repo->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-01-900005',
+            'barcode_prri' => 'PRRI-900005',
+            'transac_type' => InventoryEnum::OUTGOING->value,
+            'quantity' => 1,
+            'unit_price' => 5,
+            'unit' => 'roll',
+            'total_cost' => 5,
+            'personnel_id' => $personnel->id,
+            'user_id' => $user->id,
+            'remarks' => 'Outgoing stock 2',
+            'project_code' => null,
+        ]);
+
+        $stocks = $repo->getRemainingStocks(new Collection([
+            'include_all_categories' => true,
+            'paginate' => false,
+            'per_page' => '*',
+        ]));
+
+        $rows = collect($stocks->get('data'))->where('barcode', 'CBC-01-900005')->values();
+
+        $this->assertCount(1, $rows);
+        $this->assertSame('roll', $rows->first()->unit);
+        $this->assertSame('PRRI-900005', $rows->first()->barcode_prri);
+        $this->assertSame('PC-STOCK', $rows->first()->project_code);
+        $this->assertSame(10.0, (float) $rows->first()->total_ingoing);
+        $this->assertSame(3.0, (float) $rows->first()->total_outgoing);
+        $this->assertSame(7.0, (float) $rows->first()->remaining_quantity);
+    }
+
+    public function test_transaction_actor_display_name_prefers_personnel_then_falls_back_to_user(): void
+    {
+        ['item' => $item, 'personnel' => $personnel, 'user' => $user] = $this->createInventoryContext([
+            'personnel' => [
+                'fname' => 'Jamie',
+                'mname' => 'Lee',
+                'lname' => 'Torres',
+                'suffix' => null,
+            ],
+        ]);
+
+        $withPersonnel = Transaction::factory()->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-01-900006',
+            'transac_type' => InventoryEnum::OUTGOING->value,
+            'quantity' => 1,
+            'unit' => 'pc',
+            'personnel_id' => $personnel->id,
+            'user_id' => $user->id,
+        ])->load(['personnel', 'user']);
+
+        $userOnly = Transaction::factory()->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-01-900007',
+            'transac_type' => InventoryEnum::OUTGOING->value,
+            'quantity' => 1,
+            'unit' => 'pc',
+            'personnel_id' => null,
+            'user_id' => $user->id,
+        ])->load(['personnel', 'user']);
+
+        $this->assertSame('Jamie L. Torres', $withPersonnel->actor_display_name);
+        $this->assertSame($user->name, $userOnly->actor_display_name);
     }
 
     public function test_laboratory_log_search_matches_related_equipment_and_personnel_names(): void

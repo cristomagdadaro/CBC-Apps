@@ -297,8 +297,8 @@ export default {
                 </div>
                 <div v-else v-for="transaction in recentTransactions" :key="transaction.id" class="py-2 rounded-md px-2 duration-200 flex flex-col gap-1" :class="transaction.transac_type === 'incoming' ? 'bg-green-200':'bg-red-200'">
                     <div class="flex justify-between items-center leading-tight">
-                        <div>   
-                            <p>{{ transaction.personnel ? transaction.personnel.fname + ' ' + transaction.personnel.lname : 'Unknown' }}</p>
+                        <div>
+                            <p>{{ transaction.actor_display_name || 'Unknown' }}</p>
                             <p>{{ formatDate(transaction.created_at) }}</p>
                         </div>
 

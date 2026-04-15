@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\TransactionActorNameResolver;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,7 +18,7 @@ class Transaction extends BaseModel
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($model) {
             if (empty($model->id)) {
                 $model->id = (string) Str::uuid();
@@ -29,6 +30,9 @@ class Transaction extends BaseModel
     protected $keyType = 'string';
     protected $casts = [
         'id' => 'string',
+    ];
+    protected $appends = [
+        'actor_display_name',
     ];
     protected $fillable = [
         'id',
@@ -94,6 +98,14 @@ class Transaction extends BaseModel
     public function reports(): HasMany
     {
         return $this->hasMany(SuppEquipReport::class, 'transaction_id', 'id');
+    }
+
+    public function getActorDisplayNameAttribute(): ?string
+    {
+        return app(TransactionActorNameResolver::class)->resolve(
+            $this->personnel,
+            $this->user,
+        );
     }
 
     public function components(): HasMany
