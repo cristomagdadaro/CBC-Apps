@@ -65,7 +65,9 @@ class NotificationDispatchServiceTest extends TestCase
                 && $job->recipientEmails === ['first@example.com', 'second@example.com']
                 && count($job->logIds) === 2
                 && $job->groupedToAddress === 'ops@example.com'
-                && $job->groupedToName === 'CBC Ops';
+                && $job->groupedToName === 'CBC Ops'
+                && $job->timeout === 240
+                && $job->failOnTimeout === true;
         });
         Queue::assertPushed(DeliverNotificationMessageJob::class, 1);
     }

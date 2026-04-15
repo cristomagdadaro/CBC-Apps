@@ -22,6 +22,8 @@ class DeliverNotificationMessageJob implements ShouldQueue
     use SerializesModels;
 
     public int $tries = 3;
+    public int $timeout = 240;
+    public bool $failOnTimeout = true;
     public string $deliveryMode;
     public array $recipientEmails;
     public array $logIds;

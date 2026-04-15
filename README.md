@@ -35,6 +35,7 @@ API module routes are protected with permission middleware using `can:<permissio
 2. Configure the environment:
    - Copy `.env.example` to `.env`
    - Set your database, app URL, and queue/realtime settings
+   - Set `QUEUE_RETRY_AFTER` higher than your queue worker timeout. For grouped notifications and certificate mail on the database queue, `QUEUE_RETRY_AFTER=300` is the recommended baseline.
    - For certificate generation on Linux, use:
      - `PYTHON_PATH=python3`
      - `LIBREOFFICE_PATH=soffice` or `/usr/bin/soffice`
@@ -56,7 +57,7 @@ API module routes are protected with permission middleware using `can:<permissio
 
    ```ini
    [program:onecbc-worker]
-   command=php /var/webapps-php81/onecbc/CBC-Apps/artisan queue:work --queue=certificates,notifications,default --sleep=3 --tries=3 --timeout=90
+   command=php /var/webapps-php81/onecbc/CBC-Apps/artisan queue:work --queue=certificates,notifications,default --sleep=3 --tries=3 --timeout=240
    autostart=true
    autorestart=true
    user=www-data
