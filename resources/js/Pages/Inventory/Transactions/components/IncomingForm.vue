@@ -4,6 +4,7 @@ import { createCanvas } from "canvas";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Transaction from "@/Modules/domain/Transaction";
 import JsBarcode from "jsbarcode";
+import DtoResponse from "@/Modules/dto/DtoResponse";
 import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
 import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/TransactionReportAccordion.vue";
 import AuditInfoCard from "@/Components/AuditInfoCard.vue";
@@ -47,7 +48,25 @@ export default {
                 await this.submitUpdate();
                 return;
             }
-            await this.submitCreate();
+
+            const selectedStorage = this.selectedStorage;
+            const response = await this.submitCreate(false, this.getCreateRetainedFields());
+
+            await this.handleCreateSuccess(response, selectedStorage);
+        },
+        getCreateRetainedFields() {
+            return [
+                'transac_type',
+                'user_id',
+                'project_code',
+                'personnel_id',
+                'condition',
+                'remarks',
+                'par_no',
+            ];
+        },
+        currentUserId() {
+            return this.$page.props?.auth?.user?.id ?? null;
         },
         createEmptyComponentRow() {
             return {
@@ -101,7 +120,39 @@ export default {
                 this.renderBarcode();
             });
         },
-        resetIncomingForm() {
+        async applyCreateDefaults(storage = null) {
+            if (!this.form || this.isUpdate) {
+                return;
+            }
+
+            this.form.transac_type = this.form.transac_type ?? 'incoming';
+            this.form.user_id = this.form.user_id ?? this.currentUserId();
+            this.form.components = Array.isArray(this.form.components) ? this.form.components : [];
+
+            if (storage) {
+                await this.generateBarcode(storage);
+                return;
+            }
+
+            this.form.barcode = this.form.barcode ?? this.preGenerateBarcode ?? null;
+
+            if (this.form.barcode) {
+                this.renderBarcode();
+                return;
+            }
+
+            this.svgText = '';
+        },
+        async handleCreateSuccess(response, storage = null) {
+            if (!(response instanceof DtoResponse)) {
+                return;
+            }
+
+            this.componentRows = [];
+            this.syncComponentsPayload();
+            await this.applyCreateDefaults(storage);
+        },
+        async resetIncomingForm() {
             if (this.isUpdate) {
                 this.resetField(this.data);
                 this.componentRows = this.mapAttachedComponentsToRows(this.attachedComponentsList);
@@ -109,8 +160,11 @@ export default {
                 return;
             }
 
-            this.resetField(this.$page.props.data);
+            const selectedStorage = this.selectedStorage;
+
+            this.resetField(this.model.createFields());
             this.componentRows = [];
+            await this.applyCreateDefaults(selectedStorage);
             this.syncComponentsPayload();
         },
         renderBarcode() {
@@ -274,16 +328,9 @@ export default {
         this.model = new Transaction();
         this.setFormAction(this.isUpdate ? 'update' : 'create');
 
-        if (!this.form.transac_type) {
-            this.form.transac_type = 'incoming';
-        }
-
         if (!this.isUpdate) {
-            this.form.barcode = this.preGenerateBarcode;
-            this.form.user_id = this.$page.props?.auth?.user?.id;
-            this.form.components = [];
             this.componentRows = [];
-            await this.generateBarcode();
+            await this.applyCreateDefaults(this.selectedStorage);
             return;
         }
 
