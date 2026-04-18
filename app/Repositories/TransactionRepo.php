@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Enums\Inventory;
 use App\Models\LaboratoryEquipmentLocationSurvey;
 use App\Models\Transaction;
+use App\Models\TransactionComponent;
 use App\Models\Category;
 use App\Repositories\OptionRepo;
 use Carbon\Carbon;
@@ -29,34 +30,15 @@ class TransactionRepo extends AbstractRepoService
 
     public function create(array $data)
     {
-        $components = collect($data['components'] ?? [])
-            ->filter(fn ($component) => !empty($component['item_id']) && !empty($component['quantity']))
-            ->values();
+        $parentBarcode = $this->normalizeParentBarcode($data['parent_barcode'] ?? null);
 
-        unset($data['components']);
+        unset($data['components'], $data['parent_barcode']);
 
-        return DB::transaction(function () use ($data, $components) {
+        return DB::transaction(function () use ($data, $parentBarcode) {
+            /** @var Transaction $main */
             $main = $this->model->newQuery()->create($data);
 
-            if (($data['transac_type'] ?? null) === 'incoming' && $components->isNotEmpty()) {
-                $components->each(function (array $component) use ($main, $data) {
-                    $quantity = (float) ($component['quantity'] ?? 0);
-                    $prriComponentNo = $component['prri_component_no'] ?? null;
-
-                    $main->components()->create([
-                        'transaction_id' => $main->id,
-                        'item_id' => $component['item_id'],
-                        'quantity' => $quantity,
-                        'unit' => $component['unit'] ?? ($data['unit'] ?? null),
-                        'barcode_prri' => $component['barcode_prri'] ?? ($data['barcode_prri'] ?? null),
-                        'prri_component_no' => $prriComponentNo !== null && $prriComponentNo !== ''
-                            ? str_pad((string) ((int) $prriComponentNo), 5, '0', STR_PAD_LEFT)
-                            : null,
-                        'expiration' => $component['expiration'] ?? ($data['expiration'] ?? null),
-                        'remarks' => $component['remarks'] ?? null,
-                    ]);
-                });
-            }
+            $this->syncParentTransactionLink($main, $parentBarcode);
 
             return $main;
         });
@@ -69,6 +51,7 @@ class TransactionRepo extends AbstractRepoService
             $deletedData = $model->getAttributes();
 
             $model->components()->delete();
+            $model->parentComponents()->delete();
             $model->reports()->delete();
             $model->delete();
 
@@ -85,6 +68,7 @@ class TransactionRepo extends AbstractRepoService
             $deletedData = $model->getAttributes();
 
             $model->components()->withTrashed()->forceDelete();
+            $model->parentComponents()->withTrashed()->forceDelete();
             $model->reports()->withTrashed()->forceDelete();
             $model->forceDelete();
 
@@ -96,47 +80,95 @@ class TransactionRepo extends AbstractRepoService
 
     public function update(int|string $id, array $data): Model
     {
-        $components = collect($data['components'] ?? [])
-            ->filter(fn ($component) => !empty($component['item_id']) && !empty($component['quantity']))
-            ->values();
+        $parentBarcode = $this->normalizeParentBarcode($data['parent_barcode'] ?? null);
 
-        unset($data['components']);
+        unset($data['components'], $data['parent_barcode']);
 
-        return DB::transaction(function () use ($id, $data, $components) {
+        return DB::transaction(function () use ($id, $data, $parentBarcode) {
+            /** @var Transaction $model */
             $model = $this->model->newQuery()->findOrFail($id);
             $model->fill($data);
             $model->save();
 
             if (($model->transac_type ?? null) !== 'incoming') {
+                $model->components()->delete();
+                $model->parentComponents()->delete();
                 return $model;
             }
 
-            $model->components()->delete();
-
-            if ($components->isEmpty()) {
-                return $model;
-            }
-
-            $components->each(function (array $component) use ($model) {
-                $quantity = (float) ($component['quantity'] ?? 0);
-                $prriComponentNo = $component['prri_component_no'] ?? null;
-
-                $model->components()->create([
-                    'transaction_id' => $model->id,
-                    'item_id' => $component['item_id'],
-                    'quantity' => $quantity,
-                    'unit' => $component['unit'] ?? ($model->unit ?? null),
-                    'barcode_prri' => $component['barcode_prri'] ?? ($model->barcode_prri ?? null),
-                    'prri_component_no' => $prriComponentNo !== null && $prriComponentNo !== ''
-                        ? str_pad((string) ((int) $prriComponentNo), 5, '0', STR_PAD_LEFT)
-                        : null,
-                    'expiration' => $component['expiration'] ?? ($model->expiration ?? null),
-                    'remarks' => $component['remarks'] ?? null,
-                ]);
-            });
+            $this->syncParentTransactionLink($model, $parentBarcode);
 
             return $model;
         });
+    }
+
+    private function normalizeParentBarcode(?string $barcode): ?string
+    {
+        if ($barcode === null) {
+            return null;
+        }
+
+        $normalized = trim($barcode);
+
+        return $normalized === '' ? null : $normalized;
+    }
+
+    private function resolveParentTransaction(string $barcode, ?string $excludeId = null): ?Transaction
+    {
+        return $this->model->newQuery()
+            ->where('transac_type', Inventory::INCOMING->value)
+            ->when($excludeId, fn (Builder $query) => $query->where('id', '!=', $excludeId))
+            ->where(function (Builder $query) use ($barcode) {
+                $query->where('barcode', $barcode)
+                    ->orWhere('barcode_prri', $barcode);
+            })
+            ->first();
+    }
+
+    private function syncParentTransactionLink(Transaction $transaction, ?string $parentBarcode): void
+    {
+        if (($transaction->transac_type ?? null) !== Inventory::INCOMING->value) {
+            $transaction->parentComponents()->delete();
+
+            return;
+        }
+
+        if ($parentBarcode === null) {
+            $transaction->parentComponents()->delete();
+
+            return;
+        }
+
+        $parent = $this->resolveParentTransaction($parentBarcode, $transaction->id);
+
+        if (! $parent) {
+            throw ValidationException::withMessages([
+                'parent_barcode' => ['The parent barcode does not match an existing incoming transaction.'],
+            ]);
+        }
+
+        $transaction->parentComponents()
+            ->where('transaction_id', '!=', $parent->id)
+            ->delete();
+
+        $existingLink = TransactionComponent::query()
+            ->withTrashed()
+            ->where('transaction_id', $parent->id)
+            ->where('component_transaction_id', $transaction->id)
+            ->first();
+
+        if ($existingLink) {
+            if ($existingLink->trashed()) {
+                $existingLink->restore();
+            }
+
+            return;
+        }
+
+        TransactionComponent::query()->create([
+            'transaction_id' => $parent->id,
+            'component_transaction_id' => $transaction->id,
+        ]);
     }
 
     public function getRemainingStocks(Collection $parameters, array $consumableCategoryIds = [1,2,3,5,6,11,12]): Collection

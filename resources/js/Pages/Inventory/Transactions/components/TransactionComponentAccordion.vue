@@ -10,6 +10,10 @@ export default {
             type: String,
             default: 'Attached Components',
         },
+        emptyMessage: {
+            type: String,
+            default: 'No components linked to this transaction yet.',
+        },
     },
     computed: {
         hasComponents() {
@@ -27,34 +31,43 @@ export default {
         </div>
 
         <div v-if="!hasComponents" class="p-3 text-xs text-gray-500">
-            No components linked to this transaction yet.
+            {{ emptyMessage }}
         </div>
 
         <div v-else class="divide-y divide-gray-200 dark:divide-gray-600">
             <div v-for="(component, index) in components" :key="component.id ?? index" class="p-3 text-sm grid grid-cols-2 gap-2">
-                <div class="col-span-2 font-medium">
-                    {{ component?.item?.name ?? 'Unnamed Component' }}
-                    <span v-if="component?.item?.brand" class="text-xs text-gray-500">({{ component.item.brand }})</span>
+                <div class="col-span-2 flex items-start justify-between gap-3">
+                    <div class="font-medium">
+                        {{ component?.item?.name ?? 'Unnamed Component' }}
+                        <span v-if="component?.item?.brand" class="text-xs text-gray-500">({{ component.item.brand }})</span>
+                    </div>
+                    <Link :href="route('transactions.show', component.id)" class="text-xs text-AA underline whitespace-nowrap">
+                        Open Transaction
+                    </Link>
                 </div>
                 <div>
                     <span class="text-gray-500">Qty:</span>
                     {{ component.quantity }} {{ component.unit ?? '' }}
                 </div>
                 <div>
-                    <span class="text-gray-500">Unit:</span>
-                    {{ component.unit ?? '-' }}
+                    <span class="text-gray-500">CBC Barcode:</span>
+                    {{ component.barcode ?? '-' }}
                 </div>
                 <div>
                     <span class="text-gray-500">PRRI Barcode:</span>
                     {{ component.barcode_prri ?? '-' }}
                 </div>
                 <div>
-                    <span class="text-gray-500">Component No:</span>
-                    {{ component.prri_component_no ?? '-' }}
+                    <span class="text-gray-500">Accountable:</span>
+                    {{ component.actor_display_name ?? '-' }}
                 </div>
                 <div>
                     <span class="text-gray-500">Expiry Date:</span>
                     {{ component.expiration ?? '-' }}
+                </div>
+                <div>
+                    <span class="text-gray-500">Project Code:</span>
+                    {{ component.project_code ?? '-' }}
                 </div>
                 <div v-if="component.remarks" class="col-span-2">
                     <span class="text-gray-500">Remarks:</span>

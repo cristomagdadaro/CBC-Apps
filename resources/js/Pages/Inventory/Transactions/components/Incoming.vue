@@ -18,6 +18,10 @@ export default {
             type: Array,
             default: () => [],
         },
+        parentTransaction: {
+            type: Object,
+            default: null,
+        },
     },
     components: {
         IncomingForm,
@@ -84,6 +88,7 @@ export default {
                     :data="data"
                     :attached-reports="attachedReports"
                     :attached-components="attachedComponents"
+                    :parent-transaction="parentTransaction"
                     @showNewItemForm="showNewItemForm = $event"
                 />
                 <transition-container type="pop-in">

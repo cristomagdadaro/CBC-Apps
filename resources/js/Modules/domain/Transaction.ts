@@ -29,7 +29,7 @@ export default class Transaction extends DtoTransaction {
         this.api._apiPut = Transaction.endpoints.put;
         this.api._apiDelete = Transaction.endpoints.delete;
 
-        this.api.appendWith = ['item', 'user', 'personnel', 'components.item'];
+        this.api.appendWith = ['item', 'user', 'personnel', 'components.componentTransaction.item', 'parentComponent.parentTransaction.item'];
 
         this.showPage = Transaction.endpoints.show;
     }
@@ -37,9 +37,9 @@ export default class Transaction extends DtoTransaction {
     createFields(): object
     {
         return {
-            components: [],
             barcode: null,
             barcode_prri: null,
+            parent_barcode: null,
             item_id: null,
             transac_type: null,
             quantity: null,
@@ -61,9 +61,9 @@ export default class Transaction extends DtoTransaction {
     {
         return {
             id: model.id ?? null,
-            components: model.components ?? [],
             barcode: model.barcode ?? null,
             barcode_prri: model.barcode_prri ?? null,
+            parent_barcode: model.parent_barcode ?? null,
             item_id: model.item_id ?? null,
             transac_type: model.transac_type ?? null,
             quantity: model.quantity ?? null,

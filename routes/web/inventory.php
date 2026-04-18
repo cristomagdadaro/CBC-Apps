@@ -111,7 +111,24 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                         return redirect()->route('transactions.index');
                     }
 
-                    $transaction->load(['components.item']);
+                    $transaction->load([
+                        'item',
+                        'user:id,name',
+                        'personnel:id,employee_id,fname,mname,lname,suffix',
+                        'components.componentTransaction.item',
+                        'components.componentTransaction.user:id,name',
+                        'components.componentTransaction.personnel:id,employee_id,fname,mname,lname,suffix',
+                        'parentComponent.parentTransaction.item',
+                        'parentComponent.parentTransaction.user:id,name',
+                        'parentComponent.parentTransaction.personnel:id,employee_id,fname,mname,lname,suffix',
+                    ]);
+
+                    $attachedComponents = $transaction->components
+                        ->map(fn ($link) => $link->componentTransaction)
+                        ->filter()
+                        ->values();
+
+                    $parentTransaction = optional($transaction->parentComponent)->parentTransaction;
 
                     $attachedReports = $transaction->reports()
                         ->with([
@@ -131,7 +148,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                             'storage_locations' => app(OptionRepo::class)->getStorageLocations(),
                             'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                             'attachedReports' => $attachedReports,
-                            'attachedComponents' => $transaction->components,
+                            'attachedComponents' => $attachedComponents,
+                            'parentTransaction' => $parentTransaction,
                         ]);
                     }
 

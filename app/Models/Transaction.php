@@ -7,6 +7,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\Auditable;
 use Illuminate\Support\Str;
@@ -111,5 +112,15 @@ class Transaction extends BaseModel
     public function components(): HasMany
     {
         return $this->hasMany(TransactionComponent::class, 'transaction_id', 'id');
+    }
+
+    public function parentComponents(): HasMany
+    {
+        return $this->hasMany(TransactionComponent::class, 'component_transaction_id', 'id');
+    }
+
+    public function parentComponent(): HasOne
+    {
+        return $this->hasOne(TransactionComponent::class, 'component_transaction_id', 'id');
     }
 }

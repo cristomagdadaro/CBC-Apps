@@ -20,13 +20,25 @@ class TransactionRepoTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_create_persists_incoming_transaction_components(): void
+    public function test_create_links_incoming_transaction_to_parent_transaction_by_barcode(): void
     {
         ['item' => $item, 'personnel' => $personnel, 'user' => $user] = $this->createInventoryContext();
 
-        $transaction = app(TransactionRepo::class)->create([
+        $parent = app(TransactionRepo::class)->create([
             'item_id' => $item->id,
             'barcode' => 'CBC-01-900001',
+            'transac_type' => InventoryEnum::INCOMING->value,
+            'quantity' => 1,
+            'unit_price' => 5,
+            'unit' => 'pc',
+            'total_cost' => 5,
+            'personnel_id' => $personnel->id,
+            'user_id' => $user->id,
+        ]);
+
+        $transaction = app(TransactionRepo::class)->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-01-900011',
             'transac_type' => InventoryEnum::INCOMING->value,
             'quantity' => 10,
             'unit_price' => 5,
@@ -37,41 +49,47 @@ class TransactionRepoTest extends TestCase
             'expiration' => now()->addMonth()->toDateString(),
             'remarks' => 'Initial stock',
             'project_code' => 'PC-REPO',
-            'components' => [
-                [
-                    'item_id' => $item->id,
-                    'quantity' => 4,
-                    'unit' => 'pc',
-                    'barcode_prri' => '1234567890',
-                    'prri_component_no' => '12',
-                    'remarks' => 'Component A',
-                ],
-                [
-                    'item_id' => $item->id,
-                    'quantity' => 6,
-                    'unit' => 'pc',
-                    'barcode_prri' => '1234567891',
-                    'prri_component_no' => '7',
-                    'remarks' => 'Component B',
-                ],
-            ],
+            'parent_barcode' => $parent->barcode,
         ]);
 
-        $transaction->refresh();
+        $transaction->load('parentComponent');
 
-        $this->assertCount(2, $transaction->components);
-        $this->assertSame('00012', $transaction->components[0]->prri_component_no);
-        $this->assertSame('00007', $transaction->components[1]->prri_component_no);
+        $this->assertNotNull($transaction->parentComponent);
+        $this->assertSame($parent->id, $transaction->parentComponent->transaction_id);
     }
 
-    public function test_update_replaces_existing_incoming_components(): void
+    public function test_update_relinks_existing_incoming_sub_component(): void
     {
         ['item' => $item, 'personnel' => $personnel, 'user' => $user] = $this->createInventoryContext();
         $repo = app(TransactionRepo::class);
 
-        $transaction = $repo->create([
+        $parentA = $repo->create([
             'item_id' => $item->id,
             'barcode' => 'CBC-01-900002',
+            'transac_type' => InventoryEnum::INCOMING->value,
+            'quantity' => 1,
+            'unit_price' => 5,
+            'unit' => 'pc',
+            'total_cost' => 5,
+            'personnel_id' => $personnel->id,
+            'user_id' => $user->id,
+        ]);
+
+        $parentB = $repo->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-01-900003',
+            'transac_type' => InventoryEnum::INCOMING->value,
+            'quantity' => 1,
+            'unit_price' => 5,
+            'unit' => 'pc',
+            'total_cost' => 5,
+            'personnel_id' => $personnel->id,
+            'user_id' => $user->id,
+        ]);
+
+        $transaction = $repo->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-01-900012',
             'transac_type' => InventoryEnum::INCOMING->value,
             'quantity' => 8,
             'unit_price' => 5,
@@ -82,32 +100,30 @@ class TransactionRepoTest extends TestCase
             'expiration' => now()->addMonth()->toDateString(),
             'remarks' => 'Seed stock',
             'project_code' => 'PC-REPO-2',
-            'components' => [
-                [
-                    'item_id' => $item->id,
-                    'quantity' => 8,
-                    'prri_component_no' => '1',
-                ],
-            ],
+            'parent_barcode' => $parentA->barcode,
         ]);
 
         $updated = $repo->update($transaction->id, [
+            'item_id' => $transaction->item_id,
+            'barcode' => $transaction->barcode,
+            'barcode_prri' => $transaction->barcode_prri,
+            'transac_type' => $transaction->transac_type,
+            'quantity' => $transaction->quantity,
+            'unit_price' => $transaction->unit_price,
+            'unit' => $transaction->unit,
+            'total_cost' => $transaction->total_cost,
+            'personnel_id' => $transaction->personnel_id,
+            'user_id' => $transaction->user_id,
+            'expiration' => $transaction->expiration,
+            'project_code' => $transaction->project_code,
             'remarks' => 'Updated stock',
-            'components' => [
-                [
-                    'item_id' => $item->id,
-                    'quantity' => 3,
-                    'prri_component_no' => '15',
-                    'remarks' => 'Replacement component',
-                ],
-            ],
+            'parent_barcode' => $parentB->barcode,
         ]);
 
-        $updated->refresh();
+        $updated->load('parentComponent');
 
-        $this->assertCount(1, $updated->components);
-        $this->assertSame(3.0, (float) $updated->components->first()->quantity);
-        $this->assertSame('00015', $updated->components->first()->prri_component_no);
+        $this->assertNotNull($updated->parentComponent);
+        $this->assertSame($parentB->id, $updated->parentComponent->transaction_id);
         $this->assertSame('Updated stock', $updated->remarks);
     }
 

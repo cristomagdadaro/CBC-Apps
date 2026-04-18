@@ -76,33 +76,41 @@ class UpdateTransactionRequest extends FormRequest
             'personnel_id' => 'required|exists:personnels,id',
             'par_no' => 'nullable|string|unique:transactions,par_no,' . $id,
             'condition' => 'nullable|string',
-            'components' => [
-                'nullable',
-                'array',
-                Rule::when(
-                    fn ($input) => $input->transac_type === Inventory::INCOMING->value,
-                    ['max:50']
-                ),
-            ],
-            'components.*.item_id' => [
-                'required_with:components',
-                'exists:items,id',
-            ],
-            'components.*.quantity' => [
-                'required_with:components',
-                'numeric',
-                'min:1',
-            ],
-            'components.*.unit' => 'nullable|string',
-            'components.*.prri_component_no' => ['nullable', 'regex:/^\d{1,5}$/'],
-            'components.*.expiration' => 'nullable|date',
-            'components.*.remarks' => 'nullable|string',
+            'parent_barcode' => 'nullable|string',
         ];
     }
 
     public function withValidator(Validator $validator): void
     {
         $validator->after(function($validator) {
+            if ($this->filled('parent_barcode')) {
+                if ($this->input('transac_type') !== Inventory::INCOMING->value) {
+                    $validator->errors()->add('parent_barcode', 'Only incoming transactions can be linked as sub-components.');
+                } else {
+                    $id = $this->route('id');
+                    $parentBarcode = trim((string) $this->input('parent_barcode'));
+                    $currentBarcode = trim((string) $this->input('barcode'));
+                    $currentPrriBarcode = trim((string) $this->input('barcode_prri'));
+
+                    if ($parentBarcode !== '' && ($parentBarcode === $currentBarcode || ($currentPrriBarcode !== '' && $parentBarcode === $currentPrriBarcode))) {
+                        $validator->errors()->add('parent_barcode', 'Parent barcode must reference a different transaction.');
+                    }
+
+                    $parentExists = Transaction::query()
+                        ->where('transac_type', Inventory::INCOMING->value)
+                        ->where('id', '!=', $id)
+                        ->where(function ($query) use ($parentBarcode) {
+                            $query->where('barcode', $parentBarcode)
+                                ->orWhere('barcode_prri', $parentBarcode);
+                        })
+                        ->exists();
+
+                    if (! $parentExists) {
+                        $validator->errors()->add('parent_barcode', 'The parent barcode does not match an existing incoming transaction.');
+                    }
+                }
+            }
+
             if ($this->input('transac_type') !== Inventory::OUTGOING->value) {
                 return;
             }

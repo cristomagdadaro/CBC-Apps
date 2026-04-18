@@ -7,6 +7,7 @@ import JsBarcode from "jsbarcode";
 import DtoResponse from "@/Modules/dto/DtoResponse";
 import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
 import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/TransactionReportAccordion.vue";
+import TransactionComponentAccordion from "@/Pages/Inventory/Transactions/components/TransactionComponentAccordion.vue";
 import AuditInfoCard from "@/Components/AuditInfoCard.vue";
 
 export default {
@@ -20,10 +21,15 @@ export default {
             type: Array,
             default: () => [],
         },
+        parentTransaction: {
+            type: Object,
+            default: null,
+        },
     },
     components: {
         TransactionHeaderAction,
         TransactionReportAccordion,
+        TransactionComponentAccordion,
         AuditInfoCard,
         QrcodeVue,
     },
@@ -35,15 +41,12 @@ export default {
             barcodeCanvas: null,
             svgText: '',
             showNewItemForm: false,
-            componentRows: [],
             rememberFormKey: 'incomingTransactionForm',
         }
     },
     emits: ['showNewItemForm'],
     methods: {
         async submitForm() {
-            this.syncComponentsPayload();
-
             if (this.isUpdate) {
                 await this.submitUpdate();
                 return;
@@ -63,52 +66,21 @@ export default {
                 'condition',
                 'remarks',
                 'par_no',
+                'parent_barcode',
             ];
         },
         currentUserId() {
             return this.$page.props?.auth?.user?.id ?? null;
         },
-        createEmptyComponentRow() {
-            return {
-                item_id: null,
-                quantity: 1,
-                unit: null,
-                prri_component_no: null,
-                expiration: null,
-            };
+        getParentReferenceBarcode() {
+            return this.parentTransaction?.barcode_prri ?? this.parentTransaction?.barcode ?? null;
         },
-        addComponentRow() {
-            this.componentRows.push(this.createEmptyComponentRow());
-            this.syncComponentsPayload();
-        },
-        removeComponentRow(index) {
-            this.componentRows.splice(index, 1);
-            this.syncComponentsPayload();
-        },
-        onComponentItemChange(index, selectedValue) {
-            const selectedItem = typeof selectedValue === 'object' && selectedValue !== null
-                ? selectedValue
-                : (this.$page.props?.items ?? []).find(item => item.id === selectedValue);
-
-            this.componentRows[index].item_id = selectedItem?.id ?? selectedValue;
-            this.componentRows[index].unit = selectedItem?.unit ?? null;
-            this.syncComponentsPayload();
-        },
-        syncComponentsPayload() {
+        applyParentReference() {
             if (!this.form) {
                 return;
             }
 
-            this.form.components = this.componentRows
-                .filter(component => component.item_id && Number(component.quantity) > 0)
-                .map(component => ({
-                    item_id: component.item_id,
-                    quantity: Number(component.quantity),
-                    unit: component.unit,
-                    prri_component_no: component.prri_component_no,
-                    expiration: component.expiration,
-                    barcode_prri: this.form.barcode_prri ?? null,
-                }));
+            this.form.parent_barcode = this.getParentReferenceBarcode();
         },
         async generateBarcode(room) {
             if (!room) {
@@ -127,7 +99,7 @@ export default {
 
             this.form.transac_type = this.form.transac_type ?? 'incoming';
             this.form.user_id = this.form.user_id ?? this.currentUserId();
-            this.form.components = Array.isArray(this.form.components) ? this.form.components : [];
+            this.form.parent_barcode = this.form.parent_barcode ?? this.getParentReferenceBarcode();
 
             if (storage) {
                 await this.generateBarcode(storage);
@@ -148,24 +120,20 @@ export default {
                 return;
             }
 
-            this.componentRows = [];
-            this.syncComponentsPayload();
             await this.applyCreateDefaults(storage);
         },
         async resetIncomingForm() {
             if (this.isUpdate) {
-                this.resetField(this.data);
-                this.componentRows = this.mapAttachedComponentsToRows(this.attachedComponentsList);
-                this.syncComponentsPayload();
+                this.resetField(this.model.updateFields(this.data));
+                this.applyParentReference();
+                this.renderBarcode();
                 return;
             }
 
             const selectedStorage = this.selectedStorage;
 
             this.resetField(this.model.createFields());
-            this.componentRows = [];
             await this.applyCreateDefaults(selectedStorage);
-            this.syncComponentsPayload();
         },
         renderBarcode() {
             const canvas = createCanvas(256, 256);
@@ -177,19 +145,6 @@ export default {
                 height: 60,
             });
             this.svgText = canvas.toDataURL();
-        },
-        mapAttachedComponentsToRows(components = []) {
-            if (!Array.isArray(components)) {
-                return [];
-            }
-
-            return components.map(component => ({
-                item_id: component.item_id ?? component?.item?.id ?? null,
-                quantity: Number(component.quantity ?? 1),
-                unit: component.unit ?? component?.item?.unit ?? null,
-                prri_component_no: component.prri_component_no ?? null,
-                expiration: component.expiration ?? null,
-            }));
         },
     },
     computed: {
@@ -244,6 +199,9 @@ export default {
         },
         attachedComponentsList() {
             return Array.isArray(this.attachedComponents) ? this.attachedComponents : [];
+        },
+        hasParentTransaction() {
+            return !!this.parentTransaction?.id;
         },
         print() {
             const img = document.getElementById('barcode-image');
@@ -329,13 +287,11 @@ export default {
         this.setFormAction(this.isUpdate ? 'update' : 'create');
 
         if (!this.isUpdate) {
-            this.componentRows = [];
             await this.applyCreateDefaults(this.selectedStorage);
             return;
         }
 
-        this.componentRows = this.mapAttachedComponentsToRows(this.attachedComponentsList);
-        this.syncComponentsPayload();
+        this.applyParentReference();
         this.renderBarcode();
     },
 }
@@ -399,6 +355,12 @@ export default {
                         <filter-icon class="h-4 w-4" />
                     </template>
                 </custom-dropdown>
+                <text-input
+                    label="Parent Barcode / PRRI Barcode"
+                    v-model="form.parent_barcode"
+                    :error="form.errors.parent_barcode"
+                    placeholder="Optional: link this as a sub-component"
+                />
                 <div class="grid grid-cols-2 gap-2">
                     <text-input label="PRRI Barcode" v-model="form.barcode_prri" :error="form.errors.barcode_prri" />
                     <text-input label="PAR No" v-model="form.par_no" :error="form.errors.par_no" />
@@ -439,47 +401,48 @@ export default {
             />
         </div>
         <div class="flex flex-col gap-2 shadow-xl sm:rounded-lg sm:p-2 lg:p-4 bg-white dark:bg-gray-700 h-fit">
-            <div class="flex items-center justify-between">
-                <h3 class="font-bold uppercase leading-none py-2 mb-1 border-b"><span v-if="componentRows.length">{{ componentRows.length }}</span> Attached Components / Items</h3>
-                <button type="button" class="px-2 py-1 text-xs rounded border border-gray-600 text-gray-700" @click="addComponentRow">
-                    Add Component
-                </button>
-            </div>
-            <p>Attach components under the same transaction for tracking and retrieval. E.g. One (1) Desktop Computer Set includes monitor, keyboard, mouse, MS Office, etc. Each component can be individually tracked. </p>
-
-            <div v-for="(component, index) in componentRows" :key="`component-${index}`" class="grid grid-cols-2 gap-2 border border-gray-200 rounded p-2 items-end">
-                <select-search-field
-                    :api-link="'api.inventory.items.options'"
-                    label="Component Item"
-                    v-model="component.item_id"
-                    class="col-span-2"
-                    @update:model-value="onComponentItemChange(index, $event)"
-                />
-                <text-input
-                    type="number"
-                    label="Quantity"
-                    v-model="component.quantity"
-                    @update:model-value="syncComponentsPayload()"
-                />
-                <text-input label="Unit" v-model="component.unit" @update:model-value="syncComponentsPayload()" />
-                <text-input
-                    type="text"
-                    label="PRRI Component No."
-                    placeholder="00001"
-                    v-model="component.prri_component_no"
-                    @update:model-value="syncComponentsPayload()"
-                />
-                <date-input
-                    type="date"
-                    label="Expiry Date"
-                    v-model="component.expiration"
-                    @update:model-value="syncComponentsPayload()"
-                />
-                <div class="col-span-2 flex justify-end">
-                    <button type="button" class="px-2 py-1 text-xs rounded border border-red-500 text-red-600" @click="removeComponentRow(index)">
-                        Remove
-                    </button>
+            <div class="flex flex-col gap-3">
+                <div class="border rounded-md p-3 bg-gray-50 dark:bg-gray-800/40">
+                    <h3 class="font-bold uppercase leading-none py-2 mb-1 border-b">Sub-Component Workflow</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">
+                        Save each equipment part as its own incoming transaction, then use the parent CBC or PRRI barcode above to link it back to the main equipment record.
+                    </p>
                 </div>
+
+                <div v-if="hasParentTransaction" class="border rounded-md p-3 bg-white dark:bg-gray-800">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h3 class="text-sm font-semibold">Parent Transaction</h3>
+                            <p class="text-xs text-gray-500">This transaction is linked as a sub-component of the parent record below.</p>
+                        </div>
+                        <Link :href="route('transactions.show', parentTransaction.id)" class="text-xs text-AA underline whitespace-nowrap">
+                            Open Parent
+                        </Link>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-3 text-sm">
+                        <div>
+                            <span class="text-gray-500">Item:</span>
+                            {{ parentTransaction?.item?.name ?? '-' }}
+                        </div>
+                        <div>
+                            <span class="text-gray-500">CBC Barcode:</span>
+                            {{ parentTransaction?.barcode ?? '-' }}
+                        </div>
+                        <div>
+                            <span class="text-gray-500">PRRI Barcode:</span>
+                            {{ parentTransaction?.barcode_prri ?? '-' }}
+                        </div>
+                        <div>
+                            <span class="text-gray-500">Accountable:</span>
+                            {{ parentTransaction?.actor_display_name ?? '-' }}
+                        </div>
+                    </div>
+                </div>
+
+                <transaction-component-accordion
+                    :components="attachedComponentsList"
+                    :empty-message="'No sub-components linked to this transaction yet.'"
+                />
             </div>
         </div>
     </form>
