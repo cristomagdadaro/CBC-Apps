@@ -16,6 +16,11 @@ class Transaction extends BaseModel
 {
     use HasFactory, SoftDeletes, HasUuids, Auditable;
 
+    public const OPTION_KEY_EQUIPMENT_LOGGER_MODES = 'equipment_logger_modes';
+    public const EQUIPMENT_LOGGER_MODE_EXCLUDED = 'excluded';
+    public const EQUIPMENT_LOGGER_MODE_TRACKED_ONLY = 'tracked_only';
+    public const EQUIPMENT_LOGGER_MODE_BORROWABLE = 'borrowable';
+
     protected static function boot()
     {
         parent::boot();
@@ -50,6 +55,7 @@ class Transaction extends BaseModel
         'expiration',
         'remarks',
         'project_code',
+        'equipment_logger_mode',
         'par_no',
         'condition',
     ];
@@ -72,6 +78,7 @@ class Transaction extends BaseModel
         'expiration',
         'remarks',
         'project_code',
+        'equipment_logger_mode',
         'par_no',
         'condition',
     ];

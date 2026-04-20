@@ -37,6 +37,7 @@ class LaboratoryLogServiceTest extends TestCase
             'user_id' => User::query()->first()->id,
             'expiration' => now()->addMonth(),
             'remarks' => 'Laboratory stock',
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
         ]);
 
         $resolved = app(LaboratoryLogService::class)->resolveEquipmentId('CBC-LAB-0001');
@@ -60,6 +61,7 @@ class LaboratoryLogServiceTest extends TestCase
             'user_id' => User::query()->first()->id,
             'expiration' => now()->addMonth(),
             'remarks' => 'Archived barcode source',
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
         ]);
 
         $transaction->delete();
@@ -76,7 +78,6 @@ class LaboratoryLogServiceTest extends TestCase
         $trackedOnlyItem = Item::factory()->create([
             'category_id' => 7,
             'supplier_id' => $borrowableItem->supplier_id,
-            'equipment_logger_mode' => Item::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
         ]);
 
         foreach ([$borrowableItem, $trackedOnlyItem] as $index => $item) {
@@ -92,6 +93,9 @@ class LaboratoryLogServiceTest extends TestCase
                 'user_id' => $user->id,
                 'expiration' => now()->addMonth(),
                 'remarks' => 'Laboratory stock',
+                'equipment_logger_mode' => $item->is($borrowableItem)
+                    ? Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE
+                    : Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
             ]);
         }
 
@@ -177,6 +181,7 @@ class LaboratoryLogServiceTest extends TestCase
             'user_id' => $user->id,
             'expiration' => now()->addMonth(),
             'remarks' => 'Laboratory stock',
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
         ]);
 
         $freshPersonnel = Personnel::factory()->create([
@@ -219,6 +224,7 @@ class LaboratoryLogServiceTest extends TestCase
             'user_id' => $user->id,
             'expiration' => now()->addMonth(),
             'remarks' => 'Laboratory stock',
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
         ]);
 
         $personnelWithoutEmail = Personnel::factory()->create([
@@ -262,6 +268,7 @@ class LaboratoryLogServiceTest extends TestCase
             'user_id' => $user->id,
             'expiration' => now()->addMonth(),
             'remarks' => 'Laboratory stock',
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
         ]);
 
         Personnel::factory()->create([
@@ -299,7 +306,6 @@ class LaboratoryLogServiceTest extends TestCase
         $item = Item::factory()->create([
             'category_id' => 7,
             'supplier_id' => $supplier->id,
-            'equipment_logger_mode' => Item::EQUIPMENT_LOGGER_MODE_BORROWABLE,
         ]);
         $personnel = Personnel::factory()->create(['employee_id' => 'EMP-LAB-SVC']);
         $user = User::factory()->create();

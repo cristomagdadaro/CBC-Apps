@@ -52,6 +52,7 @@ export default class Transaction extends DtoTransaction {
             expiration: null,
             remarks: null,
             project_code: null,
+            equipment_logger_mode: null,
             par_no: null,
             condition: null,
         };
@@ -76,6 +77,7 @@ export default class Transaction extends DtoTransaction {
             expiration: model.expiration ?? null,
             remarks: model.remarks ?? null,
             project_code: model.project_code ?? null,
+            equipment_logger_mode: model.equipment_logger_mode ?? null,
             par_no: model.par_no ?? null,
             condition: model.condition ?? null,
         };
@@ -199,6 +201,13 @@ export default class Transaction extends DtoTransaction {
                 title: 'Project Code',
                 key: 'project_code',
                 db_key: 'project_code',
+                align: 'dataColor',
+                sortable: true,
+                visible: false,
+            },{
+                title: 'Logger Mode',
+                key: 'equipment_logger_mode',
+                db_key: 'equipment_logger_mode',
                 align: 'dataColor',
                 sortable: true,
                 visible: false,

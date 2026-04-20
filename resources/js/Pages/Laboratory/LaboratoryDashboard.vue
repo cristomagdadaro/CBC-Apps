@@ -132,6 +132,23 @@ export default {
         EquipmentLoggerAsset() {
             return EquipmentLoggerAsset;
         },
+        loggerModeLabels() {
+            const options = this.$page.props?.equipment_logger_mode_options;
+
+            if (!Array.isArray(options)) {
+                return {};
+            }
+
+            return options.reduce((labels, option) => {
+                const key = option?.name ?? option?.value;
+
+                if (key) {
+                    labels[key] = option?.label ?? key;
+                }
+
+                return labels;
+            }, {});
+        },
     },
     methods: {
         equipmentShowRoute(model) {
@@ -188,10 +205,7 @@ export default {
                 : 'bg-emerald-100 text-emerald-700';
         },
         loggerModeLabel(value) {
-            if (value === 'borrowable') return 'Borrowable';
-            if (value === 'tracked_only') return 'Tracked only';
-
-            return 'Excluded';
+            return this.loggerModeLabels[value] ?? value?.replaceAll?.('_', ' ') ?? 'Unknown';
         },
         loggerModeBadgeClass(value) {
             if (value === 'borrowable') {

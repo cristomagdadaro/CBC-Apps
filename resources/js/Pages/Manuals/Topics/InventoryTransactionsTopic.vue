@@ -12,9 +12,19 @@
                     <li>Select the <strong>Unit</strong> (pieces, boxes, kilos, etc.)</li>
                     <li>Enter the <strong>Unit Price</strong> (cost per unit)</li>
                     <li>Select the <strong>Storage Location</strong> (where items are stored)</li>
+                    <li>Select the <strong>Equipment Logger Availability</strong> for that incoming stock record so shared/borrowable behavior follows the transaction or project code, not just the base item.</li>
                     <li><strong>Optional:</strong> Add supplier info, project code, expiration date, and remarks</li>
                     <li>Click <strong>Submit</strong> to record the transaction</li>
                 </ol>
+            </div>
+
+            <div class="bg-indigo-50 border-l-4 border-indigo-400 p-4 mb-4">
+                <h4 class="font-semibold mb-2">Equipment Logger Availability</h4>
+                <ul class="list-disc list-inside space-y-2 text-sm">
+                    <li>Set this on each <strong>incoming transaction</strong>, not on the item master record.</li>
+                    <li>This allows the same item name to have different sharing rules across different project codes, procurement batches, or stock entries.</li>
+                    <li>The available logger modes come from the <strong>System Options</strong> module, so administrators can maintain the stored values and labels centrally.</li>
+                </ul>
             </div>
 
             <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-4">
@@ -55,6 +65,7 @@
                     <li><code class="bg-gray-100 px-1">unit_price</code> – Cost per unit (incoming only)</li>
                     <li><code class="bg-gray-100 px-1">barcode</code> – Unique identifier</li>
                     <li><code class="bg-gray-100 px-1">storage_location</code> – Where stored (incoming only)</li>
+                    <li><code class="bg-gray-100 px-1">equipment_logger_mode</code> – Sharing/logger availability for the incoming stock record</li>
                     <li><code class="bg-gray-100 px-1">personnel_id</code> – Who received/issued (outgoing)</li>
                 </ul>
             </div>

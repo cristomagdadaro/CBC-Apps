@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\Inventory;
 use App\Models\Transaction;
+use App\Repositories\OptionRepo;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -17,6 +18,29 @@ class CreateTransactionRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    public function prepareForValidation(): void
+    {
+        if ($this->input('transac_type') !== Inventory::INCOMING->value) {
+            $this->merge([
+                'equipment_logger_mode' => null,
+            ]);
+
+            return;
+        }
+
+        $optionRepo = app(OptionRepo::class);
+        $validModes = $optionRepo->getEquipmentLoggerModeValues();
+        $requestedMode = $this->input('equipment_logger_mode');
+
+        if (! is_string($requestedMode) || ! in_array($requestedMode, $validModes, true)) {
+            $requestedMode = $optionRepo->getDefaultEquipmentLoggerMode();
+        }
+
+        $this->merge([
+            'equipment_logger_mode' => $requestedMode,
+        ]);
     }
 
     /**
@@ -65,6 +89,12 @@ class CreateTransactionRequest extends FormRequest
             'expiration' => 'date|nullable',
             'remarks' => 'string|nullable',
             'project_code' => 'nullable|string',
+            'equipment_logger_mode' => [
+                Rule::requiredIf(fn () => $this->input('transac_type') === Inventory::INCOMING->value),
+                'nullable',
+                'string',
+                Rule::in($this->equipmentLoggerModeValues()),
+            ],
             'personnel_id' => 'required|exists:personnels,id',
             'par_no' => 'nullable|string|unique:transactions,par_no',
             'condition' => 'nullable|string',
@@ -140,5 +170,10 @@ class CreateTransactionRequest extends FormRequest
                 $validator->errors()->add('quantity', 'Requested quantity (' . $requestedQty . ') exceeds remaining stock (' . $remaining . ').');
             }
         });
+    }
+
+    private function equipmentLoggerModeValues(): array
+    {
+        return app(OptionRepo::class)->getEquipmentLoggerModeValues();
     }
 }

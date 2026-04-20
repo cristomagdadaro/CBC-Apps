@@ -29,7 +29,6 @@ export default class Item extends DtoItem {
             specifications: null,
             category_id: null,
             supplier_id: null,
-            equipment_logger_mode: 'excluded',
             image: null,
         }
     }
@@ -43,7 +42,6 @@ export default class Item extends DtoItem {
             specifications: data?.specifications,
             category_id: data?.category_id,
             supplier_id: data?.supplier_id,
-            equipment_logger_mode: data?.equipment_logger_mode ?? 'excluded',
             image: data?.image,
         }
     }
@@ -102,14 +100,6 @@ export default class Item extends DtoItem {
                 title: 'Category',
                 key: 'category.fullName',
                 db_key: 'category_id',
-                align: 'center',
-                sortable: true,
-                visible: true,
-            },
-            {
-                title: 'Logger Mode',
-                key: 'equipment_logger_mode',
-                db_key: 'equipment_logger_mode',
                 align: 'center',
                 sortable: true,
                 visible: true,

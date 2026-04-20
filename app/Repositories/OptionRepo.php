@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Option;
+use App\Models\Transaction;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -314,6 +315,53 @@ class OptionRepo extends AbstractRepoService
         return $normalized;
     }
 
+    public function getEquipmentLoggerModeOptions(): array
+    {
+        $option = $this->model
+            ->newQuery()
+            ->where('key', Transaction::OPTION_KEY_EQUIPMENT_LOGGER_MODES)
+            ->first();
+
+        $normalized = $this->normalizeSelectOptions($option?->options);
+
+        if ($normalized !== []) {
+            return $normalized;
+        }
+
+        return [
+            [
+                'name' => Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+                'label' => 'Borrowable / Common-use',
+            ],
+            [
+                'name' => Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+                'label' => 'Tracked only / Not borrowable',
+            ],
+            [
+                'name' => Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED,
+                'label' => 'Excluded from logger',
+            ],
+        ];
+    }
+
+    public function getEquipmentLoggerModeValues(): array
+    {
+        return collect($this->getEquipmentLoggerModeOptions())
+            ->pluck('name')
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    public function getDefaultEquipmentLoggerMode(): string
+    {
+        $default = $this->getByKey(Transaction::OPTION_KEY_EQUIPMENT_LOGGER_MODES);
+
+        return in_array($default, $this->getEquipmentLoggerModeValues(), true)
+            ? $default
+            : Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY;
+    }
+
     /**
      * Get all options grouped by fes
      */
@@ -491,5 +539,35 @@ class OptionRepo extends AbstractRepoService
         $decoded = json_decode($value, true);
 
         return is_array($decoded) ? $decoded : [];
+    }
+
+    private function normalizeSelectOptions(mixed $options): array
+    {
+        if (is_string($options)) {
+            $decoded = json_decode($options, true);
+            $options = json_last_error() === JSON_ERROR_NONE ? $decoded : null;
+        }
+
+        if (! is_array($options)) {
+            return [];
+        }
+
+        return collect($options)
+            ->map(function ($option) {
+                $name = $option['value'] ?? $option['name'] ?? null;
+                $label = $option['label'] ?? $option['name'] ?? $option['value'] ?? null;
+
+                if (! $name || ! $label) {
+                    return null;
+                }
+
+                return [
+                    'name' => (string) $name,
+                    'label' => (string) $label,
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
     }
 }

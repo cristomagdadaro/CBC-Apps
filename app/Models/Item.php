@@ -15,20 +15,10 @@ class Item extends BaseModel
 {
     use HasFactory, SoftDeletes, HasUuids, Auditable;
 
-    public const EQUIPMENT_LOGGER_MODE_EXCLUDED = 'excluded';
-    public const EQUIPMENT_LOGGER_MODE_TRACKED_ONLY = 'tracked_only';
-    public const EQUIPMENT_LOGGER_MODE_BORROWABLE = 'borrowable';
-
-    public const EQUIPMENT_LOGGER_MODES = [
-        self::EQUIPMENT_LOGGER_MODE_EXCLUDED,
-        self::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
-        self::EQUIPMENT_LOGGER_MODE_BORROWABLE,
-    ];
-
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($model) {
             if (empty($model->id)) {
                 $model->id = (string) Str::uuid();
@@ -53,7 +43,6 @@ class Item extends BaseModel
         'specifications',
         'category_id',
         'supplier_id',
-        'equipment_logger_mode',
         'image',
     ];
 
@@ -65,7 +54,6 @@ class Item extends BaseModel
         'specifications',
         'category_id',
         'supplier_id',
-        'equipment_logger_mode',
         'image',
     ];
 
@@ -94,18 +82,4 @@ class Item extends BaseModel
         return $this->hasMany(SuppEquipReport::class, 'item_id', 'id');
     }
 
-    public static function resolveEquipmentLoggerMode(?string $requestedMode, mixed $categoryId): string
-    {
-        $normalizedCategoryId = (int) ($categoryId ?? 0);
-
-        if (! in_array($normalizedCategoryId, [4, 7], true)) {
-            return self::EQUIPMENT_LOGGER_MODE_EXCLUDED;
-        }
-
-        if (in_array($requestedMode, self::EQUIPMENT_LOGGER_MODES, true)) {
-            return $requestedMode;
-        }
-
-        return self::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY;
-    }
 }

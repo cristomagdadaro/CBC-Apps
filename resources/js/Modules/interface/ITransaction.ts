@@ -15,6 +15,7 @@ interface ITransaction extends IBaseClass {
     expiration: string;
     remarks: string;
     project_code: string;
+    equipment_logger_mode?: string;
     par_no: string;
     condition: string;
     actor_display_name?: string;

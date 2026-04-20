@@ -2,6 +2,7 @@
 
 namespace App\Services\Laboratory;
 
+use App\Enums\Inventory;
 use App\Events\EquipmentLogChanged;
 use App\Mail\LaboratoryEquipmentLogOverdueMail;
 use App\Models\Item;
@@ -66,18 +67,19 @@ class LaboratoryLogService
                 'items.brand',
                 'items.description',
                 'items.category_id',
-                'items.equipment_logger_mode',
                 'categories.name as category_name',
             ])
+            ->selectSub($this->latestIncomingTransactionFieldSubquery('equipment_logger_mode'), 'equipment_logger_mode')
             ->selectSub($this->latestTransactionFieldSubquery('barcode'), 'barcode')
             ->selectSub($this->latestTransactionFieldSubquery('barcode_prri'), 'barcode_prri')
             ->join('categories', 'items.category_id', '=', 'categories.id')
-            ->whereIn('items.equipment_logger_mode', [Item::EQUIPMENT_LOGGER_MODE_BORROWABLE])
+            ->whereHas('transactions', function (Builder $query) {
+                $query->withTrashed()
+                    ->where('transactions.transac_type', Inventory::INCOMING->value)
+                    ->where('transactions.equipment_logger_mode', Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE);
+            })
             ->where(function (Builder $query) use ($equipmentType) {
                 $this->applyEquipmentCategoryConstraint($query, $equipmentType, 'categories');
-            })
-            ->whereHas('transactions', function (Builder $query) {
-                $query->withTrashed();
             });
 
         if ($search) {
@@ -328,10 +330,14 @@ class LaboratoryLogService
         $query = LaboratoryEquipmentLog::with(['equipment', 'personnel'])
             ->whereIn('status', ['active', 'overdue'])
             ->whereHas('equipment', function (Builder $builder) use ($equipmentType) {
-                $builder->whereIn('items.equipment_logger_mode', [
-                    Item::EQUIPMENT_LOGGER_MODE_BORROWABLE,
-                    Item::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
-                ])->whereHas('category', function (Builder $categoryQuery) use ($equipmentType) {
+                $builder->whereHas('transactions', function (Builder $transactionQuery) {
+                    $transactionQuery->withTrashed()
+                        ->where('transactions.transac_type', Inventory::INCOMING->value)
+                        ->whereIn('transactions.equipment_logger_mode', [
+                            Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+                            Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+                        ]);
+                })->whereHas('category', function (Builder $categoryQuery) use ($equipmentType) {
                     $this->applyEquipmentCategoryConstraint($categoryQuery, $equipmentType, 'categories');
                 });
             })
@@ -362,10 +368,14 @@ class LaboratoryLogService
                 DB::raw($this->totalDurationExpression()),
             ])
             ->whereHas('equipment', function (Builder $builder) use ($equipmentType) {
-                $builder->whereIn('items.equipment_logger_mode', [
-                    Item::EQUIPMENT_LOGGER_MODE_BORROWABLE,
-                    Item::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
-                ])->whereHas('category', function (Builder $categoryQuery) use ($equipmentType) {
+                $builder->whereHas('transactions', function (Builder $transactionQuery) {
+                    $transactionQuery->withTrashed()
+                        ->where('transactions.transac_type', Inventory::INCOMING->value)
+                        ->whereIn('transactions.equipment_logger_mode', [
+                            Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+                            Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+                        ]);
+                })->whereHas('category', function (Builder $categoryQuery) use ($equipmentType) {
                     $this->applyEquipmentCategoryConstraint($categoryQuery, $equipmentType, 'categories');
                 });
             })
@@ -397,10 +407,14 @@ class LaboratoryLogService
                 DB::raw('COUNT(*) as usage_count'),
             ])
             ->whereHas('equipment', function (Builder $builder) use ($equipmentType) {
-                $builder->whereIn('items.equipment_logger_mode', [
-                    Item::EQUIPMENT_LOGGER_MODE_BORROWABLE,
-                    Item::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
-                ])->whereHas('category', function (Builder $categoryQuery) use ($equipmentType) {
+                $builder->whereHas('transactions', function (Builder $transactionQuery) {
+                    $transactionQuery->withTrashed()
+                        ->where('transactions.transac_type', Inventory::INCOMING->value)
+                        ->whereIn('transactions.equipment_logger_mode', [
+                            Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+                            Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+                        ]);
+                })->whereHas('category', function (Builder $categoryQuery) use ($equipmentType) {
                     $this->applyEquipmentCategoryConstraint($categoryQuery, $equipmentType, 'categories');
                 });
             })
@@ -440,9 +454,9 @@ class LaboratoryLogService
                 'items.brand',
                 'items.description',
                 'items.category_id',
-                'items.equipment_logger_mode',
                 'categories.name as category_name',
             ])
+            ->selectSub($this->latestIncomingTransactionFieldSubquery('equipment_logger_mode'), 'equipment_logger_mode')
             ->selectRaw("CASE WHEN items.category_id = 4 THEN 'ict' ELSE 'laboratory' END as equipment_type")
             ->selectRaw('COALESCE(logger_usage.total_logs, 0) as total_logs')
             ->selectRaw('COALESCE(logger_usage.active_logs, 0) as active_logs')
@@ -454,10 +468,14 @@ class LaboratoryLogService
                 $join->on('logger_usage.equipment_id', '=', 'items.id');
             })
             ->join('categories', 'items.category_id', '=', 'categories.id')
-            ->whereIn('items.equipment_logger_mode', [
-                Item::EQUIPMENT_LOGGER_MODE_BORROWABLE,
-                Item::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
-            ])
+            ->whereHas('transactions', function (Builder $query) {
+                $query->withTrashed()
+                    ->where('transactions.transac_type', Inventory::INCOMING->value)
+                    ->whereIn('transactions.equipment_logger_mode', [
+                        Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+                        Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+                    ]);
+            })
             ->where(function (Builder $query) use ($equipmentType) {
                 $this->applyEquipmentCategoryConstraint($query, $equipmentType, 'categories');
             });
@@ -471,7 +489,13 @@ class LaboratoryLogService
                         ->orWhere('items.brand', 'like', "%{$search}%")
                         ->orWhere('items.description', 'like', "%{$search}%")
                         ->orWhere('categories.name', 'like', "%{$search}%")
-                        ->orWhere('items.equipment_logger_mode', 'like', "%{$search}%")
+                        ->orWhereExists(function ($subQuery) use ($search) {
+                            $subQuery->selectRaw('1')
+                                ->from('transactions')
+                                ->whereColumn('transactions.item_id', 'items.id')
+                                ->where('transactions.transac_type', Inventory::INCOMING->value)
+                                ->where('transactions.equipment_logger_mode', 'like', "%{$search}%");
+                        })
                         ->orWhereExists(function ($subQuery) use ($search) {
                             $subQuery->selectRaw('1')
                                 ->from('transactions')
@@ -489,7 +513,7 @@ class LaboratoryLogService
             'name' => 'items.name',
             'brand' => 'items.brand',
             'category_name' => 'categories.name',
-            'equipment_logger_mode' => 'items.equipment_logger_mode',
+            'equipment_logger_mode' => 'equipment_logger_mode',
             'total_logs' => 'total_logs',
             'active_logs' => 'active_logs',
             'overdue_logs' => 'overdue_logs',
@@ -510,7 +534,13 @@ class LaboratoryLogService
         match ($filter) {
             'name' => $query->where('items.name', 'like', $likeValue),
             'category_name' => $query->where('categories.name', 'like', $likeValue),
-            'equipment_logger_mode' => $query->where('items.equipment_logger_mode', 'like', $likeValue),
+            'equipment_logger_mode' => $query->whereExists(function ($subQuery) use ($likeValue) {
+                $subQuery->selectRaw('1')
+                    ->from('transactions')
+                    ->whereColumn('transactions.item_id', 'items.id')
+                    ->where('transactions.transac_type', Inventory::INCOMING->value)
+                    ->where('transactions.equipment_logger_mode', 'like', $likeValue);
+            }),
             'equipment_type' => $query->where('items.category_id', strtolower($search) === 'ict' ? 4 : 7),
             'barcode' => $query->whereExists(function ($subQuery) use ($likeValue) {
                 $subQuery->selectRaw('1')
@@ -531,10 +561,14 @@ class LaboratoryLogService
             ->with(['equipment', 'personnel'])
             ->whereIn('status', $statuses)
             ->whereHas('equipment', function (Builder $builder) use ($equipmentType) {
-                $builder->whereIn('items.equipment_logger_mode', [
-                    Item::EQUIPMENT_LOGGER_MODE_BORROWABLE,
-                    Item::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
-                ])->whereHas('category', function (Builder $categoryQuery) use ($equipmentType) {
+                $builder->whereHas('transactions', function (Builder $transactionQuery) {
+                    $transactionQuery->withTrashed()
+                        ->where('transactions.transac_type', Inventory::INCOMING->value)
+                        ->whereIn('transactions.equipment_logger_mode', [
+                            Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+                            Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+                        ]);
+                })->whereHas('category', function (Builder $categoryQuery) use ($equipmentType) {
                     $this->applyEquipmentCategoryConstraint($categoryQuery, $equipmentType, 'categories');
                 });
             })
@@ -671,16 +705,18 @@ class LaboratoryLogService
             ->with('category')
             ->select('items.*')
             ->addSelect(
+                DB::raw('(SELECT t.equipment_logger_mode FROM transactions t WHERE t.item_id = items.id AND t.transac_type = "incoming" AND t.equipment_logger_mode IS NOT NULL ORDER BY t.created_at DESC LIMIT 1) as equipment_logger_mode'),
                 DB::raw('(SELECT t.barcode FROM transactions t WHERE t.item_id = items.id AND t.barcode IS NOT NULL ORDER BY t.created_at DESC LIMIT 1) as barcode'),
                 DB::raw('(SELECT t.barcode_prri FROM transactions t WHERE t.item_id = items.id AND t.barcode_prri IS NOT NULL ORDER BY t.created_at DESC LIMIT 1) as barcode_prri')
             )
             ->where('items.id', $equipmentId)
-            ->where('items.equipment_logger_mode', Item::EQUIPMENT_LOGGER_MODE_BORROWABLE)
+            ->whereHas('transactions', function (Builder $query) {
+                $query->withTrashed()
+                    ->where('transactions.transac_type', Inventory::INCOMING->value)
+                    ->where('transactions.equipment_logger_mode', Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE);
+            })
             ->whereHas('category', function (Builder $query) use ($equipmentType) {
                 $this->applyEquipmentCategoryConstraint($query, $equipmentType, 'categories');
-            })
-            ->whereHas('transactions', function (Builder $query) {
-                $query->withTrashed();
             })
             ->first();
     }
@@ -725,6 +761,17 @@ class LaboratoryLogService
         return Transaction::withTrashed()
             ->select($field)
             ->whereColumn('transactions.item_id', 'items.id')
+            ->whereNotNull($field)
+            ->latest('created_at')
+            ->limit(1);
+    }
+
+    private function latestIncomingTransactionFieldSubquery(string $field): Builder
+    {
+        return Transaction::withTrashed()
+            ->select($field)
+            ->whereColumn('transactions.item_id', 'items.id')
+            ->where('transactions.transac_type', Inventory::INCOMING->value)
             ->whereNotNull($field)
             ->latest('created_at')
             ->limit(1);

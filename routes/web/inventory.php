@@ -82,6 +82,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                         'suppliers' => app(SupplierRepo::class)->getOptions(),
                         'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
                         'projectCodes' => app(TransactionRepo::class)->getAvailableProjectCodes(),
+                        'equipment_logger_mode_options' => app(OptionRepo::class)->getEquipmentLoggerModeOptions(),
+                        'equipment_logger_mode_default' => app(OptionRepo::class)->getDefaultEquipmentLoggerMode(),
                         'storage_locations' => app(OptionRepo::class)->getStorageLocations(),
                         'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                     ]);
@@ -147,6 +149,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                             'items' => Item::withTrashed()->get(),
                             'fromUrl' => route('transactions.index'),
                             'projectCodes' => app(TransactionRepo::class)->getAvailableProjectCodes(),
+                            'equipment_logger_mode_options' => app(OptionRepo::class)->getEquipmentLoggerModeOptions(),
+                            'equipment_logger_mode_default' => app(OptionRepo::class)->getDefaultEquipmentLoggerMode(),
                             'storage_locations' => app(OptionRepo::class)->getStorageLocations(),
                             'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                             'attachedReports' => $attachedReports,

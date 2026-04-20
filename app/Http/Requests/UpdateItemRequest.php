@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Item;
 use App\Rules\UniqueItem;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -15,16 +14,6 @@ class UpdateItemRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
-    }
-
-    public function prepareForValidation(): void
-    {
-        $this->merge([
-            'equipment_logger_mode' => Item::resolveEquipmentLoggerMode(
-                $this->input('equipment_logger_mode'),
-                $this->input('category_id'),
-            ),
-        ]);
     }
 
     /**
@@ -41,7 +30,6 @@ class UpdateItemRequest extends FormRequest
             'specifications' => ['string','nullable'],
             'category_id' => ['required','exists:categories,id', new UniqueItem($this->id)],
             'supplier_id' => ['required','exists:suppliers,id'],
-            'equipment_logger_mode' => ['required', 'string', 'in:' . implode(',', Item::EQUIPMENT_LOGGER_MODES)],
             'image' => ['string','nullable'],
         ];
     }

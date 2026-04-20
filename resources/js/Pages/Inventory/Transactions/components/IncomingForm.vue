@@ -104,6 +104,7 @@ export default {
                 'transac_type',
                 'user_id',
                 'project_code',
+                'equipment_logger_mode',
                 'personnel_id',
                 'condition',
                 'remarks',
@@ -142,6 +143,7 @@ export default {
             this.form.transac_type = this.form.transac_type ?? 'incoming';
             this.form.user_id = this.form.user_id ?? this.currentUserId();
             this.form.parent_barcode = this.form.parent_barcode ?? this.getParentReferenceBarcode();
+            this.form.equipment_logger_mode = this.form.equipment_logger_mode ?? this.defaultEquipmentLoggerMode;
 
             if (storage) {
                 await this.generateBarcode(storage);
@@ -242,6 +244,35 @@ export default {
                     return String(projectCode?.label ?? projectCode?.name ?? projectCode?.value ?? '').trim();
                 })
                 .filter(Boolean))];
+        },
+        equipmentLoggerModeOptions() {
+            const options = this.$page.props?.equipment_logger_mode_options;
+
+            if (!Array.isArray(options)) {
+                return [];
+            }
+
+            return options
+                .map((option) => ({
+                    name: option?.name ?? option?.value ?? null,
+                    label: option?.label ?? option?.name ?? option?.value ?? null,
+                }))
+                .filter((option) => option.name && option.label);
+        },
+        defaultEquipmentLoggerMode() {
+            return this.$page.props?.equipment_logger_mode_default
+                ?? this.equipmentLoggerModeOptions[0]?.name
+                ?? null;
+        },
+        selectedEquipmentLoggerModeOption() {
+            return this.equipmentLoggerModeOptions.find((option) => option.name === this.form?.equipment_logger_mode) ?? null;
+        },
+        equipmentLoggerModeHelpText() {
+            if (!this.selectedEquipmentLoggerModeOption) {
+                return 'Choose how this incoming stock can participate in equipment or shared-use logger workflows.';
+            }
+
+            return `${this.selectedEquipmentLoggerModeOption.label} applies to this incoming stock record and any downstream logger visibility tied to it.`;
         },
         preGenerateBarcode() {
             return this.$page.props.barcode;
@@ -483,6 +514,25 @@ export default {
 
                 <!-- Remarks -->
                 <text-area label="PR Details/Remarks" v-model="form.remarks" :error="form.errors.remarks" />
+                <div class="rounded-xl border border-indigo-100 bg-indigo-50/70 p-4 dark:border-indigo-900 dark:bg-indigo-950/30">
+                    <custom-dropdown
+                        required
+                        :with-all-option="false"
+                        :value="form.equipment_logger_mode"
+                        :options="equipmentLoggerModeOptions"
+                        placeholder="Select logger availability"
+                        label="Equipment Logger Availability"
+                        :error="form.errors.equipment_logger_mode"
+                        @selectedChange="form.equipment_logger_mode = $event"
+                    >
+                        <template #icon>
+                            <AlertCircle class="w-4 h-4 text-indigo-500" />
+                        </template>
+                    </custom-dropdown>
+                    <p class="mt-2 text-xs text-indigo-900 dark:text-indigo-200">
+                        {{ equipmentLoggerModeHelpText }}
+                    </p>
+                </div>
             </div>
 
             <!-- Actions -->

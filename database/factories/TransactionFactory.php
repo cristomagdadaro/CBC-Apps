@@ -40,6 +40,7 @@ class TransactionFactory extends Factory
                 'user_id' => User::all()->random()->id,
                 'expiration' => $this->faker->date(),
                 'remarks' => $this->faker->text,
+                'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
                 'par_no' => $this->faker->bothify('##-##-####'),
                 'condition' => $this->faker->randomElement(['Unserviceable', 'Serviceable', 'Needing Repair', 'Obsolete', 'No Longer Needed', 'Not Used Since Purchase']),
             ];
@@ -63,6 +64,7 @@ class TransactionFactory extends Factory
                 'user_id' => User::all()->random()->id,
                 'expiration' => null,
                 'remarks' => 'Factory Fallback: No INCOMING transactions found.',
+                'equipment_logger_mode' => null,
                 'par_no' => $this->faker->bothify('##-##-####'),
                 'condition' => $this->faker->randomElement(['Unserviceable', 'Serviceable', 'Needing Repair', 'Obsolete', 'No Longer Needed', 'Not Used Since Purchase']),
             ];
@@ -93,6 +95,7 @@ class TransactionFactory extends Factory
             'expiration' => $incomingTransaction->expiration,
             'remarks' => $remarks,
             'project_code' => $this->faker->bothify('PC-#####'),
+            'equipment_logger_mode' => $incomingTransaction->equipment_logger_mode,
             'par_no' => $incomingTransaction->par_no,
             'condition' => $incomingTransaction->condition,
         ];

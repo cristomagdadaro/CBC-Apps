@@ -7,6 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use App\Enums\Inventory;
 use Illuminate\Validation\Rule;
 use App\Models\Transaction;
+use App\Repositories\OptionRepo;
 use Illuminate\Contracts\Validation\Validator;
 
 class UpdateTransactionRequest extends FormRequest
@@ -19,6 +20,32 @@ class UpdateTransactionRequest extends FormRequest
         return true;
     }
 
+    public function prepareForValidation(): void
+    {
+        $transaction = Transaction::query()->find($this->route('id'));
+        $transactionType = $this->input('transac_type') ?? $transaction?->transac_type;
+
+        if ($transactionType !== Inventory::INCOMING->value) {
+            $this->merge([
+                'equipment_logger_mode' => null,
+            ]);
+
+            return;
+        }
+
+        $optionRepo = app(OptionRepo::class);
+        $validModes = $optionRepo->getEquipmentLoggerModeValues();
+        $requestedMode = $this->input('equipment_logger_mode');
+
+        if (! is_string($requestedMode) || ! in_array($requestedMode, $validModes, true)) {
+            $requestedMode = $transaction?->equipment_logger_mode ?? $optionRepo->getDefaultEquipmentLoggerMode();
+        }
+
+        $this->merge([
+            'equipment_logger_mode' => $requestedMode,
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -29,7 +56,7 @@ class UpdateTransactionRequest extends FormRequest
         $id = $this->route('id');
         $transaction = Transaction::query()->find($id);
         $isIncomingUpdate = $transaction?->transac_type === Inventory::INCOMING->value;
-        
+
         return [
             'item_id' => 'required|exists:items,id',
             'barcode' => [
@@ -73,6 +100,12 @@ class UpdateTransactionRequest extends FormRequest
             'expiration' => 'date|nullable',
             'remarks' => 'string|nullable',
             'project_code' => 'nullable|string',
+            'equipment_logger_mode' => [
+                Rule::requiredIf(fn () => $this->input('transac_type') === Inventory::INCOMING->value),
+                'nullable',
+                'string',
+                Rule::in($this->equipmentLoggerModeValues()),
+            ],
             'personnel_id' => 'required|exists:personnels,id',
             'par_no' => 'nullable|string|unique:transactions,par_no,' . $id,
             'condition' => 'nullable|string',
@@ -150,5 +183,10 @@ class UpdateTransactionRequest extends FormRequest
                 $validator->errors()->add('quantity', 'Requested quantity (' . $requestedQty . ') exceeds remaining stock (' . $remaining . ').');
             }
         });
+    }
+
+    private function equipmentLoggerModeValues(): array
+    {
+        return app(OptionRepo::class)->getEquipmentLoggerModeValues();
     }
 }

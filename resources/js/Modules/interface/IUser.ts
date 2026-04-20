@@ -13,4 +13,6 @@ interface IUser extends IBaseClass {
     permissions: string[];
     employee_id: string | null;
     roles?: string[];
+
+    fullName: string;
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Repositories\OptionRepo;
 use App\Services\DeploymentAccessService;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -28,7 +29,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::prefix('apps')->group(function () {
         Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_LABORATORY_DASHBOARD])
             ->get('/equipment-logger', function () {
-                return Inertia::render('Laboratory/LaboratoryDashboard');
+                return Inertia::render('Laboratory/LaboratoryDashboard', [
+                    'equipment_logger_mode_options' => app(OptionRepo::class)->getEquipmentLoggerModeOptions(),
+                ]);
             })->name('equipment-logger.dashboard');
 
         Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_LABORATORY_DASHBOARD])

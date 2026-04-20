@@ -20,6 +20,7 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
     expiration: string;
     remarks: string;
     project_code: string;
+    equipment_logger_mode?: string;
     par_no: string;
     condition: string;
     actor_display_name?: string;
@@ -47,6 +48,7 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
         this.expiration = data?.expiration;
         this.remarks = data?.remarks;
         this.project_code = data?.project_code;
+        this.equipment_logger_mode = data?.equipment_logger_mode;
         this.par_no = data?.par_no;
         this.condition = data?.condition;
         this.actor_display_name = data?.actor_display_name;
