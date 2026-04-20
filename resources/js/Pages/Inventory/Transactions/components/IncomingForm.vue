@@ -9,6 +9,28 @@ import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/T
 import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/TransactionReportAccordion.vue";
 import TransactionComponentAccordion from "@/Pages/Inventory/Transactions/components/TransactionComponentAccordion.vue";
 import AuditInfoCard from "@/Components/AuditInfoCard.vue";
+import {
+    Plus,
+    X,
+    Printer,
+    RotateCcw,
+    Save,
+    Loader2,
+    Package,
+    GitBranch,
+    ArrowUpRight,
+    Filter,
+    Calendar,
+    Hash,
+    User,
+    FileText,
+    DollarSign,
+    Scale,
+    Box,
+    Tag,
+    MapPin,
+    AlertCircle
+} from 'lucide-vue-next';
 
 export default {
     name: "IncomingForm",
@@ -32,6 +54,26 @@ export default {
         TransactionComponentAccordion,
         AuditInfoCard,
         QrcodeVue,
+        Plus,
+        X,
+        Printer,
+        RotateCcw,
+        Save,
+        Loader2,
+        Package,
+        GitBranch,
+        ArrowUpRight,
+        Filter,
+        Calendar,
+        Hash,
+        User,
+        FileText,
+        DollarSign,
+        Scale,
+        Box,
+        Tag,
+        MapPin,
+        AlertCircle,
     },
     mixins: [ApiMixin],
     data() {
@@ -298,33 +340,76 @@ export default {
 </script>
 
 <template>
-    <form v-if="!!form" @submit.prevent="submitForm"  class="grid grid-cols-2 gap-4 w-full">
-        <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-lg sm:rounded-lg h-fit">
-            <div class="flex flex-col gap-2 mx-auto w-full h-fit">
-                <div class="flex flex-col">
-                    <h2 class="font-bold uppercase leading-none py-2 mb-1 border-b">{{ isUpdate ? 'Update Incoming Transaction Details' : 'Incoming Transaction Form' }}</h2>
-                    <p>{{ isUpdate ? 'Please use this form to update details of an incoming transaction.' : 'Please use this form to submit details of an incoming transaction.' }}</p>
+    <form v-if="!!form" @submit.prevent="submitForm" class="grid gap-4 w-full" :class="currentFormAction === 'create' ? 'grid-cols-1' : 'grid-cols-2'">
+        <!-- Main Form Column -->
+        <div class="flex flex-col gap-4 w-full mx-auto p-4 lg:p-6 bg-white dark:bg-gray-800 overflow-hidden shadow-lg rounded-xl h-fit border border-gray-100 dark:border-gray-700">
+            <div class="flex flex-col gap-4 mx-auto w-full h-fit">
+                <!-- Header -->
+                <div class="flex flex-col border-b border-gray-200 dark:border-gray-700 pb-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <Package class="w-5 h-5 text-AA" />
+                        <h2 class="font-bold uppercase leading-none text-lg text-gray-900 dark:text-gray-100">
+                            {{ isUpdate ? 'Update Incoming Transaction' : 'Incoming Transaction' }}
+                        </h2>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        {{ isUpdate ? 'Update the details of this incoming transaction.' : 'Submit details for a new incoming transaction.' }}
+                    </p>
                 </div>
+
+                <!-- Reports Accordion -->
                 <transaction-report-accordion
                     v-if="isUpdate"
                     class="w-full"
                     :reports="attachedReportsList"
                 />
+
+                <!-- Item Selection -->
                 <div class="flex flex-row gap-2 h-fit">
-                    <select-search-field :disabled="isUpdate" required :api-link="'api.inventory.items.options'"  :error="form.errors.item_id" label="Item" v-model="form.item_id" />
+                    <select-search-field
+                        :disabled="isUpdate"
+                        required
+                        :api-link="'api.inventory.items.options'"
+                        :error="form.errors.item_id"
+                        label="Item"
+                        v-model="form.item_id"
+                    />
                     <div v-if="!isUpdate" class="flex items-end">
-                        <button v-if="!showNewItemForm" @click.prevent="toggleShowNewItemForm" class="h-fit w-full py-2.5 border border-gray-700 flex items-center justify-center bg-white text-gray-600 rounded gap-1 text-sm px-2">
-                            <add-icon class="h-5 w-5" />
+                        <button
+                            v-if="!showNewItemForm"
+                            @click.prevent="toggleShowNewItemForm"
+                            class="h-fit w-full py-2.5 border border-gray-300 dark:border-gray-600 flex items-center justify-center bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg gap-1.5 text-sm px-3 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                        >
+                            <Plus class="h-4 w-4" />
                             <span class="whitespace-nowrap">New Item</span>
                         </button>
 
-                        <button v-else @click.prevent="toggleShowNewItemForm" class="h-fit w-full py-2.5 border border-gray-700 flex items-center justify-center bg-white text-red-600 rounded gap-1 text-sm px-2">
-                            <delete-icon class="h-5 w-5" />
-                            <span class="whitespace-nowrap">Close Item Form</span>
+                        <button
+                            v-else
+                            @click.prevent="toggleShowNewItemForm"
+                            class="h-fit w-full py-2.5 border border-red-300 dark:border-red-700 flex items-center justify-center bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg gap-1.5 text-sm px-3 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                        >
+                            <X class="h-4 w-4" />
+                            <span class="whitespace-nowrap">Close</span>
                         </button>
                     </div>
                 </div>
-                <text-input type="text" label="Project Code" required v-model="form.project_code" :error="form.errors.project_code" />
+
+                <!-- Project Code -->
+                <text-input
+                    type="text"
+                    label="Project Code"
+                    required
+                    v-model="form.project_code"
+                    :error="form.errors.project_code"
+                    :hint="'Enter the project code for this transaction'"
+                >
+                    <template #icon>
+                        <FileText class="w-4 h-4 text-gray-400" />
+                    </template>
+                </text-input>
+
+                <!-- Personnel -->
                 <custom-dropdown
                     searchable
                     :with-all-option="false"
@@ -337,9 +422,11 @@ export default {
                     @selectedChange="form.personnel_id = $event"
                 >
                     <template #icon>
-                        <filter-icon class="h-4 w-4" />
+                        <User class="w-4 h-4 text-gray-400" />
                     </template>
                 </custom-dropdown>
+
+                <!-- Storage Location -->
                 <custom-dropdown
                     required
                     :disabled="isUpdate"
@@ -352,47 +439,105 @@ export default {
                     @selectedChange="generateBarcode($event)"
                 >
                     <template #icon>
-                        <filter-icon class="h-4 w-4" />
+                        <MapPin class="w-4 h-4 text-gray-400" />
                     </template>
                 </custom-dropdown>
+
+                <!-- Parent Barcode -->
                 <text-input
                     label="Parent Barcode / PRRI Barcode"
                     v-model="form.parent_barcode"
                     :error="form.errors.parent_barcode"
                     placeholder="Optional: link this as a sub-component"
-                />
-                <div class="grid grid-cols-2 gap-2">
-                    <text-input label="PRRI Barcode" v-model="form.barcode_prri" :error="form.errors.barcode_prri" />
-                    <text-input label="PAR No" v-model="form.par_no" :error="form.errors.par_no" />
+                    :hint="'Used to link this as a sub-component of another transaction'"
+                >
+                    <template #icon>
+                        <GitBranch class="w-4 h-4 text-gray-400" />
+                    </template>
+                </text-input>
+
+                <!-- Barcodes & PAR -->
+                <div class="grid grid-cols-2 gap-3">
+                    <text-input label="PRRI Barcode" v-model="form.barcode_prri" :error="form.errors.barcode_prri">
+                        <template #icon>
+                            <Hash class="w-4 h-4 text-gray-400" />
+                        </template>
+                    </text-input>
+                    <text-input label="PAR No" v-model="form.par_no" :error="form.errors.par_no">
+                        <template #icon>
+                            <Tag class="w-4 h-4 text-gray-400" />
+                        </template>
+                    </text-input>
                     <text-input label="Condition" v-model="form.condition" :error="form.errors.condition" class="col-span-2" />
                 </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <text-input required type="number" label="Quantity" v-model="form.quantity" :error="form.errors.quantity" />
-                    <text-input type="number" label="Unit Price" v-model="form.unit_price" :error="form.errors.unit_price" />
-                    <text-input required label="Unit" v-model="form.unit" :error="form.errors.unit" />
-                    <text-input type="number" label="Total Cost" v-model="form.total_cost" :error="form.errors.total_cost" />
+
+                <!-- Quantity & Pricing -->
+                <div class="grid grid-cols-2 gap-3">
+                    <text-input required type="number" label="Quantity" v-model="form.quantity" :error="form.errors.quantity">
+                        <template #icon>
+                            <Box class="w-4 h-4 text-gray-400" />
+                        </template>
+                    </text-input>
+                    <text-input type="number" label="Unit Price" v-model="form.unit_price" :error="form.errors.unit_price">
+                        <template #icon>
+                            <DollarSign class="w-4 h-4 text-gray-400" />
+                        </template>
+                    </text-input>
+                    <text-input required label="Unit" v-model="form.unit" :error="form.errors.unit">
+                        <template #icon>
+                            <Scale class="w-4 h-4 text-gray-400" />
+                        </template>
+                    </text-input>
+                    <text-input type="number" label="Total Cost" v-model="form.total_cost" :error="form.errors.total_cost" :disabled="true">
+                        <template #icon>
+                            <DollarSign class="w-4 h-4 text-gray-400" />
+                        </template>
+                    </text-input>
                 </div>
+
+                <!-- Expiration -->
                 <date-input type="date" label="Expiration" v-model="form.expiration" :error="form.errors.expiration" />
+
+                <!-- Remarks -->
                 <text-area label="PR Details/Remarks" v-model="form.remarks" :error="form.errors.remarks" />
-                <div v-if="svgText && selectedStorage" class="flex sm:flex-row flex-col gap-1 w-full items-center relative">
-                    <img id="barcode-image" :src="svgText" alt="SVG Image" class="w-full" />
-                    <button class="px-5 py-2 bg-gray-300 hover:scale-105 active:scale-100 rounded h-fit absolute bottom-3 right-4" @click.prevent="print">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-auto h-5" viewBox="0 0 16 16">
-                            <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/>
-                            <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
-                        </svg>
+
+                <!-- Barcode Display -->
+                <div v-if="svgText && selectedStorage" class="flex sm:flex-row flex-col gap-3 w-full items-center relative p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <img id="barcode-image" :src="svgText" alt="Generated barcode" class="w-full max-w-md rounded shadow-sm bg-white" />
+                    <button
+                        class="absolute bottom-4 right-4 p-2.5 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2"
+                        @click.prevent="print"
+                        title="Print barcode"
+                    >
+                        <Printer class="w-5 h-5" />
                     </button>
                 </div>
             </div>
-            <div class="flex gap-1 justify-between">
-                <reset-btn @click="resetIncomingForm">
+
+            <!-- Actions -->
+            <div class="flex gap-3 justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                <button
+                    type="button"
+                    @click="resetIncomingForm"
+                    class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                >
+                    <RotateCcw class="w-4 h-4" />
                     Reset
-                </reset-btn>
-                <submit-btn :disabled="model.api.processing">
-                    <span v-if="model.api.processing">{{ isUpdate ? 'Updating' : 'Saving' }}</span>
+                </button>
+
+                <button
+                    type="submit"
+                    :disabled="model.api.processing"
+                    class="flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-white bg-AA hover:bg-AA-dark disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors shadow-sm"
+                >
+                    <Loader2 v-if="model.api.processing" class="w-4 h-4 animate-spin" />
+                    <Save v-else class="w-4 h-4" />
+                    <span v-if="model.api.processing">{{ isUpdate ? 'Updating...' : 'Saving...' }}</span>
                     <span v-else>{{ isUpdate ? 'Update' : 'Save' }}</span>
-                </submit-btn>
+                </button>
             </div>
+
+            <!-- Audit Info -->
             <audit-info-card
                 v-if="isUpdate"
                 :audit-logs="$page.props.auditLogs"
@@ -400,47 +545,97 @@ export default {
                 :updated-at="data?.updated_at"
             />
         </div>
-        <div class="flex flex-col gap-2 shadow-xl sm:rounded-lg sm:p-2 lg:p-4 bg-white dark:bg-gray-700 h-fit">
-            <div class="flex flex-col gap-3">
-                <div class="border rounded-md p-3 bg-gray-50 dark:bg-gray-800/40">
-                    <h3 class="font-bold uppercase leading-none py-2 mb-1 border-b">Sub-Component Workflow</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-300">
-                        Save each equipment part as its own incoming transaction, then use the parent CBC or PRRI barcode above to link it back to the main equipment record.
-                    </p>
+
+        <!-- Side Panel (Update Mode) -->
+        <div v-if="currentFormAction !== 'create'" class="flex flex-col gap-4 shadow-xl sm:rounded-xl sm:p-4 lg:p-6 bg-white dark:bg-gray-800 h-fit border border-gray-100 dark:border-gray-700">
+            <div class="flex flex-col gap-4">
+                <!-- Workflow Info -->
+                <div class="border border-blue-100 dark:border-blue-800 rounded-lg p-4 bg-blue-50/50 dark:bg-blue-900/20">
+                    <div class="flex items-start gap-3">
+                        <div class="p-2 bg-blue-100 dark:bg-blue-800 rounded-lg flex-shrink-0">
+                            <GitBranch class="w-5 h-5 text-blue-600 dark:text-blue-300" />
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide text-sm mb-1">
+                                Sub-Component Workflow
+                            </h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                                Save each equipment part as its own incoming transaction, then use the parent CBC or PRRI barcode above to link it back to the main equipment record.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
-                <div v-if="hasParentTransaction" class="border rounded-md p-3 bg-white dark:bg-gray-800">
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <h3 class="text-sm font-semibold">Parent Transaction</h3>
-                            <p class="text-xs text-gray-500">This transaction is linked as a sub-component of the parent record below.</p>
+                <!-- Parent Transaction -->
+                <div v-if="hasParentTransaction" class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-700/50 shadow-sm">
+                    <div class="flex items-start justify-between gap-3 mb-4">
+                        <div class="flex items-start gap-3">
+                            <div class="p-2 bg-AA/10 dark:bg-AA/20 rounded-lg flex-shrink-0">
+                                <ArrowUpRight class="w-5 h-5 text-AA" />
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">Parent Transaction</h3>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                    This transaction is linked as a sub-component
+                                </p>
+                            </div>
                         </div>
-                        <Link :href="route('transactions.show', parentTransaction.id)" class="text-xs text-AA underline whitespace-nowrap">
-                            Open Parent
+                        <Link
+                            :href="route('transactions.show', parentTransaction.id)"
+                            class="group flex items-center gap-1.5 text-xs font-medium text-AA hover:text-AA-dark whitespace-nowrap transition-colors"
+                        >
+                            <span class="underline-offset-2 group-hover:underline">View Parent</span>
+                            <ArrowUpRight class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                         </Link>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 mt-3 text-sm">
-                        <div>
-                            <span class="text-gray-500">Item:</span>
-                            {{ parentTransaction?.item?.name ?? '-' }}
+
+                    <div class="grid grid-cols-2 gap-3 text-sm ml-11">
+                        <div class="flex items-center gap-2">
+                            <Package class="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                            <div class="min-w-0">
+                                <span class="text-gray-500 dark:text-gray-400 text-xs block">Item</span>
+                                <span class="text-gray-900 dark:text-gray-100 font-medium truncate block">
+                                    {{ parentTransaction?.item?.name ?? '—' }}
+                                </span>
+                            </div>
                         </div>
-                        <div>
-                            <span class="text-gray-500">CBC Barcode:</span>
-                            {{ parentTransaction?.barcode ?? '-' }}
+
+                        <div class="flex items-center gap-2">
+                            <Hash class="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                            <div>
+                                <span class="text-gray-500 dark:text-gray-400 text-xs block">CBC Barcode</span>
+                                <span class="font-mono text-gray-700 dark:text-gray-200">
+                                    {{ parentTransaction?.barcode ?? '—' }}
+                                </span>
+                            </div>
                         </div>
-                        <div>
-                            <span class="text-gray-500">PRRI Barcode:</span>
-                            {{ parentTransaction?.barcode_prri ?? '-' }}
+
+                        <div class="flex items-center gap-2">
+                            <Hash class="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                            <div>
+                                <span class="text-gray-500 dark:text-gray-400 text-xs block">PRRI Barcode</span>
+                                <span class="font-mono text-gray-700 dark:text-gray-200">
+                                    {{ parentTransaction?.barcode_prri ?? '—' }}
+                                </span>
+                            </div>
                         </div>
-                        <div>
-                            <span class="text-gray-500">Accountable:</span>
-                            {{ parentTransaction?.actor_display_name ?? '-' }}
+
+                        <div class="flex items-center gap-2">
+                            <User class="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                            <div class="min-w-0">
+                                <span class="text-gray-500 dark:text-gray-400 text-xs block">Accountable</span>
+                                <span class="text-gray-700 dark:text-gray-200 truncate block">
+                                    {{ parentTransaction?.actor_display_name ?? '—' }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- Sub-Components Accordion -->
                 <transaction-component-accordion
                     :components="attachedComponentsList"
+                    title="Sub-Components"
                     :empty-message="'No sub-components linked to this transaction yet.'"
                 />
             </div>
@@ -449,5 +644,14 @@ export default {
 </template>
 
 <style scoped>
+/* Smooth transitions */
+button {
+    transition: all 0.2s ease;
+}
 
+/* Barcode image styling */
+#barcode-image {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
 </style>

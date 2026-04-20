@@ -30,5 +30,10 @@ export default {
 
 <template>
         <ActionHeaderLayout :title="headerTitle" :subtitle="headerSubtitle" :route-link="route('system.users.index')">
+            <Link :href="route('system.users.create')">
+                <add-icon
+                    class="h-auto w-5 text-white dark:text-gray-800 dark:bg-gray-200"
+                />
+            </Link>
         </ActionHeaderLayout>
 </template>
