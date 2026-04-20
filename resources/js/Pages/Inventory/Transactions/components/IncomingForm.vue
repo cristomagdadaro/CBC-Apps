@@ -245,48 +245,6 @@ export default {
         hasParentTransaction() {
             return !!this.parentTransaction?.id;
         },
-        print() {
-            const img = document.getElementById('barcode-image');
-
-            if (!img || !img.src) {
-                console.error('Barcode image element or source is missing.');
-                return;
-            }
-
-            try {
-                const printWindow = window.open('', '_blank');
-                if (!printWindow) {
-                    throw new Error('Failed to open print window.');
-                }
-
-                const doc = printWindow.document;
-                doc.open();
-
-                const html = doc.createElement('html');
-                const head = doc.createElement('head');
-                const title = doc.createElement('title');
-                title.textContent = 'Barcode';
-                head.appendChild(title);
-
-                const body = doc.createElement('body');
-                body.style.margin = '96px';
-
-                const barcodeImg = doc.createElement('img');
-                barcodeImg.src = img.src;
-                barcodeImg.alt = 'barcode generated';
-                body.appendChild(barcodeImg);
-
-                html.appendChild(head);
-                html.appendChild(body);
-                doc.appendChild(html);
-
-                doc.close();
-                printWindow.print();
-                printWindow.close();
-            } catch (error) {
-                console.error('Error while printing:', error);
-            }
-        },
         toggleShowNewItemForm() {
             this.showNewItemForm = !this.showNewItemForm;
             this.$emit('showNewItemForm', this.showNewItemForm);
@@ -345,16 +303,22 @@ export default {
         <div class="flex flex-col gap-4 w-full mx-auto p-4 lg:p-6 bg-white dark:bg-gray-800 overflow-hidden shadow-lg rounded-xl h-fit border border-gray-100 dark:border-gray-700">
             <div class="flex flex-col gap-4 mx-auto w-full h-fit">
                 <!-- Header -->
-                <div class="flex flex-col border-b border-gray-200 dark:border-gray-700 pb-4">
-                    <div class="flex items-center gap-2 mb-2">
-                        <Package class="w-5 h-5 text-AA" />
-                        <h2 class="font-bold uppercase leading-none text-lg text-gray-900 dark:text-gray-100">
-                            {{ isUpdate ? 'Update Incoming Transaction' : 'Incoming Transaction' }}
-                        </h2>
+                <div class="flex border-b border-gray-200 dark:border-gray-700  justify-between items-center pb-4">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <Package class="w-5 h-5 text-AA" />
+                            <h2 class="font-bold uppercase leading-none text-lg text-gray-900 dark:text-gray-100">
+                                {{ isUpdate ? 'Update Incoming Transaction' : 'Incoming Transaction' }}
+                            </h2>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            {{ isUpdate ? 'Update the details of this incoming transaction.' : 'Submit details for a new incoming transaction.' }}
+                        </p>
                     </div>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                        {{ isUpdate ? 'Update the details of this incoming transaction.' : 'Submit details for a new incoming transaction.' }}
-                    </p>
+                    <!-- Barcode Display -->
+                    <div v-if="svgText && selectedStorage" class="flex sm:flex-row flex-col gap-3 w-fit h-16 items-center relative border border-gray-200 dark:border-gray-600">
+                        <img id="barcode-image" :src="svgText" alt="Generated barcode" class="w-full h-full max-w-md rounded shadow-sm bg-white" />
+                    </div>
                 </div>
 
                 <!-- Reports Accordion -->
@@ -500,18 +464,6 @@ export default {
 
                 <!-- Remarks -->
                 <text-area label="PR Details/Remarks" v-model="form.remarks" :error="form.errors.remarks" />
-
-                <!-- Barcode Display -->
-                <div v-if="svgText && selectedStorage" class="flex sm:flex-row flex-col gap-3 w-full items-center relative p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-                    <img id="barcode-image" :src="svgText" alt="Generated barcode" class="w-full max-w-md rounded shadow-sm bg-white" />
-                    <button
-                        class="absolute bottom-4 right-4 p-2.5 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2"
-                        @click.prevent="print"
-                        title="Print barcode"
-                    >
-                        <Printer class="w-5 h-5" />
-                    </button>
-                </div>
             </div>
 
             <!-- Actions -->

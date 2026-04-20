@@ -123,7 +123,7 @@ class TransactionFactory extends Factory
             $newBarcode = 'CBC-' . $room . '-' . str_pad($counter, 6, '0', STR_PAD_LEFT);
             $counter++;
         } while (
-            Transaction::where('barcode', $newBarcode)->exists()
+            Transaction::withTrashed()->where('barcode', $newBarcode)->exists()
             || in_array($newBarcode, TransactionFactory::$usedBarcodes, true)
         );
 

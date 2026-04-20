@@ -222,6 +222,49 @@ class TransactionsTest extends TestCase
         $this->assertDatabaseMissing('transaction_components', ['transaction_id' => $transaction->id]);
     }
 
+    public function test_generated_incoming_barcode_does_not_reuse_soft_deleted_transaction_barcode(): void
+    {
+        $user = $this->createAdminUser();
+        Sanctum::actingAs($user);
+
+        $category = Category::factory()->create();
+        $supplier = Supplier::factory()->create();
+        $item = Item::factory()->create([
+            'category_id' => $category->id,
+            'supplier_id' => $supplier->id,
+        ]);
+        $personnel = Personnel::factory()->create([
+            'employee_id' => 'EMP-TRANSACTION-SOFT-DELETE',
+        ]);
+
+        $firstBarcode = $this->getJson(route('api.inventory.transactions.genbarcode', ['room' => '01']))
+            ->assertOk()
+            ->json('data.barcode');
+
+        $transaction = Transaction::factory()->create([
+            'item_id' => $item->id,
+            'barcode' => $firstBarcode,
+            'transac_type' => Inventory::INCOMING->value,
+            'quantity' => 1,
+            'unit' => 'pc',
+            'personnel_id' => $personnel->id,
+            'user_id' => $user->id,
+        ]);
+
+        $this->deleteJson(route('api.inventory.transactions.destroy', ['id' => $transaction->id]))
+            ->assertOk();
+
+        $nextBarcode = $this->getJson(route('api.inventory.transactions.genbarcode', ['room' => '01']))
+            ->assertOk()
+            ->json('data.barcode');
+
+        $this->assertNotSame($firstBarcode, $nextBarcode);
+        $this->assertSame(
+            ((int) substr($firstBarcode, -6)) + 1,
+            (int) substr($nextBarcode, -6)
+        );
+    }
+
     public function test_public_transaction_index_exposes_actor_display_name_for_user_only_records(): void
     {
         $category = Category::factory()->create();

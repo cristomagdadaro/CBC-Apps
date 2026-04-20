@@ -91,6 +91,9 @@
 ## Tracker Updates (2026-04-18)
 - [ID-2026-04-18-001] Resolved. Inventory incoming transactions no longer persist attached equipment components as detail rows on `transaction_components`; sub-components are now saved as full `transactions` records and linked to their parent incoming transaction through `transaction_components.transaction_id` and `component_transaction_id`, allowing parent/child transaction pages to cross-link and edit each sub-component independently.
 
+## Tracker Updates (2026-04-20)
+- [ID-2026-04-20-001] Resolved. Incoming barcode generation only checked active `transactions` rows, so soft-deleting an incoming transaction could cause `NewBarcode::GenerateBarcode()` to reissue the same CBC barcode even though validation still treated the soft-deleted row as a collision. Barcode generation, barcode-counter sync auditing, and factory helpers now consider soft-deleted transaction history so previously issued codes remain reserved and newly generated incoming barcodes advance monotonically.
+
 ### Verification Snapshot
 - `php artisan test tests/Feature/Laboratory/EquipmentControllersTest.php tests/Feature/Rental/RentalControllersTest.php tests/Feature/Inventory/GuestPersonnelLookupTest.php tests/Feature/Events/Registration/GuestLookupTest.php tests/Feature/Events/FormRepoParticipantsTest.php tests/Feature/Events/Workflow/TimelineIntegrationTest.php tests/Feature/Events/Workflow/ToggleSettingsTest.php`: 56 passed, 222 assertions, 0 failures.
 - `composer audit --format=json`: clean after dependency updates.

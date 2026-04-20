@@ -209,7 +209,7 @@ export default {
                 type="button"
                 @click="toggleStorageReference"
                 :class="[
-                    'fixed right-5 bottom-5 lg:bottom-auto lg:top-5 z-20',
+                    'fixed right-5 bottom-5 z-20',
                     'flex items-center gap-2 px-4 py-3 rounded-full shadow-lg transition-all duration-300',
                     showStorageReference
                         ? 'bg-gray-800 dark:bg-gray-700 text-white hover:bg-gray-700 dark:hover:bg-gray-600'
