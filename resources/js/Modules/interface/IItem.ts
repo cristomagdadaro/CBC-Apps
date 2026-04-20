@@ -6,6 +6,7 @@ interface IItem extends IBaseClass {
     specifications: string;
     category_id: string;
     supplier_id: string;
+    equipment_logger_mode: string;
     image: string;
 
     supplier: ISupplier;

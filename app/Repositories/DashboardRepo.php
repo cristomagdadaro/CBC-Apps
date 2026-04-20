@@ -61,6 +61,16 @@ class DashboardRepo extends AbstractRepoService
                 'total'    => RequestFormPivot::count(),
                 'pending'  => RequestFormPivot::where('request_status', 'pending')->count(),
                 'approved' => RequestFormPivot::where('request_status', 'approved')->count(),
+                'released' => RequestFormPivot::where('request_status', 'released')->count(),
+                'returned' => RequestFormPivot::where('request_status', 'returned')->count(),
+                'overdue' => RequestFormPivot::where('request_status', 'released')
+                    ->whereNull('returned_at')
+                    ->whereHas('request_form', function ($query) use ($now) {
+                        $query->whereNotNull('date_of_use_end')
+                            ->whereNotNull('time_of_use_end')
+                            ->whereRaw("TIMESTAMP(date_of_use_end, time_of_use_end) < ?", [$now->toDateTimeString()]);
+                    })
+                    ->count(),
                 'rejected' => RequestFormPivot::where('request_status', 'rejected')->count(),
             ],
             'inventory' => [

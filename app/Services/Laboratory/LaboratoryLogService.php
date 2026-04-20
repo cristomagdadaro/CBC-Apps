@@ -13,6 +13,7 @@ use App\Repositories\OptionRepo;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -57,27 +58,26 @@ class LaboratoryLogService
 
     public function listEligibleEquipment(?string $search = null, string $equipmentType = 'laboratory'): Collection
     {
-        $categoryIds = $this->categoryIdsForType($equipmentType);
-
-        $query = Transaction::withTrashed()
+        $query = Item::query()
+            ->with('category')
             ->select([
                 'items.id as equipment_id',
                 'items.name',
                 'items.brand',
                 'items.description',
                 'items.category_id',
+                'items.equipment_logger_mode',
                 'categories.name as category_name',
-                DB::raw('MAX(transactions.barcode) as barcode'),
-                DB::raw('MAX(transactions.barcode_prri) as barcode_prri'),
             ])
-            ->join('items', 'transactions.item_id', '=', 'items.id')
+            ->selectSub($this->latestTransactionFieldSubquery('barcode'), 'barcode')
+            ->selectSub($this->latestTransactionFieldSubquery('barcode_prri'), 'barcode_prri')
             ->join('categories', 'items.category_id', '=', 'categories.id')
-            ->where(function (Builder $query) use ($categoryIds, $equipmentType) {
-                $query->whereIn('categories.id', $categoryIds);
-
-                if ($equipmentType === 'laboratory') {
-                    $query->orWhere('categories.name', 'Laboratory Equipment');
-                }
+            ->whereIn('items.equipment_logger_mode', [Item::EQUIPMENT_LOGGER_MODE_BORROWABLE])
+            ->where(function (Builder $query) use ($equipmentType) {
+                $this->applyEquipmentCategoryConstraint($query, $equipmentType, 'categories');
+            })
+            ->whereHas('transactions', function (Builder $query) {
+                $query->withTrashed();
             });
 
         if ($search) {
@@ -85,12 +85,19 @@ class LaboratoryLogService
                 $query->where('items.id', 'like', "%{$search}%")
                     ->orWhere('items.name', 'like', "%{$search}%")
                     ->orWhere('items.brand', 'like', "%{$search}%")
-                    ->orWhere('transactions.barcode', 'like', "%{$search}%")
-                    ->orWhere('transactions.barcode_prri', 'like', "%{$search}%");
+                    ->orWhereExists(function ($subQuery) use ($search) {
+                        $subQuery->selectRaw('1')
+                            ->from('transactions')
+                            ->whereColumn('transactions.item_id', 'items.id')
+                            ->where(function ($barcodeQuery) use ($search) {
+                                $barcodeQuery->where('transactions.barcode', 'like', "%{$search}%")
+                                    ->orWhere('transactions.barcode_prri', 'like', "%{$search}%");
+                            });
+                    });
             });
         }
 
-        return $query->groupBy('items.id', 'items.name', 'items.brand', 'items.description', 'items.category_id', 'categories.name')
+        return $query
             ->orderBy('items.name')
             ->get();
     }
@@ -318,16 +325,15 @@ class LaboratoryLogService
 
     public function getActiveEquipment($employee_id = null, string $equipmentType = 'laboratory'): Collection
     {
-        $categoryIds = $this->categoryIdsForType($equipmentType);
-
         $query = LaboratoryEquipmentLog::with(['equipment', 'personnel'])
             ->whereIn('status', ['active', 'overdue'])
-            ->whereHas('equipment.category', function (Builder $builder) use ($categoryIds, $equipmentType) {
-                $builder->whereIn('categories.id', $categoryIds);
-
-                if ($equipmentType === 'laboratory') {
-                    $builder->orWhere('categories.name', 'Laboratory Equipment');
-                }
+            ->whereHas('equipment', function (Builder $builder) use ($equipmentType) {
+                $builder->whereIn('items.equipment_logger_mode', [
+                    Item::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+                    Item::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+                ])->whereHas('category', function (Builder $categoryQuery) use ($equipmentType) {
+                    $this->applyEquipmentCategoryConstraint($categoryQuery, $equipmentType, 'categories');
+                });
             })
             ->orderBy('started_at');
 
@@ -340,12 +346,12 @@ class LaboratoryLogService
         return $query->get();
     }
 
-    public function getDashboardMetrics(): array
+    public function getDashboardMetrics(string $equipmentType = 'all'): array
     {
-        $activeLogs = $this->getActiveEquipment();
+        $activeLogs = $this->getDashboardLogsByStatuses(['active'], $equipmentType);
 
-        $overdueLogs = $this->getDashboardLogsByStatuses(['overdue']);
-        $completedLogs = $this->getDashboardLogsByStatuses(['completed']);
+        $overdueLogs = $this->getDashboardLogsByStatuses(['overdue'], $equipmentType);
+        $completedLogs = $this->getDashboardLogsByStatuses(['completed'], $equipmentType);
 
         $this->enrichLogsWithLocationDetails($activeLogs, $overdueLogs, $completedLogs);
 
@@ -355,6 +361,14 @@ class LaboratoryLogService
                 DB::raw('COUNT(*) as usage_count'),
                 DB::raw($this->totalDurationExpression()),
             ])
+            ->whereHas('equipment', function (Builder $builder) use ($equipmentType) {
+                $builder->whereIn('items.equipment_logger_mode', [
+                    Item::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+                    Item::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+                ])->whereHas('category', function (Builder $categoryQuery) use ($equipmentType) {
+                    $this->applyEquipmentCategoryConstraint($categoryQuery, $equipmentType, 'categories');
+                });
+            })
             ->whereIn('status', ['completed', 'overdue'])
             ->groupBy('equipment_id')
             ->orderByDesc('usage_count')
@@ -370,6 +384,7 @@ class LaboratoryLogService
             return [
                 'equipment_id' => $row->equipment_id,
                 'equipment_name' => $equipment?->name,
+                'equipment_type' => $this->determineEquipmentType($equipment),
                 'usage_count' => (int) $row->usage_count,
                 'total_duration_seconds' => (int) $row->total_duration_seconds,
             ];
@@ -381,6 +396,14 @@ class LaboratoryLogService
                 DB::raw('HOUR(started_at) as hour_of_day'),
                 DB::raw('COUNT(*) as usage_count'),
             ])
+            ->whereHas('equipment', function (Builder $builder) use ($equipmentType) {
+                $builder->whereIn('items.equipment_logger_mode', [
+                    Item::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+                    Item::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+                ])->whereHas('category', function (Builder $categoryQuery) use ($equipmentType) {
+                    $this->applyEquipmentCategoryConstraint($categoryQuery, $equipmentType, 'categories');
+                });
+            })
             ->groupBy('day_of_week', 'hour_of_day')
             ->get();
 
@@ -393,19 +416,127 @@ class LaboratoryLogService
         ];
     }
 
+    public function paginateEquipmentUsage(array $parameters, string $equipmentType = 'all'): LengthAwarePaginator
+    {
+        $search = trim((string) ($parameters['search'] ?? ''));
+        $filter = trim((string) ($parameters['filter'] ?? ''));
+        $perPage = max(1, min(100, (int) ($parameters['per_page'] ?? 10)));
+        $sort = (string) ($parameters['sort'] ?? 'total_logs');
+        $order = strtolower((string) ($parameters['order'] ?? 'desc')) === 'asc' ? 'asc' : 'desc';
+
+        $logSummarySubquery = LaboratoryEquipmentLog::query()
+            ->selectRaw('equipment_id')
+            ->selectRaw('COUNT(*) as total_logs')
+            ->selectRaw("SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_logs")
+            ->selectRaw("SUM(CASE WHEN status = 'overdue' THEN 1 ELSE 0 END) as overdue_logs")
+            ->selectRaw("SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_logs")
+            ->selectRaw('MAX(COALESCE(actual_end_at, end_use_at, started_at)) as last_logged_at')
+            ->groupBy('equipment_id');
+
+        $query = Item::query()
+            ->select([
+                'items.id',
+                'items.name',
+                'items.brand',
+                'items.description',
+                'items.category_id',
+                'items.equipment_logger_mode',
+                'categories.name as category_name',
+            ])
+            ->selectRaw("CASE WHEN items.category_id = 4 THEN 'ict' ELSE 'laboratory' END as equipment_type")
+            ->selectRaw('COALESCE(logger_usage.total_logs, 0) as total_logs')
+            ->selectRaw('COALESCE(logger_usage.active_logs, 0) as active_logs')
+            ->selectRaw('COALESCE(logger_usage.overdue_logs, 0) as overdue_logs')
+            ->selectRaw('COALESCE(logger_usage.completed_logs, 0) as completed_logs')
+            ->selectRaw('logger_usage.last_logged_at as last_logged_at')
+            ->selectSub($this->latestTransactionFieldSubquery('barcode'), 'barcode')
+            ->leftJoinSub($logSummarySubquery, 'logger_usage', function ($join) {
+                $join->on('logger_usage.equipment_id', '=', 'items.id');
+            })
+            ->join('categories', 'items.category_id', '=', 'categories.id')
+            ->whereIn('items.equipment_logger_mode', [
+                Item::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+                Item::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+            ])
+            ->where(function (Builder $query) use ($equipmentType) {
+                $this->applyEquipmentCategoryConstraint($query, $equipmentType, 'categories');
+            });
+
+        if ($search !== '') {
+            if ($filter !== '') {
+                $this->applyEquipmentUsageFilterSearch($query, $filter, $search);
+            } else {
+                $query->where(function (Builder $builder) use ($search) {
+                    $builder->where('items.name', 'like', "%{$search}%")
+                        ->orWhere('items.brand', 'like', "%{$search}%")
+                        ->orWhere('items.description', 'like', "%{$search}%")
+                        ->orWhere('categories.name', 'like', "%{$search}%")
+                        ->orWhere('items.equipment_logger_mode', 'like', "%{$search}%")
+                        ->orWhereExists(function ($subQuery) use ($search) {
+                            $subQuery->selectRaw('1')
+                                ->from('transactions')
+                                ->whereColumn('transactions.item_id', 'items.id')
+                                ->where(function ($barcodeQuery) use ($search) {
+                                    $barcodeQuery->where('transactions.barcode', 'like', "%{$search}%")
+                                        ->orWhere('transactions.barcode_prri', 'like', "%{$search}%");
+                                });
+                        });
+                });
+            }
+        }
+
+        $sortableColumns = [
+            'name' => 'items.name',
+            'brand' => 'items.brand',
+            'category_name' => 'categories.name',
+            'equipment_logger_mode' => 'items.equipment_logger_mode',
+            'total_logs' => 'total_logs',
+            'active_logs' => 'active_logs',
+            'overdue_logs' => 'overdue_logs',
+            'completed_logs' => 'completed_logs',
+            'last_logged_at' => 'last_logged_at',
+        ];
+
+        $query->orderBy($sortableColumns[$sort] ?? 'total_logs', $order)
+            ->orderBy('items.name');
+
+        return $query->paginate($perPage);
+    }
+
+    private function applyEquipmentUsageFilterSearch(Builder $query, string $filter, string $search): void
+    {
+        $likeValue = "%{$search}%";
+
+        match ($filter) {
+            'name' => $query->where('items.name', 'like', $likeValue),
+            'category_name' => $query->where('categories.name', 'like', $likeValue),
+            'equipment_logger_mode' => $query->where('items.equipment_logger_mode', 'like', $likeValue),
+            'equipment_type' => $query->where('items.category_id', strtolower($search) === 'ict' ? 4 : 7),
+            'barcode' => $query->whereExists(function ($subQuery) use ($likeValue) {
+                $subQuery->selectRaw('1')
+                    ->from('transactions')
+                    ->whereColumn('transactions.item_id', 'items.id')
+                    ->where(function ($barcodeQuery) use ($likeValue) {
+                        $barcodeQuery->where('transactions.barcode', 'like', $likeValue)
+                            ->orWhere('transactions.barcode_prri', 'like', $likeValue);
+                    });
+            }),
+            default => $query->where('items.name', 'like', $likeValue),
+        };
+    }
+
     private function getDashboardLogsByStatuses(array $statuses, string $equipmentType = 'laboratory'): Collection
     {
-        $categoryIds = $this->categoryIdsForType($equipmentType);
-
         return LaboratoryEquipmentLog::query()
             ->with(['equipment', 'personnel'])
             ->whereIn('status', $statuses)
-            ->whereHas('equipment.category', function (Builder $builder) use ($categoryIds, $equipmentType) {
-                $builder->whereIn('categories.id', $categoryIds);
-
-                if ($equipmentType === 'laboratory') {
-                    $builder->orWhere('categories.name', 'Laboratory Equipment');
-                }
+            ->whereHas('equipment', function (Builder $builder) use ($equipmentType) {
+                $builder->whereIn('items.equipment_logger_mode', [
+                    Item::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+                    Item::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+                ])->whereHas('category', function (Builder $categoryQuery) use ($equipmentType) {
+                    $this->applyEquipmentCategoryConstraint($categoryQuery, $equipmentType, 'categories');
+                });
             })
             ->orderByDesc('actual_end_at')
             ->orderBy('end_use_at')
@@ -470,6 +601,7 @@ class LaboratoryLogService
             $log->setAttribute('equipment_barcode', $barcode);
             $log->setAttribute('location_code', $locationCode);
             $log->setAttribute('location_label', $locationLabel);
+            $log->setAttribute('equipment_type', $this->determineEquipmentType($log->equipment));
         });
     }
 
@@ -535,22 +667,17 @@ class LaboratoryLogService
      */
     private function findEligibleEquipment(string $equipmentId, string $equipmentType = 'laboratory'): ?Item
     {
-        $categoryIds = $this->categoryIdsForType($equipmentType);
-
         return Item::query()
             ->with('category')
             ->select('items.*')
             ->addSelect(
-                DB::raw('(SELECT MAX(t.barcode) FROM transactions t WHERE t.item_id = items.id) as barcode'),
-                DB::raw('(SELECT MAX(t.barcode_prri) FROM transactions t WHERE t.item_id = items.id AND t.barcode_prri IS NOT NULL) as barcode_prri')
+                DB::raw('(SELECT t.barcode FROM transactions t WHERE t.item_id = items.id AND t.barcode IS NOT NULL ORDER BY t.created_at DESC LIMIT 1) as barcode'),
+                DB::raw('(SELECT t.barcode_prri FROM transactions t WHERE t.item_id = items.id AND t.barcode_prri IS NOT NULL ORDER BY t.created_at DESC LIMIT 1) as barcode_prri')
             )
             ->where('items.id', $equipmentId)
-            ->whereHas('category', function (Builder $query) use ($categoryIds, $equipmentType) {
-                $query->whereIn('categories.id', $categoryIds);
-
-                if ($equipmentType === 'laboratory') {
-                    $query->orWhere('categories.name', 'Laboratory Equipment');
-                }
+            ->where('items.equipment_logger_mode', Item::EQUIPMENT_LOGGER_MODE_BORROWABLE)
+            ->whereHas('category', function (Builder $query) use ($equipmentType) {
+                $this->applyEquipmentCategoryConstraint($query, $equipmentType, 'categories');
             })
             ->whereHas('transactions', function (Builder $query) {
                 $query->withTrashed();
@@ -560,7 +687,11 @@ class LaboratoryLogService
 
     private function categoryIdsForType(string $equipmentType): array
     {
-        return $equipmentType === 'ict' ? [4] : [7];
+        return match ($equipmentType) {
+            'ict' => [4],
+            'all' => [4, 7],
+            default => [7],
+        };
     }
 
     private function equipmentLabel(string $equipmentType): string
@@ -578,6 +709,25 @@ class LaboratoryLogService
         }
 
         return 'laboratory';
+    }
+
+    private function applyEquipmentCategoryConstraint(Builder $query, string $equipmentType, string $table = 'categories'): void
+    {
+        $query->whereIn(sprintf('%s.id', $table), $this->categoryIdsForType($equipmentType));
+
+        if ($equipmentType === 'laboratory') {
+            $query->orWhere(sprintf('%s.name', $table), 'Laboratory Equipment');
+        }
+    }
+
+    private function latestTransactionFieldSubquery(string $field): Builder
+    {
+        return Transaction::withTrashed()
+            ->select($field)
+            ->whereColumn('transactions.item_id', 'items.id')
+            ->whereNotNull($field)
+            ->latest('created_at')
+            ->limit(1);
     }
 
     private function getActiveLog(string $equipmentId): ?LaboratoryEquipmentLog

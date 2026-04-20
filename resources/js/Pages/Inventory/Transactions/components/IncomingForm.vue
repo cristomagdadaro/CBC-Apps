@@ -226,6 +226,23 @@ export default {
                 };
             });
         },
+        projectCodeSuggestions() {
+            const projectCodes = this.$page.props?.projectCodes;
+
+            if (!Array.isArray(projectCodes)) {
+                return [];
+            }
+
+            return [...new Set(projectCodes
+                .map((projectCode) => {
+                    if (typeof projectCode === 'string') {
+                        return projectCode.trim();
+                    }
+
+                    return String(projectCode?.label ?? projectCode?.name ?? projectCode?.value ?? '').trim();
+                })
+                .filter(Boolean))];
+        },
         preGenerateBarcode() {
             return this.$page.props.barcode;
         },
@@ -365,6 +382,8 @@ export default {
                     label="Project Code"
                     required
                     v-model="form.project_code"
+                    datalist-id="incoming-project-code-options"
+                    :datalist-options="projectCodeSuggestions"
                     :error="form.errors.project_code"
                     :hint="'Enter the project code for this transaction'"
                 >

@@ -8,9 +8,70 @@ export default defineComponent({
     name: "ItemForm",
     mixins: [ApiMixin],
     components: { ItemsHeaderActions },
+    computed: {
+        equipmentLoggerModeOptions() {
+            return [
+                {
+                    value: "borrowable",
+                    label: "Borrowable / Common-use",
+                },
+                {
+                    value: "tracked_only",
+                    label: "Tracked only / Not borrowable",
+                },
+                {
+                    value: "excluded",
+                    label: "Excluded from logger",
+                },
+            ];
+        },
+        selectedCategoryId() {
+            return Number(this.form?.category_id ?? 0);
+        },
+        isEquipmentCategory() {
+            return [4, 7].includes(this.selectedCategoryId);
+        },
+        equipmentLoggerHelpText() {
+            if (!this.isEquipmentCategory) {
+                return "Non-ICT/non-laboratory items stay excluded from the equipment logger.";
+            }
+
+            if (this.form?.equipment_logger_mode === "borrowable") {
+                return "This item will appear in the public/common-use equipment logger and can be checked in by staff.";
+            }
+
+            if (this.form?.equipment_logger_mode === "tracked_only") {
+                return "This item can still appear in internal logger dashboards when logged, but it will not appear in the public/common-use equipment list.";
+            }
+
+            return "This item will be hidden from the equipment logger.";
+        },
+    },
     beforeMount() {
         this.model = new Item();
         this.setFormAction("create");
+    },
+    watch: {
+        "form.category_id": {
+            immediate: true,
+            handler(value) {
+                if (!this.form) {
+                    return;
+                }
+
+                const categoryId = Number(value ?? 0);
+
+                if ([4, 7].includes(categoryId)) {
+                    if (!["borrowable", "tracked_only"].includes(this.form.equipment_logger_mode)) {
+                        this.form.equipment_logger_mode = "tracked_only";
+                    }
+
+                    return;
+                }
+
+                this.form.equipment_logger_mode = "excluded";
+            },
+        },
     },
 });
 </script>
@@ -84,6 +145,25 @@ export default defineComponent({
                     <filter-icon class="h-4 w-4" />
                 </template>
             </custom-dropdown>
+            <div class="rounded-lg border border-indigo-100 bg-indigo-50/70 p-3">
+                <custom-dropdown
+                    required
+                    :searchable="false"
+                    :with-all-option="false"
+                    :value="form.equipment_logger_mode"
+                    :options="equipmentLoggerModeOptions"
+                    label="Equipment Logger Availability"
+                    :error="form.errors.equipment_logger_mode"
+                    @selectedChange="form.equipment_logger_mode = $event"
+                >
+                    <template #icon>
+                        <filter-icon class="h-4 w-4" />
+                    </template>
+                </custom-dropdown>
+                <p class="mt-2 text-xs text-gray-600">
+                    {{ equipmentLoggerHelpText }}
+                </p>
+            </div>
             <text-input
                 label="Model / Short Physical Description"
                 v-model="form.description"

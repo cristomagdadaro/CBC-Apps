@@ -66,6 +66,7 @@ class CreateRequestFormPivot extends FormRequest
         return [
             'name' => 'required|string|max:191',
             'affiliation' => 'required|string|max:191',
+            'requester_philrice_id' => 'nullable|string|max:64',
             'email' => 'required|string|email|max:191',
             'position' => 'nullable|string|max:191',
             'phone' => 'required|string|max:50',

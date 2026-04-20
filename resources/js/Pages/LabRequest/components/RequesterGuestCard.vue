@@ -86,7 +86,7 @@ export default {
             this.form.position = data.position ?? this.form.position;
             this.form.phone = data.phone ?? this.form.phone;
             this.form.email = data.email ?? this.form.email;
-            this.form.affiliation = data.affiliation;
+            this.form.affiliation = data.affiliation ?? this.form.affiliation;
             this.form.clearErrors('employee_id');
             this.employeeFound = true;
         },
@@ -313,6 +313,17 @@ export default {
                 </div>
                 <div v-show="isNonPhilRiceEmployee || employeeFound" class="flex flex-col gap-2 pt-2 border-t">
                     <p class="text-sm text-gray-600">Manually enter your information</p>
+                    <TextInput
+                        v-if="isNonPhilRiceEmployee"
+                        id="requester_philrice_id"
+                        v-model="form.requester_philrice_id"
+                        type="text"
+                        :error="errMsg('requester_philrice_id')"
+                        label="PhilRice ID (for returning requesters)"
+                        placeholder="Optional if you were previously issued an ID"
+                        autocomplete="off"
+                        @input="form.clearErrors('requester_philrice_id')"
+                    />
                     <TextInput id="name" v-model="form.name" required type="text" :error="errMsg('name')" label="Full Name" placeholder="Juan Dela Cruz" autocomplete="name" @input="form.clearErrors('name')" />
                     <TextInput id="position" v-model="form.position" type="text" :error="form.errors.position" label="Position" placeholder="SRS I, Student" autocomplete="position" @input="form.clearErrors('position')" />
                     <TextInput id="affiliation" v-model="form.affiliation" required type="text" :error="errMsg('affiliation')" label="Affiliation/Agency/Office" placeholder="Office Name" autocomplete="affiliation" @input="form.clearErrors('affiliation')" />

@@ -13,8 +13,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('forms:update-expired')->everyMinute();
-        $schedule->command('laboratory:mark-overdue')->everyMinute();
+        $schedule->command('forms:update-expired')->everySixHours();
+        $schedule->command('laboratory:mark-overdue')->everyFiveMinutes();
+        $schedule->command('fes:send-overdue-reminders')->everyFiveMinutes();
     }
 
     /**

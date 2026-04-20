@@ -93,7 +93,7 @@ export default {
                 },
                 {
                     label: "Equipment Logger Module",
-                    href: "laboratory.dashboard",
+                    href: "equipment-logger.dashboard",
                     permission: "laboratory.logger.manage",
                     moduleKey: "laboratory_dashboard",
                     icon: "LuMicroscope",

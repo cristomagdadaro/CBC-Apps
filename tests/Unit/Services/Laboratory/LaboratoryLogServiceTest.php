@@ -69,6 +69,41 @@ class LaboratoryLogServiceTest extends TestCase
         $this->assertSame($item->id, $resolved);
     }
 
+    public function test_list_eligible_equipment_only_returns_borrowable_items(): void
+    {
+        ['item' => $borrowableItem, 'personnel' => $personnel, 'user' => $user] = $this->createLaboratoryInventoryContext();
+
+        $trackedOnlyItem = Item::factory()->create([
+            'category_id' => 7,
+            'supplier_id' => $borrowableItem->supplier_id,
+            'equipment_logger_mode' => Item::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+        ]);
+
+        foreach ([$borrowableItem, $trackedOnlyItem] as $index => $item) {
+            Transaction::query()->create([
+                'item_id' => $item->id,
+                'barcode' => 'CBC-LAB-FILTER-0' . ($index + 1),
+                'transac_type' => InventoryEnum::INCOMING->value,
+                'quantity' => 1,
+                'unit_price' => 100,
+                'unit' => 'pc',
+                'total_cost' => 100,
+                'personnel_id' => $personnel->id,
+                'user_id' => $user->id,
+                'expiration' => now()->addMonth(),
+                'remarks' => 'Laboratory stock',
+            ]);
+        }
+
+        $eligibleIds = app(LaboratoryLogService::class)
+            ->listEligibleEquipment()
+            ->pluck('equipment_id')
+            ->all();
+
+        $this->assertContains($borrowableItem->id, $eligibleIds);
+        $this->assertNotContains($trackedOnlyItem->id, $eligibleIds);
+    }
+
     public function test_mark_overdue_updates_only_expired_active_logs(): void
     {
         ['item' => $item, 'personnel' => $personnel, 'user' => $user] = $this->createLaboratoryInventoryContext();
@@ -264,6 +299,7 @@ class LaboratoryLogServiceTest extends TestCase
         $item = Item::factory()->create([
             'category_id' => 7,
             'supplier_id' => $supplier->id,
+            'equipment_logger_mode' => Item::EQUIPMENT_LOGGER_MODE_BORROWABLE,
         ]);
         $personnel = Personnel::factory()->create(['employee_id' => 'EMP-LAB-SVC']);
         $user = User::factory()->create();

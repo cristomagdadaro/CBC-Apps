@@ -26,6 +26,10 @@ class CreateItemRequest extends FormRequest
 
         $this->merge([
             'id' => $temp,
+            'equipment_logger_mode' => Item::resolveEquipmentLoggerMode(
+                $this->input('equipment_logger_mode'),
+                $this->input('category_id'),
+            ),
         ]);
     }
 
@@ -43,6 +47,7 @@ class CreateItemRequest extends FormRequest
             'specifications' => ['string','nullable'],
             'category_id' => ['required','exists:categories,id', new UniqueItem()],
             'supplier_id' => ['required','exists:suppliers,id'],
+            'equipment_logger_mode' => ['required', 'string', 'in:' . implode(',', Item::EQUIPMENT_LOGGER_MODES)],
             'image' => ['string','nullable'],
         ];
     }

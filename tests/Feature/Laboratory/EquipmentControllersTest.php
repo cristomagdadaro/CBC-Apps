@@ -8,6 +8,7 @@ use App\Models\LaboratoryEquipmentLog;
 use App\Models\User;
 use App\Repositories\LaboratoryEquipmentLogRepo;
 use App\Services\Laboratory\LaboratoryLogService;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
@@ -249,5 +250,39 @@ class EquipmentControllersTest extends TestCase
             ->assertJsonPath('data.0.id', 'log-1')
             ->assertJsonPath('data.0.status', 'active')
             ->assertJsonPath('meta.total', 1);
+    }
+
+    public function test_laboratory_manager_can_view_equipment_logger_equipment_index(): void
+    {
+        $service = $this->createMock(LaboratoryLogService::class);
+        $service->expects($this->once())
+            ->method('paginateEquipmentUsage')
+            ->with($this->callback(fn (array $payload) => ($payload['search'] ?? null) === 'PCR'), 'all')
+            ->willReturn(new LengthAwarePaginator(
+                [
+                    [
+                        'id' => 'equipment-1',
+                        'name' => 'PCR Machine',
+                        'equipment_type' => 'laboratory',
+                        'total_logs' => 12,
+                    ],
+                ],
+                1,
+                10,
+                1
+            ));
+
+        $repo = $this->createMock(LaboratoryEquipmentLogRepo::class);
+
+        $this->app->instance(LaboratoryLogService::class, $service);
+        $this->app->instance(LaboratoryEquipmentLogRepo::class, $repo);
+
+        $user = $this->createUserWithRole(RoleEnum::LABORATORY_MANAGER->value);
+        Sanctum::actingAs($user);
+
+        $this->getJson(route('api.equipment-logger.equipments.index', ['search' => 'PCR']))
+            ->assertOk()
+            ->assertJsonPath('data.0.id', 'equipment-1')
+            ->assertJsonPath('data.0.total_logs', 12);
     }
 }

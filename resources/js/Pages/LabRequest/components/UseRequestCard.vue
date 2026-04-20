@@ -83,6 +83,27 @@ export default {
                     icon: CheckCircle2,
                     label: 'Approved'
                 },
+                released: {
+                    color: 'text-blue-700',
+                    bgColor: 'bg-blue-50',
+                    borderColor: 'border-blue-200',
+                    icon: Package,
+                    label: 'Released'
+                },
+                returned: {
+                    color: 'text-slate-700',
+                    bgColor: 'bg-slate-100',
+                    borderColor: 'border-slate-200',
+                    icon: CheckCircle2,
+                    label: 'Returned'
+                },
+                overdue: {
+                    color: 'text-orange-700',
+                    bgColor: 'bg-orange-50',
+                    borderColor: 'border-orange-200',
+                    icon: AlertCircle,
+                    label: 'Overdue'
+                },
                 rejected: {
                     color: 'text-rose-600',
                     bgColor: 'bg-rose-50',
@@ -98,7 +119,7 @@ export default {
                     label: 'Pending'
                 }
             };
-            return configs[this.formsData?.request_status] || configs.pending;
+            return configs[this.formsData?.display_status] || configs.pending;
         },
         hasItems() {
             const rf = this.formsData?.requestForm;
@@ -113,6 +134,22 @@ export default {
         },
         requesterInitial() {
             return this.requesterDisplayName.charAt(0).toUpperCase() || '?';
+        },
+        lifecycleHint() {
+            if (this.formsData?.is_overdue && this.formsData?.schedule_end_at) {
+                return `Overdue since ${this.formatDate(this.formsData.schedule_end_at)}`;
+            }
+            if (this.formsData?.returned_at) {
+                return `Returned ${this.formatDate(this.formsData.returned_at)}`;
+            }
+            if (this.formsData?.released_at) {
+                return `Released ${this.formatDate(this.formsData.released_at)}`;
+            }
+            if (this.formsData?.approved_at) {
+                return `Approved ${this.formatDate(this.formsData.approved_at)}`;
+            }
+
+            return null;
         }
     },
     methods: {
@@ -291,11 +328,14 @@ export default {
                         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium border"
                             :class="[statusConfig.bgColor, statusConfig.color, statusConfig.borderColor]">
                             <component :is="statusConfig.icon" class="w-4 h-4" />
-                            {{ formsData.request_status }}
+                            {{ statusConfig.label }}
                         </span>
                         <span class="text-xs text-gray-400 flex items-center gap-1">
                             <Clock class="w-3 h-3" />
                             {{ formatDate(formsData.updated_at) }}
+                        </span>
+                        <span v-if="lifecycleHint" class="text-xs text-right" :class="formsData?.is_overdue ? 'text-orange-600' : 'text-gray-500'">
+                            {{ lifecycleHint }}
                         </span>
                     </div>
                 </div>
@@ -376,12 +416,12 @@ export default {
                                 {{ statusConfig.label }}
                             </p>
                             <p class="text-sm text-gray-600">
-                                Last updated {{ formatDate(formsData.updated_at) }}
+                                {{ lifecycleHint || `Last updated ${formatDate(formsData.updated_at)}` }}
                             </p>
                         </div>
                     </div>
-                    <span v-if="formsData.approved_by" class="text-sm text-gray-600">
-                        by {{ formsData.approved_by }}
+                    <span v-if="formsData.returned_by || formsData.released_by || formsData.approved_by" class="text-sm text-gray-600">
+                        by {{ formsData.returned_by || formsData.released_by || formsData.approved_by }}
                     </span>
                 </div>
 
@@ -396,6 +436,7 @@ export default {
                             <p class="font-medium text-gray-900">{{ requesterDisplayName }}</p>
                             <p class="text-sm text-gray-600">{{ displayText(formsData.requester?.position) }}</p>
                             <p class="text-sm text-gray-600">{{ displayText(formsData.requester?.affiliation) }}</p>
+                            <p v-if="formsData.requester?.philrice_id" class="text-sm text-gray-600">PhilRice ID: {{ formsData.requester.philrice_id }}</p>
                         </div>
                     </div>
 
@@ -500,7 +541,7 @@ export default {
                     Print Form
                 </button>
 
-                <UseRequestApprovalBtn :data="formsData" />
+                <UseRequestApprovalBtn :data="formsData" @updated="refreshData" />
             </div>
         </div>
     </Modal>

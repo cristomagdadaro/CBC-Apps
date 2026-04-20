@@ -81,6 +81,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                         'items' => Item::get(),
                         'suppliers' => app(SupplierRepo::class)->getOptions(),
                         'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
+                        'projectCodes' => app(TransactionRepo::class)->getAvailableProjectCodes(),
                         'storage_locations' => app(OptionRepo::class)->getStorageLocations(),
                         'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                     ]);
@@ -145,6 +146,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                             'data' => $transaction,
                             'items' => Item::withTrashed()->get(),
                             'fromUrl' => route('transactions.index'),
+                            'projectCodes' => app(TransactionRepo::class)->getAvailableProjectCodes(),
                             'storage_locations' => app(OptionRepo::class)->getStorageLocations(),
                             'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                             'attachedReports' => $attachedReports,

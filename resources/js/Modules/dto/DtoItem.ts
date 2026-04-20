@@ -9,6 +9,7 @@ export default class DtoItem extends DtoBaseClass implements IItem {
     specifications: string;
     category_id: string;
     supplier_id: string;
+    equipment_logger_mode: string;
     image: string;
 
     supplier: ISupplier;
@@ -23,6 +24,7 @@ export default class DtoItem extends DtoBaseClass implements IItem {
         this.specifications = data?.specifications;
         this.category_id = data?.category_id;
         this.supplier_id = data?.supplier_id;
+        this.equipment_logger_mode = data?.equipment_logger_mode;
         this.image = data?.image;
 
         if (data?.supplier)

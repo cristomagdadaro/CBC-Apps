@@ -93,6 +93,7 @@
 
 ## Tracker Updates (2026-04-20)
 - [ID-2026-04-20-001] Resolved. Incoming barcode generation only checked active `transactions` rows, so soft-deleting an incoming transaction could cause `NewBarcode::GenerateBarcode()` to reissue the same CBC barcode even though validation still treated the soft-deleted row as a collision. Barcode generation, barcode-counter sync auditing, and factory helpers now consider soft-deleted transaction history so previously issued codes remain reserved and newly generated incoming barcodes advance monotonically.
+- [ID-2026-04-20-002] Resolved. The FES request workflow was limited to `pending -> approved/rejected`, so admins had no first-class way to mark resources as released, returned, or visually detect overdue requests, and returning non-PhilRice requesters had no way to submit a prior PhilRice ID for personnel reconciliation. The request lifecycle now supports `approved -> released -> returned`, overdue requests are surfaced and reminded by email, and guest requesters can submit an optional returning-requester PhilRice ID that syncs into the personnels list.
 
 ### Verification Snapshot
 - `php artisan test tests/Feature/Laboratory/EquipmentControllersTest.php tests/Feature/Rental/RentalControllersTest.php tests/Feature/Inventory/GuestPersonnelLookupTest.php tests/Feature/Events/Registration/GuestLookupTest.php tests/Feature/Events/FormRepoParticipantsTest.php tests/Feature/Events/Workflow/TimelineIntegrationTest.php tests/Feature/Events/Workflow/ToggleSettingsTest.php`: 56 passed, 222 assertions, 0 failures.

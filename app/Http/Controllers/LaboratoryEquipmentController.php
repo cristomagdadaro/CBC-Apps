@@ -124,8 +124,15 @@ class LaboratoryEquipmentController extends BaseController
         $this->logService->markOverdue();
 
         return response()->json([
-            'data' => $this->logService->getDashboardMetrics(),
+            'data' => $this->logService->getDashboardMetrics('all'),
         ]);
+    }
+
+    public function equipmentIndex(GetRequest $request): JsonResponse
+    {
+        return response()->json(
+            $this->logService->paginateEquipmentUsage($request->validated(), 'all')
+        );
     }
 
     public function activeEquipments(Request $request, ?string $employee_id = null): JsonResponse

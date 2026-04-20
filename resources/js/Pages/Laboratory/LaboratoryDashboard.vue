@@ -10,7 +10,7 @@ import {
     Legend,
 } from 'chart.js';
 import CalendarModule from '@/Components/CalendarModule.vue';
-import LaboratoryEquipmentLog from '@/Modules/domain/LaboratoryEquipmentLog';
+import EquipmentLoggerAsset from '@/Modules/domain/EquipmentLoggerAsset';
 import { subscribeToRealtimeChannels } from '@/Modules/realtime/subscriptions';
 import LaboratoryLogHeaderAction from '@/Pages/Laboratory/components/LaboratoryLogHeaderAction.vue';
 import ApiMixin from '@/Modules/mixins/ApiMixin';
@@ -36,6 +36,7 @@ export default {
                 { key: 'stats', label: 'Statistics' },
                 { key: 'calendar', label: 'Calendar' },
                 { key: 'logs', label: 'Logs' },
+                { key: 'equipment-list', label: 'Equipment List' },
             ],
             dayLabels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
             heatLegend: [
@@ -70,6 +71,14 @@ export default {
         currentInUseCount() {
             return this.activeCount + this.overdueCount;
         },
+        currentWorkingLogs() {
+            return [...this.activeLogs, ...this.overdueLogs].sort((a, b) => {
+                const aTime = new Date(a?.started_at ?? 0).getTime();
+                const bTime = new Date(b?.started_at ?? 0).getTime();
+
+                return bTime - aTime;
+            });
+        },
         groupedActiveLogs() {
             return this.groupLogsByLocation(this.activeLogs);
         },
@@ -86,8 +95,8 @@ export default {
                 label: log.equipment?.name || 'Equipment',
                 subtitle: this.formatPersonnelName(log.personnel),
                 color: log.status === 'overdue' ? '#EF4444' : log.status === 'completed' ? '#9CA3AF' : '#10B981',
-                checkoutPage: 'laboratory.equipments.show',
-                checkoutPageId: log.id,
+                checkoutPage: log.equipment_type === 'ict' ? 'ict.equipments.show' : 'laboratory.equipments.show',
+                checkoutPageId: log.equipment?.id,
                 checkoutPageTarget: '_blank',
             });
 
@@ -120,14 +129,16 @@ export default {
 
             return rows;
         },
-        LaboratoryEquipmentLog() {
-            return LaboratoryEquipmentLog;
-        },
-        LaboratoryLogsDataTable() {
-            return LaboratoryLogsDataTable;
+        EquipmentLoggerAsset() {
+            return EquipmentLoggerAsset;
         },
     },
     methods: {
+        equipmentShowRoute(model) {
+            return model?.equipment_type === 'ict'
+                ? 'ict.equipments.show'
+                : 'laboratory.equipments.show';
+        },
         groupLogsByLocation(logs) {
             const grouped = logs.reduce((accumulator, log) => {
                 const key = log.location_label || 'Unknown Location';
@@ -167,6 +178,38 @@ export default {
             }
 
             return parsed.toLocaleString();
+        },
+        equipmentTypeLabel(value) {
+            return value === 'ict' ? 'ICT' : 'Laboratory';
+        },
+        equipmentTypeBadgeClass(value) {
+            return value === 'ict'
+                ? 'bg-blue-100 text-blue-700'
+                : 'bg-emerald-100 text-emerald-700';
+        },
+        loggerModeLabel(value) {
+            if (value === 'borrowable') return 'Borrowable';
+            if (value === 'tracked_only') return 'Tracked only';
+
+            return 'Excluded';
+        },
+        loggerModeBadgeClass(value) {
+            if (value === 'borrowable') {
+                return 'bg-emerald-100 text-emerald-700';
+            }
+
+            if (value === 'tracked_only') {
+                return 'bg-amber-100 text-amber-700';
+            }
+
+            return 'bg-gray-100 text-gray-600';
+        },
+        currentStatusBadgeClass(value) {
+            if (value === 'overdue') {
+                return 'bg-red-100 text-red-700';
+            }
+
+            return 'bg-green-100 text-green-700';
         },
         heatColor(value) {
             if (!value) return 'bg-gray-100';
@@ -266,7 +309,7 @@ export default {
             this.loading = true;
 
             try {
-                const response = await axios.get(route('api.laboratory.dashboard'));
+                const response = await axios.get(route('api.equipment-logger.dashboard'));
                 const payload = response?.data?.data ?? response?.data ?? response;
                 this.dashboard = payload?.data ?? payload;
             } finally {
@@ -351,7 +394,7 @@ export default {
 </script>
 
 <template>
-    <AppLayout title="Laboratory Logs Dashboard">
+    <AppLayout title="Equipment Logger Dashboard">
         <template #header>
             <LaboratoryLogHeaderAction />
         </template>
@@ -394,7 +437,7 @@ export default {
                                                     class="!px-2 !py-2 !whitespace-normal">
                                                     <a class="font-semibold text-blue-600 hover:underline"
                                                         target="_blank"
-                                                        :href="route('laboratory.equipments.show', log.equipment?.id)">
+                                                        :href="route(equipmentShowRoute(log), log.equipment?.id)">
                                                         {{ log.equipment?.name || 'Equipment' }}
                                                     </a>
                                                     <div class="text-gray-500 text-xs">Barcode: {{ log.equipment_barcode
@@ -436,7 +479,7 @@ export default {
                                                     class="!px-2 !py-2 !whitespace-normal">
                                                     <a class="font-semibold text-red-600 hover:underline"
                                                         target="_blank"
-                                                        :href="route('laboratory.equipments.show', log.equipment?.id)">
+                                                        :href="route(equipmentShowRoute(log), log.equipment?.id)">
                                                         {{ log.equipment?.name || 'Equipment' }}
                                                     </a>
                                                     <div class="text-gray-500 text-xs">Barcode: {{ log.equipment_barcode
@@ -507,20 +550,98 @@ export default {
                         :status-colors="{ active: '#10B981', overdue: '#EF4444', completed: '#9CA3AF' }" :legend-groups="calendarLegend"
                         :show-type-filter="false" />
                 </div>
-                <div v-show="activeTab === 'logs'">
-                    <CRCMDatatable :base-model="LaboratoryEquipmentLog" :can-view="true" :can-create="false" :can-update="true" :can-delete="false">
-                        <!-- Custom Cell Rendering -->
-                        <template #cell-status="{ value }">
-                            <span class="px-4 py-1.5 rounded-full text-xs font-medium leading-none uppercase" :class="{
-                                'bg-yellow-300 text-yellow-700': value === 'active',
-                                'bg-red-300 text-red-700': value === 'overdue',
-                                'bg-green-300 text-green-700': value === 'completed',
-                            }">
-                                {{ value === 'active' ? 'Active' : value === 'overdue' ? 'Overdue' : value === 'completed' ? 'Completed' : value }}
+                <div v-show="activeTab === 'logs'" class="space-y-4 px-5">
+                    <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-4">
+                        <div class="flex items-center justify-between gap-3 mb-4">
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200">Currently Working Equipment</h3>
+                                <p class="text-xs text-gray-500">Active and overdue ICT/laboratory equipment currently in use.</p>
+                            </div>
+                            <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                                {{ currentWorkingLogs.length }} active sessions
+                            </span>
+                        </div>
+
+                        <div v-if="currentWorkingLogs.length" class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left font-semibold text-gray-600">Equipment</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-gray-600">Type</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-gray-600">Status</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-gray-600">Personnel</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-gray-600">Location</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-gray-600">Started</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-gray-600">Expected End</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr v-for="log in currentWorkingLogs" :key="log.id" class="hover:bg-gray-50">
+                                        <td class="px-4 py-3">
+                                            <a
+                                                :href="route(equipmentShowRoute(log), log.equipment?.id)"
+                                                target="_blank"
+                                                class="font-medium text-blue-600 hover:underline"
+                                            >
+                                                {{ log.equipment?.name || "Equipment" }}
+                                            </a>
+                                            <div class="text-xs text-gray-500">{{ log.equipment_barcode || "No barcode" }}</div>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium" :class="equipmentTypeBadgeClass(log.equipment_type)">
+                                                {{ equipmentTypeLabel(log.equipment_type) }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium uppercase" :class="currentStatusBadgeClass(log.status)">
+                                                {{ log.status }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-700">{{ formatPersonnelName(log.personnel) }}</td>
+                                        <td class="px-4 py-3 text-gray-700">{{ log.location_label || "Unknown Location" }}</td>
+                                        <td class="px-4 py-3 text-gray-700">{{ formatDateTime(log.started_at) }}</td>
+                                        <td class="px-4 py-3 text-gray-700">{{ formatDateTime(log.end_use_at) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div v-else class="text-sm text-gray-500">No ICT or laboratory equipment is currently checked in.</div>
+                    </div>
+                </div>
+
+                <div v-show="activeTab === 'equipment-list'" class="px-5">
+                    <CRCMDatatable
+                        :base-model="EquipmentLoggerAsset"
+                        :can-view="false"
+                        :can-create="false"
+                        :can-update="false"
+                        :can-delete="false"
+                    >
+                        <template #cell-name="{ row, value }">
+                            <div class="min-w-[16rem]">
+                                <a
+                                    :href="route(equipmentShowRoute(row), row.id)"
+                                    target="_blank"
+                                    class="font-medium text-blue-600 hover:underline"
+                                >
+                                    {{ value }}
+                                </a>
+                                <div class="text-xs text-gray-500">{{ row.brand || "No brand" }}</div>
+                            </div>
+                        </template>
+                        <template #cell-equipment_type="{ value }">
+                            <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium" :class="equipmentTypeBadgeClass(value)">
+                                {{ equipmentTypeLabel(value) }}
+                            </span>
+                        </template>
+                        <template #cell-equipment_logger_mode="{ value }">
+                            <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium" :class="loggerModeBadgeClass(value)">
+                                {{ loggerModeLabel(value) }}
                             </span>
                         </template>
                     </CRCMDatatable>
                 </div>
+
             </div>
     </AppLayout>
 </template>

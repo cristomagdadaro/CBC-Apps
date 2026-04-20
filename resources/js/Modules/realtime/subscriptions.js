@@ -110,6 +110,14 @@ export function resolveDatatableRealtimeSubscriptions(indexApi) {
                 feature: 'laboratory',
             },
         ],
+        'api.equipment-logger.equipments.index': [
+            {
+                type: 'private',
+                channel: 'laboratory.logs',
+                event: 'equipment.log.changed',
+                feature: 'laboratory',
+            },
+        ],
         'api.research.samples.inventory.index': [
             {
                 type: 'private',

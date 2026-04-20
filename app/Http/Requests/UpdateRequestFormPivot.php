@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\RequestFormPivot;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateRequestFormPivot extends FormRequest
@@ -22,7 +23,13 @@ class UpdateRequestFormPivot extends FormRequest
     public function rules(): array
     {
         return [
-            'request_status' => 'required|in:pending,approved,rejected',
+            'request_status' => 'required|in:' . implode(',', [
+                RequestFormPivot::STATUS_PENDING,
+                RequestFormPivot::STATUS_APPROVED,
+                RequestFormPivot::STATUS_RELEASED,
+                RequestFormPivot::STATUS_RETURNED,
+                RequestFormPivot::STATUS_REJECTED,
+            ]),
             'disapproved_remarks' => 'nullable|string|max:5000',
             'approval_constraint' => 'nullable|string|max:5000',
         ];

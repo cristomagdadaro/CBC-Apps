@@ -33,6 +33,7 @@ class Requester extends Model
     protected $fillable = [
         'name',
         'affiliation',
+        'philrice_id',
         'position',
         'email',
         'phone',
@@ -45,6 +46,7 @@ class Requester extends Model
     protected array $searchable = [
         'name',
         'affiliation',
+        'philrice_id',
         'position',
         'email',
         'phone',

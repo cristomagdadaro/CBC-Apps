@@ -574,7 +574,7 @@ export default {
                                         <p class="text-2xl font-bold text-gray-900 dark:text-white mt-0.5">{{ stats.laboratory_equipment.total }}</p>
                                     </div>
                                 </div>
-                                <Link :href="route('laboratory.dashboard')" class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                                <Link :href="route('equipment-logger.dashboard')" class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                                     <LuArrowRight class="w-5 h-5" />
                                 </Link>
                             </div>
@@ -608,7 +608,7 @@ export default {
                             </div>
                         </div>
                         <div class="px-5 py-3 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-100 dark:border-gray-700">
-                            <Link :href="route('laboratory.dashboard')" class="flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                            <Link :href="route('equipment-logger.dashboard')" class="flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
                                 View logs
                                 <LuChevronRight class="w-4 h-4" />
                             </Link>
@@ -651,7 +651,7 @@ export default {
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Rentals & venues</p>
                     </Link>
 
-                    <Link v-if="dashboardAccess.laboratory" :href="route('laboratory.dashboard')" class="group bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-800 transition-all duration-200">
+                    <Link v-if="dashboardAccess.laboratory" :href="route('equipment-logger.dashboard')" class="group bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-800 transition-all duration-200">
                         <div class="flex items-start justify-between">
                             <div class="p-2.5 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/30 transition-colors">
                                 <LuFlaskConical class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
@@ -737,7 +737,7 @@ export default {
                             <LuMicroscope class="w-5 h-5 text-gray-400" />
                             <h3 class="font-semibold text-gray-900 dark:text-white">Recent Equipment Logs</h3>
                         </div>
-                        <Link :href="route('laboratory.dashboard')" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
+                        <Link :href="route('equipment-logger.dashboard')" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
                             View all
                         </Link>
                     </div>
