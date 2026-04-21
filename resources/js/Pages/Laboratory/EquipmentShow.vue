@@ -43,6 +43,7 @@ export default {
             activeEquipmentsRequest: null,
             message: null,
             messageType: "success",
+            notFoundTitle: "Equipment Not Found",
             showSuccessModal: false,
             personnelPreview: null,
             profileRequiresUpdate: false,
@@ -284,6 +285,7 @@ export default {
             if (!this.equipmentId) return;
             this.loading = true;
             this.notFound = false;
+            this.notFoundTitle = "Equipment Not Found";
             try {
                 let response;
                 try {
@@ -335,6 +337,15 @@ export default {
                     this.showLocationSurveyModal = false;
                 }
             } catch (error) {
+                this.equipment = null;
+                this.activeLog = null;
+                this.allowedActions = [];
+                this.currentLocation = null;
+                this.storageLocationOptions = [];
+                this.purposeSuggestions = [];
+                this.notFoundTitle = error?.response?.status === 404
+                    ? "Equipment Not Found"
+                    : "Equipment can't be used";
                 this.messageType = "error";
                 this.message =
                     error?.response?.data?.message ||
@@ -831,7 +842,7 @@ export default {
             this.loadActiveEquipments();
         }
         setTimeout(() => (this.delayReady = true), 200);
-        
+
         const unsubscribeStart = router.on(
             "start",
             () => (this.isNavigating = true),
@@ -930,7 +941,7 @@ export default {
                             <div class="inline-flex p-4 mb-4 rounded-full bg-red-100">
                                 <LuAlertCircle class="w-8 h-8 text-red-600" />
                             </div>
-                            <h3 class="mb-2 text-lg font-semibold text-gray-900">Equipment Not Found</h3>
+                            <h3 class="mb-2 text-lg font-semibold text-gray-900">{{ notFoundTitle }}</h3>
                             <p class="max-w-xs mx-auto mb-6 text-sm text-gray-500">{{ message }}</p>
                             <Link :href="route(showPageRoute)"
                                 class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition-colors bg-emerald-600 rounded-lg hover:bg-emerald-700"

@@ -35,7 +35,7 @@ export default {
             tabs: [
                 { key: 'stats', label: 'Statistics' },
                 { key: 'calendar', label: 'Calendar' },
-                { key: 'logs', label: 'Logs' },
+                { key: 'logs', label: 'Active Logs' },
                 { key: 'equipment-list', label: 'Equipment List' },
             ],
             dayLabels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
@@ -626,10 +626,10 @@ export default {
                 <div v-show="activeTab === 'equipment-list'" class="px-5">
                     <CRCMDatatable
                         :base-model="EquipmentLoggerAsset"
-                        :can-view="false"
-                        :can-create="false"
-                        :can-update="false"
-                        :can-delete="false"
+                        :can-view="true"
+                        :can-create="true"
+                        :can-update="true"
+                        :can-delete="true"
                     >
                         <template #cell-name="{ row, value }">
                             <div class="min-w-[16rem]">
@@ -640,7 +640,7 @@ export default {
                                 >
                                     {{ value }}
                                 </a>
-                                <div class="text-xs text-gray-500">{{ row.brand || "No brand" }}</div>
+                                <div class="text-xs text-gray-500">{{ row?.brand }}</div>
                             </div>
                         </template>
                         <template #cell-equipment_type="{ value }">

@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Laravel\Sanctum\Sanctum;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
 use Tests\WithTestRoles;
 
@@ -55,6 +56,33 @@ class EquipmentControllersTest extends TestCase
             ->assertNotFound()
             ->assertJson([
                 'message' => 'Equipment not found.',
+            ]);
+    }
+
+    public function test_guest_laboratory_show_returns_specific_message_when_equipment_is_not_borrowable(): void
+    {
+        $service = $this->createMock(LaboratoryLogService::class);
+        $service->expects($this->once())
+            ->method('resolveEquipmentId')
+            ->with('LAB-TRACKED-001')
+            ->willReturn('equipment-1');
+        $service->expects($this->once())
+            ->method('getEquipmentDetails')
+            ->with('equipment-1')
+            ->willThrowException(new HttpException(
+                422,
+                'This equipment exists, but its latest incoming stock is marked as "Tracked only / Not borrowable" and is not available in the borrowable equipment logger flow.',
+            ));
+
+        $repo = $this->createMock(LaboratoryEquipmentLogRepo::class);
+
+        $this->app->instance(LaboratoryLogService::class, $service);
+        $this->app->instance(LaboratoryEquipmentLogRepo::class, $repo);
+
+        $this->getJson(route('api.laboratory.equipments.show', ['identifier' => 'LAB-TRACKED-001']))
+            ->assertUnprocessable()
+            ->assertJson([
+                'message' => 'This equipment exists, but its latest incoming stock is marked as "Tracked only / Not borrowable" and is not available in the borrowable equipment logger flow.',
             ]);
     }
 

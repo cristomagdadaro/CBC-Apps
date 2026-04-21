@@ -73,14 +73,11 @@ class LaboratoryLogService
             ->selectSub($this->latestTransactionFieldSubquery('barcode'), 'barcode')
             ->selectSub($this->latestTransactionFieldSubquery('barcode_prri'), 'barcode_prri')
             ->join('categories', 'items.category_id', '=', 'categories.id')
-            ->whereHas('transactions', function (Builder $query) {
-                $query->withTrashed()
-                    ->where('transactions.transac_type', Inventory::INCOMING->value)
-                    ->where('transactions.equipment_logger_mode', Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE);
-            })
             ->where(function (Builder $query) use ($equipmentType) {
                 $this->applyEquipmentCategoryConstraint($query, $equipmentType, 'categories');
             });
+
+        $this->applyLatestIncomingModeConstraint($query, Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE);
 
         if ($search) {
             $query->where(function (Builder $query) use ($search) {
@@ -106,17 +103,7 @@ class LaboratoryLogService
 
     public function getEquipmentDetails(string $equipmentId, string $equipmentType = 'laboratory'): array
     {
-        $equipment = $this->findEligibleEquipment($equipmentId, $equipmentType);
-
-        if (!$equipment) {
-            // Check if item exists but is wrong category
-            $item = $this->findEquipmentForValidation($equipmentId);
-            if ($item) {
-                $categoryName = $item->category?->name ?? 'Unknown Category';
-                abort(422, "Sorry, this is a {$categoryName} item. You can only log {$this->equipmentLabel($equipmentType)}.");
-            }
-            abort(404, 'Equipment not found.');
-        }
+        $equipment = $this->requireEligibleEquipment($equipmentId, $equipmentType);
 
         $activeLog = $this->getActiveLog($equipmentId);
         $resolvedLocation = $this->resolveEquipmentLocation($equipmentId, $equipment->barcode ?? null);
@@ -134,16 +121,7 @@ class LaboratoryLogService
 
     public function checkIn(string $equipmentId, array $payload, string $equipmentType = 'laboratory'): LaboratoryEquipmentLog
     {
-        $equipment = $this->findEligibleEquipment($equipmentId, $equipmentType);
-        if (!$equipment) {
-            // Check if item exists but is wrong category
-            $item = $this->findEquipmentForValidation($equipmentId);
-            if ($item) {
-                $categoryName = $item->category?->name ?? 'Unknown Category';
-                abort(422, "Sorry, this is a {$categoryName} item. You can only log {$this->equipmentLabel($equipmentType)}.");
-            }
-            abort(404, 'Equipment not found.');
-        }
+        $equipment = $this->requireEligibleEquipment($equipmentId, $equipmentType);
 
         $personnel = $this->resolvePersonnelFromPayload($payload);
 
@@ -189,16 +167,7 @@ class LaboratoryLogService
 
     public function checkOut(string $equipmentId, array $payload, string $equipmentType = 'laboratory'): LaboratoryEquipmentLog
     {
-        $equipment = $this->findEligibleEquipment($equipmentId, $equipmentType);
-        if (!$equipment) {
-            // Check if item exists but is wrong category
-            $item = $this->findEquipmentForValidation($equipmentId);
-            if ($item) {
-                $categoryName = $item->category?->name ?? 'Unknown Category';
-                abort(422, "Sorry, this is a {$categoryName} item. You can only log {$this->equipmentLabel($equipmentType)}.");
-            }
-            abort(404, 'Equipment not found.');
-        }
+        $equipment = $this->requireEligibleEquipment($equipmentId, $equipmentType);
 
         return DB::transaction(function () use ($equipmentId, $payload, $equipmentType) {
             $activeLog = $this->lockActiveLog($equipmentId);
@@ -230,15 +199,7 @@ class LaboratoryLogService
 
     public function updateEndUse(string $equipmentId, array $payload, string $equipmentType = 'laboratory'): LaboratoryEquipmentLog
     {
-        $equipment = $this->findEligibleEquipment($equipmentId, $equipmentType);
-        if (!$equipment) {
-            $item = $this->findEquipmentForValidation($equipmentId);
-            if ($item) {
-                $categoryName = $item->category?->name ?? 'Unknown Category';
-                abort(422, "Sorry, this is a {$categoryName} item. You can only log {$this->equipmentLabel($equipmentType)}.");
-            }
-            abort(404, 'Equipment not found.');
-        }
+        $equipment = $this->requireEligibleEquipment($equipmentId, $equipmentType);
 
         $personnel = $this->resolvePersonnelFromPayload($payload);
 
@@ -264,15 +225,7 @@ class LaboratoryLogService
 
     public function reportTemporaryLocation(string $equipmentId, array $payload, string $equipmentType = 'laboratory'): LaboratoryEquipmentLocationSurvey
     {
-        $equipment = $this->findEligibleEquipment($equipmentId, $equipmentType);
-        if (!$equipment) {
-            $item = $this->findEquipmentForValidation($equipmentId);
-            if ($item) {
-                $categoryName = $item->category?->name ?? 'Unknown Category';
-                abort(422, "Sorry, this is a {$categoryName} item. You can only log {$this->equipmentLabel($equipmentType)}.");
-            }
-            abort(404, 'Equipment not found.');
-        }
+        $equipment = $this->requireEligibleEquipment($equipmentId, $equipmentType);
 
         $personnel = $this->resolvePersonnelFromPayload($payload);
 
@@ -710,15 +663,37 @@ class LaboratoryLogService
                 DB::raw('(SELECT t.barcode_prri FROM transactions t WHERE t.item_id = items.id AND t.barcode_prri IS NOT NULL ORDER BY t.created_at DESC LIMIT 1) as barcode_prri')
             )
             ->where('items.id', $equipmentId)
-            ->whereHas('transactions', function (Builder $query) {
-                $query->withTrashed()
-                    ->where('transactions.transac_type', Inventory::INCOMING->value)
-                    ->where('transactions.equipment_logger_mode', Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE);
-            })
             ->whereHas('category', function (Builder $query) use ($equipmentType) {
                 $this->applyEquipmentCategoryConstraint($query, $equipmentType, 'categories');
             })
+            ->where(function (Builder $query) {
+                $this->applyLatestIncomingModeConstraint($query, Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE);
+            })
             ->first();
+    }
+
+    private function requireEligibleEquipment(string $equipmentId, string $equipmentType = 'laboratory'): Item
+    {
+        $equipment = $this->findEligibleEquipment($equipmentId, $equipmentType);
+
+        if ($equipment) {
+            return $equipment;
+        }
+
+        $item = $this->findEquipmentForValidation($equipmentId);
+        if ($item && ! $this->itemMatchesEquipmentType($item, $equipmentType)) {
+            $categoryName = $item->category?->name ?? 'Unknown Category';
+            abort(422, "Sorry, this is a {$categoryName} item. You can only log {$this->equipmentLabel($equipmentType)}.");
+        }
+
+        $latestMode = $this->getLatestIncomingEquipmentLoggerMode($equipmentId);
+        $modeMessage = $this->equipmentLoggerModeUnavailableMessage($latestMode);
+
+        if ($modeMessage !== null) {
+            abort(422, $modeMessage);
+        }
+
+        abort(404, 'Equipment not found.');
     }
 
     private function categoryIdsForType(string $equipmentType): array
@@ -747,6 +722,12 @@ class LaboratoryLogService
         return 'laboratory';
     }
 
+    private function itemMatchesEquipmentType(Item $item, string $equipmentType): bool
+    {
+        return in_array((int) $item->category_id, $this->categoryIdsForType($equipmentType), true)
+            || ($equipmentType === 'laboratory' && strtolower((string) ($item->category?->name ?? '')) === 'laboratory equipment');
+    }
+
     private function applyEquipmentCategoryConstraint(Builder $query, string $equipmentType, string $table = 'categories'): void
     {
         $query->whereIn(sprintf('%s.id', $table), $this->categoryIdsForType($equipmentType));
@@ -773,8 +754,74 @@ class LaboratoryLogService
             ->whereColumn('transactions.item_id', 'items.id')
             ->where('transactions.transac_type', Inventory::INCOMING->value)
             ->whereNotNull($field)
-            ->latest('created_at')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
             ->limit(1);
+    }
+
+    private function applyLatestIncomingModeConstraint(Builder $query, string $requiredMode): void
+    {
+        $query->whereExists(function ($subQuery) use ($requiredMode) {
+            $subQuery->selectRaw('1')
+                ->from('transactions as latest_incoming')
+                ->whereColumn('latest_incoming.item_id', 'items.id')
+                ->where('latest_incoming.transac_type', Inventory::INCOMING->value)
+                ->whereNotNull('latest_incoming.equipment_logger_mode')
+                ->where('latest_incoming.equipment_logger_mode', $requiredMode)
+                ->whereRaw(
+                    'latest_incoming.id = (
+                        select t_latest.id
+                        from transactions as t_latest
+                        where t_latest.item_id = items.id
+                          and t_latest.transac_type = ?
+                          and t_latest.equipment_logger_mode is not null
+                        order by t_latest.created_at desc, t_latest.id desc
+                        limit 1
+                    )',
+                    [Inventory::INCOMING->value],
+                );
+        });
+    }
+
+    private function getLatestIncomingEquipmentLoggerMode(string $equipmentId): ?string
+    {
+        return Transaction::withTrashed()
+            ->where('item_id', $equipmentId)
+            ->where('transac_type', Inventory::INCOMING->value)
+            ->whereNotNull('equipment_logger_mode')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->value('equipment_logger_mode');
+    }
+
+    private function equipmentLoggerModeUnavailableMessage(?string $mode): ?string
+    {
+        $label = $mode ? $this->equipmentLoggerModeLabel($mode) : null;
+
+        return match ($mode) {
+            Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY => sprintf(
+                'This equipment exists, but its latest incoming stock is marked as "%s" and is not available in the borrowable equipment logger flow.',
+                $label,
+            ),
+            Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED => sprintf(
+                'This equipment exists, but its latest incoming stock is marked as "%s" and is excluded from the equipment logger flow.',
+                $label,
+            ),
+            default => null,
+        };
+    }
+
+    private function equipmentLoggerModeLabel(string $mode): string
+    {
+        $labels = collect($this->optionRepo->getEquipmentLoggerModeOptions())
+            ->mapWithKeys(function (array $option) {
+                $name = $option['name'] ?? null;
+                $label = $option['label'] ?? null;
+
+                return $name && $label ? [$name => $label] : [];
+            });
+
+        return $labels->get($mode, str($mode)->replace('_', ' ')->headline());
     }
 
     private function getActiveLog(string $equipmentId): ?LaboratoryEquipmentLog
