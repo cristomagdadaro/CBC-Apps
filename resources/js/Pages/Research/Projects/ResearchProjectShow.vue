@@ -71,12 +71,12 @@ export default {
                 :route-link="route('research.projects.index')"
                 :breadcrumbs="headerBreadcrumbs"
             >
-                <Link :href="route('research.samples.inventory')" 
+                <Link :href="route('research.samples.inventory')"
                     class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
                     <LuBarcode class="h-4 w-4" />
                     Inventory
                 </Link>
-                <Link v-if="canManageStudies" :href="route('research.studies.create', projectRouteIdentifier)" 
+                <Link v-if="canManageStudies" :href="route('research.studies.create', projectRouteIdentifier)"
                     class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
                     <LuPlus class="h-4 w-4" />
                     Add Study
@@ -141,9 +141,9 @@ export default {
             </div>
 
             <!-- Edit Form -->
-            <ResearchProjectForm v-if="editingProject" :data="project" :catalog="catalog" 
-                :research-users="researchUsers" :show-cancel-button="true" 
-                :show-delete-button="canDeleteProject" @cancel="editingProject = false" 
+            <ResearchProjectForm v-if="editingProject" :data="project" :catalog="catalog"
+                :research-users="researchUsers" :show-cancel-button="true"
+                :show-delete-button="canDeleteProject" @cancel="editingProject = false"
                 class="mt-6" />
 
             <!-- Studies Section -->
@@ -153,7 +153,7 @@ export default {
                         <h2 class="text-lg font-semibold text-slate-900">Studies</h2>
                         <p class="text-sm text-slate-500">{{ project.studies_count || 0 }} active studies</p>
                     </div>
-                    <Link v-if="canManageStudies" :href="route('research.studies.create', projectRouteIdentifier)" 
+                    <Link v-if="canManageStudies" :href="route('research.studies.create', projectRouteIdentifier)"
                         class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700">
                         <LuPlus class="h-4 w-4" />
                         New Study
@@ -161,7 +161,7 @@ export default {
                 </div>
                 <div class="p-6">
                     <CRCMDatatable :base-model="ResearchStudy" :params="studyTableParams"
-                        :can-view="true" :can-create="false" 
+                        :can-view="true" :can-create="false"
                         :can-update="canManageStudies" :can-delete="canManageStudies" />
                 </div>
             </div>
@@ -174,7 +174,7 @@ export default {
                 </div>
                 <div class="p-6">
                     <CRCMDatatable :base-model="ResearchExperiment" :params="experimentTableParams"
-                        :can-view="true" :can-create="false" 
+                        :can-view="true" :can-create="false"
                         :can-update="canManageExperiments" :can-delete="canManageExperiments" />
                 </div>
             </div>

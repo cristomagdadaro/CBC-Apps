@@ -226,8 +226,8 @@ export default {
         },
         equipmentTypeBadgeClass(value) {
             return value === 'ict'
-                ? 'bg-blue-100 text-blue-700'
-                : 'bg-emerald-100 text-emerald-700';
+                ? 'text-blue-700'
+                : 'text-emerald-700';
         },
         loggerModeLabel(value) {
             return this.loggerModeLabels[value] ?? value?.replaceAll?.('_', ' ') ?? 'Unknown';

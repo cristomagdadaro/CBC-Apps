@@ -20,14 +20,13 @@ export default {
                 title="Research Projects"
                 subtitle="Manage projects, studies, and experimental workflows"
                 :route-link="route('research.projects.index')"
-                :breadcrumbs="headerBreadcrumbs"
             >
-                <Link :href="`${route('manuals.index')}?section=researchMonitoring`" 
+                <Link :href="`${route('manuals.index')}?section=researchMonitoring`"
                     class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
                     <LuBookOpen class="h-4 w-4" />
                     Guides
                 </Link>
-                <Link :href="route('research.projects.create')" 
+                <Link :href="route('research.projects.create')"
                     class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
                     <LuPlus class="h-4 w-4" />
                     New Project
@@ -43,7 +42,7 @@ export default {
                 </div>
                 <h3 class="mt-4 text-lg font-semibold text-slate-900">No projects found</h3>
                 <p class="mt-1 text-sm text-slate-500">Create your first research project to begin tracking studies and experiments.</p>
-                <Link :href="route('research.projects.create')" 
+                <Link :href="route('research.projects.create')"
                     class="mt-6 inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
                     <LuPlus class="h-4 w-4" />
                     Create Project
@@ -55,7 +54,7 @@ export default {
                 <Link v-for="project in projects" :key="project.id"
                     :href="route('research.projects.show', projectRouteIdentifier(project))"
                     class="group relative flex flex-col rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition-all hover:shadow-md hover:ring-indigo-200">
-                    
+
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
                             <p class="text-xs font-mono text-slate-500">{{ project.code }}</p>
@@ -92,7 +91,7 @@ export default {
                         <div v-if="!(project.studies || []).length" class="mt-2 text-sm text-slate-400 italic">
                             No studies yet
                         </div>
-                        <div v-for="study in (project.studies || []).slice(0, 2)" :key="study.id" 
+                        <div v-for="study in (project.studies || []).slice(0, 2)" :key="study.id"
                             class="mt-2 flex items-center justify-between text-sm">
                             <span class="truncate text-slate-700">{{ study.title }}</span>
                             <span class="ml-2 flex-none text-xs text-slate-500">{{ study.experiments_count }} exp</span>

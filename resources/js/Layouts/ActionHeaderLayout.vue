@@ -8,7 +8,8 @@ export default {
         },
         title: {
             type: String,
-            required: true,
+            required: false,
+            default: null
         },
         subtitle: {
             type: String,
