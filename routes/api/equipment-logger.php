@@ -29,6 +29,7 @@ Route::middleware(['api', 'auth:sanctum'])->group(function () {
     Route::middleware(['can:laboratory.logger.manage', 'deployment.access:' . DeploymentAccessService::MODULE_LABORATORY_DASHBOARD])->prefix('equipment-logger')->group(function () {
         Route::get('/dashboard', [LaboratoryEquipmentController::class, 'dashboard'])->name('api.equipment-logger.dashboard');
         Route::get('/equipments', [LaboratoryEquipmentController::class, 'equipmentIndex'])->name('api.equipment-logger.equipments.index');
+        Route::patch('/equipments/{equipmentId}/logger-mode', [LaboratoryEquipmentController::class, 'updateEquipmentLoggerMode'])->name('api.equipment-logger.equipments.logger-mode.update');
     });
 
     Route::middleware(['can:laboratory.logger.manage', 'deployment.access:' . DeploymentAccessService::MODULE_LABORATORY_DASHBOARD])->prefix('laboratory')->group(function () {

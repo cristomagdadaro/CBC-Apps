@@ -1,13 +1,14 @@
 import DtoBaseClass from "./DtoBaseClass";
-import { IDtoEquipmentLoggerAsset } from "../interface/IEquipmentLoggerAsset";
+import IEquipmentLoggerAsset from "../interface/IEquipmentLoggerAsset";
 
-export default class DtoEquipmentLoggerAsset extends DtoBaseClass implements IDtoEquipmentLoggerAsset {
+export default class DtoEquipmentLoggerAsset extends DtoBaseClass implements IEquipmentLoggerAsset {
     name: string;
     brand: string;
     description: string | null;
     category_id: number;
     category_name: string;
     equipment_logger_mode: string;
+    latest_incoming_transaction_id?: string | null;
     equipment_type: string;
     total_logs: number;
     active_logs: number | string;
@@ -25,6 +26,7 @@ export default class DtoEquipmentLoggerAsset extends DtoBaseClass implements IDt
         this.category_id = data?.category_id;
         this.category_name = data?.category_name;
         this.equipment_logger_mode = data?.equipment_logger_mode;
+        this.latest_incoming_transaction_id = data?.latest_incoming_transaction_id ?? null;
         this.equipment_type = data?.equipment_type;
         this.total_logs = data?.total_logs;
         this.active_logs = data?.active_logs;

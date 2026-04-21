@@ -1,10 +1,11 @@
-interface IEquipmentLoggerAsset extends IBaseClass {
+export default interface IEquipmentLoggerAsset extends IBaseClass {
     name: string;
     brand: string;
     description: string | null;
     category_id: number;
     category_name: string;
     equipment_logger_mode: string;
+    latest_incoming_transaction_id?: string | null;
     equipment_type: string;
     total_logs: number;
     active_logs: number | string;

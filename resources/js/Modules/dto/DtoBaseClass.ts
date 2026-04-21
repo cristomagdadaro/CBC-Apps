@@ -13,7 +13,10 @@ export default class DtoBaseClass implements IBaseClass {
     indexPage: string;
     showPage: string;
     showPageTarget?: string;
+    showPageParams?: string | number | Record<string, any> | null;
     updatePage: string;
+    updatePageTarget?: string;
+    updatePageParams?: string | number | Record<string, any> | null;
     createPage: string;
 
     constructor(data: Partial<IBaseClass>) {

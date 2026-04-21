@@ -5,6 +5,7 @@ use App\Http\Requests\Generic\GetRequest;
 use App\Http\Requests\Laboratory\LaboratoryCheckInRequest;
 use App\Http\Requests\Laboratory\LaboratoryCheckOutRequest;
 use App\Http\Requests\Laboratory\LaboratoryReportLocationRequest;
+use App\Http\Requests\Laboratory\LaboratoryUpdateEquipmentLoggerModeRequest;
 use App\Http\Requests\Laboratory\LaboratoryUpdateEndUseRequest;
 use App\Repositories\LaboratoryEquipmentLogRepo;
 use App\Services\Laboratory\LaboratoryLogService;
@@ -133,6 +134,19 @@ class LaboratoryEquipmentController extends BaseController
         return response()->json(
             $this->logService->paginateEquipmentUsage($request->validated(), 'all')
         );
+    }
+
+    public function updateEquipmentLoggerMode(LaboratoryUpdateEquipmentLoggerModeRequest $request, string $equipmentId): JsonResponse
+    {
+        $updated = $this->logService->updateEquipmentLoggerMode(
+            $equipmentId,
+            $request->validated('equipment_logger_mode'),
+        );
+
+        return response()->json([
+            'message' => 'Equipment logger mode updated successfully.',
+            'data' => $updated,
+        ]);
     }
 
     public function activeEquipments(Request $request, ?string $employee_id = null): JsonResponse

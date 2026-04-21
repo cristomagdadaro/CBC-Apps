@@ -5,6 +5,7 @@ namespace Tests\Feature\Laboratory;
 use App\Enums\Role as RoleEnum;
 use App\Models\Item;
 use App\Models\LaboratoryEquipmentLog;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Repositories\LaboratoryEquipmentLogRepo;
 use App\Services\Laboratory\LaboratoryLogService;
@@ -312,5 +313,54 @@ class EquipmentControllersTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.0.id', 'equipment-1')
             ->assertJsonPath('data.0.total_logs', 12);
+    }
+
+    public function test_laboratory_manager_can_update_equipment_logger_mode_from_dashboard(): void
+    {
+        $service = $this->createMock(LaboratoryLogService::class);
+        $service->expects($this->once())
+            ->method('updateEquipmentLoggerMode')
+            ->with('equipment-1', Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED)
+            ->willReturn([
+                'transaction_id' => 'transaction-1',
+                'equipment_id' => 'equipment-1',
+                'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED,
+                'equipment_logger_mode_label' => 'Excluded from logger',
+            ]);
+
+        $repo = $this->createMock(LaboratoryEquipmentLogRepo::class);
+
+        $this->app->instance(LaboratoryLogService::class, $service);
+        $this->app->instance(LaboratoryEquipmentLogRepo::class, $repo);
+
+        Sanctum::actingAs($this->createUserWithRole(RoleEnum::LABORATORY_MANAGER->value));
+
+        $this->patchJson(route('api.equipment-logger.equipments.logger-mode.update', ['equipmentId' => 'equipment-1']), [
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED,
+        ])
+            ->assertOk()
+            ->assertJsonPath('message', 'Equipment logger mode updated successfully.')
+            ->assertJsonPath('data.transaction_id', 'transaction-1')
+            ->assertJsonPath('data.equipment_logger_mode', Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED);
+    }
+
+    public function test_equipment_logger_mode_update_requires_a_valid_mode(): void
+    {
+        $service = $this->createMock(LaboratoryLogService::class);
+        $service->expects($this->never())
+            ->method('updateEquipmentLoggerMode');
+
+        $repo = $this->createMock(LaboratoryEquipmentLogRepo::class);
+
+        $this->app->instance(LaboratoryLogService::class, $service);
+        $this->app->instance(LaboratoryEquipmentLogRepo::class, $repo);
+
+        Sanctum::actingAs($this->createUserWithRole(RoleEnum::LABORATORY_MANAGER->value));
+
+        $this->patchJson(route('api.equipment-logger.equipments.logger-mode.update', ['equipmentId' => 'equipment-1']), [
+            'equipment_logger_mode' => 'not-a-real-mode',
+        ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['equipment_logger_mode']);
     }
 }

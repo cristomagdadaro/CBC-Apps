@@ -28,9 +28,14 @@ export default {
         return {
             dashboard: null,
             loading: false,
+            updatingLoggerMode: false,
             refreshTimer: null,
             realtimeCleanup: null,
             realtimeRefreshTimer: null,
+            showLoggerModeModal: false,
+            selectedEquipmentAsset: null,
+            selectedLoggerMode: null,
+            loggerModeFormError: null,
             activeTab: 'stats',
             tabs: [
                 { key: 'stats', label: 'Statistics' },
@@ -149,6 +154,26 @@ export default {
                 return labels;
             }, {});
         },
+        loggerModeOptions() {
+            const options = this.$page.props?.equipment_logger_mode_options;
+
+            if (!Array.isArray(options)) {
+                return [];
+            }
+
+            return options
+                .map((option) => ({
+                    name: option?.name ?? option?.value ?? null,
+                    label: option?.label ?? option?.name ?? option?.value ?? null,
+                }))
+                .filter((option) => option.name && option.label);
+        },
+        canSubmitLoggerModeUpdate() {
+            return !!this.selectedEquipmentAsset
+                && !!this.selectedLoggerMode
+                && this.selectedLoggerMode !== this.selectedEquipmentAsset?.equipment_logger_mode
+                && !this.updatingLoggerMode;
+        },
     },
     methods: {
         equipmentShowRoute(model) {
@@ -217,6 +242,83 @@ export default {
             }
 
             return 'bg-gray-100 text-gray-600';
+        },
+        notify(type, message) {
+            if (typeof window === 'undefined' || !message) {
+                return;
+            }
+
+            window.dispatchEvent(new CustomEvent('cbc:notify', {
+                detail: { type, message },
+            }));
+        },
+        openLoggerModeModal(row) {
+            this.selectedEquipmentAsset = row;
+            this.selectedLoggerMode = row?.equipment_logger_mode ?? null;
+            this.loggerModeFormError = null;
+            this.showLoggerModeModal = true;
+        },
+        closeLoggerModeModal(force = false) {
+            if (this.updatingLoggerMode && !force) {
+                return;
+            }
+
+            this.showLoggerModeModal = false;
+            this.selectedEquipmentAsset = null;
+            this.selectedLoggerMode = null;
+            this.loggerModeFormError = null;
+        },
+        async refreshEquipmentList() {
+            const datatable = this.$refs.equipmentListTable?.dt;
+
+            if (datatable && typeof datatable.refresh === 'function') {
+                await datatable.refresh();
+            }
+        },
+        async submitLoggerModeUpdate() {
+            if (!this.selectedEquipmentAsset?.id) {
+                this.loggerModeFormError = 'Unable to determine which equipment record should be updated.';
+                return;
+            }
+
+            if (!this.selectedLoggerMode) {
+                this.loggerModeFormError = 'Please choose a new equipment logger mode.';
+                return;
+            }
+
+            if (this.selectedLoggerMode === this.selectedEquipmentAsset.equipment_logger_mode) {
+                this.loggerModeFormError = 'Select a different mode to update this transaction.';
+                return;
+            }
+
+            this.updatingLoggerMode = true;
+            this.loggerModeFormError = null;
+
+            try {
+                const response = await axios.patch(
+                    route('api.equipment-logger.equipments.logger-mode.update', {
+                        equipmentId: this.selectedEquipmentAsset.id,
+                    }),
+                    {
+                        equipment_logger_mode: this.selectedLoggerMode,
+                    },
+                );
+
+                this.notify('success', response?.data?.message || 'Equipment logger mode updated successfully.');
+                await Promise.all([
+                    this.loadDashboard(),
+                    this.refreshEquipmentList(),
+                ]);
+                this.closeLoggerModeModal(true);
+            } catch (error) {
+                this.loggerModeFormError = error?.response?.data?.errors?.equipment_logger_mode?.[0]
+                    || error?.response?.data?.message
+                    || 'Unable to update the equipment logger mode.';
+
+                this.notify('error', this.loggerModeFormError);
+            } finally {
+                this.updatingLoggerMode = false;
+            }
         },
         currentStatusBadgeClass(value) {
             if (value === 'overdue') {
@@ -625,10 +727,11 @@ export default {
 
                 <div v-show="activeTab === 'equipment-list'" class="px-5">
                     <CRCMDatatable
+                        ref="equipmentListTable"
                         :base-model="EquipmentLoggerAsset"
                         :can-view="true"
                         :can-create="false"
-                        :can-update="false"
+                        :can-update="true"
                         :can-delete="false"
                     >
                         <template #cell-name="{ row, value }">
@@ -648,13 +751,78 @@ export default {
                                 {{ equipmentTypeLabel(value) }}
                             </span>
                         </template>
-                        <template #cell-equipment_logger_mode="{ value }">
-                            <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium" :class="loggerModeBadgeClass(value)">
+                        <template #cell-equipment_logger_mode="{ row, value }">
+                            <button
+                                type="button"
+                                :id="`cell-equipment_logger_mode-${row.id}`"
+                                class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium transition hover:ring-2 hover:ring-blue-200"
+                                :class="loggerModeBadgeClass(value)"
+                                title="Double-click to update equipment logger mode"
+                                @dblclick.stop.prevent="openLoggerModeModal(row)"
+                            >
                                 {{ loggerModeLabel(value) }}
-                            </span>
+                            </button>
                         </template>
                     </CRCMDatatable>
                 </div>
+
+                <DialogModal :show="showLoggerModeModal" max-width="md" @close="closeLoggerModeModal">
+                    <template #title>
+                        <div class="flex items-center gap-2 py-2">
+                            <span class="text-sm font-semibold text-gray-900">Update Equipment Logger Mode</span>
+                        </div>
+                    </template>
+
+                    <template #content>
+                        <div class="space-y-4">
+                            <div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
+                                <p class="font-semibold text-gray-900">
+                                    {{ selectedEquipmentAsset?.name || 'Equipment' }}
+                                </p>
+                                <p class="mt-1 text-xs text-gray-500">
+                                    {{ selectedEquipmentAsset?.brand || 'Unknown Brand' }} • {{ selectedEquipmentAsset?.barcode || 'No barcode' }}
+                                </p>
+                                <p class="mt-2 text-xs text-gray-500">
+                                    Latest incoming transaction: {{ selectedEquipmentAsset?.latest_incoming_transaction_id || 'Unavailable' }}
+                                </p>
+                            </div>
+{{selectedLoggerMode}}
+                            <custom-dropdown
+                                required
+                                searchable
+                                :with-all-option="false"
+                                :value="selectedLoggerMode"
+                                :options="loggerModeOptions"
+                                label="Equipment Logger Mode"
+                                placeholder="Select logger mode"
+                                :error="loggerModeFormError"
+                                guide="This updates the latest incoming transaction linked to the selected equipment row."
+                                @selectedChange="selectedLoggerMode = $event"
+                            />
+                        </div>
+                    </template>
+
+                    <template #footer>
+                        <div class="flex w-full justify-between gap-3">
+                            <button
+                                type="button"
+                                class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                :disabled="updatingLoggerMode"
+                                @click="closeLoggerModeModal"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                :disabled="!canSubmitLoggerModeUpdate"
+                                @click="submitLoggerModeUpdate"
+                            >
+                                {{ updatingLoggerMode ? 'Updating...' : 'Update Mode' }}
+                            </button>
+                        </div>
+                    </template>
+                </DialogModal>
 
             </div>
     </AppLayout>

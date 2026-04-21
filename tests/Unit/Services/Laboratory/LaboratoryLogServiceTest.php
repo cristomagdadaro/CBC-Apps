@@ -177,6 +177,72 @@ class LaboratoryLogServiceTest extends TestCase
         $this->assertNotContains($historicalBorrowableItem->id, $eligibleIds);
     }
 
+    public function test_update_equipment_logger_mode_updates_the_latest_incoming_transaction(): void
+    {
+        ['item' => $item, 'personnel' => $personnel, 'user' => $user] = $this->createLaboratoryInventoryContext();
+
+        $olderTransaction = Transaction::query()->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-LAB-MODE-OLD',
+            'transac_type' => InventoryEnum::INCOMING->value,
+            'quantity' => 1,
+            'unit_price' => 100,
+            'unit' => 'pc',
+            'total_cost' => 100,
+            'personnel_id' => $personnel->id,
+            'user_id' => $user->id,
+            'expiration' => now()->addMonth(),
+            'remarks' => 'Older incoming stock',
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+            'created_at' => now()->subMinutes(10),
+            'updated_at' => now()->subMinutes(10),
+        ]);
+
+        $latestTransaction = Transaction::query()->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-LAB-MODE-LATEST',
+            'transac_type' => InventoryEnum::INCOMING->value,
+            'quantity' => 1,
+            'unit_price' => 100,
+            'unit' => 'pc',
+            'total_cost' => 100,
+            'personnel_id' => $personnel->id,
+            'user_id' => $user->id,
+            'expiration' => now()->addMonth(),
+            'remarks' => 'Latest incoming stock',
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+            'created_at' => now()->subMinute(),
+            'updated_at' => now()->subMinute(),
+        ]);
+
+        $result = app(LaboratoryLogService::class)->updateEquipmentLoggerMode(
+            $item->id,
+            Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED,
+        );
+
+        $this->assertSame($latestTransaction->id, $result['transaction_id']);
+        $this->assertSame(Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED, $result['equipment_logger_mode']);
+        $this->assertSame(Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE, $olderTransaction->fresh()->equipment_logger_mode);
+        $this->assertSame(Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED, $latestTransaction->fresh()->equipment_logger_mode);
+    }
+
+    public function test_update_equipment_logger_mode_requires_an_incoming_transaction(): void
+    {
+        ['item' => $item] = $this->createLaboratoryInventoryContext();
+
+        try {
+            app(LaboratoryLogService::class)->updateEquipmentLoggerMode(
+                $item->id,
+                Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+            );
+
+            $this->fail('Expected a missing incoming transaction exception.');
+        } catch (HttpException $exception) {
+            $this->assertSame(404, $exception->getStatusCode());
+            $this->assertSame('No incoming transaction found for this equipment.', $exception->getMessage());
+        }
+    }
+
     public function test_mark_overdue_updates_only_expired_active_logs(): void
     {
         ['item' => $item, 'personnel' => $personnel, 'user' => $user] = $this->createLaboratoryInventoryContext();

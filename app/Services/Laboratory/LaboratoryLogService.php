@@ -410,6 +410,7 @@ class LaboratoryLogService
                 'categories.name as category_name',
             ])
             ->selectSub($this->latestIncomingTransactionFieldSubquery('equipment_logger_mode'), 'equipment_logger_mode')
+            ->selectSub($this->latestIncomingTransactionFieldSubquery('id'), 'latest_incoming_transaction_id')
             ->selectRaw("CASE WHEN items.category_id = 4 THEN 'ict' ELSE 'laboratory' END as equipment_type")
             ->selectRaw('COALESCE(logger_usage.total_logs, 0) as total_logs')
             ->selectRaw('COALESCE(logger_usage.active_logs, 0) as active_logs')
@@ -427,6 +428,7 @@ class LaboratoryLogService
                     ->whereIn('transactions.equipment_logger_mode', [
                         Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
                         Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+                        Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED
                     ]);
             })
             ->where(function (Builder $query) use ($equipmentType) {
@@ -478,6 +480,30 @@ class LaboratoryLogService
             ->orderBy('items.name');
 
         return $query->paginate($perPage);
+    }
+
+    public function updateEquipmentLoggerMode(string $equipmentId, string $mode): array
+    {
+        $transaction = Transaction::withTrashed()
+            ->where('item_id', $equipmentId)
+            ->where('transac_type', Inventory::INCOMING->value)
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->first();
+
+        if (! $transaction) {
+            abort(404, 'No incoming transaction found for this equipment.');
+        }
+
+        $transaction->equipment_logger_mode = $mode;
+        $transaction->save();
+
+        return [
+            'transaction_id' => $transaction->id,
+            'equipment_id' => $transaction->item_id,
+            'equipment_logger_mode' => $transaction->equipment_logger_mode,
+            'equipment_logger_mode_label' => $this->equipmentLoggerModeLabel($transaction->equipment_logger_mode),
+        ];
     }
 
     private function applyEquipmentUsageFilterSearch(Builder $query, string $filter, string $search): void
@@ -800,11 +826,11 @@ class LaboratoryLogService
 
         return match ($mode) {
             Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY => sprintf(
-                'This equipment exists, but its latest incoming stock is marked as "%s" and is not available in the borrowable equipment logger flow.',
+                'This equipment is %s. Please contact the Laboratory Manager if you need this equipment.',
                 $label,
             ),
             Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED => sprintf(
-                'This equipment exists, but its latest incoming stock is marked as "%s" and is excluded from the equipment logger flow.',
+                'This equipment is %s. Please contact the Laboratory Manager if you need assistance.',
                 $label,
             ),
             default => null,

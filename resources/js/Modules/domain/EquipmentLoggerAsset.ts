@@ -3,6 +3,9 @@ import DtoEquipmentLoggerAsset from "../dto/DtoEquipmentLoggerAsset";
 export default class EquipmentLoggerAsset extends DtoEquipmentLoggerAsset {
     static endpoints = {
         index: "api.equipment-logger.equipments.index",
+        put: 'api.inventory.transactions.update',
+        showPageIct: 'ict.equipments.show',
+        showPageLab: 'laboratory.equipments.show'
     };
 
     static showPageTarget = '_blank';
@@ -11,11 +14,9 @@ export default class EquipmentLoggerAsset extends DtoEquipmentLoggerAsset {
         super(response);
 
         this.api._apiIndex = EquipmentLoggerAsset.endpoints.index;
-        this.showPage = this.equipment_type === 'ict'
-            ? 'ict.equipments.show'
-            : 'laboratory.equipments.show';
+        this.api._apiPut = EquipmentLoggerAsset.endpoints.put;
+        this.showPage = this.equipment_type === 'ict' ? EquipmentLoggerAsset.endpoints.showPageIct : EquipmentLoggerAsset.endpoints.showPageLab;
         this.showPageTarget = EquipmentLoggerAsset.showPageTarget;
-        this.showPageParams = response?.id;
     }
 
     static getColumns(): any {
