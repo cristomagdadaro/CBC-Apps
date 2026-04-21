@@ -242,16 +242,16 @@
                                         class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity sm:opacity-100">
                                         <slot name="rowActions" :row="row" :showIconText="showIconText" />
 
-                                        <button v-if="canView && resolvedShowEndpoint"
-                                            @click="router.visit(route(resolvedShowEndpoint, { id: row.id }))"
+                                        <button v-if="canView && resolveRowShowEndpoint(row)"
+                                            @click="visitRowEndpoint(row, 'show')"
                                             class="p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 transition-colors"
                                             title="View">
                                             <eye-icon class="w-4 h-4" />
                                             <span v-if="showIconText" class="sr-only">View</span>
                                         </button>
 
-                                        <button v-if="canUpdate && isRowUpdatable(row) && resolvedShowEndpoint"
-                                            @click="router.visit(route(resolvedShowEndpoint, { id: row.id }))"
+                                        <button v-if="canUpdate && isRowUpdatable(row) && resolveRowUpdateEndpoint(row)"
+                                            @click="visitRowEndpoint(row, 'update')"
                                             class="p-1.5 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30 text-amber-600 dark:text-amber-400 transition-colors"
                                             title="Edit">
                                             <file-edit-icon class="w-4 h-4" />
@@ -344,15 +344,15 @@
                 </div>
                 <slot name="rowActionsMenu" :row="rowContextMenu" />
 
-                <button v-if="canView && resolvedShowEndpoint"
-                    @click="router.visit(route(resolvedShowEndpoint, { id: rowContextMenu.id }))"
+                <button v-if="canView && resolveRowShowEndpoint(rowContextMenu)"
+                    @click="visitRowEndpoint(rowContextMenu, 'show')"
                     class="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-gray-700 dark:text-gray-300">
                     <eye-icon class="w-4 h-4 text-blue-500" />
                     View Details
                 </button>
 
-                <button v-if="canUpdate && isRowUpdatable(rowContextMenu) && resolvedShowEndpoint"
-                    @click="router.visit(route(resolvedShowEndpoint, { id: rowContextMenu.id }))"
+                <button v-if="canUpdate && isRowUpdatable(rowContextMenu) && resolveRowUpdateEndpoint(rowContextMenu)"
+                    @click="visitRowEndpoint(rowContextMenu, 'update')"
                     class="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-gray-700 dark:text-gray-300">
                     <file-edit-icon class="w-4 h-4 text-amber-500" />
                     Edit Record
@@ -663,10 +663,6 @@ export default {
                 }
             }
 
-            if (this.canView && !this.resolvedShowEndpoint) {
-                warnings.push('View is enabled, but the show page endpoint is not defined for this model.');
-            }
-
             if (this.canUpdate && !this.resolvedShowEndpoint) {
                 warnings.push('Update is enabled, but the show page endpoint is not defined for this model.');
             }
@@ -713,6 +709,46 @@ export default {
             } else {
                 e.target.value = this.current_page;
             }
+        },
+        resolveRowRouteParams(row, action = 'show') {
+            const actionParamsKey = action === 'update' ? 'updatePageParams' : 'showPageParams';
+            const params = row?.[actionParamsKey];
+
+            if (params !== undefined && params !== null) {
+                return params;
+            }
+
+            return row?.id ? { id: row.id } : null;
+        },
+        resolveRowShowEndpoint(row) {
+            return row?.showPage || this.resolvedShowEndpoint || null;
+        },
+        resolveRowUpdateEndpoint(row) {
+            return row?.updatePage || row?.showPage || this.resolvedShowEndpoint || null;
+        },
+        visitRowEndpoint(row, action = 'show') {
+            const endpoint = action === 'update'
+                ? this.resolveRowUpdateEndpoint(row)
+                : this.resolveRowShowEndpoint(row);
+
+            if (!endpoint) {
+                this.notifyActionWarning(`Unable to ${action === 'update' ? 'open edit' : 'view'} page. No page endpoint is configured for this row.`);
+                return;
+            }
+
+            const params = this.resolveRowRouteParams(row, action);
+            // @ts-ignore
+            const url = params ? route(endpoint, params) : route(endpoint);
+            const target = action === 'update'
+                ? row?.updatePageTarget || row?.showPageTarget || '_self'
+                : row?.showPageTarget || '_self';
+
+            if (target && target !== '_self') {
+                window.open(url, target, 'noopener');
+                return;
+            }
+
+            router.visit(url);
         },
         // ... other methods remain similar to original
         getNestedValue(obj, path) { return path.split('.').reduce((acc, part) => acc && acc[part], obj); },

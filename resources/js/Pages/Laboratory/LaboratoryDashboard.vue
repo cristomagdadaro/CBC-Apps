@@ -627,20 +627,20 @@ export default {
                     <CRCMDatatable
                         :base-model="EquipmentLoggerAsset"
                         :can-view="true"
-                        :can-create="true"
-                        :can-update="true"
-                        :can-delete="true"
+                        :can-create="false"
+                        :can-update="false"
+                        :can-delete="false"
                     >
                         <template #cell-name="{ row, value }">
                             <div class="min-w-[16rem]">
                                 <a
                                     :href="route(equipmentShowRoute(row), row.id)"
                                     target="_blank"
-                                    class="font-medium text-blue-600 hover:underline"
+                                    class="font-medium text-gray-500 hover:underline"
                                 >
-                                    {{ value }}
+                                    <span class="text-blue-700">{{ value }}</span> {{ '(' + (row?.brand || 'Unknown Brand') + ')' }}
                                 </a>
-                                <div class="text-xs text-gray-500">{{ row?.brand }}</div>
+                                <div class="text-xs text-gray-500">{{ row?.barcode }}</div>
                             </div>
                         </template>
                         <template #cell-equipment_type="{ value }">

@@ -98,8 +98,10 @@
 
 ## Tracker Updates (2026-04-21)
 - [ID-2026-04-21-001] Resolved. The guest Equipment Logger still treated any historical borrowable transaction as sufficient eligibility and fell back to a generic “Equipment not found” response when the latest incoming stock had already moved to `tracked_only` or `excluded`. Eligibility checks now use the latest incoming `equipment_logger_mode` for borrowable-list/show flows, and mode-specific unavailable messages are returned so operators can distinguish true missing IDs from intentionally non-borrowable stock.
+- [ID-2026-04-21-002] Resolved. `CRCMDatatable` treated `canView` as both table-access permission and proof that one static model-level `show` route existed, which produced false warnings for mixed-route datasets like the Equipment Logger asset list. The datatable now supports row-level `showPage` / `updatePage` navigation, and `EquipmentLoggerAsset` assigns the correct laboratory or ICT detail route per row so view-only equipment lists can keep `canView` enabled without configuration noise.
 
 ### Verification Snapshot
+- `npm run build`: passed after the row-level `CRCMDatatable` routing update; Vite completed successfully on this workstation (chunk-size warnings only).
 - `php artisan test tests/Unit/Services/Laboratory/LaboratoryLogServiceTest.php tests/Feature/Laboratory/EquipmentControllersTest.php`: 22 passed, 60 assertions, 0 failures (`XDEBUG_MODE=coverage` warning only on this workstation).
 - `php artisan test tests/Unit/Services/Laboratory tests/Feature/Laboratory`: 23 passed, 63 assertions, 0 failures (`XDEBUG_MODE=coverage` warning only on this workstation).
 - `php artisan test tests/Feature/Laboratory/EquipmentControllersTest.php tests/Feature/Rental/RentalControllersTest.php tests/Feature/Inventory/GuestPersonnelLookupTest.php tests/Feature/Events/Registration/GuestLookupTest.php tests/Feature/Events/FormRepoParticipantsTest.php tests/Feature/Events/Workflow/TimelineIntegrationTest.php tests/Feature/Events/Workflow/ToggleSettingsTest.php`: 56 passed, 222 assertions, 0 failures.

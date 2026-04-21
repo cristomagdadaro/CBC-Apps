@@ -1,14 +1,21 @@
-import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
+import DtoEquipmentLoggerAsset from "../dto/DtoEquipmentLoggerAsset";
 
-export default class EquipmentLoggerAsset extends DtoBaseClass {
+export default class EquipmentLoggerAsset extends DtoEquipmentLoggerAsset {
     static endpoints = {
         index: "api.equipment-logger.equipments.index",
     };
+
+    static showPageTarget = '_blank';
 
     constructor(response: any = {}) {
         super(response);
 
         this.api._apiIndex = EquipmentLoggerAsset.endpoints.index;
+        this.showPage = this.equipment_type === 'ict'
+            ? 'ict.equipments.show'
+            : 'laboratory.equipments.show';
+        this.showPageTarget = EquipmentLoggerAsset.showPageTarget;
+        this.showPageParams = response?.id;
     }
 
     static getColumns(): any {
@@ -22,7 +29,7 @@ export default class EquipmentLoggerAsset extends DtoBaseClass {
                 visible: true,
             },
             {
-                title: "Type",
+                title: "Group",
                 key: "equipment_type",
                 db_key: "equipment_type",
                 align: "dataColor",
@@ -35,7 +42,7 @@ export default class EquipmentLoggerAsset extends DtoBaseClass {
                 db_key: "category_name",
                 align: "dataColor",
                 sortable: true,
-                visible: true,
+                visible: false,
             },
             {
                 title: "Logger Mode",
@@ -51,7 +58,7 @@ export default class EquipmentLoggerAsset extends DtoBaseClass {
                 db_key: "barcode",
                 align: "dataColor",
                 sortable: false,
-                visible: true,
+                visible: false,
             },
             {
                 title: "Total Logs",
