@@ -35,6 +35,15 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
             })->name('equipment-logger.dashboard');
 
         Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_LABORATORY_DASHBOARD])
+            ->get('/equipment-logger/personnels/{personnelId}', function (string $personnelId) {
+                return Inertia::render('Laboratory/PersonnelLogHistory', [
+                    'personnelId' => $personnelId,
+                    'personnelSummary' => app(\App\Services\Laboratory\LaboratoryLogService::class)
+                        ->getPersonnelUsageSummary($personnelId, 'all'),
+                ]);
+            })->name('equipment-logger.personnels.show');
+
+        Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_LABORATORY_DASHBOARD])
             ->get('/laboratory', function () {
                 return redirect()->route('equipment-logger.dashboard');
             })->name('laboratory.dashboard');

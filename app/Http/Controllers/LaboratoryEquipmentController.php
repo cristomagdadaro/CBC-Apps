@@ -136,6 +136,27 @@ class LaboratoryEquipmentController extends BaseController
         );
     }
 
+    public function personnelIndex(GetRequest $request): JsonResponse
+    {
+        return response()->json(
+            $this->logService->paginatePersonnelUsage($request->validated(), 'all')
+        );
+    }
+
+    public function personnelLogs(GetRequest $request, string $personnelId): JsonResponse
+    {
+        return response()->json(
+            $this->logService->paginatePersonnelLogHistory($personnelId, $request->validated(), 'all')
+        );
+    }
+
+    public function personnelSummary(string $personnelId): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->logService->getPersonnelUsageSummary($personnelId, 'all'),
+        ]);
+    }
+
     public function updateEquipmentLoggerMode(LaboratoryUpdateEquipmentLoggerModeRequest $request, string $equipmentId): JsonResponse
     {
         $updated = $this->logService->updateEquipmentLoggerMode(

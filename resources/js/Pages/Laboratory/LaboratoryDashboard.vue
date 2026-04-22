@@ -11,6 +11,7 @@ import {
 } from 'chart.js';
 import CalendarModule from '@/Components/CalendarModule.vue';
 import EquipmentLoggerAsset from '@/Modules/domain/EquipmentLoggerAsset';
+import EquipmentLoggerPersonnel from '@/Modules/domain/EquipmentLoggerPersonnel';
 import { subscribeToRealtimeChannels } from '@/Modules/realtime/subscriptions';
 import LaboratoryLogHeaderAction from '@/Pages/Laboratory/components/LaboratoryLogHeaderAction.vue';
 import ApiMixin from '@/Modules/mixins/ApiMixin';
@@ -42,6 +43,7 @@ export default {
                 { key: 'calendar', label: 'Calendar' },
                 { key: 'logs', label: 'Active Logs' },
                 { key: 'equipment-list', label: 'Equipment List' },
+                { key: 'personnel-list', label: 'Personnel List' },
             ],
             dayLabels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
             heatLegend: [
@@ -137,6 +139,9 @@ export default {
         EquipmentLoggerAsset() {
             return EquipmentLoggerAsset;
         },
+        EquipmentLoggerPersonnel() {
+            return EquipmentLoggerPersonnel;
+        },
         loggerModeLabels() {
             const options = this.$page.props?.equipment_logger_mode_options;
 
@@ -180,6 +185,35 @@ export default {
             return model?.equipment_type === 'ict'
                 ? 'ict.equipments.show'
                 : 'laboratory.equipments.show';
+        },
+        transactionShowHref(row) {
+            if (!row?.latest_incoming_transaction_id) {
+                return null;
+            }
+
+            return route('transactions.show', { id: row.latest_incoming_transaction_id });
+        },
+        captureWindowScroll() {
+            if (typeof window === 'undefined') {
+                return null;
+            }
+
+            return {
+                x: window.scrollX,
+                y: window.scrollY,
+            };
+        },
+        restoreWindowScroll(scrollState) {
+            if (!scrollState || typeof window === 'undefined') {
+                return;
+            }
+
+            this.$nextTick(() => {
+                requestAnimationFrame(() => {
+                    window.scrollTo(scrollState.x, scrollState.y);
+                    requestAnimationFrame(() => window.scrollTo(scrollState.x, scrollState.y));
+                });
+            });
         },
         groupLogsByLocation(logs) {
             const grouped = logs.reduce((accumulator, log) => {
@@ -293,6 +327,7 @@ export default {
 
             this.updatingLoggerMode = true;
             this.loggerModeFormError = null;
+            const scrollState = this.captureWindowScroll();
 
             try {
                 const response = await axios.patch(
@@ -309,6 +344,7 @@ export default {
                     this.loadDashboard(),
                     this.refreshEquipmentList(),
                 ]);
+                this.restoreWindowScroll(scrollState);
                 this.closeLoggerModeModal(true);
             } catch (error) {
                 this.loggerModeFormError = error?.response?.data?.errors?.equipment_logger_mode?.[0]
@@ -737,13 +773,23 @@ export default {
                         <template #cell-name="{ row, value }">
                             <div class="min-w-[16rem]">
                                 <a
-                                    :href="route(equipmentShowRoute(row), row.id)"
+                                    v-if="transactionShowHref(row)"
+                                    :href="transactionShowHref(row)"
                                     target="_blank"
                                     class="font-medium text-gray-500 hover:underline"
                                 >
-                                    <span class="text-blue-700">{{ value }}</span> {{ '(' + (row?.brand || 'Unknown Brand') + ')' }}
+                                    <span class="text-blue-700">{{ value }}</span>
                                 </a>
+                                <span v-else class="font-medium text-slate-900">{{ value }}</span>
                                 <div class="text-xs text-gray-500">{{ row?.barcode }}</div>
+                            </div>
+                        </template>
+                        <template #cell-brand="{ value }">
+                            <span class="text-sm text-slate-700">{{ value || '-' }}</span>
+                        </template>
+                        <template #cell-description="{ value }">
+                            <div class="max-w-md whitespace-normal text-sm text-slate-700">
+                                {{ value || '-' }}
                             </div>
                         </template>
                         <template #cell-equipment_type="{ value }">
@@ -762,6 +808,28 @@ export default {
                             >
                                 {{ loggerModeLabel(value) }}
                             </button>
+                        </template>
+                    </CRCMDatatable>
+                </div>
+
+                <div v-show="activeTab === 'personnel-list'" class="px-5">
+                    <CRCMDatatable
+                        :base-model="EquipmentLoggerPersonnel"
+                        :can-view="true"
+                        :can-create="false"
+                        :can-update="false"
+                        :can-delete="false"
+                    >
+                        <template #cell-fullName="{ row, value }">
+                            <div class="min-w-[16rem]">
+                                <a
+                                    :href="route('equipment-logger.personnels.show', { personnelId: row.id })"
+                                    class="font-medium text-blue-700 hover:underline"
+                                >
+                                    {{ value }}
+                                </a>
+                                <div class="text-xs text-gray-500">{{ row.employee_id || 'No employee ID' }}</div>
+                            </div>
                         </template>
                     </CRCMDatatable>
                 </div>
@@ -786,7 +854,6 @@ export default {
                                     Latest incoming transaction: {{ selectedEquipmentAsset?.latest_incoming_transaction_id || 'Unavailable' }}
                                 </p>
                             </div>
-{{selectedLoggerMode}}
                             <custom-dropdown
                                 required
                                 searchable

@@ -482,6 +482,260 @@ class LaboratoryLogService
         return $query->paginate($perPage);
     }
 
+    public function paginatePersonnelUsage(array $parameters, string $equipmentType = 'all'): LengthAwarePaginator
+    {
+        $search = trim((string) ($parameters['search'] ?? ''));
+        $filter = trim((string) ($parameters['filter'] ?? ''));
+        $perPage = max(1, min(100, (int) ($parameters['per_page'] ?? 10)));
+        $sort = (string) ($parameters['sort'] ?? 'total_logs');
+        $order = strtolower((string) ($parameters['order'] ?? 'desc')) === 'asc' ? 'asc' : 'desc';
+
+        $query = Personnel::query()
+            ->select([
+                'personnels.id',
+                'personnels.employee_id',
+                'personnels.fname',
+                'personnels.mname',
+                'personnels.lname',
+                'personnels.suffix',
+                'personnels.position',
+                'personnels.phone',
+                'personnels.email',
+            ])
+            ->join('laboratory_equipment_logs', 'laboratory_equipment_logs.personnel_id', '=', 'personnels.id')
+            ->join('items', 'items.id', '=', 'laboratory_equipment_logs.equipment_id')
+            ->join('categories', 'categories.id', '=', 'items.category_id')
+            ->whereNull('laboratory_equipment_logs.deleted_at')
+            ->whereNull('items.deleted_at')
+            ->where(function (Builder $builder) use ($equipmentType) {
+                $this->applyEquipmentCategoryConstraint($builder, $equipmentType, 'categories');
+            })
+            ->whereExists(function ($subQuery) {
+                $subQuery->selectRaw('1')
+                    ->from('transactions')
+                    ->whereColumn('transactions.item_id', 'items.id')
+                    ->where('transactions.transac_type', Inventory::INCOMING->value)
+                    ->whereIn('transactions.equipment_logger_mode', [
+                        Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+                        Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+                        Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED,
+                    ]);
+            })
+            ->selectRaw('COUNT(laboratory_equipment_logs.id) as total_logs')
+            ->selectRaw("SUM(CASE WHEN laboratory_equipment_logs.status = 'active' THEN 1 ELSE 0 END) as active_logs")
+            ->selectRaw("SUM(CASE WHEN laboratory_equipment_logs.status = 'overdue' THEN 1 ELSE 0 END) as overdue_logs")
+            ->selectRaw("SUM(CASE WHEN laboratory_equipment_logs.status = 'completed' THEN 1 ELSE 0 END) as completed_logs")
+            ->selectRaw('MAX(COALESCE(laboratory_equipment_logs.actual_end_at, laboratory_equipment_logs.end_use_at, laboratory_equipment_logs.started_at)) as last_logged_at')
+            ->groupBy([
+                'personnels.id',
+                'personnels.employee_id',
+                'personnels.fname',
+                'personnels.mname',
+                'personnels.lname',
+                'personnels.suffix',
+                'personnels.position',
+                'personnels.phone',
+                'personnels.email',
+            ]);
+
+        if ($search !== '') {
+            $like = "%{$search}%";
+
+            $query->where(function (Builder $builder) use ($filter, $like) {
+                match ($filter) {
+                    'employee_id' => $builder->where('personnels.employee_id', 'like', $like),
+                    'position' => $builder->where('personnels.position', 'like', $like),
+                    'email' => $builder->where('personnels.email', 'like', $like),
+                    default => $builder
+                        ->where('personnels.employee_id', 'like', $like)
+                        ->orWhere('personnels.fname', 'like', $like)
+                        ->orWhere('personnels.mname', 'like', $like)
+                        ->orWhere('personnels.lname', 'like', $like)
+                        ->orWhere('personnels.suffix', 'like', $like)
+                        ->orWhere('personnels.position', 'like', $like)
+                        ->orWhere('personnels.email', 'like', $like),
+                };
+            });
+        }
+
+        $sortableColumns = [
+            'employee_id' => 'personnels.employee_id',
+            'fullName' => 'personnels.fname',
+            'position' => 'personnels.position',
+            'email' => 'personnels.email',
+            'total_logs' => 'total_logs',
+            'active_logs' => 'active_logs',
+            'overdue_logs' => 'overdue_logs',
+            'completed_logs' => 'completed_logs',
+            'last_logged_at' => 'last_logged_at',
+        ];
+
+        return $query
+            ->orderBy($sortableColumns[$sort] ?? 'total_logs', $order)
+            ->orderBy('personnels.lname')
+            ->orderBy('personnels.fname')
+            ->paginate($perPage);
+    }
+
+    public function getPersonnelUsageSummary(string $personnelId, string $equipmentType = 'all'): array
+    {
+        $summary = Personnel::query()
+            ->select([
+                'personnels.id',
+                'personnels.employee_id',
+                'personnels.fname',
+                'personnels.mname',
+                'personnels.lname',
+                'personnels.suffix',
+                'personnels.position',
+                'personnels.phone',
+                'personnels.address',
+                'personnels.email',
+            ])
+            ->join('laboratory_equipment_logs', 'laboratory_equipment_logs.personnel_id', '=', 'personnels.id')
+            ->join('items', 'items.id', '=', 'laboratory_equipment_logs.equipment_id')
+            ->join('categories', 'categories.id', '=', 'items.category_id')
+            ->where('personnels.id', $personnelId)
+            ->whereNull('laboratory_equipment_logs.deleted_at')
+            ->whereNull('items.deleted_at')
+            ->where(function (Builder $builder) use ($equipmentType) {
+                $this->applyEquipmentCategoryConstraint($builder, $equipmentType, 'categories');
+            })
+            ->whereExists(function ($subQuery) {
+                $subQuery->selectRaw('1')
+                    ->from('transactions')
+                    ->whereColumn('transactions.item_id', 'items.id')
+                    ->where('transactions.transac_type', Inventory::INCOMING->value)
+                    ->whereIn('transactions.equipment_logger_mode', [
+                        Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+                        Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+                        Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED,
+                    ]);
+            })
+            ->selectRaw('COUNT(laboratory_equipment_logs.id) as total_logs')
+            ->selectRaw("SUM(CASE WHEN laboratory_equipment_logs.status = 'active' THEN 1 ELSE 0 END) as active_logs")
+            ->selectRaw("SUM(CASE WHEN laboratory_equipment_logs.status = 'overdue' THEN 1 ELSE 0 END) as overdue_logs")
+            ->selectRaw("SUM(CASE WHEN laboratory_equipment_logs.status = 'completed' THEN 1 ELSE 0 END) as completed_logs")
+            ->selectRaw('MIN(laboratory_equipment_logs.started_at) as first_logged_at')
+            ->selectRaw('MAX(COALESCE(laboratory_equipment_logs.actual_end_at, laboratory_equipment_logs.end_use_at, laboratory_equipment_logs.started_at)) as last_logged_at')
+            ->groupBy([
+                'personnels.id',
+                'personnels.employee_id',
+                'personnels.fname',
+                'personnels.mname',
+                'personnels.lname',
+                'personnels.suffix',
+                'personnels.position',
+                'personnels.phone',
+                'personnels.address',
+                'personnels.email',
+            ])
+            ->first();
+
+        if (! $summary) {
+            abort(404, 'Personnel logging history not found.');
+        }
+
+        return [
+            'id' => $summary->id,
+            'employee_id' => $summary->employee_id,
+            'full_name' => collect([
+                $summary->fname,
+                $summary->mname,
+                $summary->lname,
+                $summary->suffix,
+            ])->filter()->implode(' '),
+            'fname' => $summary->fname,
+            'mname' => $summary->mname,
+            'lname' => $summary->lname,
+            'suffix' => $summary->suffix,
+            'position' => $summary->position,
+            'phone' => $summary->phone,
+            'address' => $summary->address,
+            'email' => $summary->email,
+            'total_logs' => (int) ($summary->total_logs ?? 0),
+            'active_logs' => (int) ($summary->active_logs ?? 0),
+            'overdue_logs' => (int) ($summary->overdue_logs ?? 0),
+            'completed_logs' => (int) ($summary->completed_logs ?? 0),
+            'first_logged_at' => $summary->first_logged_at,
+            'last_logged_at' => $summary->last_logged_at,
+        ];
+    }
+
+    public function paginatePersonnelLogHistory(string $personnelId, array $parameters, string $equipmentType = 'all'): LengthAwarePaginator
+    {
+        Personnel::query()->findOrFail($personnelId);
+
+        $perPage = max(1, min(100, (int) ($parameters['per_page'] ?? 25)));
+        $sort = (string) ($parameters['sort'] ?? 'started_at');
+        $order = strtolower((string) ($parameters['order'] ?? 'desc')) === 'asc' ? 'asc' : 'desc';
+
+        $query = LaboratoryEquipmentLog::query()
+            ->with(['equipment.category', 'personnel'])
+            ->where('personnel_id', $personnelId)
+            ->whereHas('equipment', function (Builder $builder) use ($equipmentType) {
+                $builder->whereHas('category', function (Builder $categoryQuery) use ($equipmentType) {
+                    $this->applyEquipmentCategoryConstraint($categoryQuery, $equipmentType, 'categories');
+                })->whereHas('transactions', function (Builder $transactionQuery) {
+                    $transactionQuery->withTrashed()
+                        ->where('transactions.transac_type', Inventory::INCOMING->value)
+                        ->whereIn('transactions.equipment_logger_mode', [
+                            Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+                            Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+                            Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED,
+                        ]);
+                });
+            });
+
+        $search = trim((string) ($parameters['search'] ?? ''));
+        if ($search !== '') {
+            $query->where(function (Builder $builder) use ($search) {
+                $like = "%{$search}%";
+
+                $builder->where('status', 'like', $like)
+                    ->orWhere('purpose', 'like', $like)
+                    ->orWhereHas('equipment', function (Builder $equipmentQuery) use ($like) {
+                        $equipmentQuery->where('name', 'like', $like)
+                            ->orWhere('brand', 'like', $like)
+                            ->orWhere('description', 'like', $like);
+                    });
+            });
+        }
+
+        $sortableColumns = [
+            'equipmentName' => 'equipment_id',
+            'status' => 'status',
+            'started_at' => 'started_at',
+            'end_use_at' => 'end_use_at',
+            'actual_end_at' => 'actual_end_at',
+        ];
+
+        $paginator = $query
+            ->orderBy($sortableColumns[$sort] ?? 'started_at', $order)
+            ->orderByDesc('created_at')
+            ->paginate($perPage);
+
+        $this->enrichLogsWithLocationDetails($paginator->getCollection());
+
+        $transactionIds = Transaction::withTrashed()
+            ->whereIn('item_id', $paginator->getCollection()->pluck('equipment_id')->filter()->unique()->values())
+            ->where('transac_type', Inventory::INCOMING->value)
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->get(['id', 'item_id'])
+            ->unique('item_id')
+            ->keyBy('item_id');
+
+        $paginator->getCollection()->transform(function (LaboratoryEquipmentLog $log) use ($transactionIds) {
+            $log->setAttribute('latest_incoming_transaction_id', $transactionIds->get($log->equipment_id)?->id);
+            $log->setAttribute('equipment_type', $this->determineEquipmentType($log->equipment));
+
+            return $log;
+        });
+
+        return $paginator;
+    }
+
     public function updateEquipmentLoggerMode(string $equipmentId, string $mode): array
     {
         $transaction = Transaction::withTrashed()
