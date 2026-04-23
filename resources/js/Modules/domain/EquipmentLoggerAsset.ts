@@ -4,8 +4,7 @@ export default class EquipmentLoggerAsset extends DtoEquipmentLoggerAsset {
     static endpoints = {
         index: "api.equipment-logger.equipments.index",
         put: 'api.inventory.transactions.update',
-        showPageIct: 'ict.equipments.show',
-        showPageLab: 'laboratory.equipments.show'
+        show: 'transactions.show',
     };
 
     static showPageTarget = '_blank';
@@ -15,7 +14,10 @@ export default class EquipmentLoggerAsset extends DtoEquipmentLoggerAsset {
 
         this.api._apiIndex = EquipmentLoggerAsset.endpoints.index;
         this.api._apiPut = EquipmentLoggerAsset.endpoints.put;
-        this.showPage = this.equipment_type === 'ict' ? EquipmentLoggerAsset.endpoints.showPageIct : EquipmentLoggerAsset.endpoints.showPageLab;
+        this.showPage = EquipmentLoggerAsset.endpoints.show;
+        this.showPageParams = this.latest_incoming_transaction_id
+            ? { id: this.latest_incoming_transaction_id }
+            : null;
         this.showPageTarget = EquipmentLoggerAsset.showPageTarget;
     }
 
@@ -25,6 +27,22 @@ export default class EquipmentLoggerAsset extends DtoEquipmentLoggerAsset {
                 title: "Equipment",
                 key: "name",
                 db_key: "name",
+                align: "dataColor",
+                sortable: true,
+                visible: true,
+            },
+            {
+                title: "Brand",
+                key: "brand",
+                db_key: "brand",
+                align: "dataColor",
+                sortable: true,
+                visible: true,
+            },
+            {
+                title: "Description",
+                key: "description",
+                db_key: "description",
                 align: "dataColor",
                 sortable: true,
                 visible: true,

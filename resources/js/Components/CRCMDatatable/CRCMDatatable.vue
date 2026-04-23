@@ -553,6 +553,7 @@ export default {
             realtimeCleanup: null,
             realtimeRefreshTimer: null,
             themeMenuClickHandler: null,
+            preservedScrollState: null,
         }
     },
     computed: {
@@ -766,6 +767,96 @@ export default {
                 })
             );
         },
+        getScrollableAncestors() {
+            const elements = [];
+            let current = this.$el instanceof HTMLElement ? this.$el.parentElement : null;
+
+            while (current) {
+                const style = window.getComputedStyle(current);
+                const overflowY = style.overflowY;
+                const overflowX = style.overflowX;
+                const canScrollY = /(auto|scroll|overlay)/.test(overflowY) && current.scrollHeight > current.clientHeight;
+                const canScrollX = /(auto|scroll|overlay)/.test(overflowX) && current.scrollWidth > current.clientWidth;
+
+                if (canScrollY || canScrollX) {
+                    elements.push(current);
+                }
+
+                current = current.parentElement;
+            }
+
+            return elements;
+        },
+        captureScrollState() {
+            if (typeof window === 'undefined') {
+                return null;
+            }
+
+            const state = {
+                windowX: window.scrollX,
+                windowY: window.scrollY,
+                ancestors: this.getScrollableAncestors().map((element) => ({
+                    element,
+                    top: element.scrollTop,
+                    left: element.scrollLeft,
+                })),
+            };
+
+            const tableContainer = this.$el?.querySelector?.('#dtTableContainer');
+            if (tableContainer instanceof HTMLElement) {
+                state.tableTop = tableContainer.scrollTop;
+                state.tableLeft = tableContainer.scrollLeft;
+            }
+
+            return state;
+        },
+        restoreScrollState(state = null) {
+            if (!state || typeof window === 'undefined') {
+                return;
+            }
+
+            const applyState = () => {
+                window.scrollTo(state.windowX, state.windowY);
+
+                (state.ancestors || []).forEach(({ element, top, left }) => {
+                    if (element instanceof HTMLElement) {
+                        element.scrollTop = top;
+                        element.scrollLeft = left;
+                    }
+                });
+
+                const tableContainer = this.$el?.querySelector?.('#dtTableContainer');
+                if (tableContainer instanceof HTMLElement) {
+                    tableContainer.scrollTop = state.tableTop ?? tableContainer.scrollTop;
+                    tableContainer.scrollLeft = state.tableLeft ?? tableContainer.scrollLeft;
+                }
+            };
+
+            this.$nextTick(() => {
+                requestAnimationFrame(() => {
+                    applyState();
+                    requestAnimationFrame(applyState);
+                });
+            });
+        },
+        decorateDatatableForScrollRetention() {
+            if (!this.dt || this.dt.__scrollRetentionDecorated) {
+                return;
+            }
+
+            const originalRefresh = this.dt.refresh.bind(this.dt);
+            this.dt.refresh = async (...args) => {
+                const scrollState = this.captureScrollState();
+
+                try {
+                    return await originalRefresh(...args);
+                } finally {
+                    this.restoreScrollState(scrollState);
+                }
+            };
+
+            this.dt.__scrollRetentionDecorated = true;
+        },
         handleCreateAction() {
             if (this.resolvedCreateEndpoint) {
                 router.visit(route(this.resolvedCreateEndpoint));
@@ -857,6 +948,7 @@ export default {
             };
             this.dt = new CRCMDatatable(this.params, this.baseModel, apiAdapter);
             await this.dt.init();
+            this.decorateDatatableForScrollRetention();
         },
         onColumnSort(column) {
             if (!column.sortable) return false;

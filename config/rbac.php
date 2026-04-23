@@ -25,6 +25,7 @@ return [
         'research.samples.manage',
         'research.monitoring.manage',
         'research.exports.manage',
+        'golinks.manage',
     ],
 
     'role_permissions' => [

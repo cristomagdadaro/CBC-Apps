@@ -35,7 +35,7 @@ export default {
                     icon: "LuLayoutDashboard",
                 },
                 {
-                    label: "Form Builder Module",
+                    label: "Form Builder",
                     href: null,
                     icon: "LuWrench",
                     children: [
@@ -56,7 +56,7 @@ export default {
                     ],
                 },
                 {
-                    label: "Bookings and Rentals Module",
+                    label: "Bookings and Rentals",
                     href: null,
                     icon: "LuDollarSign",
                     children: [
@@ -85,21 +85,21 @@ export default {
                     permission: "rental.vehicle.manage",
                 },
                 {
-                    label: "FES Request Module",
+                    label: "FES Request",
                     href: "accessUseRequest.index",
                     permission: "fes.request.approve",
                     moduleKey: "fes",
                     icon: "LuShield",
                 },
                 {
-                    label: "Equipment Logger Module",
+                    label: "Equipment Logger",
                     href: "equipment-logger.dashboard",
                     permission: "laboratory.logger.manage",
                     moduleKey: "laboratory_dashboard",
                     icon: "LuMicroscope",
                 },
                 {
-                    label: "Research Module",
+                    label: "Research",
                     href: null,
                     icon: "LuFlaskConical",
                     permission: "research.dashboard.view",
@@ -128,7 +128,7 @@ export default {
                     ],
                 },
                 {
-                    label: "Inventory Module",
+                    label: "Inventory System",
                     href: null,
                     icon: "LuPackage",
                     permission: "inventory.manage",
@@ -187,14 +187,21 @@ export default {
                     ],
                 },
                 {
-                    label: "File Report Module",
+                    label: "File Report",
                     href: "suppEquipReports.index",
                     permission: "equipment.report.manage",
                     moduleKey: "inventory",
                     icon: "LuFileText",
                 },
                 {
-                    label: "System Module",
+                    label: "Go Link Manager",
+                    href: "golinks.index",
+                    permission: "golinks.manage",
+                    moduleKey: "golink",
+                    icon: "LuLink",
+                },
+                {
+                    label: "System Settings",
                     href: null,
                     icon: "LuSettings",
                     roles: ["admin"],
