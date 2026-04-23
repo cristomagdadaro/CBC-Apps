@@ -35,6 +35,9 @@ export default {
                 || this.data?.project?.code
                 || this.parentProjectId
         },
+        studyRouteIdentifier() {
+            return this.model?.identifier(this.data || this.model)?.route ?? this.data?.code ?? this.data?.id ?? null
+        },
     },
     beforeMount() {
         this.model = new ResearchStudy(this.data ?? {})
@@ -51,7 +54,9 @@ export default {
         async submitProxy() {
             const response = this.isEdit ? await this.submitUpdate() : await this.submitCreate()
             if (response instanceof DtoResponse) {
-                router.visit(route('research.studies.show', response?.data?.data?.id ?? this.data?.id))
+                const studyIdentifier = this.model?.identifier(response?.data?.data || this.data || this.model)?.route
+                    ?? this.studyRouteIdentifier
+                router.visit(route('research.studies.show', studyIdentifier))
             }
         },
         async deleteProxy() {

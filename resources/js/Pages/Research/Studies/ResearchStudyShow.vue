@@ -29,6 +29,9 @@ export default {
         projectRouteIdentifier() {
             return this.study.project?.route_identifier || this.study.project?.funding_code || this.study.project?.code || this.study.project?.id || null
         },
+        studyRouteIdentifier() {
+            return new ResearchStudy(this.study).identifier()?.route ?? null
+        },
         headerBreadcrumbs() {
             return [
                 { label: "Research", route: "research.dashboard" },
@@ -63,7 +66,7 @@ export default {
                     <LuArrowLeft class="h-4 w-4" />
                     Project
                 </Link>
-                <Link v-if="canManageExperiments" :href="route('research.experiments.create', study.id)"
+                <Link v-if="canManageExperiments" :href="route('research.experiments.create', studyRouteIdentifier)"
                     class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
                     <LuPlus class="h-4 w-4" />
                     Add Experiment
@@ -155,7 +158,7 @@ export default {
                         <h2 class="text-lg font-semibold text-slate-900">Experiments</h2>
                         <p class="text-sm text-slate-500">Manage experimental protocols and sample tracking</p>
                     </div>
-                    <Link v-if="canManageExperiments" :href="route('research.experiments.create', study.id)"
+                    <Link v-if="canManageExperiments" :href="route('research.experiments.create', studyRouteIdentifier)"
                         class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700">
                         <LuPlus class="h-4 w-4" />
                         New Experiment

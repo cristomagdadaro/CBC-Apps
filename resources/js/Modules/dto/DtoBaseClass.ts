@@ -29,7 +29,7 @@ export default class DtoBaseClass implements IBaseClass {
         this.api = new ConcreteApiService();
     }
 
-    identifier(model: DtoBaseClass): object
+    identifier(model?: DtoBaseClass): object
     {
         if (model)
             return {

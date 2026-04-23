@@ -1,6 +1,8 @@
 <script>
 import axios from "axios";
 import { router } from "@inertiajs/vue3";
+import ResearchStudy from "@/Modules/domain/ResearchStudy";
+import ResearchExperiment from "@/Modules/domain/ResearchExperiment";
 import KeyValueEditor from "@/Pages/Research/components/KeyValueEditor.vue";
 import ResearchExperimentForm from "@/Pages/Research/components/ResearchExperimentForm.vue";
 import ActionHeaderLayout from "@/Layouts/ActionHeaderLayout.vue";
@@ -73,12 +75,18 @@ export default {
     projectRouteIdentifier() {
       return this.experiment.study?.project?.route_identifier || this.experiment.study?.project?.funding_code || this.experiment.study?.project?.code || this.experiment.study?.project?.id || null;
     },
+    studyRouteIdentifier() {
+      return new ResearchStudy(this.experiment.study || {}).identifier()?.route ?? null;
+    },
+    experimentRouteIdentifier() {
+      return new ResearchExperiment(this.experiment).identifier()?.route ?? null;
+    },
     headerBreadcrumbs() {
       return [
         { label: "Research", route: "research.dashboard" },
         { label: "Projects", route: "research.projects.index" },
         { label: this.experiment.study?.project?.funding_code || this.experiment.study?.project?.code || "Project", route: "research.projects.show", params: this.projectRouteIdentifier },
-        { label: this.experiment.study?.code || "Study", route: "research.studies.show", params: this.experiment.study?.id },
+        { label: this.experiment.study?.code || "Study", route: "research.studies.show", params: this.studyRouteIdentifier },
         { label: this.experiment.code || "Experiment", current: true },
       ];
     },
@@ -219,7 +227,7 @@ export default {
           route("api.research.samples.store"),
           this.sanitizeSamplePayload(this.newSampleForm)
         );
-        router.visit(route("research.experiments.show", this.experiment.id));
+        router.visit(route("research.experiments.show", this.experimentRouteIdentifier));
       } catch (error) {
         this.sampleCreateErrors = error?.response?.data?.errors || {};
       } finally {
@@ -235,7 +243,7 @@ export default {
           route("api.research.samples.update", sampleId),
           this.sanitizeSamplePayload(this.sampleForms[sampleId])
         );
-        router.visit(route("research.experiments.show", this.experiment.id));
+        router.visit(route("research.experiments.show", this.experimentRouteIdentifier));
       } catch (error) {
         this.sampleErrors = {
           ...this.sampleErrors,
@@ -254,7 +262,7 @@ export default {
 
       try {
         await axios.delete(route("api.research.samples.destroy", sampleId));
-        router.visit(route("research.experiments.show", this.experiment.id));
+        router.visit(route("research.experiments.show", this.experimentRouteIdentifier));
       } finally {
         this.deletingSamples = { ...this.deletingSamples, [sampleId]: false };
       }
@@ -268,7 +276,7 @@ export default {
           route("api.research.records.store"),
           this.sanitizeRecordPayload(this.recordForms[sampleId])
         );
-        router.visit(route("research.experiments.show", this.experiment.id));
+        router.visit(route("research.experiments.show", this.experimentRouteIdentifier));
       } catch (error) {
         this.recordErrors = {
           ...this.recordErrors,
@@ -288,7 +296,7 @@ export default {
       try {
         await axios.delete(route("api.research.records.destroy", recordId));
         this.resetRecordForm(sampleId);
-        router.visit(route("research.experiments.show", this.experiment.id));
+        router.visit(route("research.experiments.show", this.experimentRouteIdentifier));
       } finally {
         this.deletingRecords = { ...this.deletingRecords, [recordId]: false };
       }
@@ -302,7 +310,7 @@ export default {
         <template #header>
             <ActionHeaderLayout
                 :subtitle="experiment.title"
-                :route-link="route('research.studies.show', experiment.study?.id)"
+                :route-link="route('research.studies.show', studyRouteIdentifier)"
                 :breadcrumbs="headerBreadcrumbs"
             >
                 <a v-if="canExport" :href="route('api.research.experiments.export.samples', experiment.id)"

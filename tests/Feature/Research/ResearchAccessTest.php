@@ -148,6 +148,45 @@ class ResearchAccessTest extends TestCase
             ]);
     }
 
+    public function test_study_routes_accept_code_identifier_with_id_fallback(): void
+    {
+        $creator = $this->createUserWithRole(RoleEnum::RESEARCHER->value);
+        $project = $this->createProjectWithStudyMembers($creator, $creator);
+        $study = $project->studies()->firstOrFail();
+
+        $this->actingAs($creator)
+            ->get(route('research.studies.show', $study->code))
+            ->assertOk();
+
+        $this->actingAs($creator)
+            ->get(route('research.studies.show', $study->id))
+            ->assertOk();
+
+        $this->actingAs($creator)
+            ->get(route('research.experiments.create', $study->code))
+            ->assertOk();
+    }
+
+    public function test_experiment_routes_accept_code_identifier_with_id_fallback(): void
+    {
+        $creator = $this->createUserWithRole(RoleEnum::RESEARCHER->value);
+        $project = $this->createProjectWithStudyMembers($creator, $creator);
+        $study = $project->studies()->firstOrFail();
+        $experiment = ResearchExperiment::factory()->create([
+            'study_id' => $study->id,
+            'created_by' => $creator->id,
+            'last_updated_by' => $creator->id,
+        ]);
+
+        $this->actingAs($creator)
+            ->get(route('research.experiments.show', $experiment->code))
+            ->assertOk();
+
+        $this->actingAs($creator)
+            ->get(route('research.experiments.show', $experiment->id))
+            ->assertOk();
+    }
+
     private function createProjectWithStudyMembers(User $creator, ?User $projectLeader = null, ?User $studyStaff = null): ResearchProject
     {
         $project = ResearchProject::factory()->create([

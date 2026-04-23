@@ -1,5 +1,6 @@
 <script>
 import ResearchExperimentForm from "@/Pages/Research/components/ResearchExperimentForm.vue";
+import ResearchStudy from "@/Modules/domain/ResearchStudy";
 
 export default {
   name: "ResearchExperimentCreate",
@@ -16,6 +17,11 @@ export default {
       default: () => ({}),
     },
   },
+  computed: {
+    studyRouteIdentifier() {
+      return new ResearchStudy(this.study).identifier()?.route ?? null;
+    },
+  },
 };
 </script>
 
@@ -25,10 +31,10 @@ export default {
       <ActionHeaderLayout
         title="Create Experiment"
         :subtitle="`Add an experiment under ${study.title} before recording samples and monitoring records.`"
-        :route-link="route('research.studies.show', study.id)"
+        :route-link="route('research.studies.show', studyRouteIdentifier)"
       >
         <Link
-          :href="route('research.studies.show', study.id)"
+          :href="route('research.studies.show', studyRouteIdentifier)"
           class="rounded-lg border border-white/25 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
         >
           Back to Study

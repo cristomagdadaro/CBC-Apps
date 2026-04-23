@@ -3,6 +3,7 @@ import { router } from '@inertiajs/vue3'
 import ApiMixin from '@/Modules/mixins/ApiMixin'
 import DtoResponse from '@/Modules/dto/DtoResponse'
 import ResearchExperiment from '@/Modules/domain/ResearchExperiment'
+import ResearchStudy from '@/Modules/domain/ResearchStudy'
 
 export default {
     name: 'ResearchExperimentForm',
@@ -37,6 +38,12 @@ export default {
         parentStudyId() {
             return this.study?.id ?? this.data?.study_id ?? this.data?.study?.id ?? null
         },
+        parentStudyRouteIdentifier() {
+            return this.routeStudyIdentifier(this.study ?? this.data?.study ?? { id: this.parentStudyId })
+        },
+        experimentRouteIdentifier() {
+            return this.routeExperimentIdentifier(this.data)
+        },
     },
     beforeMount() {
         this.model = new ResearchExperiment(this.data ?? {})
@@ -61,8 +68,9 @@ export default {
                 : await this.submitCreate()
 
             if (response instanceof DtoResponse) {
-                const experimentId = response?.data?.data?.id ?? this.data?.id
-                router.visit(route('research.experiments.show', experimentId))
+                const experimentIdentifier = this.routeExperimentIdentifier(response?.data?.data)
+                    ?? this.experimentRouteIdentifier
+                router.visit(route('research.experiments.show', experimentIdentifier))
             }
         },
         async deleteProxy() {
@@ -78,11 +86,17 @@ export default {
             const response = await this.submitDelete()
 
             if (response instanceof DtoResponse) {
-                router.visit(route('research.studies.show', this.parentStudyId))
+                router.visit(route('research.studies.show', this.parentStudyRouteIdentifier))
             }
         },
         fieldError(field) {
             return this.form?.errors?.[field] || ''
+        },
+        routeStudyIdentifier(study) {
+            return new ResearchStudy(study || {}).identifier()?.route ?? null
+        },
+        routeExperimentIdentifier(experiment) {
+            return new ResearchExperiment(experiment || {}).identifier()?.route ?? null
         },
     },
 }
