@@ -22,5 +22,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('/studies/{study}/experiments/create', [ResearchPageController::class, 'experimentCreate'])->middleware(['can:research.experiments.manage', 'can:update,study'])->name('research.experiments.create');
         Route::get('/experiments/{experiment}', [ResearchPageController::class, 'experimentShow'])->middleware(['can:research.projects.view', 'can:view,experiment'])->name('research.experiments.show');
         Route::get('/samples/inventory', [ResearchPageController::class, 'sampleInventory'])->middleware('can:research.samples.manage')->name('research.samples.inventory');
+        Route::get('/samples/{uid}', [ResearchPageController::class, 'samplePassport'])
+            ->where('uid', '[A-Za-z0-9\-]+')
+            ->middleware('can:research.samples.manage')
+            ->name('research.samples.show');
     });
 });

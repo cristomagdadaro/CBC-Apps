@@ -187,6 +187,48 @@ class ResearchAccessTest extends TestCase
             ->assertOk();
     }
 
+    public function test_sample_passport_routes_accept_uid_for_web_and_api(): void
+    {
+        $member = $this->createUserWithRole(RoleEnum::RESEARCHER->value);
+        $outsider = $this->createUserWithRole(RoleEnum::RESEARCHER->value);
+
+        $accessibleProject = $this->createProjectWithStudyMembers($member, $member);
+        $sample = $this->createSampleForProject($accessibleProject, 'RI00019991Q', 'Passport Sample');
+
+        $this->actingAs($member)
+            ->get(route('research.samples.show', $sample->uid))
+            ->assertOk();
+
+        Sanctum::actingAs($member);
+
+        $this->getJson(route('api.research.samples.show', $sample->uid))
+            ->assertOk()
+            ->assertJsonFragment([
+                'uid' => $sample->uid,
+                'accession_name' => $sample->accession_name,
+            ]);
+
+        $this->actingAs($outsider)
+            ->get(route('research.samples.show', $sample->uid))
+            ->assertNotFound();
+    }
+
+    public function test_inventory_scan_accepts_web_passport_url_payloads(): void
+    {
+        $member = $this->createUserWithRole(RoleEnum::RESEARCHER->value);
+        $accessibleProject = $this->createProjectWithStudyMembers($member, $member);
+        $sample = $this->createSampleForProject($accessibleProject, 'RI00018881Q', 'URL Scan Sample');
+
+        Sanctum::actingAs($member);
+
+        $payload = route('research.samples.show', $sample->uid);
+
+        $this->postJson(route('api.research.samples.inventory.scan'), [
+            'payload' => $payload,
+            'source' => 'camera_scan',
+        ])->assertOk()->assertJsonPath('data.uid', $sample->uid);
+    }
+
     private function createProjectWithStudyMembers(User $creator, ?User $projectLeader = null, ?User $studyStaff = null): ResearchProject
     {
         $project = ResearchProject::factory()->create([

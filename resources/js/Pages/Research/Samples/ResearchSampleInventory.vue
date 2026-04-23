@@ -339,7 +339,7 @@ export default {
             styleTag.textContent = `@media print { @page { size: ${pageSize}; margin: 0; } }`;
         },
         qrPayload(sample) {
-            return `sample:${sample.uid}|experiment:${sample.experiment_id}|sample_id:${sample.id}`;
+            return route("research.samples.show", sample.uid);
         },
         labelItem(sample) {
             return {
@@ -618,6 +618,13 @@ export default {
                 },
             ]);
         },
+        statusClass(status) {
+            const s = status?.toLowerCase() || '';
+            if (['active', 'available', 'in stock'].includes(s)) return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+            if (['depleted', 'consumed', 'destroyed'].includes(s)) return 'bg-red-50 text-red-700 border-red-200';
+            if (['reserved', 'pending'].includes(s)) return 'bg-amber-50 text-amber-700 border-amber-200';
+            return 'bg-slate-50 text-slate-700 border-slate-200';
+        }
     },
 };
 </script>
@@ -762,71 +769,103 @@ export default {
 
                 <section
                     v-if="selectedSample"
-                    class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm"
+                    class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
                 >
-                    <h2 class="text-2xl font-semibold text-gray-900">Selected Sample Snapshot</h2>
-                    <p class="mt-2 text-sm text-gray-600">
-                        {{ selectedSample.uid }} • {{ selectedSample.accession_name }}
-                    </p>
+                    <!-- Header -->
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-900 tracking-tight">Selected Sample</h2>
+                            <div class="mt-1 flex items-center gap-2 text-sm text-gray-500">
+                                <span class="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded text-gray-700">{{ selectedSample.uid }}</span>
+                                <span class="text-gray-300">•</span>
+                                <span class="text-gray-700 font-medium">{{ selectedSample.accession_name || "Unnamed" }}</span>
+                            </div>
+                        </div>
+                        <span
+                            class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium"
+                            :class="statusClass(selectedSample.current_status)"
+                        >
+            {{ selectedSample.current_status || "Pending" }}
+        </span>
+                    </div>
 
-                    <div class="mt-4 grid gap-4 md:grid-cols-3">
-                        <div class="rounded-2xl bg-gray-50 p-4">
-                            <p class="text-xs font-semibold uppercase tracking-widest text-gray-500">
-                                Barcode
-                            </p>
-                            <div class="mt-3">
+                    <!-- Content Grid -->
+                    <div class="mt-6 grid gap-5 lg:grid-cols-3">
+                        <!-- Barcode -->
+                        <div class="rounded-xl border border-gray-100 bg-gray-50/50 p-5">
+                            <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Barcode</label>
+                            <div class="mt-4 flex justify-center">
                                 <QrBarCode
                                     mode="barcode"
                                     :barcode-value="selectedSample.uid"
-                                    :barcode-height="54"
+                                    :barcode-height="64"
                                     :barcode-module-width="2"
-                                    :font-size="9"
+                                    :font-size="11"
                                     :qr-caption="selectedSample.uid"
-                                    container-class="bg-white rounded-lg border border-gray-200 p-2"
+                                    container-class="bg-white rounded-lg border border-gray-200 p-3 shadow-sm"
                                 />
                             </div>
                         </div>
-                        <div class="rounded-2xl bg-gray-50 p-4">
-                            <p class="text-xs font-semibold uppercase tracking-widest text-gray-500">
-                                QR Retrieval Payload
-                            </p>
-                            <div class="mt-3">
+
+                        <!-- QR Code -->
+                        <div class="rounded-xl border border-gray-100 bg-gray-50/50 p-5">
+                            <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Retrieval Payload</label>
+                            <div class="mt-4 flex flex-col items-center">
                                 <QrBarCode
                                     mode="qr"
                                     :qr-value="qrPayload(selectedSample)"
-                                    :qr-size="92"
-                                    :font-size="9"
+                                    :qr-size="140"
+                                    :font-size="11"
                                     :qr-caption="selectedSample.uid"
-                                    container-class="inline-block rounded-lg bg-white p-2"
+                                    container-class="inline-block rounded-lg bg-white p-3 border border-gray-200 shadow-sm"
                                 />
+                                <p class="mt-3 text-xs text-gray-500 text-center">Scan to retrieve display payload</p>
                             </div>
-                            <p class="mt-2 text-xs text-gray-700">Scan to retrieve display payload.</p>
                         </div>
-                        <div class="rounded-2xl bg-gray-50 p-4 text-sm text-gray-700">
-                            <p>
-                                <span class="font-semibold text-gray-900">Project:</span>
-                                {{ selectedSample.experiment?.study?.project?.title || "N/A" }}
-                            </p>
-                            <p class="mt-2">
-                                <span class="font-semibold text-gray-900">Study:</span>
-                                {{ selectedSample.experiment?.study?.title || "N/A" }}
-                            </p>
-                            <p class="mt-2">
-                                <span class="font-semibold text-gray-900">Experiment:</span>
-                                {{ selectedSample.experiment?.title || "N/A" }}
-                            </p>
-                            <p class="mt-2">
-                                <span class="font-semibold text-gray-900">Status:</span>
-                                {{ selectedSample.current_status || "Pending" }}
-                            </p>
-                            <p class="mt-2">
-                                <span class="font-semibold text-gray-900">Location:</span>
-                                {{
-                                    selectedSample.current_location ||
-                                    selectedSample.storage_location ||
-                                    "N/A"
-                                }}
-                            </p>
+
+                        <!-- Details -->
+                        <div class="rounded-xl border border-gray-100 bg-gray-50/50 p-5">
+                            <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Experiment Context</label>
+                            <div class="mt-4 space-y-3">
+                                <div class="group">
+                                    <a
+                                        :href="route('research.samples.show', selectedSample.uid)"
+                                        class="block rounded-lg p-2 -mx-2 hover:bg-white hover:shadow-sm transition-all"
+                                    >
+                                        <span class="text-xs text-gray-400 uppercase tracking-wider block">Project</span>
+                                        <span class="text-sm font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">
+                            {{ selectedSample.experiment?.study?.project?.title || "N/A" }}
+                        </span>
+                                    </a>
+                                </div>
+
+                                <div>
+                                    <span class="text-xs text-gray-400 uppercase tracking-wider block">Study</span>
+                                    <span class="text-sm font-medium text-gray-700">
+                        {{ selectedSample.experiment?.study?.title || "N/A" }}
+                    </span>
+                                </div>
+
+                                <div>
+                                    <span class="text-xs text-gray-400 uppercase tracking-wider block">Experiment</span>
+                                    <span class="text-sm font-medium text-gray-700">
+                        {{ selectedSample.experiment?.title || "N/A" }}
+                    </span>
+                                </div>
+
+                                <div class="pt-3 border-t border-gray-200/60 grid grid-cols-2 gap-3">
+                                    <div>
+                                        <span class="text-xs text-gray-400 uppercase tracking-wider block">Location</span>
+                                        <span class="text-sm font-medium text-gray-700">
+                            {{ selectedSample.current_location || selectedSample.storage_location || "N/A" }}
+                        </span>
+                                    </div>
+                                    <div v-if="selectedSample.commodity">
+                                        <span class="text-xs text-gray-400 uppercase tracking-wider block">Commodity</span>
+                                        <span class="text-sm font-medium text-gray-700">{{ selectedSample.commodity }}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>

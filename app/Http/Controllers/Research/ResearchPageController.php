@@ -7,6 +7,7 @@ use App\Models\Research\ResearchExperiment;
 use App\Models\Research\ResearchProject;
 use App\Models\Research\ResearchStudy;
 use App\Repositories\ResearchPageRepo;
+use App\Repositories\ResearchSampleInventoryRepo;
 use App\Services\Research\ResearchAccessService;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -16,7 +17,8 @@ class ResearchPageController extends BaseController
 {
     public function __construct(
         private readonly ResearchPageRepo $pageRepo,
-        private readonly ResearchAccessService $accessService
+        private readonly ResearchAccessService $accessService,
+        private readonly ResearchSampleInventoryRepo $inventoryRepo
     )
     {
     }
@@ -108,6 +110,17 @@ class ResearchPageController extends BaseController
     {
         return Inertia::render('Research/Samples/ResearchSampleInventory', [
             'catalog' => $this->catalog(),
+        ]);
+    }
+
+    public function samplePassport(string $uid): Response
+    {
+        $sample = $this->inventoryRepo->findPassportByUid($uid, Auth::user());
+
+        abort_if(!$sample, 404, 'Sample not found.');
+
+        return Inertia::render('Research/Samples/ResearchSamplePassport', [
+            'sample' => $sample,
         ]);
     }
 
