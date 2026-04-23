@@ -20,3 +20,4 @@ require __DIR__.'/web/inventory.php';
 require __DIR__.'/web/file-reports.php';
 require __DIR__.'/web/options.php';
 require __DIR__.'/web/user-management.php';
+require __DIR__.'/web/golinks.php';

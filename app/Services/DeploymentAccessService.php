@@ -33,6 +33,7 @@ class DeploymentAccessService
     public const MODULE_OPTIONS = 'options';
     public const MODULE_EXPERIMENT_MONITORING = 'experiment_monitoring';
     public const MODULE_RESEARCH = 'research';
+    public const MODULE_GOLINK = 'golink';
 
     private const LOCAL_FALLBACK_HOSTS = [
         '127.0.0.1',
@@ -143,6 +144,14 @@ class DeploymentAccessService
             self::MODULE_RESEARCH => [
                 'label' => 'Research',
                 'description' => 'Controls research pages, experiment monitoring pages, and the research API module.',
+                'default_access' => self::ACCESS_BOTH,
+                'default_mode' => self::MODE_ACTIVE,
+                'section' => 'internal',
+                'allows_deactivation' => true,
+            ],
+            self::MODULE_GOLINK => [
+                'label' => 'Go Link',
+                'description' => 'Controls Go Link management pages, API endpoints, and public redirect pages.',
                 'default_access' => self::ACCESS_BOTH,
                 'default_mode' => self::MODE_ACTIVE,
                 'section' => 'internal',
