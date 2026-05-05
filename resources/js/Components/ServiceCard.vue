@@ -6,6 +6,10 @@ defineProps({
     description: String,
     icon: [String, Object],
     href: String,
+    badgeCount: {
+        type: [Number, String, null],
+        default: null,
+    },
     external: {
         type: Boolean,
         default: false,
@@ -47,7 +51,7 @@ function slugify(title) {
         :target="external ? '_blank' : undefined"
         :rel="external ? 'noopener noreferrer' : undefined"
         :data-guide="'services-'+slugify(title)"
-        class="group relative h-full overflow-hidden rounded-xl bg-white dark:bg-[#1e293b] border border-gray-200/80 dark:border-slate-600/50 p-3 md:p-4 transition-all duration-300 hover:border-AC/60 dark:hover:border-AA/60 hover:shadow-lg hover:shadow-AC/10 dark:hover:shadow-xl dark:hover:shadow-black/20 hover:-translate-y-1"
+        class="group relative h-full overflow-visible rounded-xl bg-white dark:bg-[#1e293b] border border-gray-200/80 dark:border-slate-600/50 p-3 md:p-4 transition-all duration-300 hover:border-AC/60 dark:hover:border-AA/60 hover:shadow-lg hover:shadow-AC/10 dark:hover:shadow-xl dark:hover:shadow-black/20 hover:-translate-y-1"
     >
         <!-- Subtle background glow on hover -->
         <div class="absolute inset-0 bg-gradient-to-br from-AC/[0.03] to-AB/[0.03] dark:from-AA/[0.08] dark:to-AC/[0.05] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -57,19 +61,28 @@ function slugify(title) {
         <div class="absolute top-0 left-0 h-[2px] bg-gradient-to-r from-AC to-AB dark:from-AA dark:to-AC w-0 group-hover:w-full transition-all duration-500 ease-out">
         </div>
 
+        <span
+            v-if="badgeCount !== 0 && badgeCount !== null && badgeCount !== undefined && badgeCount !== ''"
+            class="inline-flex items-center justify-center min-w-[2rem] h-8 px-2 rounded-full bg-lime-500 text-white text-xs md:text-sm font-semibold drop-shadow shrink-0 absolute -top-3 -right-3"
+        >
+            {{ badgeCount }}
+        </span>
+
         <!-- Content -->
         <div class="relative z-10 flex flex-col h-full">
-            <div class="flex items-center gap-3 mb-1 md:mb-2">
+            <div class="flex items-start justify-between gap-3 mb-1 md:mb-2">
+                <div class="flex items-center gap-3 min-w-0">
                 <!-- Icon container -->
-                <div :class="`${colorClasses[color]}`" class="inline-flex h-8 w-8 md:h-12 md:w-12 items-center justify-center rounded-md md:rounded-xl bg-gradient-to-br from-AC/10 to-AB/5 dark:from-AA/20 dark:to-AC/10 dark:ring-1 dark:ring-AA/20 p-2 text-white transition-all duration-300 shadow-sm dark:shadow-none">
-                    <component :is="icon" class="w-4 h-4 md:w-6 md:h-6" v-if="typeof icon === 'object'" />
-                    <span v-else class="text-lg">{{ icon }}</span>
-                </div>
+                    <div :class="`${colorClasses[color]}`" class="inline-flex h-8 w-8 md:h-12 md:w-12 items-center justify-center rounded-md md:rounded-xl bg-gradient-to-br from-AC/10 to-AB/5 dark:from-AA/20 dark:to-AC/10 dark:ring-1 dark:ring-AA/20 p-2 text-white transition-all duration-300 shadow-sm dark:shadow-none shrink-0">
+                        <component :is="icon" class="w-4 h-4 md:w-6 md:h-6" v-if="typeof icon === 'object'" />
+                        <span v-else class="text-lg">{{ icon }}</span>
+                    </div>
 
-                <!-- Title -->
-                <h3 class="text-lg font-bold text-gray-900 dark:text-slate-100 group-hover:text-AC dark:group-hover:text-AA transition-colors duration-300 leading-none">
-                    {{ title }}
-                </h3>
+                    <!-- Title -->
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-slate-100 group-hover:text-AC dark:group-hover:text-AA transition-colors duration-300 leading-none min-w-0">
+                        {{ title }}
+                    </h3>
+                </div>
             </div>
 
             <!-- Description -->

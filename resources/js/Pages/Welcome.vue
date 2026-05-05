@@ -8,11 +8,15 @@ import GuideTourControls from "@/Components/GuideTourControls.vue";
 import {useAppContext} from "@/Modules/composables/useAppContext";
 import {useGuideTour} from "@/Modules/composables/useGuideTour";
 
-defineProps({
+const props = defineProps({
     canLogin: Boolean,
     canRegister: Boolean,
     laravelVersion: String,
     phpVersion: String,
+    serviceMetrics: {
+        type: Object,
+        default: () => ({}),
+    },
 });
 
 const showNetworkModal = ref(false);
@@ -32,13 +36,19 @@ const visibleServices = computed(() => {
     const allowedServices = deploymentAccess.value?.services ?? {};
 
     if (isAdminUser.value) {
-        return publicServices.value;
+        return publicServices.value.map((service) => ({
+            ...service,
+            badgeCount: resolveServiceMetric(service.id),
+        }));
     }
 
     return publicServices.value.filter(
         (service) =>
             !service.visibilityKey || allowedServices[service.visibilityKey] !== false,
-    );
+    ).map((service) => ({
+        ...service,
+        badgeCount: resolveServiceMetric(service.id),
+    }));
 });
 
 const hasHiddenLocalServices = computed(() => {
@@ -62,6 +72,16 @@ const dismissNetworkModal = () => {
     showNetworkModal.value = false;
     // Remember user's choice for this session
     sessionStorage.setItem("declinedLocalNetwork", "true");
+};
+
+const resolveServiceMetric = (serviceId) => {
+    const metrics = props.serviceMetrics ?? {};
+
+    if (!Object.prototype.hasOwnProperty.call(metrics, serviceId)) {
+        return null;
+    }
+
+    return metrics[serviceId];
 };
 
 const agreeToPrivacyNotice = async () => {
@@ -151,6 +171,7 @@ onMounted(() => {
                                 :description="service.description"
                                 :icon="service.icon"
                                 :href="route(service.routeName)"
+                                :badge-count="service.badgeCount"
                                 :color="service.color"
                                 :external="service.external"
                                 class="min-w-[300px] md:min-w-[200px] w-[20%]"
