@@ -67,6 +67,7 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
             search: null,
             filter: null,
             filter_by: null,
+            storage_location_id: null,
             is_exact: false,
             page: 1,
             per_page: 25,

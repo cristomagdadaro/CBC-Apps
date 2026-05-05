@@ -108,23 +108,18 @@ export default {
             this.searchEvent();
         },
         applyStorageRoomFilter(roomCode) {
-            const room = roomCode ? String(roomCode).padStart(2, '0') : '';
-            const barcodePrefix = room ? `CBC-${room}-` : '';
-            const isSameFilter = this.form.filter === 'barcode' && this.form.search === barcodePrefix;
+            const normalizedRoom = roomCode ? String(roomCode) : null;
+            const isSameFilter = (this.form.storage_location_id ?? null) === normalizedRoom;
 
-            if (!room || isSameFilter) {
-                this.form.filter = '';
-                this.form.filter_by = '';
-                this.form.search = '';
-                this.form.is_exact = false;
+            if (!normalizedRoom || isSameFilter) {
+                this.form.storage_location_id = null;
+                this.form.page = 1;
                 this.searchEvent();
                 return;
             }
 
-            this.form.filter = 'barcode';
-            this.form.filter_by = room;
-            this.form.search = barcodePrefix;
-            this.form.is_exact = false;
+            this.form.storage_location_id = normalizedRoom;
+            this.form.page = 1;
             this.searchEvent();
         },
         async closeForm() {
