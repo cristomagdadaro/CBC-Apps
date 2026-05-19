@@ -5,6 +5,7 @@ import BaseClass from "@/Modules/domain/BaseClass";
 export default class CRCMDatatable {
     constructor(params = {}, model = BaseClass, apiAdapter = null) {
         this.api = apiAdapter;
+        this.fixedParams = params || {};
         // array of columns to display
         this.columns = ref([]);
         this.columns = ref([]);
@@ -25,6 +26,14 @@ export default class CRCMDatatable {
         // so that when the page is refreshed, the datatable will remember the last state
         const localParams = BaseRequest.getParamsLocal();
         this.request = localParams ? new BaseRequest({ ...localParams, ...params }) : new BaseRequest(params);
+    }
+
+    buildRequestPayload(extra = {}) {
+        return {
+            ...(this.request?.toObject?.() || {}),
+            ...(this.fixedParams || {}),
+            ...(extra || {}),
+        };
     }
 
     ensureApiAdapter() {
@@ -77,7 +86,7 @@ export default class CRCMDatatable {
         this._errorBag = null;
 
         try {
-            const response = await this.api.get(this.request.toObject(), this.model);
+            const response = await this.api.get(this.buildRequestPayload(), this.model);
             this.response = this.normalizeResponseShape(response);
             if (await this.checkForErrors(this.response))
                 this.getColumnsFromResponse(this.response);
@@ -257,7 +266,7 @@ export default class CRCMDatatable {
             this.request.updateParam('per_page', this.response?.meta?.total || this.response?.data?.length || 10);
 
             // Fetch data from API
-            let response = this.normalizeResponseShape(await this.api.get(this.request.toObject(), this.model));
+            let response = this.normalizeResponseShape(await this.api.get(this.buildRequestPayload(), this.model));
             let data = response.data;
 
             // If rows are selected, export should prioritize selected rows over active filters.
