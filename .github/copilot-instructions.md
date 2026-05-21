@@ -112,6 +112,9 @@
 - New PhilRice personnel records should still use their official employee ID supplied by the operator.
 - New outsider, OJT, thesis, or similar temporary personnel records should not rely on manually typed CBC IDs. Generate the next `CBC-YY-0000` identifier through the shared personnel ID service backed by `new_barcodes`.
 - Keep the create-form preview and the actual persisted ID generation aligned, but treat the backend generator as the source of truth so concurrent creates cannot duplicate IDs.
+- Public personnel self-registration must not create `personnels` rows directly. Store guest submissions in `personnel_registrations`, require signed email verification first, then let an authenticated inventory administrator approve or reject the record.
+- When approving a public non-PhilRice/OJT/thesis/outsider registration, assign the CBC employee ID at approval time through the shared personnel ID service. Do not accept a generated external ID from the guest payload.
+- Copy verified registration email state into `personnels.email_verified_at` on approval so downstream notification flows can distinguish verified self-service emails from unverified manually entered contacts.
 
 ## Realtime / Websocket Standard
 - Use Laravel Reverb as the default websocket stack for CBC-Apps whenever realtime server push is required. Do not introduce third-party hosted websocket dependencies unless there is an explicit architectural decision to do so.

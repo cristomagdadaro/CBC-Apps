@@ -13,8 +13,7 @@ import { resolveAuthContext } from '@/Modules/composables/useAppContext';
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 const pages = import.meta.glob([
     './Pages/**/*.vue',
-    '!./Pages/Shared/**/*.vue',
-    //'!./Pages/**/components/**/*.vue',
+    '!./Pages/Shared/**/*.vue'
 ]);
 
 createInertiaApp({

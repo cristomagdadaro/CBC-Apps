@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PersonnelController;
+use App\Http\Controllers\PersonnelRegistrationController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TransactionController;
 use App\Repositories\OptionRepo;
@@ -23,6 +24,9 @@ Route::prefix('guest')->group(function () {
 
     Route::prefix('inventory')->group(function () {
         Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_INVENTORY])->group(function () {
+            Route::post('/personnel-registrations', [PersonnelRegistrationController::class, 'store'])
+                ->name('api.inventory.personnel-registrations.store.guest');
+
             Route::get('/category/{categoryName?}', [TransactionController::class, 'getRemainingStocksPerCategory'])->name('api.inventory.categories.public');
 
             Route::get('/items/public', function () {
@@ -128,6 +132,13 @@ Route::middleware(['api', 'auth:sanctum'])->group(function () {
                 Route::post('/', [PersonnelController::class, 'create'])->name('api.inventory.personnels.store');
                 Route::put('/{id?}', [PersonnelController::class, 'update'])->name('api.inventory.personnels.update');
                 Route::delete('/{id?}', [PersonnelController::class, 'destroy'])->name('api.inventory.personnels.destroy');
+            });
+
+            Route::prefix('personnel-registrations')->group(function () {
+                Route::get('/', [PersonnelRegistrationController::class, 'index'])
+                    ->name('api.inventory.personnel-registrations.index');
+                Route::put('/{id}/status', [PersonnelRegistrationController::class, 'updateStatus'])
+                    ->name('api.inventory.personnel-registrations.update-status');
             });
 
             Route::prefix('suppliers')->group(function () {

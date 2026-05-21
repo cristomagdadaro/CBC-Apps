@@ -22,6 +22,7 @@ class Personnel extends BaseModel
         'phone',
         'address',
         'email',
+        'email_verified_at',
         'employee_id',
     ];
 
@@ -34,7 +35,12 @@ class Personnel extends BaseModel
         'phone',
         'address',
         'email',
+        'email_verified_at',
         'employee_id',
+    ];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
     ];
 
     protected function serializeDate(DateTimeInterface $date): string

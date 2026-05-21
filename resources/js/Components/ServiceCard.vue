@@ -29,6 +29,7 @@ const colorClasses = {
     orange: "bg-orange-500",
     rose: "bg-rose-500",
     indigo: "bg-indigo-500",
+    teal: "bg-teal-500",
 };
 
 function slugify(title) {

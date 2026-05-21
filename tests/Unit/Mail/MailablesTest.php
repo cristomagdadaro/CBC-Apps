@@ -8,6 +8,7 @@ use App\Mail\EventSubformResponseNotification;
 use App\Mail\GeneratedCertificateMail;
 use App\Mail\LaboratoryEquipmentLogOverdueMail;
 use App\Mail\OutgoingTransactionNotification;
+use App\Mail\PersonnelRegistrationVerificationMail;
 use App\Models\LaboratoryEquipmentLog;
 use App\Models\Category;
 use App\Models\EventSubform;
@@ -16,6 +17,7 @@ use App\Models\Form;
 use App\Models\Item;
 use App\Models\Participant;
 use App\Models\Personnel;
+use App\Models\PersonnelRegistration;
 use App\Models\Registration;
 use App\Models\Supplier;
 use App\Models\Transaction;
@@ -133,6 +135,25 @@ class MailablesTest extends TestCase
         $this->assertStringContainsString('PCR Machine', $html);
         $this->assertStringContainsString(route('laboratory.equipments.show', ['equipment_id' => $item->id]), $html);
         $this->assertStringContainsString('you may ignore this notice', $html);
+    }
+
+    public function test_personnel_registration_verification_mail_renders_signed_verification_link(): void
+    {
+        $registration = PersonnelRegistration::query()->create([
+            'is_philrice_employee' => true,
+            'fname' => 'Nora',
+            'lname' => 'Valdez',
+            'position' => 'Visitor',
+            'email' => 'nora@example.test',
+            'employee_id' => '12-9090',
+            'status' => PersonnelRegistration::STATUS_PENDING,
+        ]);
+
+        $html = (new PersonnelRegistrationVerificationMail($registration))->render();
+
+        $this->assertStringContainsString('Nora Valdez', $html);
+        $this->assertStringContainsString('Verify your personnel registration', $html);
+        $this->assertStringContainsString(route('personnel.registration.verify', ['registration' => $registration->id]), $html);
     }
 
     public function test_event_subform_response_notification_renders_response_details(): void

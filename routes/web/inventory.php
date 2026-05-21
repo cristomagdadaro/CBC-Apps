@@ -3,6 +3,7 @@
 use App\Enums\Inventory;
 use App\Http\Controllers\InventoryFormController;
 use App\Http\Controllers\PDFGeneratorController;
+use App\Http\Controllers\PersonnelRegistrationController;
 use App\Models\Item;
 use App\Models\Personnel;
 use App\Models\Supplier;
@@ -18,6 +19,13 @@ use Inertia\Inertia;
 Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_SUPPLIES_CHECKOUT])
     ->get('/inventory/outgoing', [InventoryFormController::class, 'outgoingForm'])
     ->name('inventory.public.outgoing.index');
+
+Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_INVENTORY])->group(function () {
+    Route::get('/personnel/register', [PersonnelRegistrationController::class, 'guestCreate'])
+        ->name('personnel.registration.guest');
+    Route::get('/personnel/register/verify/{registration}', [PersonnelRegistrationController::class, 'verify'])
+        ->name('personnel.registration.verify');
+});
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::prefix('apps')->group(function () {
@@ -201,6 +209,12 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                         'fromUrl' => route('dashboard'),
                     ]);
                 })->name('personnels.index');
+
+                Route::get('/registrations', function () {
+                    return Inertia::render('Inventory/Personnel/PersonnelRegistrationsIndex', [
+                        'fromUrl' => route('personnels.index'),
+                    ]);
+                })->name('personnels.registrations.index');
 
                 Route::get('/create', function () {
                     return Inertia::render('Inventory/Personnel/components/CreatePersonnelForm', [

@@ -116,6 +116,15 @@ export const TOUR_REGISTRY = {
                 },
             },
             {
+                element: "[data-guide='services-personnel-registration']",
+                popover: {
+                    title: "Register as Personnel",
+                    description: "Submit your personnel details here, verify your email, then wait for administrator approval.",
+                    side: "top",
+                    align: "center",
+                },
+            },
+            {
                 element: "[data-guide='services-incident-reports']",
                 popover: {
                     title: "Report an Incident",
@@ -351,6 +360,22 @@ export const TOUR_REGISTRY = {
                     title: "Tell Us What Happened",
                     description:
                         "Describe the issue and link it to any related record so our team can follow up with you.",
+                    side: "top",
+                    align: "center",
+                },
+            },
+        ],
+    },
+    "personnel-registration-guest": {
+        title: "Register Personnel Profile",
+        extends: "guest-page",
+        steps: [
+            {
+                element: "[data-guide='personnel-registration-form']",
+                popover: {
+                    title: "Submit Your Personnel Details",
+                    description:
+                        "Fill in your name, contact details, personnel type, and email. You must verify the email before admins can approve the profile.",
                     side: "top",
                     align: "center",
                 },
