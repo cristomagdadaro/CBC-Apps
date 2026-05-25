@@ -280,8 +280,8 @@ export default {
             if (!this.form) return;
 
             if (!value) {
-                this.locationProvinces = [];
-                this.locationCities = [];
+                this.resetLocationProvinces();
+                this.resetLocationCities();
                 if (this.provinceFieldKey) this.form.response_data[this.provinceFieldKey] = null;
                 if (this.cityFieldKey) this.form.response_data[this.cityFieldKey] = null;
                 return;
@@ -290,16 +290,17 @@ export default {
             if (oldValue !== undefined && value !== oldValue) {
                 if (this.provinceFieldKey) this.form.response_data[this.provinceFieldKey] = null;
                 if (this.cityFieldKey) this.form.response_data[this.cityFieldKey] = null;
-                this.locationCities = [];
             }
 
+            this.resetLocationProvinces();
+            this.resetLocationCities();
             this.loadProvinces(value);
         },
         selectedProvinceValue(value, oldValue) {
             if (!this.form) return;
 
             if (!value) {
-                this.locationCities = [];
+                this.resetLocationCities();
                 if (this.cityFieldKey) this.form.response_data[this.cityFieldKey] = null;
                 return;
             }
@@ -308,6 +309,7 @@ export default {
                 this.form.response_data[this.cityFieldKey] = null;
             }
 
+            this.resetLocationCities();
             this.loadCities(value, this.selectedRegionValue);
         },
     },

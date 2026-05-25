@@ -53,6 +53,28 @@ class MailablesTest extends TestCase
         @unlink($attachmentPath);
     }
 
+    public function test_generated_certificate_mail_renders_single_day_event_date_once(): void
+    {
+        $form = Form::factory()->create([
+            'event_id' => 'EVT-SINGLE-DAY',
+            'title' => 'ELISA Seminar',
+            'date_from' => '2026-05-28 08:00:00',
+            'date_to' => '2026-05-28 17:00:00',
+        ]);
+
+        $attachmentPath = tempnam(sys_get_temp_dir(), 'cert_') . '.pdf';
+        file_put_contents($attachmentPath, '%PDF-fake');
+
+        $html = (new GeneratedCertificateMail($attachmentPath, 'certificate.pdf', $form->event_id))
+            ->withRecipientName('Cristo Rey Ceniza Magdadaro')
+            ->render();
+
+        $this->assertStringContainsString('May 28, 2026', $html);
+        $this->assertStringNotContainsString('May 28, 2026 to May 28, 2026', $html);
+
+        @unlink($attachmentPath);
+    }
+
     public function test_outgoing_transaction_notification_renders_item_and_remaining_quantity(): void
     {
         $category = Category::factory()->create();

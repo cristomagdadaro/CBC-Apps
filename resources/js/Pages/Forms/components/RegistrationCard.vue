@@ -27,12 +27,30 @@ export default {
             if (!this.form) return;
             this.form.response_data.province_address = null;
             this.form.response_data.city_address = null;
+
+            this.resetLocationProvinces();
+            this.resetLocationCities();
+
+            if (!value) {
+                return;
+            }
+
             this.loadProvinces(value);
-            this.locationCities = [];
         },
-        'form.response_data.province_address'(value) {
+        'form.response_data.province_address'(value, oldValue) {
             if (!this.form) return;
-            this.form.response_data.city_address = null;
+
+            if (oldValue !== undefined && value !== oldValue) {
+                this.form.response_data.city_address = null;
+            }
+
+            this.resetLocationCities();
+
+            if (!value) {
+                this.form.response_data.city_address = null;
+                return;
+            }
+
             this.loadCities(value, this.form.response_data.region_address);
         },
     },

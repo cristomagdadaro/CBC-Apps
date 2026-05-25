@@ -186,6 +186,7 @@ class ProcessCertificateBatchJob implements ShouldQueue
             $status = strtolower((string) ($record['status'] ?? 'fail')) === 'success' ? 'success' : 'fail';
             $recipientEmail = $record['recipient_email'] ?? null;
             $recipientName = $record['recipient_name'] ?? null;
+            $recipientResponseId = trim((string) ($record['recipient_response_id'] ?? ''));
             $attachmentPath = $record['attachment_path'] ?? null;
             $filename = $record['filename'] ?? ($attachmentPath ? basename((string) $attachmentPath) : null);
             $error = $record['error_message'] ?? null;
@@ -216,8 +217,10 @@ class ProcessCertificateBatchJob implements ShouldQueue
                         $recipientName,
                     ],
                     meta: [
+                        'event_id' => $this->eventId,
                         'batch_id' => $this->batchId,
                         'recipient_name' => $recipientName,
+                        'recipient_response_id' => $recipientResponseId !== '' ? $recipientResponseId : null,
                     ],
                     notifiableType: CertificateLog::class,
                     notifiableId: null,
