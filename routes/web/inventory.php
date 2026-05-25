@@ -20,7 +20,7 @@ Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_SUPPLI
     ->get('/inventory/outgoing', [InventoryFormController::class, 'outgoingForm'])
     ->name('inventory.public.outgoing.index');
 
-Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_INVENTORY])->group(function () {
+Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_PERSONNEL_REGISTRATION])->group(function () {
     Route::get('/personnel/register', [PersonnelRegistrationController::class, 'guestCreate'])
         ->name('personnel.registration.guest');
     Route::get('/personnel/register/verify/{registration}', [PersonnelRegistrationController::class, 'verify'])

@@ -24,9 +24,6 @@ Route::prefix('guest')->group(function () {
 
     Route::prefix('inventory')->group(function () {
         Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_INVENTORY])->group(function () {
-            Route::post('/personnel-registrations', [PersonnelRegistrationController::class, 'store'])
-                ->name('api.inventory.personnel-registrations.store.guest');
-
             Route::get('/category/{categoryName?}', [TransactionController::class, 'getRemainingStocksPerCategory'])->name('api.inventory.categories.public');
 
             Route::get('/items/public', function () {
@@ -90,6 +87,11 @@ Route::prefix('guest')->group(function () {
             Route::get('/laboratories/public', function () {
                 return ['data' => app(OptionRepo::class)->getLaboratories()];
             })->name('api.inventory.laboratories.public');
+        });
+
+        Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_PERSONNEL_REGISTRATION])->group(function () {
+            Route::post('/personnel-registrations', [PersonnelRegistrationController::class, 'store'])
+                ->name('api.inventory.personnel-registrations.store.guest');
         });
 
         Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_SUPPLIES_CHECKOUT])->group(function () {

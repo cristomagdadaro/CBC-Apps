@@ -22,6 +22,16 @@ export const PUBLIC_SERVICES = Object.freeze([
     guideKey: "rental-bookings-public",
   },
   {
+    id: "personnel-registration",
+    title: "Personnel Registration",
+    description: "Register personnel details and verify your email for approval",
+    icon: LuUserPlus,
+    routeName: "personnel.registration.guest",
+    color: "teal",
+    visibilityKey: "personnel_registration",
+    guideKey: "personnel-registration-guest",
+  },
+  {
     id: "forms",
     title: "Event Registration",
     description: "Register and participate in DA-CBC events and activities",

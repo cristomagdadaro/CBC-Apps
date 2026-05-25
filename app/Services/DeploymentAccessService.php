@@ -30,6 +30,7 @@ class DeploymentAccessService
     public const MODULE_INCIDENT_REPORTS = 'incident_reports';
     public const MODULE_INVENTORY = 'inventory';
     public const MODULE_RENTALS = 'rentals';
+    public const MODULE_PERSONNEL_REGISTRATION = 'personnel_registration';
     public const MODULE_OPTIONS = 'options';
     public const MODULE_EXPERIMENT_MONITORING = 'experiment_monitoring';
     public const MODULE_RESEARCH = 'research';
@@ -104,6 +105,14 @@ class DeploymentAccessService
             self::MODULE_RENTALS => [
                 'label' => 'Rentals',
                 'description' => 'Controls guest and authenticated rental pages together with the rentals API module.',
+                'default_access' => self::ACCESS_BOTH,
+                'default_mode' => self::MODE_ACTIVE,
+                'section' => 'guest',
+                'allows_deactivation' => true,
+            ],
+            self::MODULE_PERSONNEL_REGISTRATION => [
+                'label' => 'Personnel Registration',
+                'description' => 'Controls the public personnel registration pages and guest submission API.',
                 'default_access' => self::ACCESS_BOTH,
                 'default_mode' => self::MODE_ACTIVE,
                 'section' => 'guest',
