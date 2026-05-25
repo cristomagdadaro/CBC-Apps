@@ -25,7 +25,7 @@ export default {
 
 <template>
     <div 
-        class="w-full relative p-3 flex leading-tight items-start gap-3 bg-white dark:bg-gray-800 rounded-md border cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+        class="w-full relative text-justify flex leading-tight items-start gap-3 bg-white dark:bg-gray-800 rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
         :class="{'border-red-500 dark:border-red-600': error, 'border-gray-600 dark:border-gray-700': !error}"
         @click.prevent="inputValue = !inputValue"
     >

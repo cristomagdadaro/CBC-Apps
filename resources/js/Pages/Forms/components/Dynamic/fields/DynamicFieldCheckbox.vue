@@ -22,7 +22,7 @@ export default {
 
 <template>
     <div 
-        class="w-full relative p-2 flex text-center leading-none items-center gap-2 bg-white dark:bg-gray-800 rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border"
+        class="w-full relative py-2 px-1 flex text-center leading-none items-center gap-2 bg-white dark:bg-gray-800 rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
         :class="{'border-red-500 dark:border-red-600': error, 'border-gray-600 dark:border-gray-700': !error}"
         @click.prevent="inputValue = !inputValue"
     >

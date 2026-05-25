@@ -593,16 +593,8 @@ export default {
     <div v-if="!!data" class="pin-guest-card">
 
         <!-- ─── Mobile Header ─── -->
-        <div class="mobile-header md:hidden">
-            <div class="mobile-header-inner">
-                <div class="mobile-id-chip">
-                    <Hash :size="10" :stroke-width="2" />
-                    {{ data.event_id }}
-                </div>
-                <h1 class="mobile-title">{{ data.title }}</h1>
-            </div>
+        <div v-if="workflowTabs.length > 1" class="mobile-header md:hidden" :style="styleFor('form-background')">
             <button
-                v-if="workflowTabs.length > 1"
                 @click="showMobileMenu = !showMobileMenu"
                 class="mobile-menu-btn"
             >
@@ -1209,7 +1201,7 @@ export default {
     background: var(--pin-green-light);
     color: var(--pin-green-dark);
     font-family: var(--pin-font-mono);
-    font-size: 10px;
+    font-size: 16px;
     font-weight: 600;
     padding: 3px 8px;
     border-radius: 999px;
@@ -1732,6 +1724,7 @@ export default {
     border: 1px solid var(--pin-border);
     border-radius: var(--pin-radius-sm);
     gap: 0.75rem;
+    margin-bottom: 1rem;
 }
 .step-countdown-inner {
     display: flex;
