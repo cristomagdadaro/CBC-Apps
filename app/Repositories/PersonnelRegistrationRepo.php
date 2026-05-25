@@ -6,6 +6,7 @@ use App\Mail\PersonnelRegistrationVerificationMail;
 use App\Models\Personnel;
 use App\Models\PersonnelRegistration;
 use App\Services\Personnel\PersonnelIdService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -132,6 +133,8 @@ class PersonnelRegistrationRepo extends AbstractRepoService
     {
         $email = strtolower(trim((string) ($data['email'] ?? '')));
         $employeeId = trim((string) ($data['employee_id'] ?? ''));
+        $fname = $this->normalizeNameValue($data['fname'] ?? null);
+        $lname = $this->normalizeNameValue($data['lname'] ?? null);
 
         if (Personnel::query()->where('email', $email)->exists()) {
             throw ValidationException::withMessages([
@@ -145,24 +148,61 @@ class PersonnelRegistrationRepo extends AbstractRepoService
             ]);
         }
 
+        if ($fname !== '' && $lname !== '' && $this->personnelNameExists($fname, $lname)) {
+            throw ValidationException::withMessages([
+                'fname' => ['Personnel is already registered.'],
+                'lname' => ['Personnel is already registered.'],
+            ]);
+        }
+
         $duplicate = $this->model->newQuery()
             ->whereIn('status', [
                 PersonnelRegistration::STATUS_PENDING,
                 PersonnelRegistration::STATUS_APPROVED,
             ])
-            ->where(function ($query) use ($email, $employeeId) {
+            ->where(function ($query) use ($email, $employeeId, $fname, $lname) {
                 $query->where('email', $email);
 
                 if ($employeeId !== '') {
                     $query->orWhere('employee_id', $employeeId);
+                }
+
+                if ($fname !== '' && $lname !== '') {
+                    $this->applyNameMatch($query, $fname, $lname, 'or');
                 }
             })
             ->exists();
 
         if ($duplicate) {
             throw ValidationException::withMessages([
-                'email' => ['A pending or approved registration already exists for this email or employee ID.'],
+                'email' => ['A pending or approved registration already exists for this personnel, email, or employee ID.'],
+                'fname' => ['A pending or approved registration already exists for this personnel, email, or employee ID.'],
+                'lname' => ['A pending or approved registration already exists for this personnel, email, or employee ID.'],
             ]);
         }
+    }
+
+    private function personnelNameExists(string $fname, string $lname): bool
+    {
+        $query = Personnel::query();
+        $this->applyNameMatch($query, $fname, $lname);
+
+        return $query->exists();
+    }
+
+    private function applyNameMatch(Builder $query, string $fname, string $lname, string $boolean = 'and'): void
+    {
+        $method = $boolean === 'or' ? 'orWhere' : 'where';
+
+        $query->{$method}(function (Builder $subQuery) use ($fname, $lname) {
+            $subQuery
+                ->whereRaw('LOWER(TRIM(fname)) = ?', [$fname])
+                ->whereRaw('LOWER(TRIM(lname)) = ?', [$lname]);
+        });
+    }
+
+    private function normalizeNameValue(mixed $value): string
+    {
+        return strtolower(trim((string) $value));
     }
 }

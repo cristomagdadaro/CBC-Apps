@@ -72,16 +72,6 @@ export const PUBLIC_SERVICES = Object.freeze([
     guideKey: "supplies-checkout-guest",
   },
   {
-    id: "personnel-registration",
-    title: "Personnel Registration",
-    description: "Register your personnel profile and verify your email before approval",
-    icon: LuUserPlus,
-    routeName: "personnel.registration.guest",
-    color: "teal",
-    visibilityKey: "inventory",
-    guideKey: "personnel-registration-guest",
-  },
-  {
     id: "incident-reports",
     title: "Incident Reports",
     description: "Report issues, damages, or maintenance needs",

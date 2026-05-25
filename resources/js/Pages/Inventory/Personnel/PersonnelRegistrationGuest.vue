@@ -1,17 +1,20 @@
 <script>
 import ApiMixin from "@/Modules/mixins/ApiMixin";
+import SuccessModal from "@/Components/SuccessModal.vue";
 import PersonnelRegistration from "@/Modules/domain/PersonnelRegistration";
 import DtoResponse from "@/Modules/dto/DtoResponse";
 import DtoError from "@/Modules/dto/DtoError";
 
 export default {
     name: "PersonnelRegistrationGuest",
+    components: { SuccessModal },
     mixins: [ApiMixin],
     data() {
         return {
             submitted: false,
             submittedEmail: null,
             delayReady: false,
+            showSubmittedModal: false,
         };
     },
     computed: {
@@ -36,10 +39,12 @@ export default {
             if (response instanceof DtoResponse) {
                 this.submittedEmail = response.data?.data?.email ?? this.form.email;
                 this.submitted = true;
+                this.showSubmittedModal = true;
             }
 
             if (response instanceof DtoError) {
                 this.submitted = false;
+                this.showSubmittedModal = false;
             }
         },
     },
@@ -61,7 +66,7 @@ export default {
                 <div v-if="submitted" class="rounded-lg border border-green-200 bg-green-50 p-5 text-green-900">
                     <h2 class="font-bold text-lg leading-tight">Check your email</h2>
                     <p class="mt-2 text-sm">
-                        We sent a verification link to {{ submittedEmail }}. Your registration will appear for administrator approval after that email is verified.
+                        We sent a verification link to {{ submittedEmail }}. Check your Gmail inbox and confirm your email address so your registration can proceed to administrator review.
                     </p>
                     <Link :href="route('welcome')" class="inline-flex mt-4 rounded bg-AB px-4 py-2 text-sm font-semibold text-white">
                         Return to services
@@ -117,5 +122,37 @@ export default {
                 </form>
             </div>
         </transition-container>
+
+        <success-modal
+            :show="showSubmittedModal"
+            title="Registration Submitted"
+            @close="showSubmittedModal = false"
+        >
+            <template #content>
+                <p>
+                    Your personnel registration has been submitted.
+                </p>
+                <p class="mt-2">
+                    Check your Gmail inbox for the confirmation link sent to <span class="font-semibold">{{ submittedEmail }}</span>, then confirm your email address to continue.
+                </p>
+            </template>
+            <template #footer>
+                <div class="flex w-full justify-end gap-2">
+                    <button
+                        type="button"
+                        class="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+                        @click="showSubmittedModal = false"
+                    >
+                        Close
+                    </button>
+                    <Link
+                        :href="route('welcome')"
+                        class="inline-flex justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700"
+                    >
+                        Return to services
+                    </Link>
+                </div>
+            </template>
+        </success-modal>
     </guest-form-page>
 </template>

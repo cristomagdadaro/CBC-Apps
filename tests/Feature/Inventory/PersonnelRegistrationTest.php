@@ -53,6 +53,66 @@ class PersonnelRegistrationTest extends TestCase
         });
     }
 
+    public function test_guest_cannot_submit_registration_for_existing_personnel_name(): void
+    {
+        Personnel::query()->create([
+            'fname' => 'Ana',
+            'lname' => 'Rivera',
+            'position' => 'Research Aide',
+            'email' => 'existing.ana@example.test',
+            'employee_id' => '12-3998',
+        ]);
+
+        $this->postJson(route('api.inventory.personnel-registrations.store.guest'), [
+            'is_philrice_employee' => true,
+            'fname' => ' Ana ',
+            'mname' => null,
+            'lname' => 'Rivera',
+            'suffix' => null,
+            'position' => 'Research Aide',
+            'phone' => '09170000000',
+            'address' => 'Science City of Munoz',
+            'email' => 'ana.new@example.test',
+            'employee_id' => '12-3555',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors(['fname', 'lname']);
+
+        $this->assertDatabaseMissing('personnel_registrations', [
+            'email' => 'ana.new@example.test',
+        ]);
+    }
+
+    public function test_guest_cannot_submit_duplicate_pending_registration_for_same_personnel_name(): void
+    {
+        PersonnelRegistration::query()->create([
+            'is_philrice_employee' => true,
+            'fname' => 'Ben',
+            'lname' => 'Santos',
+            'position' => 'Technician',
+            'email' => 'ben.santos@example.test',
+            'employee_id' => '12-3000',
+            'status' => PersonnelRegistration::STATUS_PENDING,
+        ]);
+
+        $this->postJson(route('api.inventory.personnel-registrations.store.guest'), [
+            'is_philrice_employee' => true,
+            'fname' => 'Ben',
+            'mname' => null,
+            'lname' => 'Santos',
+            'suffix' => null,
+            'position' => 'Technician',
+            'phone' => '09170000001',
+            'address' => 'Science City of Munoz',
+            'email' => 'ben.santos.duplicate@example.test',
+            'employee_id' => '12-3005',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors(['email']);
+
+        $this->assertDatabaseMissing('personnel_registrations', [
+            'email' => 'ben.santos.duplicate@example.test',
+        ]);
+    }
+
     public function test_signed_verification_route_marks_registration_email_verified(): void
     {
         $registration = PersonnelRegistration::query()->create([

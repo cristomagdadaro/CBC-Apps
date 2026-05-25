@@ -1,40 +1,49 @@
 <script>
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import PersonnelRegistration from "@/Modules/domain/PersonnelRegistration";
-
-const statusOptions = [
-    { value: "pending", label: "Pending" },
-    { value: "approved", label: "Approved" },
-    { value: "rejected", label: "Rejected" },
-    { value: "all", label: "All" },
-];
+import CreatePersonnelLink from "@/Pages/Inventory/Transactions/components/presentation/CreatePersonnelLink.vue";
+import IncommingTransactionLink from "@/Pages/Inventory/Transactions/components/presentation/IncommingTransactionLink.vue";
+import OutgoingTransactionLink from "@/Pages/Inventory/Transactions/components/presentation/OutgoingTransactionLink.vue";
 
 export default {
     name: "PersonnelRegistrationsIndex",
+    components: {
+        CreatePersonnelLink,
+        IncommingTransactionLink,
+        OutgoingTransactionLink,
+    },
     mixins: [ApiMixin],
     data() {
         return {
-            registrations: [],
-            selectedStatus: "pending",
-            search: "",
+            registrationsFromApi: null,
             rejectingId: null,
             rejectionRemarks: "",
-            statusOptions,
+            statusFilterValue: "pending",
+            statusOptions: [
+                { name: "approved", label: "Approved" },
+                { name: "pending", label: "Pending" },
+                { name: "rejected", label: "Rejected" },
+            ],
         };
     },
     beforeMount() {
         this.model = new PersonnelRegistration();
         this.setFormAction("get");
+        this.form.per_page = 15;
+        this.applyStatusFilter(this.statusFilterValue);
     },
     mounted() {
-        this.fetchRegistrations();
+        this.searchRegistrations();
     },
     computed: {
-        filteredRegistrations() {
-            return this.registrations;
+        registrationRows() {
+            return this.registrationsFromApi?.data ?? [];
         },
         pendingCount() {
-            return this.registrations.filter((registration) => registration.status === "pending").length;
+            return this.registrationRows.filter((registration) => registration.status === "pending").length;
+        },
+        hasSearchTerm() {
+            return Boolean(this.form?.search);
         },
     },
     methods: {
@@ -50,56 +59,41 @@ export default {
                 ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                 : "border-slate-200 bg-slate-50 text-slate-600";
         },
-        requestPayload() {
-            const hasStatusFilter = this.selectedStatus !== "all";
-            const hasSearch = this.search.trim() !== "";
+        applyStatusFilter(status) {
+            if (status) {
+                this.form.search = status;
+                this.form.filter = "status";
+                this.form.is_exact = true;
+                return;
+            }
 
-            return {
-                ...this.form.data(),
-                search: hasSearch ? this.search.trim() : hasStatusFilter ? this.selectedStatus : null,
-                filter: hasSearch ? null : hasStatusFilter ? "status" : null,
-                is_exact: !hasSearch && hasStatusFilter,
-                per_page: 50,
-                sort: "created_at",
-                order: "desc",
-            };
+            if (this.form.filter === "status") {
+                this.form.search = null;
+                this.form.filter = null;
+                this.form.is_exact = false;
+            }
         },
-        extractRows(payload) {
-            const root = payload?.data ?? payload;
-            const rows = root?.data ?? root;
-
-            if (Array.isArray(rows)) {
-                return rows;
-            }
-
-            if (Array.isArray(rows?.data)) {
-                return rows.data;
-            }
-
-            return [];
+        async searchRegistrations() {
+            this.registrationsFromApi = await this.fetchData();
         },
-        async fetchRegistrations() {
-            this.processing = true;
-
-            try {
-                const payload = await this.model.api.getIndex(this.requestPayload(), PersonnelRegistration);
-                this.registrations = this.extractRows(payload);
-            } finally {
-                this.processing = false;
-            }
+        async fetchDataFilterStatus(filterVal) {
+            this.statusFilterValue = filterVal;
+            this.form.page = 1;
+            this.applyStatusFilter(filterVal);
+            await this.searchRegistrations();
         },
         async approveRegistration(registration) {
             if (!registration.is_email_verified || this.processing) {
                 return;
             }
 
-            const response = await this.fetchPutApi(
+            await this.fetchPutApi(
                 PersonnelRegistration.endpoints.status,
                 registration.id,
                 { status: "approved" },
             );
 
-            this.replaceRegistration(response?.data?.data);
+            await this.searchRegistrations();
         },
         beginReject(registration) {
             this.rejectingId = registration.id;
@@ -114,7 +108,7 @@ export default {
                 return;
             }
 
-            const response = await this.fetchPutApi(
+            await this.fetchPutApi(
                 PersonnelRegistration.endpoints.status,
                 registration.id,
                 {
@@ -123,18 +117,26 @@ export default {
                 },
             );
 
-            this.replaceRegistration(response?.data?.data);
             this.cancelReject();
+            await this.searchRegistrations();
         },
-        replaceRegistration(registration) {
-            if (!registration) {
-                this.fetchRegistrations();
-                return;
-            }
-
-            this.registrations = this.registrations.map((row) => (
-                row.id === registration.id ? new PersonnelRegistration(registration) : row
-            ));
+    },
+    watch: {
+        "form.search": {
+            handler(newVal) {
+                if (!newVal) {
+                    this.form.filter = null;
+                    this.form.is_exact = false;
+                    this.statusFilterValue = null;
+                }
+            },
+        },
+        "form.filter": {
+            handler(newVal) {
+                if (newVal !== "status") {
+                    this.statusFilterValue = null;
+                }
+            },
         },
     },
 };
@@ -150,128 +152,212 @@ export default {
                 subtitle="Review guest-submitted personnel records after email verification."
                 :route-link="route('personnels.index')"
             >
-                <Link :href="route('personnels.index')" class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm">
-                    Registered Personnel
-                </Link>
+                <CreatePersonnelLink />
+                <IncommingTransactionLink />
+                <OutgoingTransactionLink />
             </ActionHeaderLayout>
         </template>
 
-        <section class="mx-auto flex max-w-7xl flex-col gap-4 p-4">
+        <div class="default-container pt-5">
             <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-                <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <p class="text-xs font-bold uppercase tracking-widest text-AB">Approval queue</p>
-                        <h2 class="text-xl font-black text-gray-900">{{ pendingCount }} pending visible registration{{ pendingCount === 1 ? "" : "s" }}</h2>
-                    </div>
-
-                    <div class="flex flex-col gap-2 sm:flex-row">
-                        <select v-model="selectedStatus" @change="fetchRegistrations" class="rounded-lg border-gray-300 text-sm shadow-sm focus:border-AB focus:ring-AB">
-                            <option v-for="option in statusOptions" :key="option.value" :value="option.value">
-                                {{ option.label }}
-                            </option>
-                        </select>
-                        <input
-                            v-model="search"
-                            @keyup.enter="fetchRegistrations"
-                            type="search"
-                            class="rounded-lg border-gray-300 text-sm shadow-sm focus:border-AB focus:ring-AB"
-                            placeholder="Search name, email, ID"
-                            autocomplete="off"
-                        />
-                        <button type="button" class="rounded-lg bg-AB px-4 py-2 text-sm font-semibold text-white shadow" @click="fetchRegistrations">
-                            Search
-                        </button>
-                    </div>
+                <div class="flex flex-col gap-2">
+                    <p class="text-xs font-bold uppercase tracking-widest text-AB">Approval queue</p>
+                    <h2 class="text-xl font-black text-gray-900">{{ pendingCount }} pending visible registration{{ pendingCount === 1 ? "" : "s" }}</h2>
                 </div>
             </div>
 
-            <div v-if="processing" class="rounded-2xl border border-gray-200 bg-white p-8 text-center text-gray-500 shadow-sm">
-                Loading registrations...
-            </div>
-
-            <div v-else-if="filteredRegistrations.length === 0" class="rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center text-gray-500">
-                No personnel registrations found.
-            </div>
-
-            <div v-else class="grid gap-4 lg:grid-cols-2">
-                <article
-                    v-for="registration in filteredRegistrations"
-                    :key="registration.id"
-                    class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
-                >
-                    <div class="flex items-start justify-between gap-4">
-                        <div>
-                            <h3 class="text-lg font-black text-gray-900">{{ registration.full_name }}</h3>
-                            <p class="text-sm text-gray-600">{{ registration.position || "No position supplied" }}</p>
-                            <p class="mt-1 text-sm text-gray-500">{{ registration.email }}</p>
+            <form v-if="!!form" class="mt-4 flex gap-2 items-end" @submit.prevent="searchRegistrations">
+                <div class="grid grid-rows-2 w-full">
+                    <div class="w-full flex gap-2 items-end lg:px-0 px-2">
+                        <div class="flex flex-col gap-0.5">
+                            <div class="text-xs text-gray-500 flex items-center justify-between">
+                                <span class="flex gap-0.5 whitespace-nowrap">Filter by Status</span>
+                            </div>
+                            <custom-dropdown
+                                :with-all-option="false"
+                                :show-clear="true"
+                                :value="statusFilterValue"
+                                @selectedChange="fetchDataFilterStatus($event)"
+                                placeholder="Select a Status"
+                                :options="statusOptions"
+                            >
+                                <template #icon>
+                                    <filter-icon class="h-4 w-4" />
+                                </template>
+                            </custom-dropdown>
                         </div>
-                        <div class="flex flex-col items-end gap-1">
-                            <span class="rounded-full border px-3 py-1 text-xs font-bold uppercase" :class="statusClass(registration.status)">
-                                {{ registration.status }}
-                            </span>
-                            <span class="rounded-full border px-3 py-1 text-xs font-semibold" :class="verifiedClass(registration)">
-                                {{ registration.is_email_verified ? "Email verified" : "Awaiting email" }}
-                            </span>
+                        <search-by
+                            :value="form.filter"
+                            :is-exact="form.is_exact"
+                            :options="model.constructor.getFilterColumns()"
+                            @isExact="form.is_exact = $event"
+                            @searchBy="form.filter = $event"
+                        />
+                        <text-input placeholder="Search..." v-model="form.search" />
+                        <search-btn type="submit" :disabled="processing" class="w-[10rem] text-center">
+                            <span v-if="!processing">Search</span>
+                            <span v-else>Searching</span>
+                        </search-btn>
+                    </div>
+                    <div v-if="registrationsFromApi" class="flex w-full gap-2 items-center">
+                        <div class="flex gap-1 items-center w-full justify-center">
+                            <paginate-btn @click="form.page = 1; searchRegistrations();" :disabled="form.page === 1">First</paginate-btn>
+                            <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchRegistrations();" :disabled="form.page === 1">
+                                <template #icon>
+                                    <arrow-left class="h-auto w-6" />
+                                </template>
+                                Prev
+                            </paginate-btn>
+                            <div class="text-xs flex flex-col whitespace-nowrap text-center">
+                                <span class="font-medium mx-1" title="current page and total pages">
+                                    <span>{{ registrationsFromApi?.current_page }}</span> / <span>{{ registrationsFromApi?.last_page }}</span>
+                                </span>
+                            </div>
+                            <paginate-btn
+                                @click="form.page = Math.min(registrationsFromApi?.last_page, form.page + 1); searchRegistrations();"
+                                :disabled="form.page === registrationsFromApi?.last_page"
+                            >
+                                Next
+                                <template #icon>
+                                    <arrow-right class="h-auto w-6" />
+                                </template>
+                            </paginate-btn>
+                            <paginate-btn
+                                @click="form.page = registrationsFromApi?.last_page; searchRegistrations();"
+                                :disabled="form.page === registrationsFromApi?.last_page"
+                            >
+                                Last
+                            </paginate-btn>
                         </div>
                     </div>
+                </div>
+            </form>
 
-                    <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
-                        <div class="rounded-xl bg-gray-50 p-3">
-                            <dt class="text-xs uppercase tracking-wide text-gray-500">Personnel Type</dt>
-                            <dd class="font-semibold text-gray-900">{{ registration.is_philrice_employee ? "PhilRice Employee" : "OJT / Thesis / Outsider" }}</dd>
+            <div class="mt-3 bg-white overflow-hidden sm:rounded-lg">
+                <div v-if="registrationRows.length && !processing" class="grid gap-4 p-1 lg:grid-cols-2">
+                    <article
+                        v-for="registration in registrationRows"
+                        :key="registration.id"
+                        class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+                    >
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <h3 class="text-lg font-black text-gray-900">{{ registration.full_name }}</h3>
+                                <p class="text-sm text-gray-600">{{ registration.position || "No position supplied" }}</p>
+                                <p class="mt-1 text-sm text-gray-500">{{ registration.email }}</p>
+                            </div>
+                            <div class="flex flex-col items-end gap-1">
+                                <span class="rounded-full border px-3 py-1 text-xs font-bold uppercase" :class="statusClass(registration.status)">
+                                    {{ registration.status }}
+                                </span>
+                                <span class="rounded-full border px-3 py-1 text-xs font-semibold" :class="verifiedClass(registration)">
+                                    {{ registration.is_email_verified ? "Email verified" : "Awaiting email" }}
+                                </span>
+                            </div>
                         </div>
-                        <div class="rounded-xl bg-gray-50 p-3">
-                            <dt class="text-xs uppercase tracking-wide text-gray-500">Employee ID</dt>
-                            <dd class="font-semibold text-gray-900">{{ registration.employee_id || "Assigned on approval" }}</dd>
-                        </div>
-                        <div class="rounded-xl bg-gray-50 p-3">
-                            <dt class="text-xs uppercase tracking-wide text-gray-500">Phone</dt>
-                            <dd class="font-semibold text-gray-900">{{ registration.phone || "Not supplied" }}</dd>
-                        </div>
-                        <div class="rounded-xl bg-gray-50 p-3">
-                            <dt class="text-xs uppercase tracking-wide text-gray-500">Submitted</dt>
-                            <dd class="font-semibold text-gray-900">{{ registration.created_at ? new Date(registration.created_at).toLocaleDateString() : "N/A" }}</dd>
-                        </div>
-                    </dl>
 
-                    <p v-if="registration.rejection_remarks" class="mt-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-800">
-                        {{ registration.rejection_remarks }}
-                    </p>
+                        <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
+                            <div class="rounded-xl bg-gray-50 p-3">
+                                <dt class="text-xs uppercase tracking-wide text-gray-500">Personnel Type</dt>
+                                <dd class="font-semibold text-gray-900">{{ registration.is_philrice_employee ? "PhilRice Employee" : "OJT / Thesis / Outsider" }}</dd>
+                            </div>
+                            <div class="rounded-xl bg-gray-50 p-3">
+                                <dt class="text-xs uppercase tracking-wide text-gray-500">Employee ID</dt>
+                                <dd class="font-semibold text-gray-900">{{ registration.employee_id || "Assigned on approval" }}</dd>
+                            </div>
+                            <div class="rounded-xl bg-gray-50 p-3">
+                                <dt class="text-xs uppercase tracking-wide text-gray-500">Phone</dt>
+                                <dd class="font-semibold text-gray-900">{{ registration.phone || "Not supplied" }}</dd>
+                            </div>
+                            <div class="rounded-xl bg-gray-50 p-3">
+                                <dt class="text-xs uppercase tracking-wide text-gray-500">Submitted</dt>
+                                <dd class="font-semibold text-gray-900">{{ registration.created_at ? new Date(registration.created_at).toLocaleDateString() : "N/A" }}</dd>
+                            </div>
+                        </dl>
 
-                    <div v-if="registration.status === 'pending'" class="mt-5 flex flex-col gap-2">
-                        <div v-if="rejectingId === registration.id" class="space-y-2">
-                            <textarea
-                                v-model="rejectionRemarks"
-                                class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-AB focus:ring-AB"
-                                rows="3"
-                                placeholder="Reason for rejection"
-                            ></textarea>
-                            <div class="flex justify-end gap-2">
-                                <button type="button" class="rounded-lg border px-3 py-2 text-sm font-semibold text-gray-700" @click="cancelReject">
-                                    Cancel
+                        <p v-if="registration.rejection_remarks" class="mt-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-800">
+                            {{ registration.rejection_remarks }}
+                        </p>
+
+                        <div v-if="registration.status === 'pending'" class="mt-5 flex flex-col gap-2">
+                            <div v-if="rejectingId === registration.id" class="space-y-2">
+                                <textarea
+                                    v-model="rejectionRemarks"
+                                    class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-AB focus:ring-AB"
+                                    rows="3"
+                                    placeholder="Reason for rejection"
+                                ></textarea>
+                                <div class="flex justify-end gap-2">
+                                    <button type="button" class="rounded-lg border px-3 py-2 text-sm font-semibold text-gray-700" @click="cancelReject">
+                                        Cancel
+                                    </button>
+                                    <button type="button" class="rounded-lg bg-rose-600 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50" :disabled="!rejectionRemarks.trim() || processing" @click="rejectRegistration(registration)">
+                                        Confirm Reject
+                                    </button>
+                                </div>
+                            </div>
+                            <div v-else class="flex justify-end gap-2">
+                                <button type="button" class="rounded-lg border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700" @click="beginReject(registration)">
+                                    Reject
                                 </button>
-                                <button type="button" class="rounded-lg bg-rose-600 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50" :disabled="!rejectionRemarks.trim() || processing" @click="rejectRegistration(registration)">
-                                    Confirm Reject
+                                <button
+                                    type="button"
+                                    class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+                                    :disabled="!registration.is_email_verified || processing"
+                                    :title="registration.is_email_verified ? 'Approve registration' : 'Email must be verified first'"
+                                    @click="approveRegistration(registration)"
+                                >
+                                    Approve
                                 </button>
                             </div>
                         </div>
-                        <div v-else class="flex justify-end gap-2">
-                            <button type="button" class="rounded-lg border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700" @click="beginReject(registration)">
-                                Reject
-                            </button>
-                            <button
-                                type="button"
-                                class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
-                                :disabled="!registration.is_email_verified || processing"
-                                :title="registration.is_email_verified ? 'Approve registration' : 'Email must be verified first'"
-                                @click="approveRegistration(registration)"
-                            >
-                                Approve
-                            </button>
-                        </div>
-                    </div>
-                </article>
+                    </article>
+                </div>
+
+                <div v-else-if="processing" class="text-center py-3 border border-AB rounded-lg">
+                    Searching...
+                </div>
+
+                <div v-else-if="registrationsFromApi && registrationsFromApi.total === 0 && hasSearchTerm" class="text-center py-3 border border-AB rounded-lg">
+                    Registration does not exist. Try using other filters.
+                </div>
+
+                <div v-else class="text-center py-3 border border-AB rounded-lg">
+                    No personnel registrations available.
+                </div>
             </div>
-        </section>
+
+            <div v-if="registrationsFromApi && registrationsFromApi.data?.length" class="flex w-full gap-2 py-5 items-center">
+                <div class="flex gap-1 items-center w-full justify-center">
+                    <paginate-btn @click="form.page = 1; searchRegistrations();" :disabled="form.page === 1">First</paginate-btn>
+                    <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchRegistrations();" :disabled="form.page === 1">
+                        <template #icon>
+                            <arrow-left class="h-auto w-6" />
+                        </template>
+                        Prev
+                    </paginate-btn>
+                    <div class="text-xs flex flex-col whitespace-nowrap text-center">
+                        <span class="font-medium mx-1" title="current page and total pages">
+                            <span>{{ registrationsFromApi?.current_page }}</span> / <span>{{ registrationsFromApi?.last_page }}</span>
+                        </span>
+                    </div>
+                    <paginate-btn
+                        @click="form.page = Math.min(registrationsFromApi?.last_page, form.page + 1); searchRegistrations();"
+                        :disabled="form.page === registrationsFromApi?.last_page"
+                    >
+                        Next
+                        <template #icon>
+                            <arrow-right class="h-auto w-6" />
+                        </template>
+                    </paginate-btn>
+                    <paginate-btn
+                        @click="form.page = registrationsFromApi?.last_page; searchRegistrations();"
+                        :disabled="form.page === registrationsFromApi?.last_page"
+                    >
+                        Last
+                    </paginate-btn>
+                </div>
+            </div>
+        </div>
     </AppLayout>
 </template>
