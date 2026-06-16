@@ -362,6 +362,16 @@ class OptionRepo extends AbstractRepoService
             : Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY;
     }
 
+    public function getItemConditions(): array
+    {
+        $option = $this->model
+            ->newQuery()
+            ->where('key', 'item_conditions')
+            ->first();
+
+        return $this->normalizeSelectOptions($option?->options);
+    }
+
     /**
      * Get all options grouped by fes
      */

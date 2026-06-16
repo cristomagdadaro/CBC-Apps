@@ -43,10 +43,14 @@ export default {
             type: Array,
             default: () => [],
         },
+        listConditions: {
+            type: Array,
+            default: () => [],
+        },
         parentTransaction: {
             type: Object,
             default: null,
-        },
+        },  
     },
     components: {
         TransactionHeaderAction,
@@ -284,6 +288,9 @@ export default {
 
             return null;
         },
+        selectCondition() {
+            return this.form?.condition ?? null;
+        },
         attachedReportsList() {
             return Array.isArray(this.attachedReports) ? this.attachedReports : [];
         },
@@ -348,7 +355,7 @@ export default {
 <template>
     <form v-if="!!form" @submit.prevent="submitForm" class="grid gap-4 w-full" :class="currentFormAction === 'create' ? 'grid-cols-1' : 'grid-cols-2'">
         <!-- Main Form Column -->
-        <div class="flex flex-col gap-4 w-full mx-auto p-4 lg:p-6 bg-white dark:bg-gray-800 overflow-hidden shadow-lg rounded-xl h-fit border border-gray-100 dark:border-gray-700">
+        <div class="flex flex-col gap-4 w-full mx-auto p-4 lg:p-6 bg-white dark:bg-gray-800 overflow-hidden rounded-xl h-fit border border-gray-300">
             <div class="flex flex-col gap-4 mx-auto w-full h-fit">
                 <!-- Header -->
                 <div class="flex border-b border-gray-200 dark:border-gray-700  justify-between items-center pb-4">
@@ -423,39 +430,41 @@ export default {
                     </template>
                 </text-input>
 
-                <!-- Personnel -->
-                <custom-dropdown
-                    searchable
-                    :with-all-option="false"
-                    :value="form.personnel_id"
-                    :options="personnels"
-                    placeholder="Select Personnel"
-                    label="Accountable Personnel"
-                    required
-                    :error="form.errors.personnel_id"
-                    @selectedChange="form.personnel_id = $event"
-                >
-                    <template #icon>
-                        <User class="w-4 h-4 text-gray-400" />
-                    </template>
-                </custom-dropdown>
+                <div class="grid grid-cols-2 gap-3">
+                    <!-- Personnel -->
+                    <custom-dropdown
+                        searchable
+                        :with-all-option="false"
+                        :value="form.personnel_id"
+                        :options="personnels"
+                        placeholder="Select Personnel"
+                        label="Accountable Personnel"
+                        required
+                        :error="form.errors.personnel_id"
+                        @selectedChange="form.personnel_id = $event"
+                    >
+                        <template #icon>
+                            <User class="w-4 h-4 text-gray-400" />
+                        </template>
+                    </custom-dropdown>
 
-                <!-- Storage Location -->
-                <custom-dropdown
-                    required
-                    :disabled="isUpdate"
-                    :with-all-option="false"
-                    :value="selectedStorage"
-                    :options="storage_locations"
-                    placeholder="Select Storage"
-                    label="Storage Location"
-                    :error="form.errors.barcode"
-                    @selectedChange="generateBarcode($event)"
-                >
-                    <template #icon>
-                        <MapPin class="w-4 h-4 text-gray-400" />
-                    </template>
-                </custom-dropdown>
+                    <!-- Storage Location -->
+                    <custom-dropdown
+                        required
+                        :disabled="isUpdate"
+                        :with-all-option="false"
+                        :value="selectedStorage"
+                        :options="storage_locations"
+                        placeholder="Select Storage"
+                        label="Storage Location"
+                        :error="form.errors.barcode"
+                        @selectedChange="generateBarcode($event)"
+                    >
+                        <template #icon>
+                            <MapPin class="w-4 h-4 text-gray-400" />
+                        </template>
+                    </custom-dropdown>
+                </div>
 
                 <!-- Parent Barcode -->
                 <text-input
@@ -471,7 +480,7 @@ export default {
                 </text-input>
 
                 <!-- Barcodes & PAR -->
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-3 gap-3">
                     <text-input label="PRRI Barcode" v-model="form.barcode_prri" :error="form.errors.barcode_prri">
                         <template #icon>
                             <Hash class="w-4 h-4 text-gray-400" />
@@ -482,7 +491,21 @@ export default {
                             <Tag class="w-4 h-4 text-gray-400" />
                         </template>
                     </text-input>
-                    <text-input label="Condition" v-model="form.condition" :error="form.errors.condition" class="col-span-2" />
+                    <custom-dropdown
+                        required
+                        :disabled="isUpdate"
+                        :with-all-option="false"
+                        :value="selectCondition"
+                        :options="listConditions"
+                        placeholder="Current Condition"
+                        label="Condition"
+                        :error="form.errors.condition"
+                        @selectedChange="form.condition = $event"
+                    >
+                        <template #icon>
+                            <MapPin class="w-4 h-4 text-gray-400" />
+                        </template>
+                    </custom-dropdown>
                 </div>
 
                 <!-- Quantity & Pricing -->

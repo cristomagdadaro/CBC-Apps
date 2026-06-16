@@ -94,6 +94,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                         'equipment_logger_mode_default' => app(OptionRepo::class)->getDefaultEquipmentLoggerMode(),
                         'storage_locations' => app(OptionRepo::class)->getStorageLocations(),
                         'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
+                        'listConditions' => app(OptionRepo::class)->getItemConditions(),
                     ]);
                 })->name('transactions.incoming');
 

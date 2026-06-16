@@ -34,6 +34,10 @@ export default {
             type: Object,
             default: null,
         },
+        listConditions: {
+            type: Array,
+            default: () => [],
+        },
     },
     components: {
         IncomingForm,
@@ -116,6 +120,7 @@ export default {
                         :attached-reports="attachedReports"
                         :attached-components="attachedComponents"
                         :parent-transaction="parentTransaction"
+                        :list-conditions="listConditions"
                         @showNewItemForm="showNewItemForm = $event"
                     />
                 </div>
