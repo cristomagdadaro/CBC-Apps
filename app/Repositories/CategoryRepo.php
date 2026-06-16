@@ -25,6 +25,7 @@ class CategoryRepo extends AbstractRepoService
             ->newQuery()
             ->select('id as name', 'name as label')
             ->whereIn('id', (array) $categoryIds)
+            ->orderBy('name', 'ASC')
             ->has('items')
             ->get();
     }
