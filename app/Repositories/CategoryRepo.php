@@ -18,14 +18,14 @@ class CategoryRepo extends AbstractRepoService
     {
         //if empty, default to all
         if (empty($categoryIds)) {
-           return $this->model->newQuery()->select('id as name', 'name as label')->get();
+            return $this->model->newQuery()->select('id as name', 'name as label')->orderBy('label', 'ASC')->get();
         }
 
         return $this->model
             ->newQuery()
             ->select('id as name', 'name as label')
             ->whereIn('id', (array) $categoryIds)
-            ->orderBy('name', 'ASC')
+            ->orderBy('label', 'ASC')
             ->has('items')
             ->get();
     }
@@ -38,6 +38,7 @@ class CategoryRepo extends AbstractRepoService
         return $this->model
             ->newQuery()
             ->select('id as name', 'name as label')
+            ->orderBy('label', 'ASC')
             ->get();
     }
 }
