@@ -6,10 +6,8 @@
                 ? 'bg-AA/10 dark:bg-AA/20 text-AA font-medium'
                 : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 active:bg-gray-100 dark:active:bg-gray-700'
         ]"
-    >
+    >   <slot />
         <Check v-if="selected" class="w-4 h-4 flex-shrink-0" />
-        <div v-else class="w-4 h-4 flex-shrink-0" />
-        <slot />
     </div>
 </template>
 

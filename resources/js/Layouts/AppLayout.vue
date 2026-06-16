@@ -797,7 +797,7 @@ export default {
             </Transition>
 
             <!-- Main Content Area -->
-            <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+            <div class="flex-1 flex flex-col min-w-0">
                 <!-- Top Navigation (Top mode or mobile) -->
                 <nav
                     v-if="!isSidebarModeResponsive || !isSidebarMode"

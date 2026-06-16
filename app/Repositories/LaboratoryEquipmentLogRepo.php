@@ -23,6 +23,7 @@ class LaboratoryEquipmentLogRepo extends AbstractRepoService
             ->join('items', 'laboratory_equipment_logs.item_id', '=', 'items.id')
             ->select('laboratory_equipment_logs.id as name', 'items.name as label')
             ->distinct()
+            ->orderBy('label', 'ASC')
             ->get();
     }
 }

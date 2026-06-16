@@ -26,6 +26,7 @@ class FormRepo extends AbstractRepoService
         return $this->model
             ->newQuery()
             ->select('id as name', 'title as label')
+            ->orderBy('label', 'ASC')
             ->get();
     }
 
