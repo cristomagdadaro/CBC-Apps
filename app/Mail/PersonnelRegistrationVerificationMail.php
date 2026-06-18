@@ -21,7 +21,6 @@ class PersonnelRegistrationVerificationMail extends Mailable
             'personnel.registration.verify',
             now()->addDays(7),
             ['registration' => $registration->id],
-            false,
         );
     }
 
