@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Mail\PersonnelRegistrationVerificationMail;
+use App\Events\PersonnelRegistrationSubmitted;
 use App\Models\Personnel;
 use App\Models\PersonnelRegistration;
 use App\Services\Personnel\PersonnelIdService;
@@ -35,6 +36,8 @@ class PersonnelRegistrationRepo extends AbstractRepoService
 
             Mail::to($registration->email)
                 ->queue((new PersonnelRegistrationVerificationMail($registration))->afterCommit());
+
+            PersonnelRegistrationSubmitted::dispatch($registration);
 
             return $registration;
         });

@@ -51,4 +51,32 @@ class RecipientResolverTest extends TestCase
             'admin@example.com',
         ], $emails);
     }
+
+    public function test_it_resolves_personnel_registration_recipients_from_admin_and_laboratory_manager_roles(): void
+    {
+        $laboratoryManagerRole = Role::query()->firstOrCreate(
+            ['name' => 'laboratory_manager'],
+            [
+                'label' => 'Laboratory Manager',
+                'description' => 'Laboratory Manager',
+            ],
+        );
+
+        $admin = User::factory()->create([
+            'email' => 'admin@example.com',
+            'is_admin' => true,
+        ]);
+        $laboratoryManager = User::factory()->create(['email' => 'lab.manager@example.com']);
+        $standardUser = User::factory()->create(['email' => 'standard@example.com']);
+
+        $laboratoryManager->roles()->attach($laboratoryManagerRole);
+
+        $emails = app(RecipientResolver::class)->resolve('inventory.personnel_registrations');
+
+        $this->assertEqualsCanonicalizing([
+            $admin->email,
+            $laboratoryManager->email,
+        ], $emails);
+        $this->assertNotContains($standardUser->email, $emails);
+    }
 }

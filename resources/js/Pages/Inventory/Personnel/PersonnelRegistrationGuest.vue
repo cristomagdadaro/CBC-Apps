@@ -68,7 +68,7 @@ export default {
                     <p class="mt-2 text-sm">
                         We sent a verification link to {{ submittedEmail }}. Check your Gmail inbox and confirm your email address so your registration can proceed to administrator review.
                     </p>
-                    <Link :href="route('welcome')" class="inline-flex mt-4 rounded bg-AB px-4 py-2 text-sm font-semibold text-white">
+                    <Link href="/" class="inline-flex mt-4 rounded bg-AB px-4 py-2 text-sm font-semibold text-white">
                         Return to services
                     </Link>
                 </div>
@@ -146,7 +146,7 @@ export default {
                         Close
                     </button>
                     <Link
-                        :href="route('welcome')"
+                        href="/"
                         class="inline-flex justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700"
                     >
                         Return to services

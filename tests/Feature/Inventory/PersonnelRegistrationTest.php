@@ -3,11 +3,13 @@
 namespace Tests\Feature\Inventory;
 
 use App\Mail\PersonnelRegistrationVerificationMail;
+use App\Events\PersonnelRegistrationSubmitted;
 use App\Models\NewBarcode;
 use App\Models\Personnel;
 use App\Models\PersonnelRegistration;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -23,6 +25,7 @@ class PersonnelRegistrationTest extends TestCase
     public function test_guest_can_submit_personnel_registration_and_receives_verification_mail(): void
     {
         Mail::fake();
+        Event::fake([PersonnelRegistrationSubmitted::class]);
 
         $response = $this->postJson(route('api.inventory.personnel-registrations.store.guest'), [
             'is_philrice_employee' => true,
@@ -50,6 +53,11 @@ class PersonnelRegistrationTest extends TestCase
 
         Mail::assertQueued(PersonnelRegistrationVerificationMail::class, function (PersonnelRegistrationVerificationMail $mail) {
             return $mail->hasTo('ana.rivera@example.test');
+        });
+
+        Event::assertDispatched(PersonnelRegistrationSubmitted::class, function (PersonnelRegistrationSubmitted $event) {
+            return $event->registration['email'] === 'ana.rivera@example.test'
+                && $event->registration['full_name'] === 'Ana L Rivera';
         });
     }
 

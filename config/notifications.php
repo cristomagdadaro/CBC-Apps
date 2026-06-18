@@ -42,6 +42,16 @@ return [
                     Role::ICT_MANAGER->value,
                 ],
             ],
+            'personnel_registrations' => [
+                'enabled' => env('NOTIFICATIONS_INVENTORY_PERSONNEL_REGISTRATIONS_ENABLED', true),
+                'queue' => env('NOTIFICATIONS_INVENTORY_PERSONNEL_REGISTRATIONS_QUEUE', env('NOTIFICATIONS_QUEUE', 'notifications')),
+                'delivery_mode' => env('NOTIFICATIONS_INVENTORY_PERSONNEL_REGISTRATIONS_DELIVERY_MODE', 'grouped'),
+                'option_keys' => [],
+                'roles' => [
+                    Role::ADMIN->value,
+                    Role::LABORATORY_MANAGER->value,
+                ],
+            ],
         ],
         'laboratory' => [
             'logs' => [

@@ -159,13 +159,6 @@ export default {
         </template>
 
         <div class="default-container pt-5">
-            <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-                <div class="flex flex-col gap-2">
-                    <p class="text-xs font-bold uppercase tracking-widest text-AB">Approval queue</p>
-                    <h2 class="text-xl font-black text-gray-900">{{ pendingCount }} pending visible registration{{ pendingCount === 1 ? "" : "s" }}</h2>
-                </div>
-            </div>
-
             <form v-if="!!form" class="mt-4 flex gap-2 items-end" @submit.prevent="searchRegistrations">
                 <div class="grid grid-rows-2 w-full">
                     <div class="w-full flex gap-2 items-end lg:px-0 px-2">
@@ -235,11 +228,7 @@ export default {
 
             <div class="mt-3 bg-white overflow-hidden sm:rounded-lg">
                 <div v-if="registrationRows.length && !processing" class="grid gap-4 p-1 lg:grid-cols-2">
-                    <article
-                        v-for="registration in registrationRows"
-                        :key="registration.id"
-                        class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
-                    >
+                    <article v-for="registration in registrationRows" :key="registration.id" class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
                         <div class="flex items-start justify-between gap-4">
                             <div>
                                 <h3 class="text-lg font-black text-gray-900">{{ registration.full_name }}</h3>
@@ -271,7 +260,7 @@ export default {
                             </div>
                             <div class="rounded-xl bg-gray-50 p-3">
                                 <dt class="text-xs uppercase tracking-wide text-gray-500">Submitted</dt>
-                                <dd class="font-semibold text-gray-900">{{ registration.created_at ? new Date(registration.created_at).toLocaleDateString() : "N/A" }}</dd>
+                                <dd class="font-semibold text-gray-900">{{ registration.created_at ? registration.created_at : "N/A" }}</dd>
                             </div>
                         </dl>
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\Auditable;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -41,6 +42,8 @@ class PersonnelRegistration extends BaseModel
         'email_verified_at' => 'datetime',
         'verification_sent_at' => 'datetime',
         'reviewed_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     protected array $searchable = [
@@ -57,6 +60,11 @@ class PersonnelRegistration extends BaseModel
         'full_name',
         'is_email_verified',
     ];
+
+    protected function serializeDate(DateTimeInterface $date): string
+    {
+        return $date->format('g:i A M j, Y');
+    }
 
     public function reviewer(): BelongsTo
     {
