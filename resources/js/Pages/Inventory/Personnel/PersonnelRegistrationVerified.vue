@@ -19,7 +19,7 @@ export default {
         guide-key="personnel-registration-guest"
         max-width="max-w-2xl"
     >
-        <div class="rounded-lg border border-slate-100 bg-white p-6 w-full">
+        <div class="md:rounded-lg border border-slate-100 bg-white p-6 w-full">
             <div class="flex flex-col items-center text-center w-full">
                 <span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/10">
                     Verification Complete
@@ -38,7 +38,7 @@ export default {
 
             <div class="mt-6 border-t border-slate-100 pt-4 flex justify-center">
                 <Link href="/" class="w-full sm:w-auto text-center rounded-xl bg-AB px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-AB/90 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-AB">
-                    Return to Services
+                    Return to Home
                 </Link>
             </div>
         </div>

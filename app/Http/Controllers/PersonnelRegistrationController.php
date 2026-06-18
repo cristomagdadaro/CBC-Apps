@@ -46,7 +46,10 @@ class PersonnelRegistrationController extends BaseController
 
     public function verify(Request $request, PersonnelRegistration $registration): Response
     {
-        abort_unless($request->hasValidSignature(), 403);
+        abort_unless(
+            $request->hasValidSignature() || $request->hasValidRelativeSignature(),
+            403,
+        );
 
         $registration = $this->repo()->verifyEmail($registration);
 

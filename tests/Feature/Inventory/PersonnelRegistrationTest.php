@@ -129,9 +129,36 @@ class PersonnelRegistrationTest extends TestCase
             'personnel.registration.verify',
             now()->addDay(),
             ['registration' => $registration->id],
+            false,
         );
 
         $this->get($url)->assertOk();
+
+        $this->assertNotNull($registration->fresh()->email_verified_at);
+    }
+
+    public function test_relative_signed_verification_route_survives_host_changes(): void
+    {
+        $registration = PersonnelRegistration::query()->create([
+            'is_philrice_employee' => true,
+            'fname' => 'Bea',
+            'lname' => 'Reyes',
+            'position' => 'Technician',
+            'email' => 'bea.reyes@example.test',
+            'employee_id' => '12-3006',
+            'status' => PersonnelRegistration::STATUS_PENDING,
+        ]);
+
+        config(['app.url' => 'http://127.0.0.1']);
+
+        $url = URL::temporarySignedRoute(
+            'personnel.registration.verify',
+            now()->addDay(),
+            ['registration' => $registration->id],
+            false,
+        );
+
+        $this->get('https://onecbc.philrice.gov.ph' . $url)->assertOk();
 
         $this->assertNotNull($registration->fresh()->email_verified_at);
     }
