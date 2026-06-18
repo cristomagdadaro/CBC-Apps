@@ -19,19 +19,26 @@ export default {
         guide-key="personnel-registration-guest"
         max-width="max-w-2xl"
     >
-        <div class="rounded-2xl border border-emerald-200 bg-white p-6 shadow-xl">
-            <div class="rounded-xl bg-emerald-50 p-5 text-emerald-900">
-                <p class="text-xs font-bold uppercase tracking-widest text-emerald-700">Verification complete</p>
-                <h1 class="mt-2 text-2xl font-black">{{ registration.full_name }}</h1>
-                <p class="mt-2 text-sm">
-                    We verified {{ registration.email }}. Your registration status is
-                    <span class="font-semibold">{{ registration.status }}</span>, and an administrator can now approve it.
+        <div class="rounded-lg border border-slate-100 bg-white p-6 w-full">
+            <div class="flex flex-col items-center text-center w-full">
+                <span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/10">
+                    Verification Complete
+                </span>
+                
+                <h1 class="mt-4 text-xl font-bold tracking-tight text-slate-900">
+                    Welcome, {{ registration.full_name }}
+                </h1>
+                
+                <p class="mt-2 text-sm leading-relaxed text-slate-600">
+                    Your email (<span class="font-medium text-slate-900">{{ registration.email }}</span>) has been successfully verified. Your status is currently 
+                    <span class="inline-flex items-center rounded bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-600/20">{{ registration.status }}</span>, 
+                    and is awaiting final administrator approval.
                 </p>
             </div>
 
-            <div class="mt-5 flex justify-end">
-                <Link :href="route('welcome')" class="rounded-lg bg-AB px-4 py-2 text-sm font-semibold text-white shadow">
-                    Return to services
+            <div class="mt-6 border-t border-slate-100 pt-4 flex justify-center">
+                <Link href="/" class="w-full sm:w-auto text-center rounded-xl bg-AB px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-AB/90 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-AB">
+                    Return to Services
                 </Link>
             </div>
         </div>

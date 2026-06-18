@@ -397,6 +397,16 @@ export const TOUR_REGISTRY = {
                 },
             },
             {
+                element: "[data-guide='equipment-status']",
+                popover: {
+                    title: "Usage Status",
+                    description:
+                        "Check if the equipment is currently in use, when it was last checked out, and if it's overdue for check out.",
+                    side: "top",
+                    align: "center",
+                },
+            },
+            {
                 element: "[data-guide='equipment-actions']",
                 popover: {
                     title: "What You Can Do",
