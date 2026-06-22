@@ -70,6 +70,18 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "audit": {
+            "ignore": {
+                "PKSA-m5cs-t1y6-qpcs": "Laravel 11 EOL — tracked for Laravel 12 upgrade",
+                "PKSA-3r5d-mb8f-1qw9": "Laravel 11 EOL — tracked for Laravel 12 upgrade",
+                "PKSA-mdq4-51ck-6kdq": "Laravel 11 EOL — tracked for Laravel 12 upgrade",
+                "PKSA-8qx3-n5y5-vvnd": "Laravel 11 EOL — tracked for Laravel 12 upgrade",
+                "PKSA-q46n-4fdk-zjr4": "Laravel 11 EOL — tracked for Laravel 12 upgrade",
+                "PKSA-qzrn-rnz3-85w1": "Laravel 11 EOL — tracked for Laravel 12 upgrade",
+                "PKSA-w7xr-vk7n-rstm": "Laravel 11 EOL — tracked for Laravel 12 upgrade",
+                "PKSA-njrm-6dtg-m2pc": "Laravel 11 EOL — tracked for Laravel 12 upgrade"
+            }
         }
     },
     "minimum-stability": "stable",
