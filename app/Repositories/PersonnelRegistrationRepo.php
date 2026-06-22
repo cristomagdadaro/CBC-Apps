@@ -2,15 +2,16 @@
 
 namespace App\Repositories;
 
-use App\Mail\PersonnelRegistrationVerificationMail;
 use App\Events\PersonnelRegistrationSubmitted;
+use App\Mail\PersonnelRegistrationApprovedMail;
+use App\Mail\PersonnelRegistrationVerificationMail;
 use App\Models\Personnel;
 use App\Models\PersonnelRegistration;
 use App\Services\Personnel\PersonnelIdService;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\ValidationException;
 
 class PersonnelRegistrationRepo extends AbstractRepoService
@@ -25,6 +26,7 @@ class PersonnelRegistrationRepo extends AbstractRepoService
     public function createGuestRegistration(array $data): PersonnelRegistration
     {
         $this->ensureNoDuplicateActiveRegistration($data);
+        $data = $this->prepareRegistrationPayload($data);
 
         return DB::transaction(function () use ($data) {
             /** @var PersonnelRegistration $registration */
@@ -73,6 +75,14 @@ class PersonnelRegistrationRepo extends AbstractRepoService
                 ]);
             }
 
+            if ($status === PersonnelRegistration::STATUS_APPROVED && $registration->requires_cbc_id_card) {
+                $this->ensureRegistrationCanReceiveIdCard($registration);
+            }
+
+            $idIssuedAt = ($status === PersonnelRegistration::STATUS_APPROVED && $registration->requires_cbc_id_card)
+                ? now()
+                : null;
+
             $payload = [
                 'status' => $status,
                 'reviewed_by' => $reviewerId,
@@ -84,17 +94,25 @@ class PersonnelRegistrationRepo extends AbstractRepoService
             }
 
             if ($status === PersonnelRegistration::STATUS_APPROVED) {
-                $personnel = $this->createPersonnelFromRegistration($registration);
+                $personnel = $this->createPersonnelFromRegistration($registration, $idIssuedAt);
                 $payload['personnel_id'] = $personnel->id;
+                $payload['id_issued_at'] = $idIssuedAt;
             }
 
             $registration->forceFill($payload)->save();
 
-            return $registration->fresh(['personnel']);
+            $registration = $registration->fresh(['personnel']);
+
+            if ($status === PersonnelRegistration::STATUS_APPROVED && $registration->requires_cbc_id_card) {
+                Mail::to($registration->email)
+                    ->queue((new PersonnelRegistrationApprovedMail($registration))->afterCommit());
+            }
+
+            return $registration;
         });
     }
 
-    private function createPersonnelFromRegistration(PersonnelRegistration $registration): Personnel
+    private function createPersonnelFromRegistration(PersonnelRegistration $registration, mixed $idIssuedAt = null): Personnel
     {
         $employeeId = $registration->is_philrice_employee
             ? $registration->employee_id
@@ -129,7 +147,56 @@ class PersonnelRegistrationRepo extends AbstractRepoService
             'email' => $registration->email,
             'email_verified_at' => $registration->email_verified_at,
             'employee_id' => $employeeId,
+            'registration_type' => $registration->registration_type,
+            'course_program' => $registration->course_program,
+            'id_photo_path' => $registration->id_photo_path,
+            'id_issued_at' => $idIssuedAt,
         ]);
+    }
+
+    private function ensureRegistrationCanReceiveIdCard(PersonnelRegistration $registration): void
+    {
+        if (!$registration->course_program || !$registration->id_photo_path) {
+            throw ValidationException::withMessages([
+                'status' => ['Course/program and 2x2 ID photo are required before issuing a CBC ID card.'],
+            ]);
+        }
+    }
+
+    public function getApprovedIdCardRegistrations(): \Illuminate\Support\Collection
+    {
+        return $this->model->newQuery()
+            ->with('personnel')
+            ->where('status', PersonnelRegistration::STATUS_APPROVED)
+            ->whereIn('registration_type', PersonnelRegistration::idCardTypes())
+            ->whereNotNull('personnel_id')
+            ->whereNotNull('id_photo_path')
+            ->orderByDesc('id_issued_at')
+            ->orderByDesc('reviewed_at')
+            ->get();
+    }
+
+    private function prepareRegistrationPayload(array $data): array
+    {
+        $isPhilRiceEmployee = (bool) ($data['is_philrice_employee'] ?? false);
+        $data['registration_type'] = $isPhilRiceEmployee
+            ? PersonnelRegistration::TYPE_PHILRICE_EMPLOYEE
+            : (string) ($data['registration_type'] ?? PersonnelRegistration::TYPE_STUDENT);
+
+        if ($isPhilRiceEmployee) {
+            $data['course_program'] = null;
+            unset($data['id_photo']);
+
+            return $data;
+        }
+
+        if (($data['id_photo'] ?? null) instanceof UploadedFile) {
+            $data['id_photo_path'] = $data['id_photo']->store('personnel/id-photos');
+        }
+
+        unset($data['id_photo']);
+
+        return $data;
     }
 
     private function ensureNoDuplicateActiveRegistration(array $data): void

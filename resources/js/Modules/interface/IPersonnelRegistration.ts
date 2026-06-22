@@ -9,6 +9,11 @@ interface IPersonnelRegistration extends IBaseClass {
     email: string;
     employee_id: string;
     is_philrice_employee: boolean;
+    registration_type: string;
+    course_program: string;
+    id_photo_path: string;
+    id_issued_at: string | null;
+    requires_cbc_id_card: boolean;
     status: string;
     email_verified_at: string | null;
     verification_sent_at: string | null;

@@ -16,6 +16,10 @@ class PersonnelRegistration extends BaseModel
     public const STATUS_PENDING = 'pending';
     public const STATUS_APPROVED = 'approved';
     public const STATUS_REJECTED = 'rejected';
+    public const TYPE_PHILRICE_EMPLOYEE = 'philrice_employee';
+    public const TYPE_STUDENT = 'student';
+    public const TYPE_OJT = 'ojt';
+    public const TYPE_THESIS = 'thesis';
 
     protected $fillable = [
         'fname',
@@ -28,6 +32,9 @@ class PersonnelRegistration extends BaseModel
         'email',
         'employee_id',
         'is_philrice_employee',
+        'registration_type',
+        'course_program',
+        'id_photo_path',
         'status',
         'email_verified_at',
         'verification_sent_at',
@@ -35,6 +42,7 @@ class PersonnelRegistration extends BaseModel
         'reviewed_by',
         'reviewed_at',
         'personnel_id',
+        'id_issued_at',
     ];
 
     protected $casts = [
@@ -42,6 +50,7 @@ class PersonnelRegistration extends BaseModel
         'email_verified_at' => 'datetime',
         'verification_sent_at' => 'datetime',
         'reviewed_at' => 'datetime',
+        'id_issued_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -53,12 +62,15 @@ class PersonnelRegistration extends BaseModel
         'suffix',
         'email',
         'employee_id',
+        'registration_type',
+        'course_program',
         'status',
     ];
 
     protected $appends = [
         'full_name',
         'is_email_verified',
+        'requires_cbc_id_card',
     ];
 
     protected function serializeDate(DateTimeInterface $date): string
@@ -86,5 +98,19 @@ class PersonnelRegistration extends BaseModel
     public function getIsEmailVerifiedAttribute(): bool
     {
         return $this->email_verified_at !== null;
+    }
+
+    public function getRequiresCbcIdCardAttribute(): bool
+    {
+        return in_array($this->registration_type, self::idCardTypes(), true);
+    }
+
+    public static function idCardTypes(): array
+    {
+        return [
+            self::TYPE_STUDENT,
+            self::TYPE_OJT,
+            self::TYPE_THESIS,
+        ];
     }
 }

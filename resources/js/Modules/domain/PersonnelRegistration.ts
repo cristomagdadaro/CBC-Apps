@@ -17,11 +17,14 @@ export default class PersonnelRegistration extends DtoPersonnelRegistration {
     createFields(): object {
         return {
             is_philrice_employee: true,
+            registration_type: 'philrice_employee',
             fname: null,
             mname: null,
             lname: null,
             suffix: null,
             position: null,
+            course_program: null,
+            id_photo: null,
             phone: null,
             address: null,
             email: null,
@@ -34,6 +37,7 @@ export default class PersonnelRegistration extends DtoPersonnelRegistration {
             { title: 'Name', key: 'full_name', db_key: 'fname', align: 'text-left', sortable: true, visible: true },
             { title: 'Email', key: 'email', db_key: 'email', align: 'text-left', sortable: true, visible: true },
             { title: 'Employee ID', key: 'employee_id', db_key: 'employee_id', align: 'text-center', sortable: true, visible: true },
+            { title: 'Registration Type', key: 'registration_type', db_key: 'registration_type', align: 'text-center', sortable: true, visible: true },
             { title: 'Status', key: 'status', db_key: 'status', align: 'text-center', sortable: true, visible: true },
             { title: 'Verified', key: 'is_email_verified', db_key: 'email_verified_at', align: 'text-center', sortable: true, visible: true },
         ];

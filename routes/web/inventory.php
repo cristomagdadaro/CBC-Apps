@@ -217,6 +217,13 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                     ]);
                 })->name('personnels.registrations.index');
 
+                Route::middleware(['can:inventory.manage'])->group(function () {
+                    Route::get('/id-cards', [PersonnelRegistrationController::class, 'idCardsPrint'])
+                        ->name('personnels.id-cards.print');
+                    Route::get('/id-cards/photo/{registration}', [PersonnelRegistrationController::class, 'idCardPhoto'])
+                        ->name('personnels.id-cards.photo');
+                });
+
                 Route::get('/create', function () {
                     return Inertia::render('Inventory/Personnel/components/CreatePersonnelForm', [
                         'fromUrl' => route('personnels.index'),

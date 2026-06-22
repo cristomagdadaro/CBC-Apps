@@ -47,6 +47,14 @@ export default {
         },
     },
     methods: {
+        registrationTypeLabel(registration) {
+            return {
+                philrice_employee: "PhilRice Employee",
+                student: "Student",
+                ojt: "OJT",
+                thesis: "Thesis",
+            }[registration.registration_type] ?? (registration.is_philrice_employee ? "PhilRice Employee" : "External Personnel");
+        },
         statusClass(status) {
             return {
                 approved: "border-emerald-200 bg-emerald-50 text-emerald-700",
@@ -153,6 +161,12 @@ export default {
                 :route-link="route('personnels.index')"
             >
                 <CreatePersonnelLink />
+                <Link
+                    :href="route('personnels.id-cards.print')"
+                    class="flex items-center bg-emerald-700 text-white px-2 py-1 rounded active:shadow-inner gap-1 text-sm active:scale-95 active:text-emerald-700 hover:bg-emerald-100 hover:text-emerald-700"
+                >
+                    Print Approved IDs
+                </Link>
                 <IncommingTransactionLink />
                 <OutgoingTransactionLink />
             </ActionHeaderLayout>
@@ -227,6 +241,10 @@ export default {
             </form>
 
             <div class="mt-3 bg-white overflow-hidden sm:rounded-lg">
+                <div class="mx-1 mt-3 rounded-lg border border-emerald-100 bg-emerald-50 p-3 text-sm text-emerald-900">
+                    Student, OJT, and Thesis registrations receive a generated CBC ID number after approval. The approval email includes their printable A7 ID, and the <strong>Print Approved IDs</strong> page lets admins print all approved ID cards again.
+                </div>
+
                 <div v-if="registrationRows.length && !processing" class="grid gap-4 p-1 lg:grid-cols-2">
                     <article v-for="registration in registrationRows" :key="registration.id" class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
                         <div class="flex items-start justify-between gap-4">
@@ -248,11 +266,15 @@ export default {
                         <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
                             <div class="rounded-xl bg-gray-50 p-3">
                                 <dt class="text-xs uppercase tracking-wide text-gray-500">Personnel Type</dt>
-                                <dd class="font-semibold text-gray-900">{{ registration.is_philrice_employee ? "PhilRice Employee" : "OJT / Thesis / Outsider" }}</dd>
+                                <dd class="font-semibold text-gray-900">{{ registrationTypeLabel(registration) }}</dd>
                             </div>
                             <div class="rounded-xl bg-gray-50 p-3">
                                 <dt class="text-xs uppercase tracking-wide text-gray-500">Employee ID</dt>
                                 <dd class="font-semibold text-gray-900">{{ registration.employee_id || "Assigned on approval" }}</dd>
+                            </div>
+                            <div v-if="registration.requires_cbc_id_card" class="rounded-xl bg-gray-50 p-3">
+                                <dt class="text-xs uppercase tracking-wide text-gray-500">Course / Program</dt>
+                                <dd class="font-semibold text-gray-900">{{ registration.course_program || "Not supplied" }}</dd>
                             </div>
                             <div class="rounded-xl bg-gray-50 p-3">
                                 <dt class="text-xs uppercase tracking-wide text-gray-500">Phone</dt>

@@ -22,6 +22,8 @@ class PersonnelRegistrationSubmitted implements ShouldDispatchAfterCommit
             'email' => $registration->email,
             'employee_id' => $registration->employee_id,
             'position' => $registration->position,
+            'registration_type' => $registration->registration_type,
+            'course_program' => $registration->course_program,
             'is_philrice_employee' => (bool) $registration->is_philrice_employee,
             'status' => $registration->status,
             'submitted_at' => optional($registration->created_at)->toIso8601String(),

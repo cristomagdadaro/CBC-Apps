@@ -27,7 +27,8 @@ class SendPersonnelRegistrationSubmittedNotification
                 'email' => $registration['email'] ?? null,
                 'employee_id' => $registration['employee_id'] ?? null,
                 'position' => $registration['position'] ?? null,
-                'personnel_type' => $registration['is_philrice_employee'] ? 'PhilRice personnel' : 'External personnel',
+                'personnel_type' => $this->typeLabel($registration['registration_type'] ?? null),
+                'course_program' => $registration['course_program'] ?? null,
             ],
             meta: [
                 'registration_id' => $registration['id'],
@@ -37,5 +38,16 @@ class SendPersonnelRegistrationSubmittedNotification
             notifiableType: PersonnelRegistration::class,
             notifiableId: (string) $registration['id'],
         );
+    }
+
+    private function typeLabel(?string $type): string
+    {
+        return match ($type) {
+            PersonnelRegistration::TYPE_STUDENT => 'Student',
+            PersonnelRegistration::TYPE_OJT => 'OJT',
+            PersonnelRegistration::TYPE_THESIS => 'Thesis',
+            PersonnelRegistration::TYPE_PHILRICE_EMPLOYEE => 'PhilRice personnel',
+            default => 'External personnel',
+        };
     }
 }

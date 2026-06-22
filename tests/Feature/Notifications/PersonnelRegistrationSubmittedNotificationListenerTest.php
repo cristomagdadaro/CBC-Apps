@@ -26,6 +26,7 @@ class PersonnelRegistrationSubmittedNotificationListenerTest extends TestCase
             'email' => 'lara.santos@example.test',
             'employee_id' => '12-4567',
             'status' => PersonnelRegistration::STATUS_PENDING,
+            'registration_type' => PersonnelRegistration::TYPE_PHILRICE_EMPLOYEE,
         ]);
 
         $dispatch = Mockery::mock(NotificationDispatchService::class);

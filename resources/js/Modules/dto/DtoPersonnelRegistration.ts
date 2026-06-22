@@ -11,6 +11,11 @@ export default class DtoPersonnelRegistration extends DtoBaseClass implements IP
     email: string;
     employee_id: string;
     is_philrice_employee: boolean;
+    registration_type: string;
+    course_program: string;
+    id_photo_path: string;
+    id_issued_at: string | null;
+    requires_cbc_id_card: boolean;
     status: string;
     email_verified_at: string | null;
     verification_sent_at: string | null;
@@ -34,6 +39,11 @@ export default class DtoPersonnelRegistration extends DtoBaseClass implements IP
         this.email = data?.email;
         this.employee_id = data?.employee_id;
         this.is_philrice_employee = Boolean(data?.is_philrice_employee);
+        this.registration_type = data?.registration_type ?? 'philrice_employee';
+        this.course_program = data?.course_program;
+        this.id_photo_path = data?.id_photo_path;
+        this.id_issued_at = data?.id_issued_at ?? null;
+        this.requires_cbc_id_card = Boolean(data?.requires_cbc_id_card);
         this.status = data?.status ?? 'pending';
         this.email_verified_at = data?.email_verified_at ?? null;
         this.verification_sent_at = data?.verification_sent_at ?? null;

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Inventory;
 
 use App\Mail\PersonnelRegistrationVerificationMail;
+use App\Mail\PersonnelRegistrationApprovedMail;
 use App\Events\PersonnelRegistrationSubmitted;
 use App\Models\NewBarcode;
 use App\Models\Personnel;
@@ -10,7 +11,9 @@ use App\Models\PersonnelRegistration;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Http\UploadedFile;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 use Tests\WithTestRoles;
@@ -119,6 +122,60 @@ class PersonnelRegistrationTest extends TestCase
         $this->assertDatabaseMissing('personnel_registrations', [
             'email' => 'ben.santos.duplicate@example.test',
         ]);
+    }
+
+    public function test_student_registration_requires_course_program_and_id_photo(): void
+    {
+        $this->postJson(route('api.inventory.personnel-registrations.store.guest'), [
+            'is_philrice_employee' => false,
+            'registration_type' => PersonnelRegistration::TYPE_STUDENT,
+            'fname' => 'Mika',
+            'mname' => null,
+            'lname' => 'Lopez',
+            'suffix' => null,
+            'position' => 'Intern',
+            'phone' => '09170000002',
+            'address' => 'Science City of Munoz',
+            'email' => 'mika.lopez@example.test',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors(['course_program', 'id_photo']);
+    }
+
+    public function test_student_registration_stores_course_program_and_private_id_photo(): void
+    {
+        Storage::fake('local');
+        Mail::fake();
+        Event::fake([PersonnelRegistrationSubmitted::class]);
+
+        $response = $this->post(route('api.inventory.personnel-registrations.store.guest'), [
+            'is_philrice_employee' => false,
+            'registration_type' => PersonnelRegistration::TYPE_STUDENT,
+            'fname' => 'Mika',
+            'mname' => null,
+            'lname' => 'Lopez',
+            'suffix' => null,
+            'position' => 'Intern',
+            'phone' => '09170000002',
+            'address' => 'Science City of Munoz',
+            'email' => 'mika.lopez@example.test',
+            'course_program' => 'BS Biology',
+            'id_photo' => UploadedFile::fake()->image('mika.jpg', 400, 400),
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.email', 'mika.lopez@example.test');
+
+        $registration = PersonnelRegistration::query()->where('email', 'mika.lopez@example.test')->firstOrFail();
+
+        $this->assertSame(PersonnelRegistration::TYPE_STUDENT, $registration->registration_type);
+        $this->assertSame('BS Biology', $registration->course_program);
+        $this->assertNotNull($registration->id_photo_path);
+        Storage::disk('local')->assertExists($registration->id_photo_path);
+
+        Event::assertDispatched(PersonnelRegistrationSubmitted::class, function (PersonnelRegistrationSubmitted $event) {
+            return $event->registration['registration_type'] === PersonnelRegistration::TYPE_STUDENT
+                && $event->registration['course_program'] === 'BS Biology';
+        });
     }
 
     public function test_signed_verification_route_marks_registration_email_verified(): void
@@ -258,6 +315,49 @@ class PersonnelRegistrationTest extends TestCase
             'email' => 'erwin@example.test',
             'employee_id' => "CBC-{$year}-019",
         ]);
+    }
+
+    public function test_student_approval_sends_cbc_id_card_email_and_copies_id_fields_to_personnel(): void
+    {
+        Mail::fake();
+        Sanctum::actingAs($this->createAdminUser());
+
+        $year = now()->format('y');
+        NewBarcode::query()->create([
+            'room' => 'personnel_external_id',
+            'barcode' => "CBC-{$year}-020",
+            'name' => 'For OJT/Thesis/Outsider ID',
+        ]);
+
+        $registration = PersonnelRegistration::query()->create([
+            'is_philrice_employee' => false,
+            'registration_type' => PersonnelRegistration::TYPE_OJT,
+            'fname' => 'Nina',
+            'lname' => 'Cruz',
+            'position' => 'OJT',
+            'email' => 'nina.cruz@example.test',
+            'status' => PersonnelRegistration::STATUS_PENDING,
+            'email_verified_at' => now(),
+            'course_program' => 'BS Computer Science',
+            'id_photo_path' => 'personnel/id-photos/nina.jpg',
+        ]);
+
+        $this->putJson(route('api.inventory.personnel-registrations.update-status', $registration->id), [
+            'status' => PersonnelRegistration::STATUS_APPROVED,
+        ])->assertOk();
+
+        $registration = $registration->fresh('personnel');
+
+        $this->assertSame("CBC-{$year}-021", $registration->personnel->employee_id);
+        $this->assertSame(PersonnelRegistration::TYPE_OJT, $registration->personnel->registration_type);
+        $this->assertSame('BS Computer Science', $registration->personnel->course_program);
+        $this->assertSame('personnel/id-photos/nina.jpg', $registration->personnel->id_photo_path);
+        $this->assertNotNull($registration->id_issued_at);
+
+        Mail::assertQueued(PersonnelRegistrationApprovedMail::class, function (PersonnelRegistrationApprovedMail $mail) use ($registration) {
+            return $mail->hasTo('nina.cruz@example.test')
+                && $mail->registration->id === $registration->id;
+        });
     }
 
     public function test_admin_can_reject_pending_registration_with_remarks(): void
