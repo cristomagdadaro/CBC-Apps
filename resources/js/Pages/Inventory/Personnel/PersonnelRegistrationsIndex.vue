@@ -107,16 +107,30 @@ export default {
                 }
             }
 
-            await this.fetchPutApi(
-                PersonnelRegistration.endpoints.status,
-                registration.id,
-                {
-                    status: "approved",
-                    bypass_email_verification: force,
-                },
-            );
+            try {
+                await this.fetchPutApi(
+                    PersonnelRegistration.endpoints.status,
+                    registration.id,
+                    {
+                        status: "approved",
+                        bypass_email_verification: force,
+                    },
+                );
 
-            await this.searchRegistrations();
+                await this.searchRegistrations();
+            } catch (error) {
+                if (error.response?.status === 422) {
+                    const errors = error.response.data?.errors;
+                    const message = errors ? Object.values(errors).flat().join('\n') : error.response.data?.message || 'Validation failed';
+                    this.$notify({
+                        title: "Approval Failed",
+                        text: message,
+                        type: "error",
+                    });
+                } else {
+                    throw error;
+                }
+            }
         },
         executeBypass() {
             if (!this.bypassingRegistration) return;

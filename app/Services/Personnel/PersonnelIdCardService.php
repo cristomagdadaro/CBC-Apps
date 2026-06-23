@@ -32,6 +32,7 @@ class PersonnelIdCardService
 
         return Pdf::loadView('generator.pdf.personnel-id-card', compact('card'))
             ->setPaper([0, 0, 209.76, 297.64], 'portrait')
+            ->setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true])
             ->output();
     }
 
@@ -91,21 +92,19 @@ class PersonnelIdCardService
         $width = imagesx($image);
         $height = imagesy($image);
 
+        // Crop to square
+        $size = min($width, $height);
+        $cropX = (int) (($width - $size) / 2);
+        $cropY = (int) (($height - $size) / 2);
+
         $maxSize = 300;
-        $newWidth = $width;
-        $newHeight = $height;
+        $newSize = min($size, $maxSize);
 
-        if ($width > $maxSize || $height > $maxSize) {
-            $ratio = min($maxSize / $width, $maxSize / $height);
-            $newWidth = (int) ($width * $ratio);
-            $newHeight = (int) ($height * $ratio);
-        }
-
-        $bg = imagecreatetruecolor($newWidth, $newHeight);
+        $bg = imagecreatetruecolor($newSize, $newSize);
         $white = imagecolorallocate($bg, 255, 255, 255);
         imagefill($bg, 0, 0, $white);
 
-        imagecopyresampled($bg, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+        imagecopyresampled($bg, $image, 0, 0, $cropX, $cropY, $newSize, $newSize, $size, $size);
 
         ob_start();
         imagejpeg($bg, null, 85);

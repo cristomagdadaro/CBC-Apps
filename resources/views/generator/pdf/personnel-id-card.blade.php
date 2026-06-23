@@ -65,57 +65,61 @@
         }
 
         .photo-wrap {
-            position: relative;
-            height: 33mm;
+            height: 35mm;
             text-align: center;
+            background: #14532d;
+            margin-top: 12mm;
+            padding-top: 1.5mm;
         }
 
-        .stripe {
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 12mm;
-            height: 10mm;
-            background: #14532d;
-            z-index: 1;
+        .photo-container {
+            width: 28mm;
+            height: 28mm;
+            margin: 0 auto;
+            border: 0.7mm solid #14532d;
+            border-radius: 50%;
+            background: #f8fafc;
+            overflow: hidden;
+            display: inline-block;
         }
 
         .photo {
-            position: relative;
-            z-index: 2;
             width: 28mm;
             height: 28mm;
-            margin-top: 3mm;
-            border: 0.7mm solid #14532d;
-            border-radius: 50%;
-            object-fit: cover;
-            background: #f8fafc;
+            display: block;
         }
 
         .photo-placeholder {
-            position: relative;
-            z-index: 2;
             width: 28mm;
             height: 28mm;
-            margin: 3mm auto 0;
-            border: 0.7mm solid #14532d;
-            border-radius: 50%;
             background: #e2e8f0;
+            display: block;
         }
 
         .content {
-            padding: 0 4.4mm;
+            padding: 2mm 4.4mm 0;
             text-align: center;
         }
 
+        .name-wrapper {
+            height: 10mm;
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            margin-bottom: 1.5mm;
+        }
+
         .name {
-            margin: 0 0 1.5mm;
+            display: table-cell;
+            vertical-align: middle;
             color: #0f172a;
             font-size: 13px;
-            line-height: 1.25;
+            line-height: 1.1;
             font-weight: 800;
             text-transform: uppercase;
             word-break: break-word;
+            word-wrap: break-word;
+            overflow: hidden;
         }
 
         .employee-id {
@@ -132,13 +136,13 @@
         }
 
         .fields {
-            margin-top: 5mm;
+            margin-top: 3mm;
             text-align: left;
         }
 
         .field {
-            padding-bottom: 2mm;
-            margin-bottom: 2mm;
+            padding-bottom: 1.5mm;
+            margin-bottom: 1.5mm;
             border-bottom: 0.25mm dashed #e2e8f0;
         }
 
@@ -151,7 +155,7 @@
         .label {
             margin: 0;
             color: #64748b;
-            font-size: 7.5px;
+            font-size: 7px;
             line-height: 1.15;
             font-weight: 700;
             text-transform: uppercase;
@@ -160,9 +164,12 @@
         .value {
             margin: 0.5mm 0 0;
             color: #334155;
-            font-size: 9px;
+            font-size: 8px;
             line-height: 1.2;
             font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .footer {
@@ -170,13 +177,13 @@
             left: 0;
             right: 0;
             bottom: 0;
-            padding: 2mm 3.5mm;
+            padding: 1.5mm 3.5mm;
             border-top: 0.25mm solid #f1f5f9;
             background: #f8fafc;
             color: #94a3b8;
             text-align: center;
             font-size: 6px;
-            line-height: 1.3;
+            line-height: 1.2;
         }
     </style>
 </head>
@@ -190,16 +197,19 @@
         </header>
 
         <div class="photo-wrap">
-            <div class="stripe"></div>
-            @if (!empty($card['photo_data_uri']))
-                <img class="photo" src="{{ $card['photo_data_uri'] }}" alt="Personnel Photo">
-            @else
-                <div class="photo-placeholder"></div>
-            @endif
+            <div class="photo-container">
+                @if (!empty($card['photo_data_uri']))
+                    <img class="photo" src="{{ $card['photo_data_uri'] }}" alt="Personnel Photo">
+                @else
+                    <div class="photo-placeholder"></div>
+                @endif
+            </div>
         </div>
 
         <main class="content">
-            <h1 class="name">{{ $card['full_name'] }}</h1>
+            <div class="name-wrapper">
+                <span class="name">{{ $card['full_name'] }}</span>
+            </div>
             <div class="employee-id">{{ $card['employee_id'] ?: '-' }}</div>
 
             <div class="fields">

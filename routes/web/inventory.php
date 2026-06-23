@@ -45,6 +45,12 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                     ]);
                 })->name('items.create');
 
+                Route::get('/{id}/transactions', function () {
+                    return Inertia::render('Inventory/Items/ItemTransactionsView', [
+                        'data' => Item::with('category', 'supplier')->find(request()->route('id')),
+                    ]);
+                })->name('items.transactions');
+
                 Route::get('/{id}', function () {
                     return Inertia::render('Inventory/Items/components/EditItemForm', [
                         'data' => Item::find(request()->route('id')),

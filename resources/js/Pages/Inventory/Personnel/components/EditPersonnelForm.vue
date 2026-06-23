@@ -15,14 +15,15 @@ export default {
         this.setFormAction("update");
     },
     methods: {
-        returnToApproval() {
+        async returnToApproval() {
             if (confirm('Are you sure you want to return this personnel to the Registration Approval stage? This will suspend their current active personnel record.')) {
-                this.$inertia.post(route('api.inventory.personnels.revert', this.$page.props.data.id), {}, {
-                    preserveScroll: true,
-                    onSuccess: () => {
-                        this.$emit('success');
-                    }
-                });
+                try {
+                    await this.fetchPostApi(route('api.inventory.personnels.revert', this.$page.props.data.id));
+                    this.$notify({ title: 'Success', text: 'Personnel returned to approval stage.', type: 'success' });
+                    this.$inertia.reload();
+                } catch (error) {
+                    this.$notify({ title: 'Error', text: error.response?.data?.message || 'Failed to revert personnel.', type: 'error' });
+                }
             }
         }
     }
@@ -47,7 +48,7 @@ export default {
                     <h2
                         class="font-bold uppercase leading-none py-2 mb-1 border-b"
                     >
-                        Personnel Uppdate Form
+                        Personnel Update Form
                     </h2>
                     <p>Use this form to update personnel information.</p>
                 </div>

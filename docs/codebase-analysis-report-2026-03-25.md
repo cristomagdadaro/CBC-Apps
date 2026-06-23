@@ -108,6 +108,12 @@
 - [ID-2026-06-22-002] Resolved. 8 Composer security alerts eliminated: `symfony/mime`, `symfony/routing`, `symfony/http-foundation`, `symfony/mailer`, and `symfony/yaml` all updated from `7.4.8` to `7.4.13` (fixes CRLF injection in SMTP address, URL dot-segment encoding, SSRF bypass via IPv6 transition forms, Argument injection in SendmailTransport, YAML billion-laughs DoS, YAML ReDoS, YAML stack exhaustion). `phpseclib/phpseclib` updated from `3.0.51` to `3.0.55` (fixes OID amplification DoS bypass and X.509 SSRF via Authority Information Access). `laravel/jetstream` updated to `5.5.3`.
 - [ID-2026-06-22-003] Open / Deferred. **Laravel 11 EOL — Security Risk.** `laravel/framework` `11.x` reached end-of-life on 2026-03-12 and no longer receives security patches. Three active advisories affect the installed version: (1) CRLF injection in the default `email` validation rule (GHSA-5vg9-5847-vvmq / CVE-2026-48019, **High**); (2) Temporary Signed URL Path Confusion (GHSA-crmm-hgp2-wgrp, **Medium**); (3) duplicate advisory for the CRLF injection (PKSA-mdq4-51ck-6kdq). These advisories are acknowledged in `composer.json` under `config.audit.ignore` with reason strings so Composer install/update is not blocked. The permanent fix requires upgrading to Laravel 12 (≥12.61.1) or Laravel 13 (≥13.12.0). This is a major framework upgrade and is tracked here as a separate deferred work item. Until the upgrade lands, avoid using the built-in `email` validation rule as the sole sanitization step on inputs that flow into mail headers; prefer `email:rfc,dns` combined with explicit CRLF stripping in custom rule logic.
 
+## Tracker Updates (2026-06-23)
+- [ID-2026-06-23-001] Open. The `Force Approve` button in `PersonnelRegistrationsIndex.vue` fails with a 422 Axios error when bypassing email verification for a personnel type that requires a CBC ID Card (e.g. Student, OJT) but is missing a photo or course/program. `PersonnelRegistrationRepo::ensureRegistrationCanReceiveIdCard` intentionally throws a `ValidationException`, which the frontend correctly receives as 422 but doesn't handle specifically for missing photos, resulting in a generic validation error notification.
+- [ID-2026-06-23-002] Open. A spelling error exists in the "personnel update form". Additionally, the `Personnel` model requires a `status` attribute (Active/Suspended) togglable from this form, along with an action to revert personnel back to the "Registration Approval" stage.
+- [ID-2026-06-23-003] Open. When a personnel application is approved, the `PersonnelRegistrationApprovedMail` sends an email with a PDF ID attached. However, the generated PDF ID is missing the user's profile image.
+- [ID-2026-06-23-004] Open. Supplier creation and update forms incorrectly enforce `email` as a required field. This should be made optional in both the frontend validation and backend requests.
+- [ID-2026-06-23-005] Open. In the Transactions List Page, the Item name in the item column is displayed as plain text. It should be converted to a hyperlink pointing to an item-specific view page that displays all related transactions, utilizing `CRCMDatatable` and matching the existing design pattern.
 
 ## Tracker Updates (2026-04-21)
 - [ID-2026-04-21-001] Resolved. The guest Equipment Logger still treated any historical borrowable transaction as sufficient eligibility and fell back to a generic “Equipment not found” response when the latest incoming stock had already moved to `tracked_only` or `excluded`. Eligibility checks now use the latest incoming `equipment_logger_mode` for borrowable-list/show flows, and mode-specific unavailable messages are returned so operators can distinguish true missing IDs from intentionally non-borrowable stock.
@@ -118,7 +124,13 @@
 - [ID-2026-04-21-006] Resolved. The first research code-routing pass duplicated route fallback state in DTO/interface fields (`route_identifier`) and left dead barcode DOM-render helpers in `BarcodePrint.vue` (`renderBarcodes`, `renderModalBarcode`, `renderDefaultPreviewBarcode`). Study/experiment route parameter selection now comes from domain-level `identifier()` overrides (`ResearchStudy`, `ResearchExperiment`) so API IDs and code-based web route params are derived from one source, and the obsolete manual barcode render paths/watchers were removed after `QrBarCode` adoption.
 - [ID-2026-04-23-001] Resolved. The authenticated Equipment Logger personnel history view (`/apps/equipment-logger/personnels/{id}`) was failing with frontend `API_GET_ERROR` and `url: null` because the generated Ziggy route map was stale and did not include `api.equipment-logger.personnels.*` routes. Regenerating `resources/js/ziggy.js` restored the missing route names, so `CRCMDatatable` now resolves `api.equipment-logger.personnels.logs.index` correctly.
 
-### Verification Snapshot
+### Verification Snapshot (2026-06-23)
+- `npm run build`: passed successfully.
+- `php artisan test`: 222 assertions passed successfully across the suite.
+- `composer audit --format=json`: clean (0 vulnerabilities, excluding explicitly ignored Laravel 11 EOL advisories tracked for Laravel 12 upgrade).
+- `npm audit`: clean (0 vulnerabilities) when using Node v24.14.1.
+
+### Verification Snapshot (Historical)
 - `npm run build`: passed after the row-level `CRCMDatatable` routing update; Vite completed successfully on this workstation (chunk-size warnings only).
 - `php artisan test tests/Unit/Services/Laboratory/LaboratoryLogServiceTest.php tests/Feature/Laboratory/EquipmentControllersTest.php`: 22 passed, 60 assertions, 0 failures (`XDEBUG_MODE=coverage` warning only on this workstation).
 - `php artisan test tests/Unit/Services/Laboratory tests/Feature/Laboratory`: 23 passed, 63 assertions, 0 failures (`XDEBUG_MODE=coverage` warning only on this workstation).
@@ -741,6 +753,18 @@ Location: `resources/js/Pages/Laboratory/EquipmentShow.vue`
 Issue: The location update dialog closed immediately even when the API returned validation errors, which made guest corrections harder during equipment logging.  
 Suggestion: Keep the dialog open until the request succeeds and preserve the entered values so the user can fix validation errors in place.  
 Impact: XS effort, medium user-trust benefit.
+
+[ID-020] [MEDIUM] [Architecture] - Direct Mail Send Used Instead of Notification Queue
+Location: `app/Services/Laboratory/LaboratoryLogService.php:1236`, `app/Repositories/PersonnelRegistrationRepo.php`
+Issue: `Mail::to()->send()` is used synchronously, violating the unified emailing module implementation plan which dictates queue-first notification dispatch. This can cause slow response times or failures during request lifecycle.
+Suggestion: Refactor to dispatch a domain event or use the `NotificationDispatchService` for queue-first delivery.
+Impact: M effort, high reliability benefit.
+
+[ID-021] [LOW] [Security] - Composer Vulnerabilities Deferred to Laravel 12
+Location: `composer.json`
+Issue: `composer audit` reports CVEs in `laravel/framework` related to CRLF injection in default email rules and Temporary Signed URL Path Confusion.
+Suggestion: These are known and tracked for the upcoming Laravel 12 upgrade, but should be monitored for any workarounds necessary in the interim.
+Impact: XS effort, low interim risk since Laravel 11 is EOL.
 
 ---
 

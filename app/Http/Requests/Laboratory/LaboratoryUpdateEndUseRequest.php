@@ -16,7 +16,17 @@ class LaboratoryUpdateEndUseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'employee_id' => ['required', 'string', 'max:32'],
+            'employee_id' => [
+                'required',
+                'string',
+                'max:32',
+                function ($attribute, $value, $fail) {
+                    $personnel = \App\Models\Personnel::where('employee_id', $value)->first();
+                    if ($personnel && $personnel->status !== 'Active') {
+                        $fail('This personnel ID is suspended and cannot be used for equipment logger services.');
+                    }
+                }
+            ],
             'end_use_at' => ['required', 'date'],
         ];
     }
