@@ -3,7 +3,6 @@ import { Head, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import CRCMDatatable from '@/Components/CRCMDatatable/CRCMDatatable.vue';
 import Transaction from '@/Modules/domain/Transaction';
-import BackBtn from '@/Components/BackBtn.vue';
 
 const props = defineProps({
     data: Object,
@@ -18,7 +17,11 @@ const item = props.data;
         <template #header>
             <div class="flex justify-between items-center w-full">
                 <div class="flex gap-2 items-center">
-                    <back-btn />
+                    <Link :href="route('inventory.items.index')" class="p-2 -ml-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                    </Link>
                     <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                         Transactions for {{ item.name }}
                     </h2>
