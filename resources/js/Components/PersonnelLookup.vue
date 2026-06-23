@@ -94,10 +94,9 @@ export default {
 
             } catch (error) {
                 console.error(error);
-                this.clientErrors.employee_id = 'Lookup failed. Please try again.';
+                this.clientErrors.employee_id = error.response?.data?.message || 'Lookup failed. Please try again.';
                 this.$emit('error', { field: 'employee_id', message: this.clientErrors.employee_id });
                 return null;
-
             }
         }
     }

@@ -4,6 +4,7 @@ import PersonnelRegistration from "@/Modules/domain/PersonnelRegistration";
 import CreatePersonnelLink from "@/Pages/Inventory/Transactions/components/presentation/CreatePersonnelLink.vue";
 import IncommingTransactionLink from "@/Pages/Inventory/Transactions/components/presentation/IncommingTransactionLink.vue";
 import OutgoingTransactionLink from "@/Pages/Inventory/Transactions/components/presentation/OutgoingTransactionLink.vue";
+import ConfirmationModal from "@/Components/ConfirmationModal.vue";
 
 export default {
     name: "PersonnelRegistrationsIndex",
@@ -11,6 +12,7 @@ export default {
         CreatePersonnelLink,
         IncommingTransactionLink,
         OutgoingTransactionLink,
+        ConfirmationModal,
     },
     mixins: [ApiMixin],
     data() {
@@ -24,6 +26,8 @@ export default {
                 { name: "pending", label: "Pending" },
                 { name: "rejected", label: "Rejected" },
             ],
+            showBypassModal: false,
+            bypassingRegistration: null,
         };
     },
     beforeMount() {
@@ -90,18 +94,40 @@ export default {
             this.applyStatusFilter(filterVal);
             await this.searchRegistrations();
         },
-        async approveRegistration(registration) {
-            if (!registration.is_email_verified || this.processing) {
+        async approveRegistration(registration, force = false) {
+            if (this.processing) {
                 return;
+            }
+
+            if (!registration.is_email_verified) {
+                if (!force) {
+                    this.bypassingRegistration = registration;
+                    this.showBypassModal = true;
+                    return;
+                }
             }
 
             await this.fetchPutApi(
                 PersonnelRegistration.endpoints.status,
                 registration.id,
-                { status: "approved" },
+                {
+                    status: "approved",
+                    bypass_email_verification: force,
+                },
             );
 
             await this.searchRegistrations();
+        },
+        executeBypass() {
+            if (!this.bypassingRegistration) return;
+            const registration = this.bypassingRegistration;
+            this.showBypassModal = false;
+            this.bypassingRegistration = null;
+            this.approveRegistration(registration, true);
+        },
+        cancelBypass() {
+            this.showBypassModal = false;
+            this.bypassingRegistration = null;
         },
         beginReject(registration) {
             this.rejectingId = registration.id;
@@ -241,11 +267,7 @@ export default {
             </form>
 
             <div class="mt-3 bg-white overflow-hidden sm:rounded-lg">
-                <div class="mx-1 mt-3 rounded-lg border border-emerald-100 bg-emerald-50 p-3 text-sm text-emerald-900">
-                    Student, OJT, and Thesis registrations receive a generated CBC ID number after approval. The approval email includes their printable A7 ID, and the <strong>Print Approved IDs</strong> page lets admins print all approved ID cards again.
-                </div>
-
-                <div v-if="registrationRows.length && !processing" class="grid gap-4 p-1 lg:grid-cols-2">
+               <div v-if="registrationRows.length && !processing" class="grid gap-4 p-1 lg:grid-cols-2">
                     <article v-for="registration in registrationRows" :key="registration.id" class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
                         <div class="flex items-start justify-between gap-4">
                             <div>
@@ -312,13 +334,24 @@ export default {
                                     Reject
                                 </button>
                                 <button
+                                    v-if="registration.is_email_verified"
                                     type="button"
                                     class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
-                                    :disabled="!registration.is_email_verified || processing"
-                                    :title="registration.is_email_verified ? 'Approve registration' : 'Email must be verified first'"
+                                    :disabled="processing"
+                                    title="Approve registration"
                                     @click="approveRegistration(registration)"
                                 >
                                     Approve
+                                </button>
+                                <button
+                                    v-else
+                                    type="button"
+                                    class="rounded-lg bg-amber-600 px-3 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+                                    :disabled="processing"
+                                    title="Bypass email verification and approve"
+                                    @click="approveRegistration(registration)"
+                                >
+                                    Force Approve
                                 </button>
                             </div>
                         </div>
@@ -370,5 +403,33 @@ export default {
                 </div>
             </div>
         </div>
+
+        <ConfirmationModal :show="showBypassModal" @close="cancelBypass">
+            <template #title>
+                Bypass Email Verification?
+            </template>
+            <template #content>
+                The email (<strong>{{ bypassingRegistration?.email }}</strong>) has not been verified yet.
+                <br /><br />
+                Are you sure you want to bypass verification and approve this registration?
+            </template>
+            <template #footer>
+                <button
+                    type="button"
+                    class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 mr-2"
+                    @click="cancelBypass"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="button"
+                    class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    :disabled="processing"
+                    @click="executeBypass"
+                >
+                    Yes, Bypass and Approve
+                </button>
+            </template>
+        </ConfirmationModal>
     </AppLayout>
 </template>

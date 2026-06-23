@@ -357,12 +357,12 @@ export default {
                             </div>
                         </div>
 
-                        <div v-if="filteredCards.length" class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                        <div v-if="filteredCards.length" class="flex flex-wrap gap-3">
                             <button
                                 v-for="card in filteredCards"
                                 :key="cardKey(card)"
                                 type="button"
-                                class="rounded-lg border p-3 text-left transition hover:border-emerald-400 hover:bg-emerald-50"
+                                class="rounded-lg border text-left transition hover:border-emerald-400 hover:bg-emerald-50 overflow-hidden"
                                 :class="selected[cardKey(card)] ? 'border-emerald-600 bg-emerald-50' : 'border-gray-200 bg-white'"
                                 @click="toggleCard(card)"
                             >

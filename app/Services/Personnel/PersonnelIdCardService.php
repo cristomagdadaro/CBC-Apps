@@ -61,26 +61,24 @@ class PersonnelIdCardService
             return null;
         }
 
-        $mime = Storage::disk('local')->mimeType($path) ?: 'image/jpeg';
         $contents = Storage::disk('local')->get($path);
+        
+        $resized = $this->resizeAndFormatImage($contents);
 
-        if (! in_array($mime, ['image/jpeg', 'image/png', 'image/gif'], true)) {
-            $converted = $this->convertImageToPng($contents);
-
-            if ($converted !== null) {
-                $mime = 'image/png';
-                $contents = $converted;
-            }
+        if ($resized === null) {
+            // Fallback to raw contents if GD fails
+            $mime = Storage::disk('local')->mimeType($path) ?: 'image/jpeg';
+            $data = base64_encode($contents);
+            return "data:{$mime};base64,{$data}";
         }
 
-        $data = base64_encode($contents);
-
-        return "data:{$mime};base64,{$data}";
+        $data = base64_encode($resized);
+        return "data:image/jpeg;base64,{$data}";
     }
 
-    private function convertImageToPng(string $contents): ?string
+    private function resizeAndFormatImage(string $contents): ?string
     {
-        if (! function_exists('imagecreatefromstring') || ! function_exists('imagepng')) {
+        if (! function_exists('imagecreatefromstring') || ! function_exists('imagejpeg')) {
             return null;
         }
 
@@ -90,11 +88,32 @@ class PersonnelIdCardService
             return null;
         }
 
+        $width = imagesx($image);
+        $height = imagesy($image);
+
+        $maxSize = 300;
+        $newWidth = $width;
+        $newHeight = $height;
+
+        if ($width > $maxSize || $height > $maxSize) {
+            $ratio = min($maxSize / $width, $maxSize / $height);
+            $newWidth = (int) ($width * $ratio);
+            $newHeight = (int) ($height * $ratio);
+        }
+
+        $bg = imagecreatetruecolor($newWidth, $newHeight);
+        $white = imagecolorallocate($bg, 255, 255, 255);
+        imagefill($bg, 0, 0, $white);
+
+        imagecopyresampled($bg, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
         ob_start();
-        imagepng($image);
-        $png = ob_get_clean();
+        imagejpeg($bg, null, 85);
+        $jpg = ob_get_clean();
+
+        imagedestroy($bg);
         imagedestroy($image);
 
-        return $png === false ? null : $png;
+        return $jpg === false ? null : $jpg;
     }
 }

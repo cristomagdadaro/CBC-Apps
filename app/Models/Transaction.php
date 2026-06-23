@@ -58,6 +58,9 @@ class Transaction extends BaseModel
         'equipment_logger_mode',
         'par_no',
         'condition',
+        'po_no',
+        'pr_no',
+        'serial_no',
     ];
 
     protected array $searchable = [
@@ -81,6 +84,9 @@ class Transaction extends BaseModel
         'equipment_logger_mode',
         'par_no',
         'condition',
+        'po_no',
+        'pr_no',
+        'serial_no',
     ];
 
     protected function serializeDate(DateTimeInterface $date): string

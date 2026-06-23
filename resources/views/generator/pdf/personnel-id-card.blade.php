@@ -77,6 +77,7 @@
             top: 12mm;
             height: 10mm;
             background: #14532d;
+            z-index: 1;
         }
 
         .photo {

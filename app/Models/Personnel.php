@@ -28,6 +28,7 @@ class Personnel extends BaseModel
         'course_program',
         'id_photo_path',
         'id_issued_at',
+        'status',
     ];
 
     protected array $searchable  = [
@@ -43,6 +44,7 @@ class Personnel extends BaseModel
         'employee_id',
         'registration_type',
         'course_program',
+        'status',
     ];
 
     protected $casts = [

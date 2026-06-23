@@ -55,6 +55,9 @@ export default class Transaction extends DtoTransaction {
             equipment_logger_mode: null,
             par_no: null,
             condition: null,
+            po_no: null,
+            pr_no: null,
+            serial_no: null,
         };
     }
 
@@ -80,6 +83,9 @@ export default class Transaction extends DtoTransaction {
             equipment_logger_mode: model.equipment_logger_mode ?? null,
             par_no: model.par_no ?? null,
             condition: model.condition ?? null,
+            po_no: model.po_no ?? null,
+            pr_no: model.pr_no ?? null,
+            serial_no: model.serial_no ?? null,
         };
     }
 
@@ -250,6 +256,27 @@ export default class Transaction extends DtoTransaction {
                 title: 'Condition',
                 key: 'condition',
                 db_key: 'condition',
+                align: 'dataColor',
+                sortable: true,
+                visible: false,
+            },{
+                title: 'PO No',
+                key: 'po_no',
+                db_key: 'po_no',
+                align: 'dataColor',
+                sortable: true,
+                visible: false,
+            },{
+                title: 'PR No',
+                key: 'pr_no',
+                db_key: 'pr_no',
+                align: 'dataColor',
+                sortable: true,
+                visible: false,
+            },{
+                title: 'Serial No',
+                key: 'serial_no',
+                db_key: 'serial_no',
                 align: 'dataColor',
                 sortable: true,
                 visible: false,

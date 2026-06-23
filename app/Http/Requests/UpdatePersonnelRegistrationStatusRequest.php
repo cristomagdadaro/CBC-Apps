@@ -26,6 +26,7 @@ class UpdatePersonnelRegistrationStatusRequest extends FormRequest
                 'string',
                 'max:1000',
             ],
+            'bypass_email_verification' => ['nullable', 'boolean'],
         ];
     }
 }

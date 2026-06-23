@@ -69,6 +69,9 @@ class PersonnelController extends BaseController
             ->limit(1)
             ->get()
             ->map(function (Personnel $personnel) {
+                if ($personnel->status !== 'Active') {
+                    abort(403, 'This ID is currently suspended.');
+                }
                 $email = trim((string) $personnel->email);
                 return [
                     'id' => $personnel->id,
@@ -167,5 +170,29 @@ class PersonnelController extends BaseController
     public function destroy(DeletePersonnelRequest $request, string $id): Model|JsonResponse
     {
         return parent::_destroy($id);
+    }
+
+    public function revertToApproval(Request $request, string $id): JsonResponse
+    {
+        $personnel = Personnel::findOrFail($id);
+
+        $registration = \App\Models\PersonnelRegistration::query()
+            ->where('personnel_id', $personnel->id)
+            ->latest()
+            ->first();
+
+        if ($registration) {
+            $registration->update([
+                'status' => \App\Models\PersonnelRegistration::STATUS_PENDING
+            ]);
+        }
+
+        $personnel->update([
+            'status' => 'Suspended'
+        ]);
+
+        return response()->json([
+            'message' => 'Personnel returned to approval stage and suspended.'
+        ]);
     }
 }

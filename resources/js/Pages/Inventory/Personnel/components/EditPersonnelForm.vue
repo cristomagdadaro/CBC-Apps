@@ -4,15 +4,28 @@ import Personnel from "@/Modules/domain/Personnel";
 import FormsHeaderActions from "@/Pages/Forms/components/FormsHeaderActions.vue";
 import PersonnelHeaderActions from "@/Pages/Inventory/Personnel/components/PersonnelHeaderActions.vue";
 import AuditInfoCard from "@/Components/AuditInfoCard.vue";
+import DangerButton from "@/Components/DangerButton.vue";
 
 export default {
     name: "EditPersonnelForm",
-    components: { AuditInfoCard, PersonnelHeaderActions, FormsHeaderActions },
+    components: { DangerButton, AuditInfoCard, PersonnelHeaderActions, FormsHeaderActions },
     mixins: [ApiMixin],
     beforeMount() {
         this.model = new Personnel();
         this.setFormAction("update");
     },
+    methods: {
+        returnToApproval() {
+            if (confirm('Are you sure you want to return this personnel to the Registration Approval stage? This will suspend their current active personnel record.')) {
+                this.$inertia.post(route('api.inventory.personnels.revert', this.$page.props.data.id), {}, {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        this.$emit('success');
+                    }
+                });
+            }
+        }
+    }
 };
 </script>
 
@@ -85,16 +98,35 @@ export default {
                     v-model="form.address"
                     :error="form.errors.address"
                 />
-                <text-input
-                    label="Employee ID / CBC ID"
-                    required
-                    v-model="form.employee_id"
-                    :error="form.errors.employee_id"
-                />
-                <div class="flex gap-1 justify-between">
-                    <reset-btn @click="resetField($page.props.data)">
-                        Reset
-                    </reset-btn>
+                <div class="flex gap-2">
+                    <text-input
+                        label="Employee ID / CBC ID"
+                        required
+                        class="flex-1"
+                        v-model="form.employee_id"
+                        :error="form.errors.employee_id"
+                    />
+                    <div class="flex flex-col gap-1 w-1/3">
+                        <label class="block font-medium text-sm text-gray-700 dark:text-gray-300">Status</label>
+                        <select
+                            v-model="form.status"
+                            class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm w-full"
+                        >
+                            <option value="Active">Active</option>
+                            <option value="Suspended">Suspended</option>
+                        </select>
+                        <p v-if="form.errors.status" class="text-sm text-red-600 mt-2">{{ form.errors.status }}</p>
+                    </div>
+                </div>
+                <div class="flex gap-1 justify-between items-center">
+                    <div class="flex gap-2">
+                        <reset-btn @click="resetField($page.props.data)">
+                            Reset
+                        </reset-btn>
+                        <danger-button v-if="$isAdminUser" @click="returnToApproval" type="button">
+                            Return to Registration Approval
+                        </danger-button>
+                    </div>
                     <submit-btn :disabled="model.api.processing">
                         <span v-if="model.api.processing">Updating</span>
                         <span v-else>Update</span>

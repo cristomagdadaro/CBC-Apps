@@ -132,6 +132,7 @@ Route::middleware(['api', 'auth:sanctum'])->group(function () {
             Route::prefix('personnels')->group(function () {
                 Route::get('/', [PersonnelController::class, 'index'])->name('api.inventory.personnels.index');
                 Route::post('/', [PersonnelController::class, 'create'])->name('api.inventory.personnels.store');
+                Route::post('/{id}/revert', [PersonnelController::class, 'revertToApproval'])->name('api.inventory.personnels.revert');
                 Route::put('/{id?}', [PersonnelController::class, 'update'])->name('api.inventory.personnels.update');
                 Route::delete('/{id?}', [PersonnelController::class, 'destroy'])->name('api.inventory.personnels.destroy');
             });
@@ -141,6 +142,8 @@ Route::middleware(['api', 'auth:sanctum'])->group(function () {
                     ->name('api.inventory.personnel-registrations.index');
                 Route::put('/{id}/status', [PersonnelRegistrationController::class, 'updateStatus'])
                     ->name('api.inventory.personnel-registrations.update-status');
+                Route::post('/id-cards/mark-printed', [PersonnelRegistrationController::class, 'markPrinted'])
+                    ->name('api.inventory.personnel-registrations.id-cards.mark-printed');
             });
 
             Route::prefix('suppliers')->group(function () {

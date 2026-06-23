@@ -1,7 +1,7 @@
 <template>
         <section class="personnel-id-card w-[5.4cm] h-[8.6cm] border border-slate-200 rounded-lg bg-white shadow-md flex flex-col overflow-hidden font-sans box-border"
                 :style="cardStyle">
-                <header class="p-[10px_8px] flex items-center gap-2 border-b-[3px] border-green-600">
+                <header class="p-[10px_8px] flex items-center gap-2">
                         <img src="/imgs/logo-black.png" alt="CBC Logo" class="w-6 h-6 object-contain" />
                         <div class="flex flex-col">
                                 <h1
@@ -24,24 +24,26 @@
                                 </div>
                         </div>
 
-                        <div class="px-[12px] ">
-                                <div class="text-center w-full mb-2">
+                        <div class="px-[12px] w-full flex flex-col flex-grow pb-2">
+                                <div class="text-center w-full mb-2 flex flex-col items-center shrink-0">
                                 <h2
-                                        class="text-[13px] font-bold text-slate-900 m-0 mb-1 uppercase leading-snug break-all">
+                                        class="text-[11px] font-bold text-slate-900 m-0 mb-1 uppercase leading-tight break-words line-clamp-3 w-full"
+                                        style="display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden;"
+                                        :title="card.full_name">
                                         {{ card.full_name }}
                                 </h2>
                                 <span
-                                        class="inline-block text-[8px] font-bold text-[#14532d] bg-green-100 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                        class="inline-block text-[8px] font-bold text-[#14532d] bg-green-100 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
                                         {{ card.employee_id || '—' }}
                                 </span>
                         </div>
 
-                        <dl class="mt-auto w-full flex flex-col gap-1.5">
+                        <dl class="mt-auto w-full flex flex-col gap-1.5 shrink-0">
                                 <div class="flex flex-col border-b border-dashed border-slate-200 pb-1">
                                         <dt class="text-[7.5px] font-semibold text-slate-500 uppercase m-0">
                                                 Registration Type
                                         </dt>
-                                        <dd class="text-[9px] font-semibold text-slate-700 m-0 mt-px">
+                                        <dd class="text-[9px] font-semibold text-slate-700 m-0 mt-px truncate" :title="card.registration_type_label">
                                                 {{ card.registration_type_label || '—' }}
                                         </dd>
                                 </div>
@@ -50,7 +52,7 @@
                                         <dt class="text-[7.5px] font-semibold text-slate-500 uppercase m-0">
                                                 Date Issued
                                         </dt>
-                                        <dd class="text-[9px] font-semibold text-slate-700 m-0 mt-px">
+                                        <dd class="text-[9px] font-semibold text-slate-700 m-0 mt-px truncate">
                                                 {{ card.date_issued || '—' }}
                                         </dd>
                                 </div>
@@ -60,7 +62,7 @@
 
                 <footer
                         class="text-[6px] text-center text-slate-400 p-[6px_10px] bg-slate-50 border-t border-slate-100 leading-normal">
-                        This ID is system-generated for authorized CBC access and coordination.
+                        This ID is system-generated for authorized DA-CBC access.
                 </footer>
         </section>
 </template>

@@ -63,25 +63,30 @@ class PersonnelRegistrationRepo extends AbstractRepoService
             $registration = $this->model->newQuery()->findOrFail($id);
             $status = $data['status'];
 
+            $bypassEmail = $data['bypass_email_verification'] ?? false;
+
             if ($registration->status !== PersonnelRegistration::STATUS_PENDING) {
                 throw ValidationException::withMessages([
                     'status' => ['This registration has already been reviewed.'],
                 ]);
             }
 
-            if ($status === PersonnelRegistration::STATUS_APPROVED && $registration->email_verified_at === null) {
+            if ($status === PersonnelRegistration::STATUS_APPROVED && $registration->email_verified_at === null && !$bypassEmail) {
                 throw ValidationException::withMessages([
                     'status' => ['Email must be verified before approval.'],
                 ]);
+            }
+
+            if ($status === PersonnelRegistration::STATUS_APPROVED && $bypassEmail && $registration->email_verified_at === null) {
+                $registration->email_verified_at = now();
+                $registration->save();
             }
 
             if ($status === PersonnelRegistration::STATUS_APPROVED && $registration->requires_cbc_id_card) {
                 $this->ensureRegistrationCanReceiveIdCard($registration);
             }
 
-            $idIssuedAt = ($status === PersonnelRegistration::STATUS_APPROVED && $registration->requires_cbc_id_card)
-                ? now()
-                : null;
+            $idIssuedAt = null;
 
             $payload = [
                 'status' => $status,
@@ -171,9 +176,36 @@ class PersonnelRegistrationRepo extends AbstractRepoService
             ->whereIn('registration_type', PersonnelRegistration::idCardTypes())
             ->whereNotNull('personnel_id')
             ->whereNotNull('id_photo_path')
-            ->orderByDesc('id_issued_at')
+            ->whereNull('id_issued_at')
             ->orderByDesc('reviewed_at')
             ->get();
+    }
+
+    public function markIdCardsAsPrinted(array $registrationIds): void
+    {
+        DB::transaction(function () use ($registrationIds) {
+            $now = now();
+
+            $registrations = $this->model->newQuery()
+                ->whereIn('id', $registrationIds)
+                ->where('status', PersonnelRegistration::STATUS_APPROVED)
+                ->whereNull('id_issued_at')
+                ->get();
+
+            $personnelIds = $registrations->pluck('personnel_id')->filter()->unique()->toArray();
+
+            if ($registrations->isNotEmpty()) {
+                $this->model->newQuery()
+                    ->whereIn('id', $registrations->pluck('id'))
+                    ->update(['id_issued_at' => $now]);
+            }
+
+            if (!empty($personnelIds)) {
+                Personnel::query()
+                    ->whereIn('id', $personnelIds)
+                    ->update(['id_issued_at' => $now]);
+            }
+        });
     }
 
     private function prepareRegistrationPayload(array $data): array

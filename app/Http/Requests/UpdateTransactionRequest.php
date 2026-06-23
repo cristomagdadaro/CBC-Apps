@@ -110,6 +110,9 @@ class UpdateTransactionRequest extends FormRequest
             'par_no' => 'nullable|string|unique:transactions,par_no,' . $id,
             'condition' => 'nullable|string',
             'parent_barcode' => 'nullable|string',
+            'po_no' => 'nullable|string',
+            'pr_no' => 'nullable|string',
+            'serial_no' => 'nullable|string',
         ];
     }
 

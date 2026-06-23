@@ -107,4 +107,18 @@ class PersonnelRegistrationController extends BaseController
             'Cache-Control' => 'private, max-age=3600',
         ]);
     }
+
+    public function markPrinted(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'ids' => ['required', 'array'],
+            'ids.*' => ['required', 'string', 'uuid'],
+        ]);
+
+        $this->repo()->markIdCardsAsPrinted($validated['ids']);
+
+        return response()->json([
+            'message' => 'ID cards marked as printed successfully.',
+        ]);
+    }
 }

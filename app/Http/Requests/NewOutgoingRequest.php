@@ -70,6 +70,14 @@ class NewOutgoingRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function($validator) {
+            $personnelId = $this->input('personnel_id');
+            if ($personnelId) {
+                $personnel = \App\Models\Personnel::find($personnelId);
+                if ($personnel && $personnel->status !== 'Active') {
+                    $validator->errors()->add('employee_id', 'This personnel ID is suspended and cannot be used for supply checkout.');
+                }
+            }
+
             if ($this->input('transac_type') !== Inventory::OUTGOING->value) {
                 return;
             }

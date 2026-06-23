@@ -113,6 +113,9 @@ export default {
                 'condition',
                 'remarks',
                 'par_no',
+                'po_no',
+                'pr_no',
+                'serial_no',
                 'parent_barcode',
             ];
         },
@@ -268,6 +271,11 @@ export default {
                 ?? this.equipmentLoggerModeOptions[0]?.name
                 ?? null;
         },
+        defaultCondition() {
+            return this.form.condition ??
+                this.listConditions[0]?.name
+                ?? null;
+        },
         selectedEquipmentLoggerModeOption() {
             return this.equipmentLoggerModeOptions.find((option) => option.name === this.form?.equipment_logger_mode) ?? null;
         },
@@ -289,7 +297,7 @@ export default {
             return null;
         },
         selectCondition() {
-            return this.form?.condition ?? null;
+            return this.form?.condition ?? this.defaultCondition;
         },
         attachedReportsList() {
             return Array.isArray(this.attachedReports) ? this.attachedReports : [];
@@ -481,12 +489,12 @@ export default {
 
                 <!-- Barcodes & PAR -->
                 <div class="grid grid-cols-3 gap-3">
-                    <text-input label="PRRI Barcode" v-model="form.barcode_prri" :error="form.errors.barcode_prri">
+                    <text-input label="PRRI QR/Barcode No." v-model="form.barcode_prri" :error="form.errors.barcode_prri">
                         <template #icon>
                             <Hash class="w-4 h-4 text-gray-400" />
                         </template>
                     </text-input>
-                    <text-input label="PAR No" v-model="form.par_no" :error="form.errors.par_no">
+                    <text-input label="PAR No." v-model="form.par_no" :error="form.errors.par_no">
                         <template #icon>
                             <Tag class="w-4 h-4 text-gray-400" />
                         </template>
@@ -506,6 +514,25 @@ export default {
                             <MapPin class="w-4 h-4 text-gray-400" />
                         </template>
                     </custom-dropdown>
+                </div>
+
+                <!-- Acquisition & Identification -->
+                <div class="grid grid-cols-3 gap-3">
+                    <text-input label="PO No." v-model="form.po_no" :error="form.errors.po_no">
+                        <template #icon>
+                            <FileText class="w-4 h-4 text-gray-400" />
+                        </template>
+                    </text-input>
+                    <text-input label="PR No." v-model="form.pr_no" :error="form.errors.pr_no">
+                        <template #icon>
+                            <FileText class="w-4 h-4 text-gray-400" />
+                        </template>
+                    </text-input>
+                    <text-input label="Serial No." v-model="form.serial_no" :error="form.errors.serial_no">
+                        <template #icon>
+                            <Hash class="w-4 h-4 text-gray-400" />
+                        </template>
+                    </text-input>
                 </div>
 
                 <!-- Quantity & Pricing -->
