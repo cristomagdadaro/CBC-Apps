@@ -69,7 +69,7 @@ class PersonnelController extends BaseController
             ->limit(1)
             ->get()
             ->map(function (Personnel $personnel) {
-                if (strtolower($personnel->status) === 'suspended') {
+                if (strtolower($personnel->status) === strtolower(config('system.statuses.suspended'))) {
                     abort(403, 'This ID is currently suspended.');
                 }
                 $email = trim((string) $personnel->email);
@@ -188,7 +188,7 @@ class PersonnelController extends BaseController
         }
 
         $personnel->update([
-            'status' => 'Suspended'
+            'status' => config('system.statuses.suspended')
         ]);
 
         return response()->json([

@@ -11,6 +11,10 @@ return [
         Inventory::INCOMING->value,
         Inventory::OUTGOING->value,
     ],
+    'statuses' => [
+        'active' => 'Active',
+        'suspended' => 'Suspended',
+    ],
     'stock_levels' => [
         [ 'name' => 'empty', 'label' => 'Empty Stock (0%)' ],
         [ 'name' => 'low', 'label' => 'Low Stock (25%)' ],

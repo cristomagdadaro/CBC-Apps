@@ -1193,7 +1193,7 @@ class LaboratoryLogService
             abort(422, 'Personnel record not found for the provided employee ID.');
         }
 
-        if (strtolower($personnel->status) === 'suspended') {
+        if (strtolower($personnel->status) === strtolower(config('system.statuses.suspended'))) {
             abort(403, 'Your personnel ID is suspended. You cannot use this service.');
         }
 

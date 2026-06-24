@@ -11,6 +11,7 @@
 - Leverage route caching (`php artisan route:cache`) and config caching whenever configuration changes land.
 - Keep HTTP responses consistent by reusing shared response macros or `response()->json([...])` structures instead of ad-hoc arrays.
 - Use `Resource` classes or `Inertia::share()` to standardize payloads when multiple controllers expose similar data.
+- Do not hardcode values like "Active" and "Suspended" or other statuses; use constants declared in `config/system.php` (e.g. `config('system.statuses.active')`).
 
 ## System Architecture
 - Requests flow through controllers that either rely on a repository (`AbstractRepoService`) or orchestrate services/pipelines for complex workflows.

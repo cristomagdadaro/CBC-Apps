@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Rules\UniqueFullName;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CreatePersonnelRequest extends FormRequest
 {
@@ -34,7 +35,7 @@ class CreatePersonnelRequest extends FormRequest
             'address' => 'string|nullable',
             'email' => 'nullable|email|unique:personnels,email',
             'employee_id' => 'nullable|string|max:32|unique:personnels,employee_id|required_if:is_philrice_employee,true',
-            'status' => ['nullable', 'string', 'in:Active,Suspended'],
+            'status' => ['nullable', 'string', Rule::in([config('system.statuses.active'), config('system.statuses.suspended')])],
         ];
     }
 
