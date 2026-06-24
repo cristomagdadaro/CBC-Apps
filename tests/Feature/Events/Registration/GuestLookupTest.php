@@ -7,14 +7,13 @@ use App\Models\Registration;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class GuestLookupTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * @dataProvider invalidEmailProvider
-     */
+    #[DataProvider('invalidEmailProvider')]
     public function test_guest_participant_lookup_validates_email(string $email): void
     {
         $response = $this->getJson('/api/guest/forms/event/0504/participant-lookup?email=' . urlencode($email));

@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\WithTestRoles;
 
 /**
@@ -36,7 +37,7 @@ class CrudTest extends TestCase
     // AUTHENTICATION & AUTHORIZATION TESTS
     // ========================================================================
 
-    /** @test */
+    #[Test]
     public function test_01_unauthenticated_user_cannot_access_templates_index(): void
     {
         $response = $this->getJson(route('api.form-builder.templates.index'));
@@ -44,7 +45,7 @@ class CrudTest extends TestCase
         $response->assertStatus(401);
     }
 
-    /** @test */
+    #[Test]
     public function test_02_unauthenticated_user_cannot_access_field_types(): void
     {
         $response = $this->getJson(route('api.form-builder.field-types'));
@@ -52,7 +53,7 @@ class CrudTest extends TestCase
         $response->assertStatus(401);
     }
 
-    /** @test */
+    #[Test]
     public function test_03_unauthenticated_user_cannot_create_template(): void
     {
         $response = $this->postJson(route('api.form-builder.templates.store'), [
@@ -65,7 +66,7 @@ class CrudTest extends TestCase
         $response->assertStatus(401);
     }
 
-    /** @test */
+    #[Test]
     public function test_04_unauthenticated_user_cannot_update_template(): void
     {
         $template = FormTypeTemplate::factory()->create();
@@ -77,7 +78,7 @@ class CrudTest extends TestCase
         $response->assertStatus(401);
     }
 
-    /** @test */
+    #[Test]
     public function test_05_unauthenticated_user_cannot_delete_template(): void
     {
         $template = FormTypeTemplate::factory()->create();
@@ -87,7 +88,7 @@ class CrudTest extends TestCase
         $response->assertStatus(401);
     }
 
-    /** @test */
+    #[Test]
     public function test_06_authorized_user_can_access_templates_index(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -104,7 +105,7 @@ class CrudTest extends TestCase
     // FIELD TYPES ENDPOINT TESTS
     // ========================================================================
 
-    /** @test */
+    #[Test]
     public function test_07_field_types_returns_all_available_types(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -121,7 +122,7 @@ class CrudTest extends TestCase
         $this->assertArrayHasKey('checkbox', $data);
     }
 
-    /** @test */
+    #[Test]
     public function test_08_field_types_contains_required_metadata(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -136,7 +137,7 @@ class CrudTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function test_09_field_types_has_correct_count(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -152,7 +153,7 @@ class CrudTest extends TestCase
     // TEMPLATE LIST TESTS
     // ========================================================================
 
-    /** @test */
+    #[Test]
     public function test_10_templates_index_returns_empty_when_no_templates(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -168,7 +169,7 @@ class CrudTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function test_11_templates_index_returns_system_templates(): void
     {
         FormTypeTemplate::factory()->system()->count(3)->create();
@@ -186,7 +187,7 @@ class CrudTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function test_12_templates_index_returns_custom_templates(): void
     {
         FormTypeTemplate::factory()->custom()->count(5)->create();
@@ -204,7 +205,7 @@ class CrudTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function test_13_templates_index_returns_mixed_templates(): void
     {
         FormTypeTemplate::factory()->system()->count(2)->create();
@@ -223,7 +224,7 @@ class CrudTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function test_14_templates_index_includes_field_counts(): void
     {
         $template = FormTypeTemplate::factory()->create();
@@ -243,7 +244,7 @@ class CrudTest extends TestCase
     // TEMPLATE SHOW TESTS
     // ========================================================================
 
-    /** @test */
+    #[Test]
     public function test_15_show_template_returns_template_data(): void
     {
         $template = FormTypeTemplate::factory()->create([
@@ -259,7 +260,7 @@ class CrudTest extends TestCase
             ->assertJsonPath('data.description', 'Test description');
     }
 
-    /** @test */
+    #[Test]
     public function test_16_show_template_includes_field_definitions(): void
     {
         $template = FormTypeTemplate::factory()->create();
@@ -274,7 +275,7 @@ class CrudTest extends TestCase
         $this->assertCount(3, $fieldDefinitions);
     }
 
-    /** @test */
+    #[Test]
     public function test_17_show_template_returns_404_for_invalid_id(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -283,7 +284,7 @@ class CrudTest extends TestCase
         $response->assertStatus(404);
     }
 
-    /** @test */
+    #[Test]
     public function test_18_show_template_returns_404_for_nonexistent_uuid(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -292,7 +293,7 @@ class CrudTest extends TestCase
         $response->assertStatus(404);
     }
 
-    /** @test */
+    #[Test]
     public function test_19_show_template_by_slug_returns_template(): void
     {
         $template = FormTypeTemplate::factory()->create(['slug' => 'test-slug']);
@@ -304,7 +305,7 @@ class CrudTest extends TestCase
             ->assertJsonPath('data.slug', 'test-slug');
     }
 
-    /** @test */
+    #[Test]
     public function test_20_show_template_by_slug_returns_404_for_invalid_slug(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -317,7 +318,7 @@ class CrudTest extends TestCase
     // TEMPLATE CREATE TESTS
     // ========================================================================
 
-    /** @test */
+    #[Test]
     public function test_21_can_create_template_with_valid_data(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -339,7 +340,7 @@ class CrudTest extends TestCase
         $this->assertDatabaseHas('form_field_definitions', ['field_key' => 'email']);
     }
 
-    /** @test */
+    #[Test]
     public function test_22_created_template_is_not_system(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -356,7 +357,7 @@ class CrudTest extends TestCase
         $this->assertFalse($template->is_system);
     }
 
-    /** @test */
+    #[Test]
     public function test_23_created_template_has_creator_id(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -373,7 +374,7 @@ class CrudTest extends TestCase
         $this->assertEquals($this->adminUser->id, $template->created_by);
     }
 
-    /** @test */
+    #[Test]
     public function test_24_create_template_requires_name(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -387,7 +388,7 @@ class CrudTest extends TestCase
             ->assertJsonValidationErrors('name');
     }
 
-    /** @test */
+    #[Test]
     public function test_25_create_template_requires_at_least_one_field(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -400,7 +401,7 @@ class CrudTest extends TestCase
             ->assertJsonValidationErrors('fields');
     }
 
-    /** @test */
+    #[Test]
     public function test_26_create_template_validates_field_keys_required(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -415,7 +416,7 @@ class CrudTest extends TestCase
             ->assertJsonValidationErrors('fields.0.field_key');
     }
 
-    /** @test */
+    #[Test]
     public function test_27_create_template_validates_field_type_required(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -430,7 +431,7 @@ class CrudTest extends TestCase
             ->assertJsonValidationErrors('fields.0.field_type');
     }
 
-    /** @test */
+    #[Test]
     public function test_28_create_template_validates_field_label_required(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -445,7 +446,7 @@ class CrudTest extends TestCase
             ->assertJsonValidationErrors('fields.0.label');
     }
 
-    /** @test */
+    #[Test]
     public function test_29_create_template_validates_invalid_field_type(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -460,7 +461,7 @@ class CrudTest extends TestCase
             ->assertJsonValidationErrors('fields.0.field_type');
     }
 
-    /** @test */
+    #[Test]
     public function test_30_create_template_accepts_all_valid_field_types(): void
     {
         $fieldTypes = array_keys(FormFieldDefinition::FIELD_TYPES);
@@ -486,7 +487,7 @@ class CrudTest extends TestCase
         $this->assertEquals(count($fieldTypes), FormFieldDefinition::where('form_type_template_id', $response->json('data.id'))->count());
     }
 
-    /** @test */
+    #[Test]
     public function test_31_create_template_with_field_options(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -512,7 +513,7 @@ class CrudTest extends TestCase
         $this->assertCount(3, $field->options);
     }
 
-    /** @test */
+    #[Test]
     public function test_32_create_template_with_validation_rules(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -539,7 +540,7 @@ class CrudTest extends TestCase
         $this->assertEquals(18, $field->validation_rules['min']);
     }
 
-    /** @test */
+    #[Test]
     public function test_33_create_template_with_display_config(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -564,7 +565,7 @@ class CrudTest extends TestCase
         $this->assertEquals(5, $field->display_config['rows']);
     }
 
-    /** @test */
+    #[Test]
     public function test_34_create_template_name_max_length(): void
     {
         $longName = str_repeat('a', 256);
@@ -585,7 +586,7 @@ class CrudTest extends TestCase
     // TEMPLATE UPDATE TESTS
     // ========================================================================
 
-    /** @test */
+    #[Test]
     public function test_35_can_update_custom_template_name(): void
     {
         $template = FormTypeTemplate::factory()->custom()->create(['name' => 'Original Name']);
@@ -604,7 +605,7 @@ class CrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function test_36_can_update_template_description(): void
     {
         $template = FormTypeTemplate::factory()->create();
@@ -618,7 +619,7 @@ class CrudTest extends TestCase
             ->assertJsonPath('data.description', 'New description here');
     }
 
-    /** @test */
+    #[Test]
     public function test_37_can_update_template_fields(): void
     {
         $template = FormTypeTemplate::factory()->create();
@@ -642,7 +643,7 @@ class CrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function test_38_cannot_update_system_template_as_regular_user(): void
     {
         $template = FormTypeTemplate::factory()->system()->create();
@@ -656,7 +657,7 @@ class CrudTest extends TestCase
         $this->assertTrue(in_array($response->status(), [401, 403]));
     }
 
-    /** @test */
+    #[Test]
     public function test_39_update_returns_404_for_nonexistent_template(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -667,7 +668,7 @@ class CrudTest extends TestCase
         $response->assertStatus(404);
     }
 
-    /** @test */
+    #[Test]
     public function test_40_update_validates_name_max_length(): void
     {
         $template = FormTypeTemplate::factory()->create();
@@ -685,7 +686,7 @@ class CrudTest extends TestCase
     // TEMPLATE DELETE TESTS
     // ========================================================================
 
-    /** @test */
+    #[Test]
     public function test_41_can_delete_custom_template(): void
     {
         $template = FormTypeTemplate::factory()->custom()->create();
@@ -699,7 +700,7 @@ class CrudTest extends TestCase
         $this->assertSoftDeleted('form_type_templates', ['id' => $template->id]);
     }
 
-    /** @test */
+    #[Test]
     public function test_42_cannot_delete_system_template(): void
     {
         $template = FormTypeTemplate::factory()->system()->create();
@@ -711,7 +712,7 @@ class CrudTest extends TestCase
             ->assertJsonPath('message', 'System templates cannot be deleted.');
     }
 
-    /** @test */
+    #[Test]
     public function test_43_cannot_delete_template_in_use(): void
     {
         $template = FormTypeTemplate::factory()->custom()->create();
@@ -729,7 +730,7 @@ class CrudTest extends TestCase
             ->assertJsonPath('message', 'This template is in use by existing event forms and cannot be deleted.');
     }
 
-    /** @test */
+    #[Test]
     public function test_44_delete_returns_404_for_nonexistent_template(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -738,7 +739,7 @@ class CrudTest extends TestCase
         $response->assertStatus(404);
     }
 
-    /** @test */
+    #[Test]
     public function test_45_deleting_template_removes_field_definitions(): void
     {
         $template = FormTypeTemplate::factory()->create();
@@ -761,7 +762,7 @@ class CrudTest extends TestCase
     // TEMPLATE DUPLICATE TESTS
     // ========================================================================
 
-    /** @test */
+    #[Test]
     public function test_46_can_duplicate_template(): void
     {
         $template = FormTypeTemplate::factory()->create(['name' => 'Original']);
@@ -778,7 +779,7 @@ class CrudTest extends TestCase
         $this->assertEquals(3, $newTemplate->fieldDefinitions()->count());
     }
 
-    /** @test */
+    #[Test]
     public function test_47_duplicated_template_is_custom(): void
     {
         $template = FormTypeTemplate::factory()->system()->create();
@@ -792,7 +793,7 @@ class CrudTest extends TestCase
         $this->assertFalse($newTemplate->is_system);
     }
 
-    /** @test */
+    #[Test]
     public function test_48_duplicated_template_has_new_creator(): void
     {
         $otherUser = User::factory()->create(['is_admin' => true]);
@@ -807,7 +808,7 @@ class CrudTest extends TestCase
         $this->assertEquals($this->adminUser->id, $newTemplate->created_by);
     }
 
-    /** @test */
+    #[Test]
     public function test_49_duplicate_returns_404_for_nonexistent_template(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -816,7 +817,7 @@ class CrudTest extends TestCase
         $response->assertStatus(404);
     }
 
-    /** @test */
+    #[Test]
     public function test_50_duplicated_fields_have_new_ids(): void
     {
         $template = FormTypeTemplate::factory()->create();
@@ -843,7 +844,7 @@ class CrudTest extends TestCase
     // EDGE CASES & ADDITIONAL SCENARIOS
     // ========================================================================
 
-    /** @test */
+    #[Test]
     public function test_51_create_template_with_special_characters_in_name(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -861,7 +862,7 @@ class CrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function test_52_create_template_with_unicode_name(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -875,7 +876,7 @@ class CrudTest extends TestCase
         $response->assertStatus(201);
     }
 
-    /** @test */
+    #[Test]
     public function test_53_field_sort_order_is_preserved(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -898,7 +899,7 @@ class CrudTest extends TestCase
         $this->assertEquals('third', $fields[2]->field_key);
     }
 
-    /** @test */
+    #[Test]
     public function test_54_create_template_with_many_fields(): void
     {
         $fields = [];
@@ -922,7 +923,7 @@ class CrudTest extends TestCase
         $this->assertEquals(50, $template->fieldDefinitions()->count());
     }
 
-    /** @test */
+    #[Test]
     public function test_55_field_key_uniqueness_within_template(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -942,7 +943,7 @@ class CrudTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function test_56_template_slug_is_auto_generated(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -959,7 +960,7 @@ class CrudTest extends TestCase
         $this->assertNotEmpty($template->slug);
     }
 
-    /** @test */
+    #[Test]
     public function test_57_create_template_with_section_headers(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -981,7 +982,7 @@ class CrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function test_58_create_template_with_likert_scale(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -1006,7 +1007,7 @@ class CrudTest extends TestCase
         $response->assertStatus(201);
     }
 
-    /** @test */
+    #[Test]
     public function test_59_create_template_with_linear_scale_config(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -1034,7 +1035,7 @@ class CrudTest extends TestCase
         $this->assertEquals(10, $field->field_config['max']);
     }
 
-    /** @test */
+    #[Test]
     public function test_60_create_template_with_file_upload_config(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -1056,7 +1057,7 @@ class CrudTest extends TestCase
         $response->assertStatus(201);
     }
 
-    /** @test */
+    #[Test]
     public function test_61_empty_string_description_is_accepted(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -1071,7 +1072,7 @@ class CrudTest extends TestCase
         $response->assertStatus(201);
     }
 
-    /** @test */
+    #[Test]
     public function test_62_null_description_is_accepted(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -1086,7 +1087,7 @@ class CrudTest extends TestCase
         $response->assertStatus(201);
     }
 
-    /** @test */
+    #[Test]
     public function test_63_field_placeholder_is_saved(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -1110,7 +1111,7 @@ class CrudTest extends TestCase
         $this->assertEquals('Enter your full name', $field->placeholder);
     }
 
-    /** @test */
+    #[Test]
     public function test_64_field_description_is_saved(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -1134,7 +1135,7 @@ class CrudTest extends TestCase
         $this->assertEquals('We will never share your email.', $field->description);
     }
 
-    /** @test */
+    #[Test]
     public function test_65_can_create_address_field(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -1152,7 +1153,7 @@ class CrudTest extends TestCase
         $response->assertStatus(201);
     }
 
-    /** @test */
+    #[Test]
     public function test_66_can_create_rating_field(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -1170,7 +1171,7 @@ class CrudTest extends TestCase
         $response->assertStatus(201);
     }
 
-    /** @test */
+    #[Test]
     public function test_67_can_create_rich_text_field(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -1188,7 +1189,7 @@ class CrudTest extends TestCase
         $response->assertStatus(201);
     }
 
-    /** @test */
+    #[Test]
     public function test_68_can_create_multiple_choice_grid(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -1215,7 +1216,7 @@ class CrudTest extends TestCase
         $response->assertStatus(201);
     }
 
-    /** @test */
+    #[Test]
     public function test_69_can_create_checkboxes_field(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -1239,7 +1240,7 @@ class CrudTest extends TestCase
         $response->assertStatus(201);
     }
 
-    /** @test */
+    #[Test]
     public function test_70_concurrent_template_creation(): void
     {
         // Create multiple templates in sequence to test database integrity
