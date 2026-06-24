@@ -69,7 +69,7 @@ class PersonnelController extends BaseController
             ->limit(1)
             ->get()
             ->map(function (Personnel $personnel) {
-                if ($personnel->status !== 'Active') {
+                if (strtolower($personnel->status) === 'suspended') {
                     abort(403, 'This ID is currently suspended.');
                 }
                 $email = trim((string) $personnel->email);

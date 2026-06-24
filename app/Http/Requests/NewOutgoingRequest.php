@@ -73,7 +73,7 @@ class NewOutgoingRequest extends FormRequest
             $personnelId = $this->input('personnel_id');
             if ($personnelId) {
                 $personnel = \App\Models\Personnel::find($personnelId);
-                if ($personnel && $personnel->status !== 'Active') {
+                if ($personnel && strtolower($personnel->status) === 'suspended') {
                     $validator->errors()->add('employee_id', 'This personnel ID is suspended and cannot be used for supply checkout.');
                 }
             }
