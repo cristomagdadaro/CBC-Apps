@@ -56,6 +56,7 @@ class PersonnelTest extends TestCase
             'email' => 'jane.smith@example.com',
             'is_philrice_employee' => true,
             'employee_id' => 'EMP-001',
+            'status' => config('system.statuses.active'),
         ];
 
         $this->putJson(route('api.inventory.personnels.update', ['id' => $personnelId]), $updatePayload)

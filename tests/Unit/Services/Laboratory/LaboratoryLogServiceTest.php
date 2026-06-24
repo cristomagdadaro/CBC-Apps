@@ -456,7 +456,7 @@ class LaboratoryLogServiceTest extends TestCase
         } catch (HttpException $exception) {
             $this->assertSame(422, $exception->getStatusCode());
             $this->assertSame(
-                'This equipment exists, but its latest incoming stock is marked as "Tracked only / Not borrowable" and is not available in the borrowable equipment logger flow.',
+                'This equipment is Tracked only / Not borrowable. Please contact the Laboratory Manager if you need this equipment.',
                 $exception->getMessage()
             );
         }
@@ -491,7 +491,7 @@ class LaboratoryLogServiceTest extends TestCase
         } catch (HttpException $exception) {
             $this->assertSame(422, $exception->getStatusCode());
             $this->assertSame(
-                'This equipment exists, but its latest incoming stock is marked as "Excluded from logger" and is excluded from the equipment logger flow.',
+                'This equipment is Excluded from logger. Please contact the Laboratory Manager if you need assistance.',
                 $exception->getMessage()
             );
         }

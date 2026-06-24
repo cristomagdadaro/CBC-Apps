@@ -87,6 +87,9 @@ class PersonnelRegistrationRepo extends AbstractRepoService
             }
 
             $idIssuedAt = null;
+            if ($status === PersonnelRegistration::STATUS_APPROVED && $registration->requires_cbc_id_card) {
+                $idIssuedAt = now();
+            }
 
             $payload = [
                 'status' => $status,
@@ -156,6 +159,7 @@ class PersonnelRegistrationRepo extends AbstractRepoService
             'course_program' => $registration->course_program,
             'id_photo_path' => $registration->id_photo_path,
             'id_issued_at' => $idIssuedAt,
+            'status' => config('system.statuses.active'),
         ]);
     }
 

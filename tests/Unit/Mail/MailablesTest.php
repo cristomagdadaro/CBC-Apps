@@ -56,7 +56,7 @@ class MailablesTest extends TestCase
     public function test_generated_certificate_mail_renders_single_day_event_date_once(): void
     {
         $form = Form::factory()->create([
-            'event_id' => 'EVT-SINGLE-DAY',
+            'event_id' => 'EVT1',
             'title' => 'ELISA Seminar',
             'date_from' => '2026-05-28 08:00:00',
             'date_to' => '2026-05-28 17:00:00',

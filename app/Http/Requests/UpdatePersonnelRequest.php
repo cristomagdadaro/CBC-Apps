@@ -35,7 +35,7 @@ class UpdatePersonnelRequest extends FormRequest
             'address' => 'string|nullable',
             'email' => 'nullable|email|unique:personnels,email,' . $this->id,
             'employee_id' => 'required|string|max:32|unique:personnels,employee_id,' . $this->id,
-            'status' => ['required', 'string', Rule::in([config('system.statuses.active'), config('system.statuses.suspended')])],
+            'status' => ['required', 'string', Rule::in([config('system.statuses.active', 'Active'), config('system.statuses.suspended', 'Suspended')])],
         ];
     }
 
