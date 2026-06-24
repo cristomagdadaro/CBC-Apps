@@ -44,6 +44,7 @@ class Item extends BaseModel
         'category_id',
         'supplier_id',
         'image',
+        'simultaneous_users',
     ];
 
     protected array $searchable  = [

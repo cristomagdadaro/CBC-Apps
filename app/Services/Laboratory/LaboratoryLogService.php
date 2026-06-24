@@ -105,13 +105,22 @@ class LaboratoryLogService
     {
         $equipment = $this->requireEligibleEquipment($equipmentId, $equipmentType);
 
-        $activeLog = $this->getActiveLog($equipmentId);
+        $activeLogs = $this->getActiveLogs($equipmentId);
         $resolvedLocation = $this->resolveEquipmentLocation($equipmentId, $equipment->barcode ?? null);
+
+        $allowedActions = [];
+        if ($activeLogs->count() < max(1, $equipment->simultaneous_users ?? 1)) {
+            $allowedActions[] = 'check-in';
+        }
+        if ($activeLogs->count() > 0) {
+            $allowedActions[] = 'check-out';
+        }
 
         return [
             'equipment' => $equipment,
-            'active_log' => $this->serializeActiveLog($activeLog),
-            'allowed_actions' => $activeLog ? ['check-out'] : ['check-in'],
+            'active_logs' => $activeLogs->map(fn($log) => $this->serializeActiveLog($log))->all(),
+            'active_log' => $this->serializeActiveLog($activeLogs->first()),
+            'allowed_actions' => $allowedActions,
             'purpose_suggestions' => $this->getPurposeSuggestions($equipmentId),
             'current_location' => $resolvedLocation,
             'storage_location_options' => $this->getStorageLocationOptions(),
@@ -134,9 +143,13 @@ class LaboratoryLogService
         }
 
         return DB::transaction(function () use ($equipmentId, $payload, $personnel, $equipmentType) {
-            $activeLog = $this->lockActiveLog($equipmentId);
-            if ($activeLog) {
-                abort(409, 'Equipment already has an active log.');
+            $activeLogs = $this->lockActiveLogs($equipmentId);
+            $simultaneousLimit = max(1, $equipment->simultaneous_users ?? 1);
+            if ($activeLogs->count() >= $simultaneousLimit) {
+                abort(409, 'Equipment has reached its maximum simultaneous users limit.');
+            }
+            if ($activeLogs->contains('personnel_id', $personnel->id)) {
+                abort(409, 'You are already checked in to this equipment.');
             }
 
             $log = new LaboratoryEquipmentLog();
@@ -170,18 +183,20 @@ class LaboratoryLogService
         $equipment = $this->requireEligibleEquipment($equipmentId, $equipmentType);
 
         return DB::transaction(function () use ($equipmentId, $payload, $equipmentType) {
-            $activeLog = $this->lockActiveLog($equipmentId);
-            if (!$activeLog) {
-                abort(409, 'No active log found for this equipment.');
+            $isAdminOverride = $this->requestedAdminOverride($payload);
+            if ($isAdminOverride) {
+                $employeeId = trim((string) ($payload['employee_id'] ?? ''));
+                $personnel = Personnel::preferredEmployeeId($employeeId)->first();
+                if (!$personnel) {
+                     abort(422, 'Personnel record not found for the provided employee ID.');
+                }
+            } else {
+                $personnel = $this->resolvePersonnelFromPayload($payload);
             }
 
-            $isAdminOverride = $this->requestedAdminOverride($payload);
-            if (!$isAdminOverride) {
-                $personnel = $this->resolvePersonnelFromPayload($payload);
-
-                if ($personnel->id !== $activeLog->personnel_id) {
-                    abort(403, 'Only the original check-in personnel can check out this equipment.');
-                }
+            $activeLog = $this->lockActiveLog($equipmentId, $personnel->id);
+            if (!$activeLog) {
+                abort(409, 'No active log found for this equipment and personnel.');
             }
 
             $activeLog->status = 'completed';
@@ -204,13 +219,9 @@ class LaboratoryLogService
         $personnel = $this->resolvePersonnelFromPayload($payload);
 
         return DB::transaction(function () use ($equipmentId, $payload, $personnel, $equipmentType) {
-            $activeLog = $this->lockActiveLog($equipmentId);
+            $activeLog = $this->lockActiveLog($equipmentId, $personnel->id);
             if (!$activeLog) {
-                abort(409, 'No active log found for this equipment.');
-            }
-
-            if ($personnel->id !== $activeLog->personnel_id) {
-                abort(403, 'Only the original check-in personnel can update estimated end of use.');
+                abort(409, 'No active log found for this equipment and personnel.');
             }
 
             $activeLog->end_use_at = Carbon::parse($payload['end_use_at']);
@@ -1104,22 +1115,34 @@ class LaboratoryLogService
         return $labels->get($mode, str($mode)->replace('_', ' ')->headline());
     }
 
-    private function getActiveLog(string $equipmentId): ?LaboratoryEquipmentLog
+    private function getActiveLogs(string $equipmentId): Collection
     {
         return LaboratoryEquipmentLog::query()
             ->with(['personnel', 'equipment'])
             ->where('equipment_id', $equipmentId)
             ->whereIn('status', ['active', 'overdue'])
             ->orderByDesc('started_at')
-            ->first();
+            ->get();
     }
 
-    private function lockActiveLog(string $equipmentId): ?LaboratoryEquipmentLog
+    private function lockActiveLog(string $equipmentId, ?int $personnelId = null): ?LaboratoryEquipmentLog
+    {
+        $query = LaboratoryEquipmentLog::where('equipment_id', $equipmentId)
+            ->whereIn('status', ['active', 'overdue']);
+            
+        if ($personnelId !== null) {
+            $query->where('personnel_id', $personnelId);
+        }
+            
+        return $query->lockForUpdate()->first();
+    }
+
+    private function lockActiveLogs(string $equipmentId): \Illuminate\Support\Collection
     {
         return LaboratoryEquipmentLog::where('equipment_id', $equipmentId)
             ->whereIn('status', ['active', 'overdue'])
             ->lockForUpdate()
-            ->first();
+            ->get();
     }
 
     private function getPurposeSuggestions(string $equipmentId): array

@@ -34,6 +34,7 @@ export default {
             equipmentOptions: [],
             equipment: null,
             activeLog: null,
+            activeLogs: [],
             allowedActions: [],
             maxEndUseHours: 24,
             purposeSuggestions: [],
@@ -203,13 +204,13 @@ export default {
             );
         },
         statusColor() {
-            if (!this.activeLog) return "gray";
+            if (!this.activeLogs || this.activeLogs.length === 0) return "gray";
             if (this.isOverdue) return "red";
             return "emerald";
         },
         isOverdue() {
-            if (!this.activeLog) return false;
-            return this.isActiveItemOverdue(this.activeLog);
+            if (!this.activeLogs || this.activeLogs.length === 0) return false;
+            return this.activeLogs.some(log => this.isActiveItemOverdue(log));
         },
     },
     methods: {
@@ -301,7 +302,14 @@ export default {
                 const details = response?.data ?? response;
 
                 this.equipment = details?.equipment ?? null;
-                this.activeLog = details?.active_log ?? null;
+                this.activeLogs = details?.active_logs ?? [];
+                
+                if (this.currentLaboratoryPersonnel?.employee_id) {
+                    this.activeLog = this.activeLogs.find(log => log.personnel?.employee_id === this.currentLaboratoryPersonnel.employee_id) || null;
+                } else {
+                    this.activeLog = null;
+                }
+                
                 this.allowedActions = details?.allowed_actions ?? [];
                 this.purposeSuggestions = details?.purpose_suggestions ?? [];
                 this.currentLocation = details?.current_location ?? null;
@@ -335,7 +343,9 @@ export default {
                         this.currentLaboratoryPersonnel.employee_id;
                 }
 
-                if (!this.shouldShowLocationSurvey) {
+                if (this.shouldShowLocationSurvey) {
+                    this.openLocationSurveyModal();
+                } else {
                     this.showLocationSurveyModal = false;
                 }
             } catch (error) {
@@ -828,6 +838,11 @@ export default {
                 this.resetPersonnelLookupState();
             }
         },
+        "currentLaboratoryPersonnel.employee_id"(newVal) {
+            if (this.activeLogs) {
+                this.activeLog = this.activeLogs.find(log => log.personnel?.employee_id === newVal) || null;
+            }
+        }
     },
         mounted() {
             if (!this.selectedEquipmentId && this.equipmentIdFromUrl) {
@@ -1030,17 +1045,17 @@ export default {
                     </div>
 
                     <!-- Status Card -->
-                    <div v-if="hasEquipment && !notFound && equipment && activeLog" data-guide="equipment-status"
+                    <div v-if="hasEquipment && !notFound && equipment && activeLogs && activeLogs.length > 0" data-guide="equipment-status"
                         class="overflow-hidden bg-white border border-gray-200 shadow-sm md:rounded-xl">
                         <div class="flex items-center justify-between p-4 border-b border-gray-100">
                             <div class="flex items-center gap-3">
-                                <div class="p-2 rounded-lg" :class="isOverdue ? 'bg-red-100' : activeLog ? 'bg-emerald-100' : 'bg-gray-100'">
-                                    <LuActivity class="w-5 h-5" :class="isOverdue ? 'text-red-600' : activeLog ? 'text-emerald-600' : 'text-gray-600'" />
+                                <div class="p-2 rounded-lg" :class="isOverdue ? 'bg-red-100' : 'bg-emerald-100'">
+                                    <LuActivity class="w-5 h-5" :class="isOverdue ? 'text-red-600' : 'text-emerald-600'" />
                                 </div>
                                 <div>
                                     <span  class="inline-flex items-center gap-1.5 uppercase font-semibold rounded-full"
-                                        :class="isOverdue ? 'text-red-700' : activeLog ? 'text-emerald-700' : 'text-gray-700'">
-                                        {{ isOverdue ? 'Overdue' : activeLog ? 'In Use' : 'Available' }}
+                                        :class="isOverdue ? 'text-red-700' : 'text-emerald-700'">
+                                        {{ isOverdue ? 'Overdue' : 'In Use' }}
                                     </span>
                                     <h2 class="text-xs text-gray-900 leading-none">Current Status</h2>
                                 </div>
@@ -1052,29 +1067,30 @@ export default {
                             </button>
                         </div>
 
-                        <div v-if="activeLog" class="p-4 space-y-1 md:space-y-3">
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-500">Current User</span>
-                                <span class="flex items-center gap-1.5 text-sm font-medium text-gray-900">
-                                    {{ formatPersonnelName(statusCardPersonnel) }}<LuUser class="w-4 h-4 text-gray-400" />
-                                </span>
+                        <div v-if="activeLogs && activeLogs.length > 0" class="divide-y divide-gray-50">
+                            <div v-for="log in activeLogs" :key="log.id" class="p-4 space-y-1 md:space-y-3" :class="{'bg-emerald-50/20': log.personnel?.employee_id === currentLaboratoryPersonnel?.employee_id}">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-500">Current User</span>
+                                    <span class="flex items-center gap-1.5 text-sm font-medium text-gray-900">
+                                        {{ formatPersonnelName(log.personnel) }}<LuUser class="w-4 h-4 text-gray-400" />
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-500">Checked In</span>
+                                    <span class="flex items-center gap-1.5 text-sm font-medium text-gray-900">
+                                        {{ formatDateTime(log.started_at) }}
+                                        <LuCalendar class="w-4 h-4 text-gray-400" />
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-500">Expected End</span>
+                                    <span class="flex items-center gap-1.5 text-sm font-medium"
+                                        :class="isActiveItemOverdue(log) ? 'text-red-600' : 'text-gray-900'">
+                                        {{ formatDateTime(log.end_use_at) }}
+                                        <LuClock class="w-4 h-4" :class="isActiveItemOverdue(log) ? 'text-red-400' : 'text-gray-400'" />
+                                    </span>
+                                </div>
                             </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-500">Checked In</span>
-                                <span class="flex items-center gap-1.5 text-sm font-medium text-gray-900">
-                                    {{ formatDateTime(activeLog.started_at) }}
-                                    <LuCalendar class="w-4 h-4 text-gray-400" />
-                                </span>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-500">Expected End</span>
-                                <span class="flex items-center gap-1.5 text-sm font-medium"
-                                    :class="isOverdue ? 'text-red-600' : 'text-gray-900'">
-                                    {{ formatDateTime(activeLog.end_use_at) }}
-                                    <LuClock class="w-4 h-4" :class="isOverdue ? 'text-red-400' : 'text-gray-400'" />
-                                </span>
-                            </div>
-                            
                         </div>
                     </div>
 
