@@ -4,9 +4,16 @@ import DtoError from "@/Modules/dto/DtoError";
 import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import { extractRequestErrorMessage } from "@/Pages/LabRequest/utils/requestErrorUtils";
+import axios from "axios";
+import { Printer, AlertCircle, Loader2 } from "lucide-vue-next";
 
 export default {
     name: "UseRequestApprovalBtn",
+    components: {
+        Printer,
+        AlertCircle,
+        Loader2
+    },
     props: {
         data: Object
     },
@@ -14,6 +21,10 @@ export default {
     data() {
         return {
             updateError: null,
+            showPrintModal: false,
+            printProgress: 0,
+            isPrinting: false,
+            printError: null,
         };
     },
     beforeMount() {
@@ -21,6 +32,85 @@ export default {
         this.setFormAction('update');
     },
     methods: {
+        async handlePrint() {
+            if (!this.data?.id || this.isPrinting) return;
+
+            this.printError = null;
+            this.printProgress = 0;
+            this.isPrinting = true;
+            this.showPrintModal = true;
+
+            const baseUrl = this.data?.pdf_url || route('forms.generate.pdf', this.data.id);
+            const prefetchUrl = `${baseUrl}?prefetch=1`;
+
+            let progressTimer = null;
+            try {
+                progressTimer = setInterval(() => {
+                    if (this.printProgress < 90) {
+                        this.printProgress += Math.random() * 15 + 5;
+                        if (this.printProgress > 90) this.printProgress = 90;
+                    }
+                }, 400);
+
+                const response = await axios.get(prefetchUrl);
+
+                if (response?.data?.ready) {
+                    this.printProgress = 100;
+                    const targetUrl = response.data.download_url ?? response.data.url;
+
+                    const pdfResponse = await axios.get(targetUrl, { responseType: 'blob' });
+                    const contentType = (pdfResponse.headers?.['content-type'] ?? '').toLowerCase();
+
+                    if (!contentType.includes('application/pdf')) {
+                        const rawBlob = pdfResponse.data instanceof Blob
+                            ? pdfResponse.data
+                            : new Blob([pdfResponse.data]);
+
+                        let errorMessage = 'Failed to render PDF. Please try again.';
+                        try {
+                            const text = await rawBlob.text();
+                            const parsed = JSON.parse(text);
+                            errorMessage = parsed?.message || errorMessage;
+                        } catch {
+                            // keep default error message
+                        }
+
+                        throw new Error(errorMessage);
+                    }
+
+                    const blob = pdfResponse.data instanceof Blob
+                        ? pdfResponse.data
+                        : new Blob([pdfResponse.data], { type: 'application/pdf' });
+                    const url = window.URL.createObjectURL(blob);
+
+                    const disposition = pdfResponse.headers?.['content-disposition'] ?? '';
+                    const match = disposition.match(/filename="?([^";]+)"?/i);
+                    const filename = match?.[1] ?? 'request-form.pdf';
+
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+
+                    // Auto-close after successful download
+                    setTimeout(() => {
+                        this.isPrinting = false;
+                        this.showPrintModal = false;
+                        this.printProgress = 0;
+                    }, 500);
+                } else {
+                    throw new Error('PDF is not ready yet. Please try again.');
+                }
+            } catch (error) {
+                this.printError = extractRequestErrorMessage(error, 'Failed to render PDF. Please try again.');
+                this.printProgress = 0;
+            } finally {
+                if (progressTimer) clearInterval(progressTimer);
+            }
+        },
         async handleUpdateApprovalBtn(status) {
             this.updateError = null;
             this.form.request_status = status;
@@ -120,6 +210,15 @@ export default {
                 <span>Last updated: {{ formatDate(data.updated_at) }}</span>
             </div>
             <div class="flex flex-wrap justify-end gap-2">
+                <button v-if="data.request_status !== 'pending'" type="button" @click.stop="handlePrint"
+                    :disabled="isPrinting"
+                    aria-label="Download request form PDF"
+                    class="flex items-center gap-1 text-gray-900 w-fit px-3 py-1.5 rounded transition hover:scale-105 bg-white border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <Printer class="w-4 h-4" :class="{ 'animate-pulse': isPrinting }" />
+                    <span v-if="isPrinting">Printing...</span>
+                    <span v-else>Print</span>
+                </button>
+
                 <form v-if="!!form && canReject" @submit.prevent="handleUpdateApprovalBtn(rejected)">
                     <button
                         type="submit"
@@ -174,6 +273,42 @@ export default {
             </div>
         </div>
     </div>
+
+    <!-- Print Modal -->
+    <Modal :show="showPrintModal" :closeable="!isPrinting" @close="showPrintModal = false" max-width="sm">
+        <div class="p-6">
+            <div class="text-center">
+                <div class="mx-auto w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mb-4">
+                    <Loader2 v-if="!printError" class="w-6 h-6 text-blue-600 animate-spin" />
+                    <AlertCircle v-else class="w-6 h-6 text-red-600" />
+                </div>
+
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                    {{ printError ? 'Download Failed' : 'Generating PDF' }}
+                </h3>
+
+                <div v-if="!printError" class="space-y-3">
+                    <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                        <div class="h-full bg-blue-600 transition-all duration-500 ease-out rounded-full"
+                            :style="{ width: `${Math.min(printProgress, 100)}%` }"></div>
+                    </div>
+                    <p class="text-sm text-gray-500">
+                        {{ printProgress < 100 ? 'Preparing your document...' : 'Download starting...' }} </p>
+                </div>
+
+                <div v-if="printError" class="mt-4">
+                    <p class="text-sm text-red-600 bg-red-50 rounded-lg p-3">
+                        {{ printError }}
+                    </p>
+                    <button @click="showPrintModal = false"
+                        aria-label="Close print dialog"
+                        class="mt-4 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </Modal>
 </template>
 
 <style scoped>

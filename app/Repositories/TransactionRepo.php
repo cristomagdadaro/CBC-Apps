@@ -569,12 +569,13 @@ class TransactionRepo extends AbstractRepoService
                     ($row->description ? " ({$row->description})" : '')
                 );
 
-                $stockInfo = $row->remaining_quantity !== null
-                    ? " - {$row->remaining_quantity}" . ($row->unit ? " {$row->unit} remaining" : '')
+                $stockInfo = $row->barcode !== null
+                    ? " - {$row->barcode}"
                     : '';
 
                 return [
-                    'value' => $row->item_id,
+                    'value' => $row->barcode ?? $row->item_id,
+                    'item_id' => $row->item_id,
                     'label' => $baseLabel . $stockInfo,
                     'barcode' => $row->barcode,
                     'barcode_prri' => $row->barcode_prri ?? null,

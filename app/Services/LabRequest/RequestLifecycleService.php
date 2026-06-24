@@ -9,9 +9,15 @@ use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
+use App\Services\Notifications\NotificationDispatchService;
 
 class RequestLifecycleService
 {
+    public function __construct(
+        private readonly NotificationDispatchService $notificationDispatcher
+    ) {
+    }
+
     public function dispatchScheduledOverdueNotifications(): int
     {
         $sentCount = 0;
@@ -197,7 +203,18 @@ class RequestLifecycleService
             return;
         }
 
-        Mail::to($email)->queue(new UseRequestLifecycleMail($model, $event));
+        $this->notificationDispatcher->dispatchMailable(
+            domain: 'fes.requests',
+            eventKey: "request.{$event}",
+            mailableClass: UseRequestLifecycleMail::class,
+            constructorArguments: [
+                'request' => $model,
+                'event' => $event,
+            ],
+            notifiableType: $model->getMorphClass(),
+            notifiableId: (string) $model->getKey(),
+            recipients: [$email],
+        );
     }
 
     private function splitName(string $name): array

@@ -20,6 +20,15 @@ return [
     ],
 
     'domains' => [
+        'fes' => [
+            'requests' => [
+                'enabled' => env('NOTIFICATIONS_FES_REQUESTS_ENABLED', true),
+                'queue' => env('NOTIFICATIONS_FES_REQUESTS_QUEUE', env('NOTIFICATIONS_QUEUE', 'notifications')),
+                'delivery_mode' => env('NOTIFICATIONS_FES_REQUESTS_DELIVERY_MODE', 'individual'),
+                'option_keys' => [],
+                'roles' => [],
+            ],
+        ],
         'forms' => [
             'responses' => [
                 'enabled' => env('NOTIFICATIONS_FORMS_RESPONSES_ENABLED', true),
