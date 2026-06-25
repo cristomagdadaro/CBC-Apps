@@ -52,6 +52,7 @@ export default {
             isMobile: false,
             showMobilePreview: false,
             hoveredKey: null,
+            searchTimeout: null,
         };
     },
     computed: {
@@ -161,13 +162,7 @@ export default {
             };
         },
         filteredItems() {
-            const term = this.search?.toLowerCase()?.trim();
-            if (!term) return this.items;
-            return this.items.filter(item => {
-                return [item.name, item.brand, item.description, item.barcode, item.barcode_prri]
-                    .filter(Boolean)
-                    .some(value => value.toLowerCase().includes(term));
-            });
+            return this.items;
         },
         categoryOptions() {
             return this.$page?.props?.categories ?? [];
@@ -297,6 +292,14 @@ export default {
             this.previewReady = false;
             this.loadItems();
         },
+        onSearchChange() {
+            if (this.searchTimeout) {
+                clearTimeout(this.searchTimeout);
+            }
+            this.searchTimeout = setTimeout(() => {
+                this.loadItems();
+            }, 300);
+        },
         async loadItems() {
             this.loading = true;
             this.model = new Transaction();
@@ -308,6 +311,7 @@ export default {
             this.form.filter_by = this.categoryId ? this.categoryId : null;
             this.form.include_all_categories = !this.categoryId;
             this.form.storage_location_id = this.storageLocationId;
+            this.form.search = this.search;
 
             await this.fetchGetApi('api.inventory.transactions.remaining-stocks', this.form.data())
                 .then((response) => {
@@ -556,7 +560,7 @@ export default {
                         <div class="flex flex-col sm:flex-row gap-3">
                             <div class="flex-1 relative">
                                 <LuSearch class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                <input v-model="search" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm" placeholder="Search items, brands, or barcodes..."
+                                <input v-model="search" @input="onSearchChange" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm" placeholder="Search items, brands, or barcodes..."
                                     type="text" />
                             </div>
                             <custom-dropdown :options="categoryOptions" :value="categoryId"
@@ -845,7 +849,7 @@ export default {
                         class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 space-y-4">
                         <div class="relative">
                             <LuSearch class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <input v-model="search" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm" placeholder="Search items..."
+                            <input v-model="search" @input="onSearchChange" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm" placeholder="Search items..."
                                 type="text" />
                         </div>
 
