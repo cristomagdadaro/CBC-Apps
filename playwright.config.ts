@@ -26,6 +26,9 @@ export default defineConfig({
 
         /* Take screenshot on failure */
         screenshot: 'only-on-failure',
+
+        /* Global storage state to bypass privacy notice modal */
+        storageState: './tests/e2e/storage-state.json',
     },
 
     /* Configure projects for major browsers */
