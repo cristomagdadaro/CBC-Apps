@@ -37,3 +37,4 @@ NUL
 venv/
 app/python/Certificate-Generator/venv/
 
+docker/nginx/default.conf
