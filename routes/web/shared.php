@@ -49,7 +49,7 @@ Route::prefix('apps')->group(function () {
 });
 
 Route::get('download/android', function () {
-    $path = base_path('android/app/build/outputs/apk/debug/OneCBCPortal.apk');
+    $path = storage_path('app/public/apk/OneCBCPortal.apk');
     if (!file_exists($path)) {
         abort(404, 'Android APK not found.');
     }
