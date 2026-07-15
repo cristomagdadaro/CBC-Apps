@@ -178,6 +178,27 @@ onMounted(() => {
                             />
                         </div>
                     </div>
+
+                    <!-- Mobile App Downloads -->
+                    <div class="mt-8 flex flex-col items-center gap-4">
+                        <h4 class="text-gray-400 uppercase tracking-widest text-xs font-bold">Download our Mobile App</h4>
+                        <div class="flex flex-wrap justify-center gap-4">
+                            <a :href="route('download.android')" class="flex items-center gap-3 bg-gray-900 hover:bg-black text-white px-6 py-3 rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
+                                <LuSmartphone class="w-8 h-8 text-lime-500" />
+                                <div class="flex flex-col items-start leading-none">
+                                    <span class="text-[0.6rem] uppercase text-gray-400">Get it for</span>
+                                    <span class="text-xl font-bold">Android</span>
+                                </div>
+                            </a>
+                            <button disabled class="flex items-center gap-3 bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-500 px-6 py-3 rounded-xl cursor-not-allowed opacity-75">
+                                <LuSmartphone class="w-8 h-8" />
+                                <div class="flex flex-col items-start leading-none">
+                                    <span class="text-[0.6rem] uppercase">Coming Soon for</span>
+                                    <span class="text-xl font-bold">iOS</span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

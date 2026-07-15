@@ -1,0 +1,3 @@
+- [x] Create download route in `routes/web/shared.php`
+- [x] Add download buttons to `Welcome.vue`
+- [x] Verify buttons and route

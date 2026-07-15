@@ -47,3 +47,11 @@ Route::prefix('apps')->group(function () {
         return Inertia::render('Manuals/ManualsIndex');
     })->name('manuals.index');
 });
+
+Route::get('download/android', function () {
+    $path = base_path('android/app/build/outputs/apk/debug/OneCBCPortal.apk');
+    if (!file_exists($path)) {
+        abort(404, 'Android APK not found.');
+    }
+    return response()->download($path);
+})->name('download.android');

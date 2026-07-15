@@ -4,6 +4,10 @@
   "webDir": "public",
   "server": {
     "url": "https://onecbc.philrice.gov.ph",
-    "cleartext": true
+    "hostname": "onecbc.philrice.gov.ph",
+    "cleartext": true,
+    "allowNavigation": [
+      "onecbc.philrice.gov.ph"
+    ]
   }
 }
