@@ -180,23 +180,52 @@ onMounted(() => {
                     </div>
 
                     <!-- Mobile App Downloads -->
-                    <div class="mt-8 flex flex-col items-center gap-4">
-                        <h4 class="text-gray-400 uppercase tracking-widest text-xs font-bold">Download our Mobile App</h4>
+                    <div class="mt-8 flex flex-col items-center gap-4 bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 backdrop-blur-sm">
+                        <h4 class="text-gray-100 dark:text-gray-400 uppercase tracking-widest text-xs font-semibold">
+                            Mobile App Version
+                        </h4>
+                        
                         <div class="flex flex-wrap justify-center gap-4">
-                            <a :href="route('download.android')" class="flex items-center gap-3 bg-gray-900 hover:bg-black text-white px-6 py-3 rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
-                                <LuSmartphone class="w-8 h-8 text-lime-500" />
+                            <!-- Android Active Button -->
+                            <a :href="route('download.android')" 
+                            class="group flex items-center gap-4 bg-gray-950 dark:bg-black hover:bg-gray-900 border border-gray-800 dark:border-gray-900 text-white px-6 py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-xl hover:-translate-y-1">
+                                <svg class="w-8 h-8 text-lime-500 transition-transform duration-300 group-hover:scale-110" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M2.76 3.061a.5.5 0 0 1 .679.2l1.283 2.352A8.9 8.9 0 0 1 8 5a8.9 8.9 0 0 1 3.278.613l1.283-2.352a.5.5 0 1 1 .878.478l-1.252 2.295C14.475 7.266 16 9.477 16 12H0c0-2.523 1.525-4.734 3.813-5.966L2.56 3.74a.5.5 0 0 1 .2-.678ZM5 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2m6 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+                                </svg>
                                 <div class="flex flex-col items-start leading-none">
-                                    <span class="text-[0.6rem] uppercase text-gray-400">Get it for</span>
-                                    <span class="text-xl font-bold">Android</span>
+                                    <span class="text-[0.65rem] uppercase text-gray-400 tracking-wider">Get it on</span>
+                                    <span class="text-lg font-bold mt-1">Android</span>
                                 </div>
                             </a>
-                            <button disabled class="flex items-center gap-3 bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-500 px-6 py-3 rounded-xl cursor-not-allowed opacity-75">
-                                <LuSmartphone class="w-8 h-8" />
+
+                            <!-- iOS Disabled Button -->
+                            <button disabled 
+                                    class="flex items-center gap-4 bg-gray-100 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800/80 text-gray-400 dark:text-gray-500 px-6 py-3 rounded-xl cursor-not-allowed opacity-60">
+                                <svg class="w-8 h-8 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+                                    <path d="M11.182.008C11.148-.03 9.923.023 8.857 1.18c-1.066 1.156-.902 2.482-.878 2.516s1.52.087 2.475-1.258.762-2.391.728-2.43m3.314 11.733c-.048-.096-2.325-1.234-2.113-3.422s1.675-2.789 1.698-2.854-.597-.79-1.254-1.157a3.7 3.7 0 0 0-1.563-.434c-.108-.003-.483-.095-1.254.116-.508.139-1.653.589-1.968.607-.316.018-1.256-.522-2.267-.665-.647-.125-1.333.131-1.824.328-.49.196-1.422.754-2.074 2.237-.652 1.482-.311 3.83-.067 4.56s.625 1.924 1.273 2.796c.576.984 1.34 1.667 1.659 1.899s1.219.386 1.843.067c.502-.308 1.408-.485 1.766-.472.357.013 1.061.154 1.782.539.571.197 1.111.115 1.652-.105.541-.221 1.324-1.059 2.238-2.758q.52-1.185.473-1.282"/>
+                                </svg>
                                 <div class="flex flex-col items-start leading-none">
-                                    <span class="text-[0.6rem] uppercase">Coming Soon for</span>
-                                    <span class="text-xl font-bold">iOS</span>
+                                    <span class="text-[0.65rem] uppercase tracking-wider text-gray-400 dark:text-gray-500">Coming Soon for</span>
+                                    <span class="text-lg font-bold mt-1">iOS</span>
                                 </div>
                             </button>
+                        </div>
+
+                        <!-- Important Notice Card -->
+                        <div class="max-w-md mx-auto flex items-start gap-3">
+                            <div class="flex flex-col gap-1 text-left">
+                                <span class="text-xs font-bold uppercase tracking-wider text-amber-500 flex items-center gap-1">
+                                    <svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                    </svg>
+                                    Important Notice
+                                </span>
+                                <p class="text-xs text-gray-200 dark:text-gray-300 leading-relaxed text-justify">
+                                    Upon installation, kindly proceed and accept all requested permissions to ensure all native system features work correctly. Please ignore system security warnings; they are standard warnings because the application is built and distributed directly from DA-CBC and not distributed through the official Play Store or App Store.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
