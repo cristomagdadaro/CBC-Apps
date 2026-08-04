@@ -1,5 +1,5 @@
 <script setup>
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
 
 defineProps({
@@ -10,14 +10,23 @@ defineProps({
 <template>
     <Head title="Terms of Service" />
 
-    <div class="font-sans text-gray-900 dark:text-gray-100 antialiased">
-        <div class="pt-4 bg-gray-100 dark:bg-gray-900">
-            <div class="min-h-screen flex flex-col items-center pt-6 sm:pt-0">
-                <div>
+    <div class="font-sans text-slate-900 dark:text-slate-100 antialiased min-h-screen bg-slate-50 dark:bg-slate-950">
+        <div class="py-6 sm:py-12 px-3.5 sm:px-6 flex flex-col items-center justify-center min-h-screen">
+            <div class="shrink-0 mb-4 sm:mb-6">
+                <Link href="/" class="transition-transform hover:scale-105 inline-block">
                     <AuthenticationCardLogo />
-                </div>
+                </Link>
+            </div>
 
-                <div class="w-full sm:max-w-2xl mt-6 p-6 bg-white dark:bg-gray-800 shadow-md overflow-hidden sm:rounded-lg prose dark:prose-invert" v-html="terms" />
+            <div class="w-full max-w-4xl p-5 sm:p-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-gray-200/80 dark:border-slate-800/90 shadow-2xl rounded-2xl prose dark:prose-invert max-w-none text-xs sm:text-sm md:text-base leading-relaxed tracking-normal" v-html="terms" />
+
+            <div class="mt-6 text-center">
+                <Link href="/" class="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-lime-600 dark:text-lime-400 hover:underline">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Back to Home
+                </Link>
             </div>
         </div>
     </div>

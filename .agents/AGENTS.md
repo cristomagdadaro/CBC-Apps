@@ -37,3 +37,11 @@
 - **Route Maps**: Regenerate `resources/js/ziggy.js` (`php artisan ziggy:generate resources/js/ziggy.js`) after any route additions, removals, or guest exposure changes.
 - **Testing Database**: PHPUnit MUST target dedicated testing database (`cbc_one_db_test`) as configured in `phpunit.xml`.
 - **Tracker Update**: Update `.github/codebase-analysis-report-2026-03-25.md` whenever codebase issues are discovered, resolved, or deferred.
+
+## Senior UX/UI & Visual Balance Standards
+- **Mobile-First Density & Rhythm**: Remove excessive whitespace on mobile viewports (`px-2.5 sm:px-6`, `py-3 sm:py-6`, `gap-2.5 sm:gap-4`). Never hardcode fixed margins (e.g. `mx-5`) or min-widths (`min-w-[300px]`) that break mobile grids or cause horizontal overflow.
+- **Typography & Scale Hierarchy**: Maintain consistent typographic rhythm (`text-[0.65rem] sm:text-xs` for micro-badges, `text-xs sm:text-sm` for secondary text/actions, `text-sm sm:text-base` for body, `text-lg sm:text-2xl` for titles/metrics).
+- **Visual Weight & Alignment**: Use symmetrical padding (`p-3 sm:p-5`), matching icon container proportions (`h-8 w-8 sm:h-11 sm:w-11`), consistent border-radii (`rounded-xl sm:rounded-2xl`), and balanced elevation shadows.
+- **Dark Mode Elevation & Contrast**: Provide full, rich dark mode support (`dark:bg-slate-900`, `dark:border-slate-800`, `dark:text-slate-100`, `dark:text-slate-300`). Maintain high WCAG-compliant contrast ratios without harsh stark whites on OLED screens.
+- **Micro-Interactions & Depth**: Integrate subtle hover elevations (`hover:-translate-y-0.5`), smooth transitions (`transition-all duration-300`), glassmorphic overlays (`backdrop-blur-md bg-white/95 dark:bg-slate-900/90`), and clear interactive states.
+

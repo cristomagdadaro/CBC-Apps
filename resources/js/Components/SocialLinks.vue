@@ -247,7 +247,7 @@ export default {
     </transition>
 
     <!-- Main Container -->
-    <div data-guide="social-links" class="fixed bottom-6 right-6 z-[1000] flex flex-col items-end gap-3">
+    <div data-guide="social-links" class="fixed bottom-3.5 right-3.5 sm:bottom-6 sm:right-6 z-[1000] flex flex-col items-end gap-2 sm:gap-3">
         <!-- Desktop View: Floating Pill -->
         <div class="hidden md:flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 rounded-full px-2 py-1.5 shadow-xl shadow-gray-900/10 dark:shadow-black/30 backdrop-blur-md bg-opacity-90 dark:bg-opacity-90 transition-all duration-300 hover:shadow-2xl hover:shadow-gray-900/15 hover:scale-[1.02]"
             @mouseenter="isHovered = true" @mouseleave="isHovered = false">
@@ -337,7 +337,7 @@ export default {
         </div>
 
         <!-- Mobile View: Floating Action Button -->
-        <div class="md:hidden flex flex-col items-end gap-3">
+        <div class="md:hidden flex flex-col items-end gap-2">
             <!-- Menu Panel -->
             <transition enter-active-class="transition-all duration-300 ease-out"
                 enter-from-class="opacity-0 translate-y-8 scale-95" enter-to-class="opacity-100 translate-y-0 scale-100"
@@ -345,10 +345,10 @@ export default {
                 leave-from-class="opacity-100 translate-y-0 scale-100"
                 leave-to-class="opacity-0 translate-y-8 scale-95">
                 <div v-if="open"
-                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden min-w-[280px] mb-2">
+                    class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/80 dark:border-slate-800/90 overflow-hidden max-w-[calc(100vw-2rem)] min-w-[260px] mb-1.5">
                     <!-- Header -->
-                    <div class="bg-gradient-to-r from-AB to-AB/80 px-4 py-3 flex items-center justify-between">
-                        <span class="text-white font-semibold text-sm flex items-center gap-2">
+                    <div class="bg-gradient-to-r from-lime-600 to-emerald-600 px-3.5 py-2.5 flex items-center justify-between">
+                        <span class="text-white font-semibold text-xs flex items-center gap-2">
                             <LuGlobe class="w-4 h-4" />
                             Quick Links
                         </span>
@@ -361,110 +361,110 @@ export default {
                     <!-- Auth Section -->
                     <div class="p-2 space-y-1">
                         <Link :href="route('login')" data-guide='social-links-login'
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 group">
+                            class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 group">
                             <div
-                                class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-AB/10 group-hover:text-AB transition-colors">
-                                <LuUser class="w-4 h-4" />
+                                class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-lime-500/20 group-hover:text-lime-600 transition-colors">
+                                <LuUser class="w-3.5 h-3.5" />
                             </div>
                             <div class="flex-1">
-                                <span class="text-sm font-medium">Login</span>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                <span class="text-xs font-semibold">Login</span>
+                                <p class="text-[0.68rem] text-slate-500 dark:text-slate-400">
                                     Access your account
                                 </p>
                             </div>
                         </Link>
 
                         <Link v-if="canRegister" :href="route('register')" data-guide='social-links-register'
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 group">
+                            class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 group">
                         <div
-                            class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-AB/10 group-hover:text-AB transition-colors">
-                            <LuUser class="w-4 h-4" />
+                            class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-lime-500/20 group-hover:text-lime-600 transition-colors">
+                            <LuUser class="w-3.5 h-3.5" />
                         </div>
                         <div class="flex-1">
-                            <span class="text-sm font-medium">Register</span>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                            <span class="text-xs font-semibold">Register</span>
+                            <p class="text-[0.68rem] text-slate-500 dark:text-slate-400">
                                 Create new account
                             </p>
                         </div>
                         </Link>
                     </div>
 
-                    <div class="h-px bg-gray-200 dark:bg-gray-700 mx-2" />
+                    <div class="h-px bg-slate-200 dark:bg-slate-800 mx-2" />
 
                     <!-- External Links -->
                     <div class="p-2 space-y-1">
                         <a data-guide='social-links-facebook' href="https://www.facebook.com/DACropBiotechCenter" target="_blank" rel="noopener noreferrer"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 group">
+                            class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 group">
                             <div
-                                class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                                <LuFacebook class="w-4 h-4" />
+                                class="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                                <LuFacebook class="w-3.5 h-3.5" />
                             </div>
                             <div class="flex-1">
-                                <span class="text-sm font-medium">Facebook</span>
-                                <ExternalLink class="w-3 h-3 text-gray-400 inline-block ml-1" />
+                                <span class="text-xs font-semibold">Facebook</span>
+                                <ExternalLink class="w-3 h-3 text-slate-400 inline-block ml-1" />
                             </div>
                         </a>
 
                         <a data-guide='social-links-email' href="mailto:cropbiotechcenter@gmail.com"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 group">
+                            class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all duration-200 group">
                             <div
-                                class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 group-hover:bg-red-500 group-hover:text-white transition-all">
-                                <LuMail class="w-4 h-4" />
+                                class="w-7 h-7 rounded-lg bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-600 group-hover:bg-rose-500 group-hover:text-white transition-all">
+                                <LuMail class="w-3.5 h-3.5" />
                             </div>
                             <div class="flex-1">
-                                <span class="text-sm font-medium">Email</span>
+                                <span class="text-xs font-semibold">Email</span>
                                 <span
-                                    class="text-xs text-gray-500 dark:text-gray-400 block">cropbiotechcenter@gmail.com</span>
+                                    class="text-[0.68rem] text-slate-500 dark:text-slate-400 block">cropbiotechcenter@gmail.com</span>
                             </div>
                         </a>
 
                         <a data-guide='social-links-corporate-website' href="https://dacbc.philrice.gov.ph/" target="_blank" rel="noopener noreferrer"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 group">
+                            class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 group">
                             <div
-                                class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-AB/10 group-hover:text-AB transition-colors">
-                                <LuGlobe class="w-4 h-4" />
+                                class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-lime-500/20 group-hover:text-lime-600 transition-colors">
+                                <LuGlobe class="w-3.5 h-3.5" />
                             </div>
                             <div class="flex-1">
-                                <span class="text-sm font-medium">Corporate Website</span>
-                                <ExternalLink class="w-3 h-3 text-gray-400 inline-block ml-1" />
+                                <span class="text-xs font-semibold">Corporate Website</span>
+                                <ExternalLink class="w-3 h-3 text-slate-400 inline-block ml-1" />
                             </div>
                         </a>
 
                         <a data-guide='social-links-360tour' href="https://cbc360tour.philrice.gov.ph/" target="_blank" rel="noopener noreferrer"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all duration-200 group">
+                            class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all duration-200 group">
                             <div
-                                class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-all">
-                                <LuStar class="w-4 h-4" />
+                                class="w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-all">
+                                <LuStar class="w-3.5 h-3.5" />
                             </div>
                             <div class="flex-1">
-                                <span class="text-sm font-medium">Virtual Tour</span>
-                                <ExternalLink class="w-3 h-3 text-gray-400 inline-block ml-1" />
+                                <span class="text-xs font-semibold">Virtual Tour</span>
+                                <ExternalLink class="w-3 h-3 text-slate-400 inline-block ml-1" />
                             </div>
                         </a>
 
                         <a data-guide='social-links-pin' href="https://pin.philrice.gov.ph/" target="_blank" rel="noopener noreferrer"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-200 group">
+                            class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-200 group">
                             <div
-                                class="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 group-hover:bg-green-500 group-hover:text-white transition-all">
-                                <LuMapPin class="w-4 h-4" />
+                                class="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                                <LuMapPin class="w-3.5 h-3.5" />
                             </div>
                             <div class="flex-1">
-                                <span class="text-sm font-medium">PIN System</span>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                <span class="text-xs font-semibold">PIN System</span>
+                                <p class="text-[0.68rem] text-slate-500 dark:text-slate-400">
                                     Plant Breeders & Innovators Network
                                 </p>
                             </div>
                         </a>
 
                         <button type="button" @click="openPrivacyNotice" data-guide='social-links-privacy-notice'
-                            class="flex w-full items-center gap-3 px-3 py-2.5 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-200 group">
+                            class="flex w-full items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-200 group">
                             <div data-guide='privacy-notice'
-                                class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-all">
-                                <LuShield class="w-4 h-4" />
+                                class="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                                <LuShield class="w-3.5 h-3.5" />
                             </div>
                             <div class="flex-1 text-left">
-                                <span class="text-sm font-medium">Data Privacy Notice</span>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                <span class="text-xs font-semibold">Data Privacy Notice</span>
+                                <p class="text-[0.68rem] text-slate-500 dark:text-slate-400">
                                     Learn how OneCBC handles personal data
                                 </p>
                             </div>
@@ -476,10 +476,10 @@ export default {
             <!-- FAB Toggle Button -->
             <button type="button" @click="toggle"
                 data-guide='social-links'
-                class="w-14 h-14 rounded-full bg-AB text-white shadow-lg shadow-AB/30 flex items-center justify-center hover:shadow-xl hover:shadow-AB/40 hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-AB/20"
-                :class="{ 'rotate-90': open }" aria-label="Toggle quick links menu">
-                <Menu v-if="!open" class="w-6 h-6" />
-                <LuX v-else class="w-6 h-6" />
+                class="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-slate-900/80 dark:bg-slate-800/90 text-white backdrop-blur-md border border-slate-700/60 dark:border-slate-700/80 shadow-md sm:shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none opacity-75 hover:opacity-100"
+                :class="{ 'rotate-90 opacity-100 bg-lime-600 text-white': open }" aria-label="Toggle quick links menu">
+                <Menu v-if="!open" class="w-5 h-5 sm:w-6 sm:h-6 text-lime-400" />
+                <LuX v-else class="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
         </div>
     </div>
