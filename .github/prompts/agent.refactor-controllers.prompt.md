@@ -80,7 +80,7 @@ public function __construct(FormBuilderRepo $repository)
 ## Completion Checklist
 - Update or add feature tests whenever the refactor changes guest/public exposure, authorization, or validation.
 - Regenerate `resources/js/ziggy.js` when route names or guest-route exposure changes.
-- Record newly found issues or status changes in [docs/codebase-analysis-report-2026-03-25.md](../../docs/codebase-analysis-report-2026-03-25.md).
+- Record newly found issues or status changes in [codebase-analysis-report-2026-03-25.md](../codebase-analysis-report-2026-03-25.md).
 
 ## Implementation Checklist
 

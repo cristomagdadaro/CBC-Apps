@@ -18,7 +18,6 @@ import IconsLibraryTopic from "./Topics/IconsLibraryTopic.vue";
 import GoogleCalendarTopic from "./Topics/GoogleCalendarTopic.vue";
 import ResearchMonitoringTopic from "./Topics/ResearchMonitoringTopic.vue";
 import DriverJsGuidesTopic from "./Topics/DriverJsGuidesTopic.vue";
-import LocalDeploymentTopic from "./Topics/LocalDeploymentTopic.vue";
 
 export default {
   name: "ManualsIndex",
@@ -40,7 +39,6 @@ export default {
     GoogleCalendarTopic,
     ResearchMonitoringTopic,
     DriverJsGuidesTopic,
-    LocalDeploymentTopic,
   },
   setup() {
     const page = usePage();
@@ -49,7 +47,7 @@ export default {
         ? new URLSearchParams(window.location.search).get("section")
         : null;
     const activeSection = ref(initialSection || "overview");
-    const developerOnlyTopicIds = ["consoleLogger", "iconsLibrary", "driverJsGuides", "localDeployment"];
+    const developerOnlyTopicIds = ["consoleLogger", "iconsLibrary", "driverJsGuides"];
     const showDeveloperSections = computed(() => Boolean(page.props?.auth?.user?.id));
 
     const sections = {
@@ -138,11 +136,6 @@ export default {
         icon: "🧭",
         component: DriverJsGuidesTopic,
       },
-      localDeployment: {
-        title: "Local Setup and Docker Deployment",
-        icon: "🐳",
-        component: LocalDeploymentTopic,
-      },
     };
 
     const menuItems = [
@@ -167,7 +160,6 @@ export default {
       { id: "googleCalendar", label: "Google Calendar Integration", icon: "🗓️" },
       { id: "researchMonitoring", label: "Research Monitoring Module", icon: "🧬" },
       { id: "driverJsGuides", label: "Driver.js Tour Guides", icon: "🧭" },
-      { id: "localDeployment", label: "Local Setup & Docker Deployment", icon: "🐳" },
     ];
 
     const visibleSections = computed(() => {

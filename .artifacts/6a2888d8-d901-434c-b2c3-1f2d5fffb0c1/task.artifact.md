@@ -1,3 +1,0 @@
-- [x] Add permissions to `android/app/src/main/AndroidManifest.xml`
-- [x] Add `<uses-feature>` tags for hardware compatibility
-- [x] Verify manifest structure

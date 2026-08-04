@@ -157,8 +157,8 @@ If you are developing in WSL on Windows, use the Linux setup above and keep `sof
 
 ## Documentation Index
 
-- RBAC and layered implementation: `docs/RBAC_ARCHITECTURE_IMPLEMENTATION.md`
 - AI coding instructions: `.github/copilot-instructions.md`
+- Controller refactoring prompt: `.github/prompts/agent.refactor-controllers.prompt.md`
 
 ## Development Notes
 
