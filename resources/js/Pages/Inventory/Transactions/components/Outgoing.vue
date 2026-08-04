@@ -7,7 +7,9 @@ import OutgoingForm from "@/Pages/Inventory/Transactions/components/OutgoingForm
 import OutgoingItemCard from "@/Pages/Inventory/Transactions/components/presentation/OutgoingItemCard.vue";
 import Personnel from "@/Modules/domain/Personnel.js";
 import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue";
+import CameraScanner from "@/Components/CameraScanner.vue";
 import { subscribeToRealtimeChannels } from "@/Modules/realtime/subscriptions";
+import { Filter, ChevronDown, ChevronUp } from "lucide-vue-next";
 
 export default {
     name: "Outgoing",
@@ -16,7 +18,11 @@ export default {
         OutgoingForm,
         OutgoingItemCard,
         ListOfForms,
-        SearchBy
+        SearchBy,
+        CameraScanner,
+        Filter,
+        ChevronDown,
+        ChevronUp,
     },
     mixins: [ApiMixin],
     props: {
@@ -46,6 +52,7 @@ export default {
             api: null,
             errors: {},
             showModel: false,
+            showFilters: false,
             selectedItem: null,
             outgoingFromApi: null,
             realtimeCleanup: null,
@@ -87,6 +94,12 @@ export default {
                 }
             });
         },
+        activeFilterCount() {
+            let count = 0;
+            if (this.form?.filter && this.form?.filter_by) count++;
+            if (this.form?.storage_location_id) count++;
+            return count;
+        },
     },
     methods: {
         formatNumber(value){
@@ -105,6 +118,12 @@ export default {
                 this.outgoingFromApi = response;
             })
             this.processing = false;
+        },
+        searchFromBarcode(decodedValue) {
+            this.form.search = decodedValue;
+            this.form.filter = 'barcode';
+            this.form.is_exact = true;
+            this.searchEvent();
         },
         setFilter(filter, filter_by) {
             if (this.form.filter_by === filter_by) {
@@ -190,29 +209,51 @@ export default {
         </div>
         <div v-else class="default-container py-4 sm:py-6 text-slate-900 dark:text-slate-100">
             <div class="flex flex-col justify-between max-w-7xl mx-auto gap-4 sm:gap-6">
-                <!-- Search Bar Container -->
+                <!-- Search Bar & Controls Container -->
                 <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 sm:p-5 rounded-2xl shadow-xs space-y-3">
-                    <div class="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
-                        <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" class="sm:w-64 shrink-0" />
+                    <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
                         <div class="flex-1 flex gap-2">
-                            <text-input placeholder="Search items, barcodes, descriptions..." v-model="form.search" @keydown.enter.prevent="searchEvent()" class="w-full" />
+                            <text-input placeholder="Search items, barcodes, descriptions..." v-model="form.search" @update:model-value="form.filter = null; form.is_exact = false;" @keydown.enter.prevent="searchEvent()" class="w-full" />
                             <search-btn @click="searchEvent" :disabled="model?.processing" class="w-28 text-center shrink-0">
                                 <span v-if="!model?.processing">Search</span>
                                 <span v-else>Searching</span>
                             </search-btn>
                         </div>
+
+                        <!-- Filter Toggle Button -->
+                        <button
+                            type="button"
+                            @click="showFilters = !showFilters"
+                            class="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl border text-xs font-semibold transition-all shrink-0 active:scale-95"
+                            :class="showFilters || activeFilterCount > 0
+                                ? 'bg-lime-50 dark:bg-lime-950/40 border-lime-300 dark:border-lime-800 text-lime-700 dark:text-lime-300 shadow-xs'
+                                : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'"
+                        >
+                            <Filter class="w-4 h-4 text-lime-600 dark:text-lime-400" />
+                            <span>Filters</span>
+                            <span v-if="activeFilterCount > 0" class="px-1.5 py-0.5 rounded-full text-[0.65rem] font-bold bg-lime-600 text-white">
+                                {{ activeFilterCount }}
+                            </span>
+                            <component :is="showFilters ? ChevronUp : ChevronDown" class="w-4 h-4 text-slate-400" />
+                        </button>
                     </div>
 
-                    <!-- Dropdown Filters Grid -->
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 pt-1 border-t border-slate-100 dark:border-slate-800">
-                        <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
-                        <custom-dropdown :with-all-option="false" placeholder="Category" label="Filter by Category" @selectedChange="setFilter('category', $event)" :options="categories" />
-                        <custom-dropdown :with-all-option="false" placeholder="Storage Room" label="Filter by Storage Room" @selectedChange="applyStorageRoomFilter($event)" :options="storage_locations" />
-                        <custom-dropdown :with-all-option="false" placeholder="Project Code" label="Filter by Project Code" @selectedChange="setFilter('project_code', $event)" :options="projectCodes" />
-                    </div>
+                    <!-- Collapsible Dropdown Filter Drawer -->
+                    <transition-container type="pop-in">
+                        <div v-if="showFilters" class="grid grid-cols-2 md:grid-cols-5 gap-2 items-center w-full justify-center pt-3 pb-1 border-t border-slate-100 dark:border-slate-800">
+                            <custom-dropdown :with-all-option="false" placeholder="Category" label="Filter by Category" @selectedChange="setFilter('category', $event)" :options="categories" />
+                            <custom-dropdown v-if="projectCodes" placeholder="Project Code" label="Filter by Project Code" :options="projectCodes" @selectedChange="setFilter('project_code', $event)" />
+                            <custom-dropdown :with-all-option="false" placeholder="Storage Room" label="Filter by Storage Room" @selectedChange="applyStorageRoomFilter($event)" :options="storage_locations" />
+                            <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
+                            <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
+                        </div>
+                    </transition-container>
+
+                    <!-- Camera Barcode Scanner -->
+                    <camera-scanner class="w-full" @decoded="searchFromBarcode" />
                 </div>
 
-                <!-- Total Count Badge -->
+                <!-- Total Count Badge & Header -->
                 <div class="flex justify-between items-center px-1">
                     <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                         Registered Stock Items
