@@ -8,6 +8,7 @@ use App\Models\Personnel;
 use App\Models\RentalVehicle;
 use App\Models\RentalVenue;
 use App\Models\LaboratoryEquipmentLog;
+use App\Models\LaboratoryEquipmentLocationSurvey;
 use App\Models\Transaction;
 use App\Models\RequestFormPivot;
 use App\Models\User;
@@ -17,10 +18,12 @@ use Illuminate\Support\Collection;
 class DashboardRepo extends AbstractRepoService
 {
     private TransactionRepo $transactionRepo;
+    private OptionRepo $optionRepo;
 
-    public function __construct(TransactionRepo $transactionRepo)
+    public function __construct(TransactionRepo $transactionRepo, OptionRepo $optionRepo)
     {
         $this->transactionRepo = $transactionRepo;
+        $this->optionRepo = $optionRepo;
     }
 
     public function getDashboardMetrics()
@@ -235,15 +238,112 @@ class DashboardRepo extends AbstractRepoService
      */
     public function getTopActiveEquipment(int $limit = 5): Collection
     {
-        return LaboratoryEquipmentLog::query()
+        $logs = LaboratoryEquipmentLog::query()
             ->with([
-                'equipment:id,name,brand,barcode,category_id',
+                'equipment:id,name,brand,category_id',
                 'personnel:id,fname,mname,lname,suffix,employee_id',
             ])
             ->whereIn('status', ['active', 'overdue'])
             ->orderBy('started_at', 'asc')
             ->limit($limit)
-            ->get(['id', 'equipment_id', 'personnel_id', 'equipment_type', 'equipment_barcode', 'status', 'started_at', 'end_use_at', 'location_label']);
+            ->get(['id', 'equipment_id', 'personnel_id', 'status', 'started_at', 'end_use_at']);
+
+        $this->enrichActiveEquipmentLogs($logs);
+
+        return $logs;
+    }
+
+    private function enrichActiveEquipmentLogs(Collection $logs): void
+    {
+        $equipmentIds = $logs->pluck('equipment_id')
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($equipmentIds->isEmpty()) {
+            return;
+        }
+
+        $latestBarcodeByEquipment = Transaction::query()
+            ->select(['item_id', 'barcode'])
+            ->whereIn('item_id', $equipmentIds)
+            ->whereNotNull('barcode')
+            ->orderByDesc('created_at')
+            ->get()
+            ->unique('item_id')
+            ->keyBy('item_id');
+
+        $temporaryLocationByEquipment = LaboratoryEquipmentLocationSurvey::query()
+            ->whereIn('equipment_id', $equipmentIds)
+            ->get()
+            ->keyBy('equipment_id');
+
+        $locationByCode = $this->buildStorageLocationLookup();
+
+        $logs->each(function (LaboratoryEquipmentLog $log) use ($latestBarcodeByEquipment, $temporaryLocationByEquipment, $locationByCode) {
+            $barcode = $latestBarcodeByEquipment->get($log->equipment_id)?->barcode;
+            $temporaryLocation = $temporaryLocationByEquipment->get($log->equipment_id);
+
+            if ($temporaryLocation) {
+                $locationCode = $temporaryLocation->location_code;
+                $locationLabel = $temporaryLocation->location_label ?: 'Unknown Location';
+            } else {
+                $locationCode = $this->extractLocationCodeFromBarcode($barcode);
+                $locationLabel = $locationCode ? ($locationByCode[$locationCode] ?? 'Unknown Location') : 'Unknown Location';
+            }
+
+            $log->setAttribute('equipment_type', $this->determineEquipmentType($log->equipment));
+            $log->setAttribute('equipment_barcode', $barcode);
+            $log->setAttribute('location_code', $locationCode);
+            $log->setAttribute('location_label', $locationLabel);
+        });
+    }
+
+    private function buildStorageLocationLookup(): array
+    {
+        return collect($this->optionRepo->getStorageLocations())
+            ->mapWithKeys(function (array $location) {
+                $code = $this->normalizeLocationCode($location['name'] ?? null);
+                $label = $location['label'] ?? null;
+
+                if (!$code || !$label) {
+                    return [];
+                }
+
+                return [$code => $label];
+            })
+            ->toArray();
+    }
+
+    private function extractLocationCodeFromBarcode(?string $barcode): ?string
+    {
+        if (!$barcode || !preg_match('/CBC-(\d+)-/i', $barcode, $matches)) {
+            return null;
+        }
+
+        return str_pad($matches[1], 2, '0', STR_PAD_LEFT);
+    }
+
+    private function normalizeLocationCode(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $normalized = preg_replace('/\D+/', '', (string) $value);
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        return str_pad($normalized, 2, '0', STR_PAD_LEFT);
+    }
+
+    private function determineEquipmentType(?Item $item): string
+    {
+        $categoryId = (int) ($item?->category_id ?? 0);
+
+        return $categoryId === 4 ? 'ict' : 'laboratory';
     }
 
     /**
