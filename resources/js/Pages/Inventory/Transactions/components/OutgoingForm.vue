@@ -73,6 +73,29 @@ export default {
 
             return (100 - ((remaining / totalIngoing) * 100)).toFixed(2);
         },
+        totalIngoing() {
+            return Number(this.displayData?.total_ingoing ?? 0);
+        },
+        remainingQuantity() {
+            return Number(this.displayData?.remaining_quantity ?? 0);
+        },
+        consumedQuantity() {
+            return Number(this.displayData?.total_outgoing ?? 0);
+        },
+        remainingRatio() {
+            if (this.totalIngoing <= 0) return 0;
+            const ratio = (this.remainingQuantity / this.totalIngoing) * 100;
+            return Math.min(100, Math.max(0, ratio));
+        },
+        stockHealthStatus() {
+            if (this.remainingQuantity <= 0) {
+                return { label: 'Out of Stock', colorClass: 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border-rose-200 dark:border-rose-900/50', barClass: 'bg-rose-500' };
+            }
+            if (this.remainingRatio <= 25) {
+                return { label: 'Low Stock', colorClass: 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-900/50', barClass: 'bg-amber-500' };
+            }
+            return { label: 'In Stock', colorClass: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/50', barClass: 'bg-lime-500' };
+        },
     },
     methods: {
         formatNumber(value){
@@ -172,54 +195,51 @@ export default {
 <template>
     <div class="grid grid-cols-1 sm:grid-cols-3 p-3 sm:p-5 gap-4 text-slate-900 dark:text-slate-100">
         <div class="flex flex-col col-span-1 sm:col-span-2 gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs">
-            <div v-if="displayData" class="flex flex-col gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
+            <div v-if="displayData" class="flex flex-col gap-3">
                 <!-- Item Details Header (Full Width) -->
                 <div class="flex flex-col leading-tight w-full space-y-1">
-                    <h2 class="font-extrabold text-base sm:text-lg text-slate-900 dark:text-slate-100 break-words">
+                    <h2 class="font-bold text-lg text-slate-900 dark:text-slate-100">
                         {{ displayData.name }}
-                        <span v-if="displayData.description" class="text-slate-500 font-normal text-xs sm:text-sm">({{ displayData.description }})</span>
+                        <span v-if="displayData.description" class="text-slate-500 font-normal text-sm">({{ displayData.description }})</span>
                     </h2>
 
-                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs pt-0.5">
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400 font-normal pt-0.5">
+                        <span v-if="displayData.brand">Brand: <span class="text-slate-700 dark:text-slate-300 font-medium">{{ displayData.brand }}</span></span>
+                        <span>Barcode: <span class="font-mono text-slate-700 dark:text-slate-300 font-medium">{{ data?.barcode || 'NO BARCODE' }}</span></span>
                         <span v-if="displayData.expiration" :class="{
-                            'text-rose-600 dark:text-rose-400 font-bold': getExpirationStatus(displayData.expiration) === 'expired',
-                            'text-amber-600 dark:text-amber-400 font-bold': ['expiring_soon', 'expiring_today'].includes(getExpirationStatus(displayData.expiration)),
+                            'text-rose-600 dark:text-rose-400 font-medium': getExpirationStatus(displayData.expiration) === 'expired',
+                            'text-amber-600 dark:text-amber-400 font-medium': ['expiring_soon', 'expiring_today'].includes(getExpirationStatus(displayData.expiration)),
                             'text-slate-500 dark:text-slate-400': !getExpirationStatus(displayData.expiration)
-                        }" class="font-medium">
+                        }">
                             Expiry: {{ formatDate(displayData.expiration) }}
-                            <span v-if="getExpirationStatus(displayData.expiration) === 'expired'">(Expired)</span>
-                            <span v-else-if="getExpirationStatus(displayData.expiration) === 'expiring_today'">(Expires Today)</span>
-                            <span v-else-if="getExpirationStatus(displayData.expiration) === 'expiring_soon'">(Expiring Soon)</span>
                         </span>
-                        <span v-if="displayData.brand" class="text-slate-500 dark:text-slate-400 font-medium">Brand: {{ displayData.brand }}</span>
-                        <span class="font-mono font-semibold" :class="data?.barcode ? 'text-slate-600 dark:text-slate-300' : 'text-rose-500 font-bold'">Barcode: {{ data?.barcode || 'NO BARCODE' }}</span>
                     </div>
                 </div>
 
-                <!-- Stats Grid Placed Cleanly UNDER Item Details -->
-                <div class="grid grid-cols-3 gap-2 w-full bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700/80">
+                <!-- Clean 3-Column Stats Card -->
+                <div class="grid grid-cols-3 gap-2 w-full bg-slate-50/60 dark:bg-slate-800/40 p-4 rounded-xl">
                     <div class="flex flex-col text-center justify-center p-1">
-                        <span class="text-base sm:text-xl font-black text-slate-900 dark:text-slate-100">
+                        <span class="text-xl font-bold text-slate-900 dark:text-slate-100">
                             {{ formatNumber(displayData.remaining_quantity) }}
                         </span>
-                        <span class="text-[0.65rem] uppercase font-extrabold tracking-wider text-slate-500 dark:text-slate-400">
-                            Remaining
-                        </span>
-                    </div>
-                    <div class="flex flex-col text-center justify-center p-1 border-x border-slate-200 dark:border-slate-700/60">
-                        <span class="text-base sm:text-xl font-black text-slate-900 dark:text-slate-100">
-                            {{ formatNumber(displayData.total_outgoing) }}
-                        </span>
-                        <span class="text-[0.65rem] uppercase font-extrabold tracking-wider text-slate-500 dark:text-slate-400">
-                            Consumed
+                        <span class="text-[0.68rem] uppercase font-bold tracking-wider text-slate-500 dark:text-slate-400 mt-1">
+                            REMAINING
                         </span>
                     </div>
                     <div class="flex flex-col text-center justify-center p-1">
-                        <span class="text-base sm:text-xl font-black text-lime-600 dark:text-lime-400">
+                        <span class="text-xl font-bold text-slate-900 dark:text-slate-100">
+                            {{ formatNumber(displayData.total_outgoing) }}
+                        </span>
+                        <span class="text-[0.68rem] uppercase font-bold tracking-wider text-slate-500 dark:text-slate-400 mt-1">
+                            CONSUMED
+                        </span>
+                    </div>
+                    <div class="flex flex-col text-center justify-center p-1">
+                        <span class="text-xl font-bold text-lime-600 dark:text-lime-400">
                             {{ utilizationPercentage }}%
                         </span>
-                        <span class="text-[0.65rem] uppercase font-extrabold tracking-wider text-slate-500 dark:text-slate-400">
-                            Utilization
+                        <span class="text-[0.68rem] uppercase font-bold tracking-wider text-slate-500 dark:text-slate-400 mt-1">
+                            UTILIZATION
                         </span>
                     </div>
                 </div>

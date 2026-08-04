@@ -4,6 +4,7 @@ import PersonnelRegistration from "@/Modules/domain/PersonnelRegistration";
 import CreatePersonnelLink from "@/Pages/Inventory/Transactions/components/presentation/CreatePersonnelLink.vue";
 import IncommingTransactionLink from "@/Pages/Inventory/Transactions/components/presentation/IncommingTransactionLink.vue";
 import OutgoingTransactionLink from "@/Pages/Inventory/Transactions/components/presentation/OutgoingTransactionLink.vue";
+import PrintApprovedIdsLink from "@/Pages/Inventory/Transactions/components/presentation/PrintApprovedIdsLink.vue";
 import ConfirmationModal from "@/Components/ConfirmationModal.vue";
 
 export default {
@@ -12,6 +13,7 @@ export default {
         CreatePersonnelLink,
         IncommingTransactionLink,
         OutgoingTransactionLink,
+        PrintApprovedIdsLink,
         ConfirmationModal,
     },
     mixins: [ApiMixin],
@@ -61,15 +63,15 @@ export default {
         },
         statusClass(status) {
             return {
-                approved: "border-emerald-200 bg-emerald-50 text-emerald-700",
-                rejected: "border-rose-200 bg-rose-50 text-rose-700",
-                pending: "border-amber-200 bg-amber-50 text-amber-700",
-            }[status] ?? "border-slate-200 bg-slate-50 text-slate-700";
+                approved: "border-emerald-200 dark:border-emerald-800/80 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300",
+                rejected: "border-rose-200 dark:border-rose-800/80 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300",
+                pending: "border-amber-200 dark:border-amber-800/80 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300",
+            }[status] ?? "border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300";
         },
         verifiedClass(registration) {
             return registration.is_email_verified
-                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                : "border-slate-200 bg-slate-50 text-slate-600";
+                ? "border-emerald-200 dark:border-emerald-800/80 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300"
+                : "border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 text-slate-600 dark:text-slate-400";
         },
         applyStatusFilter(status) {
             if (status) {
@@ -201,12 +203,7 @@ export default {
                 :route-link="route('personnels.index')"
             >
                 <CreatePersonnelLink />
-                <Link
-                    :href="route('personnels.id-cards.print')"
-                    class="flex items-center bg-emerald-700 text-white px-2 py-1 rounded active:shadow-inner gap-1 text-sm active:scale-95 active:text-emerald-700 hover:bg-emerald-100 hover:text-emerald-700"
-                >
-                    Print Approved IDs
-                </Link>
+                <PrintApprovedIdsLink />
                 <IncommingTransactionLink />
                 <OutgoingTransactionLink />
             </ActionHeaderLayout>
@@ -217,7 +214,7 @@ export default {
                 <div class="grid grid-rows-2 w-full">
                     <div class="w-full flex gap-2 items-end lg:px-0 px-2">
                         <div class="flex flex-col gap-0.5">
-                            <div class="text-xs text-gray-500 flex items-center justify-between">
+                            <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between font-medium">
                                 <span class="flex gap-0.5 whitespace-nowrap">Filter by Status</span>
                             </div>
                             <custom-dropdown
@@ -255,7 +252,7 @@ export default {
                                 </template>
                                 Prev
                             </paginate-btn>
-                            <div class="text-xs flex flex-col whitespace-nowrap text-center">
+                            <div class="text-xs flex flex-col whitespace-nowrap text-center text-slate-600 dark:text-slate-400 font-semibold">
                                 <span class="font-medium mx-1" title="current page and total pages">
                                     <span>{{ registrationsFromApi?.current_page }}</span> / <span>{{ registrationsFromApi?.last_page }}</span>
                                 </span>
@@ -280,45 +277,45 @@ export default {
                 </div>
             </form>
 
-            <div class="mt-3 bg-white overflow-hidden sm:rounded-lg">
+            <div class="mt-3 overflow-hidden rounded-2xl">
                <div v-if="registrationRows.length && !processing" class="grid gap-4 p-1 lg:grid-cols-2">
-                    <article v-for="registration in registrationRows" :key="registration.id" class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
+                    <article v-for="registration in registrationRows" :key="registration.id" class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs transition hover:-translate-y-0.5 hover:shadow-md">
                         <div class="flex items-start justify-between gap-4">
                             <div>
-                                <h3 class="text-lg font-black text-gray-900">{{ registration.full_name }}</h3>
-                                <p class="text-sm text-gray-600">{{ registration.position || "No position supplied" }}</p>
-                                <p class="mt-1 text-sm text-gray-500">{{ registration.email }}</p>
+                                <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">{{ registration.full_name }}</h3>
+                                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">{{ registration.position || "No position supplied" }}</p>
+                                <p class="mt-1 text-xs text-slate-400 dark:text-slate-500 font-mono">{{ registration.email }}</p>
                             </div>
                             <div class="flex flex-col items-end gap-1">
-                                <span class="rounded-full border px-3 py-1 text-xs font-bold uppercase" :class="statusClass(registration.status)">
+                                <span class="rounded-full border px-3 py-1 text-[11px] font-bold uppercase" :class="statusClass(registration.status)">
                                     {{ registration.status }}
                                 </span>
-                                <span class="rounded-full border px-3 py-1 text-xs font-semibold" :class="verifiedClass(registration)">
+                                <span class="rounded-full border px-3 py-1 text-[11px] font-semibold" :class="verifiedClass(registration)">
                                     {{ registration.is_email_verified ? "Email verified" : "Awaiting email" }}
                                 </span>
                             </div>
                         </div>
 
-                        <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
-                            <div class="rounded-xl bg-gray-50 p-3">
-                                <dt class="text-xs uppercase tracking-wide text-gray-500">Personnel Type</dt>
-                                <dd class="font-semibold text-gray-900">{{ registrationTypeLabel(registration) }}</dd>
+                        <dl class="mt-4 grid grid-cols-2 gap-3 text-xs sm:text-sm">
+                            <div class="rounded-xl bg-slate-50 dark:bg-slate-800/60 p-3 border border-slate-100 dark:border-slate-800/80">
+                                <dt class="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">Personnel Type</dt>
+                                <dd class="font-semibold text-slate-900 dark:text-slate-100 mt-0.5">{{ registrationTypeLabel(registration) }}</dd>
                             </div>
-                            <div class="rounded-xl bg-gray-50 p-3">
-                                <dt class="text-xs uppercase tracking-wide text-gray-500">Employee ID</dt>
-                                <dd class="font-semibold text-gray-900">{{ registration.employee_id || "Assigned on approval" }}</dd>
+                            <div class="rounded-xl bg-slate-50 dark:bg-slate-800/60 p-3 border border-slate-100 dark:border-slate-800/80">
+                                <dt class="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">Employee ID</dt>
+                                <dd class="font-semibold text-slate-900 dark:text-slate-100 mt-0.5 font-mono">{{ registration.employee_id || "Assigned on approval" }}</dd>
                             </div>
-                            <div v-if="registration.requires_cbc_id_card" class="rounded-xl bg-gray-50 p-3">
-                                <dt class="text-xs uppercase tracking-wide text-gray-500">Course / Program</dt>
-                                <dd class="font-semibold text-gray-900">{{ registration.course_program || "Not supplied" }}</dd>
+                            <div v-if="registration.requires_cbc_id_card" class="rounded-xl bg-slate-50 dark:bg-slate-800/60 p-3 border border-slate-100 dark:border-slate-800/80">
+                                <dt class="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">Course / Program</dt>
+                                <dd class="font-semibold text-slate-900 dark:text-slate-100 mt-0.5">{{ registration.course_program || "Not supplied" }}</dd>
                             </div>
-                            <div class="rounded-xl bg-gray-50 p-3">
-                                <dt class="text-xs uppercase tracking-wide text-gray-500">Phone</dt>
-                                <dd class="font-semibold text-gray-900">{{ registration.phone || "Not supplied" }}</dd>
+                            <div class="rounded-xl bg-slate-50 dark:bg-slate-800/60 p-3 border border-slate-100 dark:border-slate-800/80">
+                                <dt class="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">Phone</dt>
+                                <dd class="font-semibold text-slate-900 dark:text-slate-100 mt-0.5">{{ registration.phone || "Not supplied" }}</dd>
                             </div>
-                            <div class="rounded-xl bg-gray-50 p-3">
-                                <dt class="text-xs uppercase tracking-wide text-gray-500">Submitted</dt>
-                                <dd class="font-semibold text-gray-900">{{ registration.created_at ? registration.created_at : "N/A" }}</dd>
+                            <div class="rounded-xl bg-slate-50 dark:bg-slate-800/60 p-3 border border-slate-100 dark:border-slate-800/80">
+                                <dt class="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">Submitted</dt>
+                                <dd class="font-semibold text-slate-900 dark:text-slate-100 mt-0.5">{{ registration.created_at ? registration.created_at : "N/A" }}</dd>
                             </div>
                         </dl>
 
@@ -372,15 +369,15 @@ export default {
                     </article>
                 </div>
 
-                <div v-else-if="processing" class="text-center py-3 border border-AB rounded-lg">
+                <div v-else-if="processing" class="text-center py-8 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-semibold shadow-xs">
                     Searching...
                 </div>
 
-                <div v-else-if="registrationsFromApi && registrationsFromApi.total === 0 && hasSearchTerm" class="text-center py-3 border border-AB rounded-lg">
+                <div v-else-if="registrationsFromApi && registrationsFromApi.total === 0 && hasSearchTerm" class="text-center py-8 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-semibold shadow-xs">
                     Registration does not exist. Try using other filters.
                 </div>
 
-                <div v-else class="text-center py-3 border border-AB rounded-lg">
+                <div v-else class="text-center py-8 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-semibold shadow-xs">
                     No personnel registrations available.
                 </div>
             </div>

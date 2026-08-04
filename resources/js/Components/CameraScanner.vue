@@ -498,9 +498,9 @@ export default {
 
 <template>
     <div class="camera-scanner gap-2 flex flex-col" :class="[`variant-${variant}`]">
-        <div class="flex flex-col sm:flex-row gap-2 w-full">
+        <div class="flex flex-col gap-2 w-full">
             <!-- Toggle Button -->
-            <div v-if="showToggle" class="scanner-controls flex-1">
+            <div v-if="showToggle" class="scanner-controls w-full">
                 <button type="button" @click="toggleScanner" :disabled="!enabled"
                     class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border transition-all duration-200"
                     :class="[
@@ -509,21 +509,21 @@ export default {
                             : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800',
                         !enabled && 'opacity-50 cursor-not-allowed'
                     ]">
-                    <span class="flex items-center gap-2.5">
-                        <span class="p-2 rounded-lg transition-colors"
+                    <span class="flex items-center gap-2.5 min-w-0">
+                        <span class="p-2 rounded-lg transition-colors shrink-0"
                             :class="isOpen ? 'bg-lime-100 dark:bg-lime-900/60' : 'bg-slate-100 dark:bg-slate-800'">
                             <ScanLine class="w-4 h-4 transition-transform duration-300"
                                 :class="isOpen ? 'text-lime-600 dark:text-lime-400 scale-110' : 'text-slate-500 dark:text-slate-400'" />
                         </span>
-                        <span class="text-left">
-                            <span class="block text-xs sm:text-sm font-bold">{{ displayLabel }}</span>
-                            <span class="block text-[0.68rem] text-slate-500 dark:text-slate-400">
+                        <span class="text-left min-w-0">
+                            <span class="block text-xs sm:text-sm font-bold truncate">{{ displayLabel }}</span>
+                            <span class="block text-[0.68rem] text-slate-500 dark:text-slate-400 truncate">
                                 {{ isOpen ? 'Camera Scanner Active' : 'Click to enable camera scan' }}
                             </span>
                         </span>
                     </span>
 
-                    <span class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300"
+                    <span class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 shrink-0 ml-2"
                         :class="isOpen ? 'bg-lime-600 dark:bg-lime-500' : 'bg-slate-200 dark:bg-slate-700'">
                         <span
                             class="inline-block h-4 w-4 transform rounded-full bg-white shadow-xs transition-transform duration-300"
@@ -534,7 +534,7 @@ export default {
 
             <!-- Device Selection -->
             <transition name="scanner-slide">
-                <div v-show="showDeviceSelect && isOpen && devices.length" class="device-select flex-1 sm:max-w-xs">
+                <div v-show="showDeviceSelect && isOpen && devices.length" class="device-select w-full">
                     <div class="relative flex items-center gap-2 px-3 py-1.5 h-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl">
                         <Camera class="w-4 h-4 text-slate-400 shrink-0" />
                         <div class="flex-1 min-w-0">

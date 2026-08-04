@@ -2,15 +2,15 @@
     <div class="flex flex-col gap-1.5 w-full">
         <!-- Label Row -->
         <div v-if="label" class="flex items-center justify-between">
-            <label class="text-xs font-medium text-gray-700 dark:text-gray-200 flex items-center gap-1">
-                <List class="w-3.5 h-3.5 text-gray-400" />
+            <label class="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                <List class="w-3.5 h-3.5 text-slate-400" />
                 <span class="flex items-center gap-0.5">
                     {{ label }}
-                    <span v-if="required" class="text-red-500">*</span>
+                    <span v-if="required" class="text-rose-500">*</span>
                 </span>
             </label>
             <transition-container type="slide-bottom">
-                <div v-if="error" class="flex items-center gap-1 text-xs text-red-600 dark:text-red-400">
+                <div v-if="error" class="flex items-center gap-1 text-xs text-rose-600 dark:text-rose-400 font-medium">
                     <AlertCircle class="w-3.5 h-3.5" />
                     <span>{{ error }}</span>
                 </div>
@@ -21,14 +21,14 @@
         <div class="relative">
             <div
                 :class="[
-                    'w-full flex gap-2 justify-between items-center rounded-lg border px-3 py-2.5 transition-all duration-200',
-                    'bg-white dark:bg-gray-800',
+                    'w-full flex gap-2 justify-between items-center rounded-xl border px-3 py-2.5 transition-all duration-200 shadow-xs',
+                    'bg-white dark:bg-slate-900',
                     disabled
-                        ? 'bg-gray-100 dark:bg-gray-700 opacity-60 cursor-not-allowed'
-                        : 'cursor-pointer hover:border-gray-400 dark:hover:border-gray-500',
+                        ? 'bg-slate-100 dark:bg-slate-800 opacity-60 cursor-not-allowed'
+                        : 'cursor-pointer hover:border-slate-400 dark:hover:border-slate-600',
                     error
-                        ? 'border-red-300 dark:border-red-700 focus-within:border-red-500 focus-within:ring-2 focus-within:ring-red-200 dark:focus-within:ring-red-900'
-                        : 'border-gray-300 dark:border-gray-600 focus-within:border-AA focus-within:ring-2 focus-within:ring-AA/20',
+                        ? 'border-rose-300 dark:border-rose-700 focus-within:border-rose-500 focus-within:ring-2 focus-within:ring-rose-200 dark:focus-within:ring-rose-900'
+                        : 'border-slate-200 dark:border-slate-700 focus-within:border-lime-500 focus-within:ring-2 focus-within:ring-lime-500/20',
                 ]"
                 @click.prevent="toggle"
             >
@@ -36,9 +36,9 @@
                 <div
                     v-if="!searchable"
                     :class="[
-                        'text-sm whitespace-nowrap overflow-hidden text-ellipsis flex-1',
-                        selected ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500',
-                        { 'text-gray-400 dark:text-gray-500': disabled }
+                        'text-xs sm:text-sm whitespace-nowrap overflow-hidden text-ellipsis flex-1',
+                        selected ? 'text-slate-900 dark:text-slate-100 font-medium' : 'text-slate-400 dark:text-slate-500',
+                        { 'text-slate-400 dark:text-slate-500': disabled }
                     ]"
                 >
                     {{ selected ? selected.label : value ? value : placeholder }}
@@ -52,7 +52,7 @@
                     v-model="search"
                     @keydown.esc="search = null"
                     @input="filterOptions"
-                    class="w-full text-sm text-gray-900 dark:text-gray-100 bg-transparent border-none focus:outline-none focus:ring-0 p-0 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                    class="w-full text-xs sm:text-sm text-slate-900 dark:text-slate-100 bg-transparent border-none focus:outline-none focus:ring-0 p-0 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                     :placeholder="selected ? selected.label : placeholder"
                 />
 
@@ -63,7 +63,7 @@
                         v-if="selected && showClear && !disabled"
                         type="button"
                         @click.stop.prevent="select(null)"
-                        class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        class="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                         aria-label="Clear selection"
                     >
                         <X class="w-4 h-4" />
@@ -73,7 +73,7 @@
                     <ChevronDown
                         v-if="!disabled"
                         :class="[
-                            'w-4 h-4 text-gray-400 transition-transform duration-300',
+                            'w-4 h-4 text-slate-400 transition-transform duration-300',
                             open ? 'rotate-180' : ''
                         ]"
                     />
@@ -87,14 +87,14 @@
             <transition-container type="fade">
                 <div
                     v-show="open"
-                    class="z-50 absolute mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-[30vh] overflow-hidden flex flex-col"
+                    class="z-50 absolute mt-1.5 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg max-h-[30vh] overflow-hidden flex flex-col"
                 >
                     <!-- Options List -->
                     <div class="overflow-y-auto flex-1 py-1">
                         <!-- No Options -->
-                        <div v-if="!filteredOptions.length" class="flex flex-col items-center justify-center gap-2 px-4 py-6 text-gray-500 dark:text-gray-400">
-                            <Inbox class="w-6 h-6 text-gray-300 dark:text-gray-600" />
-                            <span class="text-sm">No options available</span>
+                        <div v-if="!filteredOptions.length" class="flex flex-col items-center justify-center gap-2 px-4 py-6 text-slate-500 dark:text-slate-400">
+                            <Inbox class="w-6 h-6 text-slate-300 dark:text-slate-600" />
+                            <span class="text-xs sm:text-sm">No options available</span>
                         </div>
 
                         <template v-else>
@@ -104,16 +104,16 @@
                                 @click.prevent="select({name: null, label: 'All fields'})"
                                 :selected="selected && selected.name === defaultOption.name"
                             >
-                                <div class="flex items-center gap-2">
-                                    <LayoutGrid class="w-3.5 h-3.5" />
+                                <div class="flex items-center gap-2 text-xs sm:text-sm font-semibold">
+                                    <LayoutGrid class="w-3.5 h-3.5 text-lime-600 dark:text-lime-400" />
                                     All fields
                                 </div>
                             </dropdown-option>
 
                             <!-- Options -->
                             <dropdown-option
-                                v-for="option in filteredOptions"
-                                :key="option.label + option.name"
+                                v-for="(option, index) in filteredOptions"
+                                :key="'opt-' + index + '-' + (option?.name ?? option?.label ?? '')"
                                 @click.prevent="select(option)"
                                 :selected="option.name === value"
                             >
@@ -126,7 +126,7 @@
         </div>
 
         <!-- Guide Text -->
-        <p v-if="guide" class="text-xs text-gray-500 dark:text-gray-400 flex items-start gap-1">
+        <p v-if="guide" class="text-xs text-slate-500 dark:text-slate-400 flex items-start gap-1">
             <HelpCircle class="w-3 h-3 mt-0.5 flex-shrink-0" />
             <span>{{ guide }}</span>
         </p>

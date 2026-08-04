@@ -564,7 +564,7 @@ export default {
 
                 <!-- Remarks -->
                 <text-area label="PR Details/Remarks" v-model="form.remarks" :error="form.errors.remarks" />
-                <div class="rounded-2xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/70 p-4 dark:bg-indigo-950/30">
+                <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 p-4">
                     <custom-dropdown
                         required
                         :with-all-option="false"
@@ -576,10 +576,10 @@ export default {
                         @selectedChange="form.equipment_logger_mode = $event"
                     >
                         <template #icon>
-                            <AlertCircle class="w-4 h-4 text-indigo-500" />
+                            <AlertCircle class="w-4 h-4 text-lime-600 dark:text-lime-400" />
                         </template>
                     </custom-dropdown>
-                    <p class="mt-2 text-xs text-indigo-900 dark:text-indigo-200">
+                    <p class="mt-2 text-xs text-slate-600 dark:text-slate-400 font-medium">
                         {{ equipmentLoggerModeHelpText }}
                     </p>
                 </div>

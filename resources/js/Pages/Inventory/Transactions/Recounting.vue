@@ -212,7 +212,7 @@ export default {
                                 </span>
                                 <ArrowRightLeft class="w-3.5 h-3.5 text-slate-400" />
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                                    <Box class="w-3.5 h-3.5 text-indigo-500" />
+                                    <Box class="w-3.5 h-3.5 text-lime-600 dark:text-lime-400" />
                                     Review system count
                                 </span>
                                 <ArrowRightLeft class="w-3.5 h-3.5 text-slate-400" />
@@ -251,51 +251,34 @@ export default {
                     </div>
                 </transition-group>
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-                    <!-- Left Column: Scanning -->
-                    <div class="lg:col-span-5 space-y-5">
-                        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
-                            <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80">
-                                <div class="flex items-center gap-3">
-                                    <div class="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
-                                        <ScanLine class="w-5 h-5 text-lime-600 dark:text-lime-400" />
-                                    </div>
-                                    <div>
-                                        <h3 class="font-bold text-xs sm:text-sm uppercase tracking-wider text-slate-900 dark:text-slate-100">Scan Barcode</h3>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400">Use camera or manual entry</p>
-                                    </div>
-                                </div>
-                            </div>
+                    <!-- Left Column: Scanning & Search -->
+                    <div class="lg:col-span-5 space-y-4">
+                        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 space-y-4 shadow-xs">
+                            <camera-scanner class="w-full" @decoded="handleDecoded" />
                             
-                            <div class="p-4 sm:p-5 space-y-4">
-                                <camera-scanner @decoded="handleDecoded" />
-                                
-                                <div class="relative">
-                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
-                                        <Barcode class="w-4 h-4 inline mr-1 text-slate-400" />
-                                        Barcode
-                                    </label>
-                                    <div class="flex gap-2">
-                                        <div class="relative flex-1">
-                                            <input
-                                                v-model="barcode"
-                                                type="text"
-                                                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm font-mono focus:ring-2 focus:ring-lime-500 transition-all"
-                                                placeholder="Enter or scan barcode"
-                                                :disabled="submitLoading"
-                                                @keyup.enter="lookupBarcode"
-                                            />
-                                            <Barcode class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                        </div>
-                                        <button
-                                            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-lime-600 hover:bg-lime-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-sm transition-all"
-                                            :disabled="lookupLoading || submitLoading || !barcode"
-                                            @click="lookupBarcode"
-                                        >
-                                            <Loader2 v-if="lookupLoading" class="w-4 h-4 animate-spin" />
-                                            <Search v-else class="w-4 h-4" />
-                                            <span class="hidden sm:inline">{{ lookupLoading ? 'Searching...' : 'Lookup' }}</span>
-                                        </button>
+                            <div class="space-y-2">
+                                <div class="flex gap-2">
+                                    <div class="relative flex-1">
+                                        <input
+                                            v-model="barcode"
+                                            type="text"
+                                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm font-mono focus:ring-2 focus:ring-lime-500 transition-all placeholder:text-slate-400"
+                                            placeholder="Enter or scan barcode..."
+                                            :disabled="submitLoading"
+                                            @keyup.enter="lookupBarcode"
+                                        />
+                                        <Barcode class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                     </div>
+                                    <button
+                                        type="button"
+                                        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-lime-600 hover:bg-lime-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-xs sm:text-sm transition-all shrink-0"
+                                        :disabled="lookupLoading || submitLoading || !barcode"
+                                        @click="lookupBarcode"
+                                    >
+                                        <Loader2 v-if="lookupLoading" class="w-4 h-4 animate-spin" />
+                                        <Search v-else class="w-4 h-4" />
+                                        <span>{{ lookupLoading ? 'Searching...' : 'Lookup' }}</span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -329,7 +312,7 @@ export default {
                             <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80">
                                 <div class="flex items-center gap-3">
                                     <div class="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
-                                        <Calculator class="w-5 h-5 text-indigo-500" />
+                                        <Calculator class="w-5 h-5 text-lime-600 dark:text-lime-400" />
                                     </div>
                                     <div>
                                         <h3 class="font-bold text-xs sm:text-sm uppercase tracking-wider text-slate-900 dark:text-slate-100">Recount & Adjust</h3>
@@ -356,7 +339,7 @@ export default {
                                         <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
                                             <div class="flex items-start gap-3">
                                                 <div class="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
-                                                    <Warehouse class="w-5 h-5 text-indigo-500" />
+                                                    <Warehouse class="w-5 h-5 text-lime-600 dark:text-lime-400" />
                                                 </div>
                                                 <div class="flex-1 min-w-0">
                                                     <p class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-wider">System Quantity</p>
