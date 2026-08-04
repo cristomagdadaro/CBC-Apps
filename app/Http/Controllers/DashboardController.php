@@ -60,6 +60,13 @@ class DashboardController extends BaseController
         return inertia('Dashboard', [
             'stats' => $stats,
             'dashboardAccess' => $dashboardAccess,
+            'systemPulse' => $this->dashboardRepo()->getSystemPulse(),
+            'weeklyTrend' => $this->dashboardRepo()->getWeeklyActivityTrend(),
+            'moduleHealth' => $this->dashboardRepo()->getModuleHealthSummary(),
+            'topActiveEquipment' => $dashboardAccess['laboratory']
+                ? $this->dashboardRepo()->getTopActiveEquipment()
+                : [],
+            'recentSystemActivity' => $this->dashboardRepo()->getRecentSystemActivity(),
             'recentTransactions' => $dashboardAccess['inventory']
                 ? $this->transactionRepo->getRecentTransactions()
                 : [],
