@@ -15,34 +15,6 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import {
-    LuUsers,
-    LuPackage,
-    LuFlaskConical,
-    LuCalendar,
-    LuActivity,
-    LuArrowRight,
-    LuArrowUpRight,
-    LuArrowDownLeft,
-    LuChevronRight,
-    LuCalendarPlus,
-    LuQrCode,
-    LuClipboardList,
-    LuShield,
-    LuCar,
-    LuBuilding,
-    LuMicroscope,
-    LuPackageOpen,
-    LuCheckCircle,
-    LuXCircle,
-    LuClock,
-    LuAlertTriangle,
-    LuTimer,
-    LuTrendingUp,
-    LuBarChart3,
-    LuZap,
-    LuArrowLeftRight,
-} from 'lucide-vue-next';
 
 Chart.register(
     BarController, PieController, LineController, LineElement, PointElement,
@@ -53,12 +25,6 @@ export default {
     name: 'Dashboard',
     components: {
         Link,
-        LuUsers, LuPackage, LuFlaskConical, LuCalendar, LuActivity,
-        LuArrowRight, LuArrowUpRight, LuArrowDownLeft, LuChevronRight,
-        LuCalendarPlus, LuQrCode, LuClipboardList, LuShield, LuCar,
-        LuBuilding, LuMicroscope, LuPackageOpen, LuCheckCircle, LuXCircle,
-        LuClock, LuAlertTriangle, LuTimer, LuTrendingUp, LuBarChart3,
-        LuZap, LuArrowLeftRight,
     },
     data() {
         return {
