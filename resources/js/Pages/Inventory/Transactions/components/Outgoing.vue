@@ -66,6 +66,7 @@ export default {
 
         this.model = new Transaction();
         this.setFormAction('get');
+        this.applyNameSort();
     },
     async mounted() {
         if (this.isUpdateView) {
@@ -102,6 +103,11 @@ export default {
         },
     },
     methods: {
+        applyNameSort() {
+            if (!this.form) return;
+            this.form.sort = 'name';
+            this.form.order = 'asc';
+        },
         formatNumber(value){
             return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         },
