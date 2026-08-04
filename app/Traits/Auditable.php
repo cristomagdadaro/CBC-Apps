@@ -12,9 +12,7 @@ trait Auditable
      */
     public static function bootAuditable(): void
     {
-        static::whenBooted(function () {
-            static::observe(AuditObserver::class);
-        });
+        static::observe(AuditObserver::class);
     }
 
     /**

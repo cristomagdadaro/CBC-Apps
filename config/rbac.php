@@ -26,6 +26,7 @@ return [
         'research.monitoring.manage',
         'research.exports.manage',
         'golinks.manage',
+        'pollen.manage',
     ],
 
     'role_permissions' => [
@@ -36,6 +37,7 @@ return [
             'laboratory.logger.manage',
             'inventory.manage',
             'equipment.report.manage',
+            'pollen.manage',
         ],
 
         Role::ICT_MANAGER->value => [
@@ -75,6 +77,7 @@ return [
             'research.samples.manage',
             'research.monitoring.manage',
             'research.exports.manage',
+            'pollen.manage',
         ],
     ],
 ];

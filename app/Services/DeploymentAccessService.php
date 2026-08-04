@@ -35,6 +35,7 @@ class DeploymentAccessService
     public const MODULE_EXPERIMENT_MONITORING = 'experiment_monitoring';
     public const MODULE_RESEARCH = 'research';
     public const MODULE_GOLINK = 'golink';
+    public const MODULE_POLLEN_ANALYSIS = 'pollen_analysis';
 
     private const LOCAL_FALLBACK_HOSTS = [
         '127.0.0.1',
@@ -162,6 +163,14 @@ class DeploymentAccessService
                 'label' => 'Go Link',
                 'description' => 'Controls Go Link management pages, API endpoints, and public redirect pages.',
                 'default_access' => self::ACCESS_BOTH,
+                'default_mode' => self::MODE_ACTIVE,
+                'section' => 'internal',
+                'allows_deactivation' => true,
+            ],
+            self::MODULE_POLLEN_ANALYSIS => [
+                'label' => 'Pollen Analysis',
+                'description' => 'Controls the AI-powered pollen counting module and its inference endpoints.',
+                'default_access' => self::ACCESS_LOCAL,
                 'default_mode' => self::MODE_ACTIVE,
                 'section' => 'internal',
                 'allows_deactivation' => true,
