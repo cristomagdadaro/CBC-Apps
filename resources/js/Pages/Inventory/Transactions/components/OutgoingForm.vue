@@ -114,11 +114,28 @@ export default {
         },
         getRecentTransactions() {
             this.processing = true;
-            this.fetchGetApi('api.inventory.transactions.index.public', {'sort': 'created_at', 'order': 'desc', 'filter': 'id', 'filter_by_parent_column': 'item_id', 'filter_by_parent_id': this.data.item_id, 'per_page': 5})
+            const barcode = this.data?.barcode;
+            const filterCol = barcode ? 'barcode' : 'item_id';
+            const filterVal = barcode ? barcode : this.data?.item_id;
+
+            if (!filterVal) {
+                this.processing = false;
+                return;
+            }
+
+            this.fetchGetApi('api.inventory.transactions.index.public', {
+                'sort': 'created_at',
+                'order': 'desc',
+                'filter_by_parent_column': filterCol,
+                'filter_by_parent_id': filterVal,
+                'per_page': 5
+            })
                 .then((response) => {
-                    this.recentTransactions = response.data;
+                    this.recentTransactions = response?.data || [];
+                })
+                .finally(() => {
+                    this.processing = false;
                 });
-            this.processing = false;
         },
     },
     mounted() {
@@ -154,47 +171,54 @@ export default {
 
 <template>
     <div class="grid grid-cols-1 sm:grid-cols-3 p-3 sm:p-5 gap-4 text-slate-900 dark:text-slate-100">
-        <div class="flex flex-col col-span-1 sm:col-span-2 gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs">
-            <div v-if="displayData" class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
-                <div class="flex flex-col leading-tight w-full min-w-0">
-                    <span class="font-bold text-base md:text-lg text-slate-900 dark:text-slate-100 truncate">
-                        {{ displayData.name }} <span v-if="displayData.description" class="text-slate-500 font-normal">({{ displayData.description }})</span>
-                    </span>
-                    <span v-if="displayData.expiration" :class="{
-                        'text-rose-600 dark:text-rose-400 font-bold': getExpirationStatus(displayData.expiration) === 'expired',
-                        'text-amber-600 dark:text-amber-400 font-bold': ['expiring_soon', 'expiring_today'].includes(getExpirationStatus(displayData.expiration)),
-                        'text-slate-500 dark:text-slate-400': !getExpirationStatus(displayData.expiration)
-                    }" class="text-xs font-medium mt-0.5">
-                        Expiry: {{ formatDate(displayData.expiration) }}
-                        <span v-if="getExpirationStatus(displayData.expiration) === 'expired'" class="ml-1">(Expired)</span>
-                        <span v-else-if="getExpirationStatus(displayData.expiration) === 'expiring_today'" class="ml-1">(Expires Today)</span>
-                        <span v-else-if="getExpirationStatus(displayData.expiration) === 'expiring_soon'" class="ml-1">(Expiring Soon)</span>
-                    </span>
-                    <span v-if="displayData.brand" class="text-xs text-slate-500 dark:text-slate-400 font-medium">{{ displayData.brand }}</span>
-                    <span class="text-xs font-mono tracking-tight mt-0.5" :class="data?.barcode ? 'text-slate-500 dark:text-slate-400' : 'text-rose-500 font-bold'">{{ data?.barcode || 'NO BARCODE' }}</span>
+        <div class="flex flex-col col-span-1 sm:col-span-2 gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs">
+            <div v-if="displayData" class="flex flex-col gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <!-- Item Details Header (Full Width) -->
+                <div class="flex flex-col leading-tight w-full space-y-1">
+                    <h2 class="font-extrabold text-base sm:text-lg text-slate-900 dark:text-slate-100 break-words">
+                        {{ displayData.name }}
+                        <span v-if="displayData.description" class="text-slate-500 font-normal text-xs sm:text-sm">({{ displayData.description }})</span>
+                    </h2>
+
+                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs pt-0.5">
+                        <span v-if="displayData.expiration" :class="{
+                            'text-rose-600 dark:text-rose-400 font-bold': getExpirationStatus(displayData.expiration) === 'expired',
+                            'text-amber-600 dark:text-amber-400 font-bold': ['expiring_soon', 'expiring_today'].includes(getExpirationStatus(displayData.expiration)),
+                            'text-slate-500 dark:text-slate-400': !getExpirationStatus(displayData.expiration)
+                        }" class="font-medium">
+                            Expiry: {{ formatDate(displayData.expiration) }}
+                            <span v-if="getExpirationStatus(displayData.expiration) === 'expired'">(Expired)</span>
+                            <span v-else-if="getExpirationStatus(displayData.expiration) === 'expiring_today'">(Expires Today)</span>
+                            <span v-else-if="getExpirationStatus(displayData.expiration) === 'expiring_soon'">(Expiring Soon)</span>
+                        </span>
+                        <span v-if="displayData.brand" class="text-slate-500 dark:text-slate-400 font-medium">Brand: {{ displayData.brand }}</span>
+                        <span class="font-mono font-semibold" :class="data?.barcode ? 'text-slate-600 dark:text-slate-300' : 'text-rose-500 font-bold'">Barcode: {{ data?.barcode || 'NO BARCODE' }}</span>
+                    </div>
                 </div>
-                <div class="flex gap-3 sm:gap-4 w-full md:w-auto justify-between md:justify-end shrink-0 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
-                    <div class="flex flex-col text-center">
-                        <span class="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
+
+                <!-- Stats Grid Placed Cleanly UNDER Item Details -->
+                <div class="grid grid-cols-3 gap-2 w-full bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700/80">
+                    <div class="flex flex-col text-center justify-center p-1">
+                        <span class="text-base sm:text-xl font-black text-slate-900 dark:text-slate-100">
                             {{ formatNumber(displayData.remaining_quantity) }}
                         </span>
-                        <span class="text-[0.65rem] uppercase font-semibold text-slate-500 dark:text-slate-400">
+                        <span class="text-[0.65rem] uppercase font-extrabold tracking-wider text-slate-500 dark:text-slate-400">
                             Remaining
                         </span>
                     </div>
-                    <div class="flex flex-col text-center">
-                        <span class="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
+                    <div class="flex flex-col text-center justify-center p-1 border-x border-slate-200 dark:border-slate-700/60">
+                        <span class="text-base sm:text-xl font-black text-slate-900 dark:text-slate-100">
                             {{ formatNumber(displayData.total_outgoing) }}
                         </span>
-                        <span class="text-[0.65rem] uppercase font-semibold text-slate-500 dark:text-slate-400">
+                        <span class="text-[0.65rem] uppercase font-extrabold tracking-wider text-slate-500 dark:text-slate-400">
                             Consumed
                         </span>
                     </div>
-                    <div class="flex flex-col text-center">
-                        <span class="text-base sm:text-lg font-bold text-lime-600 dark:text-lime-400">
+                    <div class="flex flex-col text-center justify-center p-1">
+                        <span class="text-base sm:text-xl font-black text-lime-600 dark:text-lime-400">
                             {{ utilizationPercentage }}%
                         </span>
-                        <span class="text-[0.65rem] uppercase font-semibold text-slate-500 dark:text-slate-400">
+                        <span class="text-[0.65rem] uppercase font-extrabold tracking-wider text-slate-500 dark:text-slate-400">
                             Utilization
                         </span>
                     </div>
