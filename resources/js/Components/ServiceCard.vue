@@ -52,14 +52,10 @@ function slugify(title) {
         :target="external ? '_blank' : undefined"
         :rel="external ? 'noopener noreferrer' : undefined"
         :data-guide="'services-'+slugify(title)"
-        class="group relative flex flex-col h-full w-full overflow-visible rounded-2xl bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-gray-200/80 dark:border-slate-800/90 p-3 sm:p-4.5 transition-all duration-300 hover:border-lime-500/50 dark:hover:border-lime-400/50 hover:shadow-xl hover:shadow-lime-500/10 dark:hover:shadow-lime-400/5 hover:-translate-y-1"
+        class="group relative flex flex-col h-full w-full overflow-visible rounded-2xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-3.5 sm:p-4.5 transition-all duration-300 hover:border-lime-500 dark:hover:border-lime-400 hover:ring-1 hover:ring-lime-500/40 dark:hover:ring-lime-400/40 hover:shadow-md hover:-translate-y-0.5"
     >
-        <!-- Subtle background glow on hover -->
-        <div class="absolute inset-0 rounded-2xl bg-gradient-to-br from-lime-500/[0.05] via-transparent to-emerald-500/[0.03] dark:from-lime-400/[0.08] dark:to-emerald-400/[0.04] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-        </div>
-
-        <!-- Top accent line -->
-        <div class="absolute top-0 left-0 h-[2.5px] bg-gradient-to-r from-lime-500 via-emerald-400 to-lime-400 dark:from-lime-400 dark:to-emerald-400 w-0 group-hover:w-full transition-all duration-500 ease-out rounded-t-2xl">
+        <!-- Subtle background tint on hover -->
+        <div class="absolute inset-0 rounded-2xl bg-lime-500/[0.02] dark:bg-lime-400/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
         </div>
 
         <!-- Metric Badge -->

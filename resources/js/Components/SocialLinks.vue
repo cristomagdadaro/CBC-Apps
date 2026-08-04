@@ -39,6 +39,8 @@ export default {
             isHovered: false,
             showPrivacyNotice: false,
             hasReachedBottom: false,
+            isMobileVisible: true,
+            inactivityTimer: null,
             privacySections: [
                 {
                     heading: '1. Personal Data Collected',
@@ -224,6 +226,29 @@ export default {
                 this.hasReachedBottom = true
             }
         },
+        resetInactivityTimer() {
+            this.isMobileVisible = true
+            if (this.inactivityTimer) clearTimeout(this.inactivityTimer)
+
+            if (this.open) return
+
+            this.inactivityTimer = setTimeout(() => {
+                if (!this.open) {
+                    this.isMobileVisible = false
+                }
+            }, 5000)
+        },
+    },
+
+    watch: {
+        open(isOpen) {
+            if (isOpen) {
+                this.isMobileVisible = true
+                if (this.inactivityTimer) clearTimeout(this.inactivityTimer)
+            } else {
+                this.resetInactivityTimer()
+            }
+        },
     },
 
     mounted() {
@@ -234,7 +259,15 @@ export default {
                 this.showPrivacyNotice = true
             }
         }
-    }
+
+        this.resetInactivityTimer()
+        window.addEventListener("scroll", this.resetInactivityTimer, { passive: true, capture: true })
+    },
+
+    beforeUnmount() {
+        if (this.inactivityTimer) clearTimeout(this.inactivityTimer)
+        window.removeEventListener("scroll", this.resetInactivityTimer, { capture: true })
+    },
 }
 </script>
 
@@ -243,13 +276,13 @@ export default {
     <transition enter-active-class="transition-opacity duration-300" enter-from-class="opacity-0"
         enter-to-class="opacity-100" leave-active-class="transition-opacity duration-200" leave-from-class="opacity-100"
         leave-to-class="opacity-0">
-        <div v-if="open" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[999] md:hidden" @click="close" />
+        <div v-if="open" class="fixed inset-0 bg-black/40 z-[999] md:hidden" @click="close" />
     </transition>
 
     <!-- Main Container -->
     <div data-guide="social-links" class="fixed bottom-3.5 right-3.5 sm:bottom-6 sm:right-6 z-[1000] flex flex-col items-end gap-2 sm:gap-3">
         <!-- Desktop View: Floating Pill -->
-        <div class="hidden md:flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 rounded-full px-2 py-1.5 shadow-xl shadow-gray-900/10 dark:shadow-black/30 backdrop-blur-md bg-opacity-90 dark:bg-opacity-90 transition-all duration-300 hover:shadow-2xl hover:shadow-gray-900/15 hover:scale-[1.02]"
+        <div class="hidden md:flex items-center gap-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-full px-2 py-1.5 shadow-xl transition-all duration-300 hover:scale-[1.02]"
             @mouseenter="isHovered = true" @mouseleave="isHovered = false">
             <!-- Auth Links -->
             <Link v-if="$page.props.auth.user" data-guide='social-links-dashboard' :href="route('dashboard')"
@@ -337,7 +370,10 @@ export default {
         </div>
 
         <!-- Mobile View: Floating Action Button -->
-        <div class="md:hidden flex flex-col items-end gap-2">
+        <div 
+            class="md:hidden flex flex-col items-end gap-2 transition-all duration-500 ease-in-out"
+            :class="isMobileVisible || open ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0 pointer-events-none'"
+        >
             <!-- Menu Panel -->
             <transition enter-active-class="transition-all duration-300 ease-out"
                 enter-from-class="opacity-0 translate-y-8 scale-95" enter-to-class="opacity-100 translate-y-0 scale-100"
@@ -345,7 +381,7 @@ export default {
                 leave-from-class="opacity-100 translate-y-0 scale-100"
                 leave-to-class="opacity-0 translate-y-8 scale-95">
                 <div v-if="open"
-                    class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/80 dark:border-slate-800/90 overflow-hidden max-w-[calc(100vw-2rem)] min-w-[260px] mb-1.5">
+                    class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-200 dark:border-slate-800 overflow-hidden max-w-[calc(100vw-2rem)] min-w-[260px] mb-1.5">
                     <!-- Header -->
                     <div class="bg-gradient-to-r from-lime-600 to-emerald-600 px-3.5 py-2.5 flex items-center justify-between">
                         <span class="text-white font-semibold text-xs flex items-center gap-2">
@@ -476,7 +512,7 @@ export default {
             <!-- FAB Toggle Button -->
             <button type="button" @click="toggle"
                 data-guide='social-links'
-                class="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-slate-900/80 dark:bg-slate-800/90 text-white backdrop-blur-md border border-slate-700/60 dark:border-slate-700/80 shadow-md sm:shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none opacity-75 hover:opacity-100"
+                class="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-slate-900 dark:bg-slate-800 text-white border border-slate-700 dark:border-slate-700 shadow-md sm:shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none opacity-85 hover:opacity-100"
                 :class="{ 'rotate-90 opacity-100 bg-lime-600 text-white': open }" aria-label="Toggle quick links menu">
                 <Menu v-if="!open" class="w-5 h-5 sm:w-6 sm:h-6 text-lime-400" />
                 <LuX v-else class="w-5 h-5 sm:w-6 sm:h-6" />

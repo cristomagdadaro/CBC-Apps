@@ -18,7 +18,7 @@ defineProps({
                 </Link>
             </div>
 
-            <div class="w-full max-w-4xl p-5 sm:p-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-gray-200/80 dark:border-slate-800/90 shadow-2xl rounded-2xl prose dark:prose-invert max-w-none text-xs sm:text-sm md:text-base leading-relaxed tracking-normal" v-html="terms" />
+            <div class="w-full max-w-4xl p-5 sm:p-10 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-xl rounded-2xl prose dark:prose-invert max-w-none text-xs sm:text-sm md:text-base leading-relaxed tracking-normal" v-html="terms" />
 
             <div class="mt-6 text-center">
                 <Link href="/" class="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-lime-600 dark:text-lime-400 hover:underline">

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useGuideTour } from "@/Modules/composables/useGuideTour";
 
 const props = defineProps({
@@ -19,6 +19,40 @@ const props = defineProps({
 
 const open = ref(false);
 const isHovered = ref(false);
+const isMobileVisible = ref(true);
+let inactivityTimer = null;
+
+const resetInactivityTimer = () => {
+    isMobileVisible.value = true;
+    if (inactivityTimer) clearTimeout(inactivityTimer);
+
+    if (open.value) return;
+
+    inactivityTimer = setTimeout(() => {
+        if (!open.value) {
+            isMobileVisible.value = false;
+        }
+    }, 5000);
+};
+
+watch(open, (isOpen) => {
+    if (isOpen) {
+        isMobileVisible.value = true;
+        if (inactivityTimer) clearTimeout(inactivityTimer);
+    } else {
+        resetInactivityTimer();
+    }
+});
+
+onMounted(() => {
+    resetInactivityTimer();
+    window.addEventListener("scroll", resetInactivityTimer, { passive: true, capture: true });
+});
+
+onUnmounted(() => {
+    if (inactivityTimer) clearTimeout(inactivityTimer);
+    window.removeEventListener("scroll", resetInactivityTimer, { capture: true });
+});
 
 const { autoEnabled, guideDefinition, startGuide, toggleAutoGuides } = useGuideTour(
     props.guideKey,
@@ -52,7 +86,7 @@ const handleToggleAuto = () => {
     >
         <div
             v-if="open"
-            class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[999] md:hidden"
+            class="fixed inset-0 bg-black/40 z-[999] md:hidden"
             @click="close"
         />
     </transition>
@@ -64,7 +98,7 @@ const handleToggleAuto = () => {
     >
         <!-- Desktop: Floating Pill -->
         <div
-            class="hidden md:flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 rounded-full px-2 py-1.5 shadow-xl shadow-gray-900/10 dark:shadow-black/30 backdrop-blur-md bg-opacity-90 dark:bg-opacity-90 transition-all duration-300 hover:shadow-2xl hover:shadow-gray-900/15 hover:scale-[1.02]"
+            class="hidden md:flex items-center gap-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-full px-2 py-1.5 shadow-xl transition-all duration-300 hover:scale-[1.02]"
             :class="compact ? 'scale-90 origin-bottom-left' : ''"
             @mouseenter="isHovered = true"
             @mouseleave="isHovered = false"
@@ -112,7 +146,10 @@ const handleToggleAuto = () => {
         </div>
 
         <!-- Mobile: FAB with Expandable Menu -->
-        <div class="md:hidden flex flex-col items-start gap-2">
+        <div 
+            class="md:hidden flex flex-col items-start gap-2 transition-all duration-500 ease-in-out"
+            :class="isMobileVisible || open ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0 pointer-events-none'"
+        >
             <!-- Menu Panel -->
             <transition
                 enter-active-class="transition-all duration-300 ease-out"
@@ -124,7 +161,7 @@ const handleToggleAuto = () => {
             >
                 <div
                     v-if="open"
-                    class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/80 dark:border-slate-800/90 overflow-hidden max-w-[calc(100vw-2rem)] min-w-[260px] mb-1.5"
+                    class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-200 dark:border-slate-800 overflow-hidden max-w-[calc(100vw-2rem)] min-w-[260px] mb-1.5"
                 >
                     <!-- Header -->
                     <div class="bg-gradient-to-r from-lime-600 to-emerald-600 px-3.5 py-2.5 flex items-center justify-between">
@@ -193,7 +230,7 @@ const handleToggleAuto = () => {
             <button
                 type="button"
                 @click="toggle"
-                class="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-slate-900/80 dark:bg-slate-800/90 text-white backdrop-blur-md border border-slate-700/60 dark:border-slate-700/80 shadow-md sm:shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none opacity-75 hover:opacity-100"
+                class="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-slate-900 dark:bg-slate-800 text-white border border-slate-700 dark:border-slate-700 shadow-md sm:shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none opacity-85 hover:opacity-100"
                 :class="{ 'rotate-90 opacity-100 bg-lime-600 text-white': open }"
                 aria-label="Toggle guide menu"
             >

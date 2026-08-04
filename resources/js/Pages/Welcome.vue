@@ -130,20 +130,20 @@ onMounted(() => {
                     <div class="relative w-fit mx-auto">
                         <div class="flex items-center justify-center gap-2">
                             <h1
-                                class="text-3xl sm:text-5xl md:text-6xl font-extrabold leading-none bg-gradient-to-r from-lime-300 via-lime-400 to-emerald-400 bg-clip-text text-transparent font-[Montserrat] drop-shadow-[0_2px_12px_rgba(163,230,53,0.3)] tracking-tight"
+                                class="text-3xl sm:text-5xl md:text-6xl font-extrabold leading-none text-lime-400 dark:text-lime-400 font-[Montserrat] tracking-tight whitespace-nowrap"
                             >
                                 {{ $appName }}
                             </h1>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-lime-500/20 text-lime-300 border border-lime-500/30 text-[0.65rem] font-bold shadow-sm backdrop-blur-sm self-start mt-1">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-lime-500/20 text-lime-300 border border-lime-500/30 text-[0.65rem] font-bold shadow-sm self-start mt-1">
                                 {{ $page.props.appVersion }}
                             </span>
                         </div>
                     </div>
 
-                    <p class="mt-2.5 sm:mt-3.5 max-w-xl mx-auto text-xs sm:text-base font-medium text-slate-100 dark:text-slate-200 leading-snug drop-shadow">
+                    <p class="mt-2.5 sm:mt-3.5 max-w-xl mx-auto text-xs sm:text-base font-medium text-slate-100 dark:text-slate-200 leading-snug drop-shadow-sm">
                         Your gateway to DA-Crop Biotechnology Center's proprietary web apps and services.
                     </p>
-                    <blockquote class="mt-1.5 sm:mt-2 text-xs sm:text-sm font-semibold italic text-lime-300 dark:text-lime-300 drop-shadow">
+                    <blockquote class="mt-1.5 sm:mt-2 text-xs sm:text-sm font-semibold italic text-lime-300 dark:text-lime-300 drop-shadow-sm">
                         "Better Crops, Better Lives"
                     </blockquote>
                 </div>
@@ -151,7 +151,7 @@ onMounted(() => {
                 <!-- Apps & Services Section -->
                 <div class="flex flex-col items-center justify-center gap-4 sm:gap-6 w-full">
                     <div class="text-center">
-                        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-lime-500/10 dark:bg-lime-400/15 border border-lime-500/30 text-lime-300 dark:text-lime-300 font-extrabold text-xs sm:text-sm uppercase tracking-widest shadow-sm backdrop-blur-sm">
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-lime-500/10 dark:bg-lime-400/15 border border-lime-500/30 text-lime-300 dark:text-lime-300 font-extrabold text-xs sm:text-sm uppercase tracking-widest shadow-sm">
                             <span class="w-1.5 h-1.5 rounded-full bg-lime-400 animate-pulse"></span>
                             Apps & Services
                         </div>
@@ -181,7 +181,7 @@ onMounted(() => {
                     </div>
 
                     <!-- Mobile App Downloads Section -->
-                    <div class="mt-4 sm:mt-6 flex flex-col items-center gap-3 sm:gap-4 bg-slate-900/85 dark:bg-slate-950/90 border border-slate-800/90 rounded-2xl p-4 sm:p-6 backdrop-blur-xl w-full max-w-2xl shadow-2xl">
+                    <div class="mt-4 sm:mt-6 flex flex-col items-center gap-3 sm:gap-4 bg-slate-900 dark:bg-slate-950 border border-slate-800 rounded-2xl p-4 sm:p-6 w-full max-w-2xl shadow-xl">
                         <h4 class="text-slate-200 dark:text-slate-300 uppercase tracking-widest text-[0.68rem] sm:text-xs font-bold flex items-center gap-2">
                             <svg class="w-4 h-4 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
@@ -192,7 +192,7 @@ onMounted(() => {
                         <div class="flex flex-wrap justify-center gap-3 w-full">
                             <!-- Android Active Button -->
                             <a :href="route('download.android')" 
-                            class="group flex items-center gap-3.5 bg-black hover:bg-slate-900 border border-slate-700/80 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lime-500/10 hover:-translate-y-0.5">
+                            class="group flex items-center gap-3.5 bg-black hover:bg-slate-900 border border-slate-700 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lime-500/10 hover:-translate-y-0.5">
                                 <svg class="w-7 h-7 sm:w-8 sm:h-8 text-lime-400 transition-transform duration-300 group-hover:scale-110" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
                                     <path d="M2.76 3.061a.5.5 0 0 1 .679.2l1.283 2.352A8.9 8.9 0 0 1 8 5a8.9 8.9 0 0 1 3.278.613l1.283-2.352a.5.5 0 1 1 .878.478l-1.252 2.295C14.475 7.266 16 9.477 16 12H0c0-2.523 1.525-4.734 3.813-5.966L2.56 3.74a.5.5 0 0 1 .2-.678ZM5 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2m6 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
                                 </svg>
@@ -204,7 +204,7 @@ onMounted(() => {
 
                             <!-- iOS Disabled Button -->
                             <button disabled 
-                                    class="flex items-center gap-3.5 bg-slate-900/60 border border-slate-800 text-slate-400 dark:text-slate-500 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl cursor-not-allowed opacity-60">
+                                    class="flex items-center gap-3.5 bg-slate-900 border border-slate-800 text-slate-400 dark:text-slate-500 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl cursor-not-allowed opacity-60">
                                 <svg class="w-7 h-7 sm:w-8 sm:h-8 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
                                     <path d="M11.182.008C11.148-.03 9.923.023 8.857 1.18c-1.066 1.156-.902 2.482-.878 2.516s1.52.087 2.475-1.258.762-2.391.728-2.43m3.314 11.733c-.048-.096-2.325-1.234-2.113-3.422s1.675-2.789 1.698-2.854-.597-.79-1.254-1.157a3.7 3.7 0 0 0-1.563-.434c-.108-.003-.483-.095-1.254.116-.508.139-1.653.589-1.968.607-.316.018-1.256-.522-2.267-.665-.647-.125-1.333.131-1.824.328-.49.196-1.422.754-2.074 2.237-.652 1.482-.311 3.83-.067 4.56s.625 1.924 1.273 2.796c.576.984 1.34 1.667 1.659 1.899s1.219.386 1.843.067c.502-.308 1.408-.485 1.766-.472.357.013 1.061.154 1.782.539.571.197 1.111.115 1.652-.105.541-.221 1.324-1.059 2.238-2.758q.52-1.185.473-1.282"/>
                                 </svg>
@@ -241,7 +241,7 @@ onMounted(() => {
     <!-- PhilRice Network Detection Modal -->
     <div
         v-if="showNetworkModal"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4"
     >
         <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl shadow-2xl p-5 sm:p-8 max-w-md w-full">
             <h3 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3">

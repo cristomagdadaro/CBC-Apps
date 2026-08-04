@@ -319,7 +319,7 @@ export default {
                 <div v-if="hasSummaryCards" class="grid gap-3.5 sm:gap-4.5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
 
                     <!-- Event Forms Card -->
-                    <div v-if="dashboardAccess.events" class="bg-white/95 dark:bg-slate-900/90 rounded-2xl shadow-sm border border-gray-200/80 dark:border-slate-800/90 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col justify-between backdrop-blur-xl">
+                    <div v-if="dashboardAccess.events" class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col justify-between">
                         <div class="p-4 sm:p-5">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-center gap-3">
@@ -355,7 +355,7 @@ export default {
                                 <canvas ref="eventsChartCanvas"></canvas>
                             </div>
                         </div>
-                        <div class="px-4 sm:px-5 py-2.5 sm:py-3 bg-slate-50/80 dark:bg-slate-800/40 border-t border-gray-100 dark:border-slate-800/80">
+                        <div class="px-4 sm:px-5 py-2.5 sm:py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-800">
                             <Link :href="route('forms.index')" class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
                                 View all events
                                 <LuChevronRight class="w-4 h-4" />
@@ -364,7 +364,7 @@ export default {
                     </div>
 
                     <!-- FES Requests Card -->
-                    <div v-if="dashboardAccess.fes" class="bg-white/95 dark:bg-slate-900/90 rounded-2xl shadow-sm border border-gray-200/80 dark:border-slate-800/90 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col justify-between backdrop-blur-xl">
+                    <div v-if="dashboardAccess.fes" class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col justify-between">
                         <div class="p-4 sm:p-5">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-center gap-3">
@@ -400,7 +400,7 @@ export default {
                                 <canvas ref="accessChartCanvas"></canvas>
                             </div>
                         </div>
-                        <div class="px-4 sm:px-5 py-2.5 sm:py-3 bg-slate-50/80 dark:bg-slate-800/40 border-t border-gray-100 dark:border-slate-800/80">
+                        <div class="px-4 sm:px-5 py-2.5 sm:py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-800">
                             <Link :href="route('accessUseRequest.index')" class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
                                 Review requests
                                 <LuChevronRight class="w-4 h-4" />
@@ -409,7 +409,7 @@ export default {
                     </div>
 
                     <!-- Inventory Card -->
-                    <div v-if="dashboardAccess.inventory" class="bg-white/95 dark:bg-slate-900/90 rounded-2xl shadow-sm border border-gray-200/80 dark:border-slate-800/90 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col justify-between backdrop-blur-xl">
+                    <div v-if="dashboardAccess.inventory" class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col justify-between">
                         <div class="p-4 sm:p-5">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-center gap-3">
@@ -451,7 +451,7 @@ export default {
                                 <canvas ref="inventoryChartCanvas"></canvas>
                             </div>
                         </div>
-                        <div class="px-4 sm:px-5 py-2.5 sm:py-3 bg-slate-50/80 dark:bg-slate-800/40 border-t border-gray-100 dark:border-slate-800/80 flex justify-between">
+                        <div class="px-4 sm:px-5 py-2.5 sm:py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-800 flex justify-between">
                             <Link :href="route('items.index')" class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
                                 View items
                                 <LuChevronRight class="w-4 h-4" />
@@ -464,7 +464,7 @@ export default {
                     </div>
 
                     <!-- Vehicle Rentals Card -->
-                    <div v-if="dashboardAccess.rentals" class="bg-white/95 dark:bg-slate-900/90 rounded-2xl shadow-sm border border-gray-200/80 dark:border-slate-800/90 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col justify-between backdrop-blur-xl">
+                    <div v-if="dashboardAccess.rentals" class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col justify-between">
                         <div class="p-4 sm:p-5">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-center gap-3">
@@ -504,7 +504,7 @@ export default {
                                 <canvas ref="vehicleChartCanvas"></canvas>
                             </div>
                         </div>
-                        <div class="px-4 sm:px-5 py-2.5 sm:py-3 bg-slate-50/80 dark:bg-slate-800/40 border-t border-gray-100 dark:border-slate-800/80">
+                        <div class="px-4 sm:px-5 py-2.5 sm:py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-800">
                             <Link :href="route('rentals.vehicle.index')" class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
                                 Manage bookings
                                 <LuChevronRight class="w-4 h-4" />
@@ -513,7 +513,7 @@ export default {
                     </div>
 
                     <!-- Venue Rentals Card -->
-                    <div v-if="dashboardAccess.rentals" class="bg-white/95 dark:bg-slate-900/90 rounded-2xl shadow-sm border border-gray-200/80 dark:border-slate-800/90 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col justify-between backdrop-blur-xl">
+                    <div v-if="dashboardAccess.rentals" class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col justify-between">
                         <div class="p-4 sm:p-5">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-center gap-3">
@@ -553,7 +553,7 @@ export default {
                                 <canvas ref="venueChartCanvas"></canvas>
                             </div>
                         </div>
-                        <div class="px-4 sm:px-5 py-2.5 sm:py-3 bg-slate-50/80 dark:bg-slate-800/40 border-t border-gray-100 dark:border-slate-800/80">
+                        <div class="px-4 sm:px-5 py-2.5 sm:py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-800">
                             <Link :href="route('rentals.venue.index')" class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
                                 Manage venues
                                 <LuChevronRight class="w-4 h-4" />
@@ -562,7 +562,7 @@ export default {
                     </div>
 
                     <!-- Lab Equipment Card -->
-                    <div v-if="dashboardAccess.laboratory" class="bg-white/95 dark:bg-slate-900/90 rounded-2xl shadow-sm border border-gray-200/80 dark:border-slate-800/90 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col justify-between backdrop-blur-xl">
+                    <div v-if="dashboardAccess.laboratory" class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col justify-between">
                         <div class="p-4 sm:p-5">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-center gap-3">
@@ -607,7 +607,7 @@ export default {
                                 <canvas ref="labChartCanvas"></canvas>
                             </div>
                         </div>
-                        <div class="px-4 sm:px-5 py-2.5 sm:py-3 bg-slate-50/80 dark:bg-slate-800/40 border-t border-gray-100 dark:border-slate-800/80">
+                        <div class="px-4 sm:px-5 py-2.5 sm:py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-800">
                             <Link :href="route('equipment-logger.dashboard')" class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
                                 View logs
                                 <LuChevronRight class="w-4 h-4" />
@@ -618,7 +618,7 @@ export default {
 
                 <!-- Quick Actions Grid -->
                 <div v-if="hasQuickActions" class="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
-                    <Link v-if="dashboardAccess.events" :href="route('forms.create')" class="group bg-white/95 dark:bg-slate-900/90 rounded-2xl shadow-sm border border-gray-200/80 dark:border-slate-800/90 p-4 sm:p-5 hover:shadow-lg hover:border-blue-500/40 dark:hover:border-blue-400/40 hover:-translate-y-0.5 transition-all duration-300 backdrop-blur-xl">
+                    <Link v-if="dashboardAccess.events" :href="route('forms.create')" class="group bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 p-4 sm:p-5 hover:shadow-md hover:border-blue-500/40 dark:hover:border-blue-400/40 hover:-translate-y-0.5 transition-all duration-300">
                         <div class="flex items-start justify-between">
                             <div class="p-2.5 bg-blue-500/10 dark:bg-blue-400/15 rounded-xl border border-blue-500/20 group-hover:scale-105 transition-transform">
                                 <LuCalendarPlus class="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -629,7 +629,7 @@ export default {
                         <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">New event form</p>
                     </Link>
 
-                    <Link v-if="dashboardAccess.events" :href="route('forms.scan')" class="group bg-white/95 dark:bg-slate-900/90 rounded-2xl shadow-sm border border-gray-200/80 dark:border-slate-800/90 p-4 sm:p-5 hover:shadow-lg hover:border-emerald-500/40 dark:hover:border-emerald-400/40 hover:-translate-y-0.5 transition-all duration-300 backdrop-blur-xl">
+                    <Link v-if="dashboardAccess.events" :href="route('forms.scan')" class="group bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 p-4 sm:p-5 hover:shadow-md hover:border-emerald-500/40 dark:hover:border-emerald-400/40 hover:-translate-y-0.5 transition-all duration-300">
                         <div class="flex items-start justify-between">
                             <div class="p-2.5 bg-emerald-500/10 dark:bg-emerald-400/15 rounded-xl border border-emerald-500/20 group-hover:scale-105 transition-transform">
                                 <LuQrCode class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
@@ -640,7 +640,7 @@ export default {
                         <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Check attendance</p>
                     </Link>
 
-                    <Link v-if="dashboardAccess.rentals" :href="route('rentals.vehicle.index')" class="group bg-white/95 dark:bg-slate-900/90 rounded-2xl shadow-sm border border-gray-200/80 dark:border-slate-800/90 p-4 sm:p-5 hover:shadow-lg hover:border-amber-500/40 dark:hover:border-amber-400/40 hover:-translate-y-0.5 transition-all duration-300 backdrop-blur-xl">
+                    <Link v-if="dashboardAccess.rentals" :href="route('rentals.vehicle.index')" class="group bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 p-4 sm:p-5 hover:shadow-md hover:border-amber-500/40 dark:hover:border-amber-400/40 hover:-translate-y-0.5 transition-all duration-300">
                         <div class="flex items-start justify-between">
                             <div class="p-2.5 bg-amber-500/10 dark:bg-amber-400/15 rounded-xl border border-amber-500/20 group-hover:scale-105 transition-transform">
                                 <LuClipboardList class="w-5 h-5 text-amber-600 dark:text-amber-400" />
@@ -651,7 +651,7 @@ export default {
                         <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Rentals & venues</p>
                     </Link>
 
-                    <Link v-if="dashboardAccess.laboratory" :href="route('equipment-logger.dashboard')" class="group bg-white/95 dark:bg-slate-900/90 rounded-2xl shadow-sm border border-gray-200/80 dark:border-slate-800/90 p-4 sm:p-5 hover:shadow-lg hover:border-indigo-500/40 dark:hover:border-indigo-400/40 hover:-translate-y-0.5 transition-all duration-300 backdrop-blur-xl">
+                    <Link v-if="dashboardAccess.laboratory" :href="route('equipment-logger.dashboard')" class="group bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 p-4 sm:p-5 hover:shadow-md hover:border-indigo-500/40 dark:hover:border-indigo-400/40 hover:-translate-y-0.5 transition-all duration-300">
                         <div class="flex items-start justify-between">
                             <div class="p-2.5 bg-indigo-500/10 dark:bg-indigo-400/15 rounded-xl border border-indigo-500/20 group-hover:scale-105 transition-transform">
                                 <LuFlaskConical class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
