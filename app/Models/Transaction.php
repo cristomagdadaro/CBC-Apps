@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Support\TransactionActorNameResolver;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\Auditable;
 use Illuminate\Support\Str;
@@ -14,10 +16,15 @@ class Transaction extends BaseModel
 {
     use HasFactory, SoftDeletes, HasUuids, Auditable;
 
+    public const OPTION_KEY_EQUIPMENT_LOGGER_MODES = 'equipment_logger_modes';
+    public const EQUIPMENT_LOGGER_MODE_EXCLUDED = 'excluded';
+    public const EQUIPMENT_LOGGER_MODE_TRACKED_ONLY = 'tracked_only';
+    public const EQUIPMENT_LOGGER_MODE_BORROWABLE = 'borrowable';
+
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($model) {
             if (empty($model->id)) {
                 $model->id = (string) Str::uuid();
@@ -29,6 +36,9 @@ class Transaction extends BaseModel
     protected $keyType = 'string';
     protected $casts = [
         'id' => 'string',
+    ];
+    protected $appends = [
+        'actor_display_name',
     ];
     protected $fillable = [
         'id',
@@ -45,8 +55,12 @@ class Transaction extends BaseModel
         'expiration',
         'remarks',
         'project_code',
+        'equipment_logger_mode',
         'par_no',
         'condition',
+        'po_no',
+        'pr_no',
+        'serial_no',
     ];
 
     protected array $searchable = [
@@ -67,8 +81,12 @@ class Transaction extends BaseModel
         'expiration',
         'remarks',
         'project_code',
+        'equipment_logger_mode',
         'par_no',
         'condition',
+        'po_no',
+        'pr_no',
+        'serial_no',
     ];
 
     protected function serializeDate(DateTimeInterface $date): string
@@ -96,8 +114,26 @@ class Transaction extends BaseModel
         return $this->hasMany(SuppEquipReport::class, 'transaction_id', 'id');
     }
 
+    public function getActorDisplayNameAttribute(): ?string
+    {
+        return app(TransactionActorNameResolver::class)->resolve(
+            $this->personnel,
+            $this->user,
+        );
+    }
+
     public function components(): HasMany
     {
         return $this->hasMany(TransactionComponent::class, 'transaction_id', 'id');
+    }
+
+    public function parentComponents(): HasMany
+    {
+        return $this->hasMany(TransactionComponent::class, 'component_transaction_id', 'id');
+    }
+
+    public function parentComponent(): HasOne
+    {
+        return $this->hasOne(TransactionComponent::class, 'component_transaction_id', 'id');
     }
 }

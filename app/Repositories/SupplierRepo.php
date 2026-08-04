@@ -19,6 +19,7 @@ class SupplierRepo extends AbstractRepoService
         return $this->model
             ->newQuery()
             ->select('id as name', 'name as label')
+            ->orderBy('label', 'ASC')
             ->get();
     }
 }

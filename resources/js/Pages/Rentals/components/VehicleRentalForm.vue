@@ -2,6 +2,7 @@
 import RentalVehicle from "@/Modules/domain/RentalVehicle";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
+import { subscribeToRealtimeChannels } from "@/Modules/realtime/subscriptions";
 import SuccessModal from "@/Components/SuccessModal.vue";
 import CalendarModule from "@/Components/CalendarModule.vue";
 import { rentalVehicleTripOptions, getTripTypeMeta } from "@/Pages/Rentals/constants/tripWorkflows";
@@ -31,6 +32,8 @@ export default {
             successMessage: "",
             calendarLoading: false,
             calendarEvents: [],
+            realtimeCleanup: null,
+            realtimeRefreshTimer: null,
             membersOfPartyRows: [],
             destinationStopInput: "",
         };
@@ -105,6 +108,34 @@ export default {
         },
     },
     methods: {
+        cleanupRealtime() {
+            if (typeof this.realtimeCleanup === "function") {
+                this.realtimeCleanup();
+            }
+
+            this.realtimeCleanup = null;
+        },
+        configureRealtime() {
+            this.cleanupRealtime();
+
+            this.realtimeCleanup = subscribeToRealtimeChannels([
+                {
+                    type: this.isGuestContext ? "public" : "private",
+                    channel: this.isGuestContext ? "public.rentals.calendar" : "rentals.calendar",
+                    event: "rentals.calendar.changed",
+                    handler: () => this.scheduleRealtimeRefresh(),
+                },
+            ]);
+        },
+        scheduleRealtimeRefresh() {
+            if (this.realtimeRefreshTimer) {
+                clearTimeout(this.realtimeRefreshTimer);
+            }
+
+            this.realtimeRefreshTimer = setTimeout(() => {
+                this.loadCalendarEvents();
+            }, 400);
+        },
         routeNameFor(type) {
             const routeMap = {
                 index: "api.guest.rental.vehicles.index",
@@ -119,8 +150,10 @@ export default {
             this.form.trip_type = value;
         },
         handlePersonnelFound(data) {
-            this.form.requested_by = data.fullName;
-            this.form.contact_number = data.phone;
+            this.form.requested_by = data.fullName || this.form.requested_by;
+            if (data.phone) {
+                this.form.contact_number = data.phone;
+            }
         },
         handleDestinationRegionChange(value) {
             this.form.destination_region = value;
@@ -174,8 +207,8 @@ export default {
         normalizeCalendarEvents(rows = []) {
             return rows.map((rental) => ({
                 id: rental.id,
-                label: `${rental.requested_by || "Unknown requester"} (${rental.vehicle_type || "Vehicle pending"})`,
-                subtitle: [rental.destination_location, rental.purpose]
+                label: `${rental.vehicle_type || "Vehicle"} booking`,
+                subtitle: [rental.trip_type, rental.status]
                     .filter(Boolean)
                     .join(" - "),
                 type: rental.vehicle_type || rental.trip_type || "vehicle",
@@ -248,6 +281,14 @@ export default {
             ? this.form.destination_stops.join("\n")
             : "";
         this.loadCalendarEvents();
+        this.configureRealtime();
+    },
+    beforeUnmount() {
+        if (this.realtimeRefreshTimer) {
+            clearTimeout(this.realtimeRefreshTimer);
+        }
+
+        this.cleanupRealtime();
     },
 };
 </script>
@@ -256,7 +297,7 @@ export default {
     <SuccessModal :show="showSuccessModal" title="Success!" :message="successMessage"
         @close="showSuccessModal = false" />
     <div class="grid md:grid-cols-4 grid-cols-1 gap-6 mt-3 md:mt-0">
-        <div v-if="form" class="bg-white p-2 md:rounded-md flex flex-col gap-2 md:max-w-xl drop-shadow-lg h-fit col-span-3 md:col-span-1">
+        <div data-guide='rental-form-shell' v-if="form" class="bg-white p-2 md:rounded-md flex flex-col gap-2 md:max-w-xl drop-shadow-lg h-fit col-span-3 md:col-span-1">
             <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm">
                 <div class="flex items-start gap-3">
                     <svg class="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"

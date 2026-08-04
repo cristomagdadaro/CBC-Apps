@@ -1,29 +1,24 @@
 <template>
-    <div class="label-card hover:scale-[2] transition-transform duration-300 hover:z-10" :style="cardStyle">
-        <div class="label-card-inner" :style="cardInnerStyle">
-            <div class="label-text" :style="{ fontSize: `${labelFontSize}px` }">
-                <div class="label-item">{{ label?.item?.name }}</div>
-                <div class="label-brand">
-                    {{ label?.item?.brand }}
-                    <span v-if="label?.item?.description">({{ label.item.description }})</span>
-                </div>
-            </div>
-            <svg v-if="hasBarcode" ref="barcodeSvg"></svg>
-            <qrcode-vue v-if="hasQr" :value="label?.equipmentUrl" :size="qrSize" level="M" render-as="canvas" class="label-qr mx-auto" />
-            <div v-if="hasBarcode" class="label-barcode mx-auto" :style="{ fontSize: `${labelFontSize}px` }">
-                {{ label?.item?.barcode }}
-            </div>
-            <div v-else class="label-qr-caption" :style="{ fontSize: `${labelFontSize * 0.9}px` }">
-                {{ label?.item?.barcode }}
-            </div>
-        </div>
-    </div>
+    <QrBarCode
+        :mode="printMode"
+        :title="label?.item?.name || ''"
+        :subtitle="subtitleText"
+        :barcode-value="label?.item?.barcode || ''"
+        :qr-value="label?.equipmentUrl || ''"
+        :qr-caption="label?.item?.barcode || ''"
+        :font-size="labelFontSize"
+        :qr-size="qrSize"
+        :barcode-height="barcodeHeight"
+        :barcode-module-width="barcodeModuleWidth"
+        :card-style="cardStyle"
+        :card-inner-style="cardInnerStyle"
+        container-class="label-card hover:scale-[2] transition-transform duration-300 hover:z-10"
+    />
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
-import JsBarcode from "jsbarcode";
-import QrcodeVue from "qrcode.vue";
+import { computed } from "vue";
+import QrBarCode from "@/Components/QrBarCode.vue";
 
 const props = defineProps({
     label: { type: Object, required: true },
@@ -36,30 +31,14 @@ const props = defineProps({
     cardInnerStyle: { type: Object, required: true },
 });
 
-const barcodeSvg = ref(null);
-const hasBarcode = computed(() => props.printMode !== "qr");
-const hasQr = computed(() => props.printMode !== "barcode");
+const subtitleText = computed(() => {
+    const brand = props.label?.item?.brand || "";
+    const description = props.label?.item?.description || "";
 
-const renderBarcode = () => {
-    if (!barcodeSvg.value) return;
-    if (!hasBarcode.value || !props.label?.item?.barcode) {
-        barcodeSvg.value.innerHTML = "";
-        return;
+    if (!brand) {
+        return description;
     }
 
-    JsBarcode(barcodeSvg.value, props.label.item.barcode, {
-        format: "CODE128",
-        displayValue: false,
-        width: props.barcodeModuleWidth,
-        height: props.barcodeHeight,
-        margin: 0,
-    });
-};
-
-onMounted(renderBarcode);
-
-watch(
-    () => [props.printMode, props.barcodeHeight, props.barcodeModuleWidth, props.label?.item?.barcode ?? ""],
-    renderBarcode,
-);
+    return description ? `${brand} (${description})` : brand;
+});
 </script>

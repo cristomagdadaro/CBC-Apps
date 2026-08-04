@@ -79,7 +79,7 @@ export default class LaboratoryEquipmentLog extends DtoLaboratoryEquipmentLog {
             {
                 title: 'Personnel',
                 key: 'personnelName',
-                db_key: 'personnel_id',
+                db_key: 'personnel.name',
                 align: 'dataColor',
                 sortable: false,
                 visible: true,

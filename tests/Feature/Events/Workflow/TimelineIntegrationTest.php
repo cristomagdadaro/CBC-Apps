@@ -146,7 +146,7 @@ class TimelineIntegrationTest extends TestCase
         $this->assertNull($state['current_step_id']);
     }
 
-    public function test_cross_device_identity_recovery_auto_creates_registration_on_lookup(): void
+    public function test_cross_device_identity_lookup_returns_generic_verification_response(): void
     {
         Carbon::setTestNow('2026-03-04 09:30:00');
 
@@ -157,20 +157,19 @@ class TimelineIntegrationTest extends TestCase
         $response = $this->getJson('/api/guest/forms/event/0504/participant-lookup?email=' . urlencode('user1@example.test'));
 
         $response->assertStatus(200)
-            ->assertJsonPath('data.found', true)
-            ->assertJsonPath('data.profile_found', true)
-            ->assertJsonPath('data.participant.email', 'user1@example.test');
+            ->assertJsonPath('status', 'success')
+            ->assertJsonPath('data.verification_required', true)
+            ->assertJsonPath('data.message', 'If this email is eligible, a verification link will be sent.')
+            ->assertJsonMissingPath('data.participant_hash');
 
-        $participantHash = $response->json('data.participant_hash');
-
-        $this->assertDatabaseHas('registrations', [
-            'id' => $participantHash,
-            'participant_id' => $participant->id,
-            'event_subform_id' => '0504',
+        $this->assertDatabaseCount('registrations', 0);
+        $this->assertDatabaseHas('participants', [
+            'id' => $participant->id,
+            'email' => 'user1@example.test',
         ]);
     }
 
-    public function test_identity_lookup_reuses_existing_registration_hash(): void
+    public function test_identity_lookup_keeps_existing_registration_but_stays_generic(): void
     {
         Carbon::setTestNow('2026-03-04 09:30:00');
 
@@ -188,7 +187,16 @@ class TimelineIntegrationTest extends TestCase
         $response = $this->getJson('/api/guest/forms/event/0504/participant-lookup?email=' . urlencode('existing@example.test'));
 
         $response->assertStatus(200)
-            ->assertJsonPath('data.participant_hash', $registration->id);
+            ->assertJsonPath('status', 'success')
+            ->assertJsonPath('data.verification_required', true)
+            ->assertJsonPath('data.message', 'If this email is eligible, a verification link will be sent.')
+            ->assertJsonMissingPath('data.participant_hash');
+
+        $this->assertDatabaseHas('registrations', [
+            'id' => $registration->id,
+            'participant_id' => $participant->id,
+            'event_subform_id' => '0504',
+        ]);
     }
 
     public function test_day2_only_attendee_with_prereg_completion_can_access_day2_registration(): void

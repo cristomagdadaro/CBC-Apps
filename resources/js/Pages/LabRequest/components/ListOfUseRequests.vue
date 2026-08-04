@@ -7,6 +7,7 @@ export default {
     props: {
         formsData: Array,
     },
+    emits: ["removeModel", "updated"],
 }
 </script>
 

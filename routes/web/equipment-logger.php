@@ -1,5 +1,6 @@
 <?php
 
+use App\Repositories\OptionRepo;
 use App\Services\DeploymentAccessService;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -26,11 +27,25 @@ Route::prefix('ict')->group(function () {
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::prefix('apps')->group(function () {
-        Route::prefix('laboratory')->group(function () {
-            Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_LABORATORY_DASHBOARD])
-                ->get('/', function () {
-                    return Inertia::render('Laboratory/LaboratoryDashboard');
-                })->name('laboratory.dashboard');
-        });
+        Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_LABORATORY_DASHBOARD])
+            ->get('/equipment-logger', function () {
+                return Inertia::render('Laboratory/LaboratoryDashboard', [
+                    'equipment_logger_mode_options' => app(OptionRepo::class)->getEquipmentLoggerModeOptions(),
+                ]);
+            })->name('equipment-logger.dashboard');
+
+        Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_LABORATORY_DASHBOARD])
+            ->get('/equipment-logger/personnels/{personnelId}', function (string $personnelId) {
+                return Inertia::render('Laboratory/PersonnelLogHistory', [
+                    'personnelId' => $personnelId,
+                    'personnelSummary' => app(\App\Services\Laboratory\LaboratoryLogService::class)
+                        ->getPersonnelUsageSummary($personnelId, 'all'),
+                ]);
+            })->name('equipment-logger.personnels.show');
+
+        Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_LABORATORY_DASHBOARD])
+            ->get('/laboratory', function () {
+                return redirect()->route('equipment-logger.dashboard');
+            })->name('laboratory.dashboard');
     });
 });

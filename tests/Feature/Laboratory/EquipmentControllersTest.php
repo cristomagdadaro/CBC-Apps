@@ -5,12 +5,16 @@ namespace Tests\Feature\Laboratory;
 use App\Enums\Role as RoleEnum;
 use App\Models\Item;
 use App\Models\LaboratoryEquipmentLog;
+use App\Models\Transaction;
+use App\Models\User;
 use App\Repositories\LaboratoryEquipmentLogRepo;
 use App\Services\Laboratory\LaboratoryLogService;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Laravel\Sanctum\Sanctum;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
 use Tests\WithTestRoles;
 
@@ -56,7 +60,34 @@ class EquipmentControllersTest extends TestCase
             ]);
     }
 
-    public function test_guest_can_check_in_ict_equipment(): void
+    public function test_guest_laboratory_show_returns_specific_message_when_equipment_is_not_borrowable(): void
+    {
+        $service = $this->createMock(LaboratoryLogService::class);
+        $service->expects($this->once())
+            ->method('resolveEquipmentId')
+            ->with('LAB-TRACKED-001')
+            ->willReturn('equipment-1');
+        $service->expects($this->once())
+            ->method('getEquipmentDetails')
+            ->with('equipment-1')
+            ->willThrowException(new HttpException(
+                422,
+                'This equipment exists, but its latest incoming stock is marked as "Tracked only / Not borrowable" and is not available in the borrowable equipment logger flow.',
+            ));
+
+        $repo = $this->createMock(LaboratoryEquipmentLogRepo::class);
+
+        $this->app->instance(LaboratoryLogService::class, $service);
+        $this->app->instance(LaboratoryEquipmentLogRepo::class, $repo);
+
+        $this->getJson(route('api.laboratory.equipments.show', ['identifier' => 'LAB-TRACKED-001']))
+            ->assertUnprocessable()
+            ->assertJson([
+                'message' => 'This equipment exists, but its latest incoming stock is marked as "Tracked only / Not borrowable" and is not available in the borrowable equipment logger flow.',
+            ]);
+    }
+
+    public function test_guest_can_check_in_ict_equipment_with_employee_id(): void
     {
         $service = $this->createMock(LaboratoryLogService::class);
         $service->expects($this->once())
@@ -68,9 +99,9 @@ class EquipmentControllersTest extends TestCase
             ->with(
                 'equipment-1',
                 $this->callback(function (array $payload): bool {
-                    return $payload['employee_id'] === 'EMP-ICT-001'
-                        && $payload['purpose'] === 'Diagnostics'
-                        && ! empty($payload['end_use_at']);
+                    return ($payload['employee_id'] ?? null) === 'EMP-ICT-001'
+                        && ($payload['purpose'] ?? null) === 'Diagnostics'
+                        && !empty($payload['end_use_at']);
                 }),
                 'ict'
             )
@@ -91,7 +122,46 @@ class EquipmentControllersTest extends TestCase
             ->assertJsonPath('data.status', 'active');
     }
 
-    public function test_guest_can_view_active_laboratory_equipments(): void
+    public function test_authenticated_user_can_still_check_in_ict_equipment(): void
+    {
+        $service = $this->createMock(LaboratoryLogService::class);
+        $service->expects($this->once())
+            ->method('resolveEquipmentId')
+            ->with('ICT-BC-001')
+            ->willReturn('equipment-1');
+        $service->expects($this->once())
+            ->method('checkIn')
+            ->with(
+                'equipment-1',
+                $this->callback(function (array $payload): bool {
+                    return ($payload['employee_id'] ?? null) === 'EMP-ICT-001'
+                        && ($payload['purpose'] ?? null) === 'Diagnostics'
+                        && !empty($payload['end_use_at']);
+                }),
+                'ict'
+            )
+            ->willReturn(tap(new LaboratoryEquipmentLog(), function (LaboratoryEquipmentLog $log): void {
+                $log->forceFill(['id' => 'log-1', 'status' => 'active']);
+            }));
+
+        $this->app->instance(LaboratoryLogService::class, $service);
+
+        Sanctum::actingAs(User::factory()->create([
+            'employee_id' => 'EMP-ICT-001',
+        ]));
+
+        $this->postJson(route('api.ict.equipments.check-in', ['identifier' => 'ICT-BC-001']), [
+            'employee_id' => 'EMP-ICT-001',
+            'end_use_at' => now()->addHour()->toIso8601String(),
+            'purpose' => 'Diagnostics',
+        ])
+            ->assertCreated()
+            ->assertJsonPath('message', 'Equipment checked in successfully.')
+            ->assertJsonPath('data.id', 'log-1')
+            ->assertJsonPath('data.status', 'active');
+    }
+
+    public function test_guest_can_view_active_laboratory_equipments_without_authentication(): void
     {
         $service = $this->createMock(LaboratoryLogService::class);
         $service->expects($this->once())
@@ -110,6 +180,33 @@ class EquipmentControllersTest extends TestCase
 
         $this->getJson(route('api.laboratory.equipments.active', ['employee_id' => 'EMP-LAB-100']))
             ->assertOk()
+            ->assertJsonPath('data.0.id', 'LAB-1');
+    }
+
+    public function test_authenticated_non_admin_user_views_only_linked_active_laboratory_equipments(): void
+    {
+        $service = $this->createMock(LaboratoryLogService::class);
+        $service->expects($this->once())
+            ->method('getActiveEquipment')
+            ->with('EMP-LAB-100')
+            ->willReturn(new EloquentCollection([
+                tap(new LaboratoryEquipmentLog(), function (LaboratoryEquipmentLog $log): void {
+                    $log->forceFill(['id' => 'LAB-1', 'status' => 'active']);
+                }),
+            ]));
+
+        $repo = $this->createMock(LaboratoryEquipmentLogRepo::class);
+
+        $this->app->instance(LaboratoryLogService::class, $service);
+        $this->app->instance(LaboratoryEquipmentLogRepo::class, $repo);
+
+        Sanctum::actingAs(User::factory()->create([
+            'employee_id' => 'EMP-LAB-100',
+            'is_admin' => false,
+        ]));
+
+        $this->getJson(route('api.laboratory.equipments.active', ['employee_id' => 'EMP-LAB-999']))
+            ->assertOk()
             ->assertJsonPath('data.0.id', 'LAB-1')
             ->assertJsonPath('data.0.status', 'active');
     }
@@ -122,6 +219,7 @@ class EquipmentControllersTest extends TestCase
             ->willReturn([
                 'active' => 3,
                 'overdue' => 1,
+                'completed' => 2,
             ]);
 
         $repo = $this->createMock(LaboratoryEquipmentLogRepo::class);
@@ -138,6 +236,7 @@ class EquipmentControllersTest extends TestCase
                 'data' => [
                     'active' => 3,
                     'overdue' => 1,
+                    'completed' => 2,
                 ],
             ]);
     }
@@ -180,5 +279,88 @@ class EquipmentControllersTest extends TestCase
             ->assertJsonPath('data.0.id', 'log-1')
             ->assertJsonPath('data.0.status', 'active')
             ->assertJsonPath('meta.total', 1);
+    }
+
+    public function test_laboratory_manager_can_view_equipment_logger_equipment_index(): void
+    {
+        $service = $this->createMock(LaboratoryLogService::class);
+        $service->expects($this->once())
+            ->method('paginateEquipmentUsage')
+            ->with($this->callback(fn (array $payload) => ($payload['search'] ?? null) === 'PCR'), 'all')
+            ->willReturn(new LengthAwarePaginator(
+                [
+                    [
+                        'id' => 'equipment-1',
+                        'name' => 'PCR Machine',
+                        'equipment_type' => 'laboratory',
+                        'total_logs' => 12,
+                    ],
+                ],
+                1,
+                10,
+                1
+            ));
+
+        $repo = $this->createMock(LaboratoryEquipmentLogRepo::class);
+
+        $this->app->instance(LaboratoryLogService::class, $service);
+        $this->app->instance(LaboratoryEquipmentLogRepo::class, $repo);
+
+        $user = $this->createUserWithRole(RoleEnum::LABORATORY_MANAGER->value);
+        Sanctum::actingAs($user);
+
+        $this->getJson(route('api.equipment-logger.equipments.index', ['search' => 'PCR']))
+            ->assertOk()
+            ->assertJsonPath('data.0.id', 'equipment-1')
+            ->assertJsonPath('data.0.total_logs', 12);
+    }
+
+    public function test_laboratory_manager_can_update_equipment_logger_mode_from_dashboard(): void
+    {
+        $service = $this->createMock(LaboratoryLogService::class);
+        $service->expects($this->once())
+            ->method('updateEquipmentLoggerMode')
+            ->with('equipment-1', Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED)
+            ->willReturn([
+                'transaction_id' => 'transaction-1',
+                'equipment_id' => 'equipment-1',
+                'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED,
+                'equipment_logger_mode_label' => 'Excluded from logger',
+            ]);
+
+        $repo = $this->createMock(LaboratoryEquipmentLogRepo::class);
+
+        $this->app->instance(LaboratoryLogService::class, $service);
+        $this->app->instance(LaboratoryEquipmentLogRepo::class, $repo);
+
+        Sanctum::actingAs($this->createUserWithRole(RoleEnum::LABORATORY_MANAGER->value));
+
+        $this->patchJson(route('api.equipment-logger.equipments.logger-mode.update', ['equipmentId' => 'equipment-1']), [
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED,
+        ])
+            ->assertOk()
+            ->assertJsonPath('message', 'Equipment logger mode updated successfully.')
+            ->assertJsonPath('data.transaction_id', 'transaction-1')
+            ->assertJsonPath('data.equipment_logger_mode', Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED);
+    }
+
+    public function test_equipment_logger_mode_update_requires_a_valid_mode(): void
+    {
+        $service = $this->createMock(LaboratoryLogService::class);
+        $service->expects($this->never())
+            ->method('updateEquipmentLoggerMode');
+
+        $repo = $this->createMock(LaboratoryEquipmentLogRepo::class);
+
+        $this->app->instance(LaboratoryLogService::class, $service);
+        $this->app->instance(LaboratoryEquipmentLogRepo::class, $repo);
+
+        Sanctum::actingAs($this->createUserWithRole(RoleEnum::LABORATORY_MANAGER->value));
+
+        $this->patchJson(route('api.equipment-logger.equipments.logger-mode.update', ['equipmentId' => 'equipment-1']), [
+            'equipment_logger_mode' => 'not-a-real-mode',
+        ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['equipment_logger_mode']);
     }
 }

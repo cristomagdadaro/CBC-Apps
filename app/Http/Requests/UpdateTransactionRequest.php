@@ -7,6 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use App\Enums\Inventory;
 use Illuminate\Validation\Rule;
 use App\Models\Transaction;
+use App\Repositories\OptionRepo;
 use Illuminate\Contracts\Validation\Validator;
 
 class UpdateTransactionRequest extends FormRequest
@@ -19,6 +20,32 @@ class UpdateTransactionRequest extends FormRequest
         return true;
     }
 
+    public function prepareForValidation(): void
+    {
+        $transaction = Transaction::query()->find($this->route('id'));
+        $transactionType = $this->input('transac_type') ?? $transaction?->transac_type;
+
+        if ($transactionType !== Inventory::INCOMING->value) {
+            $this->merge([
+                'equipment_logger_mode' => null,
+            ]);
+
+            return;
+        }
+
+        $optionRepo = app(OptionRepo::class);
+        $validModes = $optionRepo->getEquipmentLoggerModeValues();
+        $requestedMode = $this->input('equipment_logger_mode');
+
+        if (! is_string($requestedMode) || ! in_array($requestedMode, $validModes, true)) {
+            $requestedMode = $transaction?->equipment_logger_mode ?? $optionRepo->getDefaultEquipmentLoggerMode();
+        }
+
+        $this->merge([
+            'equipment_logger_mode' => $requestedMode,
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -29,7 +56,7 @@ class UpdateTransactionRequest extends FormRequest
         $id = $this->route('id');
         $transaction = Transaction::query()->find($id);
         $isIncomingUpdate = $transaction?->transac_type === Inventory::INCOMING->value;
-        
+
         return [
             'item_id' => 'required|exists:items,id',
             'barcode' => [
@@ -73,36 +100,53 @@ class UpdateTransactionRequest extends FormRequest
             'expiration' => 'date|nullable',
             'remarks' => 'string|nullable',
             'project_code' => 'nullable|string',
+            'equipment_logger_mode' => [
+                Rule::requiredIf(fn () => $this->input('transac_type') === Inventory::INCOMING->value),
+                'nullable',
+                'string',
+                Rule::in($this->equipmentLoggerModeValues()),
+            ],
             'personnel_id' => 'required|exists:personnels,id',
             'par_no' => 'nullable|string|unique:transactions,par_no,' . $id,
             'condition' => 'nullable|string',
-            'components' => [
-                'nullable',
-                'array',
-                Rule::when(
-                    fn ($input) => $input->transac_type === Inventory::INCOMING->value,
-                    ['max:50']
-                ),
-            ],
-            'components.*.item_id' => [
-                'required_with:components',
-                'exists:items,id',
-            ],
-            'components.*.quantity' => [
-                'required_with:components',
-                'numeric',
-                'min:1',
-            ],
-            'components.*.unit' => 'nullable|string',
-            'components.*.prri_component_no' => ['nullable', 'regex:/^\d{1,5}$/'],
-            'components.*.expiration' => 'nullable|date',
-            'components.*.remarks' => 'nullable|string',
+            'parent_barcode' => 'nullable|string',
+            'po_no' => 'nullable|string',
+            'pr_no' => 'nullable|string',
+            'serial_no' => 'nullable|string',
         ];
     }
 
     public function withValidator(Validator $validator): void
     {
         $validator->after(function($validator) {
+            if ($this->filled('parent_barcode')) {
+                if ($this->input('transac_type') !== Inventory::INCOMING->value) {
+                    $validator->errors()->add('parent_barcode', 'Only incoming transactions can be linked as sub-components.');
+                } else {
+                    $id = $this->route('id');
+                    $parentBarcode = trim((string) $this->input('parent_barcode'));
+                    $currentBarcode = trim((string) $this->input('barcode'));
+                    $currentPrriBarcode = trim((string) $this->input('barcode_prri'));
+
+                    if ($parentBarcode !== '' && ($parentBarcode === $currentBarcode || ($currentPrriBarcode !== '' && $parentBarcode === $currentPrriBarcode))) {
+                        $validator->errors()->add('parent_barcode', 'Parent barcode must reference a different transaction.');
+                    }
+
+                    $parentExists = Transaction::query()
+                        ->where('transac_type', Inventory::INCOMING->value)
+                        ->where('id', '!=', $id)
+                        ->where(function ($query) use ($parentBarcode) {
+                            $query->where('barcode', $parentBarcode)
+                                ->orWhere('barcode_prri', $parentBarcode);
+                        })
+                        ->exists();
+
+                    if (! $parentExists) {
+                        $validator->errors()->add('parent_barcode', 'The parent barcode does not match an existing incoming transaction.');
+                    }
+                }
+            }
+
             if ($this->input('transac_type') !== Inventory::OUTGOING->value) {
                 return;
             }
@@ -142,5 +186,10 @@ class UpdateTransactionRequest extends FormRequest
                 $validator->errors()->add('quantity', 'Requested quantity (' . $requestedQty . ') exceeds remaining stock (' . $remaining . ').');
             }
         });
+    }
+
+    private function equipmentLoggerModeValues(): array
+    {
+        return app(OptionRepo::class)->getEquipmentLoggerModeValues();
     }
 }

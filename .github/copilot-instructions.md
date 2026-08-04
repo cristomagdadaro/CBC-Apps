@@ -11,12 +11,19 @@
 - Leverage route caching (`php artisan route:cache`) and config caching whenever configuration changes land.
 - Keep HTTP responses consistent by reusing shared response macros or `response()->json([...])` structures instead of ad-hoc arrays.
 - Use `Resource` classes or `Inertia::share()` to standardize payloads when multiple controllers expose similar data.
+- Do not hardcode values like "Active" and "Suspended" or other statuses; use constants declared in `config/system.php` (e.g. `config('system.statuses.active')`).
 
 ## System Architecture
 - Requests flow through controllers that either rely on a repository (`AbstractRepoService`) or orchestrate services/pipelines for complex workflows.
 - Multi-step actions anchor in pipelines inside [`app/Pipelines`](app/Pipelines); controllers trigger them through services or repositories, never inline loops.
 - Observers in [`app/Observers`](app/Observers) handle side effects (cache busting, mail, file cleanups) so we keep controllers declarative.
 - Validation lives in [`app/Http/Requests`](app/Http/Requests) and domain-specific rules live in [`app/Rules`](app/Rules).
+
+## Deployment Topology
+- CBC-Apps runs across two deployment surfaces: the trusted local server at `192.168.36.10` and the public web server at `onecbc.philrice.gov.ph`.
+- Treat deployment behavior, Module Access Control, and guest-surface hardening as deployment-aware concerns. Features may intentionally behave differently between the local trusted server and the public internet server, but those differences must be explicit in backend middleware, shared Inertia props, and frontend visibility logic.
+- When adding or changing host-sensitive behavior, make sure local development and Sanctum/session configuration continue to account for both the local deployment host and the public deployment host.
+- On the main Linux production server, keep long-lived background processes under Supervisor instead of the web request lifecycle. Queue workers should run from a dedicated `onecbc-worker` program (typically in `/etc/supervisor/conf.d/onecbc-workers.conf`), and Reverb should run from its own Supervisor program (for example `/etc/supervisor/conf.d/onecbc-reverb.conf`). Use `supervisorctl reread`, `supervisorctl update`, and targeted restarts after deploys so queued notifications, exports, and broadcast updates keep flowing.
 
 ## Data Access Pattern
 - All repository logic lives in [`app/Repositories`](app/Repositories) and extends [`AbstractRepoService`](app/Repositories/AbstractRepoService.php) unless the repository is read-only and clearly documented.
@@ -55,6 +62,85 @@
 - Guest routes stay public; guard only authenticated modules and surface the shared `auth.*` props on every Inertia visit.
 - Keep Vue components small: let controllers/repositories prepare data and let Vue focus on presentation and interaction.
 - Avoid duplicating business logic in Vue; mirror backend validation through shared status codes/messages.
+- Centralize frontend auth state, admin detection, current-user roles, current-user permissions, and public-service metadata through `resources/js/Modules/composables/useAppContext.js` and the global app properties (`$isAdminUser`, `$currentRoles`, `$currentPermissions`, `$publicServices`). Do not re-implement ad-hoc `is_admin`, role, or permission checks in page components when the shared context already covers them.
+- Whenever a new public-facing feature or guest page is added, include a Driver.js guide entry, stable `data-guide` anchors, and a manuals update so onboarding ships with the feature.
+
+## Module Access Control Standard
+- Deployment access is controlled centrally through [`app/Services/DeploymentAccessService.php`](../app/Services/DeploymentAccessService.php) and enforced by the `deployment.access:<module>` middleware. Treat that backend evaluation as the source of truth.
+- Treat Module Access Control as an operational deployment/access matrix, not as a replacement for authentication, RBAC, signed workflows, or network restrictions.
+- Keep module keys aligned across web routes, API routes, shared Inertia props, and frontend visibility checks. If a page and its related API surface are meant to be governed together, they must use the same module key.
+- Separate guest/shared module keys from internal-only module keys when the exposure model differs. Do not hide a guest-facing feature behind an internal module key just because they share a broader business domain.
+- Authenticated administrator accounts bypass Module Access Control restrictions in both backend middleware and frontend visibility. Non-admin users must continue to follow the configured access and mode rules.
+- Frontend hiding is only a UX mirror of backend policy. If you change module access behavior, update both the backend shared payload and the Vue consumers so navigation, cards, forms, and API authorization stay synchronized.
+- When a guest page relies on authenticated mutations, the page must reflect that requirement in the UI instead of presenting write actions that the backend will reject.
+- Public service cards on `Welcome.vue`, internal navigation in `AppLayout.vue`, and any page-level action guards must all derive from the same deployment-access payload plus the shared auth globals. Do not maintain separate hard-coded visibility lists per page.
+- Dashboard summaries, quick actions, and recent-activity widgets must follow the same deployment-access and RBAC rules as their underlying modules. Do not leave aggregated counts or shortcuts visible for modules the current user cannot access on the current deployment surface.
+- If a local-trust guest workflow intentionally accepts employee ID or other typed staff identifiers, keep that exception explicitly limited to the module key that is set to local-only. If the module later becomes internet-accessible, revisit the workflow before expanding exposure.
+- `currentChannel()` depends on real hostnames and deployment URLs. When changing deployment-aware logic, validate behavior against the actual local host (`192.168.36.10`), the public host (`onecbc.philrice.gov.ph`), localhost, and direct private-IP access where applicable.
+- A Module Access Control change is not complete until all of these stay aligned: route middleware, shared Inertia payload, welcome-page services, sidebar visibility, page-level action buttons, and the related APIs.
+- When adding a new deployment-controlled module, update all of the following together: `DeploymentAccessService::moduleDefinitions()`, option definitions, route middleware usage, the options-management UI, shared frontend consumers, and coverage for guest/non-admin/admin behavior across both deployments.
+- Watch for drift outside normal page rendering. Reverb channels, mail links, queued notifications, exports, generated URLs, and background jobs can accidentally bypass deployment assumptions if they hard-code only one deployment surface.
+- Maintenance mode promises read-only behavior. Before using it for a module, verify that all non-GET writes are blocked and that no GET endpoint or background callback still performs side effects.
+
+### Next-Agent Checklist For Module Access Control
+- Confirm the module key is the same across every related web route, API route, and page that belongs to the same user-facing feature.
+- Confirm the backend denies the feature on the blocked deployment surface even if the frontend accidentally still shows it.
+- Confirm the frontend hides or disables the feature for non-admin users on the blocked surface while administrators still retain explicit bypass access.
+- Confirm the module grouping is logically correct in the Options page: guest/shared vs internal-only should match the actual route surface and threat model.
+- Confirm local-only trust assumptions are still safe. If a module moved from local-only to internet or both, remove any knowledge-based trust shortcuts before rollout.
+- Confirm the six-way verification matrix for the affected module: local/internet x guest/non-admin/admin, then repeat for `active`, `maintenance`, and `deactivated` if the mode logic changed.
+
+## Guest API Guardrails
+- Treat every `api/guest/*` route as a public internet surface, even when authenticated staff can also hit it.
+- Default guest routes to read-only. If a guest-facing mutation is unavoidable, require authenticated staff context or a signed/OTP-backed workflow rather than knowledge-based identifiers.
+- The Laboratory and ICT Equipment Logger guest flows are the current exception when they are intentionally constrained through `DeploymentAccessService` to a trusted local deployment. In that local-only trust model, employee ID verification is acceptable by product decision and the frontend should reflect the same expectation.
+- In that same local-trust logger flow, treat `personnels.updated_at === null` as a fresh-profile flag. Equipment check-in should prompt a one-time personnel/contact update before proceeding, and guest-safe profile initialization should stay narrowly scoped to that logger onboarding step.
+- Never authorize actions with caller-supplied identifiers such as `employee_id`, `participant_hash`, or email addresses; derive identity from the authenticated user or a signed callback/token.
+- Public list/show endpoints should return explicit DTO/resource-style payloads instead of raw `Model::toArray()` output.
+- Availability and conflict-check endpoints may expose boolean availability and normalized windows only; do not leak requester names, contact numbers, event names, notes, or other free text.
+- Authenticated callers hitting guest endpoints must still receive the guest-safe payload variant.
+- Public personnel lookup must stay exact-match-only and return display-safe identity fields only.
+- Generated PDFs belong under `storage/app/private/generated-pdfs` and should only be streamed through authorized controllers.
+
+## Tracker & Generated Assets
+- Update [codebase-analysis-report-2026-03-25.md](codebase-analysis-report-2026-03-25.md) whenever you discover, resolve, or defer a codebase issue. Take notes on new realizations about coupling, complexity, or architectural drift so we can track them over time and prioritize refactors.
+- Regenerate `resources/js/ziggy.js` after route additions, removals, or guest-surface changes.
+- If `vite.config.js` references `tests/setup.ts`, keep the file present and minimal.
+- PHPUnit must use a dedicated testing database/schema instead of inheriting the primary application database from `.env`. Keep the test database override explicit in [`phpunit.xml`](../phpunit.xml) and preserve isolation when changing test bootstrap logic.
+- If local frontend verification is blocked by workstation toolchain issues, record the exact blocker separately from code fixes so the tracker stays accurate.
+
+## Personnel ID Standard
+- New PhilRice personnel records should still use their official employee ID supplied by the operator.
+- New outsider, OJT, thesis, or similar temporary personnel records should not rely on manually typed CBC IDs. Generate the next `CBC-YY-0000` identifier through the shared personnel ID service backed by `new_barcodes`.
+- Keep the create-form preview and the actual persisted ID generation aligned, but treat the backend generator as the source of truth so concurrent creates cannot duplicate IDs.
+- Public personnel self-registration must not create `personnels` rows directly. Store guest submissions in `personnel_registrations`, require signed email verification first, then let an authenticated inventory administrator approve or reject the record.
+- When approving a public non-PhilRice/OJT/thesis/outsider registration, assign the CBC employee ID at approval time through the shared personnel ID service. Do not accept a generated external ID from the guest payload.
+- Copy verified registration email state into `personnels.email_verified_at` on approval so downstream notification flows can distinguish verified self-service emails from unverified manually entered contacts.
+
+## Realtime / Websocket Standard
+- Use Laravel Reverb as the default websocket stack for CBC-Apps whenever realtime server push is required. Do not introduce third-party hosted websocket dependencies unless there is an explicit architectural decision to do so.
+- Treat realtime as an extension of the existing HTTP API surface, not a replacement for it. REST endpoints remain the source of truth; websocket messages should usually carry invalidation hints, compact summaries, or bounded DTO-style payloads.
+- Broadcast domain events from services, repositories, observers, jobs, or scheduled command flows after persistence succeeds. Do not shape websocket payloads directly inside controllers.
+- Prefer private or presence channels for staff operations. Public channels must be rare, explicitly justified, and safe for unauthenticated internet clients.
+- Reuse existing RBAC and ownership rules in `routes/channels.php`; channel authorization must match the sensitivity of the underlying module.
+- Never broadcast raw model arrays. Use sanitized resource/DTO payloads and keep guest-safe vs staff-safe payload variants separate.
+- Default datatable integrations to event-driven invalidation plus refetch instead of broadcasting full table payloads.
+- Priority realtime surfaces in this system are: datatables, rental calendars, inventory stock movement, supplies checkout, laboratory/ICT equipment loggers, dashboard counters, form-response monitoring, and certificate batch progress.
+- Certificate generation should move toward Reverb-backed progress events while preserving an HTTP fallback path until rollout is proven stable.
+- Any realtime feature that touches guest/public flows must preserve the same privacy boundaries already enforced on guest APIs.
+- Feature-flag realtime rollout through [`config/realtime.php`](../config/realtime.php) and the `REALTIME_*` env keys. New subscriptions should honor the shared feature flags instead of assuming websocket availability everywhere.
+- Google Calendar sync status is a staff-only realtime surface. Keep sync-result broadcasts on private rental/calendar channels and never mirror OAuth or sync-status details onto guest channels.
+
+## Email / Notification Standard
+- Treat email delivery as a shared notification domain, not ad-hoc Mail::to(...)->send(...) logic spread across observers and controllers.
+- Prefer domain events plus queued listeners or notification dispatch services over direct mail sends.
+- Centralize recipient resolution, feature toggles, and module-specific routing rules so certificate emails, form-response alerts, equipment-log lifecycle notices, and supply checkout notices follow one policy layer.
+- Use queue-first delivery for operational emails by default. Immediate sending should be exceptional and documented.
+- Keep mailables or notifications focused on rendering and channel formatting. Business rules for who gets notified and when belong in dedicated notification services or listeners.
+- Log or otherwise audit notification attempts and failures for operational visibility.
+- Reuse notification domain events for websocket and in-app notifications when possible so what happened stays separate from how we notify.
+- Notification recipient options must resolve through the `users` table. Store user-backed recipient selections in `Option` values and resolve current email addresses from `User` records instead of treating arbitrary raw emails as the source of truth.
+- Prefer module-scoped option keys under the notification config map, and keep certificate, form-response, equipment-log, and inventory recipient policy in [`config/notifications.php`](../config/notifications.php).
 
 ## Anti-Patterns
 - Don’t instantiate `Model` queries directly in controllers; always prefer the relevant repository.

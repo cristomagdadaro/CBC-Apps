@@ -3,11 +3,15 @@
 namespace App\Repositories;
 
 use App\Models\Option;
+use App\Models\Transaction;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class OptionRepo extends AbstractRepoService
 {
+    private const REQUEST_CACHE_ATTRIBUTE = '__option_repo_resolved_values';
+
     public function __construct(Option $model)
     {
         parent::__construct($model);
@@ -15,12 +19,20 @@ class OptionRepo extends AbstractRepoService
 
     public function create(array $data)
     {
-        return parent::create($this->normalizeOptionPayload($data));
+        $model = parent::create($this->normalizeOptionPayload($data));
+
+        $this->flushRequestCache();
+
+        return $model;
     }
 
     public function update(int|string $id, array $data): Model
     {
-        return parent::update($id, $this->normalizeOptionPayload($data));
+        $model = parent::update($id, $this->normalizeOptionPayload($data));
+
+        $this->flushRequestCache();
+
+        return $model;
     }
 
     protected function normalizeOptionPayload(array $data): array
@@ -68,18 +80,46 @@ class OptionRepo extends AbstractRepoService
      */
     public function getByKey($key)
     {
-        return $this->model
+        $cache = $this->requestCache();
+
+        if (array_key_exists($key, $cache)) {
+            return $cache[$key];
+        }
+
+        $value = $this->model
             ->newQuery()
             ->where('key', $key)
             ->first()?->value;
+
+        $cache[$key] = $value;
+        $this->storeRequestCache($cache);
+
+        return $value;
     }
 
     public function getValuesByKeys(array $keys): array
     {
-        return $this->model
-            ->newQuery()
-            ->whereIn('key', $keys)
-            ->pluck('value', 'key')
+        $keys = array_values(array_unique($keys));
+        $cache = $this->requestCache();
+        $missingKeys = array_values(array_filter($keys, fn ($key) => ! array_key_exists($key, $cache)));
+
+        if ($missingKeys !== []) {
+            $resolved = $this->model
+                ->newQuery()
+                ->whereIn('key', $missingKeys)
+                ->pluck('value', 'key')
+                ->toArray();
+
+            foreach ($missingKeys as $missingKey) {
+                $cache[$missingKey] = $resolved[$missingKey] ?? null;
+            }
+
+            $this->storeRequestCache($cache);
+        }
+
+        return collect($keys)
+            ->filter(fn ($key) => array_key_exists($key, $cache) && $cache[$key] !== null)
+            ->mapWithKeys(fn ($key) => [$key => $cache[$key]])
             ->toArray();
     }
 
@@ -116,7 +156,7 @@ class OptionRepo extends AbstractRepoService
 
     public function upsertBooleanOption(string $key, bool $value, array $meta = []): Model
     {
-        return $this->model
+        $model = $this->model
             ->newQuery()
             ->updateOrCreate(
                 ['key' => $key],
@@ -129,6 +169,10 @@ class OptionRepo extends AbstractRepoService
                     'options' => Arr::get($meta, 'options'),
                 ]
             );
+
+        $this->flushRequestCache();
+
+        return $model;
     }
 
     public function upsertOption(string $key, mixed $value, array $meta = []): Model
@@ -143,12 +187,60 @@ class OptionRepo extends AbstractRepoService
             'options' => Arr::get($meta, 'options'),
         ]);
 
-        return $this->model
+        $model = $this->model
             ->newQuery()
             ->updateOrCreate(
                 ['key' => $payload['key']],
                 Arr::except($payload, ['key'])
             );
+
+        $this->flushRequestCache();
+
+        return $model;
+    }
+
+    private function requestCache(): array
+    {
+        $request = $this->currentRequest();
+
+        if (! $request) {
+            return [];
+        }
+
+        return $request->attributes->get(self::REQUEST_CACHE_ATTRIBUTE, []);
+    }
+
+    private function storeRequestCache(array $cache): void
+    {
+        $request = $this->currentRequest();
+
+        if (! $request) {
+            return;
+        }
+
+        $request->attributes->set(self::REQUEST_CACHE_ATTRIBUTE, $cache);
+    }
+
+    private function flushRequestCache(): void
+    {
+        $request = $this->currentRequest();
+
+        if (! $request) {
+            return;
+        }
+
+        $request->attributes->remove(self::REQUEST_CACHE_ATTRIBUTE);
+    }
+
+    private function currentRequest(): ?Request
+    {
+        if (! app()->bound('request')) {
+            return null;
+        }
+
+        $request = request();
+
+        return $request instanceof Request ? $request : null;
     }
 
     /**
@@ -221,6 +313,63 @@ class OptionRepo extends AbstractRepoService
             ->values();
 
         return $normalized;
+    }
+
+    public function getEquipmentLoggerModeOptions(): array
+    {
+        $option = $this->model
+            ->newQuery()
+            ->where('key', Transaction::OPTION_KEY_EQUIPMENT_LOGGER_MODES)
+            ->first();
+
+        $normalized = $this->normalizeSelectOptions($option?->options);
+
+        if ($normalized !== []) {
+            return $normalized;
+        }
+
+        return [
+            [
+                'name' => Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+                'label' => 'Borrowable / Common-use',
+            ],
+            [
+                'name' => Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+                'label' => 'Tracked only / Not borrowable',
+            ],
+            [
+                'name' => Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED,
+                'label' => 'Excluded from logger',
+            ],
+        ];
+    }
+
+    public function getEquipmentLoggerModeValues(): array
+    {
+        return collect($this->getEquipmentLoggerModeOptions())
+            ->pluck('name')
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    public function getDefaultEquipmentLoggerMode(): string
+    {
+        $default = $this->getByKey(Transaction::OPTION_KEY_EQUIPMENT_LOGGER_MODES);
+
+        return in_array($default, $this->getEquipmentLoggerModeValues(), true)
+            ? $default
+            : Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY;
+    }
+
+    public function getItemConditions(): array
+    {
+        $option = $this->model
+            ->newQuery()
+            ->where('key', 'item_conditions')
+            ->first();
+
+        return $this->normalizeSelectOptions($option?->options);
     }
 
     /**
@@ -400,5 +549,35 @@ class OptionRepo extends AbstractRepoService
         $decoded = json_decode($value, true);
 
         return is_array($decoded) ? $decoded : [];
+    }
+
+    private function normalizeSelectOptions(mixed $options): array
+    {
+        if (is_string($options)) {
+            $decoded = json_decode($options, true);
+            $options = json_last_error() === JSON_ERROR_NONE ? $decoded : null;
+        }
+
+        if (! is_array($options)) {
+            return [];
+        }
+
+        return collect($options)
+            ->map(function ($option) {
+                $name = $option['value'] ?? $option['name'] ?? null;
+                $label = $option['label'] ?? $option['name'] ?? $option['value'] ?? null;
+
+                if (! $name || ! $label) {
+                    return null;
+                }
+
+                return [
+                    'name' => (string) $name,
+                    'label' => (string) $label,
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
     }
 }

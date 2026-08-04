@@ -24,7 +24,7 @@ class EventSubformResponseController extends BaseController
         return $this->service;
     }
 
-    public function index(GetEventSubformRequest $request, string $event_id = null): JsonResponse
+    public function index(GetEventSubformRequest $request, ?string $event_id = null): JsonResponse
     {
         $parameters = new Collection($request->query());
         $resolvedEventId = $event_id ?? $request->input('event_id');
@@ -33,7 +33,7 @@ class EventSubformResponseController extends BaseController
         return response()->json($data, 200);
     }
 
-    public function indexResponses(GetEventSubformRequest $request, string $event_id = null)
+    public function indexResponses(GetEventSubformRequest $request, ?string $event_id = null)
     {
         $validated = $request->validated();
 

@@ -1,10 +1,11 @@
 <script>
 import SocialLinks from "@/Components/SocialLinks.vue";
+import GuideTourControls from "@/Components/GuideTourControls.vue";
 import MainBg from "@/Pages/Shared/MainBg.vue";
 
 export default {
     name: 'GuestFormPage',
-    components: {SocialLinks, MainBg},
+    components: {GuideTourControls, SocialLinks, MainBg},
     props: {
         /** Main title text in the colored header bar */
         title: {
@@ -25,6 +26,10 @@ export default {
             type: String,
             default: 'max-w-full',
         },
+        guideKey: {
+            type: String,
+            default: 'guest-page',
+        },
     },
 };
 </script>
@@ -32,6 +37,7 @@ export default {
 <template>
     <!-- Background gradient (fixed behind content) -->
     <main-bg></main-bg>
+    <guide-tour-controls :guide-key="guideKey" />
 
     <!-- Main content overlay -->
     <div id="main-content-overlay" class="flex justify-center m-0 md:m-5 overflow-visible">
@@ -40,7 +46,7 @@ export default {
                 <!-- Header / search / top content -->
                 <slot name="top">
                     <div v-show="delayReady" class="p-0 md:rounded-md flex flex-col gap-2 md:drop-shadow-lg mb-0 w-full">
-                        <div class="relative flex flex-row bg-AB text-white p-2 px-4 md:rounded-md gap-2 shadow py-4 w-full">
+                        <div data-guide="guest-page-header" class="relative flex flex-row bg-AB text-white p-2 px-4 md:rounded-md gap-2 shadow py-4 w-full">
                             <Link href="/" class="flex-shrink-0">
                                 <img src="/imgs/logo.png" alt="logo" class="w-16 h-16" />
                             </Link>
@@ -56,7 +62,9 @@ export default {
                 </slot>
 
                 <!-- Main body content under header -->
-                <slot />
+                <div data-guide="guest-page-content">
+                    <slot />
+                </div>
             </div>
         </div>
     </div>
@@ -66,4 +74,3 @@ export default {
 
 <style scoped>
 </style>
-

@@ -6,6 +6,7 @@ use App\Models\BaseModel;
 use App\Models\User;
 use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -45,6 +46,10 @@ class ResearchStudy extends BaseModel
         'project.title',
     ];
 
+    protected $appends = [
+        'route_identifier',
+    ];
+
     public function project(): BelongsTo
     {
         return $this->belongsTo(ResearchProject::class, 'project_id');
@@ -63,5 +68,22 @@ class ResearchStudy extends BaseModel
     public function updater(): BelongsTo
     {
         return $this->belongsTo(User::class, 'last_updated_by', 'id');
+    }
+
+    public function getRouteIdentifierAttribute(): string
+    {
+        return (string) ($this->code ?: $this->getKey());
+    }
+
+    public function resolveRouteBinding($value, $field = null): ?Model
+    {
+        if ($field) {
+            return parent::resolveRouteBinding($value, $field);
+        }
+
+        return static::query()
+            ->where('code', $value)
+            ->orWhere($this->getQualifiedKeyName(), $value)
+            ->first();
     }
 }

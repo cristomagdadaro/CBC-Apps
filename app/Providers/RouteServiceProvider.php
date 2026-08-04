@@ -26,7 +26,6 @@ class RouteServiceProvider extends ServiceProvider
         'api.ict.equipments.check-out',
         'api.ict.equipments.update-end-use',
         'api.ict.equipments.report-location',
-        'api.test-local-network',
     ];
 
     /**
@@ -51,8 +50,8 @@ class RouteServiceProvider extends ServiceProvider
             $routeName = $request->route()?->getName() ?? 'api.unknown';
             $actorKey = (string) ($request->user()?->id ?: $request->ip());
             $isAuthenticated = $request->user() !== null;
-            $isWriteRequest = ! $request->isMethod('GET') && ! $request->isMethod('HEAD') && ! $request->isMethod('OPTIONS');
-            $isSensitiveGuestRoute = ! $isAuthenticated && in_array($routeName, self::SENSITIVE_GUEST_API_ROUTES, true);
+            $isWriteRequest = !$request->isMethod('GET') && !$request->isMethod('HEAD') && !$request->isMethod('OPTIONS');
+            $isSensitiveGuestRoute = !$isAuthenticated && in_array($routeName, self::SENSITIVE_GUEST_API_ROUTES, true);
 
             if ($isAuthenticated) {
                 return [
@@ -71,9 +70,9 @@ class RouteServiceProvider extends ServiceProvider
             ];
 
             if ($isSensitiveGuestRoute) {
-                $limits[] = Limit::perMinute($routeName === 'api.test-local-network' ? 3 : 10)
+                $limits[] = Limit::perMinute(10)
                     ->by("api:sensitive:minute:{$actorKey}:{$routeName}");
-                $limits[] = Limit::perHour($routeName === 'api.test-local-network' ? 15 : 60)
+                $limits[] = Limit::perHour(60)
                     ->by("api:sensitive:hour:{$actorKey}:{$routeName}");
             }
 

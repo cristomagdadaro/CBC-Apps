@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Events\ResearchSampleInventoryChanged;
 use App\Models\Research\ResearchSample;
 use App\Models\Research\ResearchSampleInventoryLog;
 use App\Models\User;
@@ -50,6 +51,26 @@ class ResearchSampleInventoryRepo
             ->first();
     }
 
+    public function findPassportByUid(string $uid, ?User $user = null): ?ResearchSample
+    {
+        return $this->baseQuery($user)
+            ->with([
+                'creator:id,name,email',
+                'updater:id,name,email',
+                'monitoringRecords' => fn ($query) => $query
+                    ->with('recorder:id,name,email')
+                    ->latest('recorded_on')
+                    ->latest('id')
+                    ->limit(25),
+                'inventoryLogs' => fn ($query) => $query
+                    ->with('actor:id,name,email')
+                    ->latest('created_at')
+                    ->limit(25),
+            ])
+            ->where('uid', $uid)
+            ->first();
+    }
+
     public function logAction(ResearchSample $sample, string $action, ?string $barcodeValue, ?string $qrPayload, array $context = [], ?string $performedBy = null): ResearchSampleInventoryLog
     {
         /** @var ResearchSampleInventoryLog $log */
@@ -61,6 +82,10 @@ class ResearchSampleInventoryRepo
             'context' => $context,
             'performed_by' => $performedBy,
         ]);
+
+        $log->loadMissing('sample');
+
+        event(new ResearchSampleInventoryChanged($log));
 
         return $log;
     }

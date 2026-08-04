@@ -14,12 +14,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class SuppEquipReportCrudTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function guest_can_create_a_supply_equipment_report_via_public_endpoint(): void
     {
         ['item' => $item, 'personnel' => $personnel, 'user' => $user] = $this->buildInventoryContext();
@@ -45,7 +46,7 @@ class SuppEquipReportCrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function authenticated_admin_can_update_a_report_and_receive_loaded_relations(): void
     {
         ['item' => $item, 'personnel' => $personnel, 'user' => $user] = $this->buildInventoryContext();
@@ -91,7 +92,7 @@ class SuppEquipReportCrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function update_page_receives_a_single_loaded_report_object(): void
     {
         ['item' => $item, 'personnel' => $personnel, 'user' => $user] = $this->buildInventoryContext();

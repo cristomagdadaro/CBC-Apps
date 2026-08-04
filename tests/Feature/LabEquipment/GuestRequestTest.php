@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\LabEquipment;
 
+use App\Models\Personnel;
 use App\Models\RequestFormPivot;
 use App\Models\UseRequestForm;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -119,5 +120,45 @@ class GuestRequestTest extends TestCase
 
         $this->assertSame('pending', $pivot->request_status);
         $this->assertNull($pivot->approved_by);
+    }
+
+    public function test_guest_non_philrice_request_can_store_returning_philrice_id_and_sync_personnel(): void
+    {
+        $payload = [
+            'name' => 'Former Guest Researcher',
+            'affiliation' => 'External Partner',
+            'requester_philrice_id' => 'CBC-26-018',
+            'email' => 'former.guest@example.com',
+            'position' => 'Visiting Researcher',
+            'phone' => '09170000006',
+            'request_type' => ['Laboratory Access'],
+            'request_purpose' => 'Follow-up use request',
+            'date_of_use' => now()->addDays(5)->toDateString(),
+            'time_of_use' => '08:00:00',
+            'date_of_use_end' => now()->addDays(5)->toDateString(),
+            'time_of_use_end' => '17:00:00',
+            'agreed_clause_1' => true,
+            'agreed_clause_2' => true,
+            'agreed_clause_3' => true,
+        ];
+
+        $this->postJson(route('api.requestFormPivot.post'), $payload)
+            ->assertCreated();
+
+        $this->assertDatabaseHas('requesters', [
+            'email' => 'former.guest@example.com',
+            'philrice_id' => 'CBC-26-018',
+        ]);
+
+        $this->assertDatabaseHas('personnels', [
+            'employee_id' => 'CBC-26-018',
+            'email' => 'former.guest@example.com',
+        ]);
+
+        $personnel = Personnel::query()
+            ->where('employee_id', 'CBC-26-018')
+            ->firstOrFail();
+
+        $this->assertSame('Visiting Researcher', $personnel->position);
     }
 }

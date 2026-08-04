@@ -1,5 +1,4 @@
 <script>
-import { usePage } from '@inertiajs/vue3'
 import {
     LuAlertCircle,
     LuCalendar,
@@ -47,7 +46,6 @@ export default {
     emits: ['updated', 'failedUpdate'],
     data() {
         return {
-            page: usePage(),
             showModal: false,
             formState: { ...this.data },
             processing: false,
@@ -55,8 +53,7 @@ export default {
     },
     computed: {
         canApprove() {
-            const permissions = this.page.props?.auth?.permissions ?? []
-            return permissions.includes('*') || permissions.includes('rental.request.approve')
+            return this.$isAdminUser || (this.$currentPermissions ?? []).includes('rental.request.approve')
         },
         tripTypeMeta() {
             return getTripTypeMeta(this.formState.trip_type)

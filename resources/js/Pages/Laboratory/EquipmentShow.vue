@@ -1,8 +1,10 @@
 <script>
-import { useForm, usePage, router } from "@inertiajs/vue3";
+import { useForm, router } from "@inertiajs/vue3";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import LaboratoryPersonnelMixin from "@/Modules/mixins/LaboratoryPersonnelMixin";
+import LuQrCode from "@/Components/Icons/LuQrCode.vue";
+import LuMapPin from "@/Components/Icons/LuMapPin.vue";
 
 export default {
     name: "EquipmentShow",
@@ -40,18 +42,39 @@ export default {
             loading: false,
             loadingActiveEquipments: false,
             activeEquipments: [],
+            activeEquipmentsRequest: null,
             message: null,
             messageType: "success",
+            notFoundTitle: "Equipment Not Found",
             showSuccessModal: false,
             personnelPreview: null,
+            profileRequiresUpdate: false,
+            emailRequired: false,
             checkInErrors: {},
             checkOutErrors: {},
             updateEndUseErrors: {},
             locationSurveyErrors: {},
+            personnelProfileErrors: {},
+            emailCaptureErrors: {},
             checkInForm: useForm({
                 employee_id: "",
                 end_use_at: "",
                 purpose: "",
+            }),
+            personnelProfileForm: useForm({
+                employee_id: "",
+                fname: "",
+                mname: "",
+                lname: "",
+                suffix: "",
+                position: "",
+                phone: "",
+                address: "",
+                email: "",
+            }),
+            emailCaptureForm: useForm({
+                employee_id: "",
+                email: "",
             }),
             checkOutForm: useForm({
                 employee_id: "",
@@ -73,17 +96,50 @@ export default {
             unsubscribeRouterEvents: null,
             showEstimatedEndUseModal: false,
             showLocationSurveyModal: false,
+            showEmailCaptureModal: false,
+            lastResolvedPersonnelId: null,
         };
     },
     computed: {
+        equipmentIdFromUrl() {
+            if (typeof window === "undefined") {
+                return null;
+            }
+
+            const segments = window.location.pathname
+                .split("/")
+                .map((segment) => segment.trim())
+                .filter(Boolean);
+
+            if (segments.length < 3) {
+                return null;
+            }
+
+            const [scope, resource, ...rest] = segments;
+            if (
+                (scope !== "laboratory" && scope !== "ict") ||
+                resource !== "equipments" ||
+                rest.length === 0
+            ) {
+                return null;
+            }
+
+            const identifier = rest.join("/");
+            return identifier ? decodeURIComponent(identifier) : null;
+        },
         equipmentId() {
-            return this.selectedEquipmentId || this.equipment_id || null;
+            return this.selectedEquipmentId || this.equipment_id || this.equipmentIdFromUrl || null;
         },
         loggerType() {
             return this.logger_type === "ict" ? "ict" : "laboratory";
         },
         apiRoutePrefix() {
             return `api.${this.loggerType}.equipments`;
+        },
+        apiGuestBasePath() {
+            return this.loggerType === "ict"
+                ? "/api/guest/ict/equipments"
+                : "/api/guest/lab/equipments";
         },
         showPageRoute() {
             return `${this.loggerType}.equipments.show`;
@@ -98,8 +154,37 @@ export default {
             return this.allowedActions.includes("check-out");
         },
         isAdmin() {
-            const page = usePage();
-            return page.props.auth?.user?.is_admin ?? false;
+            return this.$isAdminUser;
+        },
+        authenticatedPersonnel() {
+            const user = this.$currentUser;
+            if (!user?.employee_id) {
+                return null;
+            }
+
+            return {
+                employee_id: user.employee_id,
+                fullName: user.name || user.employee_id,
+                fname: user.name || "",
+                mname: "",
+                lname: "",
+                suffix: "",
+                email: user.email || "",
+                has_email: !!user.email,
+                profile_requires_update: false,
+            };
+        },
+        currentLaboratoryPersonnel() {
+            return this.savedLaboratoryPersonnel || this.authenticatedPersonnel;
+        },
+        statusCardPersonnel() {
+            return this.activeLog?.personnel || this.currentLaboratoryPersonnel;
+        },
+        canEditActiveLog() {
+            return !!this.activeLog;
+        },
+        canReportLocation() {
+            return this.shouldShowLocationSurvey;
         },
         shouldShowLocationSurvey() {
             return this.currentLocation?.source !== "temporary" || this.currentLocation?.label === "Unknown Location";
@@ -107,14 +192,14 @@ export default {
         filteredActiveEquipments() {
             if (
                 !this.filterActiveByPersonnel ||
-                !this.savedLaboratoryPersonnel?.employee_id
+                !this.currentLaboratoryPersonnel?.employee_id
             ) {
                 return this.activeEquipments;
             }
             return this.activeEquipments.filter(
                 (item) =>
                     item.personnel?.employee_id ===
-                    this.savedLaboratoryPersonnel.employee_id,
+                    this.currentLaboratoryPersonnel.employee_id,
             );
         },
         statusColor() {
@@ -128,11 +213,27 @@ export default {
         },
     },
     methods: {
+        equipmentApiPath(identifier = null, action = null) {
+            const encodedIdentifier = identifier
+                ? encodeURIComponent(String(identifier))
+                : null;
+
+            if (!encodedIdentifier) {
+                return this.apiGuestBasePath;
+            }
+
+            return action
+                ? `${this.apiGuestBasePath}/${encodedIdentifier}/${action}`
+                : `${this.apiGuestBasePath}/${encodedIdentifier}`;
+        },
         async loadEquipmentOptions() {
             try {
-                const response = await this.fetchGetApi(
-                    `${this.apiRoutePrefix}.index`,
-                );
+                let response;
+                try {
+                    response = await this.fetchGetApi(`${this.apiRoutePrefix}.index`);
+                } catch (error) {
+                    response = await window.axios.get(this.equipmentApiPath());
+                }
                 const payload = response?.data ?? response;
                 const list = Array.isArray(payload)
                     ? payload
@@ -152,30 +253,51 @@ export default {
             }
         },
         async loadActiveEquipments() {
-            this.loadingActiveEquipments = true;
-            try {
-                const response = await this.fetchGetApi(
-                    `${this.apiRoutePrefix}.active`,
-                );
-                const payload = response?.data ?? response;
-                this.activeEquipments = Array.isArray(payload)
-                    ? payload
-                    : (payload?.data ?? []);
-            } catch (error) {
-                this.activeEquipments = [];
-            } finally {
-                this.loadingActiveEquipments = false;
+            if (this.activeEquipmentsRequest) {
+                return this.activeEquipmentsRequest;
             }
+
+            this.loadingActiveEquipments = true;
+            const request = (async () => {
+                try {
+                    let response;
+                    try {
+                        response = await this.fetchGetApi(
+                            `${this.apiRoutePrefix}.active`,
+                        );
+                    } catch (error) {
+                        response = await window.axios.get(`${this.apiGuestBasePath}/active`);
+                    }
+                    const payload = response?.data ?? response;
+                    this.activeEquipments = Array.isArray(payload)
+                        ? payload
+                        : (payload?.data ?? []);
+                } catch (error) {
+                    this.activeEquipments = [];
+                } finally {
+                    this.loadingActiveEquipments = false;
+                    this.activeEquipmentsRequest = null;
+                }
+            })();
+
+            this.activeEquipmentsRequest = request;
+            return request;
         },
         async loadEquipment() {
             if (!this.equipmentId) return;
             this.loading = true;
             this.notFound = false;
+            this.notFoundTitle = "Equipment Not Found";
             try {
-                const response = await this.fetchGetApi(
-                    `${this.apiRoutePrefix}.show`,
-                    { routeParams: this.equipmentId },
-                );
+                let response;
+                try {
+                    response = await this.fetchGetApi(
+                        `${this.apiRoutePrefix}.show`,
+                        { routeParams: this.equipmentId },
+                    );
+                } catch (error) {
+                    response = await window.axios.get(this.equipmentApiPath(this.equipmentId));
+                }
                 const details = response?.data ?? response;
 
                 this.equipment = details?.equipment ?? null;
@@ -193,11 +315,11 @@ export default {
                 }
 
                 if (
-                    this.savedLaboratoryPersonnel?.employee_id &&
+                    this.currentLaboratoryPersonnel?.employee_id &&
                     !this.updateEndUseForm.employee_id
                 ) {
                     this.updateEndUseForm.employee_id =
-                        this.savedLaboratoryPersonnel.employee_id;
+                        this.currentLaboratoryPersonnel.employee_id;
                 }
 
                 if (!this.locationSurveyForm.location_label) {
@@ -206,17 +328,26 @@ export default {
                 }
 
                 if (
-                    this.savedLaboratoryPersonnel?.employee_id &&
+                    this.currentLaboratoryPersonnel?.employee_id &&
                     !this.locationSurveyForm.employee_id
                 ) {
                     this.locationSurveyForm.employee_id =
-                        this.savedLaboratoryPersonnel.employee_id;
+                        this.currentLaboratoryPersonnel.employee_id;
                 }
 
                 if (!this.shouldShowLocationSurvey) {
                     this.showLocationSurveyModal = false;
                 }
             } catch (error) {
+                this.equipment = null;
+                this.activeLog = null;
+                this.allowedActions = [];
+                this.currentLocation = null;
+                this.storageLocationOptions = [];
+                this.purposeSuggestions = [];
+                this.notFoundTitle = error?.response?.status === 404
+                    ? "Equipment Not Found"
+                    : "Equipment can't be used";
                 this.messageType = "error";
                 this.message =
                     error?.response?.data?.message ||
@@ -229,14 +360,39 @@ export default {
         },
         handlePersonnelFound(data) {
             this.personnelPreview = data;
+            this.lastResolvedPersonnelId = data.employee_id || this.checkInForm.employee_id || null;
+            this.profileRequiresUpdate = !!data.profile_requires_update;
+            this.emailRequired = !data.profile_requires_update && !data.has_email;
+            this.showEmailCaptureModal = this.emailRequired;
             this.checkInErrors = { ...this.checkInErrors, employee_id: null };
+            this.personnelProfileErrors = {};
+            this.personnelProfileForm.employee_id = data.employee_id || this.checkInForm.employee_id;
+            this.personnelProfileForm.fname = data.fname || "";
+            this.personnelProfileForm.mname = data.mname || "";
+            this.personnelProfileForm.lname = data.lname || "";
+            this.personnelProfileForm.suffix = data.suffix || "";
+            this.personnelProfileForm.position = data.position || "";
+            this.personnelProfileForm.phone = data.phone || "";
+            this.personnelProfileForm.address = data.address || "";
+            this.personnelProfileForm.email = data.email || "";
+            this.emailCaptureForm.employee_id = data.employee_id || this.checkInForm.employee_id;
+            this.emailCaptureForm.email = data.email || "";
+            if (this.emailRequired) {
+                this.emailCaptureErrors = {};
+            }
             this.saveLaboratoryPersonnel({
-                employee_id: this.checkInForm.employee_id,
+                employee_id: data.employee_id || this.checkInForm.employee_id,
                 fullName: data.fullName,
                 fname: data.fname,
                 mname: data.mname,
                 lname: data.lname,
                 suffix: data.suffix,
+                position: data.position,
+                phone: data.phone,
+                address: data.address,
+                email: data.email,
+                has_email: data.has_email,
+                profile_requires_update: data.profile_requires_update,
             });
         },
         handlePersonnelSwitch() {
@@ -249,16 +405,46 @@ export default {
                 ...this.checkInErrors,
                 [error.field]: error.message,
             };
+            this.profileRequiresUpdate = false;
+            this.emailRequired = false;
+            this.showEmailCaptureModal = false;
+        },
+        resetPersonnelLookupState() {
+            this.personnelPreview = null;
+            this.profileRequiresUpdate = false;
+            this.emailRequired = false;
+            this.personnelProfileErrors = {};
+            this.emailCaptureErrors = {};
+            this.showEmailCaptureModal = false;
+            this.lastResolvedPersonnelId = null;
+        },
+        async ensurePersonnelResolved(force = false) {
+            const employeeId = (this.checkInForm.employee_id || "").trim();
+
+            if (!employeeId) {
+                this.checkInErrors = {
+                    ...this.checkInErrors,
+                    employee_id: "PhilRice ID or CBC ID is required",
+                };
+                return false;
+            }
+
+            if (!force && this.lastResolvedPersonnelId === employeeId && this.personnelPreview) {
+                return true;
+            }
+
+            const payload = await this.$refs.personnelLookup?.searchPersonnel?.();
+            return !!payload;
         },
         searchDifferentPersonnel() {
             this.checkOutErrors = {};
             this.showPhilRiceField = !this.showPhilRiceField;
             if (
                 this.showPhilRiceField &&
-                this.savedLaboratoryPersonnel?.employee_id
+                this.currentLaboratoryPersonnel?.employee_id
             ) {
                 this.checkOutForm.employee_id =
-                    this.savedLaboratoryPersonnel.employee_id;
+                    this.currentLaboratoryPersonnel.employee_id;
                 return;
             }
             this.checkOutForm.employee_id = "";
@@ -266,7 +452,12 @@ export default {
         resetCheckIn() {
             this.checkInForm.reset();
             this.checkInErrors = {};
-            this.personnelPreview = null;
+            if (this.currentLaboratoryPersonnel?.employee_id) {
+                this.checkInForm.employee_id = this.currentLaboratoryPersonnel.employee_id;
+            }
+            this.resetPersonnelLookupState();
+            this.personnelProfileForm.reset();
+            this.emailCaptureForm.reset();
         },
         resetCheckOut() {
             this.checkOutForm.reset();
@@ -279,9 +470,9 @@ export default {
                     this.activeLog.end_use_at,
                 );
             }
-            if (this.savedLaboratoryPersonnel?.employee_id) {
+            if (this.currentLaboratoryPersonnel?.employee_id) {
                 this.updateEndUseForm.employee_id =
-                    this.savedLaboratoryPersonnel.employee_id;
+                    this.currentLaboratoryPersonnel.employee_id;
             } else {
                 this.updateEndUseForm.employee_id = "";
             }
@@ -290,13 +481,37 @@ export default {
             this.locationSurveyErrors = {};
             this.locationSurveyForm.location_label =
                 this.currentLocation?.label || "";
-            if (this.savedLaboratoryPersonnel?.employee_id) {
+            if (this.currentLaboratoryPersonnel?.employee_id) {
                 this.locationSurveyForm.employee_id =
-                    this.savedLaboratoryPersonnel.employee_id;
+                    this.currentLaboratoryPersonnel.employee_id;
+            } else {
+                this.locationSurveyForm.employee_id = "";
+            }
+        },
+        syncCurrentPersonnelContext() {
+            if (!this.currentLaboratoryPersonnel?.employee_id) {
+                return;
+            }
+
+            this.checkInForm.employee_id =
+                this.checkInForm.employee_id || this.currentLaboratoryPersonnel.employee_id;
+            this.showPhilRiceField = true;
+            this.checkOutForm.employee_id =
+                this.currentLaboratoryPersonnel.employee_id;
+            this.updateEndUseForm.employee_id =
+                this.currentLaboratoryPersonnel.employee_id;
+            this.locationSurveyForm.employee_id =
+                this.currentLaboratoryPersonnel.employee_id;
+
+            if (
+                !this.savedLaboratoryPersonnel?.employee_id &&
+                this.authenticatedPersonnel?.employee_id
+            ) {
+                this.saveLaboratoryPersonnel(this.authenticatedPersonnel);
             }
         },
         openLocationSurveyModal() {
-            if (!this.shouldShowLocationSurvey) return;
+            if (!this.canReportLocation) return;
             this.resetLocationSurvey();
             this.showLocationSurveyModal = true;
         },
@@ -322,6 +537,23 @@ export default {
         async submitCheckIn() {
             this.checkInErrors = {};
             this.message = null;
+            const resolved = await this.ensurePersonnelResolved();
+            if (!resolved) {
+                return;
+            }
+            if (this.profileRequiresUpdate) {
+                this.checkInErrors = {
+                    base: "Please update your personnel information before checking in equipment.",
+                };
+                return;
+            }
+            if (this.emailRequired) {
+                this.checkInErrors = {
+                    base: "Please provide your email before checking in equipment.",
+                };
+                this.showEmailCaptureModal = true;
+                return;
+            }
             try {
                 await this.fetchPostApi(
                     `${this.apiRoutePrefix}.check-in`,
@@ -346,6 +578,106 @@ export default {
                 } else {
                     this.checkInErrors = {
                         base: error?.response?.data?.message || "Check-in failed",
+                    };
+                    if (
+                        String(error?.response?.data?.message || "")
+                            .toLowerCase()
+                            .includes("provide your email")
+                    ) {
+                        this.showEmailCaptureModal = true;
+                        this.emailRequired = true;
+                    }
+                }
+            }
+        },
+        async submitPersonnelProfileUpdate() {
+            this.personnelProfileErrors = {};
+            this.message = null;
+
+            try {
+                const response = await this.fetchPostApi(
+                    "api.inventory.personnels.initialize-profile.guest",
+                    this.personnelProfileForm.data(),
+                );
+                const payload = response?.data ?? response ?? {};
+                const record = payload?.data ?? {};
+
+                this.profileRequiresUpdate = false;
+                this.personnelPreview = {
+                    ...this.personnelPreview,
+                    ...record,
+                    employee_id: this.personnelProfileForm.employee_id,
+                    profile_requires_update: false,
+                };
+                this.emailRequired = !record?.has_email;
+                this.saveLaboratoryPersonnel({
+                    employee_id: this.personnelProfileForm.employee_id,
+                    fullName: this.personnelPreview.fullName,
+                    fname: this.personnelPreview.fname,
+                    mname: this.personnelPreview.mname,
+                    lname: this.personnelPreview.lname,
+                    suffix: this.personnelPreview.suffix,
+                    position: this.personnelPreview.position,
+                    phone: this.personnelPreview.phone,
+                    address: this.personnelPreview.address,
+                    email: this.personnelPreview.email,
+                    has_email: record?.has_email,
+                    profile_requires_update: false,
+                });
+                this.messageType = "success";
+                this.message = payload?.message || "Personnel information updated successfully";
+            } catch (error) {
+                this.messageType = "error";
+                if (error?.response?.status === 422) {
+                    this.personnelProfileErrors = error.response.data.errors || {
+                        base: error.response.data.message,
+                    };
+                } else {
+                    this.personnelProfileErrors = {
+                        base: error?.response?.data?.message || "Unable to update personnel information.",
+                    };
+                }
+            }
+        },
+        async submitEmailCapture() {
+            this.emailCaptureErrors = {};
+            this.message = null;
+
+            try {
+                const response = await this.fetchPutApi(
+                    "api.inventory.personnels.email.guest",
+                    null,
+                    this.emailCaptureForm.data(),
+                );
+                const payload = response?.data ?? response ?? {};
+                const record = payload?.data ?? {};
+
+                this.emailRequired = !record?.has_email;
+                this.showEmailCaptureModal = false;
+                this.personnelPreview = {
+                    ...this.personnelPreview,
+                    email: record?.email || this.emailCaptureForm.email,
+                    has_email: record?.has_email !== false,
+                };
+                this.saveLaboratoryPersonnel({
+                    ...(this.currentLaboratoryPersonnel || {}),
+                    ...(this.personnelPreview || {}),
+                    employee_id: this.emailCaptureForm.employee_id,
+                    email: record?.email || this.emailCaptureForm.email,
+                    has_email: record?.has_email !== false,
+                    profile_requires_update: false,
+                });
+                this.messageType = "success";
+                this.message = payload?.message || "Email updated successfully.";
+            } catch (error) {
+                this.messageType = "error";
+                if (error?.response?.status === 422) {
+                    this.emailCaptureErrors = error.response.data.errors || {
+                        base: error.response.data.message,
+                    };
+                } else {
+                    this.emailCaptureErrors = {
+                        base: error?.response?.data?.message || "Unable to update email.",
                     };
                 }
             }
@@ -487,26 +819,32 @@ export default {
             }
             this.loadEquipment();
         },
+        "checkInForm.employee_id"(newValue, oldValue) {
+            if ((newValue || "").trim() === (oldValue || "").trim()) {
+                return;
+            }
+
+            if ((newValue || "").trim() !== (this.lastResolvedPersonnelId || "").trim()) {
+                this.resetPersonnelLookupState();
+            }
+        },
     },
-    mounted() {
+        mounted() {
+            if (!this.selectedEquipmentId && this.equipmentIdFromUrl) {
+                this.selectedEquipmentId = this.equipmentIdFromUrl;
+            }
+
+        this.loadLaboratoryPersonnel();
+        this.syncCurrentPersonnelContext();
+
         if (this.equipmentId) {
             this.loadEquipment();
         } else {
             this.loadEquipmentOptions();
-        }
-        this.loadLaboratoryPersonnel();
-        this.loadActiveEquipments();
-        if (this.savedLaboratoryPersonnel?.employee_id) {
-            this.showPhilRiceField = true;
-            this.checkOutForm.employee_id =
-                this.savedLaboratoryPersonnel.employee_id;
-            this.updateEndUseForm.employee_id =
-                this.savedLaboratoryPersonnel.employee_id;
-            this.locationSurveyForm.employee_id =
-                this.savedLaboratoryPersonnel.employee_id;
+            this.loadActiveEquipments();
         }
         setTimeout(() => (this.delayReady = true), 200);
-        
+
         const unsubscribeStart = router.on(
             "start",
             () => (this.isNavigating = true),
@@ -554,7 +892,7 @@ export default {
         </div>
     </Transition>
 
-    <GuestFormPage :title="title" :subtitle="subtitle" :delay-ready="delayReady" max-width="max-w-7xl">
+    <GuestFormPage :title="title" :subtitle="subtitle" :delay-ready="delayReady" guide-key="equipment-logger-guest" max-width="max-w-7xl">
         <!-- Loading Overlay -->
         <Transition enter-active-class="transition-opacity duration-300" enter-from-class="opacity-0"
             enter-to-class="opacity-100" leave-active-class="transition-opacity duration-200"
@@ -588,9 +926,7 @@ export default {
                                     <p class="text-sm text-gray-500">Scan QR code or search manually</p>
                                 </div>
                             </div>
-                            <SelectSearchField id="equipment_selector"
-                                placeholder="Search by name, brand, or barcode..." :options="equipmentOptions"
-                                v-model="selectedEquipmentId" />
+                            <SelectSearchField id="equipment_selector" placeholder="Search by name, brand, or barcode..." :options="equipmentOptions" v-model="selectedEquipmentId" />
                             <p class="flex items-center gap-2 text-xs text-gray-500">
                                 <LuSearch class="w-3.5 h-3.5" />
                                 Type to search or scan barcode
@@ -607,7 +943,7 @@ export default {
                             <div class="inline-flex p-4 mb-4 rounded-full bg-red-100">
                                 <LuAlertCircle class="w-8 h-8 text-red-600" />
                             </div>
-                            <h3 class="mb-2 text-lg font-semibold text-gray-900">Equipment Not Found</h3>
+                            <h3 class="mb-2 text-lg font-semibold text-gray-900">{{ notFoundTitle }}</h3>
                             <p class="max-w-xs mx-auto mb-6 text-sm text-gray-500">{{ message }}</p>
                             <Link :href="route(showPageRoute)"
                                 class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition-colors bg-emerald-600 rounded-lg hover:bg-emerald-700"
@@ -618,68 +954,41 @@ export default {
                         </div>
 
                         <!-- Equipment Details -->
-                        <div v-else-if="equipment" class="divide-y divide-gray-100">
+                        <div v-else-if="equipment" data-guide="equipment-summary" class="divide-y divide-gray-100">
                             <!-- Header -->
-                            <div class="flex items-start justify-between p-4">
-                                <div class="flex items-center gap-4">
+                            <div class="flex items-start justify-between p-4 relative">
+                                <div class="flex items-center gap-4 w-full">
                                     <div class="p-3 rounded-xl bg-emerald-100">
                                         <LuMicroscope class="w-6 h-6 text-emerald-600" />
                                     </div>
-                                    <div>
+                                    <div class="flex flex-col w-full">
                                         <h1 class="text-xl font-bold text-gray-900">{{ equipment.name }}</h1>
-                                        <p class="text-sm text-gray-500">{{ equipment.brand || "No brand specified" }}
-                                        </p>
+                                        <div class="flex justify-between md:flex-row flex-col md:items-center">
+                                            <p class="text-sm text-gray-500">{{ equipment?.brand || "—" }}</p>
+                                            <p class="text-sm text-gray-500 flex items-center gap-1.5" title="PhilRice Property No."><LuBarcode class="w-3.5 h-3.5 text-gray-800 " />{{ equipment?.barcode_prri || "—" }}</p>
+                                            <p class="text-sm text-gray-500 flex items-center gap-1.5" title="DA-CBC Equipment No."><LuQrCode class="w-3.5 h-3.5 text-gray-800 " />{{ equipment?.barcode || "—" }}</p>
+                                        </div>
+                                        <div class="space-y-1">
+                                            <label class="flex items-center gap-1.5 text-xs text-gray-500 uppercase tracking-wide">
+                                                <LuMapPin class="w-3.5 h-3.5 text-gray-800 " />
+                                                <p class="text-xs text-gray-500">{{ currentLocation?.label || "Unknown" }}</p>
+                                                <span v-if="currentLocation?.source === 'temporary'" class="px-2 py-0.5 text-xs text-amber-700 bg-amber-100 rounded-full">
+                                                    Temporary
+                                                </span>
+                                            </label>
+                                            <button v-if="canReportLocation" type="button" @click="openLocationSurveyModal"
+                                                class="mt-2 text-xs font-medium text-amber-700 transition-colors hover:text-amber-800">
+                                                Update reported location
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                                 <button v-if="!equipment_id" @click="selectedEquipmentId = null"
-                                    class="p-2 text-gray-400 transition-colors rounded-lg hover:bg-gray-100 hover:text-gray-600">
+                                    class="p-2 text-gray-400 transition-colors rounded-lg hover:bg-gray-100 hover:text-gray-600 absolute top-2 right-2">
                                     <LuX class="w-5 h-5" />
                                 </button>
                             </div>
 
-                            <!-- Details Grid -->
-                            <div class="grid grid-cols-2 gap-4 px-4 pb-4">
-                                <div class="space-y-1">
-                                    <label
-                                        class="flex items-center gap-1.5 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                                        <LuBarcode class="w-3.5 h-3.5" />
-                                        PhilRice Property No.
-                                    </label>
-                                    <p class="text-sm font-medium text-gray-900">{{ equipment.barcode_prri || "—" }}</p>
-                                </div>
-                                <div class="space-y-1">
-                                    <label
-                                        class="flex items-center gap-1.5 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                                        <LuBarcode class="w-3.5 h-3.5" />
-                                        CBC Barcode
-                                    </label>
-                                    <p class="text-sm font-medium text-gray-900">{{ equipment.barcode || "—" }}</p>
-                                </div>
-                                <div class="space-y-1">
-                                    <label
-                                        class="flex items-center gap-1.5 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                                        <LuBuilding class="w-3.5 h-3.5" />
-                                        Current Location
-                                    </label>
-                                    <div class="flex items-center gap-2">
-                                        <p class="text-sm font-medium text-gray-900">{{ currentLocation?.label ||
-                                            "Unknown" }}</p>
-                                        <span v-if="currentLocation?.source === 'temporary'"
-                                            class="px-2 py-0.5 text-xs font-medium text-amber-700 bg-amber-100 rounded-full">
-                                            Temporary
-                                        </span>
-                                    </div>
-                                    <button v-if="shouldShowLocationSurvey" type="button" @click="openLocationSurveyModal"
-                                        class="mt-2 text-xs font-medium text-amber-700 transition-colors hover:text-amber-800">
-                                        Update reported location
-                                    </button>
-                                </div>
-                                <div class="space-y-1">
-                                    <label
-                                        class="text-xs font-medium text-gray-500 uppercase tracking-wide">Description</label>
-                                    <p class="text-sm text-gray-700">{{ equipment.description || "No description" }}</p>
-                                </div>
-                            </div>
                             <DialogModal :show="showLocationSurveyModal" max-width="md" @close="closeLocationSurveyModal">
                                 <template #title>
                                     <div class="flex items-center gap-2 mb-4 py-2">
@@ -711,7 +1020,7 @@ export default {
                                     </div>
                                 </template>
                                 <template #footer>
-                                    <button type="button" @click="submitLocationSurvey(); closeLocationSurveyModal()"
+                                    <button type="button" @click="submitLocationSurvey"
                                         class="w-full px-4 py-2.5 text-sm font-medium text-white transition-colors bg-amber-600 rounded-lg hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2">
                                         Update Location
                                     </button>
@@ -721,23 +1030,22 @@ export default {
                     </div>
 
                     <!-- Status Card -->
-                    <div v-if="hasEquipment && !notFound && equipment"
+                    <div v-if="hasEquipment && !notFound && equipment && activeLog" data-guide="equipment-status"
                         class="overflow-hidden bg-white border border-gray-200 shadow-sm md:rounded-xl">
                         <div class="flex items-center justify-between p-4 border-b border-gray-100">
                             <div class="flex items-center gap-3">
-                                <div class="p-2 rounded-lg"
-                                    :class="isOverdue ? 'bg-red-100' : activeLog ? 'bg-emerald-100' : 'bg-gray-100'">
-                                    <LuActivity class="w-5 h-5"
-                                        :class="isOverdue ? 'text-red-600' : activeLog ? 'text-emerald-600' : 'text-gray-600'" />
+                                <div class="p-2 rounded-lg" :class="isOverdue ? 'bg-red-100' : activeLog ? 'bg-emerald-100' : 'bg-gray-100'">
+                                    <LuActivity class="w-5 h-5" :class="isOverdue ? 'text-red-600' : activeLog ? 'text-emerald-600' : 'text-gray-600'" />
                                 </div>
                                 <div>
-                                    <h2 class="text-sm font-semibold text-gray-900">Current Status</h2>
-                                    <p class="text-xs text-gray-500">
+                                    <span  class="inline-flex items-center gap-1.5 uppercase font-semibold rounded-full"
+                                        :class="isOverdue ? 'text-red-700' : activeLog ? 'text-emerald-700' : 'text-gray-700'">
                                         {{ isOverdue ? 'Overdue' : activeLog ? 'In Use' : 'Available' }}
-                                    </p>
+                                    </span>
+                                    <h2 class="text-xs text-gray-900 leading-none">Current Status</h2>
                                 </div>
                             </div>
-                            <button v-if="activeLog" @click="showEstimatedEndUseModal = true"
+                            <button v-if="canEditActiveLog" @click="showEstimatedEndUseModal = true"
                                 class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 transition-colors bg-emerald-50 rounded-lg hover:bg-emerald-100">
                                 <LuEdit class="w-3.5 h-3.5" />
                                 Edit Time
@@ -746,42 +1054,32 @@ export default {
 
                         <div v-if="activeLog" class="p-4 space-y-1 md:space-y-3">
                             <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-500">Status</span>
-                                <span
-                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full"
-                                    :class="isOverdue ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'">
-                                    <span class="w-1.5 h-1.5 rounded-full animate-pulse"
-                                        :class="isOverdue ? 'bg-red-500' : 'bg-emerald-500'" />
-                                    {{ isOverdue ? 'Overdue' : activeLog.status }}
+                                <span class="text-sm text-gray-500">Current User</span>
+                                <span class="flex items-center gap-1.5 text-sm font-medium text-gray-900">
+                                    {{ formatPersonnelName(statusCardPersonnel) }}<LuUser class="w-4 h-4 text-gray-400" />
                                 </span>
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-gray-500">Checked In</span>
                                 <span class="flex items-center gap-1.5 text-sm font-medium text-gray-900">
-                                    <LuCalendar class="w-4 h-4 text-gray-400" />
                                     {{ formatDateTime(activeLog.started_at) }}
+                                    <LuCalendar class="w-4 h-4 text-gray-400" />
                                 </span>
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-gray-500">Expected End</span>
                                 <span class="flex items-center gap-1.5 text-sm font-medium"
                                     :class="isOverdue ? 'text-red-600' : 'text-gray-900'">
-                                    <LuClock class="w-4 h-4" :class="isOverdue ? 'text-red-400' : 'text-gray-400'" />
                                     {{ formatDateTime(activeLog.end_use_at) }}
+                                    <LuClock class="w-4 h-4" :class="isOverdue ? 'text-red-400' : 'text-gray-400'" />
                                 </span>
                             </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-500">Current User</span>
-                                <span class="flex items-center gap-1.5 text-sm font-medium text-gray-900">
-                                    <LuUser class="w-4 h-4 text-gray-400" />
-                                    {{ formatPersonnelName(activeLog.personnel) }}
-                                </span>
-                            </div>
+                            
                         </div>
                     </div>
 
                     <!-- Check-in Form -->
-                    <div v-if="hasEquipment && !notFound && canCheckIn"
+                    <div v-if="hasEquipment && !notFound && canCheckIn" data-guide="equipment-actions"
                         class="overflow-hidden bg-white border border-gray-200 shadow-sm md:rounded-xl">
                         <div class="p-4 border-b border-gray-100 bg-emerald-50/30">
                             <div class="flex items-center gap-3">
@@ -796,13 +1094,53 @@ export default {
                         </div>
 
                         <div class="px-4 pb-4 space-y-4">
-                            <PersonnelLookup v-model="checkInForm.employee_id" @found="handlePersonnelFound" required
+                            <PersonnelLookup ref="personnelLookup" v-model="checkInForm.employee_id" @found="handlePersonnelFound" required
                                 @error="handlePersonnelError" />
 
                             <div v-if="personnelPreview"
                                 class="flex items-center gap-2 p-3 text-sm text-emerald-700 rounded-lg bg-emerald-50">
                                 <LuCheckCircle2 class="w-4 h-4" />
                                 <span class="font-medium">{{ personnelPreview.fullName }}</span>
+                            </div>
+
+                            <div
+                                v-if="profileRequiresUpdate"
+                                class="space-y-3 rounded-xl border border-amber-200 bg-amber-50 p-4"
+                            >
+                                <div>
+                                    <p class="text-sm font-semibold text-amber-900">
+                                        Update your personnel information first
+                                    </p>
+                                    <p class="mt-1 text-sm text-amber-800">
+                                        This employee record is marked as a fresh profile. Please complete the contact details below before checking in equipment.
+                                    </p>
+                                </div>
+                                <div class="grid gap-3 md:grid-cols-2">
+                                    <TextInput v-model="personnelProfileForm.fname" label="First Name" required
+                                        :error="getErrorMessage(personnelProfileErrors.fname)" />
+                                    <TextInput v-model="personnelProfileForm.mname" label="Middle Name"
+                                        :error="getErrorMessage(personnelProfileErrors.mname)" />
+                                    <TextInput v-model="personnelProfileForm.lname" label="Last Name" required
+                                        :error="getErrorMessage(personnelProfileErrors.lname)" />
+                                    <TextInput v-model="personnelProfileForm.suffix" label="Suffix"
+                                        :error="getErrorMessage(personnelProfileErrors.suffix)" />
+                                    <TextInput v-model="personnelProfileForm.position" label="Position" required
+                                        :error="getErrorMessage(personnelProfileErrors.position)" />
+                                    <TextInput v-model="personnelProfileForm.phone" label="Phone" required
+                                        :error="getErrorMessage(personnelProfileErrors.phone)" />
+                                    <TextInput v-model="personnelProfileForm.email" label="Email (optional)"
+                                        :error="getErrorMessage(personnelProfileErrors.email)" />
+                                    <TextInput v-model="personnelProfileForm.address" label="Address" required
+                                        :error="getErrorMessage(personnelProfileErrors.address)" />
+                                </div>
+                                <div v-if="getErrorMessage(personnelProfileErrors.base)" class="text-sm text-red-600">
+                                    {{ getErrorMessage(personnelProfileErrors.base) }}
+                                </div>
+                                <button type="button" @click="submitPersonnelProfileUpdate"
+                                    class="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-amber-700">
+                                    <LuSave class="w-4 h-4" />
+                                    Save Personnel Information
+                                </button>
                             </div>
 
                             <div v-if="getErrorMessage(checkInErrors.employee_id)" class="text-sm text-red-600">
@@ -831,7 +1169,7 @@ export default {
                     </div>
 
                     <!-- Check-out Form -->
-                    <div v-if="hasEquipment && !notFound && canCheckOut"
+                    <div v-if="hasEquipment && !notFound && canCheckOut" data-guide="equipment-actions"
                         class="overflow-hidden bg-white border border-gray-200 shadow-sm md:rounded-xl">
                         <div class="p-4 border-b border-gray-100 bg-amber-50/30">
                             <div class="flex items-center justify-between">
@@ -854,7 +1192,7 @@ export default {
 
                         <div class="px-4 pb-4 space-y-4">
                             <Transition mode="out-in" name="fade-slide">
-                                <div v-if="savedLaboratoryPersonnel && showPhilRiceField" key="saved"
+                                <div v-if="currentLaboratoryPersonnel && showPhilRiceField" key="saved"
                                     class="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-200">
                                     <div class="flex items-center gap-3">
                                         <div class="p-2 rounded-lg bg-emerald-100">
@@ -862,8 +1200,8 @@ export default {
                                         </div>
                                         <div>
                                             <p class="text-sm font-medium text-gray-900">{{
-                                                savedLaboratoryPersonnel.fullName }}</p>
-                                            <p class="text-xs text-gray-500">{{ savedLaboratoryPersonnel.employee_id }}
+                                                currentLaboratoryPersonnel.fullName }}</p>
+                                            <p class="text-xs text-gray-500">{{ currentLaboratoryPersonnel.employee_id }}
                                             </p>
                                         </div>
                                     </div>
@@ -911,7 +1249,7 @@ export default {
 
                 <!-- Sidebar: Active Equipment -->
                 <div class="lg:col-span-5">
-                    <div class="sticky overflow-hidden bg-white border border-gray-200 shadow-sm top-4 md:rounded-xl">
+                    <div data-guide="equipment-active" class="sticky overflow-hidden bg-white border border-gray-200 shadow-sm top-4 md:rounded-xl">
                         <div class="flex items-center justify-between p-4 border-b border-gray-100">
                             <div class="flex items-center gap-3">
                                 <div class="p-2 rounded-lg bg-blue-100">
@@ -919,13 +1257,30 @@ export default {
                                 </div>
                                 <div>
                                     <h2 class="text-sm font-semibold text-gray-900">Active Sessions</h2>
-                                    <p class="text-xs text-gray-500">{{ filteredActiveEquipments.length }} equipment in
-                                        use</p>
+                                    <p class="text-xs text-gray-500">{{ filteredActiveEquipments.length }} equipment in use</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div v-if="savedLaboratoryPersonnel" class="p-4 border-b border-gray-100 bg-gray-50/50">
+                        <div v-if="currentLaboratoryPersonnel" class="space-y-3 p-4 border-b border-gray-100 bg-gray-50/50">
+                            <div class="flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="rounded-lg bg-emerald-100 p-2">
+                                        <LuUser class="h-4 w-4 text-emerald-600" />
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">
+                                            {{ currentLaboratoryPersonnel.fullName }}
+                                        </p>
+                                        <p class="text-xs text-gray-500">
+                                            {{ currentLaboratoryPersonnel.employee_id }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
+                                    Current User
+                                </span>
+                            </div>
                             <button @click="filterActiveByPersonnel = !filterActiveByPersonnel"
                                 class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium transition-colors rounded-lg"
                                 :class="filterActiveByPersonnel ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'">
@@ -967,15 +1322,13 @@ export default {
                                         <h3 class="text-sm font-semibold text-gray-900 truncate">
                                             {{ item.equipment?.name }}
                                         </h3>
-                                        <span v-if="isActiveItemOverdue(item)"
-                                            class="flex-shrink-0 px-1.5 py-0.5 text-[10px] font-bold text-red-700 uppercase bg-red-100 rounded">
-                                            Overdue
-                                        </span>
+                                        
                                     </div>
                                     <p class="text-xs text-gray-500">{{ item.equipment?.brand }}</p>
                                 </div>
                                 <div class="flex flex-col items-end text-xs gap-1 text-gray-500 whitespace-nowrap">
-                                    <span class="flex items-center gap-1">
+                                    <span class="flex items-center gap-1" :class="{'flex-shrink-0 text-xs text-red-700 rounded':isActiveItemOverdue(item)}">
+                                        <span v-if="isActiveItemOverdue(item)" class="uppercase font-bold"> (Overdue) </span>
                                         {{ formatDateTime(item.end_use_at) }}
                                         <LuClock class="w-3.5 h-3.5" />
                                     </span>
@@ -992,11 +1345,49 @@ export default {
             </div>
         </Transition>
 
+        <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 scale-95"
+            enter-to-class="opacity-100 scale-100" leave-active-class="transition duration-150 ease-in"
+            leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
+            <div v-if="showEmailCaptureModal"
+                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                <div class="w-full max-w-md p-5 bg-white shadow-2xl rounded-2xl">
+                    <div class="flex items-start justify-between gap-3 mb-5">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Email Required</h3>
+                            <p class="mt-1 text-sm text-gray-500">
+                                We need your email so the system can send overdue equipment reminders.
+                            </p>
+                        </div>
+                        <button @click="showEmailCaptureModal = false"
+                            class="p-2 text-gray-400 transition-colors rounded-lg hover:bg-gray-100">
+                            <LuX class="w-5 h-5" />
+                        </button>
+                    </div>
+
+                    <div class="space-y-4">
+                        <TextInput v-model="emailCaptureForm.email" label="Email Address" type="email" required
+                            :error="getErrorMessage(emailCaptureErrors.email)"
+                            @keydown.enter.prevent="submitEmailCapture" />
+
+                        <div v-if="getErrorMessage(emailCaptureErrors.base)" class="p-3 text-sm text-red-600 rounded-lg bg-red-50">
+                            {{ getErrorMessage(emailCaptureErrors.base) }}
+                        </div>
+
+                        <button type="button" @click="submitEmailCapture"
+                            class="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-emerald-700">
+                            <LuSave class="w-4 h-4" />
+                            Save Email
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+
         <!-- Edit End Time Modal -->
         <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 scale-95"
             enter-to-class="opacity-100 scale-100" leave-active-class="transition duration-150 ease-in"
             leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
-            <div v-if="showEstimatedEndUseModal && activeLog"
+            <div v-if="showEstimatedEndUseModal && canEditActiveLog"
                 class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                 <div class="w-full max-w-md p-4 bg-white shadow-2xl rounded-2xl">
                     <div class="flex items-center justify-between mb-6">

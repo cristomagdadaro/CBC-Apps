@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Rules\UniqueFullName;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdatePersonnelRequest extends FormRequest
 {
@@ -24,6 +25,7 @@ class UpdatePersonnelRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'is_philrice_employee' => ['sometimes', 'boolean'],
             'fname' => ['required' , 'string', new UniqueFullName($this->id)],
             'mname' => ['string', 'nullable', new UniqueFullName($this->id)],
             'lname' =>  ['required', 'string', new UniqueFullName($this->id)],
@@ -31,8 +33,9 @@ class UpdatePersonnelRequest extends FormRequest
             'position' => 'required|string',
             'phone' => 'string|nullable',
             'address' => 'string|nullable',
-            'email' => 'required|email|unique:personnels,email,' . $this->id,
+            'email' => 'nullable|email|unique:personnels,email,' . $this->id,
             'employee_id' => 'required|string|max:32|unique:personnels,employee_id,' . $this->id,
+            'status' => ['required', 'string', Rule::in([config('system.statuses.active', 'Active'), config('system.statuses.suspended', 'Suspended')])],
         ];
     }
 

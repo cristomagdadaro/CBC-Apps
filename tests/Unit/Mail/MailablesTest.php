@@ -6,7 +6,10 @@ use App\Enums\Inventory as InventoryEnum;
 use App\Enums\Subform;
 use App\Mail\EventSubformResponseNotification;
 use App\Mail\GeneratedCertificateMail;
+use App\Mail\LaboratoryEquipmentLogOverdueMail;
 use App\Mail\OutgoingTransactionNotification;
+use App\Mail\PersonnelRegistrationVerificationMail;
+use App\Models\LaboratoryEquipmentLog;
 use App\Models\Category;
 use App\Models\EventSubform;
 use App\Models\EventSubformResponse;
@@ -14,6 +17,7 @@ use App\Models\Form;
 use App\Models\Item;
 use App\Models\Participant;
 use App\Models\Personnel;
+use App\Models\PersonnelRegistration;
 use App\Models\Registration;
 use App\Models\Supplier;
 use App\Models\Transaction;
@@ -45,6 +49,28 @@ class MailablesTest extends TestCase
         $this->assertStringContainsString('Jane Doe', $html);
         $this->assertStringContainsString('Advanced Rice Workshop', $html);
         $this->assertStringContainsString('EVT1', $html);
+
+        @unlink($attachmentPath);
+    }
+
+    public function test_generated_certificate_mail_renders_single_day_event_date_once(): void
+    {
+        $form = Form::factory()->create([
+            'event_id' => 'EVT1',
+            'title' => 'ELISA Seminar',
+            'date_from' => '2026-05-28 08:00:00',
+            'date_to' => '2026-05-28 17:00:00',
+        ]);
+
+        $attachmentPath = tempnam(sys_get_temp_dir(), 'cert_') . '.pdf';
+        file_put_contents($attachmentPath, '%PDF-fake');
+
+        $html = (new GeneratedCertificateMail($attachmentPath, 'certificate.pdf', $form->event_id))
+            ->withRecipientName('Cristo Rey Ceniza Magdadaro')
+            ->render();
+
+        $this->assertStringContainsString('May 28, 2026', $html);
+        $this->assertStringNotContainsString('May 28, 2026 to May 28, 2026', $html);
 
         @unlink($attachmentPath);
     }
@@ -95,6 +121,61 @@ class MailablesTest extends TestCase
         $this->assertStringContainsString('Buffer Solution', $html);
         $this->assertStringContainsString('6 pc', $html);
         $this->assertStringContainsString('Issued to laboratory', $html);
+    }
+
+    public function test_laboratory_equipment_log_overdue_mail_renders_equipment_link_and_ignore_notice(): void
+    {
+        $category = Category::factory()->create([
+            'name' => 'Laboratory Equipment',
+        ]);
+        $supplier = Supplier::factory()->create();
+        $item = Item::factory()->create([
+            'name' => 'PCR Machine',
+            'category_id' => $category->id,
+            'supplier_id' => $supplier->id,
+        ]);
+        $personnel = Personnel::factory()->create([
+            'fname' => 'Maria',
+            'lname' => 'Santos',
+            'email' => 'maria.santos@example.test',
+        ]);
+
+        $log = LaboratoryEquipmentLog::query()->create([
+            'equipment_id' => $item->id,
+            'personnel_id' => $personnel->id,
+            'status' => 'overdue',
+            'started_at' => now()->subHours(3),
+            'end_use_at' => now()->subHour(),
+            'active_lock' => false,
+        ]);
+
+        $html = (new LaboratoryEquipmentLogOverdueMail(
+            $log->load(['personnel', 'equipment']),
+            'laboratory',
+        ))->render();
+
+        $this->assertStringContainsString('PCR Machine', $html);
+        $this->assertStringContainsString(route('laboratory.equipments.show', ['equipment_id' => $item->id]), $html);
+        $this->assertStringContainsString('you may ignore this notice', $html);
+    }
+
+    public function test_personnel_registration_verification_mail_renders_signed_verification_link(): void
+    {
+        $registration = PersonnelRegistration::query()->create([
+            'is_philrice_employee' => true,
+            'fname' => 'Nora',
+            'lname' => 'Valdez',
+            'position' => 'Visitor',
+            'email' => 'nora@example.test',
+            'employee_id' => '12-9090',
+            'status' => PersonnelRegistration::STATUS_PENDING,
+        ]);
+
+        $html = (new PersonnelRegistrationVerificationMail($registration))->render();
+
+        $this->assertStringContainsString('Nora Valdez', $html);
+        $this->assertStringContainsString('Verify your personnel registration', $html);
+        $this->assertStringContainsString(route('personnel.registration.verify', ['registration' => $registration->id]), $html);
     }
 
     public function test_event_subform_response_notification_renders_response_details(): void

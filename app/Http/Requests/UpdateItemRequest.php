@@ -5,7 +5,6 @@ namespace App\Http\Requests;
 use App\Rules\UniqueItem;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\DB;
 
 class UpdateItemRequest extends FormRequest
 {

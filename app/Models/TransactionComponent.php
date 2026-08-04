@@ -28,43 +28,27 @@ class TransactionComponent extends BaseModel
     protected $fillable = [
         'id',
         'transaction_id',
-        'item_id',
-        'quantity',
-        'unit',
-        'barcode_prri',
-        'prri_component_no',
-        'expiration',
-        'remarks',
+        'component_transaction_id',
     ];
 
     protected array $searchable = [
         'transaction_id',
-        'item_id',
-        'quantity',
-        'unit',
-        'barcode_prri',
-        'prri_component_no',
-        'expiration',
-        'remarks',
+        'component_transaction_id',
     ];
 
     protected $casts = [
         'id' => 'string',
         'transaction_id' => 'string',
-        'item_id' => 'string',
-        'quantity' => 'float',
-        'barcode_prri' => 'string',
-        'prri_component_no' => 'string',
-        'expiration' => 'date',
+        'component_transaction_id' => 'string',
     ];
 
-    public function transaction(): BelongsTo
+    public function parentTransaction(): BelongsTo
     {
         return $this->belongsTo(Transaction::class, 'transaction_id', 'id');
     }
 
-    public function item(): BelongsTo
+    public function componentTransaction(): BelongsTo
     {
-        return $this->belongsTo(Item::class, 'item_id', 'id');
+        return $this->belongsTo(Transaction::class, 'component_transaction_id', 'id');
     }
 }

@@ -25,7 +25,7 @@ class GuestOutgoingTest extends TestCase
 
         // Consumable category names that are included in remaining-stocks query (IDs 1,2,3,5,6)
         $consumableCategoryNames = ['Office Supplies', 'IEC Materials', 'Tokens', 'ICT Supplies', 'Laboratory Consumables'];
-        $category = Category::query()->whereIn('name', $consumableCategoryNames)->first() 
+        $category = Category::query()->whereIn('name', $consumableCategoryNames)->first()
             ?? Category::factory()->create(['name' => 'Office Supplies']);
         $supplier = Supplier::query()->first() ?? Supplier::factory()->create();
         $item = Item::factory()->create([
@@ -49,6 +49,21 @@ class GuestOutgoingTest extends TestCase
             'project_code' => 'PC-3000',
         ]);
 
+        $negativeItem = Item::factory()->create([
+            'category_id' => $category->id,
+            'supplier_id' => $supplier->id,
+        ]);
+
+        Transaction::factory()->create([
+            'item_id' => $negativeItem->id,
+            'barcode' => 'CBC-01-000099',
+            'transac_type' => Inventory::OUTGOING->value,
+            'quantity' => 1,
+            'unit' => 'pc',
+            'user_id' => $user->id,
+            'personnel_id' => $personnel->id,
+        ]);
+
         $this->getJson(route('api.inventory.items.public'))
             ->assertOk()
             ->assertJsonStructure(['data']);
@@ -67,6 +82,10 @@ class GuestOutgoingTest extends TestCase
             ->assertJsonStructure(['data']);
 
         $this->assertNotEmpty($remainingResponse->json('data'));
+        $this->assertNotContains(
+            (string) $negativeItem->id,
+            collect($remainingResponse->json('data'))->pluck('item_id')->map(fn ($id) => (string) $id)->all()
+        );
 
         $outgoingPayload = [
             'item_id' => $incoming->item_id,
@@ -93,5 +112,70 @@ class GuestOutgoingTest extends TestCase
 
         $remainingAfterResponse->assertOk()
             ->assertJsonStructure(['data']);
+    }
+
+    public function test_guest_remaining_stocks_can_filter_by_storage_room(): void
+    {
+        $user = $this->createAdminUser();
+
+        $consumableCategoryNames = ['Office Supplies', 'IEC Materials', 'Tokens', 'ICT Supplies', 'Laboratory Consumables'];
+        $category = Category::query()->whereIn('name', $consumableCategoryNames)->first()
+            ?? Category::factory()->create(['name' => 'Office Supplies']);
+        $supplier = Supplier::query()->first() ?? Supplier::factory()->create();
+        $personnel = Personnel::query()->first() ?? Personnel::factory()->create([
+            'employee_id' => 'EMP-GUEST-ROOM',
+        ]);
+
+        $roomOneItem = Item::factory()->create([
+            'category_id' => $category->id,
+            'supplier_id' => $supplier->id,
+            'name' => 'Room One Paper',
+        ]);
+
+        $roomTwoItem = Item::factory()->create([
+            'category_id' => $category->id,
+            'supplier_id' => $supplier->id,
+            'name' => 'Room Two Paper',
+        ]);
+
+        Transaction::factory()->create([
+            'item_id' => $roomOneItem->id,
+            'barcode' => 'CBC-01-000111',
+            'transac_type' => Inventory::INCOMING->value,
+            'quantity' => 8,
+            'unit_price' => 50,
+            'unit' => 'ream',
+            'total_cost' => 400,
+            'user_id' => $user->id,
+            'personnel_id' => $personnel->id,
+        ]);
+
+        Transaction::factory()->create([
+            'item_id' => $roomTwoItem->id,
+            'barcode' => 'CBC-02-000222',
+            'transac_type' => Inventory::INCOMING->value,
+            'quantity' => 6,
+            'unit_price' => 50,
+            'unit' => 'ream',
+            'total_cost' => 300,
+            'user_id' => $user->id,
+            'personnel_id' => $personnel->id,
+        ]);
+
+        $response = $this->getJson(route('api.inventory.transactions.remaining-stocks', [
+            'storage_location_id' => '01',
+        ]));
+
+        $response->assertOk()
+            ->assertJsonStructure(['data']);
+
+        $barcodes = collect($response->json('data'))
+            ->pluck('barcode')
+            ->filter()
+            ->values()
+            ->all();
+
+        $this->assertContains('CBC-01-000111', $barcodes);
+        $this->assertNotContains('CBC-02-000222', $barcodes);
     }
 }

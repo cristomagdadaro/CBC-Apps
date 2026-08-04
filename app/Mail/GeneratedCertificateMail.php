@@ -18,8 +18,10 @@ class GeneratedCertificateMail extends Mailable implements ShouldQueue
     public function __construct(
         public string $attachmentPath,
         public string $displayName,
-        public string $eventId
+        public string $eventId,
+        ?string $recipientName = null,
     ) {
+        $this->recipientName = $recipientName;
     }
 
     public function withRecipientName(?string $recipientName): self
@@ -38,7 +40,12 @@ class GeneratedCertificateMail extends Mailable implements ShouldQueue
 
         $eventDate = null;
         if ($event?->date_from && $event?->date_to) {
-            $eventDate = $event->date_from->format('M d, Y') . ' to ' . $event->date_to->format('M d, Y');
+            $from = $event->date_from->copy();
+            $to = $event->date_to->copy();
+
+            $eventDate = $from->isSameDay($to)
+                ? $from->format('M d, Y')
+                : $from->format('M d, Y') . ' to ' . $to->format('M d, Y');
         } elseif ($event?->date_from) {
             $eventDate = $event->date_from->format('M d, Y');
         } elseif ($event?->date_to) {

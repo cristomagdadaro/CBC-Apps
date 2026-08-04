@@ -22,6 +22,7 @@ export default class Personnel extends DtoPersonnel {
     createFields(): object
     {
         return {
+            is_philrice_employee: true,
             fname: null,
             mname: null,
             lname: null,
@@ -31,6 +32,7 @@ export default class Personnel extends DtoPersonnel {
             address: null,
             email: null,
             employee_id: null,
+            status: 'Active',
         }
     }
 
@@ -38,6 +40,7 @@ export default class Personnel extends DtoPersonnel {
     {
         return {
             id: data?.id,
+            is_philrice_employee: !/^CBC-\d{2}-\d{4}$/.test(data?.employee_id || ''),
             fname: data?.fname,
             mname:  data?.mname,
             lname: data?.lname,
@@ -47,6 +50,7 @@ export default class Personnel extends DtoPersonnel {
             address: data?.address,
             email: data?.email,
             employee_id: data?.employee_id,
+            status: data?.status ?? 'Active',
         }
     }
 

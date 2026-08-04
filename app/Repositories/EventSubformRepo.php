@@ -19,6 +19,7 @@ class EventSubformRepo extends AbstractRepoService
         return $this->model
             ->newQuery()
             ->select('id as name', 'form_type as label')
+            ->orderBy('label', 'ASC')
             ->get();
     }
 }

@@ -34,6 +34,7 @@
                     <li>Item names and brands must be unique (no duplicates)</li>
                     <li>If category doesn't exist, create it first</li>
                     <li>If supplier doesn't exist, create it first</li>
+                    <li>Equipment Logger availability is no longer set on the item form; configure it on each incoming transaction so different stock/project records can have different sharing rules.</li>
                     <li>You can edit item details after creation</li>
                 </ul>
             </div>

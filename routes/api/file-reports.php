@@ -5,7 +5,7 @@ use App\Services\DeploymentAccessService;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('guest')->group(function () {
-    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_INVENTORY])->prefix('inventory')->group(function () {
+    Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_INCIDENT_REPORTS])->prefix('inventory')->group(function () {
         Route::post('/supp-equip-reports', [SuppEquipReportController::class, 'publicStore'])
             ->name('api.inventory.supp_equip_reports.store.public');
     });

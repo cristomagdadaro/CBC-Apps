@@ -17,7 +17,7 @@ export default class Item extends DtoItem {
         this.api._apiDelete = Item.endpoints.delete;
 
         this.api.appendWith = ['category', 'supplier'];
-        console.log(this)
+
         this.showPage = Item.endpoints.show;
     }
 
@@ -74,7 +74,7 @@ export default class Item extends DtoItem {
             },
             {
                 title: 'Supplier',
-                key: 'supplier.fullName',
+                key: 'supplier.name',
                 db_key: 'supplier_id',
                 align: 'center',
                 sortable: true,
@@ -94,11 +94,11 @@ export default class Item extends DtoItem {
                 db_key: 'specifications',
                 align: 'center',
                 sortable: true,
-                visible: false,
+                visible: true,
             },
             {
                 title: 'Category',
-                key: 'category.fullName',
+                key: 'category.name',
                 db_key: 'category_id',
                 align: 'center',
                 sortable: true,

@@ -125,16 +125,16 @@ export default {
     computed: {
         filteredOptions() {
             if (!this.search || !this.search.trim()) return this.options;
-            
+
             // Normalize the search term: lowercase, trim, normalize whitespace
             const searchTerms = this.search
                 .toLowerCase()
                 .trim()
                 .split(/\s+/)
                 .filter(t => t.length > 0);
-            
+
             if (searchTerms.length === 0) return this.options;
-            
+
             return this.options.filter(opt => {
                 const label = opt.label.toLowerCase();
                 // Match if ALL search terms are found in the label (case-insensitive)

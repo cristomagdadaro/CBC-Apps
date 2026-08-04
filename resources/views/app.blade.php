@@ -19,6 +19,9 @@
 
         <!-- Scripts -->
         <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+        <script>
+            window.__CBC_REALTIME__ = @json(config('realtime'));
+        </script>
         @routes
         @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
         @inertiaHead

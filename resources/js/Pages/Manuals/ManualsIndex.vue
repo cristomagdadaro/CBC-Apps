@@ -17,6 +17,7 @@ import CertificateGeneratorTopic from "./Topics/CertificateGeneratorTopic.vue";
 import IconsLibraryTopic from "./Topics/IconsLibraryTopic.vue";
 import GoogleCalendarTopic from "./Topics/GoogleCalendarTopic.vue";
 import ResearchMonitoringTopic from "./Topics/ResearchMonitoringTopic.vue";
+import DriverJsGuidesTopic from "./Topics/DriverJsGuidesTopic.vue";
 
 export default {
   name: "ManualsIndex",
@@ -37,6 +38,7 @@ export default {
     IconsLibraryTopic,
     GoogleCalendarTopic,
     ResearchMonitoringTopic,
+    DriverJsGuidesTopic,
   },
   setup() {
     const page = usePage();
@@ -45,7 +47,7 @@ export default {
         ? new URLSearchParams(window.location.search).get("section")
         : null;
     const activeSection = ref(initialSection || "overview");
-    const developerOnlyTopicIds = ["consoleLogger", "iconsLibrary"];
+    const developerOnlyTopicIds = ["consoleLogger", "iconsLibrary", "driverJsGuides"];
     const showDeveloperSections = computed(() => Boolean(page.props?.auth?.user?.id));
 
     const sections = {
@@ -70,7 +72,7 @@ export default {
         component: InventorySystemTopic,
       },
       inventoryTransactions: {
-        title: "How to add Incoming or Outgoing Transactions",
+        title: "How to add Incoming or Outgoing Transactions and set Logger Availability",
         icon: "📊",
         component: InventoryTransactionsTopic,
       },
@@ -105,7 +107,7 @@ export default {
         component: RentalServicesTopic,
       },
       systemOptions: {
-        title: "How to use System Options",
+        title: "How to use System Options and maintain Logger Modes",
         icon: "⚙️",
         component: SystemOptionsTopic,
       },
@@ -129,6 +131,11 @@ export default {
         icon: "🧬",
         component: ResearchMonitoringTopic,
       },
+      driverJsGuides: {
+        title: "Driver.js Tour Guides",
+        icon: "🧭",
+        component: DriverJsGuidesTopic,
+      },
     };
 
     const menuItems = [
@@ -136,14 +143,14 @@ export default {
       { id: "addCustomForm", label: "How to add a custom form", icon: "📝" },
       { id: "fesRequestForm", label: "How to use FES Request Form", icon: "🏛️" },
       { id: "inventorySystem", label: "How to use the Inventory System", icon: "📦" },
-      { id: "inventoryTransactions", label: "How to add Incoming/Outgoing", icon: "📊" },
+      { id: "inventoryTransactions", label: "Incoming/Outgoing + Logger Availability", icon: "📊" },
       { id: "rentalServices", label: "Rental Services Module", icon: "🚗" },
       { id: "inventoryReport", label: "How to file a Report", icon: "📄" },
       { id: "addSupplier", label: "How to add a new Supplier", icon: "🤝" },
       { id: "addItem", label: "How to add a new Item", icon: "🏷️" },
       { id: "profilePassword", label: "How to update Profile and Password", icon: "👤" },
       { id: "consoleLogger", label: "Console Logger (Development)", icon: "🖥️" },
-      { id: "systemOptions", label: "How to use System Options", icon: "⚙️" },
+      { id: "systemOptions", label: "System Options + Logger Modes", icon: "⚙️" },
       {
         id: "certificateGenerator",
         label: "How to use Certificate Generator",
@@ -152,6 +159,7 @@ export default {
       { id: "iconsLibrary", label: "Icons Library", icon: "🎨" },
       { id: "googleCalendar", label: "Google Calendar Integration", icon: "🗓️" },
       { id: "researchMonitoring", label: "Research Monitoring Module", icon: "🧬" },
+      { id: "driverJsGuides", label: "Driver.js Tour Guides", icon: "🧭" },
     ];
 
     const visibleSections = computed(() => {
@@ -206,7 +214,6 @@ export default {
     <div class="py-6 px-4 sm:px-6 lg:px-8">
       <div class="mx-auto">
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <!-- Sidebar Menu -->
           <div class="lg:col-span-1">
             <nav
               class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 space-y-2 sticky top-0"
@@ -228,7 +235,6 @@ export default {
             </nav>
           </div>
 
-          <!-- Content Area -->
           <div class="lg:col-span-3">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 sm:p-8">
               <div
@@ -254,7 +260,6 @@ export default {
 </template>
 
 <style scoped>
-/* Prose styling for better readability */
 :deep(code) {
   background-color: #f3f4f6;
   color: #1f2937;

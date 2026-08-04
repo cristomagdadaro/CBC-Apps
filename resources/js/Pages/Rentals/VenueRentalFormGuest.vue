@@ -30,6 +30,7 @@ export default {
     <GuestFormPage
         :title="title"
         :subtitle="subtitle"
+        guide-key="rental-venue-guest"
         :delay-ready="delayReady"
         >
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">

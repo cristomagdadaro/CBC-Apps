@@ -6,6 +6,10 @@ defineProps({
     description: String,
     icon: [String, Object],
     href: String,
+    badgeCount: {
+        type: [Number, String, null],
+        default: null,
+    },
     external: {
         type: Boolean,
         default: false,
@@ -25,7 +29,20 @@ const colorClasses = {
     orange: "bg-orange-500",
     rose: "bg-rose-500",
     indigo: "bg-indigo-500",
+    teal: "bg-teal-500",
 };
+
+function slugify(title) {
+    return title
+        .toString()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+}
 </script>
 
 <template>
@@ -34,69 +51,47 @@ const colorClasses = {
         :href="href"
         :target="external ? '_blank' : undefined"
         :rel="external ? 'noopener noreferrer' : undefined"
-        class="group relative h-full overflow-hidden rounded-xl 
-               bg-white 
-               dark:bg-[#1e293b]
-               border border-gray-200/80 
-               dark:border-slate-600/50 
-               p-3 md:p-4 transition-all duration-300 
-               hover:border-AC/60 dark:hover:border-AA/60 
-               hover:shadow-lg hover:shadow-AC/10 
-               dark:hover:shadow-xl dark:hover:shadow-black/20 
-               hover:-translate-y-1"
+        :data-guide="'services-'+slugify(title)"
+        class="group relative flex flex-col h-full w-full overflow-visible rounded-2xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-3.5 sm:p-4.5 transition-all duration-300 hover:border-lime-500 dark:hover:border-lime-400 hover:ring-1 hover:ring-lime-500/40 dark:hover:ring-lime-400/40 hover:shadow-md hover:-translate-y-0.5"
     >
-        <!-- Subtle background glow on hover -->
-        <div class="absolute inset-0 bg-gradient-to-br from-AC/[0.03] to-AB/[0.03] 
-                    dark:from-AA/[0.08] dark:to-AC/[0.05] 
-                    opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <!-- Subtle background tint on hover -->
+        <div class="absolute inset-0 rounded-2xl bg-lime-500/[0.02] dark:bg-lime-400/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
         </div>
 
-        <!-- Top accent line -->
-        <div class="absolute top-0 left-0 h-[2px] bg-gradient-to-r from-AC to-AB 
-                    dark:from-AA dark:to-AC 
-                    w-0 group-hover:w-full transition-all duration-500 ease-out">
-        </div>
+        <!-- Metric Badge -->
+        <span
+            v-if="badgeCount !== 0 && badgeCount !== null && badgeCount !== undefined && badgeCount !== ''"
+            class="inline-flex items-center justify-center min-w-[1.6rem] h-6 sm:h-7 px-2 rounded-full bg-gradient-to-r from-lime-500 to-emerald-500 dark:from-lime-500 dark:to-emerald-600 text-white text-[0.68rem] sm:text-xs font-extrabold shadow-md shadow-lime-500/20 shrink-0 absolute -top-2.5 -right-2.5 z-20 border border-white/20"
+        >
+            {{ badgeCount }}
+        </span>
 
         <!-- Content -->
         <div class="relative z-10 flex flex-col h-full">
-            <!-- Icon container -->
-            <div :class="`${colorClasses[color]}`" 
-                 class="mb-2 md:mb-4 inline-flex h-8 w-8 md:h-12 md:w-12 items-center justify-center rounded-md md:rounded-xl 
-                        bg-gradient-to-br from-AC/10 to-AB/5 
-                        dark:from-AA/20 dark:to-AC/10 
-                        dark:ring-1 dark:ring-AA/20
-                        p-2 text-white 
-                        group-hover:scale-105 group-hover:rotate-1 
-                        transition-all duration-300 shadow-sm 
-                        dark:shadow-none">
-                <component :is="icon" class="w-4 h-4 md:w-6 md:h-6" v-if="typeof icon === 'object'" />
-                <span v-else class="text-lg">{{ icon }}</span>
+            <div class="flex items-center gap-3 mb-2 sm:mb-3">
+                <!-- Icon container -->
+                <div :class="`${colorClasses[color]}`" class="inline-flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-gradient-to-br from-white/20 to-transparent p-2 text-white transition-all duration-300 shadow-md shadow-slate-900/10 shrink-0 group-hover:scale-105">
+                    <component :is="icon" class="w-4 h-4 sm:w-5 sm:h-5" v-if="typeof icon === 'object'" />
+                    <span v-else class="text-sm sm:text-lg font-bold">{{ icon }}</span>
+                </div>
+
+                <!-- Title -->
+                <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-lime-600 dark:group-hover:text-lime-400 transition-colors duration-300 leading-tight min-w-0">
+                    {{ title }}
+                </h3>
             </div>
 
-            <!-- Title -->
-            <h3 class="mb-1 md:mb-2 text-lg font-bold text-gray-900 
-                       dark:text-slate-100 
-                       group-hover:text-AC dark:group-hover:text-AA 
-                       transition-colors duration-300 leading-none">
-                {{ title }}
-            </h3>
-
             <!-- Description -->
-            <p class="mb-2 flex-grow text-sm text-gray-600 
-                      dark:text-slate-400 
-                      group-hover:text-gray-700 dark:group-hover:text-slate-300 
-                      transition-colors duration-300 leading-relaxed leading-snug text-xs md:text-base">
+            <p class="mb-2 sm:mb-3 flex-grow text-xs sm:text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-800 dark:group-hover:text-slate-200 transition-colors duration-300 leading-snug sm:leading-relaxed">
                 {{ description }}
             </p>
 
-            <!-- Arrow indicator -->
-            <div class="flex items-center text-AC dark:text-AA 
-                        text-sm font-medium group-hover:opacity-100 opacity-0
-                        transition-all duration-300 translate-y-2 group-hover:translate-y-0 hidden md:flex">
+            <!-- Action Link Indicator -->
+            <div class="flex items-center text-lime-600 dark:text-lime-400 text-[0.7rem] sm:text-xs font-bold uppercase tracking-wider group-hover:opacity-100 sm:opacity-80 transition-all duration-300 mt-auto pt-1">
                 <span>Explore</span>
-                <svg class="ml-2 w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" 
+                <svg class="ml-1.5 w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform duration-300"
                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
                 </svg>
             </div>
         </div>

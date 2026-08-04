@@ -3,6 +3,7 @@ import RentalVenue from "@/Modules/domain/RentalVenue";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 import CalendarModule from "@/Components/CalendarModule.vue";
+import { subscribeToRealtimeChannels } from "@/Modules/realtime/subscriptions";
 
 export default {
     name: "VenueRentalForm",
@@ -28,6 +29,8 @@ export default {
             employee_id: null,
             calendarLoading: false,
             calendarEvents: [],
+            realtimeCleanup: null,
+            realtimeRefreshTimer: null,
         };
     },
     computed: {
@@ -89,6 +92,34 @@ export default {
         },
     },
     methods: {
+        cleanupRealtime() {
+            if (typeof this.realtimeCleanup === "function") {
+                this.realtimeCleanup();
+            }
+
+            this.realtimeCleanup = null;
+        },
+        configureRealtime() {
+            this.cleanupRealtime();
+
+            this.realtimeCleanup = subscribeToRealtimeChannels([
+                {
+                    type: this.isGuestContext ? "public" : "private",
+                    channel: this.isGuestContext ? "public.rentals.calendar" : "rentals.calendar",
+                    event: "rentals.calendar.changed",
+                    handler: () => this.scheduleRealtimeRefresh(),
+                },
+            ]);
+        },
+        scheduleRealtimeRefresh() {
+            if (this.realtimeRefreshTimer) {
+                clearTimeout(this.realtimeRefreshTimer);
+            }
+
+            this.realtimeRefreshTimer = setTimeout(() => {
+                this.loadCalendarEvents();
+            }, 400);
+        },
         routeNameFor(type) {
             const routeMap = {
                 index: "api.guest.rental.venues.index",
@@ -139,8 +170,10 @@ export default {
             this.checkAvailability();
         },
         handlePersonnelFound(data) {
-            this.form.requested_by = data.fullName;
-            this.form.contact_number = data.phone;
+            this.form.requested_by = data.fullName || this.form.requested_by;
+            if (data.phone) {
+                this.form.contact_number = data.phone;
+            }
         },
         handleDestinationRegionChange(value) {
             this.form.destination_region = value;
@@ -151,8 +184,8 @@ export default {
         normalizeCalendarEvents(rows = []) {
             return rows.map((rental) => ({
                 id: rental.id,
-                label: rental.event_name || "Untitled Event",
-                subtitle: rental.requested_by || "",
+                label: `${rental.venue_type || "Venue"} booking`,
+                subtitle: rental.status || "",
                 type: rental.venue_type || "venue",
                 status: rental.status || "pending",
                 date_from: rental.date_from,
@@ -221,6 +254,14 @@ export default {
     },
     mounted() {
         this.loadCalendarEvents();
+        this.configureRealtime();
+    },
+    beforeUnmount() {
+        if (this.realtimeRefreshTimer) {
+            clearTimeout(this.realtimeRefreshTimer);
+        }
+
+        this.cleanupRealtime();
     },
 };
 </script>
@@ -235,7 +276,8 @@ export default {
     <div class="grid grid-cols-4 gap-6">
         <div
             v-if="form"
-            class="bg-white s p-2 rounded-md flex gap-2 drop-shadow-lg h-fit"
+            data-guide='rental-form-shell'
+            class="bg-white p-2 rounded-md flex gap-2 drop-shadow-lg h-fit"
         >
             <form
                 @submit.prevent="submitProxyCreate"

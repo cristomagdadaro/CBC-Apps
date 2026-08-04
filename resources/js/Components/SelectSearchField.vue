@@ -26,6 +26,10 @@ export default {
             type: String,
             default: null,
         },
+        autocomplete: {
+            type: String,
+            default: "off",
+        },
         disabled: {
             type: Boolean,
             default: false,
@@ -356,6 +360,45 @@ export default {
             this.displayedInput = null;
             this.$emit("update:modelValue", null);
         },
+        syncLocalOptions(options = this.options) {
+            const mapped = (options || [])
+                .map(this.formatOption)
+                .filter(Boolean);
+
+            this.formattedOptions = mapped;
+            this.filteredOptions = [...mapped];
+            this.isUsingLocalOptions = mapped.length > 0;
+
+            if (this.currentSearch) {
+                this.searchLocalOptions(this.currentSearch);
+            } else {
+                this.$nextTick(() => this.updateDropdownSizing());
+            }
+
+            const hasValue =
+                this.modelValue !== null &&
+                this.modelValue !== undefined &&
+                this.modelValue !== "";
+
+            if (!hasValue) {
+                if (this.selectedOption) {
+                    this.selectedOption = null;
+                    this.displayedInput = null;
+                }
+                return;
+            }
+
+            const matchedOption = mapped.find(
+                (option) => String(option.value) === String(this.modelValue),
+            );
+
+            if (matchedOption) {
+                this.selectedOption = matchedOption;
+                this.displayedInput = matchedOption.label;
+            } else if (this.selectedOption) {
+                this.selectedOption = null;
+            }
+        },
 
         // Load selected option data on mount if modelValue exists
         async loadSelectedOption() {
@@ -435,14 +478,7 @@ export default {
             };
         },
         initLocalOptions() {
-            const mapped = (this.options || [])
-                .map(this.formatOption)
-                .filter(Boolean);
-            this.formattedOptions = mapped;
-            this.filteredOptions = mapped;
-            // Mark that we're using local options so we know not to fetch from API
-            this.isUsingLocalOptions = true;
-            this.$nextTick(() => this.updateDropdownSizing());
+            this.syncLocalOptions(this.options);
         },
     },
 
@@ -489,6 +525,21 @@ export default {
             if (!newVal && this.selectedOption) {
                 this.clearSelection();
             }
+        },
+        options: {
+            immediate: true,
+            deep: true,
+            handler(newOptions) {
+                if (!Array.isArray(newOptions)) {
+                    return;
+                }
+
+                if (!newOptions.length && !this.isUsingLocalOptions) {
+                    return;
+                }
+
+                this.syncLocalOptions(newOptions);
+            },
         },
 
         filteredOptions() {
@@ -555,6 +606,7 @@ export default {
             <div class="flex items-center gap-1">
                 <text-input
                     :id="id"
+                    :name="id"
                     ref="textInput"
                     :title="title"
                     :label="dynamicLabel"
@@ -564,6 +616,7 @@ export default {
                     :disabled="disabled"
                     v-model="displayedInput"
                     :placeholder="placeholder"
+                    :autocomplete="autocomplete"
                     @focusin="toggleDropdown()"
                     @click="toggleDropdown()"
                     @input="debounceApiCall($event)"

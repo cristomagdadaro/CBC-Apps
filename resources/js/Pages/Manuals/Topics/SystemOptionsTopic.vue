@@ -55,7 +55,7 @@
         </div>
         <div class="border-l-4 border-purple-500 pl-4">
           <h4 class="font-semibold text-gray-900 dark:text-gray-100">Inventory</h4>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Stock levels, storage locations, transaction types, thresholds</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400">Stock levels, storage locations, transaction types, thresholds, and equipment logger mode choices used by incoming transactions</p>
         </div>
         <div class="border-l-4 border-yellow-500 pl-4">
           <h4 class="font-semibold text-gray-900 dark:text-gray-100">Forms</h4>
@@ -100,6 +100,9 @@
         </li>
         <li>Click <strong>"Create Option"</strong> to save</li>
       </ol>
+      <p class="mt-3 text-sm text-gray-600 dark:text-gray-400">
+        Example: the inventory option key <code>equipment_logger_modes</code> stores the allowed sharing/logger modes for incoming inventory transactions.
+      </p>
     </section>
 
     <!-- How to Edit an Option -->

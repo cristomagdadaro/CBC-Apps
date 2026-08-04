@@ -1,4 +1,5 @@
 import DtoResearchStudy from "@/Modules/dto/DtoResearchStudy";
+import DtoBaseClass from "@/Modules/dto/DtoBaseClass";
 
 export default class ResearchStudy extends DtoResearchStudy {
     static endpoints = {
@@ -19,6 +20,16 @@ export default class ResearchStudy extends DtoResearchStudy {
         this.api.appendWith = ['project'];
         this.api.appendCount = ['experiments'];
         this.showPage = ResearchStudy.endpoints.show;
+        this.showPageParams = this.identifier(this).route;
+    }
+
+    identifier(model?: DtoBaseClass): { id: string | number | null; route: string | number | null } {
+        const source: any = model ?? this;
+
+        return {
+            id: source?.id ?? null,
+            route: source?.code ?? source?.id ?? null,
+        };
     }
 
     createFields(): object {

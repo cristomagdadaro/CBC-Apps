@@ -1,0 +1,31 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('transaction_components', function (Blueprint $table) {
+            $table->foreignUuid('component_transaction_id')
+                ->nullable()
+                ->after('transaction_id')
+                ->constrained('transactions')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+
+            $table->index('component_transaction_id');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('transaction_components', function (Blueprint $table) {
+            $table->dropForeign(['component_transaction_id']);
+            $table->dropIndex(['component_transaction_id']);
+            $table->dropColumn('component_transaction_id');
+        });
+    }
+};

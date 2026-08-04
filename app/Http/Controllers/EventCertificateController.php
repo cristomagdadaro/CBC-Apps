@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\QueueCertificateGenerationRequest;
+use App\Events\CertificateBatchStatusUpdated;
 use App\Jobs\ProcessCertificateBatchJob;
 use App\Models\EventCertificateTemplate;
+use App\Models\NotificationLog;
 use App\Models\Form;
 use App\Models\EventSubformResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -70,6 +73,16 @@ class EventCertificateController extends BaseController
             'updated_at' => now()->toIso8601String(),
         ], now()->addHours(6));
 
+        event(new CertificateBatchStatusUpdated([
+            'event_id' => $event_id,
+            'batch_id' => $batchId,
+            'status' => 'queued',
+            'message' => 'Certificate request queued.',
+            'zip_path' => null,
+            'summary' => null,
+            'error' => null,
+        ]));
+
         try {
             ProcessCertificateBatchJob::dispatch(
                 eventId: $event_id,
@@ -108,6 +121,7 @@ class EventCertificateController extends BaseController
             ->select(['id', 'subform_type', 'response_data', 'submitted_at'])
             ->latest()
             ->get();
+        $deliveryStatusByRecipient = $this->buildRecipientDeliveryStatusMap($responses, $event_id);
 
         $columnSet = [];
         foreach ($responses as $response) {
@@ -145,12 +159,16 @@ class EventCertificateController extends BaseController
             'data' => [
                 'columns' => $columnSet,
                 'subform_types' => $responses->pluck('subform_type')->filter()->unique()->values(),
-                'recipients' => $responses->map(function (EventSubformResponse $response) {
+                'recipients' => $responses->map(function (EventSubformResponse $response) use ($deliveryStatusByRecipient) {
+                    $deliveryStatus = $deliveryStatusByRecipient[(string) $response->id] ?? null;
+
                     return [
                         'id' => $response->id,
                         'subform_type' => $response->subform_type,
                         'submitted_at' => optional($response->submitted_at)->toIso8601String(),
                         'response_data' => is_array($response->response_data) ? $response->response_data : [],
+                        'certificate_delivery_status' => $deliveryStatus['status'] ?? 'not_sent',
+                        'certificate_delivery_sent_at' => $deliveryStatus['sent_at'] ?? null,
                     ];
                 })->values(),
                 'template' => $template,
@@ -344,7 +362,10 @@ class EventCertificateController extends BaseController
         return $query
             ->get()
             ->map(function (EventSubformResponse $response) {
-                return is_array($response->response_data) ? $response->response_data : [];
+                $row = is_array($response->response_data) ? $response->response_data : [];
+                $row['RECIPIENT_RESPONSE_ID'] = (string) $response->id;
+
+                return $row;
             })
             ->filter(fn(array $row) => count($row) > 0)
             ->values()
@@ -463,6 +484,56 @@ class EventCertificateController extends BaseController
         }
 
         return $from->format('F j, Y') . ' - ' . $to->format('F j, Y');
+    }
+
+    private function buildRecipientDeliveryStatusMap(Collection $responses, string $eventId): array
+    {
+        $responseIds = $responses
+            ->pluck('id')
+            ->filter()
+            ->map(fn ($id) => (string) $id)
+            ->values()
+            ->all();
+
+        if ($responseIds === []) {
+            return [];
+        }
+
+        $responseIdLookup = array_fill_keys($responseIds, true);
+
+        $logs = NotificationLog::query()
+            ->where('domain', 'certificates.delivery')
+            ->where('payload_meta->event_id', $eventId)
+            ->orderByDesc('sent_at')
+            ->orderByDesc('failed_at')
+            ->orderByDesc('queued_at')
+            ->orderByDesc('created_at')
+            ->get(['status', 'sent_at', 'failed_at', 'queued_at', 'created_at', 'payload_meta']);
+
+        $statusMap = [];
+
+        foreach ($logs as $log) {
+            $recipientResponseId = (string) data_get($log->payload_meta, 'recipient_response_id', '');
+
+            if ($recipientResponseId === '' || !isset($responseIdLookup[$recipientResponseId])) {
+                continue;
+            }
+
+            $candidateTimestamp = $log->sent_at ?? $log->failed_at ?? $log->queued_at ?? $log->created_at;
+            $existingTimestamp = $statusMap[$recipientResponseId]['timestamp'] ?? null;
+
+            if ($existingTimestamp && $candidateTimestamp && $candidateTimestamp->lessThanOrEqualTo($existingTimestamp)) {
+                continue;
+            }
+
+            $statusMap[$recipientResponseId] = [
+                'status' => (string) $log->status,
+                'sent_at' => optional($log->sent_at)->toIso8601String(),
+                'timestamp' => $candidateTimestamp,
+            ];
+        }
+
+        return $statusMap;
     }
 
     private function cacheKey(string $batchId): string

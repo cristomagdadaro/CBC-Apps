@@ -8,6 +8,7 @@ use App\Http\Requests\Laboratory\LaboratoryReportLocationRequest;
 use App\Http\Requests\Laboratory\LaboratoryUpdateEndUseRequest;
 use App\Services\Laboratory\LaboratoryLogService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ICTEquipmentController extends BaseController
 {
@@ -109,12 +110,17 @@ class ICTEquipmentController extends BaseController
         ]);
     }
 
-    public function activeEquipments($employee_id = null): JsonResponse
+    public function activeEquipments(Request $request, ?string $employee_id = null): JsonResponse
     {
         $this->logService->markOverdue();
 
         return response()->json([
-            'data' => $this->logService->getActiveEquipment($employee_id, 'ict'),
+            'data' => $this->logService->getActiveEquipment($this->resolveActiveEmployeeFilter($request, $employee_id), 'ict'),
         ]);
+    }
+
+    private function resolveActiveEmployeeFilter(Request $request, ?string $requestedEmployeeId): ?string
+    {
+        return $requestedEmployeeId;
     }
 }

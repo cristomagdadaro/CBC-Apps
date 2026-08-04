@@ -57,15 +57,34 @@ export default {
     },
   },
   methods: {
+    applyServerForm(serverForm) {
+      if (!serverForm || !this.form) return;
+
+      Object.entries(serverForm).forEach(([key, value]) => {
+        this.form[key] = value;
+      });
+    },
+    async syncFormFromServer() {
+      if (!this.form?.event_id) return;
+
+      const response = await this.fetchGetApi("api.form.show", {
+        routeParams: this.form.event_id,
+      });
+
+      const serverForm = response?.data ?? response ?? null;
+      this.applyServerForm(serverForm);
+      this.setRequirements();
+    },
     async submitProxy() {
       this.isSaving = true;
       this.form.requirements = this.form.requirements || [];
       try {
         if (this.isEdit) {
           await this.submitUpdate();
-          this.setRequirements();
+          await this.syncFormFromServer();
         } else {
           await this.submitCreate();
+          await this.syncFormFromServer();
         }
       } finally {
         this.isSaving = false;
@@ -167,7 +186,7 @@ export default {
               <LuCopy class="w-4 h-4" />
             </button>
             <div class="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1" />
-            <suspend-form-btn v-if="isEdit" :form="form" />
+            <suspend-form-btn v-if="isEdit" :data="form" @updated="syncFormFromServer" />
             <button 
               @click="submitProxy" 
               :disabled="processing || isSaving"

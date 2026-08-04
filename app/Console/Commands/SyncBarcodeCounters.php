@@ -21,7 +21,7 @@ class SyncBarcodeCounters extends Command
         $roomMaxSequence = [];
         $invalidPatternCount = 0;
 
-        Transaction::query()
+        Transaction::withTrashed()
             ->whereNotNull('barcode')
             ->where('barcode', 'like', 'CBC-%')
             ->orderBy('id')
@@ -89,7 +89,7 @@ class SyncBarcodeCounters extends Command
             }
         }
 
-        $incomingDuplicates = Transaction::query()
+        $incomingDuplicates = Transaction::withTrashed()
             ->select('barcode', DB::raw('COUNT(*) as aggregate'))
             ->where('transac_type', Inventory::INCOMING->value)
             ->whereNotNull('barcode')

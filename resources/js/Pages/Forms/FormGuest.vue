@@ -287,7 +287,7 @@ export default {
         v-if="showTodayPanel && todayEvents && todayEvents.length"
         class="hidden md:block fixed left-4 top-1/2 -translate-y-1/2 z-[1000] pointer-events-auto"
     >
-        <div class="bg-white/95 text-gray-800 shadow-2xl rounded-2xl border border-AB/30 w-64 max-h-[80vh] flex flex-col backdrop-blur">
+        <div data-guide='form-cards' class="bg-white/95 text-gray-800 shadow-2xl rounded-2xl border border-AB/30 w-64 max-h-[80vh] flex flex-col backdrop-blur">
             <div class="px-4 py-3 border-b border-gray-100">
                 <p class="text-lg font-bold uppercase text-gray-500">Events</p>
                 <p class="text-xs text-gray-400">{{ todayEvents.length }} ongoing</p>
@@ -328,9 +328,10 @@ export default {
         :title="'Event Forms'"
         :subtitle="'For the event id, kindly check the invitation or ask the organizers.'"
         :delay-ready="delayReady"
+        guide-key="event-forms-guest"
         :max-width="'max-w-2xl'">
         <template #search>
-            <form v-if="!eventForm" class="flex gap-2 items-center pr-2 bg-white md:rounded-md"  @submit.prevent="searchEvent">
+            <form v-if="!eventForm" data-guide="form-search" class="flex gap-2 items-center pr-2 bg-white md:rounded-md"  @submit.prevent="searchEvent">
                 <div class="flex flex-col w-full items-center gap-3">
                     <div class="flex flex-row w-full items-center justify-between py-2 pl-2">
                         <input
@@ -494,7 +495,7 @@ export default {
     </transition>
 
         <!-- Cards row -->
-        <div class="flex gap-5 md:flex-row flex-col justify-center">
+        <div data-guide="form-cards" class="flex gap-5 md:flex-row flex-col justify-center">
             <transition-container :duration="300" type="pop-in">
                 <div v-if="eventFormFromApi?.data?.length">
                     <guest-card

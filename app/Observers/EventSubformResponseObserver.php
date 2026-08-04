@@ -2,16 +2,12 @@
 
 namespace App\Observers;
 
+use App\Events\FormResponseChanged;
 use App\Models\EventSubformResponse;
 use App\Models\Participant;
-use App\Mail\EventSubformResponseNotification;
-use App\Repositories\OptionRepo;
-use Illuminate\Support\Facades\Mail;
 
 class EventSubformResponseObserver
 {
-    public function __construct(private OptionRepo $optionRepo) {}
-
     /**
      * Subform types that insert/update participant data
      */
@@ -27,12 +23,11 @@ class EventSubformResponseObserver
      */
     public function created(EventSubformResponse $response)
     {
-        $notificationEmail = $this->optionRepo->getEventResponseNotificationEmail();
-        if (empty($notificationEmail)) {
-            return;
+        $eventId = $response->parent()->withTrashed()->value('event_id');
+
+        if ($eventId) {
+            event(new FormResponseChanged($response, 'created', (string) $eventId));
         }
-        Mail::to($notificationEmail)
-            ->send(new EventSubformResponseNotification($response));
     }
 
     /**
@@ -41,6 +36,12 @@ class EventSubformResponseObserver
      */
     public function updated(EventSubformResponse $response): void
     {
+        $eventId = $response->parent()->withTrashed()->value('event_id');
+
+        if ($eventId) {
+            event(new FormResponseChanged($response, 'updated', (string) $eventId));
+        }
+
         // Only sync if this is a subform type that contains participant data
         if (!$this->shouldSyncParticipant($response)) {
             return;

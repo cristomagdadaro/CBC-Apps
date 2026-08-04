@@ -1,0 +1,13 @@
+{
+  "appId": "com.onecbc.app",
+  "appName": "OneCBC",
+  "webDir": "public",
+  "server": {
+    "url": "https://onecbc.philrice.gov.ph",
+    "hostname": "onecbc.philrice.gov.ph",
+    "cleartext": true,
+    "allowNavigation": [
+      "onecbc.philrice.gov.ph"
+    ]
+  }
+}

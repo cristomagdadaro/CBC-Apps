@@ -7,7 +7,6 @@ import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import UseRequestApprovalBtn from "@/Pages/LabRequest/components/UseRequestApprovalBtn.vue";
 import { extractRequestErrorMessage, normalizeRequestDisplayText } from "@/Pages/LabRequest/utils/requestErrorUtils";
 import {
-    Printer,
     X,
     Calendar,
     Clock,
@@ -20,15 +19,21 @@ import {
     Microscope,
     AlertCircle,
     CheckCircle2,
-    XCircle,
-    Loader2
+    XCircle
 } from "lucide-vue-next";
+import InfoIcon from "@/Components/Icons/InfoIcon.vue";
 
 export default {
     name: "UseRequestCard",
+    props: {
+        data: {
+            type: Object,
+            required: true,
+        },
+    },
+    emits: ["deletedModel", "updated", "failedUpdate"],
     components: {
         UseRequestApprovalBtn,
-        Printer,
         X,
         Calendar,
         Clock,
@@ -41,8 +46,7 @@ export default {
         Microscope,
         AlertCircle,
         CheckCircle2,
-        XCircle,
-        Loader2
+        XCircle
     },
     mixins: [ApiMixin, DataFormatterMixin],
     data() {
@@ -51,10 +55,6 @@ export default {
             updatedData: null,
             errors: null,
             showModal: false,
-            showPrintModal: false,
-            printProgress: 0,
-            isPrinting: false,
-            printError: null,
         }
     },
     computed: {
@@ -76,6 +76,27 @@ export default {
                     icon: CheckCircle2,
                     label: 'Approved'
                 },
+                released: {
+                    color: 'text-blue-700',
+                    bgColor: 'bg-blue-50',
+                    borderColor: 'border-blue-200',
+                    icon: Package,
+                    label: 'Released'
+                },
+                returned: {
+                    color: 'text-slate-700',
+                    bgColor: 'bg-slate-100',
+                    borderColor: 'border-slate-200',
+                    icon: CheckCircle2,
+                    label: 'Returned'
+                },
+                overdue: {
+                    color: 'text-orange-700',
+                    bgColor: 'bg-orange-50',
+                    borderColor: 'border-orange-200',
+                    icon: AlertCircle,
+                    label: 'Overdue'
+                },
                 rejected: {
                     color: 'text-rose-600',
                     bgColor: 'bg-rose-50',
@@ -91,7 +112,7 @@ export default {
                     label: 'Pending'
                 }
             };
-            return configs[this.formsData?.request_status] || configs.pending;
+            return configs[this.formsData?.display_status] || configs.pending;
         },
         hasItems() {
             const rf = this.formsData?.requestForm;
@@ -106,88 +127,25 @@ export default {
         },
         requesterInitial() {
             return this.requesterDisplayName.charAt(0).toUpperCase() || '?';
+        },
+        lifecycleHint() {
+            if (this.formsData?.is_overdue && this.formsData?.schedule_end_at) {
+                return `Overdue since ${this.formatDate(this.formsData.schedule_end_at)}`;
+            }
+            if (this.formsData?.returned_at) {
+                return `Returned ${this.formatDate(this.formsData.returned_at)}`;
+            }
+            if (this.formsData?.released_at) {
+                return `Released ${this.formatDate(this.formsData.released_at)}`;
+            }
+            if (this.formsData?.approved_at) {
+                return `Approved ${this.formatDate(this.formsData.approved_at)}`;
+            }
+
+            return null;
         }
     },
     methods: {
-        async handlePrint() {
-            if (!this.formsData?.id || this.isPrinting) return;
-
-            this.printError = null;
-            this.printProgress = 0;
-            this.isPrinting = true;
-            this.showPrintModal = true;
-
-            const baseUrl = this.formsData?.pdf_url || route('forms.generate.pdf', this.formsData.id);
-            const prefetchUrl = `${baseUrl}?prefetch=1`;
-
-            let progressTimer = null;
-            try {
-                progressTimer = setInterval(() => {
-                    if (this.printProgress < 90) {
-                        this.printProgress += Math.random() * 15 + 5;
-                        if (this.printProgress > 90) this.printProgress = 90;
-                    }
-                }, 400);
-
-                const response = await axios.get(prefetchUrl);
-
-                if (response?.data?.ready) {
-                    this.printProgress = 100;
-                    const targetUrl = response.data.download_url ?? response.data.url;
-
-                    const pdfResponse = await axios.get(targetUrl, { responseType: 'blob' });
-                    const contentType = (pdfResponse.headers?.['content-type'] ?? '').toLowerCase();
-
-                    if (!contentType.includes('application/pdf')) {
-                        const rawBlob = pdfResponse.data instanceof Blob
-                            ? pdfResponse.data
-                            : new Blob([pdfResponse.data]);
-
-                        let errorMessage = 'Failed to render PDF. Please try again.';
-                        try {
-                            const text = await rawBlob.text();
-                            const parsed = JSON.parse(text);
-                            errorMessage = parsed?.message || errorMessage;
-                        } catch {
-                            // keep default error message
-                        }
-
-                        throw new Error(errorMessage);
-                    }
-
-                    const blob = pdfResponse.data instanceof Blob
-                        ? pdfResponse.data
-                        : new Blob([pdfResponse.data], { type: 'application/pdf' });
-                    const url = window.URL.createObjectURL(blob);
-
-                    const disposition = pdfResponse.headers?.['content-disposition'] ?? '';
-                    const match = disposition.match(/filename="?([^";]+)"?/i);
-                    const filename = match?.[1] ?? 'request-form.pdf';
-
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = filename;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    window.URL.revokeObjectURL(url);
-
-                    // Auto-close after successful download
-                    setTimeout(() => {
-                        this.isPrinting = false;
-                        this.showPrintModal = false;
-                        this.printProgress = 0;
-                    }, 500);
-                } else {
-                    throw new Error('PDF is not ready yet. Please try again.');
-                }
-            } catch (error) {
-                this.printError = extractRequestErrorMessage(error, 'Failed to render PDF. Please try again.');
-                this.printProgress = 0;
-            } finally {
-                if (progressTimer) clearInterval(progressTimer);
-            }
-        },
         openDetails() {
             this.showModal = true;
         },
@@ -240,102 +198,49 @@ export default {
             >
 
                 <!-- Left: User Info -->
-                <div class="flex-1 min-w-0 space-y-3">
-                    <div class="flex items-center gap-3">
+                <div class="flex flex-col items-end gap-1.5">
+                    <div class="flex items-start gap-2">
                         <div
                             class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold text-sm">
                             {{ requesterInitial }}
                         </div>
-                        <div class="min-w-0">
+                        <div class="flex flex-col items-start gap-1">
                             <h3 class="font-semibold text-gray-900 truncate">
                                 {{ requesterDisplayName }}
                             </h3>
-                            <p class="text-sm text-gray-500 flex items-center gap-1.5">
+                            <div class="text-xs text-gray-500 flex items-center gap-1">
                                 <Briefcase class="w-3.5 h-3.5" />
                                 <span class="truncate">{{ displayText(formsData.requester?.position) }}</span>
-                                <span class="text-gray-300">•</span>
+                            </div>
+                            <div class="text-xs text-gray-500 flex items-center gap-1">
                                 <Building2 class="w-3.5 h-3.5" />
                                 <span class="truncate">{{ displayText(formsData.requester?.affiliation) }}</span>
-                            </p>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="flex items-center gap-4 text-sm text-gray-500">
-                        <span class="flex items-center gap-1.5">
-                            <Calendar class="w-4 h-4" />
-                            Created {{ formatDate(formsData.created_at) }}
-                        </span>
                     </div>
                 </div>
 
                 <!-- Right: Actions & Status -->
-                <div class="flex flex-col items-end gap-3">
-                    <!-- Print Button -->
-                    <button v-if="formsData.request_status !== 'pending'" type="button" @click.stop="handlePrint"
-                        :disabled="isPrinting"
-                        aria-label="Download request form PDF"
-                        class="group/btn inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
-                        <Printer class="w-4 h-4" :class="{ 'animate-pulse': isPrinting }" />
-                        <span>Print</span>
-                    </button>
-
+                <div class="flex flex-col items-end gap-1.5">
                     <!-- Status Badge -->
                     <div class="flex flex-col items-end gap-1">
                         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium border"
                             :class="[statusConfig.bgColor, statusConfig.color, statusConfig.borderColor]">
                             <component :is="statusConfig.icon" class="w-4 h-4" />
-                            {{ formsData.request_status }}
+                            {{ statusConfig.label }}
                         </span>
                         <span class="text-xs text-gray-400 flex items-center gap-1">
                             <Clock class="w-3 h-3" />
                             {{ formatDate(formsData.updated_at) }}
                         </span>
+                        <span v-if="lifecycleHint" class="text-xs text-right" :class="formsData?.is_overdue ? 'text-orange-600' : 'text-gray-500'">
+                            {{ lifecycleHint }}
+                        </span>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Hover Hint -->
-        <div class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <span class="text-xs text-gray-400">Click to view details</span>
         </div>
     </div>
-
-    <!-- Print Modal -->
-    <Modal :show="showPrintModal" :closeable="!isPrinting" @close="showPrintModal = false" max-width="sm">
-        <div class="p-6">
-            <div class="text-center">
-                <div class="mx-auto w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mb-4">
-                    <Loader2 v-if="!printError" class="w-6 h-6 text-blue-600 animate-spin" />
-                    <AlertCircle v-else class="w-6 h-6 text-red-600" />
-                </div>
-
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">
-                    {{ printError ? 'Download Failed' : 'Generating PDF' }}
-                </h3>
-
-                <div v-if="!printError" class="space-y-3">
-                    <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                        <div class="h-full bg-blue-600 transition-all duration-500 ease-out rounded-full"
-                            :style="{ width: `${Math.min(printProgress, 100)}%` }"></div>
-                    </div>
-                    <p class="text-sm text-gray-500">
-                        {{ printProgress < 100 ? 'Preparing your document...' : 'Download starting...' }} </p>
-                </div>
-
-                <div v-if="printError" class="mt-4">
-                    <p class="text-sm text-red-600 bg-red-50 rounded-lg p-3">
-                        {{ printError }}
-                    </p>
-                    <button @click="showPrintModal = false"
-                        aria-label="Close print dialog"
-                        class="mt-4 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">
-                        Close
-                    </button>
-                </div>
-            </div>
-        </div>
-    </Modal>
 
     <!-- Details Modal -->
     <Modal :show="showModal" :closeable="true" @close="closeModal" max-width="2xl">
@@ -348,7 +253,7 @@ export default {
                     </div>
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900">Request Details</h3>
-                        <p class="text-sm text-gray-500">Form #{{ formsData.id }}</p>
+                        <p class="text-xs text-gray-500">{{ formsData.id }}</p>
                     </div>
                 </div>
                 <button @click="closeModal" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
@@ -359,23 +264,70 @@ export default {
 
             <!-- Content -->
             <div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
-                <!-- Status Banner -->
-                <div class="flex items-center justify-between p-4 rounded-xl border"
-                    :class="[statusConfig.bgColor, statusConfig.borderColor]">
-                    <div class="flex items-center gap-3">
-                        <component :is="statusConfig.icon" class="w-5 h-5" :class="statusConfig.color" />
-                        <div>
-                            <p class="font-medium" :class="statusConfig.color">
-                                {{ statusConfig.label }}
-                            </p>
-                            <p class="text-sm text-gray-600">
-                                Last updated {{ formatDate(formsData.updated_at) }}
-                            </p>
+                <!-- Status Timeline -->
+                <div class="space-y-3">
+                    <h4 class="text-sm font-semibold text-gray-900 uppercase tracking-wider flex items-center gap-2">
+                        <Clock class="w-4 h-4" /> Request Timeline
+                    </h4>
+                    <div class="bg-gray-50 rounded-xl p-5 space-y-5 border border-gray-100 relative">
+                        <!-- Connecting Line Background -->
+                        <div class="absolute left-8 top-8 bottom-8 w-0.5 bg-gray-200" aria-hidden="true"></div>
+
+                        <!-- Submitted -->
+                        <div class="flex items-start gap-4 relative z-10">
+                            <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 border-2 border-white ring-2 ring-emerald-50">
+                                <CheckCircle2 class="w-4 h-4 text-emerald-600" />
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900 text-sm">Submitted</p>
+                                <p class="text-xs text-gray-500">{{ formatDate(formsData.created_at) }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Approved -->
+                        <div v-if="formsData.approved_at" class="flex items-start gap-4 relative z-10">
+                            <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 border-2 border-white ring-2 ring-emerald-50">
+                                <CheckCircle2 class="w-4 h-4 text-emerald-600" />
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900 text-sm">Approved <span v-if="formsData.approved_by" class="text-gray-500 font-normal ml-1">by {{ formsData.approved_by }}</span></p>
+                                <p class="text-xs text-gray-500">{{ formatDate(formsData.approved_at) }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Released -->
+                        <div v-if="formsData.released_at" class="flex items-start gap-4 relative z-10">
+                            <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center shrink-0 border-2 border-white ring-2 ring-blue-50">
+                                <Package class="w-4 h-4 text-blue-600" />
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900 text-sm">Released <span v-if="formsData.released_by" class="text-gray-500 font-normal ml-1">by {{ formsData.released_by }}</span></p>
+                                <p class="text-xs text-gray-500">{{ formatDate(formsData.released_at) }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Returned -->
+                        <div v-if="formsData.returned_at" class="flex items-start gap-4 relative z-10">
+                            <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center shrink-0 border-2 border-white ring-2 ring-slate-50">
+                                <CheckCircle2 class="w-4 h-4 text-slate-600" />
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900 text-sm">Returned <span v-if="formsData.returned_by" class="text-gray-500 font-normal ml-1">by {{ formsData.returned_by }}</span></p>
+                                <p class="text-xs text-gray-500">{{ formatDate(formsData.returned_at) }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Rejected -->
+                        <div v-if="formsData.request_status === 'rejected'" class="flex items-start gap-4 relative z-10">
+                            <div class="w-6 h-6 rounded-full bg-rose-100 flex items-center justify-center shrink-0 border-2 border-white ring-2 ring-rose-50">
+                                <XCircle class="w-4 h-4 text-rose-600" />
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900 text-sm">Rejected</p>
+                                <p class="text-xs text-gray-500">{{ formatDate(formsData.updated_at) }}</p>
+                            </div>
                         </div>
                     </div>
-                    <span v-if="formsData.approved_by" class="text-sm text-gray-600">
-                        by {{ formsData.approved_by }}
-                    </span>
                 </div>
 
                 <!-- Requester Info -->
@@ -389,6 +341,7 @@ export default {
                             <p class="font-medium text-gray-900">{{ requesterDisplayName }}</p>
                             <p class="text-sm text-gray-600">{{ displayText(formsData.requester?.position) }}</p>
                             <p class="text-sm text-gray-600">{{ displayText(formsData.requester?.affiliation) }}</p>
+                            <p v-if="formsData.requester?.philrice_id" class="text-sm text-gray-600">PhilRice ID: {{ formsData.requester.philrice_id }}</p>
                         </div>
                     </div>
 
@@ -418,13 +371,15 @@ export default {
 
                 <!-- Project Info -->
                 <div class="space-y-3">
-                    <h4 class="text-sm font-semibold text-gray-900 uppercase tracking-wider">Project Information</h4>
+                    <h4 class="text-sm font-semibold text-gray-900 uppercase tracking-wider flex items-center gap-2">
+                        <InfoIcon class="w-4 h-4" /> Other Information
+                    </h4>
                     <div class="bg-gray-50 rounded-lg p-4 space-y-3">
-                        <div>
+                        <div v-if="formsData.requestForm?.project_title">
                             <span class="text-sm text-gray-500">Title</span>
                             <p class="font-medium text-gray-900">{{ displayText(formsData.requestForm?.project_title) }}</p>
                         </div>
-                        <div>
+                        <div v-if="formsData.requestForm?.request_purpose">
                             <span class="text-sm text-gray-500">Purpose</span>
                             <p class="text-gray-700">{{ displayText(formsData.requestForm?.request_purpose) }}</p>
                         </div>
@@ -486,14 +441,7 @@ export default {
 
             <!-- Footer -->
             <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-3">
-                <button v-if="formsData.request_status !== 'pending'" @click="handlePrint" :disabled="isPrinting"
-                    aria-label="Print request form"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all disabled:opacity-50">
-                    <Printer class="w-4 h-4" />
-                    Print Form
-                </button>
-
-                <UseRequestApprovalBtn :data="formsData" />
+                <UseRequestApprovalBtn :data="formsData" @updated="refreshData" />
             </div>
         </div>
     </Modal>

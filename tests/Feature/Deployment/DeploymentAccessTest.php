@@ -5,13 +5,18 @@ namespace Tests\Feature\Deployment;
 use App\Models\Option;
 use App\Services\DeploymentAccessService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Inertia\Testing\AssertableInertia as Assert;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
+use Tests\WithTestRoles;
 
 class DeploymentAccessTest extends TestCase
 {
     use RefreshDatabase;
+    use WithTestRoles;
 
     protected function setUp(): void
     {
@@ -44,7 +49,7 @@ class DeploymentAccessTest extends TestCase
         $this->get('http://onecbc.philrice.gov.ph/inventory/outgoing')
             ->assertForbidden();
 
-        $this->getJson('http://onecbc.philrice.gov.ph/api/guest/equipments')
+        $this->getJson('http://onecbc.philrice.gov.ph/api/guest/lab/equipments')
             ->assertForbidden()
             ->assertJsonPath('required_access', DeploymentAccessService::ACCESS_LOCAL);
 
@@ -76,6 +81,27 @@ class DeploymentAccessTest extends TestCase
         $this->getJson('http://onecbc.philrice.gov.ph/__test/deployment/api-supplies')
             ->assertOk()
             ->assertJson(['ok' => true]);
+    }
+
+    public function test_internet_host_allows_personnel_registration_even_when_inventory_is_local_only(): void
+    {
+        Mail::fake();
+
+        $this->get('http://onecbc.philrice.gov.ph/personnel/register')
+            ->assertOk();
+
+        $this->postJson('http://onecbc.philrice.gov.ph/api/guest/inventory/personnel-registrations', [
+            'is_philrice_employee' => true,
+            'fname' => 'Ivy',
+            'mname' => 'M',
+            'lname' => 'Santos',
+            'suffix' => null,
+            'position' => 'Research Aide',
+            'phone' => '09170000000',
+            'address' => 'Science City of Munoz',
+            'email' => 'ivy.santos@example.test',
+            'employee_id' => '12-4555',
+        ])->assertCreated();
     }
 
     public function test_option_model_can_make_laboratory_dashboard_internet_only(): void
@@ -131,6 +157,7 @@ class DeploymentAccessTest extends TestCase
                 ->where('deployment_access.channel', DeploymentAccessService::CHANNEL_INTERNET)
                 ->where('deployment_access.services.equipment_logger', false)
                 ->where('deployment_access.services.forms', true)
+                ->where('deployment_access.services.personnel_registration', true)
                 ->where('deployment_access.services.supplies_checkout', false)
             );
     }
@@ -143,6 +170,7 @@ class DeploymentAccessTest extends TestCase
                 ->component('Welcome')
                 ->where('deployment_access.channel', DeploymentAccessService::CHANNEL_LOCAL)
                 ->where('deployment_access.services.equipment_logger', true)
+                ->where('deployment_access.services.personnel_registration', true)
                 ->where('deployment_access.services.rentals', true)
                 ->where('deployment_access.services.supplies_checkout', true)
             );
@@ -166,6 +194,59 @@ class DeploymentAccessTest extends TestCase
                     'deployment_access.modules.' . DeploymentAccessService::MODULE_SUPPLIES_CHECKOUT . '.access',
                     DeploymentAccessService::ACCESS_BOTH,
                 )
+            );
+    }
+
+    public function test_welcome_page_loads_module_access_snapshot_once_per_request(): void
+    {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $this->get('http://onecbc.philrice.gov.ph/')
+            ->assertOk();
+
+        $moduleAccessQueries = collect(DB::getQueryLog())
+            ->pluck('query')
+            ->filter(fn (string $query) => str_contains($query, 'from `options`') && str_contains($query, 'where `key` in'))
+            ->values();
+
+        DB::disableQueryLog();
+
+        $this->assertCount(
+            1,
+            $moduleAccessQueries,
+            'Deployment access options should be queried once per request.'
+        );
+    }
+
+    public function test_admin_can_access_local_only_web_module_on_internet_host(): void
+    {
+        $this->actingAs($this->createAdminUser());
+
+        $this->get('http://onecbc.philrice.gov.ph/__test/deployment/web-supplies')
+            ->assertOk();
+    }
+
+    public function test_admin_can_access_local_only_api_module_on_internet_host(): void
+    {
+        Sanctum::actingAs($this->createAdminUser());
+
+        $this->getJson('http://onecbc.philrice.gov.ph/__test/deployment/api-supplies')
+            ->assertOk()
+            ->assertJson(['ok' => true]);
+    }
+
+    public function test_admin_welcome_payload_keeps_local_only_services_visible_on_internet_host(): void
+    {
+        $this->actingAs($this->createAdminUser());
+
+        $this->get('http://onecbc.philrice.gov.ph/')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Welcome')
+                ->where('deployment_access.admin_bypass', true)
+                ->where('deployment_access.services.equipment_logger', true)
+                ->where('deployment_access.services.supplies_checkout', true)
             );
     }
 

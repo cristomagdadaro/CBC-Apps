@@ -23,6 +23,7 @@ abstract class TestCase extends BaseTestCase
 
         Config::set('app.url', 'http://localhost');
         Config::set('app.local_url', 'http://localhost');
+        Config::set('broadcasting.default', 'log');
     }
 
     protected function setUpTraits()
@@ -32,6 +33,7 @@ abstract class TestCase extends BaseTestCase
         $desiredBaseline = $this->desiredRefreshDatabaseBaseline();
 
         if (RefreshDatabaseState::$migrated && static::$refreshDatabaseBaseline !== $desiredBaseline) {
+            \Illuminate\Support\Facades\DB::purge();
             $this->artisan('migrate:fresh', $this->migrateFreshUsing());
             $this->app[Kernel::class]->setArtisan(null);
         }
@@ -71,6 +73,7 @@ abstract class TestCase extends BaseTestCase
             throw new RuntimeException('Failed to prepare testing database: ' . $exception->getMessage(), $exception->getCode(), $exception);
         }
 
+        \Illuminate\Support\Facades\DB::purge();
         static::$testingDatabaseCreated = true;
     }
 

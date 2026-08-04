@@ -13,6 +13,7 @@ export default class DtoBaseRequest implements IBaseRequest {
     filter_by_parent_id?: number;
     filter_by_parent_column?: string;
     scope_by?: string;
+    routeParams?: string | number | Record<string, any> | any[];
 
     appendWith?: string[];
     appendCount?: string[];
@@ -46,6 +47,7 @@ export default class DtoBaseRequest implements IBaseRequest {
         this.filter_by_parent_id = params.filter_by_parent_id;
         this.filter_by_parent_column = params.filter_by_parent_column;
         this.scope_by = params.scope_by;
+        this.routeParams = params.routeParams;
     }
 
     get getPerPage() {

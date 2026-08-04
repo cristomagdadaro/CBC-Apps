@@ -61,9 +61,7 @@ class ResearchSampleInventoryController extends BaseController
         ]);
 
         $payload = trim($validated['payload']);
-        $uid = str_contains($payload, '|')
-            ? trim(explode('|', $payload)[0])
-            : trim(str_replace('sample:', '', $payload));
+        $uid = $this->extractUidFromPayload($payload);
 
         $sample = $this->inventoryRepo->findByUid($uid, $request->user());
 
@@ -119,5 +117,41 @@ class ResearchSampleInventoryController extends BaseController
         return response()->json([
             'data' => $samples,
         ]);
+    }
+
+    public function show(string $uid, Request $request): JsonResponse
+    {
+        $sample = $this->inventoryRepo->findPassportByUid($uid, $request->user());
+
+        if (!$sample) {
+            return response()->json([
+                'message' => 'Sample not found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'data' => $sample,
+        ]);
+    }
+
+    private function extractUidFromPayload(string $payload): string
+    {
+        if (str_contains($payload, '|')) {
+            $firstSegment = trim(explode('|', $payload)[0]);
+
+            return trim(str_replace('sample:', '', $firstSegment));
+        }
+
+        if (str_starts_with($payload, 'http://') || str_starts_with($payload, 'https://')) {
+            $path = trim((string) parse_url($payload, PHP_URL_PATH), '/');
+            $segments = array_values(array_filter(explode('/', $path)));
+            $lastSegment = end($segments);
+
+            if ($lastSegment !== false && $lastSegment !== '') {
+                return (string) $lastSegment;
+            }
+        }
+
+        return trim(str_replace('sample:', '', $payload));
     }
 }

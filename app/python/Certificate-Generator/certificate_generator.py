@@ -646,11 +646,13 @@ def main(argv=None):
                     print('Generated:', res)
                     total_files += 1
                     attachment_path = pick_primary_output(res or {}, args.format)
+                    recipient_response_id = row.get('RECIPIENT_RESPONSE_ID', '')
                     manifest_records.append({
                         'sheet_name': sheet_name,
                         'row_index': int(idx),
                         'recipient_email': recipient_email,
                         'recipient_name': recipient_name,
+                        'recipient_response_id': str(recipient_response_id).strip() if recipient_response_id is not None else '',
                         'status': 'success',
                         'error_message': None,
                         'attachment_path': attachment_path,
@@ -661,11 +663,13 @@ def main(argv=None):
                     logging.error(f"Sheet: {sheet_name}, Row: {idx}, Error: {message}")
                     failed_count += 1
                     fallback_attachment = pick_primary_output(res or {}, args.format)
+                    recipient_response_id = row.get('RECIPIENT_RESPONSE_ID', '')
                     manifest_records.append({
                         'sheet_name': sheet_name,
                         'row_index': int(idx),
                         'recipient_email': recipient_email,
                         'recipient_name': recipient_name,
+                        'recipient_response_id': str(recipient_response_id).strip() if recipient_response_id is not None else '',
                         'status': 'fail',
                         'error_message': str(message),
                         'attachment_path': fallback_attachment,
@@ -676,11 +680,13 @@ def main(argv=None):
                 print(error_msg)
                 logging.error(error_msg)
                 failed_count += 1
+                recipient_response_id = row.get('RECIPIENT_RESPONSE_ID', '')
                 manifest_records.append({
                     'sheet_name': sheet_name,
                     'row_index': int(idx),
                     'recipient_email': recipient_email,
                     'recipient_name': recipient_name,
+                    'recipient_response_id': str(recipient_response_id).strip() if recipient_response_id is not None else '',
                     'status': 'fail',
                     'error_message': str(e),
                     'attachment_path': None,

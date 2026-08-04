@@ -17,6 +17,7 @@ export default {
         return {
             model: DtoBaseClass,
             form: null,
+            currentFormAction: null,
             toDelete: null,
             confirmDelete: false,
             processing: false,
@@ -56,6 +57,8 @@ export default {
             return useForm(payload);
         },
         setFormAction(action: string) {
+            this.currentFormAction = action;
+
             switch (action) {
                 case "create":
                     this.form = this.createFormWithRemember(this.model.createFields, action);
@@ -320,7 +323,7 @@ export default {
             }
         },
         resetField(def: Object) {
-            this.form = useForm(def);
+            this.form = this.createFormWithRemember(def, this.currentFormAction ?? 'create');
         }
     }
 }

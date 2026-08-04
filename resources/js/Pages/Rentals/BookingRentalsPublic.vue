@@ -1,5 +1,6 @@
 <script>
 import CalendarModule from "@/Components/CalendarModule.vue";
+import { subscribeToRealtimeChannels } from "@/Modules/realtime/subscriptions";
 
 export default {
     components: {
@@ -14,6 +15,8 @@ export default {
             venueRentals: [],
             searchKeyword: "",
             selectedMonth: "",
+            realtimeCleanup: null,
+            realtimeRefreshTimer: null,
 
             statusColors: {
                 pending: "#FBBF24",
@@ -131,6 +134,34 @@ export default {
     },
 
     methods: {
+        cleanupRealtime() {
+            if (typeof this.realtimeCleanup === "function") {
+                this.realtimeCleanup();
+            }
+
+            this.realtimeCleanup = null;
+        },
+        configureRealtime() {
+            this.cleanupRealtime();
+
+            this.realtimeCleanup = subscribeToRealtimeChannels([
+                {
+                    type: "public",
+                    channel: "public.rentals.calendar",
+                    event: "rentals.calendar.changed",
+                    handler: () => this.scheduleRealtimeRefresh(),
+                },
+            ]);
+        },
+        scheduleRealtimeRefresh() {
+            if (this.realtimeRefreshTimer) {
+                clearTimeout(this.realtimeRefreshTimer);
+            }
+
+            this.realtimeRefreshTimer = setTimeout(() => {
+                this.loadBookings();
+            }, 400);
+        },
         monthToLabel(monthKey) {
             const [year, month] = monthKey.split("-").map((v) => Number(v));
 
@@ -205,6 +236,14 @@ export default {
 
     mounted() {
         this.loadBookings();
+        this.configureRealtime();
+    },
+    beforeUnmount() {
+        if (this.realtimeRefreshTimer) {
+            clearTimeout(this.realtimeRefreshTimer);
+        }
+
+        this.cleanupRealtime();
     },
 };
 </script>
@@ -215,10 +254,11 @@ export default {
     <GuestFormPage
         title="Booking and Rentals"
         subtitle="Unified page for Vehicle Rental, Venue Rental, and Center Calendar visibility."
+        guide-key="rental-bookings-public"
         :delay-ready="true"
     >
         <div class="flex flex-col gap-4 w-full">
-            <div class="grid md:grid-cols-2 gap-3">
+            <div data-guide="rental-quick-links" class="grid md:grid-cols-2 gap-3">
                 <a
                     :href="route('rental.vehicle.guest')"
                     class="flex gap-2 items-center rounded-lg border border-gray-200 bg-white px-4 py-3 hover:bg-gray-50"
@@ -258,6 +298,7 @@ export default {
                     <input
                         v-model="searchKeyword"
                         type="text"
+                        data-guide='rental-calendar-search'
                         placeholder="Search by requester, event, type, or status"
                         class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-AB focus:ring-AB"
                     />

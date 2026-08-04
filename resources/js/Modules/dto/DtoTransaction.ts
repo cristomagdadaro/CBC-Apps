@@ -4,19 +4,10 @@ import DtoPersonnel from "@/Modules/dto/DtoPersonnel";
 import DtoUser from "@/Modules/dto/DtoUser";
 
 export default class DtoTransaction extends DtoBaseClass implements ITransaction{
-    components?: Array<{
-        item_id: string;
-        quantity: number | string;
-        unit?: string;
-        unit_price?: number | string;
-        total_cost?: number | string;
-        barcode_prri?: string;
-        prri_component_no?: string;
-        expiration?: string;
-        remarks?: string;
-    }>;
+    components?: Array<ITransaction>;
     barcode: string;
     barcode_prri: string;
+    parent_barcode?: string;
     item_id:string;
     transac_type: string;
     quantity: number;
@@ -29,8 +20,10 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
     expiration: string;
     remarks: string;
     project_code: string;
+    equipment_logger_mode?: string;
     par_no: string;
     condition: string;
+    actor_display_name?: string;
 
     item: IItem;
     user: IUser;
@@ -42,6 +35,7 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
         this.barcode = data?.barcode;
         this.components = data?.components ?? [];
         this.barcode_prri = data?.barcode_prri;
+        this.parent_barcode = data?.parent_barcode;
         this.item_id = data?.item_id;
         this.transac_type = data?.transac_type;
         this.quantity = data?.quantity;
@@ -54,8 +48,10 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
         this.expiration = data?.expiration;
         this.remarks = data?.remarks;
         this.project_code = data?.project_code;
+        this.equipment_logger_mode = data?.equipment_logger_mode;
         this.par_no = data?.par_no;
         this.condition = data?.condition;
+        this.actor_display_name = data?.actor_display_name;
 
         if (data?.item)
             this.item = new DtoItem(data?.item);
@@ -71,6 +67,7 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
             search: null,
             filter: null,
             filter_by: null,
+            storage_location_id: null,
             is_exact: false,
             page: 1,
             per_page: 25,
@@ -81,5 +78,9 @@ export default class DtoTransaction extends DtoBaseClass implements ITransaction
 
     get quantityWithUnit(): string {
         return `${this.quantity} ${this.unit}`;
+    }
+
+    get actorDisplayName(): string {
+        return this.actor_display_name || this.personnel?.fullName || this.user?.fullName || this.user?.name || '-';
     }
 }

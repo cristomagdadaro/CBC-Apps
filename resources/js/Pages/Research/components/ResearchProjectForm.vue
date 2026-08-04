@@ -8,37 +8,23 @@ export default {
     name: 'ResearchProjectForm',
     mixins: [ApiMixin],
     props: {
-        data: {
-            type: Object,
-            default: null,
-        },
-        catalog: {
-            type: Object,
-            default: () => ({}),
-        },
-        researchUsers: {
-            type: Array,
-            default: () => [],
-        },
-        showCancelButton: {
-            type: Boolean,
-            default: false,
-        },
-        showDeleteButton: {
-            type: Boolean,
-            default: false,
-        },
+        data: { type: Object, default: null },
+        catalog: { type: Object, default: () => ({}) },
+        researchUsers: { type: Array, default: () => [] },
+        showCancelButton: { type: Boolean, default: false },
+        showDeleteButton: { type: Boolean, default: false },
     },
     emits: ['cancel'],
     computed: {
-        isEdit() {
-            return !!this.data
-        },
+        isEdit() { return !!this.data },
         researchUserOptions() {
             return (this.researchUsers || []).map((user) => ({
                 value: user.id,
-                label: `${user.name} (${user.position})`,
+                label: `${user.name} - ${user.position}`,
             }))
+        },
+        projectRouteIdentifier() {
+            return this.data?.route_identifier || this.data?.funding_code || this.data?.code || this.data?.id || null
         },
     },
     beforeMount() {
@@ -48,130 +34,122 @@ export default {
     methods: {
         initializeForm() {
             const action = this.isEdit ? 'update' : 'create'
-            const payload = this.isEdit
-                ? this.model.updateFields(this.data)
-                : this.model.createFields()
-
+            const payload = this.isEdit ? this.model.updateFields(this.data) : this.model.createFields()
             this.form = this.createFormWithRemember(payload, action)
         },
         async submitProxy() {
-            const response = this.isEdit
-                ? await this.submitUpdate()
-                : await this.submitCreate()
-
+            const response = this.isEdit ? await this.submitUpdate() : await this.submitCreate()
             if (response instanceof DtoResponse) {
-                const projectId = response?.data?.data?.id ?? this.data?.id
-                router.visit(route('research.projects.show', projectId))
+                const project = response?.data?.data ?? this.data ?? {}
+                const identifier = project?.route_identifier || project?.funding_code || project?.code || project?.id || this.projectRouteIdentifier
+                router.visit(route('research.projects.show', identifier))
             }
         },
         async deleteProxy() {
-            if (!this.isEdit) {
-                return
-            }
-
-            if (!window.confirm('Delete this project and all of its studies, experiments, samples, and records?')) {
-                return
-            }
-
+            if (!this.isEdit || !window.confirm('Delete this project and all associated data? This cannot be undone.')) return
             this.toDelete = { id: this.data?.id }
             const response = await this.submitDelete()
-
-            if (response instanceof DtoResponse) {
-                router.visit(route('research.projects.index'))
-            }
+            if (response instanceof DtoResponse) router.visit(route('research.projects.index'))
         },
     },
 }
 </script>
 
 <template>
-    <form v-if="form" class="space-y-6 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm" @submit.prevent="submitProxy">
-        <div class="flex flex-wrap items-start justify-between gap-4 border-b border-gray-100 pb-5">
-            <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">{{ isEdit ? 'Update Project' : 'New Project' }}</p>
-                <h2 class="mt-2 text-2xl font-semibold text-gray-900">{{ isEdit ? 'Project update form' : 'Create research project' }}</h2>
-                <p class="mt-2 text-sm leading-6 text-gray-600">Capture the project profile before attaching studies, experiments, and sample monitoring work.</p>
-            </div>
-            <div class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
-                {{ isEdit ? 'Editing active project' : 'Create mode' }}
+    <form v-if="form" @submit.prevent="submitProxy" class="rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+        <div class="border-b border-slate-100 px-6 py-4">
+            <h3 class="text-lg font-semibold text-slate-900">
+                {{ isEdit ? 'Edit Project' : 'Create New Project' }}
+            </h3>
+            <p class="mt-1 text-sm text-slate-500">
+                {{ isEdit ? 'Update project details and settings.' : 'Define the project scope and leadership.' }}
+            </p>
+        </div>
+
+        <div class="p-6 space-y-6">
+            <div class="grid gap-6 md:grid-cols-2">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-slate-700">Project Title <span class="text-red-500">*</span></label>
+                    <input v-model="form.title" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="e.g., Drought Resistance Marker-Assisted Breeding" />
+                    <p v-if="form.errors.title" class="mt-1 text-xs text-red-600">{{ form.errors.title }}</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Primary Commodity</label>
+                    <input v-model="form.commodity" list="commodities" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Rice" />
+                    <datalist id="commodities">
+                        <option v-for="commodity in catalog.commodities || []" :key="commodity" :value="commodity" />
+                    </datalist>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Project Overall Budget</label>
+                    <div class="relative mt-1 rounded-md shadow-sm">
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <span class="text-slate-500 sm:text-sm">$</span>
+                        </div>
+                        <input v-model="form.overall_budget" type="number" min="0" step="0.01"
+                            class="block w-full rounded-lg border-slate-300 pl-7 pr-12 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="0.00" />
+                    </div>
+                    <p v-if="form.errors.overall_budget" class="mt-1 text-xs text-red-600">{{ form.errors.overall_budget }}</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Project Start Date</label>
+                    <input v-model="form.duration_start" type="date" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Project End Date</label>
+                    <input v-model="form.duration_end" type="date" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Funding Agency</label>
+                    <input v-model="form.funding_agency" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="e.g., DA-BAR" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Grant Code</label>
+                    <input v-model="form.funding_code" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="e.g., RTF-000-000" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Project Leader</label>
+                    <select v-model="form.project_leader_id"
+                        class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        <option value="">Select project leader...</option>
+                        <option v-for="opt in researchUserOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                    </select>
+                    <p v-if="form.errors.project_leader_id" class="mt-1 text-xs text-red-600">{{ form.errors.project_leader_id }}</p>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-slate-700">Research Objective</label>
+                    <textarea v-model="form.objective" rows="4"
+                        class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        placeholder="Describe the primary research goals, breeding targets, or experimental hypotheses..." />
+                    <p v-if="form.errors.objective" class="mt-1 text-xs text-red-600">{{ form.errors.objective }}</p>
+                </div>
             </div>
         </div>
 
-        <div class="grid gap-4 md:grid-cols-2">
-            <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-medium text-gray-700">Project title</label>
-                <input v-model="form.title" class="w-full rounded-xl border-gray-300" placeholder="Ex. Marker-assisted drought tolerance breeding" />
-                <p v-if="form.errors.title" class="mt-1 text-xs text-red-600">{{ form.errors.title }}</p>
-            </div>
-
-            <div>
-                <label class="mb-2 block text-sm font-medium text-gray-700">Primary commodity</label>
-                <input v-model="form.commodity" list="research-project-form-commodity-options" class="w-full rounded-xl border-gray-300" placeholder="Rice" />
-            </div>
-
-            <div>
-                <label class="mb-2 block text-sm font-medium text-gray-700">Overall budget</label>
-                <input v-model="form.overall_budget" type="number" min="0" step="0.01" class="w-full rounded-xl border-gray-300" placeholder="0.00" />
-                <p v-if="form.errors.overall_budget" class="mt-1 text-xs text-red-600">{{ form.errors.overall_budget }}</p>
-            </div>
-
-            <div>
-                <label class="mb-2 block text-sm font-medium text-gray-700">Duration start</label>
-                <input v-model="form.duration_start" type="date" class="w-full rounded-xl border-gray-300" />
-                <p v-if="form.errors.duration_start" class="mt-1 text-xs text-red-600">{{ form.errors.duration_start }}</p>
-            </div>
-
-            <div>
-                <label class="mb-2 block text-sm font-medium text-gray-700">Duration end</label>
-                <input v-model="form.duration_end" type="date" class="w-full rounded-xl border-gray-300" />
-                <p v-if="form.errors.duration_end" class="mt-1 text-xs text-red-600">{{ form.errors.duration_end }}</p>
-            </div>
-
-            <div>
-                <label class="mb-2 block text-sm font-medium text-gray-700">Funding agency</label>
-                <input v-model="form.funding_agency" class="w-full rounded-xl border-gray-300" placeholder="Agency or donor" />
-                <p v-if="form.errors.funding_agency" class="mt-1 text-xs text-red-600">{{ form.errors.funding_agency }}</p>
-            </div>
-
-            <div>
-                <label class="mb-2 block text-sm font-medium text-gray-700">Funding code</label>
-                <input v-model="form.funding_code" class="w-full rounded-xl border-gray-300" placeholder="Code or grant number" />
-                <p v-if="form.errors.funding_code" class="mt-1 text-xs text-red-600">{{ form.errors.funding_code }}</p>
-            </div>
-
-            <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-medium text-gray-700">Project leader</label>
-                <select v-model="form.project_leader_id" class="w-full rounded-xl border-gray-300">
-                    <option value="">Select a research user</option>
-                    <option v-for="option in researchUserOptions" :key="option.value" :value="option.value">
-                        {{ option.label }}
-                    </option>
-                </select>
-                <p class="mt-2 text-xs text-gray-500">Options are limited to users with Researcher or Research Supervisor roles.</p>
-                <p v-if="form.errors.project_leader_id" class="mt-1 text-xs text-red-600">{{ form.errors.project_leader_id }}</p>
-            </div>
-
-            <div class="md:col-span-2">
-                <label class="mb-2 block text-sm font-medium text-gray-700">Objective</label>
-                <textarea v-model="form.objective" rows="5" class="w-full rounded-xl border-gray-300" placeholder="Summarize the major objective, breeding goal, or experimental direction." />
-                <p v-if="form.errors.objective" class="mt-1 text-xs text-red-600">{{ form.errors.objective }}</p>
-            </div>
-        </div>
-
-        <div class="flex flex-wrap justify-end gap-3">
-            <button v-if="showCancelButton" type="button" class="rounded-xl border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" @click="$emit('cancel')">
+        <div class="flex items-center justify-end gap-3 border-t border-slate-100 px-6 py-4 bg-slate-50 rounded-b-xl">
+            <button v-if="showCancelButton" type="button" @click="$emit('cancel')"
+                class="inline-flex items-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 Cancel
             </button>
-            <button v-if="isEdit && showDeleteButton" type="button" :disabled="processing" class="rounded-xl border border-red-200 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50" @click="deleteProxy">
-                Delete Project
+            <button v-if="isEdit && showDeleteButton" type="button" :disabled="processing" @click="deleteProxy"
+                class="inline-flex items-center rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-700 shadow-sm hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                <LuTrash2 class="mr-2 h-4 w-4" />
+                Delete
             </button>
-            <button :disabled="processing" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">
-                {{ processing ? 'Saving...' : (isEdit ? 'Save Project' : 'Create Project') }}
+            <button type="submit" :disabled="processing"
+                class="inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                <LuLoader2 v-if="processing" class="mr-2 h-4 w-4 animate-spin" />
+                <LuSave v-else class="mr-2 h-4 w-4" />
+                {{ processing ? 'Saving...' : (isEdit ? 'Save Changes' : 'Create Project') }}
             </button>
         </div>
-
-        <datalist id="research-project-form-commodity-options">
-            <option v-for="commodity in catalog.commodities || []" :key="commodity" :value="commodity" />
-        </datalist>
     </form>
 </template>

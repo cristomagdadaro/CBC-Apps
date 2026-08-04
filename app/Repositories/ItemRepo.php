@@ -21,6 +21,7 @@ class ItemRepo extends AbstractRepoService
         return $this->model
             ->newQuery()
             ->selectRaw('id as name, CONCAT(name, " (", COALESCE(brand, ""), IF(description != "", CONCAT(" - ", description), ""), ")") as label')
+            ->orderBy('label', 'ASC')
             ->get();
     }
 }

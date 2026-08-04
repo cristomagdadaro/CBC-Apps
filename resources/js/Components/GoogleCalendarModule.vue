@@ -1,6 +1,7 @@
 <script>
 import CalendarModule from '@/Components/CalendarModule.vue'
 import ApiMixin from '@/Modules/mixins/ApiMixin'
+import { subscribeToRealtimeChannels } from '@/Modules/realtime/subscriptions'
 
 export default {
     name: 'GoogleCalendarModule',
@@ -55,6 +56,8 @@ export default {
             syncingVisible: false,
             syncingEventIds: [],
             disconnectingOauth: false,
+            realtimeCleanup: null,
+            realtimeRefreshTimer: null,
         }
     },
     computed: {
@@ -112,6 +115,14 @@ export default {
     mounted() {
         this.handleOAuthNotice()
         this.loadGoogleEvents()
+        this.configureRealtime()
+    },
+    beforeUnmount() {
+        if (this.realtimeRefreshTimer) {
+            clearTimeout(this.realtimeRefreshTimer)
+        }
+
+        this.cleanupRealtime()
     },
     methods: {
         handleOAuthNotice() {
@@ -325,6 +336,55 @@ export default {
             }
 
             window.open(url, '_blank', 'noopener')
+        },
+        cleanupRealtime() {
+            if (typeof this.realtimeCleanup === 'function') {
+                this.realtimeCleanup()
+            }
+
+            this.realtimeCleanup = null
+        },
+        scheduleRealtimeRefresh() {
+            if (this.realtimeRefreshTimer) {
+                clearTimeout(this.realtimeRefreshTimer)
+            }
+
+            this.realtimeRefreshTimer = setTimeout(() => {
+                this.loadGoogleEvents()
+            }, 400)
+        },
+        configureRealtime() {
+            this.cleanupRealtime()
+
+            this.realtimeCleanup = subscribeToRealtimeChannels([
+                {
+                    type: 'private',
+                    channel: 'rentals.calendar',
+                    event: 'rentals.calendar.sync-status',
+                    feature: 'calendar_sync',
+                    handler: (payload) => {
+                        this.scheduleRealtimeRefresh()
+
+                        if (
+                            typeof window === 'undefined'
+                            || !payload?.message
+                            || this.syncingVisible
+                            || this.syncingEventIds.length
+                        ) {
+                            return
+                        }
+
+                        window.dispatchEvent(
+                            new CustomEvent('cbc:notify', {
+                                detail: {
+                                    type: payload.status === 'failed' ? 'error' : 'success',
+                                    message: payload.message,
+                                },
+                            }),
+                        )
+                    },
+                },
+            ])
         },
     },
 }

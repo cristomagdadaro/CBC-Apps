@@ -57,16 +57,6 @@ class TransactionsTest extends TestCase
             'remarks' => 'Incoming test',
             'project_code' => 'PC-1000',
             'personnel_id' => $personnel->id,
-            'components' => [
-                [
-                    'item_id' => $componentItem->id,
-                    'quantity' => 2,
-                    'unit' => 'pc',
-                    'prri_component_no' => '12',
-                    'expiration' => now()->addDays(15)->toDateString(),
-                    'remarks' => 'Attached monitor',
-                ],
-            ],
         ];
 
         $incomingResponse = $this->postJson(route('api.inventory.transactions.store'), $incomingPayload);
@@ -78,10 +68,34 @@ class TransactionsTest extends TestCase
             'id' => $incomingId,
             'transac_type' => Inventory::INCOMING->value,
         ]);
+
+        $componentBarcodeResponse = $this->getJson(route('api.inventory.transactions.genbarcode', ['room' => '01']));
+        $componentBarcodeResponse->assertOk();
+        $componentBarcode = $componentBarcodeResponse->json('data.barcode');
+
+        $componentPayload = [
+            'item_id' => $componentItem->id,
+            'barcode' => $componentBarcode,
+            'transac_type' => Inventory::INCOMING->value,
+            'quantity' => 2,
+            'unit_price' => 25,
+            'unit' => 'pc',
+            'total_cost' => 50,
+            'user_id' => $user->id,
+            'expiration' => now()->addDays(15)->toDateString(),
+            'remarks' => 'Attached monitor',
+            'project_code' => 'PC-1000',
+            'personnel_id' => $personnel->id,
+            'parent_barcode' => $barcode,
+        ];
+
+        $componentResponse = $this->postJson(route('api.inventory.transactions.store'), $componentPayload);
+        $componentResponse->assertStatus(201);
+        $componentId = $componentResponse->json('id');
+
         $this->assertDatabaseHas('transaction_components', [
             'transaction_id' => $incomingId,
-            'item_id' => $componentItem->id,
-            'prri_component_no' => '00012',
+            'component_transaction_id' => $componentId,
         ]);
 
         $outgoingPayload = [
@@ -116,18 +130,15 @@ class TransactionsTest extends TestCase
 
         $updatePayload = $incomingPayload;
         $updatePayload['quantity'] = 12;
-        $updatePayload['components'] = [
-            [
-                'item_id' => $componentItem->id,
-                'quantity' => 3,
-                'unit' => 'pc',
-                'prri_component_no' => '7',
-                'expiration' => now()->addDays(20)->toDateString(),
-                'remarks' => 'Updated attachment',
-            ],
-        ];
 
         $this->putJson(route('api.inventory.transactions.update', ['id' => $incomingId]), $updatePayload)
+            ->assertOk();
+
+        $componentUpdatePayload = $componentPayload;
+        $componentUpdatePayload['quantity'] = 3;
+        $componentUpdatePayload['remarks'] = 'Updated attachment';
+
+        $this->putJson(route('api.inventory.transactions.update', ['id' => $componentId]), $componentUpdatePayload)
             ->assertOk();
 
         $this->assertDatabaseHas('transactions', [
@@ -136,9 +147,12 @@ class TransactionsTest extends TestCase
         ]);
         $this->assertDatabaseHas('transaction_components', [
             'transaction_id' => $incomingId,
-            'item_id' => $componentItem->id,
+            'component_transaction_id' => $componentId,
+        ]);
+        $this->assertDatabaseHas('transactions', [
+            'id' => $componentId,
             'quantity' => 3,
-            'prri_component_no' => '00007',
+            'remarks' => 'Updated attachment',
         ]);
 
         $this->deleteJson(route('api.inventory.transactions.destroy', ['id' => $incomingId]))
@@ -181,10 +195,15 @@ class TransactionsTest extends TestCase
 
         TransactionComponent::query()->create([
             'transaction_id' => $transaction->id,
-            'item_id' => $componentItem->id,
-            'quantity' => 1,
-            'unit' => 'pc',
-            'prri_component_no' => '00001',
+            'component_transaction_id' => Transaction::factory()->create([
+                'item_id' => $componentItem->id,
+                'barcode' => 'CBC-23-000217',
+                'transac_type' => Inventory::INCOMING->value,
+                'quantity' => 1,
+                'unit' => 'pc',
+                'personnel_id' => $personnel->id,
+                'user_id' => $user->id,
+            ])->id,
         ]);
 
         $this->deleteJson(route('api.inventory.transactions.destroy', ['id' => $transaction->id]), [
@@ -201,5 +220,80 @@ class TransactionsTest extends TestCase
 
         $this->assertDatabaseMissing('transactions', ['id' => $transaction->id]);
         $this->assertDatabaseMissing('transaction_components', ['transaction_id' => $transaction->id]);
+    }
+
+    public function test_generated_incoming_barcode_does_not_reuse_soft_deleted_transaction_barcode(): void
+    {
+        $user = $this->createAdminUser();
+        Sanctum::actingAs($user);
+
+        $category = Category::factory()->create();
+        $supplier = Supplier::factory()->create();
+        $item = Item::factory()->create([
+            'category_id' => $category->id,
+            'supplier_id' => $supplier->id,
+        ]);
+        $personnel = Personnel::factory()->create([
+            'employee_id' => 'EMP-TRANSACTION-SOFT-DELETE',
+        ]);
+
+        $firstBarcode = $this->getJson(route('api.inventory.transactions.genbarcode', ['room' => '01']))
+            ->assertOk()
+            ->json('data.barcode');
+
+        $transaction = Transaction::factory()->create([
+            'item_id' => $item->id,
+            'barcode' => $firstBarcode,
+            'transac_type' => Inventory::INCOMING->value,
+            'quantity' => 1,
+            'unit' => 'pc',
+            'personnel_id' => $personnel->id,
+            'user_id' => $user->id,
+        ]);
+
+        $this->deleteJson(route('api.inventory.transactions.destroy', ['id' => $transaction->id]))
+            ->assertOk();
+
+        $nextBarcode = $this->getJson(route('api.inventory.transactions.genbarcode', ['room' => '01']))
+            ->assertOk()
+            ->json('data.barcode');
+
+        $this->assertNotSame($firstBarcode, $nextBarcode);
+        $this->assertSame(
+            ((int) substr($firstBarcode, -6)) + 1,
+            (int) substr($nextBarcode, -6)
+        );
+    }
+
+    public function test_public_transaction_index_exposes_actor_display_name_for_user_only_records(): void
+    {
+        $category = Category::factory()->create();
+        $supplier = Supplier::factory()->create();
+        $item = Item::factory()->create([
+            'category_id' => $category->id,
+            'supplier_id' => $supplier->id,
+        ]);
+        $user = User::factory()->create([
+            'name' => 'Recount Operator',
+        ]);
+
+        Transaction::factory()->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-23-000217',
+            'transac_type' => Inventory::OUTGOING->value,
+            'quantity' => 1,
+            'unit' => 'pc',
+            'personnel_id' => null,
+            'user_id' => $user->id,
+            'remarks' => 'Inventory adjustment via recounting.',
+        ]);
+
+        $this->getJson(route('api.inventory.transactions.index.public', [
+            'per_page' => 5,
+            'sort' => 'created_at',
+            'order' => 'desc',
+        ]))
+            ->assertOk()
+            ->assertJsonPath('data.0.actor_display_name', 'Recount Operator');
     }
 }

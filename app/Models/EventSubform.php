@@ -114,6 +114,7 @@ class EventSubform extends BaseModel
         $order = 0;
 
         foreach ($legacyRules as $fieldKey => $rule) {
+            $this->attributes['current_schema_field_key'] = $fieldKey;
             $schema[] = [
                 'field_key' => $fieldKey,
                 'field_type' => $this->inferFieldTypeFromRule($rule),
@@ -127,6 +128,7 @@ class EventSubform extends BaseModel
                 'is_system' => true,
             ];
         }
+        unset($this->attributes['current_schema_field_key']);
 
         return $schema;
     }
@@ -136,9 +138,18 @@ class EventSubform extends BaseModel
      */
     protected function inferFieldTypeFromRule(string $rule): string
     {
+        $fieldKey = (string) ($this->attributes['current_schema_field_key'] ?? '');
+
+        if ($fieldKey === 'region_address') return 'location_region';
+        if ($fieldKey === 'province_address') return 'location_province';
+        if ($fieldKey === 'city_address') return 'location_city';
+        if ($fieldKey === 'agreed_tc') return 'checkbox_agreement';
+        if ($fieldKey === 'agreed_updates') return 'checkbox_updates';
+
         if (str_contains($rule, 'email')) return 'email';
         if (str_contains($rule, 'integer') || str_contains($rule, 'numeric')) return 'number';
         if (str_contains($rule, 'boolean')) return 'checkbox';
+        if (str_contains($rule, 'accepted')) return 'checkbox_agreement';
         if (str_contains($rule, 'date')) return 'date';
         if (str_contains($rule, 'file') || str_contains($rule, 'image')) return 'file';
         if (str_contains($rule, 'in:')) return 'select';
@@ -151,6 +162,18 @@ class EventSubform extends BaseModel
      */
     protected function generateLabelFromKey(string $key): string
     {
+        $customLabels = [
+            'region_address' => 'Region Address',
+            'province_address' => 'Province Address',
+            'city_address' => 'City Address',
+            'agreed_tc' => 'I hereby certify that the information provided is true, correct, and complete. I authorize the Department of Agriculture – Crop Biotechnology Center (DA-CBC) to collect, process, store, update, and manage my personal data in accordance with Republic Act No. 10173 (Data Privacy Act of 2012) for legitimate purposes related to its programs and web applications.',
+            'agreed_updates' => 'I consent to receive official updates, announcements, and program-related communications from the DA–Crop Biotechnology Center through my registered email address, mobile number, and/or messaging applications.',
+        ];
+
+        if (isset($customLabels[$key])) {
+            return $customLabels[$key];
+        }
+
         return ucwords(str_replace(['_', '-'], ' ', $key));
     }
 
