@@ -213,10 +213,10 @@ class TransactionRepo extends AbstractRepoService
                 '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity,' .
                 ' MIN(CASE WHEN transactions.transac_type = "incoming" THEN transactions.expiration END) as expiration,' .
                 ' CASE ' .
-                '   WHEN MIN(CASE WHEN transactions.transac_type = "incoming" THEN transactions.expiration END) IS NULL THEN 4 ' .
-                '   WHEN MIN(CASE WHEN transactions.transac_type = "incoming" THEN transactions.expiration END) < CURDATE() THEN 1 ' .
-                '   WHEN MIN(CASE WHEN transactions.transac_type = "incoming" THEN transactions.expiration END) <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) THEN 2 ' .
-                '   ELSE 3 ' .
+                '   WHEN MIN(CASE WHEN transactions.transac_type = "incoming" THEN transactions.expiration END) IS NULL THEN 2 ' .
+                '   WHEN MIN(CASE WHEN transactions.transac_type = "incoming" THEN transactions.expiration END) < CURDATE() THEN 4 ' .
+                '   WHEN MIN(CASE WHEN transactions.transac_type = "incoming" THEN transactions.expiration END) <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) THEN 3 ' .
+                '   ELSE 1 ' .
                 ' END as expiration_priority'
             )->join('items', 'transactions.item_id', '=', 'items.id')
             ->whereNotNull('transactions.barcode')
