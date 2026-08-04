@@ -6,6 +6,7 @@ use App\Models\Form;
 use App\Repositories\FormRepo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class StyleCustomizationTest extends TestCase
 {
@@ -13,7 +14,7 @@ class StyleCustomizationTest extends TestCase
 
     protected $seeder = \Database\Seeders\DatabaseSeeder::class;
 
-    /** @test */
+    #[Test]
     public function guest_forms_include_persisted_style_tokens(): void
     {
         $styleTokens = [

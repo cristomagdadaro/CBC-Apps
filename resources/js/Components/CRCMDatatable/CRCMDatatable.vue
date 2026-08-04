@@ -16,24 +16,27 @@
 
         <!-- Top Bar: Filters & Actions -->
         <div
-            class="relative z-30 flex flex-col lg:flex-row gap-3 justify-between items-start lg:items-center bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm">
+            class="relative z-30 flex flex-col lg:flex-row gap-3 justify-between items-start lg:items-center bg-white dark:bg-slate-900 rounded-2xl p-3 sm:p-4 border border-gray-200 dark:border-slate-800 shadow-sm">
 
             <!-- Left: Filters Section -->
             <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto items-start sm:items-center flex-wrap">
                 <!-- Default Filters -->
-                <div class="flex flex-col sm:flex-row gap-2 w-full">
-                    <per-page :value="dt.request.getPerPage" @changePerPage="dt.perPageFunc({ per_page: $event })"
-                        :theme="colorPreset" />
+                <div class="flex flex-col sm:flex-row gap-2 w-full items-stretch sm:items-end">
+                    <!-- PerPage & SearchBy paired side-by-side on mobile -->
+                    <div class="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto">
+                        <per-page :value="dt.request.getPerPage" @changePerPage="dt.perPageFunc({ per_page: $event })"
+                            :theme="colorPreset" class="w-full" />
 
-                    <search-by :value="dt.request.getFilter" :is-exact="dt.request.getIsExact" :options="dt.columns"
-                        @isExact="dt.isExactFilter({ is_exact: $event })"
-                        @searchBy="dt.filterByColumn({ column: $event })" :theme="colorPreset" />
+                        <search-by :value="dt.request.getFilter" :is-exact="dt.request.getIsExact" :options="dt.columns"
+                            @isExact="dt.isExactFilter({ is_exact: $event })"
+                            @searchBy="dt.filterByColumn({ column: $event })" :theme="colorPreset" class="w-full" />
+                    </div>
 
                     <search-filter :value="dt.request.getSearch" @searchString="dt.searchFunc({ search: $event })"
-                        class="w-full" :theme="colorPreset" />
+                        class="w-full sm:flex-1" :theme="colorPreset" />
 
                     <scope-filter v-if="showScopeFilter" :value="dt.request.getScope"
-                        @change-scope-filter="dt.scopeBy({ 'scope_by': $event })" :theme="colorPreset" />
+                        @change-scope-filter="dt.scopeBy({ 'scope_by': $event })" :theme="colorPreset" class="w-full sm:w-auto" />
                 </div>
 
                 <!-- Custom Filters Slot -->
@@ -50,19 +53,18 @@
                     <top-action-btn @click="showThemeMenu = !showThemeMenu" :class="presetClasses.secondaryBtn"
                         title="Change Theme">
                         <template #icon>
-                            <palette-icon class="w-4 h-4 sm:w-5 sm:h-5" />
+                            <palette-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                         </template>
-                        <span v-show="showIconText">Theme</span>
                     </top-action-btn>
 
                     <!-- Theme Dropdown -->
                     <transition enter-active-class="transition ease-out duration-200"
                         enter-from-class="opacity-0 scale-95" enter-to-class="opacity-100 scale-100">
                         <div v-if="showThemeMenu"
-                            class="absolute right-0 mt-2 w-40 z-[80] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                            class="absolute right-0 mt-2 w-40 z-[80] bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-200 dark:border-slate-800 overflow-hidden">
                             <button v-for="(preset, key) in colorPresets" :key="key" @click="setColorPreset(key)"
-                                class="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-                                :class="{ 'bg-gray-50 dark:bg-gray-700/50': colorPreset === key }">
+                                class="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
+                                :class="{ 'bg-slate-50 dark:bg-slate-800/60': colorPreset === key }">
                                 <div class="w-3 h-3 rounded-full" :class="preset.indicator"></div>
                                 <span class="capitalize">{{ key }}</span>
                             </button>
@@ -77,65 +79,52 @@
                 <top-action-btn v-if="showActionBtns && canCreate" @click="handleCreateAction()"
                     :class="presetClasses.primaryBtn" title="Add new record">
                     <template #icon>
-                        <plus-icon class="w-4 h-4 sm:w-5 sm:h-5" />
+                        <plus-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                     </template>
-                    <span v-show="showIconText">Add</span>
                 </top-action-btn>
 
                 <top-action-btn @click="dt.refresh()"
                     :class="dt.processing ? 'opacity-75 cursor-not-allowed' : presetClasses.secondaryBtn"
                     :disabled="dt.processing" title="Refresh data">
                     <template #icon>
-                        <refresh-cw-icon class="w-4 h-4 sm:w-5 sm:h-5" :class="{ 'animate-spin': dt.processing }" />
+                        <refresh-cw-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5" :class="{ 'animate-spin': dt.processing }" />
                     </template>
-                    <span v-show="showIconText">Refresh</span>
                 </top-action-btn>
 
                 <top-action-btn v-if="canDelete && dataDb.length && dt.selected.length && showActionBtns"
                     @click="showDeleteSelectedDialogFunc()"
-                    class="bg-red-600 hover:bg-red-700 text-white shadow-red-200" title="Delete selected">
+                    class="bg-red-600 hover:bg-red-700 text-white shadow-red-200" :title="`Delete selected (${dt.selected.length})`">
                     <template #icon>
-                        <trash-2-icon class="w-4 h-4 sm:w-5 sm:h-5" />
+                        <trash-2-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                     </template>
-                    <span v-show="showIconText" class="hidden sm:inline">Delete ({{ dt.selected.length }})</span>
                 </top-action-btn>
 
                 <top-action-btn v-if="dataDb.length && showActionBtns" :class="presetClasses.ghostBtn"
                     @click="dt.selectAll()" :top-text="dt.selected.length || null" title="Select all visible">
                     <template #icon>
-                        <check-square-icon class="w-4 h-4 sm:w-5 sm:h-5" />
+                        <check-square-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                     </template>
-                    <span v-show="showIconText">Select All</span>
                 </top-action-btn>
 
                 <top-action-btn v-if="selected.length && dataDb.length && showActionBtns"
-                    :class="presetClasses.ghostBtn" @click="dt.deselectAll()" title="Clear selection">
+                    class="hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-600 dark:text-slate-300 transition-colors"
+                    @click="dt.deselectAll()" title="Clear selection">
                     <template #icon>
-                        <square-icon class="w-4 h-4 sm:w-5 sm:h-5" />
+                        <square-x-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5 text-red-500 dark:text-red-400" />
                     </template>
-                    <span v-show="showIconText">Clear</span>
                 </top-action-btn>
 
                 <top-action-btn v-if="dataDb.length && showActionBtns && canView" :class="presetClasses.secondaryBtn"
                     @click="dt.exportCSV()" title="Export CSV">
                     <template #icon>
-                        <file-down-icon class="w-4 h-4 sm:w-5 sm:h-5" />
+                        <file-down-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                     </template>
-                    <span v-show="showIconText">Export</span>
                 </top-action-btn>
 
                 <top-action-btn v-if="showActionBtns && canCreate" :class="presetClasses.secondaryBtn"
                     @click="showImportModal = true" title="Import CSV">
                     <template #icon>
-                        <upload-icon class="w-4 h-4 sm:w-5 sm:h-5" />
-                    </template>
-                    <span v-show="showIconText">Import</span>
-                </top-action-btn>
-
-                <top-action-btn @click="toggleIconText" :class="presetClasses.ghostBtn" title="Toggle labels">
-                    <template #icon>
-                        <type-icon v-if="!showIconText" class="w-4 h-4 sm:w-5 sm:h-5" />
-                        <toggle-right-icon v-else class="w-4 h-4 sm:w-5 sm:h-5" />
+                        <upload-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                     </template>
                 </top-action-btn>
             </action-container>
@@ -143,7 +132,7 @@
 
         <!-- Table Container -->
         <div id="dtTableContainer"
-            class="relative z-10 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            class="relative z-10 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
             <div v-if="actionWarnings.length" class="border-b border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
                 <p class="text-sm font-semibold">Action configuration warning</p>
                 <ul class="mt-2 list-disc pl-5 text-sm">
@@ -156,13 +145,13 @@
                 enter-to-class="opacity-100" leave-active-class="transition ease-in duration-150"
                 leave-from-class="opacity-100" leave-to-class="opacity-0">
                 <div v-if="dt.processing"
-                    class="absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm z-40 flex flex-col items-center justify-center gap-3">
+                    class="absolute inset-0 bg-white/90 dark:bg-slate-900/90 z-40 flex flex-col items-center justify-center gap-3">
                     <loader-2-icon class="w-10 h-10 animate-spin" :class="presetClasses.textPrimary" />
-                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Loading data...</span>
+                    <span class="text-sm font-medium text-slate-600 dark:text-slate-400">Loading data...</span>
                 </div>
             </transition>
 
-            <div class="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 z-10">
+            <div class="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-slate-700 z-10">
                 <table id="dtTable" class="w-full text-sm text-left">
                     <crcm-thead :class="presetClasses.headerBg">
                         <thead-row>
@@ -196,10 +185,10 @@
                         </thead-row>
                     </crcm-thead>
 
-                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    <tbody class="divide-y divide-gray-200 dark:divide-slate-800">
                         <template v-if="!dt.processing">
                             <tr v-if="dataDb.length === 0">
-                                <td :colspan="dt.model.getColumns().length + 2" class="p-8 text-center text-gray-500">
+                                <td :colspan="dt.model.getColumns().length + 2" class="p-8 text-center text-slate-500">
                                     <div class="flex flex-col items-center gap-2">
                                         <search-x-icon class="w-12 h-12 opacity-20" />
                                         <p class="font-medium">No records found</p>
@@ -209,25 +198,25 @@
                             </tr>
 
                             <tr v-for="row in dataDb" :key="row.id"
-                                class="group transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700 last:border-0"
+                                class="group transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 border-b border-gray-100 dark:border-slate-800 last:border-0"
                                 :class="[dt.isSelected(row.id) ? presetClasses.selectedRow : '']"
                                 @contextmenu.prevent="showContextMenu($event, row)">
 
                                 <!-- Selection Cell -->
                                 <td class="p-3 text-center">
                                     <div class="flex items-center justify-center gap-2">
-                                        <span class="text-xs text-gray-400 font-mono w-6 text-right">{{ meta_from +
+                                        <span class="text-xs text-slate-400 font-mono w-6 text-right">{{ meta_from +
                                             dataDb.indexOf(row) }}</span>
                                         <input type="checkbox" :checked="dt.isSelected(row.id)"
                                             :disabled="!isRowDeletable(row)" @click.stop="dt.addSelected(row.id)"
-                                            class="w-4 h-4 rounded border-gray-300 text-current focus:ring-offset-0 focus:ring-2 transition-all disabled:opacity-50"
+                                            class="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-current focus:ring-offset-0 focus:ring-2 transition-all disabled:opacity-50"
                                             :class="presetClasses.checkbox">
                                     </div>
                                 </td>
 
                                 <!-- Data Cells -->
                                 <td v-for="column in visibleColumns" :key="column.key"
-                                    class="p-3 text-gray-700 dark:text-gray-300 max-w-xs truncate"
+                                    class="p-3 text-slate-700 dark:text-slate-300 max-w-xs truncate"
                                     :class="[column.align || 'text-left', column.visible === false ? 'hidden' : '']"
                                     @dblclick="dt.addSelected(row.id)" @click.ctrl="dt.addSelected(row.id)">
                                     <slot :name="`cell-${column.key}`" :row="row"
@@ -239,31 +228,28 @@
                                 <!-- Actions Cell -->
                                 <td v-if="showActionBtns" class="p-3 text-right">
                                     <div
-                                        class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity sm:opacity-100">
-                                        <slot name="rowActions" :row="row" :showIconText="showIconText" />
+                                        class="flex items-center justify-end gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                        <slot name="rowActions" :row="row" />
 
                                         <button v-if="canView && resolveRowShowEndpoint(row)"
                                             @click="visitRowEndpoint(row, 'show')"
                                             class="p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 transition-colors"
                                             title="View">
-                                            <eye-icon class="w-4 h-4" />
-                                            <span v-if="showIconText" class="sr-only">View</span>
+                                            <eye-icon class="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                                         </button>
 
                                         <button v-if="canUpdate && isRowUpdatable(row) && resolveRowUpdateEndpoint(row)"
                                             @click="visitRowEndpoint(row, 'update')"
                                             class="p-1.5 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30 text-amber-600 dark:text-amber-400 transition-colors"
                                             title="Edit">
-                                            <file-edit-icon class="w-4 h-4" />
-                                            <span v-if="showIconText" class="sr-only">Edit</span>
+                                            <file-edit-icon class="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                                         </button>
 
                                         <button v-if="canDelete && isRowDeletable(row)"
                                             @click="showDeleteDialogFunc(row.id)"
                                             class="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors"
                                             title="Delete">
-                                            <trash-2-icon class="w-4 h-4" />
-                                            <span v-if="showIconText" class="sr-only">Delete</span>
+                                            <trash-2-icon class="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                                         </button>
                                     </div>
                                 </td>
@@ -275,7 +261,7 @@
 
             <!-- Footer Info -->
             <div
-                class="flex flex-col sm:flex-row justify-between items-center p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 text-xs text-gray-600 dark:text-gray-400 gap-2">
+                class="flex flex-col sm:flex-row justify-between items-center p-3 sm:p-4 border-t border-gray-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-xs text-slate-600 dark:text-slate-400 gap-2">
                 <div class="flex items-center gap-2">
                     <span>Showing <strong>{{ meta_from }}-{{ meta_to }}</strong> of <strong>{{ total_entries
                     }}</strong></span>
@@ -316,7 +302,7 @@
                             @keydown.enter="handlePageInput"
                             class="w-12 px-2 py-1 text-center text-xs border rounded-md focus:ring-2 focus:border-transparent bg-transparent"
                             :class="presetClasses.input">
-                        <span class="text-gray-400">/</span>
+                        <span class="text-slate-400">/</span>
                         <span class="text-xs font-medium">{{ total_pages }}</span>
                     </div>
 
@@ -334,32 +320,55 @@
             </div>
         </div>
 
+        <!-- Mobile Floating Selection Pill -->
+        <transition enter-active-class="transition-all duration-300 ease-out"
+            enter-from-class="opacity-0 translate-y-8" enter-to-class="opacity-100 translate-y-0"
+            leave-active-class="transition-all duration-200 ease-in"
+            leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-8">
+            <div v-if="dt.selected.length && showActionBtns"
+                class="fixed bottom-4 left-4 right-4 sm:hidden z-40 bg-slate-900/95 text-white border border-slate-800 shadow-2xl rounded-2xl p-2.5 flex items-center justify-between gap-2">
+                <span class="text-xs font-semibold px-2">
+                    {{ dt.selected.length }} selected
+                </span>
+                <div class="flex items-center gap-1.5">
+                    <button v-if="canDelete" @click="showDeleteSelectedDialogFunc()"
+                        class="px-3 py-1.5 bg-red-600 text-white rounded-xl text-xs font-semibold hover:bg-red-700 transition-colors">
+                        Delete
+                    </button>
+                    <button @click="dt.deselectAll()"
+                        class="px-2.5 py-1.5 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold hover:bg-slate-700 transition-colors">
+                        Clear
+                    </button>
+                </div>
+            </div>
+        </transition>
+
         <!-- Context Menu -->
         <context-menu ref="contextMenu" v-if="rowContextMenu" @close="rowContextMenu = null">
             <div
-                class="min-w-[160px] py-1 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
+                class="min-w-[160px] py-1 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-200 dark:border-slate-800">
                 <div
-                    class="px-3 py-2 text-xs font-semibold text-gray-500 border-b border-gray-100 dark:border-gray-700 mb-1">
+                    class="px-3 py-2 text-xs font-semibold text-slate-500 border-b border-gray-100 dark:border-slate-800 mb-1">
                     Actions
                 </div>
                 <slot name="rowActionsMenu" :row="rowContextMenu" />
 
                 <button v-if="canView && resolveRowShowEndpoint(rowContextMenu)"
                     @click="visitRowEndpoint(rowContextMenu, 'show')"
-                    class="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                    class="w-full px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-300">
                     <eye-icon class="w-4 h-4 text-blue-500" />
                     View Details
                 </button>
 
                 <button v-if="canUpdate && isRowUpdatable(rowContextMenu) && resolveRowUpdateEndpoint(rowContextMenu)"
                     @click="visitRowEndpoint(rowContextMenu, 'update')"
-                    class="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                    class="w-full px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-300">
                     <file-edit-icon class="w-4 h-4 text-amber-500" />
                     Edit Record
                 </button>
 
                 <div v-if="canDelete && isRowDeletable(rowContextMenu)"
-                    class="border-t border-gray-100 dark:border-gray-700 mt-1 pt-1">
+                    class="border-t border-gray-100 dark:border-slate-800 mt-1 pt-1">
                     <button @click="showDeleteDialogFunc(rowContextMenu.id); rowContextMenu = null"
                         class="w-full px-3 py-2 text-left text-sm hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 text-red-600">
                         <trash-2-icon class="w-4 h-4" />
@@ -457,7 +466,7 @@
 <script setup>
 // Lucide Icons - assuming globally registered or import specific ones
 import {
-    Plus, RefreshCw, Trash2, CheckSquare, Square, FileDown, Upload,
+    Plus, RefreshCw, Trash2, CheckSquare, Square, SquareX, FileDown, Upload,
     Eye, FileEdit, ChevronLeft, ChevronRight, Loader2, Search, Filter,
     Palette, Type, ToggleRight, ArrowUp, ArrowDown, MoreHorizontal,
     AlertCircle, AlertTriangle, Shield, SearchX
@@ -495,6 +504,7 @@ const icons = {
     Trash2Icon: Trash2,
     CheckSquareIcon: CheckSquare,
     SquareIcon: Square,
+    SquareXIcon: SquareX,
     FileDownIcon: FileDown,
     UploadIcon: Upload,
     EyeIcon: Eye,
@@ -534,7 +544,7 @@ export default {
         canView: { type: Boolean, default: false },
         rowCanUpdate: { type: Function, default: null },
         rowCanDelete: { type: Function, default: null },
-        defaultColorPreset: { type: String, default: 'emerald' },
+        defaultColorPreset: { type: String, default: 'lime' },
     },
     data() {
         return {
@@ -547,7 +557,6 @@ export default {
             toDeleteId: null,
             rowContextMenu: null,
             showThemeMenu: false,
-            showIconText: localStorage.getItem('dt_show_icon_text') !== 'false',
             colorPreset: localStorage.getItem('dt_color_preset') || this.defaultColorPreset,
             clickSortCtr: 0,
             realtimeCleanup: null,
@@ -559,75 +568,88 @@ export default {
     computed: {
         colorPresets() {
             return {
+                lime: {
+                    indicator: 'bg-lime-500',
+                    primaryBtn: 'bg-lime-600 hover:bg-lime-700 text-white shadow-sm',
+                    secondaryBtn: 'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200',
+                    ghostBtn: 'hover:bg-slate-100 text-slate-600 dark:hover:bg-slate-800 dark:text-slate-300',
+                    headerBg: 'bg-lime-50 dark:bg-lime-950/40 text-lime-950 dark:text-lime-200',
+                    selectedRow: 'bg-lime-50/70 dark:bg-lime-950/30',
+                    textPrimary: 'text-lime-600 dark:text-lime-400',
+                    checkbox: 'text-lime-600 focus:ring-lime-500',
+                    badge: 'bg-lime-600',
+                    input: 'border-slate-300 dark:border-slate-700 focus:ring-lime-500',
+                    container: ''
+                },
                 emerald: {
                     indicator: 'bg-emerald-500',
-                    primaryBtn: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-200 dark:shadow-emerald-900/20',
-                    secondaryBtn: 'bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200',
-                    ghostBtn: 'hover:bg-gray-100 text-gray-600 dark:hover:bg-gray-700 dark:text-gray-400',
-                    headerBg: 'bg-emerald-50/80 dark:bg-emerald-900/20 text-emerald-900 dark:text-emerald-100',
-                    selectedRow: 'bg-emerald-50 dark:bg-emerald-900/20',
-                    textPrimary: 'text-emerald-600',
+                    primaryBtn: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm',
+                    secondaryBtn: 'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200',
+                    ghostBtn: 'hover:bg-slate-100 text-slate-600 dark:hover:bg-slate-800 dark:text-slate-300',
+                    headerBg: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-200',
+                    selectedRow: 'bg-emerald-50 dark:bg-emerald-950/30',
+                    textPrimary: 'text-emerald-600 dark:text-emerald-400',
                     checkbox: 'text-emerald-600 focus:ring-emerald-500',
                     badge: 'bg-emerald-600',
-                    input: 'border-gray-300 focus:ring-emerald-500',
+                    input: 'border-slate-300 dark:border-slate-700 focus:ring-emerald-500',
                     container: ''
                 },
                 blue: {
                     indicator: 'bg-blue-500',
-                    primaryBtn: 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-200 dark:shadow-blue-900/20',
-                    secondaryBtn: 'bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200',
-                    ghostBtn: 'hover:bg-gray-100 text-gray-600 dark:hover:bg-gray-700 dark:text-gray-400',
-                    headerBg: 'bg-blue-50/80 dark:bg-blue-900/20 text-blue-900 dark:text-blue-100',
-                    selectedRow: 'bg-blue-50 dark:bg-blue-900/20',
-                    textPrimary: 'text-blue-600',
+                    primaryBtn: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm',
+                    secondaryBtn: 'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200',
+                    ghostBtn: 'hover:bg-slate-100 text-slate-600 dark:hover:bg-slate-800 dark:text-slate-300',
+                    headerBg: 'bg-blue-50 dark:bg-blue-950/40 text-blue-950 dark:text-blue-200',
+                    selectedRow: 'bg-blue-50 dark:bg-blue-950/30',
+                    textPrimary: 'text-blue-600 dark:text-blue-400',
                     checkbox: 'text-blue-600 focus:ring-blue-500',
                     badge: 'bg-blue-600',
-                    input: 'border-gray-300 focus:ring-blue-500',
+                    input: 'border-slate-300 dark:border-slate-700 focus:ring-blue-500',
                     container: ''
                 },
                 purple: {
                     indicator: 'bg-purple-500',
-                    primaryBtn: 'bg-purple-600 hover:bg-purple-700 text-white shadow-purple-200 dark:shadow-purple-900/20',
-                    secondaryBtn: 'bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200',
-                    ghostBtn: 'hover:bg-gray-100 text-gray-600 dark:hover:bg-gray-700 dark:text-gray-400',
-                    headerBg: 'bg-purple-50/80 dark:bg-purple-900/20 text-purple-900 dark:text-purple-100',
-                    selectedRow: 'bg-purple-50 dark:bg-purple-900/20',
-                    textPrimary: 'text-purple-600',
+                    primaryBtn: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm',
+                    secondaryBtn: 'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200',
+                    ghostBtn: 'hover:bg-slate-100 text-slate-600 dark:hover:bg-slate-800 dark:text-slate-300',
+                    headerBg: 'bg-purple-50 dark:bg-purple-950/40 text-purple-950 dark:text-purple-200',
+                    selectedRow: 'bg-purple-50 dark:bg-purple-950/30',
+                    textPrimary: 'text-purple-600 dark:text-purple-400',
                     checkbox: 'text-purple-600 focus:ring-purple-500',
                     badge: 'bg-purple-600',
-                    input: 'border-gray-300 focus:ring-purple-500',
+                    input: 'border-slate-300 dark:border-slate-700 focus:ring-purple-500',
                     container: ''
                 },
                 orange: {
                     indicator: 'bg-orange-500',
-                    primaryBtn: 'bg-orange-600 hover:bg-orange-700 text-white shadow-orange-200 dark:shadow-orange-900/20',
-                    secondaryBtn: 'bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200',
-                    ghostBtn: 'hover:bg-gray-100 text-gray-600 dark:hover:bg-gray-700 dark:text-gray-400',
-                    headerBg: 'bg-orange-50/80 dark:bg-orange-900/20 text-orange-900 dark:text-orange-100',
-                    selectedRow: 'bg-orange-50 dark:bg-orange-900/20',
-                    textPrimary: 'text-orange-600',
+                    primaryBtn: 'bg-orange-600 hover:bg-orange-700 text-white shadow-sm',
+                    secondaryBtn: 'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200',
+                    ghostBtn: 'hover:bg-slate-100 text-slate-600 dark:hover:bg-slate-800 dark:text-slate-300',
+                    headerBg: 'bg-orange-50 dark:bg-orange-950/40 text-orange-950 dark:text-orange-200',
+                    selectedRow: 'bg-orange-50 dark:bg-orange-950/30',
+                    textPrimary: 'text-orange-600 dark:text-orange-400',
                     checkbox: 'text-orange-600 focus:ring-orange-500',
                     badge: 'bg-orange-600',
-                    input: 'border-gray-300 focus:ring-orange-500',
+                    input: 'border-slate-300 dark:border-slate-700 focus:ring-orange-500',
                     container: ''
                 },
-                dark: {
-                    indicator: 'bg-gray-800',
-                    primaryBtn: 'bg-gray-800 hover:bg-gray-900 text-white shadow-gray-400 dark:shadow-black/20',
-                    secondaryBtn: 'bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-gray-200',
-                    ghostBtn: 'hover:bg-gray-200 text-gray-700 dark:hover:bg-gray-700 dark:text-gray-400',
-                    headerBg: 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100',
-                    selectedRow: 'bg-gray-100 dark:bg-gray-700/50',
-                    textPrimary: 'text-gray-800',
-                    checkbox: 'text-gray-800 focus:ring-gray-700',
-                    badge: 'bg-gray-800',
-                    input: 'border-gray-400 focus:ring-gray-700',
+                slate: {
+                    indicator: 'bg-slate-700',
+                    primaryBtn: 'bg-slate-800 hover:bg-slate-900 text-white shadow-sm',
+                    secondaryBtn: 'bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200',
+                    ghostBtn: 'hover:bg-slate-200 text-slate-700 dark:hover:bg-slate-800 dark:text-slate-300',
+                    headerBg: 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100',
+                    selectedRow: 'bg-slate-100 dark:bg-slate-800/60',
+                    textPrimary: 'text-slate-800 dark:text-slate-200',
+                    checkbox: 'text-slate-800 focus:ring-slate-700',
+                    badge: 'bg-slate-800',
+                    input: 'border-slate-300 dark:border-slate-700 focus:ring-slate-700',
                     container: ''
                 }
             };
         },
         presetClasses() {
-            return this.colorPresets[this.colorPreset] || this.colorPresets.emerald;
+            return this.colorPresets[this.colorPreset] || this.colorPresets.lime;
         },
         // ... other computed properties remain the same as original
         isAuthenticated() { return !!this.$page?.props?.auth?.user; },

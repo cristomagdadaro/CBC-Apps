@@ -4,9 +4,11 @@ import CreatePersonnelLink from "@/Pages/Inventory/Transactions/components/prese
 import IncommingTransactionLink from "@/Pages/Inventory/Transactions/components/presentation/IncommingTransactionLink.vue";
 import OutgoingTransactionLink from "@/Pages/Inventory/Transactions/components/presentation/OutgoingTransactionLink.vue";
 import PersonnelRegistrationLink from "@/Pages/Inventory/Transactions/components/presentation/PersonnelRegistrationLink.vue";
+import PrintApprovedIdsLink from "@/Pages/Inventory/Transactions/components/presentation/PrintApprovedIdsLink.vue";
+
 export default {
     name: "PersonnelHeaderActions",
-    components: {Link, CreatePersonnelLink, IncommingTransactionLink, OutgoingTransactionLink, PersonnelRegistrationLink}
+    components: {Link, CreatePersonnelLink, IncommingTransactionLink, OutgoingTransactionLink, PersonnelRegistrationLink, PrintApprovedIdsLink}
 }
 </script>
 
@@ -14,6 +16,7 @@ export default {
     <ActionHeaderLayout title="Registered Personnel" subtitle="Manage personnel and track their transactions." :route-link="route('personnels.index')">
         <PersonnelRegistrationLink />
         <CreatePersonnelLink />
+        <PrintApprovedIdsLink />
         <IncommingTransactionLink />
         <OutgoingTransactionLink />
     </ActionHeaderLayout>

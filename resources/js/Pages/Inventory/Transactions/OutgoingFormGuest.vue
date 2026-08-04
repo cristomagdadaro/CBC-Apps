@@ -9,6 +9,7 @@ import CameraScanner from "@/Components/CameraScanner.vue";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import OutgoingItemCard from "@/Pages/Inventory/Transactions/components/presentation/OutgoingItemCard.vue";
 import { subscribeToRealtimeChannels } from "@/Modules/realtime/subscriptions";
+import { Filter, ChevronDown, ChevronUp } from "lucide-vue-next";
 
 export default {
     name: "OutgoingFormGuest",
@@ -18,6 +19,9 @@ export default {
         RequesterGuestCard,
         TransactionHeaderAction,
         OutgoingItemCard,
+        Filter,
+        ChevronDown,
+        ChevronUp,
     },
     mixins: [ApiMixin, DataFormatterMixin],
     props: {
@@ -36,6 +40,7 @@ export default {
             delayReady: false,
             processing: false,
             showSuccessModal: false,
+            showFilters: false,
             successMessage: 'Your transaction has been recorded.',
             realtimeCleanup: null,
             realtimeRefreshTimer: null,
@@ -75,6 +80,12 @@ export default {
                     label: (new Personnel(personnel)).fullName,
                 }
             });
+        },
+        activeFilterCount() {
+            let count = 0;
+            if (this.form?.filter && this.form?.filter_by) count++;
+            if (this.form?.storage_location_id) count++;
+            return count;
         },
         // Override mixin's isExpired to avoid conflicts with item-level expiration checking
         isExpired() {
@@ -198,92 +209,83 @@ export default {
         :delay-ready="delayReady"
     >
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
-            <div class="border p-2 md:rounded-md flex flex-col gap-2 bg-white w-full h-full drop-shadow-lg mx-auto">
-                <div class="flex flex-col justify-start gap-2 w-full">
-                    <div data-guide="supplies-search" class="w-full flex gap-2 items-center lg:px-0">
-                        <text-input placeholder="Search..." v-model="form.search" @update:model-value="form.filter = null; form.is_exact = false;" @keydown.enter="searchEvent" />
-                        <search-btn @click="searchEvent" :disabled="model?.processing" class="text-center h-full">
-                            <span v-if="!model?.processing" class="hidden md:flex">Search</span>
-                            <span v-else class="hidden md:flex">Searching</span>
-                        </search-btn>
+            <div class="border border-slate-200 dark:border-slate-800 p-4 sm:p-5 rounded-2xl flex flex-col gap-4 bg-white dark:bg-slate-900 w-full max-w-7xl mx-auto shadow-xs text-slate-900 dark:text-slate-100">
+                <div class="flex flex-col justify-start gap-3 w-full">
+                    <!-- Search Bar & Collapsible Filter Toggle -->
+                    <div data-guide="supplies-search" class="w-full flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+                        <div class="flex-1 flex gap-2">
+                            <text-input placeholder="Search items, barcodes, descriptions..." v-model="form.search" @update:model-value="form.filter = null; form.is_exact = false;" @keydown.enter="searchEvent" class="w-full" />
+                            <search-btn @click="searchEvent" :disabled="model?.processing" class="text-center h-full px-5">
+                                <span v-if="!model?.processing">Search</span>
+                                <span v-else>Searching</span>
+                            </search-btn>
+                        </div>
+
+                        <!-- Filter Toggle Button -->
+                        <button
+                            type="button"
+                            @click="showFilters = !showFilters"
+                            class="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl border text-xs font-semibold transition-all shrink-0 active:scale-95"
+                            :class="showFilters || activeFilterCount > 0
+                                ? 'bg-lime-50 dark:bg-lime-950/40 border-lime-300 dark:border-lime-800 text-lime-700 dark:text-lime-300 shadow-xs'
+                                : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'"
+                        >
+                            <Filter class="w-4 h-4 text-lime-600 dark:text-lime-400" />
+                            <span>Filters</span>
+                            <span v-if="activeFilterCount > 0" class="px-1.5 py-0.5 rounded-full text-[0.65rem] font-bold bg-lime-600 text-white">
+                                {{ activeFilterCount }}
+                            </span>
+                            <component :is="showFilters ? ChevronUp : ChevronDown" class="w-4 h-4 text-slate-400" />
+                        </button>
                     </div>
-                    <div v-if="outgoingFromApi" class="flex flex-col w-full gap-2 items-center">
-                        <div data-guide='supplies-filters' class="grid grid-cols-2 md:grid-cols-5 gap-2 items-center w-full justify-center">
+
+                    <!-- Collapsible Dropdown Filter Drawer -->
+                    <transition-container type="pop-in">
+                        <div v-if="showFilters" data-guide='supplies-filters' class="grid grid-cols-2 md:grid-cols-5 gap-2 items-center w-full justify-center pt-3 pb-1 border-t border-slate-100 dark:border-slate-800">
                             <custom-dropdown :with-all-option="false" placeholder="Category" label="Filter by Category" @selectedChange="setFilter('category', $event)" :options="categories" />
-                            <custom-dropdown v-if="projectCodes"  placeholder="Project Code"  label="Filter by Project Code"  :options="projectCodes" @selectedChange="setFilter('project_code', $event)" />
+                            <custom-dropdown v-if="projectCodes" placeholder="Project Code" label="Filter by Project Code" :options="projectCodes" @selectedChange="setFilter('project_code', $event)" />
                             <custom-dropdown :with-all-option="false" placeholder="Storage Room" label="Filter by Storage Room" @selectedChange="applyStorageRoomFilter($event)" :options="storage_locations" />
                             <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
                             <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
-                            <camera-scanner data-guide='supplies-barcode-scanner' class="md:col-span-5 col-span-3" @decoded="searchFromBarcode" />
                         </div>
-                        <h3>There are {{outgoingFromApi?.data?.length || 0}} items registered</h3>
+                    </transition-container>
+
+                    <!-- Camera Barcode Scanner -->
+                    <camera-scanner data-guide='supplies-barcode-scanner' class="w-full" @decoded="searchFromBarcode" />
+
+                    <!-- Results List Header -->
+                    <div v-if="outgoingFromApi" class="flex flex-col w-full gap-3 items-center">
+                        <div class="flex justify-between items-center w-full px-1 pt-1">
+                            <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                                Stock Inventory Results
+                            </h3>
+                            <span class="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-extrabold text-lime-600 dark:text-lime-400">
+                                {{ outgoingFromApi?.data?.length || 0 }} Items Available
+                            </span>
+                        </div>
                         <div data-guide="supplies-results" class="w-full max-h-[60vh] overflow-y-auto overflow-x-hidden">
-                            <div v-show="processing" class="text-center py-3 border border-AB rounded-lg w-full h-full z-50">
-                                <div class="flex items-center justify-center gap-3 py-2 px-4 h-full">
-                                    <loader-icon />
-                                    Loading...
-                                </div>
+                            <div v-show="processing" class="text-center py-6 border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50 dark:bg-slate-800/40 text-xs text-slate-500 font-semibold">
+                                Loading stock items...
                             </div>
                             <outgoing-item-card
-                                    v-if="outgoingFromApi && Array.isArray(outgoingFromApi.data) && outgoingFromApi.data.length > 0"
-                                    :outgoing-from-api="outgoingFromApi"
-                                    @select-item="selectItem"
-                                />
+                                v-if="outgoingFromApi && Array.isArray(outgoingFromApi.data) && outgoingFromApi.data.length > 0"
+                                :outgoing-from-api="outgoingFromApi"
+                                @select-item="selectItem"
+                            />
                             <!-- Show "Searching" when processing -->
-                            <div v-else-if="model.api.processing" class="text-center py-3 border border-AB rounded-lg">
-                                Searching...
+                            <div v-else-if="model.api.processing" class="text-center py-6 border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50 dark:bg-slate-800/40 text-xs text-slate-500 font-semibold">
+                                Searching items...
                             </div>
 
-                            <!-- Show "Form does not exist" when search was performed but no results -->
-                            <div v-else-if="outgoingFromApi && outgoingFromApi.total === 0 && form.search" class="text-center py-3 border border-AB rounded-lg">
+                            <!-- Show fallback when search returned no results -->
+                            <div v-else-if="outgoingFromApi && outgoingFromApi.total === 0 && form.search" class="text-center py-6 border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50 dark:bg-slate-800/40 text-xs text-slate-500 font-semibold">
                                 Item does not exist. Try using some filters.
                             </div>
 
-                            <!-- Show "No forms available" when nothing was returned and no search was performed -->
-                            <div v-else class="text-center py-3 border border-AB rounded-lg">
-                                No forms available.
+                            <!-- Show empty state -->
+                            <div v-else class="text-center py-6 border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50 dark:bg-slate-800/40 text-xs text-slate-500 font-semibold">
+                                No items available for checkout.
                             </div>
-
-                        </div>
-                        <div id="dtPaginatorContainer" class="flex hidden gap-1 items-center w-full justify-center">
-                            <!-- First Button -->
-                            <paginate-btn @click="form.page = 1; searchEvent();" :disabled="form.page === 1">
-                                First
-                            </paginate-btn>
-
-                            <!-- Previous Button -->
-                            <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchEvent();" :disabled="form.page === 1">
-                                <template v-slot:icon>
-                                    <arrow-left class="h-auto w-6" />
-                                </template>
-                                Prev
-                            </paginate-btn>
-
-                            <!-- Current Page Indicator -->
-                            <div class="text-xs flex flex-col whitespace-nowrap text-center">
-                                    <span class="font-medium mx-1" title="current page and total pages">
-                                        <span>{{ outgoingFromApi?.current_page }}</span> / <span>{{ outgoingFromApi?.last_page }}</span>
-                                    </span>
-                            </div>
-
-                            <!-- Next Button -->
-                            <paginate-btn
-                                @click="form.page = Math.min(outgoingFromApi?.last_page, form.page + 1); searchEvent();"
-                                :disabled="form.page === outgoingFromApi?.last_page"
-                            >
-                                Next
-                                <template v-slot:icon>
-                                    <arrow-right class="h-auto w-6" />
-                                </template>
-                            </paginate-btn>
-
-                            <!-- Last Button -->
-                            <paginate-btn
-                                @click="form.page = outgoingFromApi?.last_page; searchEvent();"
-                                :disabled="form.page === outgoingFromApi?.last_page"
-                            >
-                                Last
-                            </paginate-btn>
                         </div>
                     </div>
                 </div>

@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 use Tests\WithTestRoles;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class ValidationHardeningTest extends TestCase
 {
@@ -22,9 +23,7 @@ class ValidationHardeningTest extends TestCase
         $this->admin = $this->createAdminUser();
     }
 
-    /**
-     * @dataProvider invalidTemplateStorePayloadProvider
-     */
+    #[DataProvider('invalidTemplateStorePayloadProvider')]
     public function test_template_store_validation_hardening(array $payload, string $expectedError): void
     {
         $response = $this->actingAs($this->admin)
@@ -34,9 +33,7 @@ class ValidationHardeningTest extends TestCase
             ->assertJsonValidationErrors([$expectedError]);
     }
 
-    /**
-     * @dataProvider invalidTemplateUpdatePayloadProvider
-     */
+    #[DataProvider('invalidTemplateUpdatePayloadProvider')]
     public function test_template_update_validation_hardening(array $patch, string $expectedError): void
     {
         $template = FormTypeTemplate::factory()->create();
@@ -50,9 +47,7 @@ class ValidationHardeningTest extends TestCase
             ->assertJsonValidationErrors([$expectedError]);
     }
 
-    /**
-     * @dataProvider invalidAssignTemplatePayloadProvider
-     */
+    #[DataProvider('invalidAssignTemplatePayloadProvider')]
     public function test_assign_template_validation_hardening(array $payload, string $expectedError): void
     {
         $response = $this->actingAs($this->admin)

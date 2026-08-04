@@ -30,6 +30,11 @@ jobs:
 
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
+        env:
+          BROADCAST_DRIVER: log
+          REVERB_APP_ID: ci
+          REVERB_APP_KEY: ci-key
+          REVERB_APP_SECRET: ci-secret
 
       - name: Generate app key
         run: php artisan key:generate

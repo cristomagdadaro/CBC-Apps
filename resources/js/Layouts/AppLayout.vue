@@ -255,7 +255,35 @@ export default {
             this.sidebarOpen = false;
             this.userDropdownOpen = false;
             this.teamDropdownOpen = false;
+            if (typeof document !== "undefined") {
+                document.body.classList.remove("overflow-hidden");
+            }
         });
+    },
+    beforeUnmount() {
+        if (typeof document !== "undefined") {
+            document.body.classList.remove("overflow-hidden");
+        }
+    },
+    watch: {
+        showingNavigationDropdown(isOpen) {
+            if (typeof document !== "undefined") {
+                if (isOpen) {
+                    document.body.classList.add("overflow-hidden");
+                } else {
+                    document.body.classList.remove("overflow-hidden");
+                }
+            }
+        },
+        sidebarOpen(isOpen) {
+            if (typeof document !== "undefined") {
+                if (isOpen) {
+                    document.body.classList.add("overflow-hidden");
+                } else {
+                    document.body.classList.remove("overflow-hidden");
+                }
+            }
+        },
     },
     computed: {
         isSidebarModeResponsive() {
@@ -933,6 +961,22 @@ export default {
                         </div>
                     </div>
 
+                    <!-- Mobile Navigation Backdrop Overlay -->
+                    <Transition
+                        enter-active-class="transition-opacity duration-200"
+                        enter-from-class="opacity-0"
+                        enter-to-class="opacity-100"
+                        leave-active-class="transition-opacity duration-150"
+                        leave-from-class="opacity-100"
+                        leave-to-class="opacity-0"
+                    >
+                        <div
+                            v-if="showingNavigationDropdown"
+                            @click="showingNavigationDropdown = false"
+                            class="fixed inset-0 bg-slate-900/60 z-40 md:hidden backdrop-blur-xs"
+                        ></div>
+                    </Transition>
+
                     <!-- Mobile Navigation Menu -->
                     <Transition
                         enter-active-class="transition-all duration-200 ease-out"
@@ -944,7 +988,7 @@ export default {
                     >
                         <div
                             v-if="showingNavigationDropdown"
-                            class="md:hidden border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50"
+                            class="md:hidden relative z-50 border-t border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl max-h-[80vh] overflow-y-auto"
                         >
                             <div class="px-4 py-3 space-y-1">
                                 <template
@@ -1029,7 +1073,7 @@ export default {
                 <!-- Page Header -->
                 <header
                     v-if="$slots.header"
-                    class="bg-AA dark:bg-gray-800 shadow-sm border-b border-AA dark:border-gray-700 h-16"
+                    class="bg-AA dark:bg-gray-800 shadow-sm border-b border-AA dark:border-gray-700 min-h-16 h-auto py-1 sm:py-0 transition-all"
                 >
                     <div class="default-container">
                         <slot name="header"/>

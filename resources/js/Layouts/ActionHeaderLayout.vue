@@ -74,8 +74,8 @@ export default {
 </script>
 
 <template>
-    <div class="flex justify-between items-center py-2 select-none text-gray-100 drop-shadow-md gap-4">
-        <div class="leading-tight flex flex-col min-w-0">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center py-1.5 sm:py-2 select-none text-gray-100 drop-shadow-md gap-2.5 sm:gap-4 w-full">
+        <div class="leading-tight flex flex-col min-w-0 max-w-full">
           <div v-if="normalizedBreadcrumbs.length" class="mb-1 flex flex-wrap items-center gap-2 text-xs text-gray-200/90">
               <template v-for="(breadcrumb, index) in normalizedBreadcrumbs" :key="`${breadcrumb.label}-${index}`">
                   <span v-if="index > 0" class="text-gray-300">/</span>
@@ -99,7 +99,7 @@ export default {
           </label>
           <span v-if="subtitle" class="text-xs truncate">{{ subtitle }}</span>
         </div>
-        <div class="flex justify-between gap-2 items-center flex-wrap shrink-0">
+        <div class="flex items-center gap-2 overflow-x-auto max-w-full scrollbar-none py-1 w-full sm:w-auto shrink-0">
             <slot />
         </div>
     </div>

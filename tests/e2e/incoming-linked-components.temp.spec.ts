@@ -1,7 +1,7 @@
 import { test, expect, Page } from '@playwright/test';
 
-const loginEmail = process.env.E2E_EMAIL;
-const loginPassword = process.env.E2E_PASSWORD;
+const loginEmail = process.env.E2E_EMAIL || 'dacropbiotechcenter@gmail.com';
+const loginPassword = process.env.E2E_PASSWORD || 'password';
 const parentItemName = process.env.E2E_PARENT_ITEM_NAME || 'E2E Parent Equipment 20260418';
 const childItemName = process.env.E2E_CHILD_ITEM_NAME || 'E2E Child Component 20260418';
 const personnelSearch = process.env.E2E_PERSONNEL_SEARCH || 'E2E-INV-UI-20260418';

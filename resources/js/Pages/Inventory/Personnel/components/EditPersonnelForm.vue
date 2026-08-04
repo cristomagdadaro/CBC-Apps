@@ -39,20 +39,20 @@ export default {
         <form
             v-if="!!form"
             @submit.prevent="submitUpdate"
-            class="py-12 max-w-3xl mx-auto"
+            class="py-6 sm:py-10 max-w-3xl mx-auto px-4"
         >
             <div
-                class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg"
+                class="flex flex-col gap-4 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs rounded-2xl p-4 sm:p-6 text-slate-900 dark:text-slate-100"
             >
-                <div class="flex flex-col">
+                <div class="flex flex-col pb-3 border-b border-slate-200 dark:border-slate-800">
                     <h2
-                        class="font-bold uppercase leading-none py-2 mb-1 border-b"
+                        class="font-bold text-xs sm:text-sm uppercase tracking-wider text-slate-900 dark:text-slate-100"
                     >
                         Personnel Update Form
                     </h2>
-                    <p>Use this form to update personnel information.</p>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Use this form to update personnel information.</p>
                 </div>
-                <div class="flex sm:flex-row flex-col gap-1">
+                <div class="flex sm:flex-row flex-col gap-2">
                     <text-input
                         required
                         label="First Name"
@@ -71,12 +71,12 @@ export default {
                         :error="form.errors.lname"
                     />
                     <text-input
-                        label="suffix"
+                        label="Suffix"
                         v-model="form.suffix"
                         :error="form.errors.suffix"
                     />
                 </div>
-                <div class="flex flex-col gap-2">
+                <div class="flex flex-col gap-3">
                     <text-input
                         required
                         label="Position"
@@ -99,7 +99,7 @@ export default {
                     v-model="form.address"
                     :error="form.errors.address"
                 />
-                <div class="flex gap-2">
+                <div class="flex flex-col sm:flex-row gap-3">
                     <text-input
                         label="Employee ID / CBC ID"
                         required
@@ -107,20 +107,20 @@ export default {
                         v-model="form.employee_id"
                         :error="form.errors.employee_id"
                     />
-                    <div class="flex flex-col gap-1 w-1/3">
-                        <label class="block font-medium text-sm text-gray-700 dark:text-gray-300">Status</label>
+                    <div class="flex flex-col gap-1 w-full sm:w-1/3">
+                        <label class="block font-semibold text-xs sm:text-sm text-slate-700 dark:text-slate-300">Status</label>
                         <select
                             v-model="form.status"
-                            class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm w-full"
+                            class="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-lime-500 focus:ring-lime-500 rounded-xl shadow-xs w-full text-xs sm:text-sm py-2.5"
                         >
                             <option value="Active">Active</option>
                             <option value="Suspended">Suspended</option>
                         </select>
-                        <p v-if="form.errors.status" class="text-sm text-red-600 mt-2">{{ form.errors.status }}</p>
+                        <p v-if="form.errors.status" class="text-xs text-rose-500 mt-1 font-semibold">{{ form.errors.status }}</p>
                     </div>
                 </div>
-                <div class="flex gap-1 justify-between items-center">
-                    <div class="flex gap-2">
+                <div class="flex flex-col sm:flex-row gap-3 justify-between items-center pt-2">
+                    <div class="flex gap-2 w-full sm:w-auto">
                         <reset-btn @click="resetField($page.props.data)">
                             Reset
                         </reset-btn>
