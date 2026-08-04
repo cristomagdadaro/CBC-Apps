@@ -1,13 +1,8 @@
 interface ITransaction extends IBaseClass {
-    components?: Array<{
-        item_id: string;
-        quantity: number | string;
-        unit?: string;
-        unit_price?: number | string;
-        total_cost?: number | string;
-    }>;
+    components?: Array<ITransaction>;
     barcode: string;
     barcode_prri: string;
+    parent_barcode?: string;
     item_id:string;
     transac_type: string;
     quantity: number;
@@ -20,8 +15,10 @@ interface ITransaction extends IBaseClass {
     expiration: string;
     remarks: string;
     project_code: string;
+    equipment_logger_mode?: string;
     par_no: string;
     condition: string;
+    actor_display_name?: string;
 
     item: IItem;
     user: IUser;

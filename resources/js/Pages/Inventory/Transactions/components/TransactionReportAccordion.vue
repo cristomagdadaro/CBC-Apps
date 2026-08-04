@@ -1,6 +1,9 @@
 <script>
+import { ChevronDown, FileText } from "lucide-vue-next";
+
 export default {
     name: "TransactionReportAccordion",
+    components: { ChevronDown, FileText },
     props: {
         reports: {
             type: Array,
@@ -74,76 +77,79 @@ export default {
 </script>
 
 <template>
-    <section class="bg-white dark:bg-gray-900 border border-gray-200 rounded-lg">
-        <header class="flex items-center justify-between px-3 py-2 border-b border-gray-100 text-xs uppercase tracking-wide text-gray-500">
-            <span>{{ title }}</span>
+    <section class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs text-slate-900 dark:text-slate-100">
+        <header class="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80">
             <div class="flex items-center gap-2">
-                <span class="text-[10px] text-gray-400">{{ reports.length }} linked</span>
+                <FileText class="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                <span class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">{{ title }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ reports.length }} linked</span>
                 <button
-                    class="inline-flex items-center justify-center h-8 w-8 rounded-full border border-gray-300 text-gray-600 hover:border-AB hover:text-AB transition"
+                    class="inline-flex items-center justify-center h-7 w-7 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
                     type="button"
                     @click="togglePanel(openIndex === null ? 0 : null)"
                     :title="hasReports ? 'Toggle first report' : 'No reports'"
                 >
-                        <caret-down class="h-4 w-4" :class="{'rotate-180': openIndex !== null}" />
+                    <ChevronDown class="h-4 w-4 transition-transform duration-200" :class="{'rotate-180': openIndex !== null}" />
                 </button>
             </div>
         </header>
 
-        <div v-if="!hasReports" class="p-3 text-xs text-gray-500">
+        <div v-if="!hasReports" class="p-4 text-xs text-slate-500 dark:text-slate-400 text-center">
             No reports linked to this transaction yet.
         </div>
-        <div v-else class="px-3 py-2 space-y-2">
+        <div v-else class="p-3 space-y-2">
             <div
                 v-for="(report, index) in reports"
                 :key="report.id || index"
-                class="border border-gray-100 rounded-md"
+                class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-slate-800/40"
             >
                 <button
                     type="button"
-                    class="w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-xs"
+                    class="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 text-left text-xs hover:bg-slate-100/60 dark:hover:bg-slate-800/60 transition-colors"
                     @click="togglePanel(index)"
                 >
                     <div class="flex flex-col">
-                        <span class="font-semibold text-gray-700">
+                        <span class="font-bold text-slate-900 dark:text-slate-100">
                             {{ report.report_type ? startCase(report.report_type) : 'Unnamed Template' }}
                         </span>
-                        <span class="text-[10px] text-gray-500">
+                        <span class="text-[0.7rem] text-slate-500 dark:text-slate-400">
                             {{ formatDate(report.reported_at || report.created_at) }} · {{ report.user?.name || 'Unknown user' }}
                         </span>
                     </div>
-                    <caret-down class="h-4 w-4 text-gray-400 transition-transform" :class="{'rotate-180': openIndex === index}" />
+                    <ChevronDown class="h-4 w-4 text-slate-400 transition-transform duration-200" :class="{'rotate-180': openIndex === index}" />
                 </button>
                 <transition-container type="fade">
-                    <div v-if="openIndex === index" class="border-t border-gray-100 px-3 py-2 text-xs text-gray-600 space-y-2">
+                    <div v-if="openIndex === index" class="border-t border-slate-200 dark:border-slate-800 px-3.5 py-3 text-xs text-slate-600 dark:text-slate-300 space-y-3 bg-white dark:bg-slate-900">
                         <div class="grid gap-2 sm:grid-cols-2">
                             <div
                                 v-for="meta in metadataRows(report)"
                                 :key="meta.label + meta.value"
-                                class="border border-gray-100 rounded px-2 py-1 bg-gray-50"
+                                class="border border-slate-200 dark:border-slate-800 rounded-xl p-2 bg-slate-50 dark:bg-slate-800/60"
                             >
-                                <p class="uppercase text-[9px] text-gray-400 tracking-wide">{{ meta.label }}</p>
-                                <p class="font-semibold text-gray-700 text-[11px]">{{ meta.value }}</p>
+                                <p class="uppercase text-[0.65rem] font-semibold text-slate-400 tracking-wider">{{ meta.label }}</p>
+                                <p class="font-bold text-slate-800 dark:text-slate-200 text-xs mt-0.5">{{ meta.value }}</p>
                             </div>
                             <a
                                 v-if="reportLink(report)"
                                 :href="reportLink(report)"
                                 target="_blank"
-                                class="border border-AB text-AB rounded px-2 py-1 text-center text-[11px] font-semibold hover:bg-AB hover:text-white transition-colors"
+                                class="border border-lime-600 text-lime-600 dark:text-lime-400 rounded-xl p-2 text-center text-xs font-bold hover:bg-lime-600 hover:text-white transition-colors flex items-center justify-center"
                             >
                                 Open in Reports
                             </a>
                         </div>
-                        <div v-if="report.notes" class="bg-gray-50 border border-gray-100 rounded px-2 py-1 text-[11px] text-gray-600">
-                            <span class="font-semibold text-gray-700">Notes:</span>
-                            <p class="mt-1 whitespace-pre-line">{{ report.notes }}</p>
+                        <div v-if="report.notes" class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-xl p-2.5 text-xs text-amber-900 dark:text-amber-200">
+                            <span class="font-bold">Notes:</span>
+                            <p class="mt-1 whitespace-pre-line text-slate-700 dark:text-slate-300">{{ report.notes }}</p>
                         </div>
                         <div>
-                            <p class="text-[10px] font-semibold text-gray-500 mb-1">Template Fields</p>
-                            <dl class="grid gap-1 text-[11px]">
-                                <div v-for="([entryKey, entryValue], idx) in fieldEntries(report)" :key="entryKey + idx" class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 border border-gray-100 rounded px-2 py-1 bg-gray-50">
-                                    <dt class="font-semibold text-gray-600">{{ startCase(entryKey) }}</dt>
-                                    <dd class="text-gray-700">{{ normalizeFieldValue(entryValue) }}</dd>
+                            <p class="text-[0.7rem] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Template Fields</p>
+                            <dl class="grid gap-1.5 text-xs">
+                                <div v-for="([entryKey, entryValue], idx) in fieldEntries(report)" :key="entryKey + idx" class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 border border-slate-200 dark:border-slate-800 rounded-xl p-2 bg-slate-50 dark:bg-slate-800/40">
+                                    <dt class="font-bold text-slate-700 dark:text-slate-300">{{ startCase(entryKey) }}</dt>
+                                    <dd class="text-slate-800 dark:text-slate-200 font-medium">{{ normalizeFieldValue(entryValue) }}</dd>
                                 </div>
                             </dl>
                         </div>

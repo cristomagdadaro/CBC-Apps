@@ -26,10 +26,8 @@ async function openTransactionsPage(page: Page) {
     await page.goto('/transactions');
 
     if (page.url().includes('/login')) {
-        const email = process.env.E2E_EMAIL;
-        const password = process.env.E2E_PASSWORD;
-
-        test.skip(!email || !password, 'Transactions page requires auth. Set E2E_EMAIL and E2E_PASSWORD to run this test.');
+        const email = 'dacropbiotechcenter@gmail.com';
+        const password = 'password';
 
         await page.fill('input[type="email"], input[name="email"]', email as string);
         await page.fill('input[type="password"], input[name="password"]', password as string);

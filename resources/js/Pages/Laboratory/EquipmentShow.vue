@@ -3,6 +3,8 @@ import { useForm, router } from "@inertiajs/vue3";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import LaboratoryPersonnelMixin from "@/Modules/mixins/LaboratoryPersonnelMixin";
+import LuQrCode from "@/Components/Icons/LuQrCode.vue";
+import LuMapPin from "@/Components/Icons/LuMapPin.vue";
 
 export default {
     name: "EquipmentShow",
@@ -43,6 +45,7 @@ export default {
             activeEquipmentsRequest: null,
             message: null,
             messageType: "success",
+            notFoundTitle: "Equipment Not Found",
             showSuccessModal: false,
             personnelPreview: null,
             profileRequiresUpdate: false,
@@ -284,6 +287,7 @@ export default {
             if (!this.equipmentId) return;
             this.loading = true;
             this.notFound = false;
+            this.notFoundTitle = "Equipment Not Found";
             try {
                 let response;
                 try {
@@ -335,6 +339,15 @@ export default {
                     this.showLocationSurveyModal = false;
                 }
             } catch (error) {
+                this.equipment = null;
+                this.activeLog = null;
+                this.allowedActions = [];
+                this.currentLocation = null;
+                this.storageLocationOptions = [];
+                this.purposeSuggestions = [];
+                this.notFoundTitle = error?.response?.status === 404
+                    ? "Equipment Not Found"
+                    : "Equipment can't be used";
                 this.messageType = "error";
                 this.message =
                     error?.response?.data?.message ||
@@ -831,7 +844,7 @@ export default {
             this.loadActiveEquipments();
         }
         setTimeout(() => (this.delayReady = true), 200);
-        
+
         const unsubscribeStart = router.on(
             "start",
             () => (this.isNavigating = true),
@@ -930,7 +943,7 @@ export default {
                             <div class="inline-flex p-4 mb-4 rounded-full bg-red-100">
                                 <LuAlertCircle class="w-8 h-8 text-red-600" />
                             </div>
-                            <h3 class="mb-2 text-lg font-semibold text-gray-900">Equipment Not Found</h3>
+                            <h3 class="mb-2 text-lg font-semibold text-gray-900">{{ notFoundTitle }}</h3>
                             <p class="max-w-xs mx-auto mb-6 text-sm text-gray-500">{{ message }}</p>
                             <Link :href="route(showPageRoute)"
                                 class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition-colors bg-emerald-600 rounded-lg hover:bg-emerald-700"
@@ -943,66 +956,39 @@ export default {
                         <!-- Equipment Details -->
                         <div v-else-if="equipment" data-guide="equipment-summary" class="divide-y divide-gray-100">
                             <!-- Header -->
-                            <div class="flex items-start justify-between p-4">
-                                <div class="flex items-center gap-4">
+                            <div class="flex items-start justify-between p-4 relative">
+                                <div class="flex items-center gap-4 w-full">
                                     <div class="p-3 rounded-xl bg-emerald-100">
                                         <LuMicroscope class="w-6 h-6 text-emerald-600" />
                                     </div>
-                                    <div>
+                                    <div class="flex flex-col w-full">
                                         <h1 class="text-xl font-bold text-gray-900">{{ equipment.name }}</h1>
-                                        <p class="text-sm text-gray-500">{{ equipment.brand || "No brand specified" }}
-                                        </p>
+                                        <div class="flex justify-between md:flex-row flex-col md:items-center">
+                                            <p class="text-sm text-gray-500">{{ equipment?.brand || "—" }}</p>
+                                            <p class="text-sm text-gray-500 flex items-center gap-1.5" title="PhilRice Property No."><LuBarcode class="w-3.5 h-3.5 text-gray-800 " />{{ equipment?.barcode_prri || "—" }}</p>
+                                            <p class="text-sm text-gray-500 flex items-center gap-1.5" title="DA-CBC Equipment No."><LuQrCode class="w-3.5 h-3.5 text-gray-800 " />{{ equipment?.barcode || "—" }}</p>
+                                        </div>
+                                        <div class="space-y-1">
+                                            <label class="flex items-center gap-1.5 text-xs text-gray-500 uppercase tracking-wide">
+                                                <LuMapPin class="w-3.5 h-3.5 text-gray-800 " />
+                                                <p class="text-xs text-gray-500">{{ currentLocation?.label || "Unknown" }}</p>
+                                                <span v-if="currentLocation?.source === 'temporary'" class="px-2 py-0.5 text-xs text-amber-700 bg-amber-100 rounded-full">
+                                                    Temporary
+                                                </span>
+                                            </label>
+                                            <button v-if="canReportLocation" type="button" @click="openLocationSurveyModal"
+                                                class="mt-2 text-xs font-medium text-amber-700 transition-colors hover:text-amber-800">
+                                                Update reported location
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                                 <button v-if="!equipment_id" @click="selectedEquipmentId = null"
-                                    class="p-2 text-gray-400 transition-colors rounded-lg hover:bg-gray-100 hover:text-gray-600">
+                                    class="p-2 text-gray-400 transition-colors rounded-lg hover:bg-gray-100 hover:text-gray-600 absolute top-2 right-2">
                                     <LuX class="w-5 h-5" />
                                 </button>
                             </div>
 
-                            <!-- Details Grid -->
-                            <div class="grid grid-cols-2 gap-4 px-4 py-4">
-                                <div class="space-y-1">
-                                    <label
-                                        class="flex items-center gap-1.5 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                                        <LuBarcode class="w-3.5 h-3.5" />
-                                        PhilRice Property No.
-                                    </label>
-                                    <p class="text-sm font-medium text-gray-900">{{ equipment.barcode_prri || "—" }}</p>
-                                </div>
-                                <div class="space-y-1">
-                                    <label
-                                        class="flex items-center gap-1.5 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                                        <LuBarcode class="w-3.5 h-3.5" />
-                                        CBC Barcode
-                                    </label>
-                                    <p class="text-sm font-medium text-gray-900">{{ equipment.barcode || "—" }}</p>
-                                </div>
-                                <div class="space-y-1">
-                                    <label
-                                        class="flex items-center gap-1.5 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                                        <LuBuilding class="w-3.5 h-3.5" />
-                                        Current Location
-                                    </label>
-                                    <div class="flex items-center gap-2">
-                                        <p class="text-sm font-medium text-gray-900">{{ currentLocation?.label ||
-                                            "Unknown" }}</p>
-                                        <span v-if="currentLocation?.source === 'temporary'"
-                                            class="px-2 py-0.5 text-xs font-medium text-amber-700 bg-amber-100 rounded-full">
-                                            Temporary
-                                        </span>
-                                    </div>
-                                    <button v-if="canReportLocation" type="button" @click="openLocationSurveyModal"
-                                        class="mt-2 text-xs font-medium text-amber-700 transition-colors hover:text-amber-800">
-                                        Update reported location
-                                    </button>
-                                </div>
-                                <div class="space-y-1">
-                                    <label
-                                        class="text-xs font-medium text-gray-500 uppercase tracking-wide">Description</label>
-                                    <p class="text-sm text-gray-700">{{ equipment.description || "No description" }}</p>
-                                </div>
-                            </div>
                             <DialogModal :show="showLocationSurveyModal" max-width="md" @close="closeLocationSurveyModal">
                                 <template #title>
                                     <div class="flex items-center gap-2 mb-4 py-2">
@@ -1044,20 +1030,19 @@ export default {
                     </div>
 
                     <!-- Status Card -->
-                    <div v-if="hasEquipment && !notFound && equipment"
+                    <div v-if="hasEquipment && !notFound && equipment && activeLog" data-guide="equipment-status"
                         class="overflow-hidden bg-white border border-gray-200 shadow-sm md:rounded-xl">
                         <div class="flex items-center justify-between p-4 border-b border-gray-100">
                             <div class="flex items-center gap-3">
-                                <div class="p-2 rounded-lg"
-                                    :class="isOverdue ? 'bg-red-100' : activeLog ? 'bg-emerald-100' : 'bg-gray-100'">
-                                    <LuActivity class="w-5 h-5"
-                                        :class="isOverdue ? 'text-red-600' : activeLog ? 'text-emerald-600' : 'text-gray-600'" />
+                                <div class="p-2 rounded-lg" :class="isOverdue ? 'bg-red-100' : activeLog ? 'bg-emerald-100' : 'bg-gray-100'">
+                                    <LuActivity class="w-5 h-5" :class="isOverdue ? 'text-red-600' : activeLog ? 'text-emerald-600' : 'text-gray-600'" />
                                 </div>
                                 <div>
-                                    <h2 class="text-sm font-semibold text-gray-900">Current Status</h2>
-                                    <p class="text-xs text-gray-500">
+                                    <span  class="inline-flex items-center gap-1.5 uppercase font-semibold rounded-full"
+                                        :class="isOverdue ? 'text-red-700' : activeLog ? 'text-emerald-700' : 'text-gray-700'">
                                         {{ isOverdue ? 'Overdue' : activeLog ? 'In Use' : 'Available' }}
-                                    </p>
+                                    </span>
+                                    <h2 class="text-xs text-gray-900 leading-none">Current Status</h2>
                                 </div>
                             </div>
                             <button v-if="canEditActiveLog" @click="showEstimatedEndUseModal = true"
@@ -1069,37 +1054,27 @@ export default {
 
                         <div v-if="activeLog" class="p-4 space-y-1 md:space-y-3">
                             <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-500">Status</span>
-                                <span
-                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full"
-                                    :class="isOverdue ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'">
-                                    <span class="w-1.5 h-1.5 rounded-full animate-pulse"
-                                        :class="isOverdue ? 'bg-red-500' : 'bg-emerald-500'" />
-                                    {{ isOverdue ? 'Overdue' : activeLog.status }}
+                                <span class="text-sm text-gray-500">Current User</span>
+                                <span class="flex items-center gap-1.5 text-sm font-medium text-gray-900">
+                                    {{ formatPersonnelName(statusCardPersonnel) }}<LuUser class="w-4 h-4 text-gray-400" />
                                 </span>
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-gray-500">Checked In</span>
                                 <span class="flex items-center gap-1.5 text-sm font-medium text-gray-900">
-                                    <LuCalendar class="w-4 h-4 text-gray-400" />
                                     {{ formatDateTime(activeLog.started_at) }}
+                                    <LuCalendar class="w-4 h-4 text-gray-400" />
                                 </span>
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-gray-500">Expected End</span>
                                 <span class="flex items-center gap-1.5 text-sm font-medium"
                                     :class="isOverdue ? 'text-red-600' : 'text-gray-900'">
-                                    <LuClock class="w-4 h-4" :class="isOverdue ? 'text-red-400' : 'text-gray-400'" />
                                     {{ formatDateTime(activeLog.end_use_at) }}
+                                    <LuClock class="w-4 h-4" :class="isOverdue ? 'text-red-400' : 'text-gray-400'" />
                                 </span>
                             </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-500">Current User</span>
-                                <span class="flex items-center gap-1.5 text-sm font-medium text-gray-900">
-                                    <LuUser class="w-4 h-4 text-gray-400" />
-                                    {{ formatPersonnelName(statusCardPersonnel) }}
-                                </span>
-                            </div>
+                            
                         </div>
                     </div>
 
@@ -1282,8 +1257,7 @@ export default {
                                 </div>
                                 <div>
                                     <h2 class="text-sm font-semibold text-gray-900">Active Sessions</h2>
-                                    <p class="text-xs text-gray-500">{{ filteredActiveEquipments.length }} equipment in
-                                        use</p>
+                                    <p class="text-xs text-gray-500">{{ filteredActiveEquipments.length }} equipment in use</p>
                                 </div>
                             </div>
                         </div>
@@ -1348,15 +1322,13 @@ export default {
                                         <h3 class="text-sm font-semibold text-gray-900 truncate">
                                             {{ item.equipment?.name }}
                                         </h3>
-                                        <span v-if="isActiveItemOverdue(item)"
-                                            class="flex-shrink-0 px-1.5 py-0.5 text-[10px] font-bold text-red-700 uppercase bg-red-100 rounded">
-                                            Overdue
-                                        </span>
+                                        
                                     </div>
                                     <p class="text-xs text-gray-500">{{ item.equipment?.brand }}</p>
                                 </div>
                                 <div class="flex flex-col items-end text-xs gap-1 text-gray-500 whitespace-nowrap">
-                                    <span class="flex items-center gap-1">
+                                    <span class="flex items-center gap-1" :class="{'flex-shrink-0 text-xs text-red-700 rounded':isActiveItemOverdue(item)}">
+                                        <span v-if="isActiveItemOverdue(item)" class="uppercase font-bold"> (Overdue) </span>
                                         {{ formatDateTime(item.end_use_at) }}
                                         <LuClock class="w-3.5 h-3.5" />
                                     </span>

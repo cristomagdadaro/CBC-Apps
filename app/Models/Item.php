@@ -18,7 +18,7 @@ class Item extends BaseModel
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($model) {
             if (empty($model->id)) {
                 $model->id = (string) Str::uuid();
@@ -81,4 +81,5 @@ class Item extends BaseModel
     {
         return $this->hasMany(SuppEquipReport::class, 'item_id', 'id');
     }
+
 }

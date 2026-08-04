@@ -21,7 +21,7 @@ export default class Transaction extends DtoTransaction {
 
     constructor(response: DtoTransaction) {
         super(response);
-        
+
         // @ts-ignore
         this.api._apiIndex = (Transaction.page.props.auth && Transaction.page.props.auth.user) ? Transaction.endpoints.index : Transaction.endpoints.indexGuest;
         // @ts-ignore
@@ -29,7 +29,7 @@ export default class Transaction extends DtoTransaction {
         this.api._apiPut = Transaction.endpoints.put;
         this.api._apiDelete = Transaction.endpoints.delete;
 
-        this.api.appendWith = ['item', 'user', 'personnel', 'components.item'];
+        this.api.appendWith = ['item', 'user', 'personnel', 'components.componentTransaction.item', 'parentComponent.parentTransaction.item'];
 
         this.showPage = Transaction.endpoints.show;
     }
@@ -37,9 +37,9 @@ export default class Transaction extends DtoTransaction {
     createFields(): object
     {
         return {
-            components: [],
             barcode: null,
             barcode_prri: null,
+            parent_barcode: null,
             item_id: null,
             transac_type: null,
             quantity: null,
@@ -52,8 +52,12 @@ export default class Transaction extends DtoTransaction {
             expiration: null,
             remarks: null,
             project_code: null,
+            equipment_logger_mode: null,
             par_no: null,
             condition: null,
+            po_no: null,
+            pr_no: null,
+            serial_no: null,
         };
     }
 
@@ -61,9 +65,9 @@ export default class Transaction extends DtoTransaction {
     {
         return {
             id: model.id ?? null,
-            components: model.components ?? [],
             barcode: model.barcode ?? null,
             barcode_prri: model.barcode_prri ?? null,
+            parent_barcode: model.parent_barcode ?? null,
             item_id: model.item_id ?? null,
             transac_type: model.transac_type ?? null,
             quantity: model.quantity ?? null,
@@ -76,8 +80,12 @@ export default class Transaction extends DtoTransaction {
             expiration: model.expiration ?? null,
             remarks: model.remarks ?? null,
             project_code: model.project_code ?? null,
+            equipment_logger_mode: model.equipment_logger_mode ?? null,
             par_no: model.par_no ?? null,
             condition: model.condition ?? null,
+            po_no: model.po_no ?? null,
+            pr_no: model.pr_no ?? null,
+            serial_no: model.serial_no ?? null,
         };
     }
 
@@ -89,6 +97,20 @@ export default class Transaction extends DtoTransaction {
             force: false,
             confirmation_barcode: '',
         };
+    }
+
+    get itemWithPrriCode() {
+        return {
+            ...this.item,
+            barcode_prri: this.barcode_prri
+        };
+    }
+
+    get actorWithRemarks() {
+        return {
+            actor_display_name: this.actor_display_name,
+            remarks: this.remarks
+        }
     }
 
     get dataColor( ){
@@ -113,7 +135,7 @@ export default class Transaction extends DtoTransaction {
                 visible: true,
             },{
                 title: 'Item',
-                key: 'item.name',
+                key: 'itemWithPrriCode',
                 db_key: 'item',
                 align: 'dataColor',
                 sortable: true,
@@ -131,7 +153,7 @@ export default class Transaction extends DtoTransaction {
                 db_key: 'barcode_prri',
                 align: 'text-center justify-center',
                 sortable: true,
-                visible: true,
+                visible: false,
             },{
                 title: 'Quantity',
                 key: 'quantityWithUnit',
@@ -175,16 +197,23 @@ export default class Transaction extends DtoTransaction {
                 sortable: true,
                 visible: false,
             },{
-                title: 'Personnel',
-                key: 'personnel.fullName',
+                title: 'Actor',
+                key: 'actor_display_name',
                 db_key: 'personnel_id',
                 align: 'dataColor',
                 sortable: true,
-                visible: true,
+                visible: false,
             },{
                 title: 'Project Code',
                 key: 'project_code',
                 db_key: 'project_code',
+                align: 'dataColor',
+                sortable: true,
+                visible: false,
+            },{
+                title: 'Logger Mode',
+                key: 'equipment_logger_mode',
+                db_key: 'equipment_logger_mode',
                 align: 'dataColor',
                 sortable: true,
                 visible: false,
@@ -201,13 +230,20 @@ export default class Transaction extends DtoTransaction {
                 db_key: 'created_at',
                 align: 'flex justify-center',
                 sortable: true,
-                visible: true,
+                visible: false,
             },{
                 title: 'Remarks',
                 key: 'remarks',
                 db_key: 'remarks',
                 align: 'dataColor',
                 sortable: true,
+                visible: false,
+            },{
+                title: 'Actor',
+                key: 'actorWithRemarks',
+                db_key: 'user',
+                align: 'dataColor',
+                sortable: false,
                 visible: true,
             },{
                 title: 'PAR No',
@@ -220,6 +256,27 @@ export default class Transaction extends DtoTransaction {
                 title: 'Condition',
                 key: 'condition',
                 db_key: 'condition',
+                align: 'dataColor',
+                sortable: true,
+                visible: false,
+            },{
+                title: 'PO No',
+                key: 'po_no',
+                db_key: 'po_no',
+                align: 'dataColor',
+                sortable: true,
+                visible: false,
+            },{
+                title: 'PR No',
+                key: 'pr_no',
+                db_key: 'pr_no',
+                align: 'dataColor',
+                sortable: true,
+                visible: false,
+            },{
+                title: 'Serial No',
+                key: 'serial_no',
+                db_key: 'serial_no',
                 align: 'dataColor',
                 sortable: true,
                 visible: false,

@@ -66,6 +66,7 @@ class CreateRequestFormPivot extends FormRequest
         return [
             'name' => 'required|string|max:191',
             'affiliation' => 'required|string|max:191',
+            'requester_philrice_id' => 'nullable|string|max:64',
             'email' => 'required|string|email|max:191',
             'position' => 'nullable|string|max:191',
             'phone' => 'required|string|max:50',
@@ -81,7 +82,12 @@ class CreateRequestFormPivot extends FormRequest
                 Rule::requiredIf(fn () => $this->requiresEndTime()),
                 'nullable',
                 'date',
-                'after_or_equal:date_of_use',
+                function ($attribute, $value, $fail) {
+                    $start = $this->input('date_of_use');
+                    if ($start && $value && strtotime($value) < strtotime($start)) {
+                        $fail('The date of use end must be a date after or equal to date of use.');
+                    }
+                },
             ],
             'time_of_use_end' => [
                 Rule::requiredIf(fn () => $this->requiresEndTime()),

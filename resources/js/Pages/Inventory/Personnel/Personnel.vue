@@ -23,7 +23,7 @@ export default {
 </script>
 
 <template>
-    <Head title="Items" />
+    <Head title="Personnel" />
 
     <AppLayout>
         <template #header>

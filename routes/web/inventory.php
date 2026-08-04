@@ -3,6 +3,7 @@
 use App\Enums\Inventory;
 use App\Http\Controllers\InventoryFormController;
 use App\Http\Controllers\PDFGeneratorController;
+use App\Http\Controllers\PersonnelRegistrationController;
 use App\Models\Item;
 use App\Models\Personnel;
 use App\Models\Supplier;
@@ -18,6 +19,13 @@ use Inertia\Inertia;
 Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_SUPPLIES_CHECKOUT])
     ->get('/inventory/outgoing', [InventoryFormController::class, 'outgoingForm'])
     ->name('inventory.public.outgoing.index');
+
+Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_PERSONNEL_REGISTRATION])->group(function () {
+    Route::get('/personnel/register', [PersonnelRegistrationController::class, 'guestCreate'])
+        ->name('personnel.registration.guest');
+    Route::get('/personnel/register/verify/{registration}', [PersonnelRegistrationController::class, 'verify'])
+        ->name('personnel.registration.verify');
+});
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::prefix('apps')->group(function () {
@@ -36,6 +44,12 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                         'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
                     ]);
                 })->name('items.create');
+
+                Route::get('/{id}/transactions', function () {
+                    return Inertia::render('Inventory/Items/ItemTransactionsView', [
+                        'data' => Item::with('category', 'supplier')->find(request()->route('id')),
+                    ]);
+                })->name('items.transactions');
 
                 Route::get('/{id}', function () {
                     return Inertia::render('Inventory/Items/components/EditItemForm', [
@@ -81,8 +95,12 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                         'items' => Item::get(),
                         'suppliers' => app(SupplierRepo::class)->getOptions(),
                         'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
+                        'projectCodes' => app(TransactionRepo::class)->getAvailableProjectCodes(),
+                        'equipment_logger_mode_options' => app(OptionRepo::class)->getEquipmentLoggerModeOptions(),
+                        'equipment_logger_mode_default' => app(OptionRepo::class)->getDefaultEquipmentLoggerMode(),
                         'storage_locations' => app(OptionRepo::class)->getStorageLocations(),
                         'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
+                        'listConditions' => app(OptionRepo::class)->getItemConditions(),
                     ]);
                 })->name('transactions.incoming');
 
@@ -111,7 +129,24 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                         return redirect()->route('transactions.index');
                     }
 
-                    $transaction->load(['components.item']);
+                    $transaction->load([
+                        'item',
+                        'user:id,name',
+                        'personnel:id,employee_id,fname,mname,lname,suffix',
+                        'components.componentTransaction.item',
+                        'components.componentTransaction.user:id,name',
+                        'components.componentTransaction.personnel:id,employee_id,fname,mname,lname,suffix',
+                        'parentComponent.parentTransaction.item',
+                        'parentComponent.parentTransaction.user:id,name',
+                        'parentComponent.parentTransaction.personnel:id,employee_id,fname,mname,lname,suffix',
+                    ]);
+
+                    $attachedComponents = $transaction->components
+                        ->map(fn ($link) => $link->componentTransaction)
+                        ->filter()
+                        ->values();
+
+                    $parentTransaction = optional($transaction->parentComponent)->parentTransaction;
 
                     $attachedReports = $transaction->reports()
                         ->with([
@@ -128,10 +163,14 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                             'data' => $transaction,
                             'items' => Item::withTrashed()->get(),
                             'fromUrl' => route('transactions.index'),
+                            'projectCodes' => app(TransactionRepo::class)->getAvailableProjectCodes(),
+                            'equipment_logger_mode_options' => app(OptionRepo::class)->getEquipmentLoggerModeOptions(),
+                            'equipment_logger_mode_default' => app(OptionRepo::class)->getDefaultEquipmentLoggerMode(),
                             'storage_locations' => app(OptionRepo::class)->getStorageLocations(),
                             'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                             'attachedReports' => $attachedReports,
-                            'attachedComponents' => $transaction->components,
+                            'attachedComponents' => $attachedComponents,
+                            'parentTransaction' => $parentTransaction,
                         ]);
                     }
 
@@ -177,6 +216,19 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                         'fromUrl' => route('dashboard'),
                     ]);
                 })->name('personnels.index');
+
+                Route::get('/registrations', function () {
+                    return Inertia::render('Inventory/Personnel/PersonnelRegistrationsIndex', [
+                        'fromUrl' => route('personnels.index'),
+                    ]);
+                })->name('personnels.registrations.index');
+
+                Route::middleware(['can:inventory.manage'])->group(function () {
+                    Route::get('/id-cards', [PersonnelRegistrationController::class, 'idCardsPrint'])
+                        ->name('personnels.id-cards.print');
+                    Route::get('/id-cards/photo/{registration}', [PersonnelRegistrationController::class, 'idCardPhoto'])
+                        ->name('personnels.id-cards.photo');
+                });
 
                 Route::get('/create', function () {
                     return Inertia::render('Inventory/Personnel/components/CreatePersonnelForm', [

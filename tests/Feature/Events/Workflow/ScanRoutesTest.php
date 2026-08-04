@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 use Tests\WithTestRoles;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class ScanRoutesTest extends TestCase
 {
@@ -30,9 +31,7 @@ class ScanRoutesTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    /**
-     * @dataProvider invalidPayloadProvider
-     */
+    #[DataProvider('invalidPayloadProvider')]
     public function test_scan_validates_payload_format(string $case, mixed $payload): void
     {
         $response = $this->actingAs($this->admin)->postJson('/api/forms/event/0504/scan', [
@@ -55,9 +54,7 @@ class ScanRoutesTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider invalidScanTypeProvider
-     */
+    #[DataProvider('invalidScanTypeProvider')]
     public function test_scan_validates_scan_type(string $case, string $scanType): void
     {
         $response = $this->actingAs($this->admin)->postJson('/api/forms/event/0504/scan', [

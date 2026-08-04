@@ -432,13 +432,16 @@ abstract class AbstractRepoService {
 
         if (!$sortColumn) return;
 
+        $model = $query->getModel();
         $table = $query->getModel()->getTable();
-        if (!Schema::hasColumn($table, $sortColumn)) {
+        $connection = Schema::connection($model->getConnectionName());
+
+        if (!$connection->hasColumn($table, $sortColumn)) {
             $selectedColumns = $query->getQuery()->getColumns() ? $query->getQuery()->getColumns()[0] : '';
 
             if (str_contains($selectedColumns, $sortColumn)) {
                 $sortColumn = $selectedColumns;
-            } elseif (Schema::hasColumn($query->getModel()->getTable(), 'id')) {
+            } elseif ($connection->hasColumn($query->getModel()->getTable(), 'id')) {
                 $sortColumn = $table.'.id';
             } else {
                 $sortColumn = 'uuid';

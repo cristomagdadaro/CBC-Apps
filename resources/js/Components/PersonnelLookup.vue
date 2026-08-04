@@ -38,8 +38,8 @@ export default {
 
         buildFoundPayload(record) {
             return {
-                employee_id: this.modelValue,
-                fullName: record.fullName,
+                employee_id: this.modelValue || record.employee_id,
+                fullName: record.fullName || record.name,
                 fname: record.fname,
                 mname: record.mname,
                 lname: record.lname,
@@ -94,10 +94,27 @@ export default {
 
             } catch (error) {
                 console.error(error);
-                this.clientErrors.employee_id = 'Lookup failed. Please try again.';
+                this.clientErrors.employee_id = error.response?.data?.message || 'Lookup failed. Please try again.';
                 this.$emit('error', { field: 'employee_id', message: this.clientErrors.employee_id });
                 return null;
-
+            }
+        }
+    },
+    mounted() {
+        if (this.currentLaboratoryPersonnel) {
+            this.$emit('found', this.buildFoundPayload(this.currentLaboratoryPersonnel));
+            if (this.currentLaboratoryPersonnel.employee_id && !this.modelValue) {
+                this.$emit('update:modelValue', this.currentLaboratoryPersonnel.employee_id);
+            }
+        }
+    },
+    watch: {
+        currentLaboratoryPersonnel(newVal) {
+            if (newVal) {
+                this.$emit('found', this.buildFoundPayload(newVal));
+                if (newVal.employee_id && !this.modelValue) {
+                    this.$emit('update:modelValue', newVal.employee_id);
+                }
             }
         }
     }
@@ -112,7 +129,7 @@ export default {
             </div>
             <div>
                 <p class="text-sm font-medium text-gray-900">{{
-                    currentLaboratoryPersonnel.fullName }}</p>
+                    currentLaboratoryPersonnel.fullName || currentLaboratoryPersonnel.name }}</p>
                 <p class="text-xs text-gray-500">{{ currentLaboratoryPersonnel.employee_id }}
                 </p>
             </div>

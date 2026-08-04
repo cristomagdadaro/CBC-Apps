@@ -30,9 +30,11 @@ class DeploymentAccessService
     public const MODULE_INCIDENT_REPORTS = 'incident_reports';
     public const MODULE_INVENTORY = 'inventory';
     public const MODULE_RENTALS = 'rentals';
+    public const MODULE_PERSONNEL_REGISTRATION = 'personnel_registration';
     public const MODULE_OPTIONS = 'options';
     public const MODULE_EXPERIMENT_MONITORING = 'experiment_monitoring';
     public const MODULE_RESEARCH = 'research';
+    public const MODULE_GOLINK = 'golink';
 
     private const LOCAL_FALLBACK_HOSTS = [
         '127.0.0.1',
@@ -108,6 +110,14 @@ class DeploymentAccessService
                 'section' => 'guest',
                 'allows_deactivation' => true,
             ],
+            self::MODULE_PERSONNEL_REGISTRATION => [
+                'label' => 'Personnel Registration',
+                'description' => 'Controls the public personnel registration pages and guest submission API.',
+                'default_access' => self::ACCESS_BOTH,
+                'default_mode' => self::MODE_ACTIVE,
+                'section' => 'guest',
+                'allows_deactivation' => true,
+            ],
             self::MODULE_EXPERIMENT_MONITORING => [
                 'label' => 'Experiment Monitoring',
                 'description' => 'Controls the guest laboratory experiment monitoring page.',
@@ -143,6 +153,14 @@ class DeploymentAccessService
             self::MODULE_RESEARCH => [
                 'label' => 'Research',
                 'description' => 'Controls research pages, experiment monitoring pages, and the research API module.',
+                'default_access' => self::ACCESS_BOTH,
+                'default_mode' => self::MODE_ACTIVE,
+                'section' => 'internal',
+                'allows_deactivation' => true,
+            ],
+            self::MODULE_GOLINK => [
+                'label' => 'Go Link',
+                'description' => 'Controls Go Link management pages, API endpoints, and public redirect pages.',
                 'default_access' => self::ACCESS_BOTH,
                 'default_mode' => self::MODE_ACTIVE,
                 'section' => 'internal',

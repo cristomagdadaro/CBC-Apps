@@ -28,7 +28,7 @@ export default {
                     <p>Use this form to register new suppliers of goods and services.</p>
                 </div>
                 <text-input required label="Company Name" v-model="form.name" :error="form.errors.name" />
-                <text-input label="Email" v-model="form.email" :error="form.errors.email" />
+                <text-input label="Email (optional)" v-model="form.email" :error="form.errors.email" />
                 <text-input label="Phone" v-model="form.phone" :error="form.errors.phone" />
                 <text-input label="Address" v-model="form.address" :error="form.errors.address" />
                 <text-area label="Description" v-model="form.description" :error="form.errors.description" />

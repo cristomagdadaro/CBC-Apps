@@ -34,7 +34,7 @@ class SupplierController extends BaseController
         return parent::_update($id, $request);
     }
 
-    public function destroy(DeleteSupplierRequest $request, string $id = null): Model
+    public function destroy(DeleteSupplierRequest $request, ?string $id = null): Model
     {
         return parent::_destroy($id);
     }

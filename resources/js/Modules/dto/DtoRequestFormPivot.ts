@@ -12,6 +12,16 @@ export default class DtoRequestFormPivot extends DtoBaseClass implements IReques
     approval_constraint: string;
     disapproved_remarks: string;
     approved_by: string;
+    approved_at: string | null;
+    released_by: string;
+    released_at: string | null;
+    returned_by: string;
+    returned_at: string | null;
+    overdue_notified_at: string | null;
+    display_status: string;
+    is_overdue: boolean;
+    schedule_end_at: string | null;
+    next_action_label: string | null;
 
     requester?: IRequester;
     requestForm?: IRequestForm;
@@ -28,6 +38,16 @@ export default class DtoRequestFormPivot extends DtoBaseClass implements IReques
         this.approval_constraint = data?.approval_constraint ?? '';
         this.disapproved_remarks = data?.disapproved_remarks ?? '';
         this.approved_by = data?.approved_by ?? '';
+        this.approved_at = data?.approved_at ?? null;
+        this.released_by = data?.released_by ?? '';
+        this.released_at = data?.released_at ?? null;
+        this.returned_by = data?.returned_by ?? '';
+        this.returned_at = data?.returned_at ?? null;
+        this.overdue_notified_at = data?.overdue_notified_at ?? null;
+        this.display_status = data?.display_status ?? this.request_status;
+        this.is_overdue = Boolean(data?.is_overdue);
+        this.schedule_end_at = data?.schedule_end_at ?? null;
+        this.next_action_label = data?.next_action_label ?? null;
 
         if (data?.requester) {
             this.requester = new DtoRequester(data.requester);

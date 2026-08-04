@@ -36,10 +36,14 @@ class DeploymentAccessOptionsApiTest extends TestCase
                 'data.modules.' . DeploymentAccessService::MODULE_EQUIPMENT_LOGGER . '.mode',
                 DeploymentAccessService::MODE_ACTIVE,
             )
+            ->assertJsonPath(
+                'data.modules.' . DeploymentAccessService::MODULE_PERSONNEL_REGISTRATION . '.access',
+                DeploymentAccessService::ACCESS_BOTH,
+            )
             ->assertJsonPath('data.sections.0.key', 'guest')
             ->assertJsonPath('data.sections.1.key', 'internal')
-            ->assertJsonCount(7, 'data.sections.0.items')
-            ->assertJsonCount(4, 'data.sections.1.items');
+            ->assertJsonCount(8, 'data.sections.0.items')
+            ->assertJsonCount(5, 'data.sections.1.items');
     }
 
     public function test_admin_can_update_deployment_access_settings(): void

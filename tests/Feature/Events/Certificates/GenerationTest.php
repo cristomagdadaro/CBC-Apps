@@ -7,6 +7,7 @@ use App\Models\EventCertificateTemplate;
 use App\Models\EventSubform;
 use App\Models\EventSubformResponse;
 use App\Models\Form;
+use App\Models\NotificationLog;
 use App\Models\Participant;
 use App\Models\Registration;
 use App\Models\User;
@@ -213,5 +214,57 @@ class GenerationTest extends TestCase
         $this->assertContains('name', $columns);
         $this->assertContains('email', $columns);
         $this->assertContains('phone', $columns);
+    }
+
+    public function test_certificate_columns_endpoint_returns_recipient_delivery_status(): void
+    {
+        $subform = EventSubform::factory()->create([
+            'event_id' => $this->eventId,
+        ]);
+
+        $participant = Participant::factory()->create();
+        $registration = Registration::factory()->create([
+            'event_subform_id' => $subform->id,
+            'participant_id' => $participant->id,
+        ]);
+
+        $responseRecord = EventSubformResponse::create([
+            'form_parent_id' => $subform->id,
+            'participant_id' => $registration->id,
+            'subform_type' => Subform::PREREGISTRATION->value,
+            'response_data' => [
+                'name' => 'Jane Doe',
+                'email' => 'jane@example.com',
+            ],
+            'submitted_at' => now(),
+        ]);
+
+        NotificationLog::query()->create([
+            'domain' => 'certificates.delivery',
+            'event_key' => 'certificates.recipient.delivered',
+            'recipient_email' => 'jane@example.com',
+            'channel' => 'mail',
+            'delivery_mode' => 'individual',
+            'status' => 'sent',
+            'queued_at' => now()->subMinute(),
+            'sent_at' => now(),
+            'payload_meta' => [
+                'event_id' => $this->eventId,
+                'recipient_response_id' => (string) $responseRecord->id,
+                'batch_id' => 'batch-test-1',
+            ],
+        ]);
+
+        $response = $this->getJson(
+            route('api.event.certificates.columns', ['event_id' => $this->eventId])
+        );
+
+        $response->assertStatus(200);
+        $recipient = collect($response->json('data.recipients'))
+            ->firstWhere('id', $responseRecord->id);
+
+        $this->assertNotNull($recipient);
+        $this->assertSame('sent', $recipient['certificate_delivery_status']);
+        $this->assertNotEmpty($recipient['certificate_delivery_sent_at']);
     }
 }

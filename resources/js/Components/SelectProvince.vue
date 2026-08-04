@@ -34,11 +34,16 @@ export default {
         }
     },
     watch: {
-        region(newRegion) {
+        region(newRegion, oldRegion) {
+            if (newRegion === oldRegion) {
+                return;
+            }
+
+            this.isOpen = false;
+            this.resetLocationProvinces();
+
             if (newRegion) {
                 this.loadProvinces(newRegion);
-            } else {
-                this.locationProvinces = [];
             }
         }
     },

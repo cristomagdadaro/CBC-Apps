@@ -17,6 +17,8 @@ export default {
         return {
             eventFormFromApi: null,
             statusOptions: [
+                {name:'released', label:'Released'},
+                {name:'returned', label:'Returned'},
                 {name:'approved', label:'Approved'},
                 {name:'rejected', label:'Rejected'},
                 {name:'pending', label:'Pending'},

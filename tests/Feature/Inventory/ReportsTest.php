@@ -13,12 +13,13 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ReportsTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_includes_attached_reports_for_incoming_transactions(): void
     {
         ['item' => $item, 'personnel' => $personnel, 'user' => $user] = $this->buildInventoryContext();
@@ -61,7 +62,7 @@ class ReportsTest extends TestCase
             );
     }
 
-    /** @test */
+    #[Test]
     public function it_includes_attached_reports_for_outgoing_transactions(): void
     {
         ['item' => $item, 'personnel' => $personnel, 'user' => $user] = $this->buildInventoryContext();

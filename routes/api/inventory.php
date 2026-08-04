@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PersonnelController;
+use App\Http\Controllers\PersonnelRegistrationController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TransactionController;
 use App\Repositories\OptionRepo;
@@ -88,6 +89,11 @@ Route::prefix('guest')->group(function () {
             })->name('api.inventory.laboratories.public');
         });
 
+        Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_PERSONNEL_REGISTRATION])->group(function () {
+            Route::post('/personnel-registrations', [PersonnelRegistrationController::class, 'store'])
+                ->name('api.inventory.personnel-registrations.store.guest');
+        });
+
         Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_SUPPLIES_CHECKOUT])->group(function () {
             Route::get('/transactions-public', [TransactionController::class, 'index'])->name('api.inventory.transactions.index.public');
             Route::post('/outgoing', [TransactionController::class, 'outgoingStockStore'])->name('api.inventory.transactions.store.public');
@@ -126,8 +132,18 @@ Route::middleware(['api', 'auth:sanctum'])->group(function () {
             Route::prefix('personnels')->group(function () {
                 Route::get('/', [PersonnelController::class, 'index'])->name('api.inventory.personnels.index');
                 Route::post('/', [PersonnelController::class, 'create'])->name('api.inventory.personnels.store');
+                Route::post('/{id}/revert', [PersonnelController::class, 'revertToApproval'])->name('api.inventory.personnels.revert');
                 Route::put('/{id?}', [PersonnelController::class, 'update'])->name('api.inventory.personnels.update');
                 Route::delete('/{id?}', [PersonnelController::class, 'destroy'])->name('api.inventory.personnels.destroy');
+            });
+
+            Route::prefix('personnel-registrations')->group(function () {
+                Route::get('/', [PersonnelRegistrationController::class, 'index'])
+                    ->name('api.inventory.personnel-registrations.index');
+                Route::put('/{id}/status', [PersonnelRegistrationController::class, 'updateStatus'])
+                    ->name('api.inventory.personnel-registrations.update-status');
+                Route::post('/id-cards/mark-printed', [PersonnelRegistrationController::class, 'markPrinted'])
+                    ->name('api.inventory.personnel-registrations.id-cards.mark-printed');
             });
 
             Route::prefix('suppliers')->group(function () {

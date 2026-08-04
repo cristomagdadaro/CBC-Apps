@@ -11,6 +11,7 @@
 - Leverage route caching (`php artisan route:cache`) and config caching whenever configuration changes land.
 - Keep HTTP responses consistent by reusing shared response macros or `response()->json([...])` structures instead of ad-hoc arrays.
 - Use `Resource` classes or `Inertia::share()` to standardize payloads when multiple controllers expose similar data.
+- Do not hardcode values like "Active" and "Suspended" or other statuses; use constants declared in `config/system.php` (e.g. `config('system.statuses.active')`).
 
 ## System Architecture
 - Requests flow through controllers that either rely on a repository (`AbstractRepoService`) or orchestrate services/pipelines for complex workflows.
@@ -22,6 +23,7 @@
 - CBC-Apps runs across two deployment surfaces: the trusted local server at `192.168.36.10` and the public web server at `onecbc.philrice.gov.ph`.
 - Treat deployment behavior, Module Access Control, and guest-surface hardening as deployment-aware concerns. Features may intentionally behave differently between the local trusted server and the public internet server, but those differences must be explicit in backend middleware, shared Inertia props, and frontend visibility logic.
 - When adding or changing host-sensitive behavior, make sure local development and Sanctum/session configuration continue to account for both the local deployment host and the public deployment host.
+- On the main Linux production server, keep long-lived background processes under Supervisor instead of the web request lifecycle. Queue workers should run from a dedicated `onecbc-worker` program (typically in `/etc/supervisor/conf.d/onecbc-workers.conf`), and Reverb should run from its own Supervisor program (for example `/etc/supervisor/conf.d/onecbc-reverb.conf`). Use `supervisorctl reread`, `supervisorctl update`, and targeted restarts after deploys so queued notifications, exports, and broadcast updates keep flowing.
 
 ## Data Access Pattern
 - All repository logic lives in [`app/Repositories`](app/Repositories) and extends [`AbstractRepoService`](app/Repositories/AbstractRepoService.php) unless the repository is read-only and clearly documented.
@@ -101,7 +103,7 @@
 - Generated PDFs belong under `storage/app/private/generated-pdfs` and should only be streamed through authorized controllers.
 
 ## Tracker & Generated Assets
-- Update [docs/codebase-analysis-report-2026-03-25.md](../docs/codebase-analysis-report-2026-03-25.md) whenever you discover, resolve, or defer a codebase issue.
+- Update [codebase-analysis-report-2026-03-25.md](codebase-analysis-report-2026-03-25.md) whenever you discover, resolve, or defer a codebase issue. Take notes on new realizations about coupling, complexity, or architectural drift so we can track them over time and prioritize refactors.
 - Regenerate `resources/js/ziggy.js` after route additions, removals, or guest-surface changes.
 - If `vite.config.js` references `tests/setup.ts`, keep the file present and minimal.
 - PHPUnit must use a dedicated testing database/schema instead of inheriting the primary application database from `.env`. Keep the test database override explicit in [`phpunit.xml`](../phpunit.xml) and preserve isolation when changing test bootstrap logic.
@@ -111,6 +113,9 @@
 - New PhilRice personnel records should still use their official employee ID supplied by the operator.
 - New outsider, OJT, thesis, or similar temporary personnel records should not rely on manually typed CBC IDs. Generate the next `CBC-YY-0000` identifier through the shared personnel ID service backed by `new_barcodes`.
 - Keep the create-form preview and the actual persisted ID generation aligned, but treat the backend generator as the source of truth so concurrent creates cannot duplicate IDs.
+- Public personnel self-registration must not create `personnels` rows directly. Store guest submissions in `personnel_registrations`, require signed email verification first, then let an authenticated inventory administrator approve or reject the record.
+- When approving a public non-PhilRice/OJT/thesis/outsider registration, assign the CBC employee ID at approval time through the shared personnel ID service. Do not accept a generated external ID from the guest payload.
+- Copy verified registration email state into `personnels.email_verified_at` on approval so downstream notification flows can distinguish verified self-service emails from unverified manually entered contacts.
 
 ## Realtime / Websocket Standard
 - Use Laravel Reverb as the default websocket stack for CBC-Apps whenever realtime server push is required. Do not introduce third-party hosted websocket dependencies unless there is an explicit architectural decision to do so.

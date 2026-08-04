@@ -5,13 +5,16 @@ namespace Tests\Feature\Laboratory;
 use App\Enums\Role as RoleEnum;
 use App\Models\Item;
 use App\Models\LaboratoryEquipmentLog;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Repositories\LaboratoryEquipmentLogRepo;
 use App\Services\Laboratory\LaboratoryLogService;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Laravel\Sanctum\Sanctum;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
 use Tests\WithTestRoles;
 
@@ -54,6 +57,33 @@ class EquipmentControllersTest extends TestCase
             ->assertNotFound()
             ->assertJson([
                 'message' => 'Equipment not found.',
+            ]);
+    }
+
+    public function test_guest_laboratory_show_returns_specific_message_when_equipment_is_not_borrowable(): void
+    {
+        $service = $this->createMock(LaboratoryLogService::class);
+        $service->expects($this->once())
+            ->method('resolveEquipmentId')
+            ->with('LAB-TRACKED-001')
+            ->willReturn('equipment-1');
+        $service->expects($this->once())
+            ->method('getEquipmentDetails')
+            ->with('equipment-1')
+            ->willThrowException(new HttpException(
+                422,
+                'This equipment exists, but its latest incoming stock is marked as "Tracked only / Not borrowable" and is not available in the borrowable equipment logger flow.',
+            ));
+
+        $repo = $this->createMock(LaboratoryEquipmentLogRepo::class);
+
+        $this->app->instance(LaboratoryLogService::class, $service);
+        $this->app->instance(LaboratoryEquipmentLogRepo::class, $repo);
+
+        $this->getJson(route('api.laboratory.equipments.show', ['identifier' => 'LAB-TRACKED-001']))
+            ->assertUnprocessable()
+            ->assertJson([
+                'message' => 'This equipment exists, but its latest incoming stock is marked as "Tracked only / Not borrowable" and is not available in the borrowable equipment logger flow.',
             ]);
     }
 
@@ -249,5 +279,88 @@ class EquipmentControllersTest extends TestCase
             ->assertJsonPath('data.0.id', 'log-1')
             ->assertJsonPath('data.0.status', 'active')
             ->assertJsonPath('meta.total', 1);
+    }
+
+    public function test_laboratory_manager_can_view_equipment_logger_equipment_index(): void
+    {
+        $service = $this->createMock(LaboratoryLogService::class);
+        $service->expects($this->once())
+            ->method('paginateEquipmentUsage')
+            ->with($this->callback(fn (array $payload) => ($payload['search'] ?? null) === 'PCR'), 'all')
+            ->willReturn(new LengthAwarePaginator(
+                [
+                    [
+                        'id' => 'equipment-1',
+                        'name' => 'PCR Machine',
+                        'equipment_type' => 'laboratory',
+                        'total_logs' => 12,
+                    ],
+                ],
+                1,
+                10,
+                1
+            ));
+
+        $repo = $this->createMock(LaboratoryEquipmentLogRepo::class);
+
+        $this->app->instance(LaboratoryLogService::class, $service);
+        $this->app->instance(LaboratoryEquipmentLogRepo::class, $repo);
+
+        $user = $this->createUserWithRole(RoleEnum::LABORATORY_MANAGER->value);
+        Sanctum::actingAs($user);
+
+        $this->getJson(route('api.equipment-logger.equipments.index', ['search' => 'PCR']))
+            ->assertOk()
+            ->assertJsonPath('data.0.id', 'equipment-1')
+            ->assertJsonPath('data.0.total_logs', 12);
+    }
+
+    public function test_laboratory_manager_can_update_equipment_logger_mode_from_dashboard(): void
+    {
+        $service = $this->createMock(LaboratoryLogService::class);
+        $service->expects($this->once())
+            ->method('updateEquipmentLoggerMode')
+            ->with('equipment-1', Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED)
+            ->willReturn([
+                'transaction_id' => 'transaction-1',
+                'equipment_id' => 'equipment-1',
+                'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED,
+                'equipment_logger_mode_label' => 'Excluded from logger',
+            ]);
+
+        $repo = $this->createMock(LaboratoryEquipmentLogRepo::class);
+
+        $this->app->instance(LaboratoryLogService::class, $service);
+        $this->app->instance(LaboratoryEquipmentLogRepo::class, $repo);
+
+        Sanctum::actingAs($this->createUserWithRole(RoleEnum::LABORATORY_MANAGER->value));
+
+        $this->patchJson(route('api.equipment-logger.equipments.logger-mode.update', ['equipmentId' => 'equipment-1']), [
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED,
+        ])
+            ->assertOk()
+            ->assertJsonPath('message', 'Equipment logger mode updated successfully.')
+            ->assertJsonPath('data.transaction_id', 'transaction-1')
+            ->assertJsonPath('data.equipment_logger_mode', Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED);
+    }
+
+    public function test_equipment_logger_mode_update_requires_a_valid_mode(): void
+    {
+        $service = $this->createMock(LaboratoryLogService::class);
+        $service->expects($this->never())
+            ->method('updateEquipmentLoggerMode');
+
+        $repo = $this->createMock(LaboratoryEquipmentLogRepo::class);
+
+        $this->app->instance(LaboratoryLogService::class, $service);
+        $this->app->instance(LaboratoryEquipmentLogRepo::class, $repo);
+
+        Sanctum::actingAs($this->createUserWithRole(RoleEnum::LABORATORY_MANAGER->value));
+
+        $this->patchJson(route('api.equipment-logger.equipments.logger-mode.update', ['equipmentId' => 'equipment-1']), [
+            'equipment_logger_mode' => 'not-a-real-mode',
+        ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['equipment_logger_mode']);
     }
 }

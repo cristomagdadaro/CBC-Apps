@@ -35,7 +35,7 @@ export default {
                     icon: "LuLayoutDashboard",
                 },
                 {
-                    label: "Form Builder Module",
+                    label: "Form Builder",
                     href: null,
                     icon: "LuWrench",
                     children: [
@@ -56,7 +56,7 @@ export default {
                     ],
                 },
                 {
-                    label: "Bookings and Rentals Module",
+                    label: "Bookings and Rentals",
                     href: null,
                     icon: "LuDollarSign",
                     children: [
@@ -85,21 +85,21 @@ export default {
                     permission: "rental.vehicle.manage",
                 },
                 {
-                    label: "FES Request Module",
+                    label: "FES Request",
                     href: "accessUseRequest.index",
                     permission: "fes.request.approve",
                     moduleKey: "fes",
                     icon: "LuShield",
                 },
                 {
-                    label: "Equipment Logger Module",
-                    href: "laboratory.dashboard",
+                    label: "Equipment Logger",
+                    href: "equipment-logger.dashboard",
                     permission: "laboratory.logger.manage",
                     moduleKey: "laboratory_dashboard",
                     icon: "LuMicroscope",
                 },
                 {
-                    label: "Research Module",
+                    label: "Research",
                     href: null,
                     icon: "LuFlaskConical",
                     permission: "research.dashboard.view",
@@ -128,7 +128,7 @@ export default {
                     ],
                 },
                 {
-                    label: "Inventory Module",
+                    label: "Inventory System",
                     href: null,
                     icon: "LuPackage",
                     permission: "inventory.manage",
@@ -187,14 +187,21 @@ export default {
                     ],
                 },
                 {
-                    label: "File Report Module",
+                    label: "File Report",
                     href: "suppEquipReports.index",
                     permission: "equipment.report.manage",
                     moduleKey: "inventory",
                     icon: "LuFileText",
                 },
                 {
-                    label: "System Module",
+                    label: "Go Link Manager",
+                    href: "golinks.index",
+                    permission: "golinks.manage",
+                    moduleKey: "golink",
+                    icon: "LuLink",
+                },
+                {
+                    label: "System Settings",
                     href: null,
                     icon: "LuSettings",
                     roles: ["admin"],
@@ -248,7 +255,35 @@ export default {
             this.sidebarOpen = false;
             this.userDropdownOpen = false;
             this.teamDropdownOpen = false;
+            if (typeof document !== "undefined") {
+                document.body.classList.remove("overflow-hidden");
+            }
         });
+    },
+    beforeUnmount() {
+        if (typeof document !== "undefined") {
+            document.body.classList.remove("overflow-hidden");
+        }
+    },
+    watch: {
+        showingNavigationDropdown(isOpen) {
+            if (typeof document !== "undefined") {
+                if (isOpen) {
+                    document.body.classList.add("overflow-hidden");
+                } else {
+                    document.body.classList.remove("overflow-hidden");
+                }
+            }
+        },
+        sidebarOpen(isOpen) {
+            if (typeof document !== "undefined") {
+                if (isOpen) {
+                    document.body.classList.add("overflow-hidden");
+                } else {
+                    document.body.classList.remove("overflow-hidden");
+                }
+            }
+        },
     },
     computed: {
         isSidebarModeResponsive() {
@@ -790,7 +825,7 @@ export default {
             </Transition>
 
             <!-- Main Content Area -->
-            <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+            <div class="flex-1 flex flex-col min-w-0">
                 <!-- Top Navigation (Top mode or mobile) -->
                 <nav
                     v-if="!isSidebarModeResponsive || !isSidebarMode"
@@ -926,6 +961,22 @@ export default {
                         </div>
                     </div>
 
+                    <!-- Mobile Navigation Backdrop Overlay -->
+                    <Transition
+                        enter-active-class="transition-opacity duration-200"
+                        enter-from-class="opacity-0"
+                        enter-to-class="opacity-100"
+                        leave-active-class="transition-opacity duration-150"
+                        leave-from-class="opacity-100"
+                        leave-to-class="opacity-0"
+                    >
+                        <div
+                            v-if="showingNavigationDropdown"
+                            @click="showingNavigationDropdown = false"
+                            class="fixed inset-0 bg-slate-900/60 z-40 md:hidden backdrop-blur-xs"
+                        ></div>
+                    </Transition>
+
                     <!-- Mobile Navigation Menu -->
                     <Transition
                         enter-active-class="transition-all duration-200 ease-out"
@@ -937,7 +988,7 @@ export default {
                     >
                         <div
                             v-if="showingNavigationDropdown"
-                            class="md:hidden border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50"
+                            class="md:hidden relative z-50 border-t border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl max-h-[80vh] overflow-y-auto"
                         >
                             <div class="px-4 py-3 space-y-1">
                                 <template
@@ -1022,7 +1073,7 @@ export default {
                 <!-- Page Header -->
                 <header
                     v-if="$slots.header"
-                    class="bg-AA dark:bg-gray-800 shadow-sm border-b border-AA dark:border-gray-700 h-16"
+                    class="bg-AA dark:bg-gray-800 shadow-sm border-b border-AA dark:border-gray-700 min-h-16 h-auto py-1 sm:py-0 transition-all"
                 >
                     <div class="default-container">
                         <slot name="header"/>

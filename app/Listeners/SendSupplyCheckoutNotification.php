@@ -14,17 +14,17 @@ class SendSupplyCheckoutNotification
 
     public function handle(InventoryTransactionChanged $event): void
     {
-        $transaction = $event->transaction->loadMissing(['item', 'personnel']);
+        $transaction = $event->transaction;
 
-        if ($event->action !== 'created' || $transaction->transac_type !== 'outgoing') {
+        if ($event->action !== 'created' || ($transaction['transac_type'] ?? null) !== 'outgoing') {
             return;
         }
 
         $requesterName = trim(implode(' ', array_filter([
-            $transaction->personnel?->fname,
-            $transaction->personnel?->mname,
-            $transaction->personnel?->lname,
-            $transaction->personnel?->suffix,
+            $transaction['personnel']['fname'] ?? null,
+            $transaction['personnel']['mname'] ?? null,
+            $transaction['personnel']['lname'] ?? null,
+            $transaction['personnel']['suffix'] ?? null,
         ])));
 
         $this->dispatch->dispatchNotification(
@@ -32,18 +32,18 @@ class SendSupplyCheckoutNotification
             eventKey: 'inventory.checkout.triggered',
             notificationClass: SupplyCheckoutTriggeredNotification::class,
             payload: [
-                'item_name' => $transaction->item?->name ?? 'Inventory item',
-                'quantity' => $transaction->quantity,
-                'unit' => $transaction->unit,
+                'item_name' => $transaction['item']['name'] ?? 'Inventory item',
+                'quantity' => $transaction['quantity'] ?? null,
+                'unit' => $transaction['unit'] ?? null,
                 'requester_name' => $requesterName !== '' ? $requesterName : 'Unknown requester',
             ],
             meta: [
-                'transaction_id' => $transaction->id,
-                'item_id' => $transaction->item_id,
-                'transac_type' => $transaction->transac_type,
+                'transaction_id' => $transaction['id'],
+                'item_id' => $transaction['item_id'] ?? null,
+                'transac_type' => $transaction['transac_type'] ?? null,
             ],
-            notifiableType: $transaction::class,
-            notifiableId: (string) $transaction->id,
+            notifiableType: \App\Models\Transaction::class,
+            notifiableId: (string) $transaction['id'],
         );
     }
 }

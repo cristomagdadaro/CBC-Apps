@@ -6,6 +6,7 @@ use App\Models\Option;
 use App\Services\DeploymentAccessService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Sanctum\Sanctum;
@@ -82,6 +83,27 @@ class DeploymentAccessTest extends TestCase
             ->assertJson(['ok' => true]);
     }
 
+    public function test_internet_host_allows_personnel_registration_even_when_inventory_is_local_only(): void
+    {
+        Mail::fake();
+
+        $this->get('http://onecbc.philrice.gov.ph/personnel/register')
+            ->assertOk();
+
+        $this->postJson('http://onecbc.philrice.gov.ph/api/guest/inventory/personnel-registrations', [
+            'is_philrice_employee' => true,
+            'fname' => 'Ivy',
+            'mname' => 'M',
+            'lname' => 'Santos',
+            'suffix' => null,
+            'position' => 'Research Aide',
+            'phone' => '09170000000',
+            'address' => 'Science City of Munoz',
+            'email' => 'ivy.santos@example.test',
+            'employee_id' => '12-4555',
+        ])->assertCreated();
+    }
+
     public function test_option_model_can_make_laboratory_dashboard_internet_only(): void
     {
         $this->seedModuleSettings(
@@ -135,6 +157,7 @@ class DeploymentAccessTest extends TestCase
                 ->where('deployment_access.channel', DeploymentAccessService::CHANNEL_INTERNET)
                 ->where('deployment_access.services.equipment_logger', false)
                 ->where('deployment_access.services.forms', true)
+                ->where('deployment_access.services.personnel_registration', true)
                 ->where('deployment_access.services.supplies_checkout', false)
             );
     }
@@ -147,6 +170,7 @@ class DeploymentAccessTest extends TestCase
                 ->component('Welcome')
                 ->where('deployment_access.channel', DeploymentAccessService::CHANNEL_LOCAL)
                 ->where('deployment_access.services.equipment_logger', true)
+                ->where('deployment_access.services.personnel_registration', true)
                 ->where('deployment_access.services.rentals', true)
                 ->where('deployment_access.services.supplies_checkout', true)
             );

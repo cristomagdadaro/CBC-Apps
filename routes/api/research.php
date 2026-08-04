@@ -34,6 +34,7 @@ Route::middleware(['api', 'auth:sanctum'])->group(function () {
         Route::middleware(['can:research.samples.manage'])->get('/samples/inventory/lookup/{uid}', [ResearchSampleInventoryController::class, 'lookup'])->name('api.research.samples.inventory.lookup');
         Route::middleware(['can:research.samples.manage'])->post('/samples/inventory/scan', [ResearchSampleInventoryController::class, 'scan'])->name('api.research.samples.inventory.scan');
         Route::middleware(['can:research.samples.manage'])->post('/samples/inventory/labels/print', [ResearchSampleInventoryController::class, 'printLabels'])->name('api.research.samples.inventory.labels.print');
+        Route::middleware(['can:research.samples.manage'])->get('/samples/{uid}', [ResearchSampleInventoryController::class, 'show'])->where('uid', '[A-Za-z0-9\-]+')->name('api.research.samples.show');
 
         Route::middleware(['can:research.monitoring.manage'])->post('/records', [ResearchMonitoringRecordController::class, 'store'])->name('api.research.records.store');
         Route::middleware(['can:research.monitoring.manage', 'can:update,record'])->put('/records/{record}', [ResearchMonitoringRecordController::class, 'update'])->name('api.research.records.update');

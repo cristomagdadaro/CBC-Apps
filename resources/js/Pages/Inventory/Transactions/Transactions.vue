@@ -1,6 +1,7 @@
 <script setup>
 import Transaction from '@/Modules/domain/Transaction';
 import TransactionHeaderAction from '@/Pages/Inventory/Transactions/components/TransactionHeaderAction.vue';
+import { Link } from '@inertiajs/vue3';
 
 const transactionTypeOptions = [
     { name: 'incoming', label: 'Incoming' },
@@ -9,7 +10,6 @@ const transactionTypeOptions = [
 </script>
 
 <template>
-
     <Head title="Transactions" />
     <AppLayout>
         <template #header>
@@ -35,6 +35,30 @@ const transactionTypeOptions = [
                 }">
                     {{ value === 'incoming' ? 'Incoming' : value === 'outgoing' ? 'Outgoing' : value }}
                 </span>
+            </template>
+            <template #cell-itemWithPrriCode="{ value }">
+                <div class="py-1.5 leading-tight whitespace-normal w-full">
+                    <div class="font-medium">
+                        <Link :href="route('items.transactions', value.id)" class="text-primary-600 hover:text-primary-800 hover:underline">
+                            {{ value.name }}
+                        </Link>
+                        <span v-if="value.description" class="text-gray-500 block text-xs">Model: {{ value.description }}</span>
+                    </div>
+                    <div class="text-xs" v-if="value.brand">{{value.brand}}</div>
+                    <div class="text-xs" v-if="value.barcode_prri">PN: {{ value.barcode_prri }}</div>
+
+                </div>
+            </template>
+            <template #cell-remarks="{ value }">
+                <div class="py-1.5 leading-tight whitespace-normal w-full">
+                    {{ value }}
+                </div>
+            </template>
+            <template #cell-actorWithRemarks="{ value }">
+                <div class="py-1.5 leading-tight whitespace-normal w-full">
+                    <div v-if="value.actor_display_name" class="font-medium uppercase">{{ value.actor_display_name }}</div>
+                    <div v-if="value.remarks">{{ value.remarks }}</div>
+                </div>
             </template>
         </CRCMDatatable>
     </AppLayout>

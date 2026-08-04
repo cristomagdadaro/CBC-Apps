@@ -6,9 +6,11 @@ use App\Events\CertificateBatchStatusUpdated;
 use App\Events\EquipmentLogChanged;
 use App\Events\FormResponseChanged;
 use App\Events\InventoryTransactionChanged;
+use App\Events\PersonnelRegistrationSubmitted;
 use App\Listeners\SendCertificateBatchSummaryNotification;
 use App\Listeners\SendEquipmentLogLifecycleNotification;
 use App\Listeners\SendFormResponseNotification;
+use App\Listeners\SendPersonnelRegistrationSubmittedNotification;
 use App\Listeners\SendSupplyCheckoutNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -30,6 +32,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         InventoryTransactionChanged::class => [
             SendSupplyCheckoutNotification::class,
+        ],
+        PersonnelRegistrationSubmitted::class => [
+            SendPersonnelRegistrationSubmittedNotification::class,
         ],
         EquipmentLogChanged::class => [
             SendEquipmentLogLifecycleNotification::class,

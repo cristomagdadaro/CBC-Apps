@@ -6,6 +6,7 @@ use App\Models\Item;
 use App\Models\Requester;
 use App\Models\RequestFormPivot;
 use App\Models\UseRequestForm;
+use App\Services\LabRequest\RequestLifecycleService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +20,11 @@ class RequestFormPivotRepo extends AbstractRepoService
 {
     public array $appendWith = ['requester', 'request_form'];
 
-    public function __construct(RequestFormPivot $model, private readonly OptionRepo $optionRepo)
+    public function __construct(
+        RequestFormPivot $model,
+        private readonly OptionRepo $optionRepo,
+        private readonly RequestLifecycleService $lifecycleService,
+    )
     {
         parent::__construct($model);
     }
@@ -39,10 +44,13 @@ class RequestFormPivotRepo extends AbstractRepoService
             $requester = Requester::query()->create([
                 'name' => $data['name'],
                 'affiliation' => $data['affiliation'],
+                'philrice_id' => $data['requester_philrice_id'] ?? null,
                 'email' => $data['email'],
                 'position' => $data['position'] ?? null,
                 'phone' => $data['phone'],
             ]);
+
+            $this->lifecycleService->syncReturningPersonnel($data['requester_philrice_id'] ?? null, $data);
 
             $requestTypes = $data['request_type'];
             if (!is_array($requestTypes)) {
@@ -72,7 +80,7 @@ class RequestFormPivotRepo extends AbstractRepoService
             ]);
 
             $pivot->forceFill([
-                'request_status' => 'pending',
+                'request_status' => RequestFormPivot::STATUS_PENDING,
                 'approval_constraint' => null,
                 'disapproved_remarks' => null,
                 'approved_by' => null,
@@ -88,12 +96,19 @@ class RequestFormPivotRepo extends AbstractRepoService
             return null;
         }
 
-        return $this->model
+        $record = $this->model
             ->newQuery()
             ->where('id', $requestId)
             ->with(['requester','request_form'])
-            ->first()
-            ?->makeHidden(['disapproved_remarks', 'approval_constraint', 'approved_by']);
+            ->first();
+
+        if (!$record) {
+            return null;
+        }
+
+        $this->hydrateRequestFormLabels(collect([$record]));
+
+        return $record->makeHidden(['disapproved_remarks', 'approval_constraint', 'approved_by']);
     }
 
     public function getForPdf(string $id): RequestFormPivot
@@ -123,6 +138,12 @@ class RequestFormPivotRepo extends AbstractRepoService
                     PersistApproval::class,
                 ])
                 ->thenReturn();
+
+            $this->lifecycleService->sendTransitionNotification(
+                $context['model'],
+                $context['previous_status'] ?? null,
+                $context['requested_status'] ?? null,
+            );
 
             return $context['model'];
         });

@@ -157,6 +157,7 @@ export default {
                 this.processingOnServer = false;
                 this.stopPolling();
                 this.errorMessage = data?.error || data?.message || 'Server processing failed.';
+                this.fetchResponseColumns();
                 return;
             }
 
@@ -165,6 +166,7 @@ export default {
                 this.stopPolling();
                 const summary = data?.summary || {};
                 this.message = `Completed! Success: ${summary.success ?? 0}, Failed: ${summary.fail ?? 0}`;
+                this.fetchResponseColumns();
                 return;
             }
 
@@ -331,10 +333,45 @@ export default {
         recipientEmail(recipient) {
             return this.recipientDisplayValue(recipient, this.selectedEmailColumn) || '—';
         },
+        recipientCertificateStatus(recipient) {
+            return recipient?.certificate_delivery_status || 'not_sent';
+        },
+        recipientCertificateStatusConfig(recipient) {
+            const status = this.recipientCertificateStatus(recipient);
+            const configs = {
+                sent: {
+                    label: 'Sent',
+                    badge: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+                },
+                queued: {
+                    label: 'Queued',
+                    badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+                },
+                failed: {
+                    label: 'Failed',
+                    badge: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+                },
+                not_sent: {
+                    label: 'Not sent',
+                    badge: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
+                },
+            };
+
+            return configs[status] || configs.not_sent;
+        },
         formatSubmittedAt(value) {
             if (!value) return '—';
             const date = new Date(value);
             if (Number.isNaN(date.getTime())) return '—';
+            return date.toLocaleString();
+        },
+        formatCertificateSentAt(recipient) {
+            const value = recipient?.certificate_delivery_sent_at;
+            if (!value) return '';
+
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return '';
+
             return date.toLocaleString();
         },
         async resolveErrorMessage(error, fallback = 'Certificate request failed.') {
@@ -657,6 +694,7 @@ export default {
                                         <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Select</th>
                                         <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Name</th>
                                         <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Email</th>
+                                        <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Certificate</th>
                                         <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Subform</th>
                                         <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Submitted</th>
                                     </tr>
@@ -673,6 +711,22 @@ export default {
                                         </td>
                                         <td class="px-3 py-2 text-sm text-gray-700 dark:text-gray-200">{{ recipientName(recipient) }}</td>
                                         <td class="px-3 py-2 text-sm text-gray-700 dark:text-gray-200">{{ recipientEmail(recipient) }}</td>
+                                        <td class="px-3 py-2 text-sm text-gray-700 dark:text-gray-200">
+                                            <div class="flex flex-col gap-1">
+                                                <span
+                                                    class="inline-flex w-fit items-center rounded-full px-2 py-1 text-xs font-medium"
+                                                    :class="recipientCertificateStatusConfig(recipient).badge"
+                                                >
+                                                    {{ recipientCertificateStatusConfig(recipient).label }}
+                                                </span>
+                                                <span
+                                                    v-if="recipientCertificateStatus(recipient) === 'sent' && formatCertificateSentAt(recipient)"
+                                                    class="text-xs text-gray-500 dark:text-gray-400"
+                                                >
+                                                    {{ formatCertificateSentAt(recipient) }}
+                                                </span>
+                                            </div>
+                                        </td>
                                         <td class="px-3 py-2 text-sm text-gray-700 dark:text-gray-200">{{ recipient.subform_type || '—' }}</td>
                                         <td class="px-3 py-2 text-sm text-gray-700 dark:text-gray-200">{{ formatSubmittedAt(recipient.submitted_at) }}</td>
                                     </tr>

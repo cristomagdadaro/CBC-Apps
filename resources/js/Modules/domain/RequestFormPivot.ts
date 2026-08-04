@@ -21,6 +21,7 @@ export default class RequestFormPivot extends DtoRequestFormPivot {
         return {
             name: null,
             affiliation: null,
+            requester_philrice_id: null,
             email: null,
             position: null,
             phone: null,
@@ -49,6 +50,10 @@ export default class RequestFormPivot extends DtoRequestFormPivot {
             request_status: data?.request_status,
             approval_constraint: data?.approval_constraint,
             disapproved_remarks: data?.disapproved_remarks,
+            released_by: data?.released_by,
+            released_at: data?.released_at,
+            returned_by: data?.returned_by,
+            returned_at: data?.returned_at,
         }
     }
 

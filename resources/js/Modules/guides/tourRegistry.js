@@ -116,6 +116,15 @@ export const TOUR_REGISTRY = {
                 },
             },
             {
+                element: "[data-guide='services-personnel-registration']",
+                popover: {
+                    title: "Register as Personnel",
+                    description: "Submit your personnel details here, verify your email, then wait for administrator approval.",
+                    side: "top",
+                    align: "center",
+                },
+            },
+            {
                 element: "[data-guide='services-incident-reports']",
                 popover: {
                     title: "Report an Incident",
@@ -357,6 +366,22 @@ export const TOUR_REGISTRY = {
             },
         ],
     },
+    "personnel-registration-guest": {
+        title: "Register Personnel Profile",
+        extends: "guest-page",
+        steps: [
+            {
+                element: "[data-guide='personnel-registration-form']",
+                popover: {
+                    title: "Submit Your Personnel Details",
+                    description:
+                        "Fill in your name, contact details, personnel type, and email. You must verify the email before admins can approve the profile.",
+                    side: "top",
+                    align: "center",
+                },
+            },
+        ],
+    },
     "equipment-logger-guest": {
         title: "Log Equipment Use",
         extends: "guest-page",
@@ -367,6 +392,16 @@ export const TOUR_REGISTRY = {
                     title: "Equipment Details",
                     description:
                         "See the item name, current location, status, and barcode information at a glance.",
+                    side: "top",
+                    align: "center",
+                },
+            },
+            {
+                element: "[data-guide='equipment-status']",
+                popover: {
+                    title: "Usage Status",
+                    description:
+                        "Check if the equipment is currently in use, when it was last checked out, and if it's overdue for check out.",
                     side: "top",
                     align: "center",
                 },

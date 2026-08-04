@@ -7,6 +7,7 @@ import {
   LuFlaskConical,
   LuMicroscope,
   LuPackage,
+  LuUserPlus,
 } from "@/Components/Icons";
 
 export const PUBLIC_SERVICES = Object.freeze([
@@ -19,6 +20,16 @@ export const PUBLIC_SERVICES = Object.freeze([
     color: "blue",
     visibilityKey: "rentals",
     guideKey: "rental-bookings-public",
+  },
+  {
+    id: "personnel-registration",
+    title: "Personnel Registration",
+    description: "Register personnel details and verify your email for approval",
+    icon: LuUserPlus,
+    routeName: "personnel.registration.guest",
+    color: "teal",
+    visibilityKey: "personnel_registration",
+    guideKey: "personnel-registration-guest",
   },
   {
     id: "forms",

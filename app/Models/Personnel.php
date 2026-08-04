@@ -22,7 +22,13 @@ class Personnel extends BaseModel
         'phone',
         'address',
         'email',
+        'email_verified_at',
         'employee_id',
+        'registration_type',
+        'course_program',
+        'id_photo_path',
+        'id_issued_at',
+        'status',
     ];
 
     protected array $searchable  = [
@@ -34,7 +40,16 @@ class Personnel extends BaseModel
         'phone',
         'address',
         'email',
+        'email_verified_at',
         'employee_id',
+        'registration_type',
+        'course_program',
+        'status',
+    ];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'id_issued_at' => 'datetime',
     ];
 
     protected function serializeDate(DateTimeInterface $date): string

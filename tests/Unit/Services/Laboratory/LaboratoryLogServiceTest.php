@@ -37,6 +37,7 @@ class LaboratoryLogServiceTest extends TestCase
             'user_id' => User::query()->first()->id,
             'expiration' => now()->addMonth(),
             'remarks' => 'Laboratory stock',
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
         ]);
 
         $resolved = app(LaboratoryLogService::class)->resolveEquipmentId('CBC-LAB-0001');
@@ -60,6 +61,7 @@ class LaboratoryLogServiceTest extends TestCase
             'user_id' => User::query()->first()->id,
             'expiration' => now()->addMonth(),
             'remarks' => 'Archived barcode source',
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
         ]);
 
         $transaction->delete();
@@ -67,6 +69,178 @@ class LaboratoryLogServiceTest extends TestCase
         $resolved = app(LaboratoryLogService::class)->resolveEquipmentId('CBC-LAB-TRASHED-01');
 
         $this->assertSame($item->id, $resolved);
+    }
+
+    public function test_list_eligible_equipment_only_returns_borrowable_items(): void
+    {
+        ['item' => $borrowableItem, 'personnel' => $personnel, 'user' => $user] = $this->createLaboratoryInventoryContext();
+
+        $trackedOnlyItem = Item::factory()->create([
+            'category_id' => 7,
+            'supplier_id' => $borrowableItem->supplier_id,
+        ]);
+
+        foreach ([$borrowableItem, $trackedOnlyItem] as $index => $item) {
+            Transaction::query()->create([
+                'item_id' => $item->id,
+                'barcode' => 'CBC-LAB-FILTER-0' . ($index + 1),
+                'transac_type' => InventoryEnum::INCOMING->value,
+                'quantity' => 1,
+                'unit_price' => 100,
+                'unit' => 'pc',
+                'total_cost' => 100,
+                'personnel_id' => $personnel->id,
+                'user_id' => $user->id,
+                'expiration' => now()->addMonth(),
+                'remarks' => 'Laboratory stock',
+                'equipment_logger_mode' => $item->is($borrowableItem)
+                    ? Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE
+                    : Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+            ]);
+        }
+
+        $eligibleIds = app(LaboratoryLogService::class)
+            ->listEligibleEquipment()
+            ->pluck('equipment_id')
+            ->all();
+
+        $this->assertContains($borrowableItem->id, $eligibleIds);
+        $this->assertNotContains($trackedOnlyItem->id, $eligibleIds);
+    }
+
+    public function test_list_eligible_equipment_uses_latest_incoming_mode_for_availability(): void
+    {
+        ['item' => $borrowableItem, 'personnel' => $personnel, 'user' => $user] = $this->createLaboratoryInventoryContext();
+
+        $historicalBorrowableItem = Item::factory()->create([
+            'category_id' => 7,
+            'supplier_id' => $borrowableItem->supplier_id,
+        ]);
+
+        Transaction::query()->create([
+            'item_id' => $borrowableItem->id,
+            'barcode' => 'CBC-LAB-CURRENT-01',
+            'transac_type' => InventoryEnum::INCOMING->value,
+            'quantity' => 1,
+            'unit_price' => 100,
+            'unit' => 'pc',
+            'total_cost' => 100,
+            'personnel_id' => $personnel->id,
+            'user_id' => $user->id,
+            'expiration' => now()->addMonth(),
+            'remarks' => 'Borrowable stock',
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+            'created_at' => now()->subMinutes(5),
+            'updated_at' => now()->subMinutes(5),
+        ]);
+
+        Transaction::query()->create([
+            'item_id' => $historicalBorrowableItem->id,
+            'barcode' => 'CBC-LAB-HISTORY-01',
+            'transac_type' => InventoryEnum::INCOMING->value,
+            'quantity' => 1,
+            'unit_price' => 100,
+            'unit' => 'pc',
+            'total_cost' => 100,
+            'personnel_id' => $personnel->id,
+            'user_id' => $user->id,
+            'expiration' => now()->addMonth(),
+            'remarks' => 'Old borrowable stock',
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+            'created_at' => now()->subMinutes(10),
+            'updated_at' => now()->subMinutes(10),
+        ]);
+
+        Transaction::query()->create([
+            'item_id' => $historicalBorrowableItem->id,
+            'barcode' => 'CBC-LAB-HISTORY-02',
+            'transac_type' => InventoryEnum::INCOMING->value,
+            'quantity' => 1,
+            'unit_price' => 100,
+            'unit' => 'pc',
+            'total_cost' => 100,
+            'personnel_id' => $personnel->id,
+            'user_id' => $user->id,
+            'expiration' => now()->addMonth(),
+            'remarks' => 'Latest tracked-only stock',
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+            'created_at' => now()->subMinute(),
+            'updated_at' => now()->subMinute(),
+        ]);
+
+        $eligibleIds = app(LaboratoryLogService::class)
+            ->listEligibleEquipment()
+            ->pluck('equipment_id')
+            ->all();
+
+        $this->assertContains($borrowableItem->id, $eligibleIds);
+        $this->assertNotContains($historicalBorrowableItem->id, $eligibleIds);
+    }
+
+    public function test_update_equipment_logger_mode_updates_the_latest_incoming_transaction(): void
+    {
+        ['item' => $item, 'personnel' => $personnel, 'user' => $user] = $this->createLaboratoryInventoryContext();
+
+        $olderTransaction = Transaction::query()->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-LAB-MODE-OLD',
+            'transac_type' => InventoryEnum::INCOMING->value,
+            'quantity' => 1,
+            'unit_price' => 100,
+            'unit' => 'pc',
+            'total_cost' => 100,
+            'personnel_id' => $personnel->id,
+            'user_id' => $user->id,
+            'expiration' => now()->addMonth(),
+            'remarks' => 'Older incoming stock',
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+            'created_at' => now()->subMinutes(10),
+            'updated_at' => now()->subMinutes(10),
+        ]);
+
+        $latestTransaction = Transaction::query()->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-LAB-MODE-LATEST',
+            'transac_type' => InventoryEnum::INCOMING->value,
+            'quantity' => 1,
+            'unit_price' => 100,
+            'unit' => 'pc',
+            'total_cost' => 100,
+            'personnel_id' => $personnel->id,
+            'user_id' => $user->id,
+            'expiration' => now()->addMonth(),
+            'remarks' => 'Latest incoming stock',
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+            'created_at' => now()->subMinute(),
+            'updated_at' => now()->subMinute(),
+        ]);
+
+        $result = app(LaboratoryLogService::class)->updateEquipmentLoggerMode(
+            $item->id,
+            Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED,
+        );
+
+        $this->assertSame($latestTransaction->id, $result['transaction_id']);
+        $this->assertSame(Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED, $result['equipment_logger_mode']);
+        $this->assertSame(Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE, $olderTransaction->fresh()->equipment_logger_mode);
+        $this->assertSame(Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED, $latestTransaction->fresh()->equipment_logger_mode);
+    }
+
+    public function test_update_equipment_logger_mode_requires_an_incoming_transaction(): void
+    {
+        ['item' => $item] = $this->createLaboratoryInventoryContext();
+
+        try {
+            app(LaboratoryLogService::class)->updateEquipmentLoggerMode(
+                $item->id,
+                Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+            );
+
+            $this->fail('Expected a missing incoming transaction exception.');
+        } catch (HttpException $exception) {
+            $this->assertSame(404, $exception->getStatusCode());
+            $this->assertSame('No incoming transaction found for this equipment.', $exception->getMessage());
+        }
     }
 
     public function test_mark_overdue_updates_only_expired_active_logs(): void
@@ -142,6 +316,7 @@ class LaboratoryLogServiceTest extends TestCase
             'user_id' => $user->id,
             'expiration' => now()->addMonth(),
             'remarks' => 'Laboratory stock',
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
         ]);
 
         $freshPersonnel = Personnel::factory()->create([
@@ -184,6 +359,7 @@ class LaboratoryLogServiceTest extends TestCase
             'user_id' => $user->id,
             'expiration' => now()->addMonth(),
             'remarks' => 'Laboratory stock',
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
         ]);
 
         $personnelWithoutEmail = Personnel::factory()->create([
@@ -227,6 +403,7 @@ class LaboratoryLogServiceTest extends TestCase
             'user_id' => $user->id,
             'expiration' => now()->addMonth(),
             'remarks' => 'Laboratory stock',
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
         ]);
 
         Personnel::factory()->create([
@@ -248,6 +425,76 @@ class LaboratoryLogServiceTest extends TestCase
         ]);
 
         $this->assertSame($personnelWithEmail->id, $log->personnel_id);
+    }
+
+    public function test_get_equipment_details_returns_specific_message_for_tracked_only_items(): void
+    {
+        $context = $this->createLaboratoryInventoryContext();
+        $item = $context['item'];
+        $personnel = $context['personnel'];
+        $user = $context['user'];
+
+        Transaction::query()->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-LAB-TRACKED-01',
+            'transac_type' => InventoryEnum::INCOMING->value,
+            'quantity' => 1,
+            'unit_price' => 100,
+            'unit' => 'pc',
+            'total_cost' => 100,
+            'personnel_id' => $personnel->id,
+            'user_id' => $user->id,
+            'expiration' => now()->addMonth(),
+            'remarks' => 'Tracked-only stock',
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+        ]);
+
+        try {
+            app(LaboratoryLogService::class)->getEquipmentDetails($item->id);
+
+            $this->fail('Expected a tracked-only availability exception.');
+        } catch (HttpException $exception) {
+            $this->assertSame(422, $exception->getStatusCode());
+            $this->assertSame(
+                'This equipment is Tracked only / Not borrowable. Please contact the Laboratory Manager if you need this equipment.',
+                $exception->getMessage()
+            );
+        }
+    }
+
+    public function test_get_equipment_details_returns_specific_message_for_excluded_items(): void
+    {
+        $context = $this->createLaboratoryInventoryContext();
+        $item = $context['item'];
+        $personnel = $context['personnel'];
+        $user = $context['user'];
+
+        Transaction::query()->create([
+            'item_id' => $item->id,
+            'barcode' => 'CBC-LAB-EXCLUDED-01',
+            'transac_type' => InventoryEnum::INCOMING->value,
+            'quantity' => 1,
+            'unit_price' => 100,
+            'unit' => 'pc',
+            'total_cost' => 100,
+            'personnel_id' => $personnel->id,
+            'user_id' => $user->id,
+            'expiration' => now()->addMonth(),
+            'remarks' => 'Excluded stock',
+            'equipment_logger_mode' => Transaction::EQUIPMENT_LOGGER_MODE_EXCLUDED,
+        ]);
+
+        try {
+            app(LaboratoryLogService::class)->getEquipmentDetails($item->id);
+
+            $this->fail('Expected an excluded availability exception.');
+        } catch (HttpException $exception) {
+            $this->assertSame(422, $exception->getStatusCode());
+            $this->assertSame(
+                'This equipment is Excluded from logger. Please contact the Laboratory Manager if you need assistance.',
+                $exception->getMessage()
+            );
+        }
     }
 
     private function createLaboratoryInventoryContext(): array

@@ -37,6 +37,7 @@ class PersonnelRepo extends AbstractRepoService
         return $this->model
             ->newQuery()
             ->selectRaw('id as name, CONCAT(fname, " ", COALESCE(mname, ""), " ", lname, " ", COALESCE(suffix, "")) as label')
+            ->orderBy('label', 'ASC')
             ->get();
     }
 

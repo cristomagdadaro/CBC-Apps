@@ -40,8 +40,10 @@ class NewBarcode extends BaseModel
                 preg_match('/CBC-\d{2}-(\d+)/', $lastBarcode, $matches);
                 $numericPart = isset($matches[1]) ? (int)$matches[1] : 0;
 
-                // check if last barcode was already used in transactions
-                $isUsed = Transaction::where('barcode', $lastBarcode)->exists();
+                // keep previously issued barcodes reserved even after soft delete
+                $isUsed = Transaction::withTrashed()
+                    ->where('barcode', $lastBarcode)
+                    ->exists();
 
                 if ($isUsed) {
                     $numericPart++;

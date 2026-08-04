@@ -33,20 +33,20 @@ export default {
         <form
             v-if="!!form"
             @submit.prevent="submitCreate"
-            class="py-12 max-w-3xl mx-auto"
+            class="py-6 sm:py-10 max-w-3xl mx-auto px-4"
         >
             <div
-                class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg"
+                class="flex flex-col gap-4 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs rounded-2xl p-4 sm:p-6 text-slate-900 dark:text-slate-100"
             >
-                <div class="flex flex-col">
+                <div class="flex flex-col pb-3 border-b border-slate-200 dark:border-slate-800">
                     <h2
-                        class="font-bold uppercase leading-none py-2 mb-1 border-b"
+                        class="font-bold text-xs sm:text-sm uppercase tracking-wider text-slate-900 dark:text-slate-100"
                     >
                         Personnel Registration Form
                     </h2>
-                    <p>Use this form to register new personnel.</p>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Use this form to register new personnel into the system.</p>
                 </div>
-                <div class="flex sm:flex-row flex-col gap-1">
+                <div class="flex sm:flex-row flex-col gap-2">
                     <text-input
                         required
                         label="First Name"
@@ -65,19 +65,19 @@ export default {
                         :error="form.errors.lname"
                     />
                     <text-input
-                        label="suffix"
+                        label="Suffix"
                         v-model="form.suffix"
                         :error="form.errors.suffix"
                     />
                 </div>
-                <div class="flex flex-col gap-2">
+                <div class="flex flex-col gap-3">
                     <div class="space-y-1">
-                        <label class="text-sm font-medium text-gray-700">
+                        <label class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
                             Personnel Type
                         </label>
                         <select
                             v-model="form.is_philrice_employee"
-                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-AB focus:ring-AB"
+                            class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm shadow-xs focus:border-lime-500 focus:ring-lime-500"
                         >
                             <option :value="true">PhilRice Employee</option>
                             <option :value="false">OJT / Thesis / Outsider</option>
@@ -106,7 +106,7 @@ export default {
                     :error="form.errors.address"
                 />
                 <div v-if="isPhilRiceEmployee" class="space-y-1">
-                    <span class="text-sm text-gray-600">
+                    <span class="text-xs text-slate-500 dark:text-slate-400">
                         Enter the employee's PhilRice ID.
                     </span>
                     <text-input
@@ -116,14 +116,14 @@ export default {
                         :error="form.errors.employee_id"
                     />
                 </div>
-                <div v-else class="rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
-                    <p class="font-semibold">Auto-generated CBC ID</p>
-                    <p class="mt-1">
+                <div v-else class="rounded-xl border border-lime-200 dark:border-lime-900/60 bg-lime-50/70 dark:bg-lime-950/40 p-4 text-xs sm:text-sm text-lime-900 dark:text-lime-200">
+                    <p class="font-bold">Auto-generated CBC ID</p>
+                    <p class="mt-1 text-slate-600 dark:text-slate-300 text-xs">
                         The next outsider/OJT/thesis identifier will be assigned automatically on save.
                     </p>
-                    <p class="mt-2 font-mono text-base">{{ externalEmployeeIdPreview }}</p>
+                    <p class="mt-2 font-mono text-sm font-bold text-lime-700 dark:text-lime-300">{{ externalEmployeeIdPreview }}</p>
                 </div>
-                <div class="flex gap-1 justify-end">
+                <div class="flex gap-2 justify-end pt-2">
                     <submit-btn :disabled="model.api.processing">
                         <span v-if="model.api.processing">Saving</span>
                         <span v-else>Save</span>

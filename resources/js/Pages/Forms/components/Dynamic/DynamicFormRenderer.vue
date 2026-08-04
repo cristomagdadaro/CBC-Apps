@@ -280,8 +280,8 @@ export default {
             if (!this.form) return;
 
             if (!value) {
-                this.locationProvinces = [];
-                this.locationCities = [];
+                this.resetLocationProvinces();
+                this.resetLocationCities();
                 if (this.provinceFieldKey) this.form.response_data[this.provinceFieldKey] = null;
                 if (this.cityFieldKey) this.form.response_data[this.cityFieldKey] = null;
                 return;
@@ -290,16 +290,17 @@ export default {
             if (oldValue !== undefined && value !== oldValue) {
                 if (this.provinceFieldKey) this.form.response_data[this.provinceFieldKey] = null;
                 if (this.cityFieldKey) this.form.response_data[this.cityFieldKey] = null;
-                this.locationCities = [];
             }
 
+            this.resetLocationProvinces();
+            this.resetLocationCities();
             this.loadProvinces(value);
         },
         selectedProvinceValue(value, oldValue) {
             if (!this.form) return;
 
             if (!value) {
-                this.locationCities = [];
+                this.resetLocationCities();
                 if (this.cityFieldKey) this.form.response_data[this.cityFieldKey] = null;
                 return;
             }
@@ -308,6 +309,7 @@ export default {
                 this.form.response_data[this.cityFieldKey] = null;
             }
 
+            this.resetLocationCities();
             this.loadCities(value, this.selectedRegionValue);
         },
     },
@@ -757,13 +759,7 @@ export default {
         </transition-container>
 
         <!-- Form Header -->
-        <div class="pb-3 pt-1">
-            <h3 v-if="title" class="text-lg leading-tight uppercase font-extrabold text-gray-900 dark:text-gray-200">
-                {{ isEditMode ? `Update ${title}` : title }}
-            </h3>
-            <p v-if="description" class="text-sm leading-none text-gray-900 dark:text-gray-200">
-                {{ description }}
-            </p>
+        <div class="py-1">
             <label 
                 v-if="form.errors.suspended || form.errors.full || form.errors.expired || form.errors.limit" 
                 class="text-red-700 uppercase justify-center flex text-sm leading-tight"
@@ -784,7 +780,7 @@ export default {
 
         <!-- Dynamic Fields -->
         <transition name="section-slide" mode="out-in">
-        <div class="flex flex-col gap-5 md:gap-10" :key="hasSectionHeaders ? `section-${currentSectionIndex}` : 'single-section'">
+        <div class="flex flex-col gap-3 md:gap-5" :key="hasSectionHeaders ? `section-${currentSectionIndex}` : 'single-section'">
             <template v-for="section in visibleSections" :key="section.header?.field_key || 'default'">
                 <!-- Section Header -->
                 <component 

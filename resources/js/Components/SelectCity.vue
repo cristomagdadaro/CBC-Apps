@@ -38,11 +38,16 @@ export default {
         }
     },
     watch: {
-        province(newProvince) {
+        province(newProvince, oldProvince) {
+            if (newProvince === oldProvince) {
+                return;
+            }
+
+            this.isOpen = false;
+            this.resetLocationCities();
+
             if (newProvince) {
                 this.loadCities(newProvince, this.region);
-            } else {
-                this.locationCities = [];
             }
         }
     },

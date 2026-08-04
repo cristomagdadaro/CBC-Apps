@@ -5,6 +5,7 @@ use App\Http\Requests\Generic\GetRequest;
 use App\Http\Requests\Laboratory\LaboratoryCheckInRequest;
 use App\Http\Requests\Laboratory\LaboratoryCheckOutRequest;
 use App\Http\Requests\Laboratory\LaboratoryReportLocationRequest;
+use App\Http\Requests\Laboratory\LaboratoryUpdateEquipmentLoggerModeRequest;
 use App\Http\Requests\Laboratory\LaboratoryUpdateEndUseRequest;
 use App\Repositories\LaboratoryEquipmentLogRepo;
 use App\Services\Laboratory\LaboratoryLogService;
@@ -124,7 +125,48 @@ class LaboratoryEquipmentController extends BaseController
         $this->logService->markOverdue();
 
         return response()->json([
-            'data' => $this->logService->getDashboardMetrics(),
+            'data' => $this->logService->getDashboardMetrics('all'),
+        ]);
+    }
+
+    public function equipmentIndex(GetRequest $request): JsonResponse
+    {
+        return response()->json(
+            $this->logService->paginateEquipmentUsage($request->validated(), 'all')
+        );
+    }
+
+    public function personnelIndex(GetRequest $request): JsonResponse
+    {
+        return response()->json(
+            $this->logService->paginatePersonnelUsage($request->validated(), 'all')
+        );
+    }
+
+    public function personnelLogs(GetRequest $request, string $personnelId): JsonResponse
+    {
+        return response()->json(
+            $this->logService->paginatePersonnelLogHistory($personnelId, $request->validated(), 'all')
+        );
+    }
+
+    public function personnelSummary(string $personnelId): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->logService->getPersonnelUsageSummary($personnelId, 'all'),
+        ]);
+    }
+
+    public function updateEquipmentLoggerMode(LaboratoryUpdateEquipmentLoggerModeRequest $request, string $equipmentId): JsonResponse
+    {
+        $updated = $this->logService->updateEquipmentLoggerMode(
+            $equipmentId,
+            $request->validated('equipment_logger_mode'),
+        );
+
+        return response()->json([
+            'message' => 'Equipment logger mode updated successfully.',
+            'data' => $updated,
         ]);
     }
 

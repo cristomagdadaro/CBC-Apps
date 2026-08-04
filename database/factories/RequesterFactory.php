@@ -20,6 +20,7 @@ class RequesterFactory extends Factory
             'id' => $this->faker->uuid(),
             'name' => $this->faker->name(),
             'affiliation' => $this->faker->company(),
+            'philrice_id' => $this->faker->optional()->bothify('CBC-##-####'),
             'position' => $this->faker->jobTitle(),
             'email' => $this->faker->unique()->safeEmail(),
             'phone' => $this->faker->phoneNumber(),

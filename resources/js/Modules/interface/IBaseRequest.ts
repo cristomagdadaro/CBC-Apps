@@ -11,6 +11,7 @@ export default interface IBaseRequest {
     filter_by_parent_id?: number;
     filter_by_parent_column?: string;
     scope_by?: string;
+    routeParams?: string | number | Record<string, any> | any[];
 
     appendWith?: string[];
     appendCount?: string[];

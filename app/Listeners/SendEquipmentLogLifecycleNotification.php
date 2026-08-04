@@ -36,8 +36,8 @@ class SendEquipmentLogLifecycleNotification
             payload: [
                 'equipment_name' => $log->equipment?->name ?? 'Equipment',
                 'status_label' => match ($event->action) {
-                    'created' => 'checked out',
-                    'completed' => 'checked in',
+                    'created' => 'checked in',
+                    'completed' => 'checked out',
                     'overdue' => 'marked overdue',
                     default => 'updated',
                 },
