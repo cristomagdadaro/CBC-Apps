@@ -91,20 +91,20 @@ export default {
             <transaction-header-action />
         </template>
 
-        <div class="flex flex-col p-5 gap-5 relative max-w-7xl mx-auto">
+        <div class="flex flex-col px-3 sm:px-6 py-4 sm:py-6 gap-4 sm:gap-6 relative max-w-7xl mx-auto text-slate-900 dark:text-slate-100">
             <!-- Info Banner -->
-            <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+            <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-2xl p-4 sm:p-5 shadow-xs">
                 <div class="flex items-start gap-3">
-                    <div class="p-1.5 bg-amber-100 dark:bg-amber-800 rounded-lg flex-shrink-0">
+                    <div class="p-2 bg-amber-100 dark:bg-amber-900/60 rounded-xl flex-shrink-0">
                         <Info class="w-5 h-5 text-amber-600 dark:text-amber-400" />
                     </div>
-                    <div class="space-y-2 text-sm text-amber-800 dark:text-amber-200">
+                    <div class="space-y-1.5 text-xs sm:text-sm text-amber-900 dark:text-amber-200">
                         <p class="flex items-start gap-2">
-                            <FileText class="w-4 h-4 mt-0.5 flex-shrink-0" />
+                            <FileText class="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-600 dark:text-amber-400" />
                             <span>Please refer to the <strong>RIS (Requisition and Issue Slip)</strong> for the correct details that should be entered in this form.</span>
                         </p>
                         <p class="flex items-start gap-2">
-                            <Package class="w-4 h-4 mt-0.5 flex-shrink-0" />
+                            <Package class="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-600 dark:text-amber-400" />
                             <span>For older stocks without an RIS or proper documentation, please enter details that can be physically verified, such as serial numbers, PhilRice barcodes, or other identifiable markings.</span>
                         </p>
                     </div>
@@ -131,15 +131,15 @@ export default {
                         v-if="showNewItemForm"
                         class="lg:w-96 w-full flex-shrink-0"
                     >
-                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+                        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                            <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80">
                                 <div class="flex items-center gap-2">
-                                    <Plus class="w-4 h-4 text-AA" />
-                                    <h3 class="font-semibold text-sm text-gray-900 dark:text-gray-100">New Item</h3>
+                                    <Plus class="w-4 h-4 text-lime-600 dark:text-lime-400" />
+                                    <h3 class="font-bold text-xs sm:text-sm uppercase tracking-wider text-slate-800 dark:text-slate-200">New Item Catalog Entry</h3>
                                 </div>
                                 <button
                                     @click="showNewItemForm = false"
-                                    class="p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                    class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                                 >
                                     <X class="w-4 h-4" />
                                 </button>
@@ -155,17 +155,17 @@ export default {
                 <transition-container type="pop-in">
                     <div
                         v-if="showStorageReference"
-                        class="fixed lg:absolute right-5 top-20 z-30 w-fit max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+                        class="fixed lg:absolute right-5 top-20 z-30 w-fit max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden"
                     >
                         <!-- Header -->
-                        <div class="flex items-center justify-between px-4 py-3 bg-AA text-white">
+                        <div class="flex items-center justify-between px-4 py-3 bg-slate-900 dark:bg-slate-800 text-white border-b border-slate-800">
                             <div class="flex items-center gap-2">
-                                <Warehouse class="w-5 h-5" />
-                                <h3 class="font-semibold text-sm">Storage Locations</h3>
+                                <Warehouse class="w-5 h-5 text-lime-400" />
+                                <h3 class="font-bold text-sm">Storage Locations Reference</h3>
                             </div>
                             <button
                                 @click="toggleStorageReference"
-                                class="p-1 rounded-md hover:bg-white/20 transition-colors"
+                                class="p-1 rounded-lg hover:bg-white/20 transition-colors"
                             >
                                 <X class="w-4 h-4" />
                             </button>
@@ -173,27 +173,27 @@ export default {
 
                         <!-- Table -->
                         <div class="max-h-[60vh] overflow-y-auto">
-                            <table class="w-full text-sm">
-                                <thead class="bg-gray-50 dark:bg-gray-700/50 sticky top-0">
+                            <table class="w-full text-xs sm:text-sm">
+                                <thead class="bg-slate-50 dark:bg-slate-800/80 sticky top-0 border-b border-slate-200 dark:border-slate-700">
                                 <tr>
-                                    <th class="px-3 py-2 text-left font-medium text-gray-700 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 w-20">
-                                        Room
+                                    <th class="px-3 py-2 text-left font-bold text-slate-700 dark:text-slate-300 w-20">
+                                        Room Code
                                     </th>
-                                    <th class="px-3 py-2 text-left font-medium text-gray-700 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700">
-                                        Location
+                                    <th class="px-3 py-2 text-left font-bold text-slate-700 dark:text-slate-300">
+                                        Storage Facility
                                     </th>
                                 </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                                 <tr
                                     v-for="location in storage_locations"
                                     :key="location.name"
-                                    class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
+                                    class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
                                 >
-                                    <td class="px-3 py-2 font-mono text-AA font-medium">
+                                    <td class="px-3 py-2 font-mono text-lime-600 dark:text-lime-400 font-bold">
                                         {{ location.name }}
                                     </td>
-                                    <td class="px-3 py-2 text-gray-700 dark:text-gray-300">
+                                    <td class="px-3 py-2 text-slate-700 dark:text-slate-300 font-medium">
                                         {{ location.label }}
                                     </td>
                                 </tr>
@@ -202,8 +202,8 @@ export default {
                         </div>
 
                         <!-- Footer -->
-                        <div class="px-4 py-2 bg-gray-50 dark:bg-gray-700/30 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400 text-center">
-                            {{ storage_locations.length }} locations available
+                        <div class="px-4 py-2 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-500 dark:text-slate-400 text-center">
+                            {{ storage_locations.length }} storage locations registered
                         </div>
                     </div>
                 </transition-container>
@@ -215,14 +215,14 @@ export default {
                 @click="toggleStorageReference"
                 :class="[
                     'fixed right-5 bottom-5 z-20',
-                    'flex items-center gap-2 px-4 py-3 rounded-full shadow-lg transition-all duration-300',
+                    'flex items-center gap-2 px-4 py-3 rounded-full shadow-lg transition-all duration-300 active:scale-95',
                     showStorageReference
-                        ? 'bg-gray-800 dark:bg-gray-700 text-white hover:bg-gray-700 dark:hover:bg-gray-600'
-                        : 'bg-AA text-white hover:bg-AA-dark hover:shadow-xl hover:-translate-y-0.5'
+                        ? 'bg-slate-900 dark:bg-slate-800 text-white hover:bg-slate-800 border border-slate-700'
+                        : 'bg-lime-600 hover:bg-lime-700 text-white font-bold shadow-lime-500/20 hover:shadow-xl hover:-translate-y-0.5'
                 ]"
             >
                 <MapPin class="w-5 h-5" />
-                <span class="text-sm font-medium whitespace-nowrap">Storage Reference</span>
+                <span class="text-xs sm:text-sm font-semibold whitespace-nowrap">Storage Reference</span>
                 <component
                     :is="showStorageReference ? ChevronUp : ChevronDown"
                     class="w-4 h-4 transition-transform"

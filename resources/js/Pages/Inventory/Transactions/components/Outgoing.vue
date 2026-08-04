@@ -177,8 +177,8 @@ export default {
         <template #header>
             <transaction-header-action />
         </template>
-        <div v-if="isUpdateView" class="py-4">
-            <div class="max-w-5xl mx-auto">
+        <div v-if="isUpdateView" class="py-4 sm:py-6">
+            <div class="max-w-5xl mx-auto px-3 sm:px-6">
                 <outgoing-form
                     :data="data"
                     :summary="summary"
@@ -188,65 +188,43 @@ export default {
                 />
             </div>
         </div>
-        <div v-else class="default-container py-4">
-            <div class="flex flex-col justify-between max-w-[90vw] gap-3 mx-auto">
-                <div class="w-full flex gap-2 items-end lg:px-0 px-2">
-                    <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
-                    <text-input placeholder="Search..." v-model="form.search"  @keydown.enter.prevent="searchEvent()" />
-                    <search-btn @click="searchEvent" :disabled="model?.processing" class="w-[10rem] text-center">
-                        <span v-if="!model?.processing">Search</span>
-                        <span v-else>Searching</span>
-                    </search-btn>
-                </div>
-                <div class="flex gap-1 items-center w-full justify-center">
-                    <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
-                    <custom-dropdown :with-all-option="false" placeholder="Category" label="Filter by Category" @selectedChange="setFilter('category', $event)" :options="categories" />
-                    <custom-dropdown :with-all-option="false" placeholder="Storage Room" label="Filter by Storage Room" @selectedChange="applyStorageRoomFilter($event)" :options="storage_locations" />
-                    <custom-dropdown :with-all-option="false" placeholder="Project Code" label="Filter by Project Code" @selectedChange="setFilter('project_code', $event)" :options="projectCodes" class="col-span-3 md:col-span-2" />
-                </div>
-                <h3>There are {{outgoingFromApi?.data?.length || 0}} items registered</h3>
-                <div v-if="outgoingFromApi" class="flex flex-col w-full gap-2 items-center">
-                    <div id="dtPaginatorContainer" class="flex hidden gap-1 items-center w-full justify-center">
-                        <!-- First Button -->
-                        <paginate-btn @click="form.page = 1; searchEvent();" :disabled="form.page === 1">
-                            First
-                        </paginate-btn>
-
-                        <!-- Previous Button -->
-                        <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchEvent();" :disabled="form.page === 1">
-                            <template v-slot:icon>
-                                <arrow-left class="h-auto w-6" />
-                            </template>
-                            Prev
-                        </paginate-btn>
-
-                        <!-- Current Page Indicator -->
-                        <div class="text-xs flex flex-col whitespace-nowrap text-center">
-                            <span class="font-medium mx-1" title="current page and total pages">
-                                <span>{{ outgoingFromApi?.current_page }}</span> / <span>{{ outgoingFromApi?.last_page }}</span>
-                            </span>
+        <div v-else class="default-container py-4 sm:py-6 text-slate-900 dark:text-slate-100">
+            <div class="flex flex-col justify-between max-w-7xl mx-auto gap-4 sm:gap-6">
+                <!-- Search Bar Container -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 sm:p-5 rounded-2xl shadow-xs space-y-3">
+                    <div class="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
+                        <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" class="sm:w-64 shrink-0" />
+                        <div class="flex-1 flex gap-2">
+                            <text-input placeholder="Search items, barcodes, descriptions..." v-model="form.search" @keydown.enter.prevent="searchEvent()" class="w-full" />
+                            <search-btn @click="searchEvent" :disabled="model?.processing" class="w-28 text-center shrink-0">
+                                <span v-if="!model?.processing">Search</span>
+                                <span v-else>Searching</span>
+                            </search-btn>
                         </div>
-
-                        <!-- Next Button -->
-                        <paginate-btn
-                            @click="form.page = Math.min(outgoingFromApi?.last_page, form.page + 1); searchEvent();"
-                            :disabled="form.page === outgoingFromApi?.last_page"
-                        >
-                            Next
-                            <template v-slot:icon>
-                                <arrow-right class="h-auto w-6" />
-                            </template>
-                        </paginate-btn>
-
-                        <!-- Last Button -->
-                        <paginate-btn
-                            @click="form.page = outgoingFromApi?.last_page; searchEvent();"
-                            :disabled="form.page === outgoingFromApi?.last_page"
-                        >
-                            Last
-                        </paginate-btn>
                     </div>
-                    <div class="w-full overflow-hidden">
+
+                    <!-- Dropdown Filters Grid -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 pt-1 border-t border-slate-100 dark:border-slate-800">
+                        <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
+                        <custom-dropdown :with-all-option="false" placeholder="Category" label="Filter by Category" @selectedChange="setFilter('category', $event)" :options="categories" />
+                        <custom-dropdown :with-all-option="false" placeholder="Storage Room" label="Filter by Storage Room" @selectedChange="applyStorageRoomFilter($event)" :options="storage_locations" />
+                        <custom-dropdown :with-all-option="false" placeholder="Project Code" label="Filter by Project Code" @selectedChange="setFilter('project_code', $event)" :options="projectCodes" />
+                    </div>
+                </div>
+
+                <!-- Total Count Badge -->
+                <div class="flex justify-between items-center px-1">
+                    <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                        Registered Stock Items
+                    </h3>
+                    <span class="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-extrabold text-lime-600 dark:text-lime-400">
+                        {{ outgoingFromApi?.data?.length || 0 }} Items Available
+                    </span>
+                </div>
+
+                <!-- Items Grid & Empty States -->
+                <div v-if="outgoingFromApi" class="flex flex-col w-full gap-3 items-center">
+                    <div class="w-full">
                         <outgoing-item-card 
                             v-if="outgoingFromApi && Array.isArray(outgoingFromApi.data) && outgoingFromApi.data.length > 0" 
                             :outgoing-from-api="outgoingFromApi" 
@@ -254,59 +232,19 @@ export default {
                         />
 
                         <!-- Show "Searching" when processing -->
-                        <div v-else-if="model.api.processing" class="text-center py-3 border border-AB rounded-lg">
-                            Searching...
+                        <div v-else-if="model.api.processing" class="text-center py-10 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 text-xs text-slate-500 font-semibold">
+                            Searching items...
                         </div>
 
-                        <!-- Show "Form does not exist" when search was performed but no results -->
-                        <div v-else-if="outgoingFromApi && outgoingFromApi.total === 0 && form.search" class="text-center py-3 border border-AB rounded-lg">
-                            Form does not exist. Try using some filters.
+                        <!-- Show fallback when search returned no results -->
+                        <div v-else-if="outgoingFromApi && outgoingFromApi.total === 0 && form.search" class="text-center py-10 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 text-xs text-slate-500 font-semibold">
+                            No matching items found for "{{ form.search }}". Try adjusting your search filters.
                         </div>
 
-                        <!-- Show "No forms available" when nothing was returned and no search was performed -->
-                        <div v-else class="text-center py-3 border border-AB rounded-lg">
-                            No forms available.
+                        <!-- Show empty state -->
+                        <div v-else class="text-center py-10 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 text-xs text-slate-500 font-semibold">
+                            No items available for checkout.
                         </div>
-                    </div>
-                    <div id="dtPaginatorContainer" class="hidden flex gap-1 items-center w-full justify-center">
-                        <!-- First Button -->
-                        <paginate-btn @click="form.page = 1; searchEvent();" :disabled="form.page === 1">
-                            First
-                        </paginate-btn>
-
-                        <!-- Previous Button -->
-                        <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchEvent();" :disabled="form.page === 1">
-                            <template v-slot:icon>
-                                <arrow-left class="h-auto w-6" />
-                            </template>
-                            Prev
-                        </paginate-btn>
-
-                        <!-- Current Page Indicator -->
-                        <div class="text-xs flex flex-col whitespace-nowrap text-center">
-                            <span class="font-medium mx-1" title="current page and total pages">
-                                <span>{{ outgoingFromApi?.current_page }}</span> / <span>{{ outgoingFromApi?.last_page }}</span>
-                            </span>
-                        </div>
-
-                        <!-- Next Button -->
-                        <paginate-btn
-                            @click="form.page = Math.min(outgoingFromApi?.last_page, form.page + 1); searchEvent();"
-                            :disabled="form.page === outgoingFromApi?.last_page"
-                        >
-                            Next
-                            <template v-slot:icon>
-                                <arrow-right class="h-auto w-6" />
-                            </template>
-                        </paginate-btn>
-
-                        <!-- Last Button -->
-                        <paginate-btn
-                            @click="form.page = outgoingFromApi?.last_page; searchEvent();"
-                            :disabled="form.page === outgoingFromApi?.last_page"
-                        >
-                            Last
-                        </paginate-btn>
                     </div>
                 </div>
             </div>

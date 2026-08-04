@@ -153,60 +153,60 @@ export default {
 </script>
 
 <template>
-    <div class="grid sm:grid-cols-3 grid-cols-1 sm:p-5 p-3 sm:gap-3">
-        <div class="flex flex-col col-span-2 gap-1 bg-white rounded">
-            <div  v-if="displayData" class="flex flex-col  justify-between items-center gap-5 py-2 px-1 md:px-4 border-b">
-                <div class="flex flex-col leading-tight w-full">
-                    <span class="font-bold text-base md:text-lg whitespace-nowrap overflow-ellipsis overflow-hidden">
-                        {{ displayData.name }} {{ displayData.description ? `(${displayData.description})` : '' }}
+    <div class="grid grid-cols-1 sm:grid-cols-3 p-3 sm:p-5 gap-4 text-slate-900 dark:text-slate-100">
+        <div class="flex flex-col col-span-1 sm:col-span-2 gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs">
+            <div v-if="displayData" class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div class="flex flex-col leading-tight w-full min-w-0">
+                    <span class="font-bold text-base md:text-lg text-slate-900 dark:text-slate-100 truncate">
+                        {{ displayData.name }} <span v-if="displayData.description" class="text-slate-500 font-normal">({{ displayData.description }})</span>
                     </span>
                     <span v-if="displayData.expiration" :class="{
-                        'text-red-600 font-semibold': getExpirationStatus(displayData.expiration) === 'expired',
-                        'text-orange-600 font-semibold': ['expiring_soon', 'expiring_today'].includes(getExpirationStatus(displayData.expiration)),
-                        'text-gray-500': !getExpirationStatus(displayData.expiration)
-                    }" class="text-xs">
+                        'text-rose-600 dark:text-rose-400 font-bold': getExpirationStatus(displayData.expiration) === 'expired',
+                        'text-amber-600 dark:text-amber-400 font-bold': ['expiring_soon', 'expiring_today'].includes(getExpirationStatus(displayData.expiration)),
+                        'text-slate-500 dark:text-slate-400': !getExpirationStatus(displayData.expiration)
+                    }" class="text-xs font-medium mt-0.5">
                         Expiry: {{ formatDate(displayData.expiration) }}
                         <span v-if="getExpirationStatus(displayData.expiration) === 'expired'" class="ml-1">(Expired)</span>
                         <span v-else-if="getExpirationStatus(displayData.expiration) === 'expiring_today'" class="ml-1">(Expires Today)</span>
                         <span v-else-if="getExpirationStatus(displayData.expiration) === 'expiring_soon'" class="ml-1">(Expiring Soon)</span>
                     </span>
-                    <span class="text-sm text-gray-500">{{ displayData.brand }}</span>
-                    <span class="text-xs text-gray-500 leading-none" :class="{'text-red-600' : !data?.barcode}">{{ data?.barcode || 'Warning! NO BARCODE' }}</span>
+                    <span v-if="displayData.brand" class="text-xs text-slate-500 dark:text-slate-400 font-medium">{{ displayData.brand }}</span>
+                    <span class="text-xs font-mono tracking-tight mt-0.5" :class="data?.barcode ? 'text-slate-500 dark:text-slate-400' : 'text-rose-500 font-bold'">{{ data?.barcode || 'NO BARCODE' }}</span>
                 </div>
-                <div class="flex sm:gap-4 gap-1 w-full justify-evenly">
-                    <div class="flex flex-col leading-none md:leading-relaxed">
-                        <span class="text-center text-gray-600">
+                <div class="flex gap-3 sm:gap-4 w-full md:w-auto justify-between md:justify-end shrink-0 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <div class="flex flex-col text-center">
+                        <span class="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
                             {{ formatNumber(displayData.remaining_quantity) }}
                         </span>
-                        <span class="text-xs text-gray-400">
+                        <span class="text-[0.65rem] uppercase font-semibold text-slate-500 dark:text-slate-400">
                             Remaining
                         </span>
                     </div>
-                    <div class="flex flex-col leading-none md:leading-relaxed">
-                        <span class="text-center text-gray-600">
+                    <div class="flex flex-col text-center">
+                        <span class="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
                             {{ formatNumber(displayData.total_outgoing) }}
                         </span>
-                        <span class="text-xs text-gray-400">
+                        <span class="text-[0.65rem] uppercase font-semibold text-slate-500 dark:text-slate-400">
                             Consumed
                         </span>
                     </div>
-                    <div class="flex flex-col leading-none md:leading-relaxed">
-                        <span class="text-center text-gray-600">
+                    <div class="flex flex-col text-center">
+                        <span class="text-base sm:text-lg font-bold text-lime-600 dark:text-lime-400">
                             {{ utilizationPercentage }}%
                         </span>
-                        <span class="text-xs text-gray-400">
+                        <span class="text-[0.65rem] uppercase font-semibold text-slate-500 dark:text-slate-400">
                             Utilization
                         </span>
                     </div>
                 </div>
             </div>
-            <div class="flex flex-col sm:gap-3 gap-1 sm:p-3 p-1 rounded">
+            <div class="flex flex-col gap-3 pt-2">
                 <transaction-report-accordion
                     v-if="isUpdate"
                     class="w-full mb-3"
                     :reports="reportsList"
                 />
-                <h1 class="text-base md:text-lg font-semibold text-gray-800">{{ isUpdate ? 'Update Outgoing Transaction' : 'Outgoing Transaction' }}</h1>
+                <h1 class="text-sm sm:text-base font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">{{ isUpdate ? 'Update Outgoing Transaction' : 'Checkout' }}</h1>
                 <form @submit.prevent="proxySubmit" class="flex flex-col gap-3">
                     <!-- Public access: ask for Employee ID only -->
                     <text-input
@@ -229,23 +229,19 @@ export default {
                         :value="form.personnel_id"
                         :options="personnels"
                         placeholder="Select Personnel"
-                        label="Personnel"
+                        label="Accountable Personnel"
                         :error="form.errors.personnel_id"
                         @selectedChange="form.personnel_id = $event"
                         class="w-full"
-                    >
-                        <template #icon>
-                            <filter-icon class="h-4 w-4" />
-                        </template>
-                    </custom-dropdown>
+                    />
 
                     <text-input
                         required
                         type-input="number"
                         autocomplete="off"
-                        :label="'Quantity by ' + data?.unit"
+                        :label="'Quantity by ' + (data?.unit || 'unit')"
                         name="quantity"
-                        :placeholder="'How many ' + data?.unit + '(s)?'"
+                        :placeholder="'How many ' + (data?.unit || 'unit') + '(s)?'"
                         id="quantity"
                         v-model="form.quantity"
                         :error="form.errors.quantity"
@@ -253,28 +249,27 @@ export default {
 
                     <text-area
                         required
-                        type-input="number"
                         autocomplete="off"
-                        label="Purpose"
+                        label="Purpose / Remarks"
                         name="purpose"
                         id="purpose"
                         v-model="form.remarks"
                         :error="form.errors.remarks"
                     />
 
-                    <div v-if="isUpdate" class="grid grid-cols-2 gap-2">
+                    <div v-if="isUpdate" class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <text-input label="PRRI Barcode" v-model="form.barcode_prri" :error="form.errors.barcode_prri" />
                         <text-input label="PAR No" v-model="form.par_no" :error="form.errors.par_no" />
                         <text-input label="Condition" v-model="form.condition" :error="form.errors.condition" />
                     </div>
 
-                    <div class="flex gap-1 justify-between">
+                    <div class="flex gap-2 justify-between pt-2">
                         <cancel-btn @click="resetOutgoingForm">
                             {{ isUpdate ? 'Cancel' : 'Reset' }}
                         </cancel-btn>
                         <submit-btn :disabled="model.api.processing">
-                            <span v-if="model.api.processing">{{ isUpdate ? 'Updating' : 'Saving' }}</span>
-                            <span v-else>{{ isUpdate ? 'Update' : 'Save' }}</span>
+                            <span v-if="model.api.processing">{{ isUpdate ? 'Updating...' : 'Saving...' }}</span>
+                            <span v-else>{{ isUpdate ? 'Update' : 'Checkout' }}</span>
                         </submit-btn>
                     </div>
                     <audit-info-card
@@ -286,29 +281,31 @@ export default {
                 </form>
             </div>
         </div>
-        <!-- Transactions Recent Ativities -->
-        <div class="bg-white dark:bg-gray-800 sm:rounded-lg md:px-4 w-full">
-            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Recent Transactions</h3>
-            <div class="flex flex-col text-xs gap-1 w-full">
-                <div v-if="processing" class="text-center py-3 bg-yellow-200 rounded-lg w-full">
-                    <p>
-                    Loading ...
-                    </p>
+        <!-- Recent Activities Feed -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 h-fit shadow-xs">
+            <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 mb-3">Recent Transactions</h3>
+            <div class="flex flex-col text-xs gap-2 w-full">
+                <div v-if="processing" class="text-center py-4 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-500 font-semibold">
+                    Loading transactions...
                 </div>
-                <div v-else v-for="transaction in recentTransactions" :key="transaction.id" class="py-2 rounded-md px-2 duration-200 flex flex-col gap-1" :class="transaction.transac_type === 'incoming' ? 'bg-green-200':'bg-red-200'">
+                <div v-else v-for="transaction in recentTransactions" :key="transaction.id" class="p-3 rounded-xl border flex flex-col gap-1.5 transition-colors"
+                    :class="transaction.transac_type === 'incoming'
+                        ? 'bg-emerald-50/60 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/60'
+                        : 'bg-rose-50/60 dark:bg-rose-950/30 border-rose-200 dark:border-rose-900/60'"
+                >
                     <div class="flex justify-between items-center leading-tight">
                         <div>
-                            <p>{{ transaction.actor_display_name || 'Unknown' }}</p>
-                            <p>{{ formatDate(transaction.created_at) }}</p>
+                            <p class="font-bold text-slate-900 dark:text-slate-100">{{ transaction.actor_display_name || 'Unknown' }}</p>
+                            <p class="text-[0.68rem] text-slate-500 dark:text-slate-400 mt-0.5">{{ formatDate(transaction.created_at) }}</p>
                         </div>
 
-                        <b class="text-center leading-none">
-                            <span v-if="transaction.transac_type === 'incoming'">{{ transaction.quantity }}</span>
-                            <span v-else>-{{ transaction.quantity }}</span>
-                            {{ transaction.unit }}
-                        </b>
+                        <span class="font-extrabold text-xs px-2 py-1 rounded-lg"
+                            :class="transaction.transac_type === 'incoming' ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/50' : 'text-rose-700 dark:text-rose-300 bg-rose-100 dark:bg-rose-900/50'"
+                        >
+                            {{ transaction.transac_type === 'incoming' ? '+' : '-' }}{{ transaction.quantity }} {{ transaction.unit || '' }}
+                        </span>
                     </div>
-                    <div v-if="transaction.remarks" class="border-t pt-1 border-gray-800 leading-none">
+                    <div v-if="transaction.remarks" class="border-t pt-1.5 border-slate-200/60 dark:border-slate-800 text-[0.7rem] text-slate-600 dark:text-slate-300">
                         <span>{{ transaction.remarks }}</span>
                     </div>
                 </div>

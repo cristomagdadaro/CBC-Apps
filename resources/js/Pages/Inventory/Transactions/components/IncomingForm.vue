@@ -363,24 +363,24 @@ export default {
 <template>
     <form v-if="!!form" @submit.prevent="submitForm" class="grid gap-4 w-full" :class="currentFormAction === 'create' ? 'grid-cols-1' : 'grid-cols-2'">
         <!-- Main Form Column -->
-        <div class="flex flex-col gap-4 w-full mx-auto p-4 lg:p-6 bg-white dark:bg-gray-800 overflow-hidden rounded-xl h-fit border border-gray-300">
+        <div class="flex flex-col gap-4 w-full mx-auto p-4 lg:p-6 bg-white dark:bg-slate-900 overflow-hidden rounded-2xl h-fit border border-slate-200 dark:border-slate-800 shadow-xs text-slate-900 dark:text-slate-100">
             <div class="flex flex-col gap-4 mx-auto w-full h-fit">
                 <!-- Header -->
-                <div class="flex border-b border-gray-200 dark:border-gray-700  justify-between items-center pb-4">
+                <div class="flex border-b border-slate-200 dark:border-slate-800 justify-between items-center pb-4">
                     <div>
-                        <div class="flex items-center gap-2 mb-2">
-                            <Package class="w-5 h-5 text-AA" />
-                            <h2 class="font-bold uppercase leading-none text-lg text-gray-900 dark:text-gray-100">
+                        <div class="flex items-center gap-2 mb-1">
+                            <Package class="w-5 h-5 text-lime-600 dark:text-lime-400" />
+                            <h2 class="font-bold uppercase tracking-tight text-lg text-slate-900 dark:text-slate-100">
                                 {{ isUpdate ? 'Update Incoming Transaction' : 'Incoming Transaction' }}
                             </h2>
                         </div>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                             {{ isUpdate ? 'Update the details of this incoming transaction.' : 'Submit details for a new incoming transaction.' }}
                         </p>
                     </div>
                     <!-- Barcode Display -->
-                    <div v-if="svgText && selectedStorage" class="flex sm:flex-row flex-col gap-3 w-fit h-16 items-center relative border border-gray-200 dark:border-gray-600">
-                        <img id="barcode-image" :src="svgText" alt="Generated barcode" class="w-full h-full max-w-md rounded shadow-sm bg-white" />
+                    <div v-if="svgText && selectedStorage" class="flex sm:flex-row flex-col gap-3 w-fit h-16 items-center relative border border-slate-200 dark:border-slate-700 rounded-xl p-1 bg-white">
+                        <img id="barcode-image" :src="svgText" alt="Generated barcode" class="w-full h-full max-w-md rounded bg-white" />
                     </div>
                 </div>
 
@@ -405,16 +405,16 @@ export default {
                         <button
                             v-if="!showNewItemForm"
                             @click.prevent="toggleShowNewItemForm"
-                            class="h-fit w-full py-2.5 border border-gray-300 dark:border-gray-600 flex items-center justify-center bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg gap-1.5 text-sm px-3 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                            class="h-fit w-full py-2.5 border border-slate-200 dark:border-slate-700 flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl gap-1.5 text-xs sm:text-sm px-3 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors font-semibold"
                         >
-                            <Plus class="h-4 w-4" />
+                            <Plus class="h-4 w-4 text-lime-600 dark:text-lime-400" />
                             <span class="whitespace-nowrap">New Item</span>
                         </button>
 
                         <button
                             v-else
                             @click.prevent="toggleShowNewItemForm"
-                            class="h-fit w-full py-2.5 border border-red-300 dark:border-red-700 flex items-center justify-center bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg gap-1.5 text-sm px-3 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                            class="h-fit w-full py-2.5 border border-rose-300 dark:border-rose-800 flex items-center justify-center bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 rounded-xl gap-1.5 text-xs sm:text-sm px-3 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-colors font-semibold"
                         >
                             <X class="h-4 w-4" />
                             <span class="whitespace-nowrap">Close</span>
@@ -434,7 +434,7 @@ export default {
                     :hint="'Enter the project code for this transaction'"
                 >
                     <template #icon>
-                        <FileText class="w-4 h-4 text-gray-400" />
+                        <FileText class="w-4 h-4 text-slate-400" />
                     </template>
                 </text-input>
 
@@ -452,7 +452,7 @@ export default {
                         @selectedChange="form.personnel_id = $event"
                     >
                         <template #icon>
-                            <User class="w-4 h-4 text-gray-400" />
+                            <User class="w-4 h-4 text-slate-400" />
                         </template>
                     </custom-dropdown>
 
@@ -469,7 +469,7 @@ export default {
                         @selectedChange="generateBarcode($event)"
                     >
                         <template #icon>
-                            <MapPin class="w-4 h-4 text-gray-400" />
+                            <MapPin class="w-4 h-4 text-slate-400" />
                         </template>
                     </custom-dropdown>
                 </div>
@@ -483,7 +483,7 @@ export default {
                     :hint="'Used to link this as a sub-component of another transaction'"
                 >
                     <template #icon>
-                        <GitBranch class="w-4 h-4 text-gray-400" />
+                        <GitBranch class="w-4 h-4 text-slate-400" />
                     </template>
                 </text-input>
 
@@ -491,12 +491,12 @@ export default {
                 <div class="grid grid-cols-3 gap-3">
                     <text-input label="PRRI QR/Barcode No." v-model="form.barcode_prri" :error="form.errors.barcode_prri">
                         <template #icon>
-                            <Hash class="w-4 h-4 text-gray-400" />
+                            <Hash class="w-4 h-4 text-slate-400" />
                         </template>
                     </text-input>
                     <text-input label="PAR No." v-model="form.par_no" :error="form.errors.par_no">
                         <template #icon>
-                            <Tag class="w-4 h-4 text-gray-400" />
+                            <Tag class="w-4 h-4 text-slate-400" />
                         </template>
                     </text-input>
                     <custom-dropdown
@@ -511,7 +511,7 @@ export default {
                         @selectedChange="form.condition = $event"
                     >
                         <template #icon>
-                            <MapPin class="w-4 h-4 text-gray-400" />
+                            <MapPin class="w-4 h-4 text-slate-400" />
                         </template>
                     </custom-dropdown>
                 </div>
@@ -520,17 +520,17 @@ export default {
                 <div class="grid grid-cols-3 gap-3">
                     <text-input label="PO No." v-model="form.po_no" :error="form.errors.po_no">
                         <template #icon>
-                            <FileText class="w-4 h-4 text-gray-400" />
+                            <FileText class="w-4 h-4 text-slate-400" />
                         </template>
                     </text-input>
                     <text-input label="PR No." v-model="form.pr_no" :error="form.errors.pr_no">
                         <template #icon>
-                            <FileText class="w-4 h-4 text-gray-400" />
+                            <FileText class="w-4 h-4 text-slate-400" />
                         </template>
                     </text-input>
                     <text-input label="Serial No." v-model="form.serial_no" :error="form.errors.serial_no">
                         <template #icon>
-                            <Hash class="w-4 h-4 text-gray-400" />
+                            <Hash class="w-4 h-4 text-slate-400" />
                         </template>
                     </text-input>
                 </div>
@@ -539,22 +539,22 @@ export default {
                 <div class="grid grid-cols-2 gap-3">
                     <text-input required type="number" label="Quantity" v-model="form.quantity" :error="form.errors.quantity">
                         <template #icon>
-                            <Box class="w-4 h-4 text-gray-400" />
+                            <Box class="w-4 h-4 text-slate-400" />
                         </template>
                     </text-input>
                     <text-input type="number" label="Unit Price" v-model="form.unit_price" :error="form.errors.unit_price">
                         <template #icon>
-                            <DollarSign class="w-4 h-4 text-gray-400" />
+                            <DollarSign class="w-4 h-4 text-slate-400" />
                         </template>
                     </text-input>
                     <text-input required label="Unit" v-model="form.unit" :error="form.errors.unit">
                         <template #icon>
-                            <Scale class="w-4 h-4 text-gray-400" />
+                            <Scale class="w-4 h-4 text-slate-400" />
                         </template>
                     </text-input>
                     <text-input type="number" label="Total Cost" v-model="form.total_cost" :error="form.errors.total_cost" :disabled="true">
                         <template #icon>
-                            <DollarSign class="w-4 h-4 text-gray-400" />
+                            <DollarSign class="w-4 h-4 text-slate-400" />
                         </template>
                     </text-input>
                 </div>
@@ -564,7 +564,7 @@ export default {
 
                 <!-- Remarks -->
                 <text-area label="PR Details/Remarks" v-model="form.remarks" :error="form.errors.remarks" />
-                <div class="rounded-xl border border-indigo-100 bg-indigo-50/70 p-4 dark:border-indigo-900 dark:bg-indigo-950/30">
+                <div class="rounded-2xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/70 p-4 dark:bg-indigo-950/30">
                     <custom-dropdown
                         required
                         :with-all-option="false"
@@ -586,11 +586,11 @@ export default {
             </div>
 
             <!-- Actions -->
-            <div class="flex gap-3 justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex gap-3 justify-between pt-4 border-t border-slate-200 dark:border-slate-800">
                 <button
                     type="button"
                     @click="resetIncomingForm"
-                    class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                    class="flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors border border-slate-200 dark:border-slate-700"
                 >
                     <RotateCcw class="w-4 h-4" />
                     Reset
@@ -599,7 +599,7 @@ export default {
                 <button
                     type="submit"
                     :disabled="model.api.processing"
-                    class="flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-white bg-AA hover:bg-AA-dark disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors shadow-sm"
+                    class="flex items-center gap-2 px-6 py-2.5 text-xs sm:text-sm font-bold text-white bg-lime-600 hover:bg-lime-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-all"
                 >
                     <Loader2 v-if="model.api.processing" class="w-4 h-4 animate-spin" />
                     <Save v-else class="w-4 h-4" />
@@ -618,7 +618,7 @@ export default {
         </div>
 
         <!-- Side Panel (Update Mode) -->
-        <div v-if="currentFormAction !== 'create'" class="flex flex-col gap-4 shadow-xl sm:rounded-xl sm:p-4 lg:p-6 bg-white dark:bg-gray-800 h-fit border border-gray-100 dark:border-gray-700">
+        <div v-if="currentFormAction !== 'create'" class="flex flex-col gap-4 rounded-2xl p-4 lg:p-6 bg-white dark:bg-slate-900 h-fit border border-slate-200 dark:border-slate-800 shadow-xs">
             <div class="flex flex-col gap-4">
                 <!-- Workflow Info -->
                 <div class="border border-blue-100 dark:border-blue-800 rounded-lg p-4 bg-blue-50/50 dark:bg-blue-900/20">
