@@ -1,15 +1,15 @@
 <template>
     <div class="flex flex-col gap-0.5">
-        <span class="text-xs text-gray-500">Search: </span>
-        <div class="flex flex-row items-center justify-between gap-0.5 bg-white rounded focus-within:ring-1 border-gray-700 border">
-            <input autocomplete="off" class="border-0 py-2 w-full rounded-l active:ring-0 focus:ring-0"
+        <span class="text-[0.68rem] sm:text-xs font-semibold text-slate-500 dark:text-slate-400">Search: </span>
+        <div class="flex flex-row items-center justify-between gap-0.5 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-300 dark:border-slate-700 focus-within:border-lime-500 focus-within:ring-1 focus-within:ring-lime-500 transition-all overflow-hidden">
+            <input autocomplete="off" class="border-0 py-1.5 px-3 w-full text-xs sm:text-sm bg-transparent text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-0"
                    type="text" id="dtSearch"
                    v-model="search"
                    :placeholder="placeholder"
                    @keyup.capture.delete="!modelValue?.length ? searchBy(null) : null"
                    @keyup.capture.enter="searchBy($event)" />
-            <button v-if="modelValue" class="p-2 rounded-r hover:border-0 active:scale-90 duration-300 hover:bg-gray-300 active:bg-gray-400 h-full" @click="clearSearch"><close-icon class="h-5 w-5"/> </button>
-            <button v-else class="p-2 rounded-r hover:border-0 active:scale-90 duration-300 hover:bg-gray-300 active:bg-gray-400 h-full" @click="searchBy"><search-icon class="h-5 w-5 text-gray-600" /></button>
+            <button v-if="modelValue" class="p-1.5 rounded-r hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-90 transition-all text-slate-500 dark:text-slate-400" @click="clearSearch"><close-icon class="h-4 w-4"/> </button>
+            <button v-else class="p-1.5 rounded-r hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-90 transition-all text-slate-500 dark:text-slate-400" @click="searchBy"><search-icon class="h-4 w-4" /></button>
         </div>
     </div>
 </template>

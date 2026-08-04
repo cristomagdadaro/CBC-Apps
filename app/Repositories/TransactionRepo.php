@@ -611,7 +611,7 @@ class TransactionRepo extends AbstractRepoService
 
     public function getInventoryDashboardMetrics(Collection $parameters): array
     {
-        $scope = strtolower((string) $parameters->get('scope', 'monthly'));
+        $scope = strtolower((string) $parameters->get('scope', 'all'));
         [$start, $end] = $this->resolveDashboardDateRange($scope, $parameters);
 
         $base = $this->model->newQuery()
@@ -619,13 +619,30 @@ class TransactionRepo extends AbstractRepoService
                 $query->whereBetween('transactions.created_at', [$start, $end]);
             });
 
-        $totalIncoming = (clone $base)
+        $incomingCount = (clone $base)
             ->where('transactions.transac_type', 'incoming')
-            ->sum('transactions.quantity');
+            ->count();
 
-        $totalOutgoing = (clone $base)
+        $outgoingCount = (clone $base)
             ->where('transactions.transac_type', 'outgoing')
-            ->sum(DB::raw('ABS(transactions.quantity)'));
+            ->count();
+
+        $totalIncomingQuantity = (float) ((clone $base)
+            ->where('transactions.transac_type', 'incoming')
+            ->sum('transactions.quantity') ?: 0);
+
+        $totalOutgoingQuantity = (float) ((clone $base)
+            ->where('transactions.transac_type', 'outgoing')
+            ->sum(DB::raw('ABS(transactions.quantity)')) ?: 0);
+
+        $topIssuedItems = (clone $base)
+            ->where('transactions.transac_type', 'outgoing')
+            ->join('items', 'transactions.item_id', '=', 'items.id')
+            ->selectRaw('items.name, items.brand, items.description, SUM(ABS(transactions.quantity)) as total_quantity, COUNT(transactions.id) as transac_count')
+            ->groupBy('items.id', 'items.name', 'items.brand', 'items.description')
+            ->orderByDesc('total_quantity')
+            ->limit(5)
+            ->get();
 
         $recentTransactions = (clone $base)
             ->with(['item', 'personnel', 'user'])
@@ -709,9 +726,15 @@ class TransactionRepo extends AbstractRepoService
                 'year' => $parameters->get('year'),
             ],
             'totals' => [
-                'incoming' => (float) $totalIncoming,
-                'outgoing' => (float) $totalOutgoing,
+                'incoming' => (int) $incomingCount,
+                'outgoing' => (int) $outgoingCount,
+                'incoming_count' => (int) $incomingCount,
+                'outgoing_count' => (int) $outgoingCount,
+                'incoming_quantity' => (float) $totalIncomingQuantity,
+                'outgoing_quantity' => (float) $totalOutgoingQuantity,
+                'total_transactions' => (int) ($incomingCount + $outgoingCount),
             ],
+            'top_issued_items' => $topIssuedItems,
             'recent_transactions' => $recentTransactions,
             'items_per_category' => $itemsPerCategory,
             'items_per_location' => $itemsPerLocation,
@@ -725,6 +748,7 @@ class TransactionRepo extends AbstractRepoService
         $now = Carbon::now();
 
         return match ($scope) {
+            'all', 'all_time' => [null, null],
             'day' => [$now->copy()->subDay(), $now->copy()],
             'daily' => $this->resolveDailyRange((string) $parameters->get('date')),
             'week' => [$now->copy()->subHours(168), $now->copy()],
