@@ -42,7 +42,7 @@ return [
             'checkout' => [
                 'enabled' => env('NOTIFICATIONS_INVENTORY_CHECKOUT_ENABLED', true),
                 'queue' => env('NOTIFICATIONS_INVENTORY_CHECKOUT_QUEUE', env('NOTIFICATIONS_QUEUE', 'notifications')),
-                'delivery_mode' => env('NOTIFICATIONS_INVENTORY_CHECKOUT_DELIVERY_MODE', 'grouped'),
+                'delivery_mode' => env('NOTIFICATIONS_INVENTORY_CHECKOUT_DELIVERY_MODE', 'batch'),
                 'option_keys' => ['inventory_checkout_notification_emails'],
                 'fallback_option_keys' => ['event_response_notification_email'],
                 'roles' => [
@@ -66,7 +66,7 @@ return [
             'logs' => [
                 'enabled' => env('NOTIFICATIONS_LABORATORY_LOGS_ENABLED', true),
                 'queue' => env('NOTIFICATIONS_LABORATORY_LOGS_QUEUE', env('NOTIFICATIONS_QUEUE', 'notifications')),
-                'delivery_mode' => env('NOTIFICATIONS_LABORATORY_LOGS_DELIVERY_MODE', 'grouped'),
+                'delivery_mode' => env('NOTIFICATIONS_LABORATORY_LOGS_DELIVERY_MODE', 'batch'),
                 'option_keys' => ['laboratory_log_notification_emails'],
                 'roles' => [
                     Role::ADMIN->value,
@@ -78,7 +78,7 @@ return [
             'logs' => [
                 'enabled' => env('NOTIFICATIONS_ICT_LOGS_ENABLED', true),
                 'queue' => env('NOTIFICATIONS_ICT_LOGS_QUEUE', env('NOTIFICATIONS_QUEUE', 'notifications')),
-                'delivery_mode' => env('NOTIFICATIONS_ICT_LOGS_DELIVERY_MODE', 'grouped'),
+                'delivery_mode' => env('NOTIFICATIONS_ICT_LOGS_DELIVERY_MODE', 'batch'),
                 'option_keys' => ['ict_log_notification_emails'],
                 'roles' => [
                     Role::ADMIN->value,

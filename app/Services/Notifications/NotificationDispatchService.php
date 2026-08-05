@@ -96,9 +96,22 @@ class NotificationDispatchService
             return;
         }
 
-        $deliveryMode = $this->shouldUseGroupedDelivery($domain, $messageMode, $emails->count())
-            ? 'grouped'
-            : 'individual';
+        $prefMode = $this->preferences->deliveryModeFor($domain);
+        $deliveryMode = 'individual';
+        
+        if ($prefMode === 'batch') {
+            $deliveryMode = 'batch';
+        } elseif ($this->shouldUseGroupedDelivery($domain, $messageMode, $emails->count())) {
+            $deliveryMode = 'grouped';
+        }
+
+        if ($deliveryMode === 'batch') {
+            $meta = array_merge($meta, [
+                '_batch_payload' => $payload,
+                '_batch_class' => $className,
+                '_batch_mode' => $messageMode,
+            ]);
+        }
 
         $chunks = $this->chunkRecipients($domain, $emails, $deliveryMode);
         $groupedTo = $this->preferences->groupedToFor($domain);
@@ -120,6 +133,10 @@ class NotificationDispatchService
                     deliveryGroupId: $deliveryGroupId,
                 );
             });
+
+            if ($deliveryMode === 'batch') {
+                continue;
+            }
 
             DeliverNotificationMessageJob::dispatch(
                 mode: $messageMode,

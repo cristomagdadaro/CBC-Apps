@@ -9,6 +9,8 @@ use App\Http\Requests\NewOutgoingRequest;
 use App\Http\Requests\UpdateTransactionRequest;
 use App\Models\NewBarcode;
 use App\Repositories\TransactionRepo;
+use App\Services\Inventory\InventoryReportService;
+use App\Services\Inventory\InventoryRecountService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -50,7 +52,6 @@ class TransactionController extends BaseController
                 'barcode' => NewBarcode::GenerateBarcode($room),
             ],
         ]);
-
     }
 
     public function update(UpdateTransactionRequest $request, string $id): Model
@@ -92,7 +93,7 @@ class TransactionController extends BaseController
         return parent::_destroy($id);
     }
 
-    public function remainingStocks(Request $request): Collection
+    public function remainingStocks(Request $request, InventoryReportService $reportService): Collection
     {
         $params = new Collection($request->all());
 
@@ -101,20 +102,20 @@ class TransactionController extends BaseController
             $params->put('min_remaining', 0);
         }
 
-        return $this->repo()->getRemainingStocks($params, [1,2,3,5,6,11,12]);
+        return $reportService->getRemainingStocks($params, [1,2,3,5,6,11,12]);
     }
 
-    public function projectCodes(): JsonResponse
+    public function projectCodes(InventoryReportService $reportService): JsonResponse
     {
         return response()->json([
-            'data' => $this->repo()->getAvailableProjectCodes(),
+            'data' => $reportService->getAvailableProjectCodes(),
         ]);
     }
 
-    public function dashboard(Request $request): JsonResponse
+    public function dashboard(Request $request, InventoryReportService $reportService): JsonResponse
     {
         return response()->json([
-            'data' => $this->repo()->getInventoryDashboardMetrics(new Collection($request->all())),
+            'data' => $reportService->getInventoryDashboardMetrics(new Collection($request->all())),
         ]);
     }
 
@@ -123,13 +124,13 @@ class TransactionController extends BaseController
         return $this->repo()->createOutgoingWithPipeline($request->validated());
     }
 
-    public function recountLookup(Request $request): JsonResponse
+    public function recountLookup(Request $request, InventoryRecountService $recountService): JsonResponse
     {
         $validated = $request->validate([
             'barcode' => ['required', 'string', 'max:191'],
         ]);
 
-        $result = $this->repo()->findRecountingCandidateByBarcode($validated['barcode']);
+        $result = $recountService->findRecountingCandidateByBarcode($validated['barcode']);
 
         if (!$result) {
             return response()->json([
@@ -144,9 +145,9 @@ class TransactionController extends BaseController
         ]);
     }
 
-    public function recountAdjust(InventoryRecountAdjustmentRequest $request): JsonResponse
+    public function recountAdjust(InventoryRecountAdjustmentRequest $request, InventoryRecountService $recountService): JsonResponse
     {
-        $result = $this->repo()->applyInventoryRecountAdjustment(
+        $result = $recountService->applyInventoryRecountAdjustment(
             payload: $request->validated(),
             userId: optional($request->user())->id,
         );
@@ -160,8 +161,8 @@ class TransactionController extends BaseController
         ]);
     }
 
-    public function getRemainingStocksPerCategory(GetTransactionRequest $request, string $categoryName): Collection
+    public function getRemainingStocksPerCategory(GetTransactionRequest $request, string $categoryName, InventoryReportService $reportService): Collection
     {
-        return $this->repo()->getRemainingStocksPerCategory(new Collection($request->all()), $categoryName);
+        return $reportService->getRemainingStocksPerCategory(new Collection($request->all()), $categoryName);
     }
 }

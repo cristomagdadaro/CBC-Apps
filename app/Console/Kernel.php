@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('forms:update-expired')->everySixHours();
         $schedule->command('laboratory:mark-overdue')->everyFiveMinutes();
         $schedule->command('fes:send-overdue-reminders')->everyFiveMinutes();
+        $schedule->command('notifications:send-hourly-batch')->hourly();
     }
 
     /**

@@ -22,7 +22,7 @@ class NotificationPreferenceService
     {
         $mode = (string) config("notifications.domains.{$domain}.delivery_mode", 'individual');
 
-        return in_array($mode, ['individual', 'grouped'], true) ? $mode : 'individual';
+        return in_array($mode, ['individual', 'grouped', 'batch'], true) ? $mode : 'individual';
     }
 
     public function groupedToFor(string $domain): array
