@@ -101,12 +101,12 @@
                             <!-- All Option -->
                             <dropdown-option
                                 v-if="withAllOption"
-                                @click.prevent="select({name: null, label: 'All fields'})"
+                                @click.prevent="select({name: null, label: 'All'})"
                                 :selected="selected && selected.name === defaultOption.name"
                             >
                                 <div class="flex items-center gap-2 text-xs sm:text-sm font-semibold">
                                     <LayoutGrid class="w-3.5 h-3.5 text-lime-600 dark:text-lime-400" />
-                                    All fields
+                                    All
                                 </div>
                             </dropdown-option>
 
@@ -201,7 +201,7 @@ export default {
     data() {
         return {
             open: false,
-            defaultOption: { name: null, label: 'All fields', selected: true },
+            defaultOption: { name: null, label: 'All', selected: true },
             selected: null,
             search: null,
             filteredOptions: [],

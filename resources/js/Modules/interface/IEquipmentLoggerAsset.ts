@@ -13,4 +13,5 @@ export default interface IEquipmentLoggerAsset extends IBaseClass {
     completed_logs: number | string;
     last_logged_at: Date | string | null;
     barcode: string;
+    current_location_code: string;
 }

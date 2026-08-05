@@ -28,7 +28,7 @@ class LaboratoryCheckInRequest extends FormRequest
                 }
             ],
             'end_use_at' => ['required', 'date'],
-            'purpose' => ['nullable', 'string', 'max:1000'],
+            'purpose' => ['required', 'string', 'max:1000'],
         ];
     }
 

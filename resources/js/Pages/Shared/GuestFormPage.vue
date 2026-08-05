@@ -31,6 +31,11 @@ export default {
             default: 'guest-page',
         },
     },
+    methods: {
+        goBack() {
+            window.history.back();
+        }
+    }
 };
 </script>
 
@@ -46,13 +51,16 @@ export default {
                 <!-- Header / search / top content -->
                 <slot name="top">
                     <div v-show="delayReady" class="p-0 md:rounded-md flex flex-col gap-2 md:drop-shadow-lg mb-0 w-full">
-                        <div data-guide="guest-page-header" class="relative flex flex-row bg-AB text-white p-2 px-4 md:rounded-md gap-2 shadow py-4 w-full">
+                        <div data-guide="guest-page-header" class="relative flex flex-row bg-AB text-white p-2 px-4 md:rounded-md gap-2 shadow py-4 w-full items-center">
+                            <button @click="goBack" class="md:hidden flex-shrink-0 flex items-center justify-center p-1.5 -ml-1 mr-1 text-white/90 hover:text-white rounded-md hover:bg-white/10 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                            </button>
                             <Link href="/" class="flex-shrink-0">
-                                <img src="/imgs/logo.png" alt="logo" class="w-16 h-16" />
+                                <img src="/imgs/logo.png" alt="logo" class="w-12 h-12 md:w-16 md:h-16" />
                             </Link>
                             <div class="flex flex-col justify-center flex-1 min-w-0">
-                                <label class="font-semibold text-base md:text-xl">{{ title }}</label>
-                                <p v-if="subtitle" class="text-sm leading-tight">
+                                <label class="font-semibold text-base sm:text-lg uppercase">{{ title }}</label>
+                                <p v-if="subtitle" class="text-sm leading-tight font-light sm:font-normal">
                                     {{ subtitle }}
                                 </p>
                             </div>

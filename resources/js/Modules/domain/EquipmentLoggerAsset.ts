@@ -11,7 +11,7 @@ export default class EquipmentLoggerAsset extends DtoEquipmentLoggerAsset {
 
     constructor(response: any = {}) {
         super(response);
-
+        
         this.api._apiIndex = EquipmentLoggerAsset.endpoints.index;
         this.api._apiPut = EquipmentLoggerAsset.endpoints.put;
         this.showPage = EquipmentLoggerAsset.endpoints.show;
@@ -52,7 +52,7 @@ export default class EquipmentLoggerAsset extends DtoEquipmentLoggerAsset {
                 key: "equipment_type",
                 db_key: "equipment_type",
                 align: "dataColor",
-                sortable: false,
+                sortable: true,
                 visible: true,
             },
             {
@@ -62,6 +62,14 @@ export default class EquipmentLoggerAsset extends DtoEquipmentLoggerAsset {
                 align: "dataColor",
                 sortable: true,
                 visible: false,
+            },
+            {
+                title: "Location",
+                key: "current_location_label",
+                db_key: "current_location_label",
+                align: "dataColor",
+                sortable: true,
+                visible: true,
             },
             {
                 title: "Logger Mode",

@@ -31,6 +31,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
             ->get('/equipment-logger', function () {
                 return Inertia::render('Laboratory/LaboratoryDashboard', [
                     'equipment_logger_mode_options' => app(OptionRepo::class)->getEquipmentLoggerModeOptions(),
+                    'storage_locations' => app(OptionRepo::class)->getStorageLocations(),
                 ]);
             })->name('equipment-logger.dashboard');
 

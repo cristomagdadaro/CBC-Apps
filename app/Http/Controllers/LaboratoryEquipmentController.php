@@ -120,6 +120,50 @@ class LaboratoryEquipmentController extends BaseController
         ]);
     }
 
+    public function finalizeLocation(Request $request, string $identifier): JsonResponse
+    {
+        $this->requireAdmin();
+
+        $equipmentId = $this->logService->resolveEquipmentIdFromBarcode($identifier);
+
+        if (!$equipmentId) {
+            return response()->json([
+                'message' => 'Equipment not found.',
+            ], 404);
+        }
+
+        $result = $this->logService->finalizeTemporaryLocation($equipmentId, 'laboratory');
+
+        return response()->json([
+            'message' => 'Location finalized successfully.',
+            'data'    => $result,
+        ]);
+    }
+
+    public function updateLocation(Request $request, string $identifier): JsonResponse
+    {
+        $this->requireAdmin();
+
+        $validated = $request->validate([
+            'location_code' => ['required', 'string'],
+        ]);
+
+        $equipmentId = $this->logService->resolveEquipmentIdFromBarcode($identifier);
+
+        if (!$equipmentId) {
+            return response()->json([
+                'message' => 'Equipment not found.',
+            ], 404);
+        }
+
+        $result = $this->logService->updateEquipmentLocation($equipmentId, $validated['location_code'], 'laboratory');
+
+        return response()->json([
+            'message' => 'Location updated successfully.',
+            'data'    => $result,
+        ]);
+    }
+
     public function dashboard(): JsonResponse
     {
         $this->logService->markOverdue();

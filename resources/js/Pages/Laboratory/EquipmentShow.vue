@@ -5,6 +5,7 @@ import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import LaboratoryPersonnelMixin from "@/Modules/mixins/LaboratoryPersonnelMixin";
 import LuQrCode from "@/Components/Icons/LuQrCode.vue";
 import LuMapPin from "@/Components/Icons/LuMapPin.vue";
+import LuEdit from "@/Components/Icons/LuEdit.vue";
 
 export default {
     name: "EquipmentShow",
@@ -185,10 +186,10 @@ export default {
             return !!this.activeLog;
         },
         canReportLocation() {
-            return this.shouldShowLocationSurvey;
+            return true;
         },
         shouldShowLocationSurvey() {
-            return this.currentLocation?.source !== "temporary" || this.currentLocation?.label === "Unknown Location";
+            return !this.currentLocation || this.currentLocation.label === "Unknown Location" || this.currentLocation.label === "Unknown" || this.currentLocation.label === "UNKNOWN LOCATION";
         },
         filteredActiveEquipments() {
             if (
@@ -544,6 +545,27 @@ export default {
             this.updateEndUseForm.end_use_at =
                 this.formatForDatetimeLocal(baseTime);
         },
+        async finalizeLocation() {
+            if (!confirm('Are you sure you want to finalize this reported location? This will permanently update the equipment barcode.')) {
+                return;
+            }
+            this.isLoading = true;
+            try {
+                // apiRoutePrefix could be "api.laboratory.equipments" but the route we added is "api.equipment-logger.equipments.finalize-location"
+                await axios.post(this.route("api.equipment-logger.equipments.finalize-location", this.equipmentId));
+                this.messageType = "success";
+                this.message = "Location finalized successfully";
+                this.showSuccessModal = true;
+                await this.loadEquipment();
+            } catch (error) {
+                this.messageType = "error";
+                this.message = error?.response?.data?.message || "Failed to finalize location";
+                this.showSuccessModal = true; // Use the same modal to show errors as the UI does
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
         async submitCheckIn() {
             this.checkInErrors = {};
             this.message = null;
@@ -926,7 +948,7 @@ export default {
             <div v-show="delayReady" class="grid grid-cols-1 gap-0 md:gap-4 lg:gap-4 lg:grid-cols-12">
 
                 <!-- Main Content Column -->
-                <div class="space-y-0 md:space-y-4 lg:space-y-6 lg:col-span-7">
+                <div class="space-y-1 md:space-y-4 lg:space-y-6 lg:col-span-7">
 
                     <!-- Equipment Selection / Details Card -->
                     <div class="bg-white border border-gray-200 shadow-sm md:rounded-xl overflow-visible">
@@ -978,24 +1000,28 @@ export default {
                                     </div>
                                     <div class="flex flex-col w-full">
                                         <h1 class="text-xl font-bold text-gray-900">{{ equipment.name }}</h1>
-                                        <div class="flex justify-between md:flex-row flex-col md:items-center">
-                                            <p class="text-sm text-gray-500">{{ equipment?.brand || "—" }}</p>
-                                            <p class="text-sm text-gray-500 flex items-center gap-1.5" title="PhilRice Property No."><LuBarcode class="w-3.5 h-3.5 text-gray-800 " />{{ equipment?.barcode_prri || "—" }}</p>
-                                            <p class="text-sm text-gray-500 flex items-center gap-1.5" title="DA-CBC Equipment No."><LuQrCode class="w-3.5 h-3.5 text-gray-800 " />{{ equipment?.barcode || "—" }}</p>
+                                        <div class="text-sm text-gray-500 flex justify-between md:flex-row flex-col md:items-center">
+                                            <p class="font-semibold">{{ equipment?.brand || "—" }}</p>
+                                            <p class="flex items-center gap-1.5" title="PhilRice Property No."><LuBarcode class="w-3.5 h-3.5 text-gray-800 " />{{ equipment?.barcode_prri || "—" }}</p>
+                                            <p class="flex items-center gap-1.5" title="DA-CBC Equipment No."><LuQrCode class="w-3.5 h-3.5 text-gray-800 " />{{ equipment?.barcode || "—" }}</p>
+                                            <div class="flex items-center gap-2">
+                                                <label class="flex items-center gap-1.5 text-xs text-gray-500 uppercase tracking-wide">
+                                                    <LuMapPin class="w-3.5 h-3.5 text-gray-800 " />
+                                                    <p :class="{'!text-amber-700 rounded-full' : currentLocation?.source === 'temporary'}">{{ currentLocation?.label || "Unknown" }}</p>
+                                                </label>
+                                                <button v-if="canReportLocation" type="button" @click="openLocationSurveyModal"
+                                                    title="Edit Location"
+                                                    class="text-xs font-medium text-amber-700 transition-colors hover:text-amber-800">
+                                                    <LuEdit class="w-3.5 h-3.5"/> 
+                                                </button>
+                                                <button v-if="isAdmin && currentLocation?.source === 'temporary'" type="button" @click="finalizeLocation"
+                                                    title="Finalize Location"
+                                                    class="text-xs font-medium text-emerald-700 transition-colors hover:text-emerald-800 ml-1 underline">
+                                                    Finalize
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div class="space-y-1">
-                                            <label class="flex items-center gap-1.5 text-xs text-gray-500 uppercase tracking-wide">
-                                                <LuMapPin class="w-3.5 h-3.5 text-gray-800 " />
-                                                <p class="text-xs text-gray-500">{{ currentLocation?.label || "Unknown" }}</p>
-                                                <span v-if="currentLocation?.source === 'temporary'" class="px-2 py-0.5 text-xs text-amber-700 bg-amber-100 rounded-full">
-                                                    Temporary
-                                                </span>
-                                            </label>
-                                            <button v-if="canReportLocation" type="button" @click="openLocationSurveyModal"
-                                                class="mt-2 text-xs font-medium text-amber-700 transition-colors hover:text-amber-800">
-                                                Update reported location
-                                            </button>
-                                        </div>
+                                        
                                     </div>
                                 </div>
                                 <button v-if="!equipment_id" @click="selectedEquipmentId = null"
@@ -1264,7 +1290,7 @@ export default {
                 </div>
 
                 <!-- Sidebar: Active Equipment -->
-                <div class="lg:col-span-5">
+                <div class="lg:col-span-5 mt-1 sm:mt-0">
                     <div data-guide="equipment-active" class="sticky overflow-hidden bg-white border border-gray-200 shadow-sm top-4 md:rounded-xl">
                         <div class="flex items-center justify-between p-4 border-b border-gray-100">
                             <div class="flex items-center gap-3">

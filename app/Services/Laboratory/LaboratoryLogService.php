@@ -259,6 +259,71 @@ class LaboratoryLogService
         });
     }
 
+    public function finalizeTemporaryLocation(string $equipmentId, string $equipmentType = 'laboratory'): ?array
+    {
+        $equipment = $this->requireEligibleEquipment($equipmentId, $equipmentType);
+
+        return DB::transaction(function () use ($equipmentId, $equipmentType) {
+            $survey = LaboratoryEquipmentLocationSurvey::where('equipment_id', $equipmentId)->first();
+
+            if (!$survey) {
+                return null;
+            }
+
+            if ($survey->location_code) {
+                $transactions = Transaction::withTrashed()
+                    ->where('item_id', $equipmentId)
+                    ->where('transac_type', \App\Enums\Inventory::INCOMING->value)
+                    ->whereNotNull('barcode')
+                    ->get();
+
+                foreach ($transactions as $transaction) {
+                    if (preg_match('/^(CBC-)(\d+)(-.*)$/i', $transaction->barcode, $matches)) {
+                        $newCode = str_pad($survey->location_code, 2, '0', STR_PAD_LEFT);
+                        $transaction->barcode = $matches[1] . $newCode . $matches[3];
+                        $transaction->save();
+                    }
+                }
+            }
+
+            $survey->delete();
+
+            $activeLog = $this->getActiveLog($equipmentId)?->loadMissing(['personnel', 'equipment']);
+            event(new EquipmentLogChanged('location_finalized', $equipmentType, $equipmentId, $activeLog, null));
+
+            return $this->getEquipmentDetails($equipmentId, $equipmentType);
+        });
+    }
+
+    public function updateEquipmentLocation(string $equipmentId, string $locationCode, string $equipmentType = 'laboratory'): ?array
+    {
+        $equipment = $this->requireEligibleEquipment($equipmentId, $equipmentType);
+
+        return DB::transaction(function () use ($equipmentId, $locationCode, $equipmentType) {
+            $transactions = Transaction::withTrashed()
+                ->where('item_id', $equipmentId)
+                ->where('transac_type', \App\Enums\Inventory::INCOMING->value)
+                ->whereNotNull('barcode')
+                ->get();
+
+            foreach ($transactions as $transaction) {
+                if (preg_match('/^(CBC-)(\d+)(-.*)$/i', $transaction->barcode, $matches)) {
+                    $newCode = str_pad($locationCode, 2, '0', STR_PAD_LEFT);
+                    $transaction->barcode = $matches[1] . $newCode . $matches[3];
+                    $transaction->save();
+                }
+            }
+
+            // Also delete any temporary survey since the location is now authoritative
+            LaboratoryEquipmentLocationSurvey::where('equipment_id', $equipmentId)->delete();
+
+            $activeLog = $this->getActiveLog($equipmentId)?->loadMissing(['personnel', 'equipment']);
+            event(new EquipmentLogChanged('location_finalized', $equipmentType, $equipmentId, $activeLog, null));
+
+            return $this->getEquipmentDetails($equipmentId, $equipmentType);
+        });
+    }
+
     public function markOverdue(): int
     {
         return DB::transaction(function () {
@@ -423,7 +488,7 @@ class LaboratoryLogService
     {
         $search = trim((string) ($parameters['search'] ?? ''));
         $filter = trim((string) ($parameters['filter'] ?? ''));
-        $perPage = max(1, min(100, (int) ($parameters['per_page'] ?? 10)));
+        $perPage = max(1, min(1000, (int) ($parameters['per_page'] ?? 10)));
         $sort = (string) ($parameters['sort'] ?? 'total_logs');
         $order = strtolower((string) ($parameters['order'] ?? 'desc')) === 'asc' ? 'asc' : 'desc';
 
@@ -515,7 +580,13 @@ class LaboratoryLogService
         $query->orderBy($sortableColumns[$sort] ?? 'total_logs', $order)
             ->orderBy('items.name');
 
-        return $query->paginate($perPage);
+        return $query->paginate($perPage)->through(function ($item) {
+            $location = $this->resolveEquipmentLocation((string) $item->id, $item->barcode);
+            $item->setAttribute('current_location_label', $location['label'] ?? null);
+            $item->setAttribute('current_location_source', $location['source'] ?? null);
+            $item->setAttribute('current_location_code', $location['code'] ?? null);
+            return $item;
+        });
     }
 
     public function paginatePersonnelUsage(array $parameters, string $equipmentType = 'all'): LengthAwarePaginator
@@ -1173,17 +1244,14 @@ class LaboratoryLogService
     private function getPurposeSuggestions(string $equipmentId): array
     {
         return LaboratoryEquipmentLog::query()
+            ->select('purpose', \Illuminate\Support\Facades\DB::raw('count(*) as usage_count'))
             ->where('equipment_id', $equipmentId)
             ->whereNotNull('purpose')
             ->where('purpose', '!=', '')
-            ->orderByDesc('created_at')
-            ->limit(50)
+            ->groupBy('purpose')
+            ->orderByDesc('usage_count')
+            ->limit(10)
             ->pluck('purpose')
-            ->map(fn (string $purpose) => trim($purpose))
-            ->filter()
-            ->unique()
-            ->take(10)
-            ->values()
             ->all();
     }
 

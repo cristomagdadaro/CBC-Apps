@@ -70,6 +70,11 @@ export default {
             showLoggerModeModal: false,
             selectedEquipmentAsset: null,
             selectedLoggerMode: null,
+            isUpdatingLoggerMode: false,
+            
+            showLocationModal: false,
+            selectedLocationCode: null,
+            isUpdatingLocation: false,
             loggerModeFormError: null,
             activeTab: 'stats',
             chartMetricMode: 'frequency', // 'frequency' or 'duration'
@@ -278,10 +283,13 @@ export default {
                 if (key) {
                     labels[key] = option?.label ?? key;
                 }
-
                 return labels;
             }, {});
         },
+        storageLocationOptions() {
+            return this.$page.props?.storage_locations || [];
+        },
+
         loggerModeOptions() {
             const options = this.$page.props?.equipment_logger_mode_options;
 
@@ -641,6 +649,38 @@ export default {
             this.selectedEquipmentAsset = null;
             this.selectedLoggerMode = null;
             this.loggerModeFormError = null;
+        },
+        openLocationModal(row) {
+            this.selectedEquipmentAsset = row;
+            this.selectedLocationCode = row?.current_location_code ?? null;
+            this.showLocationModal = true;
+        },
+        closeLocationModal() {
+            this.showLocationModal = false;
+            this.selectedEquipmentAsset = null;
+            this.selectedLocationCode = null;
+        },
+        async submitLocationUpdate() {
+            if (!this.selectedLocationCode) {
+                return;
+            }
+            this.isUpdatingLocation = true;
+            try {
+                await axios.post(route('api.equipment-logger.equipments.update-location', {
+                    equipmentId: this.selectedEquipmentAsset?.id || this.selectedEquipmentAsset?.equipment_id || this.selectedEquipmentAsset?.barcode
+                }), {
+                    location_code: this.selectedLocationCode
+                });
+                
+                if (this.$refs.equipmentListTable?.refresh) {
+                    this.$refs.equipmentListTable.refresh();
+                }
+                this.closeLocationModal();
+            } catch (error) {
+                console.error("Failed to update equipment location", error);
+            } finally {
+                this.isUpdatingLocation = false;
+            }
         },
         async submitLoggerModeUpdate() {
             if (!this.canSubmitLoggerModeUpdate) return;
@@ -1055,16 +1095,20 @@ export default {
                     :can-delete="false"
                     storage-key="equipment-logger-asset"
                 >
-                    <template #custom-filters="{ customFilters, datatable }">
-                        <select 
-                            v-model="customFilters.equipment_type" 
-                            @change="datatable.getResults()" 
-                            class="border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-lg shadow-sm text-sm"
+                    <template #custom-filters="{ customFilters, refresh }">
+                        <custom-dropdown 
+                            :options="[{name: 'laboratory', label: 'Laboratory'}, {name: 'ict', label: 'ICT'}]" 
+                            label="Filter by Group" 
+                            placeholder="All Groups"
+                            :value="customFilters.equipment_type" 
+                            :with-all-option="true"
+                            all-option-label="All Groups"
+                            @selectedChange="(value) => { customFilters.equipment_type = value; refresh(); }"
                         >
-                            <option value="">All Groups</option>
-                            <option value="laboratory">Laboratory</option>
-                            <option value="ict">ICT</option>
-                        </select>
+                            <template #icon>
+                                <LuFilter class="w-4 h-4 text-gray-400" />
+                            </template>
+                        </custom-dropdown>
                     </template>
                     <template #cell-name="{ row, value }">
                         <div class="py-1.5 leading-tight whitespace-normal w-full">
@@ -1093,6 +1137,22 @@ export default {
                             @dblclick.stop.prevent="openLoggerModeModal(row)"
                         >
                             {{ loggerModeLabel(value) }}
+                        </button>
+                    </template>
+                    <template #cell-current_location_label="{ row, value }">
+                        <button
+                            type="button"
+                            :id="`cell-location-${row.id}`"
+                            class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold transition hover:ring-2 hover:ring-amber-300"
+                            :class="[
+                                row.current_location_source === 'temporary'
+                                    ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                                    : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                            ]"
+                            title="Double-click to edit or finalize location"
+                            @dblclick.stop.prevent="openLocationModal(row)"
+                        >
+                            {{ value || 'Unknown' }}
                         </button>
                     </template>
                 </CRCMDatatable>
@@ -1175,6 +1235,63 @@ export default {
                             @click="submitLoggerModeUpdate"
                         >
                             {{ updatingLoggerMode ? 'Updating...' : 'Update Mode' }}
+                        </button>
+                    </div>
+                </template>
+            </DialogModal>
+
+            <!-- Location Update Modal -->
+            <DialogModal :show="showLocationModal" max-width="md" @close="closeLocationModal">
+                <template #title>
+                    <div class="flex items-center gap-2 py-2">
+                        <span class="text-sm font-bold text-slate-900 dark:text-slate-100">Update Equipment Location</span>
+                    </div>
+                </template>
+
+                <template #content>
+                    <div class="space-y-4">
+                        <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 px-4 py-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                            <p class="font-bold text-slate-900 dark:text-slate-100">
+                                {{ selectedEquipmentAsset?.name || 'Equipment' }}
+                            </p>
+                            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                {{ selectedEquipmentAsset?.brand || 'Unknown Brand' }} • {{ selectedEquipmentAsset?.barcode || 'No barcode' }}
+                            </p>
+                            <p v-if="selectedEquipmentAsset?.current_location_source === 'temporary'" class="mt-2 text-xs font-bold text-amber-600">
+                                Current Location (Temporary): {{ selectedEquipmentAsset?.current_location_label }}
+                            </p>
+                        </div>
+                        <custom-dropdown
+                            required
+                            searchable
+                            :with-all-option="false"
+                            :value="selectedLocationCode"
+                            :options="storageLocationOptions"
+                            label="Equipment Location"
+                            placeholder="Select location"
+                            guide="This permanently updates the equipment barcode location, and finalizes any temporary survey report."
+                            @selectedChange="selectedLocationCode = $event"
+                        />
+                    </div>
+                </template>
+
+                <template #footer>
+                    <div class="flex w-full justify-between gap-3">
+                        <button
+                            type="button"
+                            class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                            :disabled="isUpdatingLocation"
+                            @click="closeLocationModal"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="button"
+                            class="rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-xs transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                            :disabled="isUpdatingLocation || !selectedLocationCode"
+                            @click="submitLocationUpdate"
+                        >
+                            {{ isUpdatingLocation ? 'Saving...' : 'Save Location' }}
                         </button>
                     </div>
                 </template>

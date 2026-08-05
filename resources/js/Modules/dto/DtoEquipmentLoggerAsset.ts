@@ -16,6 +16,10 @@ export default class DtoEquipmentLoggerAsset extends DtoBaseClass implements IEq
     completed_logs: number | string;
     last_logged_at: Date | string | null;
     barcode: string;
+    current_location_code: string;
+    current_location_label: string;
+    current_location_source: string;
+
 
     constructor(data: any = {}) {
         super(data);
@@ -34,6 +38,9 @@ export default class DtoEquipmentLoggerAsset extends DtoBaseClass implements IEq
         this.completed_logs = data?.completed_logs;
         this.last_logged_at = data?.last_logged_at;
         this.barcode = data?.barcode;
+        this.current_location_code = data?.current_location_code;
+        this.current_location_label = data?.current_location_label;
+        this.current_location_source = data?.current_location_source;
     }
 
 

@@ -742,7 +742,7 @@ export default {
                                         <div class="flex gap-2">
                                                 <select v-model="tableState.filter" @change="handleFilterChange"
                                                         class="block w-full pl-3 pr-8 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500">
-                                                        <option :value="null">All Fields</option>
+                                                        <option :value="null">All</option>
                                                         <option v-for="column in filterOptions" :key="column.key"
                                                                 :value="column.key">
                                                                 {{ column.title }}
