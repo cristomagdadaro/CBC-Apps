@@ -49,6 +49,11 @@ export default {
             this.search = '';
             this.searchBy();
         }
+    },
+    watch: {
+        modelValue(newVal) {
+            this.search = newVal;
+        }
     }
 }
 </script>

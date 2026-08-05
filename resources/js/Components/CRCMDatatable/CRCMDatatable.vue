@@ -32,7 +32,7 @@
                             @searchBy="dt.filterByColumn({ column: $event })" :theme="colorPreset" class="w-full" />
                     </div>
 
-                    <search-filter :value="dt.request.getSearch" @searchString="dt.searchFunc({ search: $event })"
+                    <search-filter :model-value="dt.request.getSearch" @searchString="dt.searchFunc({ search: $event })"
                         class="w-full sm:flex-1" :theme="colorPreset" />
 
                     <scope-filter v-if="showScopeFilter" :value="dt.request.getScope"

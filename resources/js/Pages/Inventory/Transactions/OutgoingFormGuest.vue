@@ -235,7 +235,7 @@ export default {
                             <span v-if="activeFilterCount > 0" class="px-1.5 py-0.5 rounded-full text-[0.65rem] font-bold bg-lime-600 text-white">
                                 {{ activeFilterCount }}
                             </span>
-                            <component :is="showFilters ? ChevronUp : ChevronDown" class="w-4 h-4 text-slate-400" />
+                            <component :is="showFilters ? 'ChevronUp' : 'ChevronDown'" class="w-4 h-4 text-slate-400" />
                         </button>
                     </div>
 

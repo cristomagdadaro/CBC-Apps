@@ -1,3 +1,4 @@
+import { App as CapacitorApp } from '@capacitor/app';
 import './bootstrap';
 import '../css/app.css';
 
@@ -62,3 +63,13 @@ createInertiaApp({
         color: '#4B5563',
     },
 });
+
+if (typeof window !== 'undefined') {
+    CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+        if (!canGoBack || window.location.pathname === '/' || window.location.pathname === '/login') {
+            CapacitorApp.exitApp();
+        } else {
+            window.history.back();
+        }
+    });
+}

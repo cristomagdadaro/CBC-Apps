@@ -48,6 +48,9 @@ export default class DtoBaseRequest implements IBaseRequest {
         this.filter_by_parent_column = params.filter_by_parent_column;
         this.scope_by = params.scope_by;
         this.routeParams = params.routeParams;
+        
+        // Ensure custom parameters passed (e.g. from local storage) are preserved
+        Object.assign(this, params);
     }
 
     get getPerPage() {
@@ -87,7 +90,7 @@ export default class DtoBaseRequest implements IBaseRequest {
             this.removeParam(key);
         else
             this[key] = value;
-        //this.saveParamsLocal();
+        this.saveParamsLocal();
     }
 
     removeParam(key: string) {

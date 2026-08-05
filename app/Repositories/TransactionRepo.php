@@ -28,6 +28,27 @@ class TransactionRepo extends AbstractRepoService
         $this->appendWith = ['item', 'user','personnel'];
     }
 
+    protected function buildSearchQuery(Collection $parameters, bool $withPagination, bool $isTrashed)
+    {
+        $builder = $this->model->newQuery();
+        
+        $this->applyAppends($builder, $parameters);
+        $this->applyParentFilter($builder, $parameters);
+        $this->applySearchFilters($builder, $parameters);
+        $this->applyGroupBy($builder, $parameters);
+        $this->applySorting($builder, $parameters);
+
+        if ($transacType = $parameters->get('transac_type')) {
+            $builder->where('transactions.transac_type', $transacType);
+        }
+
+        if ($withPagination) {
+            return $this->applyPagination($builder, $parameters);
+        }
+
+        return $builder->get();
+    }
+
     public function create(array $data)
     {
         $parentBarcode = $this->normalizeParentBarcode($data['parent_barcode'] ?? null);

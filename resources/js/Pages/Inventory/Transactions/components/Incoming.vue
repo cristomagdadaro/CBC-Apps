@@ -224,7 +224,7 @@ export default {
                 <MapPin class="w-5 h-5" />
                 <span class="text-xs sm:text-sm font-semibold whitespace-nowrap">Storage Reference</span>
                 <component
-                    :is="showStorageReference ? ChevronUp : ChevronDown"
+                    :is="showStorageReference ? 'ChevronUp' : 'ChevronDown'"
                     class="w-4 h-4 transition-transform"
                 />
             </button>
