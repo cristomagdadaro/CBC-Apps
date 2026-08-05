@@ -124,6 +124,13 @@
 - [ID-2026-04-21-006] Resolved. The first research code-routing pass duplicated route fallback state in DTO/interface fields (`route_identifier`) and left dead barcode DOM-render helpers in `BarcodePrint.vue` (`renderBarcodes`, `renderModalBarcode`, `renderDefaultPreviewBarcode`). Study/experiment route parameter selection now comes from domain-level `identifier()` overrides (`ResearchStudy`, `ResearchExperiment`) so API IDs and code-based web route params are derived from one source, and the obsolete manual barcode render paths/watchers were removed after `QrBarCode` adoption.
 - [ID-2026-04-23-001] Resolved. The authenticated Equipment Logger personnel history view (`/apps/equipment-logger/personnels/{id}`) was failing with frontend `API_GET_ERROR` and `url: null` because the generated Ziggy route map was stale and did not include `api.equipment-logger.personnels.*` routes. Regenerating `resources/js/ziggy.js` restored the missing route names, so `CRCMDatatable` now resolves `api.equipment-logger.personnels.logs.index` correctly.
 
+## Tracker Updates (2026-08-05)
+- [ID-2026-08-05-001] Resolved. Fixed frontend filter persistence on `CRCMDatatable` and `SearchBox.vue` so search keywords and custom filters are retained across page navigation using `DtoBaseRequest`.
+- [ID-2026-08-05-002] Resolved. Fixed "Filter by Transaction Type" in the Inventory Transactions page by implementing the missing `buildSearchQuery` filter override in `TransactionRepo`.
+- [ID-2026-08-05-003] Resolved. Standardized `RentalVehicleRepository` and `RentalVenueRepository` to adhere to the core `AbstractRepoService` pattern. Removed hand-written `paginate()` and `all()` methods in favor of standard `search()` and `buildSearchQuery()`.
+- [ID-2026-08-05-004] Resolved. Decoupled `ResearchStudyRepo` and `ResearchExperimentRepo` from the HTTP context by removing direct `request()->user()` calls. The authenticated user context is now passed down from their controllers via parameters.
+- [ID-2026-08-05-005] Resolved. Removed redundant overriding methods such as the empty `search()` override in `SuppEquipReportRepo`.
+
 ### Verification Snapshot (2026-06-23)
 - `npm run build`: passed successfully.
 - `php artisan test`: 222 assertions passed successfully across the suite.

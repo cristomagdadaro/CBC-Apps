@@ -17,97 +17,67 @@ class RentalVenueRepository extends AbstractRepoService
         parent::__construct($model);
     }
 
-    public function all(array $filters = [])
+    public function search(Collection $parameters, bool $withPagination = true, bool $isTrashed = false)
     {
-        $query = $this->model->newQuery();
+        $result = parent::search($parameters, $withPagination, $isTrashed);
 
-        if (!empty($filters['venue_type'])) {
-            $query->where('venue_type', $filters['venue_type']);
+        if ($result instanceof LengthAwarePaginator) {
+            $result->setCollection($this->syncLifecycleStatuses($result->getCollection()));
+        } else {
+            $result = $this->syncLifecycleStatuses($result);
         }
 
-        if (!empty($filters['statuses'])) {
-            $query->whereIn('status', (array) $filters['statuses']);
-        } elseif (!empty($filters['status'])) {
-            $statusFilter = $filters['status'];
-            is_array($statusFilter)
-                ? $query->whereIn('status', $statusFilter)
-                : $query->where('status', $statusFilter);
-        }
-
-        if (!empty($filters['date_from'])) {
-            $query->where('date_from', '>=', $filters['date_from']);
-        }
-
-        if (!empty($filters['date_to'])) {
-            $query->where('date_to', '<=', $filters['date_to']);
-        }
-
-        return $this->syncLifecycleStatuses(
-            $query->orderBy('date_from', 'asc')
-                ->orderBy('time_from', 'asc')
-                ->get()
-        );
+        return $result;
     }
 
-    public function paginate(array $params = [], int $perPage = 15)
+    protected function buildSearchQuery(Collection $parameters, bool $withPagination, bool $isTrashed)
     {
-        $query = $this->model->newQuery();
+        $builder = $this->model->newQuery();
 
-        $search = trim((string) ($params['search'] ?? ''));
-        $filter = $params['filter'] ?? null;
-        $isExact = filter_var($params['is_exact'] ?? false, FILTER_VALIDATE_BOOLEAN);
-        $sort = $params['sort'] ?? 'date_from';
-        $order = strtolower((string) ($params['order'] ?? 'asc')) === 'desc' ? 'desc' : 'asc';
-        $page = max((int) ($params['page'] ?? 1), 1);
-        $perPageValue = (int) ($params['per_page'] ?? $perPage);
-        $perPageValue = $perPageValue > 0 ? $perPageValue : $perPage;
+        if ($isTrashed) {
+            $builder->onlyTrashed();
+        }
 
-        $filterableColumns = [
-            'id',
-            'venue_type',
-            'event_name',
-            'requested_by',
-            'expected_attendees',
-            'contact_number',
-            'date_from',
-            'date_to',
-            'status',
-            'destination_location',
-            'destination_city',
-            'destination_province',
-            'destination_region',
-            'notes',
-        ];
+        $this->applyAppends($builder, $parameters);
 
-        if (!empty($search)) {
-            $operator = $isExact ? '=' : 'like';
-            $searchValue = $isExact ? $search : "%{$search}%";
+        if ($venueType = $parameters->get('venue_type')) {
+            $builder->where('venue_type', $venueType);
+        }
 
-            if ($filter && in_array($filter, $filterableColumns, true)) {
-                $query->where($filter, $operator, $searchValue);
-            } else {
-                $query->where(function ($subQuery) use ($searchValue) {
-                    $subQuery->where('venue_type', 'like', $searchValue)
-                        ->orWhere('event_name', 'like', $searchValue)
-                        ->orWhere('requested_by', 'like', $searchValue)
-                        ->orWhere('status', 'like', $searchValue)
-                        ->orWhere('contact_number', 'like', $searchValue);
-                });
+        if ($parameters->has('statuses')) {
+            $builder->whereIn('status', (array) $parameters->get('statuses'));
+        } elseif ($status = $parameters->get('status')) {
+            is_array($status)
+                ? $builder->whereIn('status', $status)
+                : $builder->where('status', $status);
+        }
+
+        if ($dateFrom = $parameters->get('date_from')) {
+            $builder->where('date_from', '>=', $dateFrom);
+        }
+
+        if ($dateTo = $parameters->get('date_to')) {
+            $builder->where('date_to', '<=', $dateTo);
+        }
+        
+        $this->applySearchFilters($builder, $parameters);
+        
+        // Retain default sorting logic if none provided
+        if (!$parameters->has('sort')) {
+            $parameters->put('sort', 'date_from');
+            if (!$parameters->has('order')) {
+                $parameters->put('order', 'asc');
             }
         }
+        
+        $this->applyGroupBy($builder, $parameters);
+        $this->applySorting($builder, $parameters);
 
-        if (!in_array($sort, $filterableColumns, true)) {
-            $sort = 'date_from';
+        if ($withPagination) {
+            return $this->applyPagination($builder, $parameters);
         }
 
-        /** @var LengthAwarePaginator $paginator */
-        $paginator = $query
-            ->orderBy($sort, $order)
-            ->paginate($perPageValue, ['*'], 'page', $page);
-
-        $paginator->setCollection($this->syncLifecycleStatuses($paginator->getCollection()));
-
-        return $paginator;
+        return $builder->get();
     }
 
     public function find(string $id)

@@ -46,10 +46,7 @@ class SuppEquipReportRepo extends AbstractRepoService
         return $this->loadFormRelations($report);
     }
 
-    public function search(Collection $parameters, bool $withPagination = true, bool $isTrashed = false)
-    {
-        return parent::search($parameters, $withPagination, $isTrashed);
-    }
+
 
     protected function loadFormRelations(Model $report): Model
     {

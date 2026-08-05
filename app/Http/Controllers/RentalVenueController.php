@@ -22,10 +22,7 @@ class RentalVenueController extends BaseController
 
     public function index(Request $request): JsonResponse
     {
-        $rentals = $this->repo()->paginate(
-            $request->only(['search', 'filter', 'is_exact', 'sort', 'order', 'page', 'per_page']),
-            (int) $request->query('per_page', 15)
-        );
+        $rentals = $this->repo()->search(collect($request->all()));
 
         return response()->json($rentals);
     }
@@ -45,7 +42,7 @@ class RentalVenueController extends BaseController
             'statuses' => $statuses,
         ];
 
-        $rentals = collect($this->repo()->all($filters))
+        $rentals = collect($this->repo()->search(new Collection($filters), false))
             ->map(fn (RentalVenue $rental) => $this->buildPublicRentalPayload($rental))
             ->values();
 

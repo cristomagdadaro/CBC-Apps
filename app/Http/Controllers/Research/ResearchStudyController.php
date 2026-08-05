@@ -25,7 +25,11 @@ class ResearchStudyController extends BaseController
 
     public function index(GetResearchStudyRequest $request): Collection
     {
-        return parent::_index($request);
+        $parameters = collect($request->validated())->merge([
+            'auth_user' => $request->user(),
+        ]);
+        
+        return new Collection($this->repo()->search($parameters));
     }
 
     public function store(StoreResearchStudyRequest $request): JsonResponse

@@ -24,7 +24,7 @@ class ResearchStudyRepo extends AbstractRepoService
     protected function buildSearchQuery(Collection $parameters, bool $withPagination, bool $isTrashed)
     {
         $builder = $this->model->newQuery()
-            ->whereIn('project_id', $this->accessService->visibleProjectIdsQuery(request()->user()));
+            ->whereIn('project_id', $this->accessService->visibleProjectIdsQuery($parameters->get('auth_user')));
 
         $this->applyProjectFilter($builder, $parameters);
         $this->applyAppends($builder, $parameters);
