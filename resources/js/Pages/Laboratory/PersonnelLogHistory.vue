@@ -112,16 +112,16 @@ export default {
                     :can-delete="false"
                 >
                     <template #cell-equipmentName="{ row, value }">
-                        <div class="min-w-[16rem] whitespace-normal">
-                            <a
-                                v-if="row.latest_incoming_transaction_id"
-                                :href="route('transactions.show', { id: row.latest_incoming_transaction_id })"
-                                target="_blank"
-                                class="font-medium text-blue-700 hover:underline"
-                            >
-                                {{ value }}
-                            </a>
-                            <span v-else class="font-medium text-slate-900">{{ value }}</span>
+                        <div class="py-1.5 leading-tight whitespace-normal w-full">
+                            <div class="font-medium">
+                                <Link :href="route('transactions.show', { id: row.latest_incoming_transaction_id })" class="text-lime-600 dark:text-lime-400 hover:text-primary-800 hover:underline">
+                                    {{ row?.equipment?.name }}
+                                </Link>
+                                <span v-if="row?.equipment?.description" class="text-gray-500 block text-xs">Model: {{ row?.equipment?.description }}</span>
+                            </div>
+                            <div class="text-xs" v-if="row?.equipment?.brand">{{row?.equipment?.brand}}</div>
+                            <div class="text-xs" v-if="row?.equipment_barcode">{{ row?.equipment_barcode }}</div>
+
                         </div>
                     </template>
                     <template #cell-status="{ value }">

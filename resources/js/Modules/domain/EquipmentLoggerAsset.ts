@@ -37,7 +37,7 @@ export default class EquipmentLoggerAsset extends DtoEquipmentLoggerAsset {
                 db_key: "brand",
                 align: "dataColor",
                 sortable: true,
-                visible: true,
+                visible: false,
             },
             {
                 title: "Description",
@@ -45,7 +45,7 @@ export default class EquipmentLoggerAsset extends DtoEquipmentLoggerAsset {
                 db_key: "description",
                 align: "dataColor",
                 sortable: true,
-                visible: true,
+                visible: false,
             },
             {
                 title: "Group",

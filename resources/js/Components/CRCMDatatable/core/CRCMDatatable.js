@@ -3,11 +3,10 @@ import BaseRequest from "@/Modules/domain/BaseRequest";
 import BaseClass from "@/Modules/domain/BaseClass";
 
 export default class CRCMDatatable {
-    constructor(params = {}, model = BaseClass, apiAdapter = null) {
+    constructor(params = {}, model = BaseClass, apiAdapter = null, storageKey = null) {
         this.api = apiAdapter;
         this.fixedParams = params || {};
         // array of columns to display
-        this.columns = ref([]);
         this.columns = ref([]);
         // response from the server
         this.response = ref([]);
@@ -21,11 +20,13 @@ export default class CRCMDatatable {
         this.closeAllModal = false;
         this._processing = false;
         this._errorBag = null;
+        this.storageKey = storageKey;
 
         // retrieve params from local storage, if not found, create a new instance of BaseRequest
         // so that when the page is refreshed, the datatable will remember the last state
-        const localParams = BaseRequest.getParamsLocal();
+        const localParams = BaseRequest.getParamsLocal(this.storageKey);
         this.request = localParams ? new BaseRequest({ ...localParams, ...params }) : new BaseRequest(params);
+        this.request.storageKey = this.storageKey;
     }
 
     buildRequestPayload(extra = {}) {

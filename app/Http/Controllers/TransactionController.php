@@ -102,7 +102,12 @@ class TransactionController extends BaseController
             $params->put('min_remaining', 0);
         }
 
-        return $reportService->getRemainingStocks($params, [1,2,3,5,6,11,12]);
+        $categoryIds = $request->input('category_ids', [1, 2, 3, 5, 6, 11, 12]);
+        if (is_string($categoryIds)) {
+            $categoryIds = explode(',', $categoryIds);
+        }
+
+        return $reportService->getRemainingStocks($params, $categoryIds);
     }
 
     public function projectCodes(InventoryReportService $reportService): JsonResponse

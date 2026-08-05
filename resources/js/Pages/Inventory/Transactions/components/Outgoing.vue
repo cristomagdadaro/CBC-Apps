@@ -11,6 +11,8 @@ import CameraScanner from "@/Components/CameraScanner.vue";
 import { subscribeToRealtimeChannels } from "@/Modules/realtime/subscriptions";
 import { Filter, ChevronDown, ChevronUp } from "lucide-vue-next";
 
+import TagifyInput from "@/Components/Tagify.vue";
+
 export default {
     name: "Outgoing",
     components: {
@@ -23,6 +25,7 @@ export default {
         Filter,
         ChevronDown,
         ChevronUp,
+        TagifyInput,
     },
     mixins: [ApiMixin],
     props: {
@@ -67,6 +70,7 @@ export default {
         this.model = new Transaction();
         this.setFormAction('get');
         this.applyNameSort();
+        this.form.category_ids = ['1','2','3','5','6','11','12'];
     },
     async mounted() {
         if (this.isUpdateView) {
@@ -99,6 +103,7 @@ export default {
             let count = 0;
             if (this.form?.filter && this.form?.filter_by) count++;
             if (this.form?.storage_location_id) count++;
+            if (this.form?.category_ids?.length !== 7) count++;
             return count;
         },
     },
@@ -141,6 +146,10 @@ export default {
 
             this.form.filter = filter;
             this.form.filter_by = filter_by;
+            this.searchEvent();
+        },
+        updateCategories(value) {
+            this.form.category_ids = value;
             this.searchEvent();
         },
         applyStorageRoomFilter(roomCode) {
@@ -246,12 +255,25 @@ export default {
 
                     <!-- Collapsible Dropdown Filter Drawer -->
                     <transition-container type="pop-in">
-                        <div v-if="showFilters" class="grid grid-cols-2 md:grid-cols-5 gap-2 items-center w-full justify-center pt-3 pb-1 border-t border-slate-100 dark:border-slate-800">
-                            <custom-dropdown :with-all-option="false" placeholder="Category" label="Filter by Category" @selectedChange="setFilter('category', $event)" :options="categories" />
-                            <custom-dropdown v-if="projectCodes" placeholder="Project Code" label="Filter by Project Code" :options="projectCodes" @selectedChange="setFilter('project_code', $event)" />
-                            <custom-dropdown :with-all-option="false" placeholder="Storage Room" label="Filter by Storage Room" @selectedChange="applyStorageRoomFilter($event)" :options="storage_locations" />
-                            <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
-                            <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
+                        <div v-if="showFilters" class="flex flex-col gap-3 pt-3 pb-1 border-t border-slate-100 dark:border-slate-800">
+                            <div class="grid grid-cols-2 md:grid-cols-5 gap-2 items-center w-full justify-center">
+                                <custom-dropdown :with-all-option="false" placeholder="Category" label="Filter by Category" @selectedChange="setFilter('category', $event)" :options="categories" />
+                                <custom-dropdown v-if="projectCodes" placeholder="Project Code" label="Filter by Project Code" :options="projectCodes" @selectedChange="setFilter('project_code', $event)" />
+                                <custom-dropdown :with-all-option="false" placeholder="Storage Room" label="Filter by Storage Room" @selectedChange="applyStorageRoomFilter($event)" :options="storage_locations" />
+                                <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
+                                <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
+                            </div>
+                            <div class="w-full">
+                                <label class="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 block">Categories for Remaining Stocks (IDs)</label>
+                                <TagifyInput
+                                    v-model="form.category_ids"
+                                    name="category_ids"
+                                    placeholder="Enter Category IDs"
+                                    :whitelist="['1','2','3','4','5','6','7','8','9','10','11','12','13']"
+                                    :enforce-whitelist="false"
+                                    @update:modelValue="updateCategories"
+                                />
+                            </div>
                         </div>
                     </transition-container>
 

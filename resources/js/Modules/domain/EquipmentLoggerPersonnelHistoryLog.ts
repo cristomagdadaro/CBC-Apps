@@ -36,7 +36,7 @@ export default class EquipmentLoggerPersonnelHistoryLog extends DtoLaboratoryEqu
                 db_key: 'equipment_id',
                 align: 'text-left',
                 sortable: false,
-                visible: true,
+                visible: false,
             },
             {
                 title: 'Description',
@@ -44,7 +44,7 @@ export default class EquipmentLoggerPersonnelHistoryLog extends DtoLaboratoryEqu
                 db_key: 'equipment_id',
                 align: 'text-left',
                 sortable: false,
-                visible: true,
+                visible: false,
             },
             {
                 title: 'Status',
@@ -68,7 +68,7 @@ export default class EquipmentLoggerPersonnelHistoryLog extends DtoLaboratoryEqu
                 db_key: 'equipment_id',
                 align: 'text-left',
                 sortable: false,
-                visible: true,
+                visible: false,
             },
             {
                 title: 'Started At',

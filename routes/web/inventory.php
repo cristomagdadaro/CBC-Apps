@@ -163,7 +163,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                             'data' => $transaction,
                             'items' => Item::withTrashed()->get(),
                             'fromUrl' => route('transactions.index'),
-                            'projectCodes' => app(TransactionRepo::class)->getAvailableProjectCodes(),
+                            'projectCodes' => app(\App\Services\Inventory\InventoryReportService::class)->getAvailableProjectCodes(),
                             'equipment_logger_mode_options' => app(OptionRepo::class)->getEquipmentLoggerModeOptions(),
                             'equipment_logger_mode_default' => app(OptionRepo::class)->getDefaultEquipmentLoggerMode(),
                             'storage_locations' => app(OptionRepo::class)->getStorageLocations(),

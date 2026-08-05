@@ -178,24 +178,8 @@ export default {
             return maxTotal > 0 ? `${this.dayLabels[maxDayIndex]} (${maxTotal} logs)` : 'N/A';
         },
         equipmentTypeShares() {
-            let ictCount = 0;
-            let labCount = 0;
-
-            this.mostUsed.forEach((item) => {
-                if (item.equipment_type === 'ict') {
-                    ictCount += (item.usage_count ?? 1);
-                } else {
-                    labCount += (item.usage_count ?? 1);
-                }
-            });
-
-            this.currentWorkingLogs.forEach((log) => {
-                if (log.equipment_type === 'ict') {
-                    ictCount++;
-                } else {
-                    labCount++;
-                }
-            });
+            let ictCount = this.dashboard?.total_ict_logs ?? 0;
+            let labCount = this.dashboard?.total_lab_logs ?? 0;
 
             const total = ictCount + labCount;
             if (total === 0) {
@@ -373,7 +357,7 @@ export default {
                 const labels = this.mostUsed.map((item) => {
                     const name = item.equipment_name || item.equipment_id;
                     const barcode = item.equipment_barcode || item.barcode;
-                    return barcode ? `${name} (${barcode})` : name;
+                    return barcode ? [name, `(${barcode})`] : name;
                 });
                 const isFreq = this.chartMetricMode === 'frequency';
                 const datasetData = isFreq
@@ -895,11 +879,17 @@ export default {
                             <div class="mt-3 grid grid-cols-2 gap-2 text-center text-xs">
                                 <div class="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/60 dark:border-slate-800">
                                     <span class="text-slate-500 dark:text-slate-400 block text-[10px]">Laboratory</span>
-                                    <span class="font-bold text-lime-600 dark:text-lime-400 text-sm">{{ equipmentTypeShares.labPercent }}%</span>
+                                    <div class="flex items-baseline justify-center gap-1 mt-0.5">
+                                        <span class="font-bold text-lime-600 dark:text-lime-400 text-sm">{{ equipmentTypeShares.labPercent }}%</span>
+                                        <span class="text-[0.65rem] text-slate-400 font-medium">({{ equipmentTypeShares.labCount }})</span>
+                                    </div>
                                 </div>
                                 <div class="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/60 dark:border-slate-800">
                                     <span class="text-slate-500 dark:text-slate-400 block text-[10px]">ICT Assets</span>
-                                    <span class="font-bold text-sky-600 dark:text-sky-400 text-sm">{{ equipmentTypeShares.ictPercent }}%</span>
+                                    <div class="flex items-baseline justify-center gap-1 mt-0.5">
+                                        <span class="font-bold text-sky-600 dark:text-sky-400 text-sm">{{ equipmentTypeShares.ictPercent }}%</span>
+                                        <span class="text-[0.65rem] text-slate-400 font-medium">({{ equipmentTypeShares.ictCount }})</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1063,27 +1053,29 @@ export default {
                     :can-create="false"
                     :can-update="true"
                     :can-delete="false"
+                    storage-key="equipment-logger-asset"
                 >
+                    <template #custom-filters="{ customFilters, datatable }">
+                        <select 
+                            v-model="customFilters.equipment_type" 
+                            @change="datatable.getResults()" 
+                            class="border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-lg shadow-sm text-sm"
+                        >
+                            <option value="">All Groups</option>
+                            <option value="laboratory">Laboratory</option>
+                            <option value="ict">ICT</option>
+                        </select>
+                    </template>
                     <template #cell-name="{ row, value }">
-                        <div class="min-w-[16rem]">
-                            <a
-                                v-if="transactionShowHref(row)"
-                                :href="transactionShowHref(row)"
-                                target="_blank"
-                                class="font-semibold text-slate-500 hover:underline"
-                            >
-                                <span class="text-lime-600 dark:text-lime-400">{{ value }}</span>
-                            </a>
-                            <span v-else class="font-semibold text-slate-900 dark:text-slate-100">{{ value }}</span>
-                            <div class="text-xs text-slate-500">{{ row?.barcode }}</div>
-                        </div>
-                    </template>
-                    <template #cell-brand="{ value }">
-                        <span class="text-xs sm:text-sm text-slate-700 dark:text-slate-300">{{ value || '-' }}</span>
-                    </template>
-                    <template #cell-description="{ value }">
-                        <div class="max-w-md whitespace-normal text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-                            {{ value || '-' }}
+                        <div class="py-1.5 leading-tight whitespace-normal w-full">
+                            <div class="font-medium">
+                                <Link v-if="transactionShowHref(row)" :href="transactionShowHref(row)" class="text-lime-600 dark:text-lime-400 hover:text-primary-800 hover:underline">
+                                    {{ row.name }}
+                                </Link>
+                                <span v-if="row.description" class="text-gray-500 block text-xs">Model: {{ row.description }}</span>
+                            </div>
+                            <div class="text-xs" v-if="row.brand">{{row.brand}}</div>
+                            <div class="text-xs" v-if="row.barcode">{{ row.barcode }}</div>
                         </div>
                     </template>
                     <template #cell-equipment_type="{ value }">
@@ -1114,6 +1106,7 @@ export default {
                     :can-create="false"
                     :can-update="false"
                     :can-delete="false"
+                    storage-key="equipment-logger-personnel"
                 >
                     <template #cell-fullName="{ row, value }">
                         <div class="min-w-[16rem]">

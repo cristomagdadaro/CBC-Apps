@@ -65,8 +65,8 @@ createInertiaApp({
 });
 
 if (typeof window !== 'undefined') {
-    CapacitorApp.addListener('backButton', ({ canGoBack }) => {
-        if (!canGoBack || window.location.pathname === '/' || window.location.pathname === '/login') {
+    CapacitorApp.addListener('backButton', () => {
+        if (window.location.pathname === '/' || window.location.pathname === '/login') {
             CapacitorApp.exitApp();
         } else {
             window.history.back();

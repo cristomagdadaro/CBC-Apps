@@ -131,8 +131,9 @@ class LaboratoryEquipmentController extends BaseController
 
     public function equipmentIndex(GetRequest $request): JsonResponse
     {
+        $equipmentType = $request->query('equipment_type', 'all');
         return response()->json(
-            $this->logService->paginateEquipmentUsage($request->validated(), 'all')
+            $this->logService->paginateEquipmentUsage($request->validated(), $equipmentType)
         );
     }
 

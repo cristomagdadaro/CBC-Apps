@@ -545,6 +545,7 @@ export default {
         rowCanUpdate: { type: Function, default: null },
         rowCanDelete: { type: Function, default: null },
         defaultColorPreset: { type: String, default: 'lime' },
+        storageKey: { type: String, default: null },
     },
     data() {
         return {
@@ -968,7 +969,7 @@ export default {
                     return Promise.all((ids || []).map((id) => this.fetchDeleteApi(deleteEndpoint, id)));
                 },
             };
-            this.dt = new CRCMDatatable(this.params, this.baseModel, apiAdapter);
+            this.dt = new CRCMDatatable(this.params, this.baseModel, apiAdapter, this.storageKey);
             await this.dt.init();
             this.decorateDatatableForScrollRetention();
         },

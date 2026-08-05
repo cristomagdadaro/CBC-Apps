@@ -365,12 +365,17 @@ export default {
         },
         hasVisibleModule(moduleKey) {
             if (!moduleKey) return true;
-            if (this.$isAdminUser) return true;
 
             const moduleState = this.deploymentModules?.[moduleKey];
             if (!moduleState) return true;
 
-            return moduleState.available !== false && moduleState.mode !== "deactivated";
+            if (moduleState.mode === "deactivated") {
+                return false;
+            }
+
+            if (this.$isAdminUser) return true;
+
+            return moduleState.available !== false;
         },
         canAccessService(service) {
             if (!service) return false;

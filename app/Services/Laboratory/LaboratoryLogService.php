@@ -349,15 +349,20 @@ class LaboratoryLogService
             ->limit(10)
             ->get();
 
-        $equipmentMap = Item::whereIn('id', $mostUsedRows->pluck('equipment_id'))
+        $equipmentMap = Item::with(['transactions' => function ($query) {
+            $query->where('transac_type', Inventory::INCOMING->value)->withTrashed();
+        }])->whereIn('id', $mostUsedRows->pluck('equipment_id'))
             ->get()
             ->keyBy('id');
 
         $mostUsed = $mostUsedRows->map(function ($row) use ($equipmentMap) {
             $equipment = $equipmentMap->get($row->equipment_id);
+            $transaction = $equipment?->transactions->first();
+            $barcode = $transaction?->barcode_prri ?? $transaction?->barcode;
             return [
                 'equipment_id' => $row->equipment_id,
                 'equipment_name' => $equipment?->name,
+                'equipment_barcode' => $barcode,
                 'equipment_type' => $this->determineEquipmentType($equipment),
                 'usage_count' => (int) $row->usage_count,
                 'total_duration_seconds' => (int) $row->total_duration_seconds,
@@ -391,7 +396,27 @@ class LaboratoryLogService
             'completed' => $completedLogs,
             'most_used' => $mostUsed,
             'heatmap' => $heatmap,
+            'total_lab_logs' => $this->getTotalLogsCount('laboratory'),
+            'total_ict_logs' => $this->getTotalLogsCount('ict'),
         ];
+    }
+
+    private function getTotalLogsCount(string $equipmentType): int 
+    {
+        return LaboratoryEquipmentLog::query()
+            ->whereHas('equipment', function (Builder $builder) use ($equipmentType) {
+                $builder->whereHas('transactions', function (Builder $transactionQuery) {
+                    $transactionQuery->withTrashed()
+                        ->where('transactions.transac_type', Inventory::INCOMING->value)
+                        ->whereIn('transactions.equipment_logger_mode', [
+                            Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+                            Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+                        ]);
+                })->whereHas('category', function (Builder $categoryQuery) use ($equipmentType) {
+                    $this->applyEquipmentCategoryConstraint($categoryQuery, $equipmentType, 'categories');
+                });
+            })
+            ->count();
     }
 
     public function paginateEquipmentUsage(array $parameters, string $equipmentType = 'all'): LengthAwarePaginator

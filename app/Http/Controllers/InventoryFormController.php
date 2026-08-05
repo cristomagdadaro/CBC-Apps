@@ -6,6 +6,7 @@ use App\Repositories\OptionRepo;
 use App\Repositories\CategoryRepo;
 use App\Repositories\PersonnelRepo;
 use App\Repositories\TransactionRepo;
+use App\Services\Inventory\InventoryReportService;
 use Inertia\Inertia;
 
 class InventoryFormController extends BaseController
@@ -22,13 +23,13 @@ class InventoryFormController extends BaseController
         $this->optionRepo = $optionRepo;
     }
 
-    public function outgoingForm() {
+    public function outgoingForm(InventoryReportService $reportService) {
         return Inertia::render('Inventory/Transactions/OutgoingFormGuest',
         [
             'stockLevel' => $this->optionRepo->getStockLevels(),
             'categories' => $this->categoryRepo->getInventoryFormCategories([1,2,3,5,6,11,12]),
             'personnels' => $this->personnelRepo->getAllForInventoryForm(),
-            'projectCodes' => $this->transactionRepo()->getAvailableProjectCodes(),
+            'projectCodes' => $reportService->getAvailableProjectCodes(),
             'storage_locations' => $this->optionRepo->getStorageLocations(),
         ]);
     }

@@ -18,9 +18,11 @@ export default class DtoBaseRequest implements IBaseRequest {
     appendWith?: string[];
     appendCount?: string[];
 
+    storageKey?: string;
+
     static props = usePage();
 
-    constructor(params : IBaseRequest = {
+    constructor(params : IBaseRequest | any = {
         page: 1,
         per_page: '25',
         sort: 'created_at',
@@ -38,6 +40,9 @@ export default class DtoBaseRequest implements IBaseRequest {
         this.per_page = params.per_page;
         this.sort = params.sort;
         this.order = params.order;
+        this.appendCount = params?.appendCount;
+
+        this.storageKey = params?.storageKey;
 
         // optional parameters
         this.search = params.search;
@@ -106,18 +111,20 @@ export default class DtoBaseRequest implements IBaseRequest {
     }
 
     saveParamsLocal() {
-        // use the current route name as the key
-        localStorage.setItem(DtoBaseRequest.props.component, JSON.stringify(this));
+        const key = this.storageKey ? `${DtoBaseRequest.props.component}_${this.storageKey}` : DtoBaseRequest.props.component;
+        localStorage.setItem(key, JSON.stringify(this));
     }
 
-    static getParamsLocal() {
-        if (localStorage.getItem(DtoBaseRequest.props.component) !== null)
-            return JSON.parse(localStorage.getItem(DtoBaseRequest.props.component));
+    static getParamsLocal(storageKey?: string) {
+        const key = storageKey ? `${DtoBaseRequest.props.component}_${storageKey}` : DtoBaseRequest.props.component;
+        if (localStorage.getItem(key) !== null)
+            return JSON.parse(localStorage.getItem(key));
         else
-            return new this();
+            return null;
     }
 
-    static resetParamsLocal() {
-        localStorage.removeItem(DtoBaseRequest.props.component);
+    static resetParamsLocal(storageKey?: string) {
+        const key = storageKey ? `${DtoBaseRequest.props.component}_${storageKey}` : DtoBaseRequest.props.component;
+        localStorage.removeItem(key);
     }
 }

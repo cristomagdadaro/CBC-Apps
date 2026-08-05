@@ -27,7 +27,7 @@ class DashboardController extends BaseController
         $this->rbacService = $rbacService;
     }
 
-    public function index(Request $request)
+    public function index(Request $request, \App\Services\Inventory\InventoryReportService $reportService)
     {
         $dashboardAccess = $this->dashboardAccess($request);
         $stats = $this->dashboardRepo()->getDashboardMetrics();
@@ -68,7 +68,7 @@ class DashboardController extends BaseController
                 : [],
             'recentSystemActivity' => $this->dashboardRepo()->getRecentSystemActivity(),
             'recentTransactions' => $dashboardAccess['inventory']
-                ? $this->transactionRepo->getRecentTransactions()
+                ? $reportService->getRecentTransactions()
                 : [],
             'recentEquipmentLogs' => $dashboardAccess['laboratory']
                 ? $this->dashboardRepo()->getRecentEquipmentLogs()

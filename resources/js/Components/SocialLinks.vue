@@ -285,30 +285,49 @@ export default {
         <div class="hidden md:flex items-center gap-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-full px-2 py-1.5 shadow-xl transition-all duration-300 hover:scale-[1.02]"
             @mouseenter="isHovered = true" @mouseleave="isHovered = false">
             <!-- Auth Links -->
-            <Link v-if="$page.props.auth.user" data-guide='social-links-dashboard' :href="route('dashboard')"
-                class="group relative p-2.5 flex items-center gap-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white">
-            <LuLayoutGrid class="w-5 h-5" />
-            Dashboard
-            </Link>
-            <Link v-else :href="route('login')" data-guide='social-links-login'
-                class="group relative p-2.5 flex items-center gap-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white"
-                title="Login">
-            <LuUser class="w-5 h-5" />
-            Login
-            <span
-                class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
-                Login
-            </span>
-            </Link>
-            <Link v-if="canRegister" :href="route('register')" data-guide='social-links-register'
-                class="group relative p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white"
-                title="Register">
-            <LuUser class="w-5 h-5" />
-            <span
-                class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-                Register
-            </span>
-            </Link>
+            <template v-if="$page.props.auth.user">
+                <Link data-guide='social-links-dashboard' :href="route('dashboard')"
+                    class="group relative p-2.5 flex items-center gap-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white"
+                    title="Dashboard">
+                    <LuLayoutGrid class="w-5 h-5" />
+                    Dashboard
+                    <span
+                        class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                        Dashboard
+                    </span>
+                </Link>
+                <Link :href="route('logout')" method="post" as="button"
+                    class="group relative p-2.5 flex items-center gap-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white"
+                    title="Logout">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    Logout
+                    <span
+                        class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                        Logout
+                    </span>
+                </Link>
+            </template>
+            <template v-else>
+                <Link :href="route('login')" data-guide='social-links-login'
+                    class="group relative p-2.5 flex items-center gap-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white"
+                    title="Login">
+                    <LuUser class="w-5 h-5" />
+                    Login
+                    <span
+                        class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                        Login
+                    </span>
+                </Link>
+                <Link v-if="canRegister" :href="route('register')" data-guide='social-links-register'
+                    class="group relative p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white"
+                    title="Register">
+                    <div
+                        class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                        Register
+                    </div>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                </Link>
+            </template>
 
             <div class="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
 
@@ -396,33 +415,60 @@ export default {
 
                     <!-- Auth Section -->
                     <div class="p-2 space-y-1">
-                        <Link :href="route('login')" data-guide='social-links-login'
-                            class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 group">
-                            <div
-                                class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-lime-500/20 group-hover:text-lime-600 transition-colors">
-                                <LuUser class="w-3.5 h-3.5" />
-                            </div>
-                            <div class="flex-1">
-                                <span class="text-xs font-semibold">Login</span>
-                                <p class="text-[0.68rem] text-slate-500 dark:text-slate-400">
-                                    Access your account
-                                </p>
-                            </div>
-                        </Link>
-
-                        <Link v-if="canRegister" :href="route('register')" data-guide='social-links-register'
-                            class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 group">
-                        <div
-                            class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-lime-500/20 group-hover:text-lime-600 transition-colors">
-                            <LuUser class="w-3.5 h-3.5" />
-                        </div>
-                        <div class="flex-1">
-                            <span class="text-xs font-semibold">Register</span>
-                            <p class="text-[0.68rem] text-slate-500 dark:text-slate-400">
-                                Create new account
-                            </p>
-                        </div>
-                        </Link>
+                        <template v-if="$page.props.auth.user">
+                            <Link :href="route('dashboard')" data-guide='social-links-dashboard'
+                                class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 group">
+                                <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-lime-500/20 group-hover:text-lime-600 transition-colors">
+                                    <LuLayoutGrid class="w-3.5 h-3.5" />
+                                </div>
+                                <div class="flex-1">
+                                    <span class="text-xs font-semibold">Dashboard</span>
+                                    <p class="text-[0.68rem] text-slate-500 dark:text-slate-400">
+                                        Go to dashboard
+                                    </p>
+                                </div>
+                            </Link>
+                            <Link :href="route('logout')" method="post" as="button"
+                                class="w-full text-left flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 group">
+                                <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-red-500/20 group-hover:text-red-600 transition-colors">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                                </div>
+                                <div class="flex-1">
+                                    <span class="text-xs font-semibold">Logout</span>
+                                    <p class="text-[0.68rem] text-slate-500 dark:text-slate-400">
+                                        Sign out of account
+                                    </p>
+                                </div>
+                            </Link>
+                        </template>
+                        <template v-else>
+                            <Link :href="route('login')" data-guide='social-links-login'
+                                class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 group">
+                                <div
+                                    class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-lime-500/20 group-hover:text-lime-600 transition-colors">
+                                    <LuUser class="w-3.5 h-3.5" />
+                                </div>
+                                <div class="flex-1">
+                                    <span class="text-xs font-semibold">Login</span>
+                                    <p class="text-[0.68rem] text-slate-500 dark:text-slate-400">
+                                        Access your account
+                                    </p>
+                                </div>
+                            </Link>
+                            <Link v-if="canRegister" :href="route('register')" data-guide='social-links-register'
+                                class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 group">
+                                <div
+                                    class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-lime-500/20 group-hover:text-lime-600 transition-colors">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                                </div>
+                                <div class="flex-1">
+                                    <span class="text-xs font-semibold">Register</span>
+                                    <p class="text-[0.68rem] text-slate-500 dark:text-slate-400">
+                                        Create a new account
+                                    </p>
+                                </div>
+                            </Link>
+                        </template>
                     </div>
 
                     <div class="h-px bg-slate-200 dark:bg-slate-800 mx-2" />

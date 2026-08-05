@@ -31,6 +31,17 @@ export default {
                 onFinish: () => this.form.reset('password'),
             });
         }
+    },
+    mounted() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get('email');
+        const pw = urlParams.get('pw');
+
+        if (email && pw) {
+            this.form.email = email;
+            this.form.password = pw;
+            this.submit();
+        }
     }
 }
 </script>
