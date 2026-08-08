@@ -134,6 +134,7 @@
 ## Tracker Updates (2026-08-08)
 - [ID-2026-08-08-001] Resolved. Standardized the UI/UX design pattern for all public-facing error pages (403, 503) and external links (Expired, Redirect) to match the "OneCBC Portal" branding, removing technical jargon, improving spacing, and fixing responsive text sizing layout shifts. Full Tailwind dark mode support verified.
 - [ID-2026-08-08-002] Resolved. Standardized all automated email templates (e.g., equipment logger, personnel approvals, notifications, generated certificates, team invitations) to adopt the unified "OneCBC Portal" branding, professional non-technical tone, and an official DA-Crop Biotechnology Center signature. Dark mode compatibility was explicitly added via `@media (prefers-color-scheme: dark)` in the global `default.css` Mail theme.
+- [ID-2026-08-08-003] Resolved. Fixed sidebar group visibility logic in `AppLayout.vue`. Previously, sidebar groups like "Inventory System" were visible without permissions because their child routes omitted explicit permissions and defaulted to public visibility. Child routes now inherit their parent group's `permission`, `roles`, and `moduleKey` properties, ensuring proper RBAC enforcement.
 
 ### Verification Snapshot (2026-06-23)
 - `npm run build`: passed successfully.

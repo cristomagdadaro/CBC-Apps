@@ -398,7 +398,15 @@ export default {
         },
         visibleChildren(service) {
             if (!Array.isArray(service?.children)) return [];
-            return service.children.filter((child) => this.canAccessDirectService(child));
+            return service.children.filter((child) => {
+                const effectiveChild = {
+                    ...child,
+                    permission: child.permission !== undefined ? child.permission : service.permission,
+                    roles: child.roles !== undefined ? child.roles : service.roles,
+                    moduleKey: child.moduleKey !== undefined ? child.moduleKey : service.moduleKey
+                };
+                return this.canAccessDirectService(effectiveChild);
+            });
         },
         isServiceActive(service) {
             if (!service) return false;
