@@ -1,7 +1,9 @@
 @component('mail::message')
-# Hourly Action Summary Digest
+# Hourly Activity Summary
 
-Here is a summary of the automated actions executed in the past hour.
+Hello,
+
+Here is a quick overview of the automated system actions processed over the past hour.
 
 @foreach($groupedLogs as $domain => $logs)
 ## {{ ucwords(str_replace(['.', '_'], ' ', $domain)) }}
@@ -29,6 +31,6 @@ Here is a summary of the automated actions executed in the past hour.
 
 @endforeach
 
-Thanks,<br>
-{{ config('app.name') }}
+Best regards,<br>
+DA-Crop Biotechnology Center
 @endcomponent

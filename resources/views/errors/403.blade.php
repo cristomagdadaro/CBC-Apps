@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>OneCBC Portal | Under Maintenance</title>
+        <title>OneCBC Portal | Unauthorized</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <script>
             tailwind.config = {
@@ -65,7 +65,6 @@
         </style>
     </head>
     <body class="bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 min-h-screen flex items-center justify-center p-4">
-        
         <!-- Background Elements -->
         <div class="fixed inset-0 overflow-hidden pointer-events-none">
             <div class="absolute top-0 left-0 w-full pointer-events-none h-full bg-gradient-to-br from-lime-100/30 via-transparent to-teal-100/30 dark:from-lime-900/20 dark:to-teal-900/20"></div>
@@ -74,23 +73,35 @@
         </div>
 
         <main class="relative z-10 w-full max-w-6xl mx-auto">
-            <div class="flex gap-2 justify-center">
-                <div class="flex justify-center mb-8">
-                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800">
-                        <span class="text-sm font-semibold text-yellow-700 dark:text-yellow-400 uppercase tracking-wider">WARNING!</span>
+            <div class="text-center mb-8 select-none">
+                <!-- Logo/Title Section -->
+                <div class="relative w-fit mx-auto mb-3.5 drop-shadow-md">
+                    <div class="flex items-center gap-2 justify-center">
+                        <h1 class="text-5xl font-bold leading-none text-lime-500 dark:text-green-400 font-[Montserrat]">
+                            OneCBC Portal
+                        </h1>
                     </div>
+                    <span class="absolute -bottom-2 right-1 font-light text-xs text-lime-500 dark:text-green-400">
+                        by DA-Crop Biotechnology Center
+                    </span>
                 </div>
-                <!-- Status Badge -->
-                <div class="flex justify-center mb-8">
-                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800">
-                        <span class="relative flex h-3 w-3">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                        </span>
-                        <span class="text-sm font-semibold text-red-700 dark:text-red-400 uppercase tracking-wider">Unauthorized Access</span>
-                    </div>
+                <blockquote class="font-normal tracking-wider text-sm text-gray-500 dark:text-gray-500">
+                    Better Crops, Better Lives
+                </blockquote>
+            </div>
+
+            <!-- Status Badge -->
+            <div class="flex justify-center mb-8">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800">
+                    <span class="relative flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                    </span>
+                    <span class="text-sm font-semibold text-red-700 dark:text-red-400 uppercase tracking-wider">Unauthorized Access</span>
                 </div>
             </div>
+
+
 
             <!-- Footer Links -->
             <div class="mt-8 text-center">

@@ -142,6 +142,15 @@
 - Notification recipient options must resolve through the `users` table. Store user-backed recipient selections in `Option` values and resolve current email addresses from `User` records instead of treating arbitrary raw emails as the source of truth.
 - Prefer module-scoped option keys under the notification config map, and keep certificate, form-response, equipment-log, and inventory recipient policy in [`config/notifications.php`](../config/notifications.php).
 
+## UI/UX & Design Protocol
+- **Brand Consistency**: All public-facing views, including error pages (403, 503), external redirects (Expired, Redirect), and email templates must adopt the official "OneCBC Portal" branding.
+- **Language & Tone**: Use warm, professional, non-technical language for all user-facing copy (e.g., replacing "Your usage session is now overdue" with "This is a quick reminder that your reserved time for the equipment has ended").
+- **Dark Mode Compatibility**: 
+  - For web pages: Fully support dark mode using Tailwind `dark:` variants and dynamic `prefers-color-scheme` OS detection. 
+  - For emails: Include `@media (prefers-color-scheme: dark)` in `resources/views/vendor/mail/html/themes/default.css` to ensure email clients like Apple Mail correctly invert backgrounds and text.
+- **Responsive Layout Stability**: Avoid using responsive typography classes (e.g., `text-4xl md:text-6xl`) on elements that act as anchors for `absolute` positioned child elements (like subtitles), as this causes layout shifting on smaller screens. Use fixed scaling (e.g., `text-5xl`) for consistent anchor points.
+- **Email Signatures & Footers**: All system-generated emails must use the signature `Best regards,\nDA-Crop Biotechnology Center` and a footer formatted precisely as `© [Year] DA-Crop Biotechnology. All rights reserved.`.
+
 ## Anti-Patterns
 - Don’t instantiate `Model` queries directly in controllers; always prefer the relevant repository.
 - Don’t overload controllers with pipeline logic—delegate to dedicated pipeline stages in [`app/Pipelines`](app/Pipelines).

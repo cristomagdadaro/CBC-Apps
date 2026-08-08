@@ -1,22 +1,126 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Link Expired</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f8fafc; color: #1f2937; }
-        .card { width: min(100%, 520px); background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 32px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08); text-align: center; }
-        h1 { margin: 0 0 12px; color: #991b1b; }
-        p { margin: 0 0 12px; line-height: 1.6; }
-        a { color: #166534; }
-    </style>
-</head>
-<body>
-<div class="card">
-    <h1>Link Expired</h1>
-    <p>This Go Link is no longer active.</p>
-    <p><a href="{{ config('app.url') }}">Return to the main site</a></p>
-</div>
-</body>
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>OneCBC Portal | Link Expired</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                darkMode: 'class',
+                theme: {
+                    extend: {
+                        colors: {
+                            'AB': '#0f766e',
+                            'AC': '#f59e0b',
+                            'AA': '#10b981',
+                            'AD': '#059669',
+                        },
+                        fontFamily: {
+                            'montserrat': ['Montserrat', 'sans-serif'],
+                        }
+                    }
+                }
+            }
+        </script>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                min-height: 100vh;
+                font-family: "Segoe UI", Arial, sans-serif;
+            }
+            .gradient-text {
+                background: linear-gradient(135deg, #0f766e 0%, #059669 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            .dark .gradient-text {
+                background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            .animate-pulse-slow {
+                animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            @keyframes float {
+                0%, 100% { transform: translateY(0px); }
+                50% { transform: translateY(-10px); }
+            }
+            .animate-float {
+                animation: float 3s ease-in-out infinite;
+            }
+            .gear-spin {
+                animation: spin 8s linear infinite;
+            }
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+        </style>
+    </head>
+    <body class="bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 min-h-screen flex items-center justify-center p-4">
+        
+        <!-- Background Elements -->
+        <div class="fixed inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-0 left-0 w-full pointer-events-none h-full bg-gradient-to-br from-lime-100/30 via-transparent to-teal-100/30 dark:from-lime-900/20 dark:to-teal-900/20"></div>
+            <div class="absolute top-20 left-10 w-72 h-72 bg-AC/10 rounded-full blur-3xl animate-pulse-slow"></div>
+            <div class="absolute bottom-20 right-10 w-96 h-96 bg-AB/10 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 1s;"></div>
+        </div>
+
+        <main class="relative z-10 w-full max-w-6xl mx-auto">
+            <div class="text-center mb-8 select-none">
+                <!-- Logo/Title Section -->
+                <div class="relative w-fit mx-auto mb-3.5 drop-shadow-md">
+                    <div class="flex items-center gap-2 justify-center">
+                        <h1 class="text-5xl font-bold leading-none text-lime-500 dark:text-green-400 font-[Montserrat]">
+                            OneCBC Portal
+                        </h1>
+                    </div>
+                    <span class="absolute -bottom-2 right-1 font-light text-xs text-lime-500 dark:text-green-400">
+                        by DA-Crop Biotechnology Center
+                    </span>
+                </div>
+                <blockquote class="font-normal tracking-wider text-sm text-gray-500 dark:text-gray-500">
+                    Better Crops, Better Lives
+                </blockquote>
+            </div>
+
+            <!-- Status Badge -->
+            <div class="flex justify-center mb-8">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-100 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-800">
+                    <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    <span class="text-sm font-semibold text-orange-700 dark:text-orange-400 uppercase tracking-wider">Link Expired</span>
+                </div>
+            </div>
+
+            <!-- Footer Links -->
+            <div class="mt-8 text-center">
+                <div class="flex flex-wrap justify-center gap-4 text-xs text-gray-500 dark:text-gray-500 mb-4">
+                    <span class="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">GoLinks</span>
+                </div>
+            </div>
+        </main>
+
+        <script>
+            // Check for dark mode preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            }
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+                if (event.matches) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            });
+        </script>
+    </body>
 </html>

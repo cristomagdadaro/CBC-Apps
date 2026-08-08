@@ -95,11 +95,14 @@
 
         $forPdf = $forPdf ?? true; // Default to PDF context for DomPDF generator
 
-        $getImagePath = function ($path) use ($forPdf) {
-            if ($forPdf) {
-                return public_path($path);
+        $getImagePath = function ($path) {
+            $fullPath = public_path($path);
+            if (file_exists($fullPath)) {
+                $type = pathinfo($fullPath, PATHINFO_EXTENSION);
+                $data = file_get_contents($fullPath);
+                return 'data:image/' . $type . ';base64,' . base64_encode($data);
             }
-            return '/' . ltrim($path, '/');
+            return asset($path);
         };
 
         $logos = [

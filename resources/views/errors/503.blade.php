@@ -74,19 +74,19 @@
         </div>
 
         <main class="relative z-10 w-full max-w-6xl mx-auto">
-            <div class="text-center mb-8">
+            <div class="text-center mb-8 select-none">
                 <!-- Logo/Title Section -->
-                <div class="relative w-fit mx-auto mb-6">
+                <div class="relative w-fit mx-auto mb-3.5 drop-shadow-md">
                     <div class="flex items-center gap-2 justify-center">
-                        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-none text-lime-500 dark:text-green-400 font-[Montserrat] drop-shadow-md">
-                            OneCBC
+                        <h1 class="text-5xl font-bold leading-none text-lime-500 dark:text-green-400 font-[Montserrat]">
+                            OneCBC Portal
                         </h1>
                     </div>
-                    <span class="absolute -bottom-4 -right-6 text-xs text-lime-500 dark:text-green-400 font-semibold">
-                        DA-Crop Biotechnology Center
+                    <span class="absolute -bottom-2 right-1 font-light text-xs text-lime-500 dark:text-green-400">
+                        by DA-Crop Biotechnology Center
                     </span>
                 </div>
-                <blockquote class="mt-2 font-semibold text-gray-500 dark:text-gray-500">
+                <blockquote class="font-normal tracking-wider text-sm text-gray-500 dark:text-gray-500">
                     Better Crops, Better Lives
                 </blockquote>
             </div>
@@ -102,21 +102,7 @@
                 </div>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <a href="{{ url()->current() }}" class="group relative inline-flex items-center justify-center px-8 py-3 text-base font-bold text-white transition-all duration-200 bg-gradient-to-r from-AB to-AD rounded-xl hover:shadow-lg hover:shadow-AB/30 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-AB dark:focus:ring-offset-gray-900">
-                    <svg class="w-5 h-5 mr-2 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                    </svg>
-                    Try Again
-                </a>
-                <a href="https://dacbc.philrice.gov.ph/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-8 py-3 text-base font-bold text-gray-700 dark:text-gray-300 transition-all duration-200 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 dark:focus:ring-offset-gray-900">
-                    <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                    </svg>
-                    Visit DA-CBC Website
-                </a>
-            </div>
+
 
             <!-- Footer Links -->
             <div class="mt-8 text-center">

@@ -131,6 +131,10 @@
 - [ID-2026-08-05-004] Resolved. Decoupled `ResearchStudyRepo` and `ResearchExperimentRepo` from the HTTP context by removing direct `request()->user()` calls. The authenticated user context is now passed down from their controllers via parameters.
 - [ID-2026-08-05-005] Resolved. Removed redundant overriding methods such as the empty `search()` override in `SuppEquipReportRepo`.
 
+## Tracker Updates (2026-08-08)
+- [ID-2026-08-08-001] Resolved. Standardized the UI/UX design pattern for all public-facing error pages (403, 503) and external links (Expired, Redirect) to match the "OneCBC Portal" branding, removing technical jargon, improving spacing, and fixing responsive text sizing layout shifts. Full Tailwind dark mode support verified.
+- [ID-2026-08-08-002] Resolved. Standardized all automated email templates (e.g., equipment logger, personnel approvals, notifications, generated certificates, team invitations) to adopt the unified "OneCBC Portal" branding, professional non-technical tone, and an official DA-Crop Biotechnology Center signature. Dark mode compatibility was explicitly added via `@media (prefers-color-scheme: dark)` in the global `default.css` Mail theme.
+
 ### Verification Snapshot (2026-06-23)
 - `npm run build`: passed successfully.
 - `php artisan test`: 222 assertions passed successfully across the suite.

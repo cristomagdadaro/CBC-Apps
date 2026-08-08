@@ -1,17 +1,21 @@
 @component('mail::message')
-{{ __('You have been invited to join the :team team!', ['team' => $invitation->team->name]) }}
+# Team Invitation
+
+Hello! 
+
+You have been invited to join the **{{ $invitation->team->name }}** team on OneCBC.
 
 @if (Laravel\Fortify\Features::enabled(Laravel\Fortify\Features::registration()))
-{{ __('If you do not have an account, you may create one by clicking the button below. After creating an account, you may click the invitation acceptance button in this email to accept the team invitation:') }}
+If you don't have an account yet, please create one first by clicking the button below. Once your account is set up, you can accept this invitation to join the team.
 
 @component('mail::button', ['url' => route('register')])
 {{ __('Create Account') }}
 @endcomponent
 
-{{ __('If you already have an account, you may accept this invitation by clicking the button below:') }}
+If you already have an account, you can accept the invitation right away:
 
 @else
-{{ __('You may accept this invitation by clicking the button below:') }}
+You can accept this invitation by clicking the button below:
 @endif
 
 
@@ -19,5 +23,8 @@
 {{ __('Accept Invitation') }}
 @endcomponent
 
-{{ __('If you did not expect to receive an invitation to this team, you may discard this email.') }}
+If you weren't expecting this invitation, feel free to ignore this email.
+
+Best regards,<br>
+DA-Crop Biotechnology Center
 @endcomponent
