@@ -1156,7 +1156,7 @@ export default {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="flex flex-col md:items-end gap-1 md:gap-1.5">
+                                <div class="flex flex-col md:items-end gap-1 md:gap-1.5 ml-12 md:ml-0">
                                     <div class="flex items-center gap-1.5 text-xs text-gray-600">
                                         Started: <span class="font-medium text-gray-900">{{ formatDateTime(log.started_at) }}</span>
                                         <LuCalendar class="w-3.5 h-3.5 text-gray-400" />
