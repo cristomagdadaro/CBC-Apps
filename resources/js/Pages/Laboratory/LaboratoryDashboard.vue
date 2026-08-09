@@ -108,6 +108,9 @@ export default {
         completedLogs() {
             return this.dashboard?.completed ?? [];
         },
+        recentReports() {
+            return this.dashboard?.recent_reports ?? [];
+        },
         mostUsed() {
             return this.dashboard?.most_used ?? [];
         },
@@ -948,6 +951,40 @@ export default {
                             </h3>
                             <div class="h-40 w-full relative">
                                 <canvas ref="durationChartCanvas" style="max-height: 100%; max-width: 100%;"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Recently Reported Equipments List -->
+                        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 mb-3">
+                                <Layers class="w-4 h-4 text-emerald-500" />
+                                Recently reported equipments
+                            </h3>
+                            <div class="space-y-3 mt-4">
+                                <template v-for="(item, index) in recentReports.slice(0, 5)" :key="item.id">
+                                    <a :href="item.transaction_id ? route('transactions.show', item.transaction_id) : route(equipmentShowRoute(item), item.equipment_barcode)" 
+                                       target="_blank"
+                                       class="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group cursor-pointer">
+                                        <div class="flex items-center gap-3 overflow-hidden">
+                                            <div class="w-6 h-6 shrink-0 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-500 dark:text-slate-400">
+                                                {{ index + 1 }}
+                                            </div>
+                                            <div class="min-w-0">
+                                                <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate group-hover:text-emerald-600 transition-colors">{{ item.equipment_name || 'Unknown' }}</p>
+                                                <p class="text-[10px] text-slate-500 truncate">{{ item.equipment_barcode || 'No barcode' }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="shrink-0 text-right">
+                                            <span class="inline-flex rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                                                {{ item.report_type }}
+                                            </span>
+                                            <span class="text-[9px] text-slate-500 block mt-1">{{ formatDateTime(item.reported_at) }}</span>
+                                        </div>
+                                    </a>
+                                </template>
+                                <div v-if="!recentReports.length" class="text-xs text-slate-500 text-center py-4">
+                                    No recently reported equipment.
+                                </div>
                             </div>
                         </div>
                     </div>

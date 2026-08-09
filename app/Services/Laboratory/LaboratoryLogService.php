@@ -9,6 +9,7 @@ use App\Models\Item;
 use App\Models\LaboratoryEquipmentLocationSurvey;
 use App\Models\LaboratoryEquipmentLog;
 use App\Models\Personnel;
+use App\Models\SuppEquipReport;
 use App\Models\Transaction;
 use App\Repositories\OptionRepo;
 use Carbon\Carbon;
@@ -435,6 +436,7 @@ class LaboratoryLogService
                 'equipment_id' => $row->equipment_id,
                 'equipment_name' => $equipment?->name,
                 'equipment_barcode' => $barcode,
+                'transaction_id' => $transaction?->id,
                 'equipment_type' => $this->determineEquipmentType($equipment),
                 'usage_count' => (int) $row->usage_count,
                 'total_duration_seconds' => (int) $row->total_duration_seconds,
@@ -462,11 +464,42 @@ class LaboratoryLogService
             ->groupBy('day_of_week', 'hour_of_day')
             ->get();
 
+        $recentReports = SuppEquipReport::query()
+            ->with(['item', 'transaction'])
+            ->whereHas('item', function (Builder $builder) use ($equipmentType) {
+                $builder->whereHas('transactions', function (Builder $transactionQuery) {
+                    $transactionQuery->withTrashed()
+                        ->where('transactions.transac_type', Inventory::INCOMING->value)
+                        ->whereIn('transactions.equipment_logger_mode', [
+                            Transaction::EQUIPMENT_LOGGER_MODE_BORROWABLE,
+                            Transaction::EQUIPMENT_LOGGER_MODE_TRACKED_ONLY,
+                        ]);
+                })->whereHas('category', function (Builder $categoryQuery) use ($equipmentType) {
+                    $this->applyEquipmentCategoryConstraint($categoryQuery, $equipmentType, 'categories');
+                });
+            })
+            ->orderByDesc('reported_at')
+            ->limit(5)
+            ->get()
+            ->map(function ($report) {
+                $barcode = $report->transaction?->barcode_prri ?? $report->transaction?->barcode;
+                return [
+                    'id' => $report->id,
+                    'report_type' => $report->report_type,
+                    'equipment_id' => $report->item_id,
+                    'equipment_name' => $report->item?->name,
+                    'equipment_barcode' => $barcode,
+                    'transaction_id' => $report->transaction_id,
+                    'reported_at' => $report->reported_at,
+                ];
+            });
+
         return [
             'active' => $activeLogs,
             'overdue' => $overdueLogs,
             'completed' => $completedLogs,
             'most_used' => $mostUsed,
+            'recent_reports' => $recentReports,
             'heatmap' => $heatmap,
             'total_lab_logs' => $this->getTotalLogsCount('laboratory'),
             'total_ict_logs' => $this->getTotalLogsCount('ict'),
