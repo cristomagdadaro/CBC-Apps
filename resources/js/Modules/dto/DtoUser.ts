@@ -12,6 +12,7 @@ export default class DtoUser extends DtoBaseClass implements IUser {
     current_team_id: string;
     profile_photo_path: string;
     is_admin: number | boolean;
+    is_active: number | boolean;
     permissions: string[];
     employee_id: string | null;
     roles?: string[];
@@ -30,6 +31,7 @@ export default class DtoUser extends DtoBaseClass implements IUser {
         this.current_team_id = data?.current_team_id ?? '';
         this.profile_photo_path =  data?.profile_photo_path ?? '';
         this.is_admin = data?.is_admin ?? 0;
+        this.is_active = data?.is_active ?? 1;
         this.permissions = data?.permissions ?? [];
         this.employee_id = data?.employee_id ?? null;
         this.roles = data?.roles ?? [];

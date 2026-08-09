@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
+
 abstract class BaseController extends Controller
 {
     protected ?AbstractRepoService $service = null;
@@ -19,6 +20,12 @@ abstract class BaseController extends Controller
         }
 
         return $this->service;
+    }
+
+    protected function requireAdmin(): void
+    {
+        $user = auth()->user();
+        abort_if(!$user || !$user->isAdministrator(), 403, 'Unauthorized.');
     }
 
     protected function _index($request): Collection
@@ -73,4 +80,3 @@ abstract class BaseController extends Controller
         return [];
     }
 }
-

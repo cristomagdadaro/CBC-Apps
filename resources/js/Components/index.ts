@@ -49,6 +49,7 @@ export { default as SuccessModal } from './SuccessModal.vue';
 export { default as SwitchBtn } from './Buttons/SwitchBtn.vue';
 export { default as TabNavigation } from './TabNavigation.vue';
 export { default as TagifyInput } from './Tagify.vue';
+export { default as SingleSelectTagify } from './SingleSelectTagify.vue';
 export { default as TextArea } from './TextArea.vue';
 export { default as TextInput } from './TextInput.vue';
 export { default as TimeInput } from './TimeInput.vue';

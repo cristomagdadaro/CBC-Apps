@@ -8,6 +8,7 @@ use App\Models\Form;
 use App\Models\Registration;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckFormMaxSlot
@@ -20,7 +21,7 @@ class CheckFormMaxSlot
     public function handle(Request $request, Closure $next): Response
     {
         // Skip validation only for admin users (not all authenticated users)
-        if (auth()->check() && auth()->user()?->is_admin && env('APP_ENV') !== 'testing') {
+        if (Auth::check() && Auth::user()?->is_admin && env('APP_ENV') !== 'testing') {
             return $next($request);
         }
 

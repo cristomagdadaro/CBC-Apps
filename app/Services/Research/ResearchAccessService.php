@@ -242,6 +242,6 @@ class ResearchAccessService
 
     protected function isAdministrator(?User $user): bool
     {
-        return (bool) $user && ($user->is_admin || $user->hasRole(Role::ADMIN->value));
+        return $user?->isAdministrator() ?? false;
     }
 }

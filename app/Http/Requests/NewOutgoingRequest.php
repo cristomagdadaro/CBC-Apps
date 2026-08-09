@@ -20,6 +20,13 @@ class NewOutgoingRequest extends FormRequest
     {
         $employee = $this->input('employee_id');
 
+        if (!$employee && $this->user() && $this->user()->employee_id) {
+            $employee = $this->user()->employee_id;
+            $this->merge([
+                'employee_id' => $employee,
+            ]);
+        }
+
         if ($employee) {
             $personnel = Personnel::where('employee_id', $employee)->first();
             if ($personnel) {
@@ -35,7 +42,8 @@ class NewOutgoingRequest extends FormRequest
         return [
             'item_id' => 'required|exists:items,id',
             'barcode' => [
-                'required', 'string',
+                'required',
+                'string',
                 Rule::when(
                     fn($input) => $input->transac_type === Inventory::INCOMING->value,
                     ['unique:transactions,barcode']
@@ -69,7 +77,7 @@ class NewOutgoingRequest extends FormRequest
 
     public function withValidator(Validator $validator): void
     {
-        $validator->after(function($validator) {
+        $validator->after(function ($validator) {
             $personnelId = $this->input('personnel_id');
             if ($personnelId) {
                 $personnel = \App\Models\Personnel::find($personnelId);

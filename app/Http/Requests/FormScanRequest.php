@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class FormScanRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class FormScanRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth()->check() && auth()->user()?->is_admin;
+        return Auth::check() && Auth::user()?->is_admin;
     }
 
     /**

@@ -13,6 +13,15 @@ class LaboratoryCheckInRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->user() && $this->user()->employee_id) {
+            $this->merge([
+                'employee_id' => $this->user()->employee_id,
+            ]);
+        }
+    }
+
     public function rules(): array
     {
         return [

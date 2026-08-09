@@ -6,10 +6,11 @@ import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import ResourceSelectionStep from "@/Pages/LabRequest/components/ResourceSelectionStep.vue";
 import { END_TIME_REQUEST_TYPES, REQUEST_FORM_STEPS, RESOURCE_STEP_CONFIG, STEP_TO_REQUEST_TYPE } from "@/Pages/LabRequest/config/requestStepConfig";
+import { LuCheckCircle2 } from "lucide-vue-next";
 
 export default {
     name: "RequesterGuestCard",
-    components: { ResourceSelectionStep },
+    components: { ResourceSelectionStep, LuCheckCircle2 },
     props: {
         requestTypeOptions: {
             type: Array,
@@ -230,7 +231,10 @@ export default {
                 const typeName = type.name || type;
                 return END_TIME_REQUEST_TYPES.includes(typeName);
             });
-        }
+        },
+        isAuthenticated() {
+            return (this.$page.props.auth && this.$page.props.auth.user);
+        },
     },
     watch: {
         'form.request_type'() {
@@ -243,6 +247,14 @@ export default {
     mounted() {
         if (!Array.isArray(this.form?.request_type)) {
             this.form.request_type = this.form?.request_type ? [this.form.request_type] : [];
+        }
+
+        if (this.isAuthenticated && this.$page.props.auth.user.employee_id) {
+            this.employee_id = this.$page.props.auth.user.employee_id;
+            this.form.name = this.$page.props.auth.user.name;
+            this.form.requester_philrice_id = this.$page.props.auth.user.employee_id;
+            this.form.email = this.$page.props.auth.user.email;
+            this.employeeFound = true;
         }
     },
     beforeMount() {
@@ -293,14 +305,19 @@ export default {
                     <span class="font-bold uppercase">Requestor Information: </span>
                 </h2>
                 <PersonnelLookup
-                    v-if="!isNonPhilRiceEmployee"
+                    v-if="!isNonPhilRiceEmployee && !isAuthenticated"
                     v-model="employee_id"
                     @found="handlePersonnelFound"
                     @error="handlePersonnelError"
                 />
-                <label v-if="form.name && !isNonPhilRiceEmployee" class="text-AC text-semibold text-sm leading-none">Hi! {{ form.name }}</label>
-                <label v-else-if="clientErrors['employee_id']" class="text-AC text-semibold text-sm leading-none">{{ clientErrors['employee_id'] }}</label>
-                <div class="flex items-center gap-2 pt-2">
+                
+                <div v-if="isAuthenticated" class="text-sm font-medium text-emerald-700 bg-emerald-50 p-3 rounded-lg mb-2 flex items-center gap-2">
+                    <LuCheckCircle2 class="w-4 h-4" />
+                    <span>Using authenticated ID: {{ $page.props.auth.user.employee_id || 'Linked Account' }}</span>
+                </div>
+                <label v-if="form.name && !isNonPhilRiceEmployee && !isAuthenticated" class="text-AC text-semibold text-sm leading-none">Hi! {{ form.name }}</label>
+                <label v-else-if="clientErrors['employee_id'] && !isAuthenticated" class="text-AC text-semibold text-sm leading-none">{{ clientErrors['employee_id'] }}</label>
+                <div v-if="!isAuthenticated" class="flex items-center gap-2 pt-2">
                     <input 
                         type="checkbox" 
                         id="isNonPhilRice" 
@@ -311,7 +328,7 @@ export default {
                         I am a non-PhilRice employee/personnel
                     </label>
                 </div>
-                <div v-show="isNonPhilRiceEmployee || employeeFound" class="flex flex-col gap-2 pt-2 border-t">
+                <div v-show="(isNonPhilRiceEmployee || employeeFound) && !isAuthenticated" class="flex flex-col gap-2 pt-2 border-t">
                     <p class="text-sm text-gray-600">Manually enter your information</p>
                     <TextInput
                         v-if="isNonPhilRiceEmployee"

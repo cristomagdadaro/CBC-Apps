@@ -33,6 +33,7 @@ export default class User extends DtoUser {
             password_confirmation: null,
             employee_id: null,
             is_admin: 0,
+            is_active: 1,
             roles: [],
             permissions: []
         };
@@ -48,6 +49,7 @@ export default class User extends DtoUser {
             password_confirmation: null,
             employee_id: model.employee_id ?? null,
             is_admin: model.is_admin ?? 0,
+            is_active: model.is_active ?? 1,
             roles: Array.isArray(model.roles)
                 ? model.roles.map((role: any) => typeof role === 'string' ? role : role?.name).filter(Boolean)
                 : [],
@@ -113,7 +115,15 @@ export default class User extends DtoUser {
                 db_key: 'permissions',
                 align: 'text-left',
                 sortable: true,
+                visible: false,
+            },{
+                title: 'Active',
+                key: 'is_active',
+                db_key: 'is_active',
+                align: 'text-center',
+                sortable: true,
                 visible: true,
+                format: 'boolean',
             },
             
         ]

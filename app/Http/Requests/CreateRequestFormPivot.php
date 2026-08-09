@@ -10,6 +10,21 @@ class CreateRequestFormPivot extends FormRequest
 {
     protected function prepareForValidation(): void
     {
+        if ($this->user() && $this->user()->employee_id) {
+            $personnel = \App\Models\Personnel::where('employee_id', $this->user()->employee_id)->first();
+            if ($personnel) {
+                $name = trim($personnel->fname . ' ' . ($personnel->mname ? $personnel->mname . ' ' : '') . $personnel->lname . ' ' . $personnel->suffix);
+                $this->merge([
+                    'requester_philrice_id' => $personnel->employee_id,
+                    'name' => $name ?: $this->user()->name,
+                    'affiliation' => 'DA-PhilRice',
+                    'email' => $personnel->email ?: $this->user()->email,
+                    'position' => $personnel->position,
+                    'phone' => $personnel->phone,
+                ]);
+            }
+        }
+
         $equipmentsToUse = $this->mergeUniqueArrays(
             $this->input('equipments_to_use'),
             $this->input('ict_equipments'),
@@ -62,7 +77,7 @@ class CreateRequestFormPivot extends FormRequest
     public function rules(): array
     {
         $requestTypes = app(OptionRepo::class)->getRequestTypes()->pluck('label')->toArray();
-        
+
         return [
             'name' => 'required|string|max:191',
             'affiliation' => 'required|string|max:191',
@@ -72,14 +87,14 @@ class CreateRequestFormPivot extends FormRequest
             'phone' => 'required|string|max:50',
 
             'request_type' => 'required|array|min:1',
-            'request_type.*' => 'string|in:'.implode(',', $requestTypes),
+            'request_type.*' => 'string|in:' . implode(',', $requestTypes),
             'request_details' => 'nullable|string|max:5000',
             'request_purpose' => 'required|string|max:1000',
             'project_title' => 'nullable|string|max:255',
             'date_of_use' => 'required|date',
             'time_of_use' => 'required|date_format:H:i:s',
             'date_of_use_end' => [
-                Rule::requiredIf(fn () => $this->requiresEndTime()),
+                Rule::requiredIf(fn() => $this->requiresEndTime()),
                 'nullable',
                 'date',
                 function ($attribute, $value, $fail) {
@@ -90,7 +105,7 @@ class CreateRequestFormPivot extends FormRequest
                 },
             ],
             'time_of_use_end' => [
-                Rule::requiredIf(fn () => $this->requiresEndTime()),
+                Rule::requiredIf(fn() => $this->requiresEndTime()),
                 'nullable',
                 'date_format:H:i:s',
             ],
@@ -136,7 +151,7 @@ class CreateRequestFormPivot extends FormRequest
 
                 return filled($value) ? [$value] : [];
             })
-            ->filter(fn ($value) => filled($value))
+            ->filter(fn($value) => filled($value))
             ->values()
             ->all();
 

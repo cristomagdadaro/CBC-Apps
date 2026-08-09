@@ -1,5 +1,6 @@
 <script>
 import { useForm } from '@inertiajs/vue3';
+import { Capacitor } from '@capacitor/core';
 import SocialLinks from "@/Components/SocialLinks.vue";
 import MainBg from '../Shared/MainBg.vue';
 
@@ -15,6 +16,7 @@ export default {
     },
     data() {
         return {
+            isNativeApp: Capacitor.isNativePlatform(),
             form: useForm({
                 email: '',
                 password: '',
@@ -24,6 +26,9 @@ export default {
     },
     methods: {
         submit() {
+            if (this.isNativeApp) {
+                this.form.remember = true;
+            }
             this.form.transform(data => ({
                 ...data,
                 remember: this.form.remember ? 'on' : '',
@@ -41,6 +46,10 @@ export default {
             this.form.email = email;
             this.form.password = pw;
             this.submit();
+        }
+
+        if (this.isNativeApp) {
+            this.form.remember = true;
         }
     }
 }
@@ -95,7 +104,7 @@ export default {
                     <InputError class="mt-2" :message="form.errors.password" />
                 </div>
 
-                <div class="block mt-4">
+                <div v-if="!isNativeApp" class="block mt-4">
                     <label class="flex items-center">
                         <Checkbox v-model:checked="form.remember" name="remember" />
                         <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">Remember me</span>

@@ -4,6 +4,7 @@ namespace App\Pipelines\RequestApproval;
 
 use App\Services\LabRequest\RequestLifecycleService;
 use Closure;
+use Illuminate\Support\Facades\Auth;
 
 class PrepareApprovalPayload
 {
@@ -16,7 +17,7 @@ class PrepareApprovalPayload
         $transition = $this->lifecycleService->prepareTransition(
             $context['model'],
             $context['validated'],
-            auth()->user()?->name,
+            Auth::user()?->name,
         );
 
         $context['validated'] = $transition['payload'];

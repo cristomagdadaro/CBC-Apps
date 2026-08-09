@@ -124,6 +124,7 @@ export default {
         ? this.form.permissions
         : [];
       this.form.is_admin = Boolean(this.form.is_admin);
+      this.form.is_active = this.form.is_active !== undefined ? Boolean(this.form.is_active) : true;
     },
     normalizeRoleValues(roles) {
       if (!Array.isArray(roles)) {
@@ -240,6 +241,23 @@ export default {
                 <span class="mt-1 block text-sm leading-5 text-slate-600">
                   Grants elevated administrative context in addition to assigned roles and
                   direct permissions.
+                </span>
+              </span>
+            </label>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <label class="flex items-start gap-3">
+              <input
+                v-model="form.is_active"
+                type="checkbox"
+                class="mt-1 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+              />
+              <span>
+                <span class="block text-sm font-semibold text-slate-900"
+                  >Active Account</span
+                >
+                <span class="mt-1 block text-sm leading-5 text-slate-600">
+                  Allow the user to log into the system. Uncheck this for users who have resigned or left.
                 </span>
               </span>
             </label>

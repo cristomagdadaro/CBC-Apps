@@ -57,6 +57,10 @@ class UserRepo extends AbstractRepoService
             $payload['is_admin'] = (bool) ($data['is_admin'] ?? false);
         }
 
+        if ($isCreate || array_key_exists('is_active', $data)) {
+            $payload['is_active'] = (bool) ($data['is_active'] ?? true);
+        }
+
         if ($isCreate || array_key_exists('permissions', $data)) {
             $payload['permissions'] = array_values(array_unique($data['permissions'] ?? []));
         }

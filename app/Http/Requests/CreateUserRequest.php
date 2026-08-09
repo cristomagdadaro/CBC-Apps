@@ -21,6 +21,7 @@ class CreateUserRequest extends FormRequest
             'employee_id' => ['nullable', 'string', 'max:64', 'unique:users,employee_id'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'is_admin' => ['sometimes', 'boolean'],
+            'is_active' => ['sometimes', 'boolean'],
             'roles' => ['nullable', 'array'],
             'roles.*' => ['string', Rule::in(RoleEnum::values())],
             'permissions' => ['nullable', 'array'],

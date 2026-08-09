@@ -23,6 +23,7 @@ class UpdateUserRequest extends FormRequest
             'employee_id' => ['nullable', 'string', 'max:64', Rule::unique('users', 'employee_id')->ignore($id, 'id')],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'is_admin' => ['sometimes', 'boolean'],
+            'is_active' => ['sometimes', 'boolean'],
             'roles' => ['nullable', 'array'],
             'roles.*' => ['string', Rule::in(RoleEnum::values())],
             'permissions' => ['nullable', 'array'],

@@ -3,12 +3,17 @@ import { useForm, router } from "@inertiajs/vue3";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import LaboratoryPersonnelMixin from "@/Modules/mixins/LaboratoryPersonnelMixin";
-import LuQrCode from "@/Components/Icons/LuQrCode.vue";
-import LuMapPin from "@/Components/Icons/LuMapPin.vue";
-import LuEdit from "@/Components/Icons/LuEdit.vue";
+import { LuQrCode, LuMapPin, LuEdit } from "@/Components/Icons";
+import { SingleSelectTagify } from "@/Components";
 
 export default {
     name: "EquipmentShow",
+    components: {
+        LuQrCode,
+        LuMapPin,
+        LuEdit,
+        SingleSelectTagify,
+    },
     mixins: [ApiMixin, DataFormatterMixin, LaboratoryPersonnelMixin],
     props: {
         equipment_id: {
@@ -42,6 +47,7 @@ export default {
             currentLocation: null,
             storageLocationOptions: [],
             loading: false,
+            isLoading: false,
             loadingActiveEquipments: false,
             activeEquipments: [],
             activeEquipmentsRequest: null,
@@ -99,6 +105,7 @@ export default {
             showEstimatedEndUseModal: false,
             showLocationSurveyModal: false,
             showEmailCaptureModal: false,
+            showFinalizeLocationModal: false,
             lastResolvedPersonnelId: null,
         };
     },
@@ -546,9 +553,6 @@ export default {
                 this.formatForDatetimeLocal(baseTime);
         },
         async finalizeLocation() {
-            if (!confirm('Are you sure you want to finalize this reported location? This will permanently update the equipment barcode.')) {
-                return;
-            }
             this.isLoading = true;
             try {
                 // apiRoutePrefix could be "api.laboratory.equipments" but the route we added is "api.equipment-logger.equipments.finalize-location"
@@ -556,6 +560,7 @@ export default {
                 this.messageType = "success";
                 this.message = "Location finalized successfully";
                 this.showSuccessModal = true;
+                this.showFinalizeLocationModal = false;
                 await this.loadEquipment();
             } catch (error) {
                 this.messageType = "error";
@@ -1014,7 +1019,7 @@ export default {
                                                     class="text-xs font-medium text-amber-700 transition-colors hover:text-amber-800">
                                                     <LuEdit class="w-3.5 h-3.5"/> 
                                                 </button>
-                                                <button v-if="isAdmin && currentLocation?.source === 'temporary'" type="button" @click="finalizeLocation"
+                                                <button v-if="isAdmin && currentLocation?.source === 'temporary'" type="button" @click="showFinalizeLocationModal = true"
                                                     title="Finalize Location"
                                                     class="text-xs font-medium text-emerald-700 transition-colors hover:text-emerald-800 ml-1 underline">
                                                     Finalize
@@ -1039,20 +1044,23 @@ export default {
                                 </template>
                                 <template #content>
                                     <!-- Location Survey -->
-                                    <div class="bg-amber-50/50 border-t border-amber-100">
+                                    <div>
                                         <p class="mb-4 text-gray-600">Kindly provide the current location of the equipment.
                                             location</p>
                                         <div class="space-y-3">
-                                            <TextInput id="survey_location_employee_id" required
+                                            <TextInput v-if="!$page.props.auth.user" id="survey_location_employee_id" required
                                                 v-model="locationSurveyForm.employee_id" label="Your ID"
                                                 :error="getErrorMessage(locationSurveyErrors.employee_id)"
                                                 @keydown.enter.prevent="submitLocationSurvey" />
-                                            <TextInput id="survey_location_label" required
+                                            <div v-else class="text-sm font-medium text-emerald-700 bg-emerald-50 p-2 rounded">
+                                                ID: {{ $page.props.auth.user.employee_id || 'Authenticated User' }}
+                                            </div>
+                                            <SingleSelectTagify id="survey_location_label" required
                                                 v-model="locationSurveyForm.location_label" label="Current Location"
-                                                :datalist-id="'storage-location-suggestions'"
-                                                :datalist-options="storageLocationOptions"
+                                                :whitelist="storageLocationOptions"
                                                 :error="getErrorMessage(locationSurveyErrors.location_label)"
                                                 @keydown.enter.prevent="submitLocationSurvey" />
+                                            <p class="text-xs text-gray-500 mt-1">Input a custom room if not available in the options.</p>
                                             <div v-if="getErrorMessage(locationSurveyErrors.base)"
                                                 class="text-sm text-red-600">
                                                 {{ getErrorMessage(locationSurveyErrors.base) }}
@@ -1065,6 +1073,30 @@ export default {
                                         class="w-full px-4 py-2.5 text-sm font-medium text-white transition-colors bg-amber-600 rounded-lg hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2">
                                         Update Location
                                     </button>
+                                </template>
+                            </DialogModal>
+
+                            <DialogModal :show="showFinalizeLocationModal" max-width="md" @close="showFinalizeLocationModal = false">
+                                <template #title>
+                                    <div class="flex items-center gap-2 mb-4 py-2">
+                                        <LuMapPin class="w-4 h-4 text-emerald-600" />
+                                        <h3 class="text-sm font-semibold text-gray-900">Finalize Location</h3>
+                                    </div>
+                                </template>
+                                <template #content>
+                                    <div class="bg-emerald-50/50 border-t border-emerald-100 py-4 px-2">
+                                        <p class="text-gray-600">Are you sure you want to finalize this reported location? This will permanently update the equipment barcode.</p>
+                                    </div>
+                                </template>
+                                <template #footer>
+                                    <div class="flex gap-2 justify-end w-full">
+                                        <button type="button" @click="showFinalizeLocationModal = false" class="px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200">
+                                            Cancel
+                                        </button>
+                                        <button type="button" @click="finalizeLocation" :disabled="isLoading" class="px-4 py-2.5 text-sm font-medium text-white transition-colors bg-emerald-600 rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                                            Confirm Finalize
+                                        </button>
+                                    </div>
                                 </template>
                             </DialogModal>
                         </div>
@@ -1136,9 +1168,12 @@ export default {
                         </div>
 
                         <div class="px-4 pb-4 space-y-4">
-                            <PersonnelLookup ref="personnelLookup" v-model="checkInForm.employee_id" @found="handlePersonnelFound" required
+                            <PersonnelLookup v-if="!$page.props.auth.user" ref="personnelLookup" v-model="checkInForm.employee_id" @found="handlePersonnelFound" required
                                 @error="handlePersonnelError" />
-
+                            <div v-else class="flex items-center gap-2 p-3 text-sm text-emerald-700 rounded-lg bg-emerald-50 mb-2">
+                                <LuCheckCircle2 class="w-4 h-4" />
+                                <span class="font-medium">User ID: {{ $page.props.auth.user.employee_id || 'Linked Account' }}</span>
+                            </div>
                             <div v-if="personnelPreview"
                                 class="flex items-center gap-2 p-3 text-sm text-emerald-700 rounded-lg bg-emerald-50">
                                 <LuCheckCircle2 class="w-4 h-4" />
@@ -1256,10 +1291,13 @@ export default {
 
                                 <div v-else key="manual" class="space-y-3">
                                     <div class="flex gap-2">
-                                        <TextInput id="checkout_employee_id" v-model="checkOutForm.employee_id" label="Enter Your ID" required
+                                        <TextInput v-if="!$page.props.auth.user" id="checkout_employee_id" v-model="checkOutForm.employee_id" label="Enter Your ID" required
                                             placeholder="PhilRice ID" class="flex-1"
                                             :error="getErrorMessage(checkOutErrors.employee_id)"
                                             @keydown.enter.prevent="submitCheckOut" />
+                                        <div v-else class="flex-1 text-sm font-medium text-amber-700 bg-amber-50 p-2 rounded">
+                                            ID: {{ $page.props.auth.user.employee_id || 'Authenticated User' }}
+                                        </div>
                                         <button type="button" @click="handlePersonnelSwitch"
                                             class="px-3 py-2 text-gray-600 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200"
                                             title="Use saved profile">
@@ -1446,9 +1484,12 @@ export default {
                     </div>
 
                     <div class="space-y-4">
-                        <TextInput id="update_end_use_employee_id" v-model="updateEndUseForm.employee_id"
+                        <TextInput v-if="!$page.props.auth.user" id="update_end_use_employee_id" v-model="updateEndUseForm.employee_id"
                             label="Your ID" :error="getErrorMessage(updateEndUseErrors.employee_id)"
-                            @keydown.enter.prevent="submitUpdateEndUse" />
+                            required @keydown.enter.prevent="submitUpdateEndUse" />
+                        <div v-else class="text-sm font-medium text-emerald-700 bg-emerald-50 p-2 rounded">
+                            ID: {{ $page.props.auth.user.employee_id || 'Authenticated User' }}
+                        </div>
 
                         <TextInput id="update_end_use_at" v-model="updateEndUseForm.end_use_at" label="New End Time"
                             type="datetime-local" :error="getErrorMessage(updateEndUseErrors.end_use_at)"

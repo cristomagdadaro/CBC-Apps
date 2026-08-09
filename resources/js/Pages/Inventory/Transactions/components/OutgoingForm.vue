@@ -34,6 +34,10 @@ export default {
             type: String,
             default: 'create',
         },
+        isGuest: {
+            type: Boolean,
+            default: false,
+        },
     },
     mixins: [ApiMixin, DataFormatterMixin],
     data() {
@@ -55,7 +59,7 @@ export default {
             return (this.$page.props.auth && this.$page.props.auth.user);
         },
         isPublic() {
-            return !this.isAuthenticated;
+            return this.isGuest || !this.isAuthenticated;
         },
         displayData() {
             return this.isUpdate ? (this.summary ?? this.data ?? {}) : (this.data ?? {});
@@ -112,10 +116,12 @@ export default {
             return date.toLocaleString();
         },
         async proxySubmit() {
-            if (this.isPublic) {
+            if (this.isPublic && !this.isAuthenticated) {
                 //this.form.employee_id = this.employee_id;
                 this.form.user_id = null;
                 this.form.personnel_id = null;
+            } else if (this.isGuest && this.isAuthenticated) {
+                this.form.employee_id = this.$page.props.auth.user.employee_id;
             }
 
             const temp = this.isUpdate
@@ -254,7 +260,7 @@ export default {
                 <form @submit.prevent="proxySubmit" class="flex flex-col gap-3">
                     <!-- Public access: ask for Employee ID only -->
                     <text-input
-                        v-if="isPublic"
+                        v-if="isPublic && !isAuthenticated"
                         required
                         label="PhilRice ID"
                         placeholder="XX-XXXX"
@@ -263,10 +269,14 @@ export default {
                         v-model="form.employee_id"
                         :error="form.errors.employee_id"
                     />
+                    
+                    <div v-else-if="isGuest && isAuthenticated" class="text-sm font-medium text-emerald-700 bg-emerald-50 p-2 rounded">
+                        ID: {{ $page.props.auth.user.employee_id || 'Authenticated User' }}
+                    </div>
 
                     <!-- Logged-in users: allow choosing Personnel (consumer) -->
                     <custom-dropdown
-                        v-if="isAuthenticated"
+                        v-if="!isGuest && isAuthenticated"
                         required
                         searchable
                         :with-all-option="false"

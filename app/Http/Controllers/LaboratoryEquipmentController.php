@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Generic\GetRequest;
@@ -124,7 +125,7 @@ class LaboratoryEquipmentController extends BaseController
     {
         $this->requireAdmin();
 
-        $equipmentId = $this->logService->resolveEquipmentIdFromBarcode($identifier);
+        $equipmentId = $this->logService->resolveEquipmentId($identifier);
 
         if (!$equipmentId) {
             return response()->json([
@@ -148,7 +149,7 @@ class LaboratoryEquipmentController extends BaseController
             'location_code' => ['required', 'string'],
         ]);
 
-        $equipmentId = $this->logService->resolveEquipmentIdFromBarcode($identifier);
+        $equipmentId = $this->logService->resolveEquipmentId($identifier);
 
         if (!$equipmentId) {
             return response()->json([

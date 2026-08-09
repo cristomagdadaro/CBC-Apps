@@ -290,7 +290,7 @@ export default {
                     </div>
                 </div>
                 <modal :show="!!selectedItem && showModel" @close="showModel = false">
-                    <outgoing-form :data="selectedItem" :personnels="personnels"  @submitted="closeForm" @error="showModel = true"/>
+                    <outgoing-form :data="selectedItem" :personnels="personnels" :is-guest="true" @submitted="closeForm" @error="showModel = true"/>
                 </modal>
             </div>
         </transition-container>

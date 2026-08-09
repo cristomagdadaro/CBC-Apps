@@ -10,6 +10,7 @@ interface IUser extends IBaseClass {
     current_team_id: string;
     profile_photo_path: string;
     is_admin: number | boolean;
+    is_active: number | boolean;
     permissions: string[];
     employee_id: string | null;
     roles?: string[];

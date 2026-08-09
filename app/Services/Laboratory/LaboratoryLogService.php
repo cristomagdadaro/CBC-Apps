@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -23,10 +24,7 @@ use Illuminate\Support\Str;
 
 class LaboratoryLogService
 {
-    public function __construct(private readonly OptionRepo $optionRepo)
-    {
-
-    }
+    public function __construct(private readonly OptionRepo $optionRepo) {}
 
     public function resolveEquipmentId(string $identifier): ?string
     {
@@ -160,7 +158,7 @@ class LaboratoryLogService
             $log->end_use_at = Carbon::parse($payload['end_use_at']);
             $log->purpose = $payload['purpose'] ?? null;
             $log->active_lock = true;
-            $log->checked_in_by = optional(auth()->user())->id;
+            $log->checked_in_by = Auth::id();
 
             try {
                 $log->save();
@@ -188,7 +186,7 @@ class LaboratoryLogService
                 $employeeId = trim((string) ($payload['employee_id'] ?? ''));
                 $personnel = Personnel::preferredEmployeeId($employeeId)->first();
                 if (!$personnel) {
-                     abort(422, 'Personnel record not found for the provided employee ID.');
+                    abort(422, 'Personnel record not found for the provided employee ID.');
                 }
             } else {
                 $personnel = $this->resolvePersonnelFromPayload($payload);
@@ -202,7 +200,7 @@ class LaboratoryLogService
             $activeLog->status = 'completed';
             $activeLog->actual_end_at = Carbon::now();
             $activeLog->active_lock = false;
-            $activeLog->checked_out_by = optional(auth()->user())->id;
+            $activeLog->checked_out_by = Auth::id();
             $activeLog->save();
 
             $freshLog = $activeLog->fresh(['personnel', 'equipment']);
@@ -246,13 +244,22 @@ class LaboratoryLogService
             ]);
 
             $survey->personnel_id = $personnel->id;
-            $survey->location_code = !empty($payload['location_code']) ? trim((string) $payload['location_code']) : null;
-            $survey->location_label = trim((string) $payload['location_label']);
+            $locationLabel = trim((string) $payload['location_label']);
+            $locationCode = !empty($payload['location_code']) ? trim((string) $payload['location_code']) : null;
+
+            if (!$locationCode) {
+                // Reverse lookup the location code using the label
+                $locations = $this->buildStorageLocationLookup();
+                $locationCode = array_search($locationLabel, $locations) ?: null;
+            }
+
+            $survey->location_code = $locationCode;
+            $survey->location_label = $locationLabel;
             $survey->reported_at = Carbon::now();
             $survey->save();
 
             $freshSurvey = $survey->fresh(['personnel', 'equipment']);
-            $activeLog = $this->getActiveLog($equipmentId)?->loadMissing(['personnel', 'equipment']);
+            $activeLog = $this->lockActiveLog($equipmentId, $personnel->id)?->loadMissing(['personnel', 'equipment']);
             event(new EquipmentLogChanged('location_reported', $equipmentType, $equipmentId, $activeLog, $freshSurvey));
 
             return $freshSurvey;
@@ -288,7 +295,7 @@ class LaboratoryLogService
 
             $survey->delete();
 
-            $activeLog = $this->getActiveLog($equipmentId)?->loadMissing(['personnel', 'equipment']);
+            $activeLog = $this->lockActiveLog($equipmentId)?->loadMissing(['personnel', 'equipment']);
             event(new EquipmentLogChanged('location_finalized', $equipmentType, $equipmentId, $activeLog, null));
 
             return $this->getEquipmentDetails($equipmentId, $equipmentType);
@@ -317,7 +324,7 @@ class LaboratoryLogService
             // Also delete any temporary survey since the location is now authoritative
             LaboratoryEquipmentLocationSurvey::where('equipment_id', $equipmentId)->delete();
 
-            $activeLog = $this->getActiveLog($equipmentId)?->loadMissing(['personnel', 'equipment']);
+            $activeLog = $this->getActiveLogs($equipmentId)?->loadMissing(['personnel', 'equipment']);
             event(new EquipmentLogChanged('location_finalized', $equipmentType, $equipmentId, $activeLog, null));
 
             return $this->getEquipmentDetails($equipmentId, $equipmentType);
@@ -466,7 +473,7 @@ class LaboratoryLogService
         ];
     }
 
-    private function getTotalLogsCount(string $equipmentType): int 
+    private function getTotalLogsCount(string $equipmentType): int
     {
         return LaboratoryEquipmentLog::query()
             ->whereHas('equipment', function (Builder $builder) use ($equipmentType) {
@@ -1225,11 +1232,11 @@ class LaboratoryLogService
     {
         $query = LaboratoryEquipmentLog::where('equipment_id', $equipmentId)
             ->whereIn('status', ['active', 'overdue']);
-            
+
         if ($personnelId !== null) {
             $query->where('personnel_id', $personnelId);
         }
-            
+
         return $query->lockForUpdate()->first();
     }
 
@@ -1258,7 +1265,7 @@ class LaboratoryLogService
     private function getStorageLocationOptions(): array
     {
         return collect($this->optionRepo->getStorageLocations())
-            ->map(fn (array $location) => $location['label'] ?? null)
+            ->map(fn(array $location) => $location['label'] ?? null)
             ->filter()
             ->unique()
             ->values()
@@ -1290,7 +1297,9 @@ class LaboratoryLogService
     }
     private function requestedAdminOverride(array $payload): bool
     {
-        return !empty($payload['admin_override']) && (auth()->user()?->is_admin ?? false);
+        // @ignore-start
+        return !empty($payload['admin_override']) && (Auth::user()?->is_admin ?? false);
+        // @ignore-end
     }
 
     private function resolvePersonnelFromPayload(array $payload): Personnel

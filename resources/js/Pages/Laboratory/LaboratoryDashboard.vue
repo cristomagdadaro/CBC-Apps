@@ -1054,7 +1054,7 @@ export default {
                                 <tr v-for="log in currentWorkingLogs" :key="log.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
                                     <td class="px-4 py-3">
                                         <a
-                                            :href="route(equipmentShowRoute(log), log.equipment?.id)"
+                                            :href="route(equipmentShowRoute(log), log?.equipment_barcode)"
                                             target="_blank"
                                             class="font-semibold text-lime-600 dark:text-lime-400 hover:underline"
                                         >

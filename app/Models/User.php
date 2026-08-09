@@ -36,6 +36,7 @@ class User extends Authenticatable
         'employee_id',
         'is_admin',
         'permissions',
+        'is_active',
     ];
 
     /**
@@ -58,6 +59,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'is_admin' => 'boolean',
+        'is_active' => 'boolean',
         'permissions' => 'array',
     ];
 
@@ -97,6 +99,11 @@ class User extends Authenticatable
         }
 
         return $this->roles()->where('name', $role)->exists();
+    }
+
+    public function isAdministrator(): bool
+    {
+        return $this->hasRole(\App\Enums\Role::ADMIN->value);
     }
 
     public function hasAnyRole(array $roles): bool
