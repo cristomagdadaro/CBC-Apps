@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Repositories\SuppEquipReportRepo;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -15,7 +16,7 @@ class CreateSuppEquipReportRequest extends FormRequest
 
     public function rules(): array
     {
-        $templates = config('suppequipreportforms', []);
+        $templates = app(SuppEquipReportRepo::class)->getReportTemplates();
         $reportType = $this->input('report_type');
         $template = Arr::get($templates, $reportType, []);
         $fields = Arr::get($template, 'fields', []);
@@ -47,7 +48,8 @@ class CreateSuppEquipReportRequest extends FormRequest
             'transaction_id.unique' => 'A report for this transaction and template already exists.',
         ];
 
-        $template = config('suppequipreportforms.' . $this->input('report_type'), []);
+        $templates = app(SuppEquipReportRepo::class)->getReportTemplates();
+        $template = Arr::get($templates, $this->input('report_type'), []);
         $fields = $template['fields'] ?? [];
 
         foreach ($fields as $field => $definition) {

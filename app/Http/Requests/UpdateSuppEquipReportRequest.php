@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Repositories\SuppEquipReportRepo;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -15,7 +16,7 @@ class UpdateSuppEquipReportRequest extends FormRequest
 
     public function rules(): array
     {
-        $templates = config('suppequipreportforms', []);
+        $templates = app(SuppEquipReportRepo::class)->getReportTemplates();
         $reportType = $this->input('report_type');
         $template = Arr::get($templates, $reportType, []);
         $fields = Arr::get($template, 'fields', []);

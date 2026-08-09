@@ -9,10 +9,13 @@ use Illuminate\Support\Collection;
 
 class SuppEquipReportRepo extends AbstractRepoService
 {
-    public function __construct(SuppEquipReport $model)
+    private OptionRepo $optionRepo;
+
+    public function __construct(SuppEquipReport $model, OptionRepo $optionRepo)
     {
         parent::__construct($model);
 
+        $this->optionRepo = $optionRepo;
         $this->appendWith = ['transaction.item', 'transaction.user', 'transaction.personnel', 'item', 'user'];
     }
 
@@ -45,6 +48,23 @@ class SuppEquipReportRepo extends AbstractRepoService
 
         return $this->loadFormRelations($report);
     }
+    public function getReportTemplates(): array
+    {
+        return $this->optionRepo->getWithMetadata('supp_equip_report_templates')
+            ->mapWithKeys(function ($option) {
+                $options = is_array($option->options) ? $option->options : json_decode($option->options, true);
+                
+                return [
+                    $option->key => [
+                        'label' => $option->label,
+                        'description' => $option->description,
+                        'fields' => $options['fields'] ?? [],
+                    ]
+                ];
+            })
+            ->toArray();
+    }
+
 
 
 

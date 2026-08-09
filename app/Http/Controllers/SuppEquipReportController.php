@@ -7,6 +7,8 @@ use App\Http\Requests\GetSuppEquipReportRequest;
 use App\Http\Requests\UpdateSuppEquipReportRequest;
 use App\Repositories\SuppEquipReportRepo;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class SuppEquipReportController extends BaseController
 {
@@ -62,7 +64,28 @@ class SuppEquipReportController extends BaseController
     public function templates(): JsonResponse
     {
         return response()->json([
-            'data' => config('suppequipreportforms'),
+            'data' => $this->repo()->getReportTemplates(),
         ]);
+    }
+
+    public function downloadPdf(Request $request, string $id)
+    {
+        $report = $this->repo()->getFormData($id);
+
+        $templates = $this->repo()->getReportTemplates();
+        $template = $templates[$report->report_type] ?? null;
+
+        $pdf = Pdf::loadView('generator.pdf.supp-equip-report', [
+            'report' => $report,
+            'template' => $template,
+        ])->setPaper('a4', 'portrait');
+
+        $downloadName = 'Report_' . $report->report_type . '_' . $report->created_at->format('Ymd_His') . '.pdf';
+
+        if (filter_var($request->query('download', false), FILTER_VALIDATE_BOOLEAN)) {
+            return $pdf->download($downloadName);
+        }
+
+        return $pdf->stream($downloadName);
     }
 }

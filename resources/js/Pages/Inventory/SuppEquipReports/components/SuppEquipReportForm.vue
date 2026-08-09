@@ -417,7 +417,14 @@ export default {
                 <input-error v-if="form.errors.notes" :message="form.errors.notes" />
             </div>
 
-            <div class="flex justify-end pt-4 border-t border-gray-100">
+            <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+                <div>
+                    <a v-if="isUpdateMode" :href="route('suppEquipReports.pdf', form.id)" target="_blank"
+                       class="inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-gray-100 text-gray-700 font-bold shadow-sm hover:bg-gray-200 transition-all hover:-translate-y-0.5 duration-300 gap-2">
+                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        Print Report
+                    </a>
+                </div>
                 <submit-btn
                     class="px-8 py-2.5 rounded-xl bg-AB text-white font-bold shadow-md hover:bg-AB/90 transition-all hover:-translate-y-0.5 duration-300"
                     :disabled="model.api.processing || !form.transaction_id"
