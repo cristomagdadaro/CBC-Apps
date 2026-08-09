@@ -198,25 +198,25 @@ export default {
                             <div v-if="currentStep === 1" key="step1" class="p-6 sm:p-10 flex flex-col items-center justify-center min-h-[400px]">
                                 <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-8">Select your personnel category</h3>
                                 
-                                <div class="grid sm:grid-cols-2 gap-6 w-full max-w-3xl">
+                                <div class="grid grid-cols-2 gap-4 sm:gap-6 w-full max-w-3xl">
                                     <button type="button" @click="setCategory(true)"
-                                            class="flex flex-col items-center justify-center p-8 sm:p-10 text-center rounded-2xl border-2 transition-all duration-300 group"
+                                            class="flex flex-col items-center justify-center p-4 sm:p-10 text-center rounded-2xl border-2 transition-all duration-300 group"
                                             :class="form.is_philrice_employee === true ? 'border-AB bg-emerald-50/50 shadow-md' : 'border-gray-200 hover:border-AB/50 hover:bg-gray-50 hover:shadow-md bg-white'">
-                                        <div class="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-emerald-200 transition-all duration-300">
-                                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                        <div class="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:bg-emerald-200 transition-all duration-300">
+                                            <svg class="w-6 h-6 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                                         </div>
-                                        <h4 class="text-xl font-bold text-gray-900 mb-3">PhilRice Employee</h4>
-                                        <p class="text-sm text-gray-500 leading-relaxed">Regular staff, contract of service, or direct hires of DA-PhilRice.</p>
+                                        <h4 class="text-sm sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3">PhilRice Employee</h4>
+                                        <p class="text-xs sm:text-sm text-gray-500 leading-relaxed">Regular staff, contract of service, or direct hires of DA-PhilRice.</p>
                                     </button>
 
                                     <button type="button" @click="setCategory(false)"
-                                            class="flex flex-col items-center justify-center p-8 sm:p-10 text-center rounded-2xl border-2 transition-all duration-300 group"
+                                            class="flex flex-col items-center justify-center p-4 sm:p-10 text-center rounded-2xl border-2 transition-all duration-300 group"
                                             :class="form.is_philrice_employee === false ? 'border-blue-500 bg-blue-50/50 shadow-md' : 'border-gray-200 hover:border-blue-400/50 hover:bg-gray-50 hover:shadow-md bg-white'">
-                                        <div class="w-20 h-20 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-blue-200 transition-all duration-300">
-                                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0v6"></path></svg>
+                                        <div class="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 group-hover:bg-blue-200 transition-all duration-300">
+                                            <svg class="w-6 h-6 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0v6"></path></svg>
                                         </div>
-                                        <h4 class="text-xl font-bold text-gray-900 mb-3">Student / OJT / Guest</h4>
-                                        <p class="text-sm text-gray-500 leading-relaxed">On-the-job trainees, thesis students, and other external researchers.</p>
+                                        <h4 class="text-sm sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3">Student / OJT / Guest</h4>
+                                        <p class="text-xs sm:text-sm text-gray-500 leading-relaxed">On-the-job trainees, thesis students, and other external researchers.</p>
                                     </button>
                                 </div>
                             </div>

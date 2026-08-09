@@ -43,7 +43,7 @@ class RentalVehicleController extends BaseController
             'statuses' => $statuses,
         ];
 
-        $rentals = collect($this->repo()->search(new Collection($filters), false))
+        $rentals = collect($this->repo()->search(collect($filters), false))
             ->map(fn (RentalVehicle $rental) => $this->buildPublicRentalPayload($rental))
             ->values();
 

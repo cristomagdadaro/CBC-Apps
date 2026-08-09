@@ -264,24 +264,28 @@ export default {
 </script>
 
 <template>
-    <div class="border p-2 md:rounded-md flex flex-col gap-2 bg-white w-full drop-shadow-lg mx-auto">
+    <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden mx-auto w-full max-w-4xl">
         <SuccessModal
             :show="showSuccessModal"
             title="Request submitted"
             :message="successMessage"
             @close="showSuccessModal = false"
         />
-        <div class="px-2 pt-4 overflow-x-auto">
-            <ProgressTabs :steps="stepLabels" :current="currentStep" @update:current="handleStepChange" />
+        <div class="bg-slate-50 border-b border-gray-100 p-6">
+            <div class="max-w-2xl mx-auto overflow-x-auto">
+                <ProgressTabs :steps="stepLabels" :current="currentStep" @update:current="handleStepChange" :clickable="true" />
+            </div>
         </div>
-        <form v-if="form" @submit.prevent="handleCreate()" class="px-2 py-0  md:rounded-md flex flex-col gap-4 bg-white">
+        <form v-if="form" @submit.prevent="handleCreate()" class="flex flex-col relative overflow-hidden min-h-[400px]">
             
             <!-- Step 0: Request Type -->
-            <div v-show="currentStepKey === 'request_type'" class="flex flex-col gap-2 w-full">
-                <p class="text-sm text-gray-600">Select the type(s) of resources or facilities you need. You can choose multiple options if your request requires different types of support.</p>
-                <div class="w-full relative">
-                    <h2 class="flex justify-between items-center">
-                        <span class="font-bold uppercase">Request Types:<b class="text-red-500 ">*</b></span>
+            <transition name="slide-fade" mode="out-in">
+            <div v-show="currentStepKey === 'request_type'" class="p-6 sm:p-10 flex flex-col min-h-[400px]">
+                <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Request Type</h3>
+                <p class="text-sm text-gray-500 mb-8">Select the type(s) of resources or facilities you need. You can choose multiple options.</p>
+                <div class="w-full relative max-w-2xl">
+                    <h2 class="flex justify-between items-center mb-2">
+                        <span class="font-semibold text-gray-700">Select Categories <b class="text-red-500">*</b></span>
                         <transition-container type="slide-bottom">
                             <InputError v-show="!!hasErr('request_type')" :message="errMsg('request_type')" />
                         </transition-container>
@@ -296,13 +300,15 @@ export default {
                     />
                 </div>
             </div>
+            </transition>
 
             <!-- Step 1: Requestor Information -->
-            <div v-show="currentStepKey === 'requestor'" class="flex flex-col gap-2">
-                <p class="text-sm text-gray-600">Provide your contact and affiliation details. You can search for your PhilRice ID to auto-fill some fields, or enter your information manually.</p>
-                <h2>
-                    <span class="font-bold uppercase">Requestor Information: </span>
-                </h2>
+            <transition name="slide-fade" mode="out-in">
+            <div v-show="currentStepKey === 'requestor'" class="p-6 sm:p-10 flex flex-col min-h-[400px]">
+                <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Requestor Information</h3>
+                <p class="text-sm text-gray-500 mb-8">Provide your contact and affiliation details. You can search for your PhilRice ID to auto-fill some fields.</p>
+                
+                <div class="max-w-2xl">
                 <PersonnelLookup
                     v-if="!isNonPhilRiceEmployee && !isAuthenticated"
                     v-model="employee_id"
@@ -316,56 +322,62 @@ export default {
                 </div>
                 <label v-if="form.name && !isNonPhilRiceEmployee && !isAuthenticated" class="text-AC text-semibold text-sm leading-none">Hi! {{ form.name }}</label>
                 <label v-else-if="clientErrors['employee_id'] && !isAuthenticated" class="text-AC text-semibold text-sm leading-none">{{ clientErrors['employee_id'] }}</label>
-                <div v-if="!isAuthenticated" class="flex items-center gap-2 pt-2">
+                <div class="flex items-center gap-2 pt-4 pb-4">
                     <input 
                         type="checkbox" 
                         id="isNonPhilRice" 
                         v-model="isNonPhilRiceEmployee"
-                        class="rounded"
+                        class="rounded border-gray-300 text-AB shadow-sm focus:border-AB focus:ring focus:ring-AB focus:ring-opacity-50"
                     />
-                    <label for="isNonPhilRice" class="text-gray-600 cursor-pointer leading-none">
+                    <label for="isNonPhilRice" class="text-gray-700 cursor-pointer font-medium">
                         I am a non-PhilRice employee/personnel
                     </label>
                 </div>
-                <div v-show="isNonPhilRiceEmployee || employeeFound" class="flex flex-col gap-2 pt-2 border-t">
-                    <p class="text-sm text-gray-600">Manually enter your information</p>
-                    <TextInput
-                        v-if="isNonPhilRiceEmployee"
-                        id="requester_philrice_id"
-                        v-model="form.requester_philrice_id"
-                        type="text"
-                        :error="errMsg('requester_philrice_id')"
-                        label="PhilRice ID (for returning requesters)"
-                        placeholder="Optional if you were previously issued an ID"
-                        autocomplete="off"
-                        @input="form.clearErrors('requester_philrice_id')"
-                    />
-                    <TextInput id="name" v-model="form.name" required type="text" :error="errMsg('name')" label="Full Name" placeholder="Juan Dela Cruz" autocomplete="name" @input="form.clearErrors('name')" />
-                    <TextInput id="position" v-model="form.position" type="text" :error="form.errors.position" label="Position" placeholder="SRS I, Student" autocomplete="position" @input="form.clearErrors('position')" />
-                    <TextInput id="affiliation" v-model="form.affiliation" required type="text" :error="errMsg('affiliation')" label="Affiliation/Agency/Office" placeholder="Office Name" autocomplete="affiliation" @input="form.clearErrors('affiliation')" />
-                    <div class="flex items-center gap-2">
+                <div v-show="isNonPhilRiceEmployee || employeeFound" class="flex flex-col gap-5 pt-6 border-t border-gray-100">
+                    <p class="text-sm text-gray-500 mb-2">Manually enter your information</p>
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <TextInput
+                            v-if="isNonPhilRiceEmployee"
+                            id="requester_philrice_id"
+                            v-model="form.requester_philrice_id"
+                            type="text"
+                            :error="errMsg('requester_philrice_id')"
+                            label="PhilRice ID (for returning requesters)"
+                            placeholder="Optional if previously issued"
+                            autocomplete="off"
+                            @input="form.clearErrors('requester_philrice_id')"
+                        />
+                        <TextInput id="name" v-model="form.name" required type="text" :error="errMsg('name')" label="Full Name" placeholder="Juan Dela Cruz" autocomplete="name" @input="form.clearErrors('name')" />
+                        <TextInput id="position" v-model="form.position" type="text" :error="form.errors.position" label="Position" placeholder="SRS I, Student" autocomplete="position" @input="form.clearErrors('position')" />
+                        <TextInput id="affiliation" v-model="form.affiliation" required type="text" :error="errMsg('affiliation')" label="Affiliation/Agency/Office" placeholder="Office Name" autocomplete="affiliation" @input="form.clearErrors('affiliation')" />
                         <TextInput id="phone" v-model="form.phone" required type="text" :error="errMsg('phone')" label="Contact Number" placeholder="0900 000 000" autocomplete="phone" @input="form.clearErrors('phone')" />
                         <TextInput id="email" v-model="form.email" required type="email" :error="errMsg('email')" label="Email Address" placeholder="sample@email.com" autocomplete="email" @input="form.clearErrors('email')" />
                     </div>
                 </div>
+                </div>
             </div>
+            </transition>
 
             <!-- Step 2: Request Form Details -->
-            <div v-show="currentStepKey === 'details'" class="flex flex-col gap-2">
-                <p class="text-sm text-gray-600">Tell us the purpose of your request and when you plan to use the resources. Include any special instructions or project details that may help us better assist you.</p>
-                <span class="font-bold uppercase">Request Form: </span>
-                <TextInput id="request_purpose" v-model="form.request_purpose" required type="text" :error="errMsg('request_purpose')" label="Purpose of Request" placeholder="Reason or purpose of your request" autocomplete="request_purpose" @input="form.clearErrors('request_purpose')" />
-                <TextInput id="request_details" v-model="form.request_details" type="text" :error="form.errors.request_details" label="Special Request or Instructions" placeholder="If applicable" autocomplete="request_details" @input="form.clearErrors('request_details')" />
-                <TextInput id="project_title" v-model="form.project_title" type="text" :error="form.errors.project_title" label="Project Title" placeholder="Research or Thesis Title" autocomplete="project_title" @input="form.clearErrors('project_title')" />
-                <div class="flex gap-2">
-                    <DateInput id="date_of_use" v-model="form.date_of_use" required type="text" :error="errMsg('date_of_use')" label="Date of Use" autocomplete="date_of_use" @input="form.clearErrors('date_of_use')" />
-                    <TimeInput id="time_of_use" v-model="form.time_of_use" required type="text" :error="errMsg('time_of_use')" label="Time of Use" autocomplete="time_of_use" @input="form.clearErrors('time_of_use')" />
-                </div>
-                <div v-if="requiresEndTime" class="flex gap-2">
-                    <DateInput id="date_of_use_end" v-model="form.date_of_use_end" required type="text" :error="errMsg('date_of_use_end')" label="End Date of Use" autocomplete="date_of_use_end" @input="form.clearErrors('date_of_use_end')" />
-                    <TimeInput id="time_of_use_end" v-model="form.time_of_use_end" required type="text" :error="errMsg('time_of_use_end')" label="End Time of Use" autocomplete="time_of_use_end" @input="form.clearErrors('time_of_use_end')" />
+            <transition name="slide-fade" mode="out-in">
+            <div v-show="currentStepKey === 'details'" class="p-6 sm:p-10 flex flex-col min-h-[400px]">
+                <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Request Details</h3>
+                <p class="text-sm text-gray-500 mb-8">Tell us the purpose of your request and when you plan to use the resources.</p>
+                <div class="max-w-2xl flex flex-col gap-5">
+                    <TextInput id="request_purpose" v-model="form.request_purpose" required type="text" :error="errMsg('request_purpose')" label="Purpose of Request" placeholder="Reason or purpose of your request" autocomplete="request_purpose" @input="form.clearErrors('request_purpose')" />
+                    <TextInput id="request_details" v-model="form.request_details" type="text" :error="form.errors.request_details" label="Special Request or Instructions" placeholder="If applicable" autocomplete="request_details" @input="form.clearErrors('request_details')" />
+                    <TextInput id="project_title" v-model="form.project_title" type="text" :error="form.errors.project_title" label="Project Title" placeholder="Research or Thesis Title" autocomplete="project_title" @input="form.clearErrors('project_title')" />
+                    <div class="grid grid-cols-2 gap-5">
+                        <DateInput id="date_of_use" v-model="form.date_of_use" required type="text" :error="errMsg('date_of_use')" label="Date of Use" autocomplete="date_of_use" @input="form.clearErrors('date_of_use')" />
+                        <TimeInput id="time_of_use" v-model="form.time_of_use" required type="text" :error="errMsg('time_of_use')" label="Time of Use" autocomplete="time_of_use" @input="form.clearErrors('time_of_use')" />
+                    </div>
+                    <div v-if="requiresEndTime" class="grid grid-cols-2 gap-5">
+                        <DateInput id="date_of_use_end" v-model="form.date_of_use_end" required type="text" :error="errMsg('date_of_use_end')" label="End Date of Use" autocomplete="date_of_use_end" @input="form.clearErrors('date_of_use_end')" />
+                        <TimeInput id="time_of_use_end" v-model="form.time_of_use_end" required type="text" :error="errMsg('time_of_use_end')" label="End Time of Use" autocomplete="time_of_use_end" @input="form.clearErrors('time_of_use_end')" />
+                    </div>
                 </div>
             </div>
+            </transition>
 
             <resource-selection-step
                 v-if="resourceStepConfig"
@@ -376,64 +388,64 @@ export default {
             />
 
             <!-- Terms & Conditions -->
-            <div v-show="currentStepKey === 'terms'" class="flex flex-col gap-3 text-sm leading-tight text-justify">
-                <p class="text-sm text-gray-600">Please read and agree to all terms and conditions below to complete your request. By checking the boxes, you acknowledge your responsibilities as a resource user.</p>
-                <h2>
-                    <span class="font-bold uppercase">Terms & Conditions: </span>
-                </h2>
-               <div class="flex flex-col gap-4">
-                    <label class="flex items-start text-left gap-2 cursor-pointer select-none" title="Acknowledge lab usage risk">
+            <transition name="slide-fade" mode="out-in">
+            <div v-show="currentStepKey === 'terms'" class="p-6 sm:p-10 flex flex-col min-h-[400px]">
+                <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Terms & Conditions</h3>
+                <p class="text-sm text-gray-500 mb-8">Please read and agree to all terms and conditions below to complete your request.</p>
+                <div class="flex flex-col gap-6 max-w-2xl bg-slate-50 p-6 rounded-xl border border-gray-100">
+                    <label class="flex items-start text-left gap-3 cursor-pointer select-none group" title="Acknowledge lab usage risk">
                         <input 
                             type="checkbox" 
                             v-model="form.agreed_clause_1" 
-                            class="mt-1"
+                            class="mt-1 rounded border-gray-300 text-AB shadow-sm focus:border-AB focus:ring focus:ring-AB focus:ring-opacity-50"
                         />
-                        <span class="text-gray-700">
+                        <span class="text-sm text-gray-700 leading-relaxed group-hover:text-gray-900 transition-colors">
                             I hereby acknowledge that I will utilize the supply/equipment/laboratory at my own risk; and agree to use it responsibly and in accordance with any provided instructions or safety guidelines.
-                            <span v-if="hasErr('agreed_clause_1')" class="block text-sm text-red-500 mt-1">
+                            <span v-if="hasErr('agreed_clause_1')" class="block text-sm text-red-500 mt-1 font-medium">
                                 {{ errMsg('agreed_clause_1') }}
                             </span>
                         </span>
                     </label>
 
-                    <label class="flex items-start text-left gap-2 cursor-pointer select-none" title="Assume damage responsibility">
+                    <label class="flex items-start text-left gap-3 cursor-pointer select-none group" title="Assume damage responsibility">
                         <input 
                             type="checkbox" 
                             v-model="form.agreed_clause_2" 
-                            class="mt-1"
+                            class="mt-1 rounded border-gray-300 text-AB shadow-sm focus:border-AB focus:ring focus:ring-AB focus:ring-opacity-50"
                         />
-                        <span class="text-gray-700">
+                        <span class="text-sm text-gray-700 leading-relaxed group-hover:text-gray-900 transition-colors">
                             I agree to assume full responsibility for any damage or loss of the equipment while it is in my possession.
-                            <span v-if="hasErr('agreed_clause_2')" class="block text-sm text-red-500 mt-1">
+                            <span v-if="hasErr('agreed_clause_2')" class="block text-sm text-red-500 mt-1 font-medium">
                                 {{ errMsg('agreed_clause_2') }}
                             </span>
                         </span>
                     </label>
 
-                    <label class="flex items-start text-left gap-2 cursor-pointer select-none" title="Liability disclaimer">
+                    <label class="flex items-start text-left gap-3 cursor-pointer select-none group" title="Liability disclaimer">
                         <input 
                             type="checkbox" 
                             v-model="form.agreed_clause_3" 
-                            class="mt-1"
+                            class="mt-1 rounded border-gray-300 text-AB shadow-sm focus:border-AB focus:ring focus:ring-AB focus:ring-opacity-50"
                         />
-                        <span class="text-gray-700">
+                        <span class="text-sm text-gray-700 leading-relaxed group-hover:text-gray-900 transition-colors">
                             I agree that the Center shall not be held liable for the quality, accuracy, reliability, or completeness of any data generated by the Requestor using the lab's facilities, equipment, or resources. The Requestor assumes full responsibility for the design, execution, and interpretation of the experiments and the data derived therefrom. The Center makes no warranties, express or implied, regarding the outcomes of the Requestor's research activities.
-                            <span v-if="hasErr('agreed_clause_3')" class="block text-sm text-red-500 mt-1">
+                            <span v-if="hasErr('agreed_clause_3')" class="block text-sm text-red-500 mt-1 font-medium">
                                 {{ errMsg('agreed_clause_3') }}
                             </span>
                         </span>
                     </label>
                 </div>
             </div>
+            </transition>
 
             <!-- Navigation Controls -->
-            <div class="flex items-center justify-between pt-2">
-                <button type="button" class="px-3 py-2 rounded border text-sm text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" :disabled="currentStep === 0" @click="prevStep">Back</button>
-                <div class="flex items-center gap-2">
-                    <button v-if="currentStep < filteredSteps.length - 1" type="button" class="px-3 py-2 rounded bg-blue-600 text-white text-sm hover:bg-blue-700" @click="nextStep">Next</button>
-                    <submit-btn v-else :disabled="model.api.processing" :processing="model.api.processing">
-                        <span v-if="!model.api.processing">Submit</span>
-                        <span v-else>Saving</span>
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+                <button type="button" class="px-6 py-2.5 rounded-xl border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 hover:shadow-sm font-medium transition-all duration-300 disabled:opacity-50" :disabled="currentStep === 0" @click="prevStep">Back</button>
+                <div class="flex items-center gap-3">
+                    <button v-if="currentStep < filteredSteps.length - 1" type="button" class="px-8 py-2.5 rounded-xl bg-AB text-white font-bold shadow-md hover:bg-AB/90 transition-all hover:-translate-y-0.5 duration-300" @click="nextStep">Next Step</button>
+                    <submit-btn v-else :disabled="model.api.processing" :processing="model.api.processing" class="px-8 py-2.5 rounded-xl bg-AB text-white font-bold shadow-md hover:bg-AB/90 transition-all hover:-translate-y-0.5 duration-300">
+                        <span v-if="!model.api.processing">Submit Request</span>
+                        <span v-else>Submitting...</span>
                     </submit-btn>
                 </div>
             </div>

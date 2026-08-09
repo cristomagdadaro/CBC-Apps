@@ -271,10 +271,10 @@ export default {
 </script>
 
 <template>
-    <form v-if="!!form" class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 border border-gray-100" @submit.prevent="submitForm">
-        <div class="flex items-center justify-between mb-4">
+    <form v-if="!!form" class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6 sm:p-10 border border-gray-100 mx-auto w-full max-w-4xl" @submit.prevent="submitForm">
+        <div class="flex items-center justify-between mb-8">
             <div>
-                <h2 class="text-lg font-semibold text-gray-800">Attach Supplies & Equipment Report</h2>
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Attach Supplies & Equipment Report</h2>
                 <p class="text-sm text-gray-500">Link a structured report to a specific transaction for audit readiness.</p>
             </div>
             <transition-container type="fade">
@@ -288,8 +288,8 @@ export default {
             Configure at least one template in config/suppequipreportforms.php to start logging reports.
         </div>
 
-        <div v-else class="space-y-5">
-            <div class="grid md:grid-cols-2 gap-4">
+        <div v-else class="space-y-8">
+            <div class="grid md:grid-cols-2 gap-6">
                 <custom-dropdown
                     :value="form.report_type"
                     :options="templateOptions"
@@ -315,18 +315,18 @@ export default {
             </div>
             <p class="text-xs text-gray-500">{{ templateDescription }}</p>
 
-            <div class="space-y-2">
-                <label class="text-xs font-semibold text-gray-600">Link Transaction <span class="text-red-500">*</span></label>
+            <div class="space-y-4">
+                <label class="text-sm font-semibold text-gray-700">Link Transaction <span class="text-red-500">*</span></label>
                 <div v-if="!isUpdateMode" class="flex flex-col md:flex-row gap-3">
                     <text-input
-                        class="flex-1"
+                        class="flex-1 rounded-xl shadow-sm"
                         :placeholder="'Scan barcode or paste transaction ID'"
                         v-model="transactionSearch"
                         :error="form.errors.transaction_id || transactionLookupError"
                     />
-                    <search-btn type="button" class="px-6" :disabled="model.api.processing || transactionLoading" @click="searchTransactions">
-                        <span v-if="!transactionLoading">Lookup</span>
-                        <span v-else>Searching</span>
+                    <search-btn type="button" class="px-8 py-2.5 rounded-xl shadow-md hover:-translate-y-0.5 transition-all duration-300" :disabled="model.api.processing || transactionLoading" @click="searchTransactions">
+                        <span v-if="!transactionLoading">Lookup Transaction</span>
+                        <span v-else>Searching...</span>
                     </search-btn>
                 </div>
                 <transition-container type="fade">
@@ -364,19 +364,19 @@ export default {
                 </div>
             </div>
 
-            <div class="grid gap-4">
+            <div class="grid gap-6">
                 <div
                     v-for="(fieldConfig, fieldKey) in templateFields"
                     :key="fieldKey"
-                    class="flex flex-col gap-1"
+                    class="flex flex-col gap-2"
                 >
-                    <label class="text-xs text-gray-600 font-semibold">
+                    <label class="text-sm text-gray-700 font-semibold">
                         {{ fieldConfig.label || startCase(fieldKey) }}
                         <span v-if="(fieldConfig.rules || '').includes('required')" class="text-red-500">*</span>
                     </label>
                     <textarea
                         v-if="fieldConfig.type === 'textarea'"
-                        class="w-full border border-gray-300 rounded-md shadow-sm text-sm focus:border-AB focus:ring-AB"
+                        class="w-full border border-gray-300 rounded-xl shadow-sm text-sm p-3 focus:border-AB focus:ring-AB transition-shadow"
                         rows="3"
                         :placeholder="getFieldPlaceholder(fieldConfig, 'Enter details')"
                         :value="getFieldValue(fieldKey)"
@@ -407,9 +407,9 @@ export default {
             </div>
 
             <div>
-                <label class="text-xs text-gray-600 font-semibold">Additional Notes</label>
+                <label class="text-sm text-gray-700 font-semibold mb-2 block">Additional Notes</label>
                 <textarea
-                    class="w-full border border-gray-300 rounded-md shadow-sm text-sm focus:border-AB focus:ring-AB"
+                    class="w-full border border-gray-300 rounded-xl shadow-sm text-sm p-3 focus:border-AB focus:ring-AB transition-shadow"
                     rows="3"
                     placeholder="Optional context, follow-up actions, or references"
                     v-model="form.notes"
@@ -417,9 +417,9 @@ export default {
                 <input-error v-if="form.errors.notes" :message="form.errors.notes" />
             </div>
 
-            <div class="flex justify-end">
+            <div class="flex justify-end pt-4 border-t border-gray-100">
                 <submit-btn
-                    class="px-6"
+                    class="px-8 py-2.5 rounded-xl bg-AB text-white font-bold shadow-md hover:bg-AB/90 transition-all hover:-translate-y-0.5 duration-300"
                     :disabled="model.api.processing || !form.transaction_id"
                 >
                     <span>{{ submitLabel }}</span>
