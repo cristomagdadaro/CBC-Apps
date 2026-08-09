@@ -117,6 +117,12 @@ export default {
         overdueCount() {
             return this.overdueLogs.length;
         },
+        activeUniqueEquipmentCount() {
+            return new Set(this.activeLogs.map(log => log.equipment_id)).size;
+        },
+        overdueUniqueEquipmentCount() {
+            return new Set(this.overdueLogs.map(log => log.equipment_id)).size;
+        },
         currentInUseCount() {
             return this.activeCount + this.overdueCount;
         },
@@ -775,7 +781,7 @@ export default {
                 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400">Current In Use</h3>
+                            <h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400">Equipment Users</h3>
                             <Activity class="w-4 h-4 text-lime-600 dark:text-lime-400" />
                         </div>
                         <p class="mt-2 text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">
@@ -792,7 +798,7 @@ export default {
                                         <h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400">Active Equipment</h3>
                                         <CheckCircle2 class="w-4 h-4 text-emerald-500" />
                                     </div>
-                                    <p class="mt-2 text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400">{{ activeCount }}</p>
+                                    <p class="mt-2 text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400">{{ activeUniqueEquipmentCount }}</p>
                                     <p class="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Click to view location details</p>
                                 </button>
                             </template>
@@ -827,7 +833,7 @@ export default {
                                         <h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400">Overdue Equipment</h3>
                                         <AlertTriangle class="w-4 h-4 text-rose-500" />
                                     </div>
-                                    <p class="mt-2 text-2xl sm:text-3xl font-bold text-rose-600 dark:text-rose-400">{{ overdueCount }}</p>
+                                    <p class="mt-2 text-2xl sm:text-3xl font-bold text-rose-600 dark:text-rose-400">{{ overdueUniqueEquipmentCount }}</p>
                                     <p class="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Click to review overdue logs</p>
                                 </button>
                             </template>
@@ -1029,8 +1035,8 @@ export default {
                 <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
                     <div class="flex items-center justify-between gap-3 mb-4">
                         <div>
-                            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">Currently Working Equipment</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Active and overdue ICT/laboratory equipment currently in use.</p>
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">Currently Active Sessions</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Active and overdue sessions for ICT/laboratory equipment currently in use.</p>
                         </div>
                         <span class="inline-flex items-center rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-700 dark:text-slate-300">
                             {{ currentWorkingLogs.length }} active sessions
