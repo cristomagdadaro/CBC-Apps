@@ -23,6 +23,9 @@ class CreatePersonnelRegistrationRequest extends FormRequest
             'course_program' => filled($this->input('course_program'))
                 ? trim((string) $this->input('course_program'))
                 : null,
+            'affiliation' => filled($this->input('affiliation'))
+                ? trim((string) $this->input('affiliation'))
+                : null,
         ]);
     }
 
@@ -44,7 +47,7 @@ class CreatePersonnelRegistrationRequest extends FormRequest
             'address' => ['nullable', 'string', 'max:500'],
             'email' => ['required', 'email', 'max:191'],
             'employee_id' => [
-                Rule::requiredIf(fn () => $this->boolean('is_philrice_employee')),
+                Rule::requiredIf(fn() => $this->boolean('is_philrice_employee')),
                 'nullable',
                 'string',
                 'max:64',
@@ -56,18 +59,24 @@ class CreatePersonnelRegistrationRequest extends FormRequest
                     : PersonnelRegistration::idCardTypes()),
             ],
             'course_program' => [
-                Rule::requiredIf(fn () => ! $this->boolean('is_philrice_employee')),
+                Rule::requiredIf(fn() => ! $this->boolean('is_philrice_employee')),
                 'nullable',
                 'string',
                 'max:191',
             ],
+            'affiliation' => [
+                Rule::requiredIf(fn() => ! $this->boolean('is_philrice_employee')),
+                'nullable',
+                'string',
+                'max:191',
+            ],
+            'expires_at' => ['nullable', 'date', 'after_or_equal:today'],
             'id_photo' => [
-                Rule::requiredIf(fn () => ! $this->boolean('is_philrice_employee')),
+                Rule::requiredIf(fn() => ! $this->boolean('is_philrice_employee')),
                 'nullable',
                 'image',
                 'mimes:jpg,jpeg,png',
-                'max:4096',
-                'dimensions:ratio=1/1,min_width=200,min_height=200',
+                'max:4096'
             ],
         ];
     }

@@ -11,9 +11,7 @@ class EventSubformResponseNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public EventSubformResponse $response)
-    {
-    }
+    public function __construct(public EventSubformResponse $response) {}
 
     public function build(): self
     {
@@ -23,7 +21,7 @@ class EventSubformResponseNotification extends Mailable
         $title = $response->parent?->title ?? 'New Response';
 
         return $this->subject($title . ' - New Response Received')
-            ->view('emails.event-subform-response-notification', [
+            ->markdown('emails.event-subform-response-notification', [
                 'response' => $response,
             ]);
     }

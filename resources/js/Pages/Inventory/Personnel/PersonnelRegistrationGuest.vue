@@ -1,13 +1,14 @@
 <script>
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import SuccessModal from "@/Components/SuccessModal.vue";
+import ImageCropperModal from "@/Components/ImageCropperModal.vue";
 import PersonnelRegistration from "@/Modules/domain/PersonnelRegistration";
 import DtoResponse from "@/Modules/dto/DtoResponse";
 import DtoError from "@/Modules/dto/DtoError";
 
 export default {
     name: "PersonnelRegistrationGuest",
-    components: { SuccessModal },
+    components: { SuccessModal, ImageCropperModal },
     mixins: [ApiMixin],
     data() {
         return {
@@ -15,6 +16,8 @@ export default {
             submittedEmail: null,
             delayReady: false,
             showSubmittedModal: false,
+            showCropModal: false,
+            rawImageUrl: null,
             photoPreviewUrl: null,
             registrationTypeOptions: [
                 { value: "philrice_employee", label: "PhilRice Employee" },
@@ -60,13 +63,27 @@ export default {
         },
         onPhotoSelected(event) {
             const file = event.target.files?.[0] ?? null;
-            this.form.id_photo = file;
+            if (!file) return;
 
+            if (this.rawImageUrl) {
+                URL.revokeObjectURL(this.rawImageUrl);
+            }
+            
+            this.rawImageUrl = URL.createObjectURL(file);
+            this.showCropModal = true;
+            
+            // Clear the file input so selecting the same file again triggers change
+            event.target.value = '';
+        },
+        onPhotoCropped(blob) {
+            const file = new File([blob], 'id_photo.jpg', { type: blob.type });
+            this.form.id_photo = file;
+            
             if (this.photoPreviewUrl) {
                 URL.revokeObjectURL(this.photoPreviewUrl);
             }
-
-            this.photoPreviewUrl = file ? URL.createObjectURL(file) : null;
+            
+            this.photoPreviewUrl = URL.createObjectURL(blob);
         },
         syncRegistrationType() {
             this.form.is_philrice_employee = this.isPhilRiceEmployee;
@@ -96,12 +113,22 @@ export default {
         if (this.photoPreviewUrl) {
             URL.revokeObjectURL(this.photoPreviewUrl);
         }
+        if (this.rawImageUrl) {
+            URL.revokeObjectURL(this.rawImageUrl);
+        }
     },
 };
 </script>
 
 <template>
     <Head title="Personnel Registration" />
+    
+    <SuccessModal
+        :show="showSubmittedModal"
+        title="Check your email"
+        :message="'We sent a verification link to ' + submittedEmail + '. Check your inbox and confirm your email address so your registration can proceed to administrator review.'"
+        @close="showSubmittedModal = false"
+    />
 
     <guest-form-page
         title="Personnel Registration"
@@ -164,6 +191,22 @@ export default {
                                 v-model="form.course_program"
                                 :error="form.errors.course_program"
                             />
+                            <text-input
+                                required
+                                label="Affiliation / School / Agency"
+                                v-model="form.affiliation"
+                                :error="form.errors.affiliation"
+                            />
+                            <div class="space-y-1">
+                                <text-input
+                                    required
+                                    type="date"
+                                    label="Until when do you need access?"
+                                    v-model="form.expires_at"
+                                    :error="form.errors.expires_at"
+                                />
+                                <p class="text-[10px] text-gray-500">Your access and ID will automatically expire after this date.</p>
+                            </div>
                             <div class="space-y-1">
                                 <label class="text-xs text-gray-700 flex items-center gap-0.5">
                                     2x2 ID Picture <b class="text-red-500">*</b>
@@ -204,6 +247,13 @@ export default {
                 </form>
             </div>
         </transition-container>
+
+        <ImageCropperModal
+            :show="showCropModal"
+            :image-url="rawImageUrl"
+            @close="showCropModal = false"
+            @cropped="onPhotoCropped"
+        />
 
         <success-modal
             :show="showSubmittedModal"

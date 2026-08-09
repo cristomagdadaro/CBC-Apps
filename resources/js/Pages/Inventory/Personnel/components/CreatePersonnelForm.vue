@@ -116,12 +116,31 @@ export default {
                         :error="form.errors.employee_id"
                     />
                 </div>
-                <div v-else class="rounded-xl border border-lime-200 dark:border-lime-900/60 bg-lime-50/70 dark:bg-lime-950/40 p-4 text-xs sm:text-sm text-lime-900 dark:text-lime-200">
-                    <p class="font-bold">Auto-generated CBC ID</p>
-                    <p class="mt-1 text-slate-600 dark:text-slate-300 text-xs">
-                        The next outsider/OJT/thesis identifier will be assigned automatically on save.
+                <div v-else class="space-y-3">
+                    <div class="rounded-xl border border-lime-200 dark:border-lime-900/60 bg-lime-50/70 dark:bg-lime-950/40 p-4 text-xs sm:text-sm text-lime-900 dark:text-lime-200">
+                        <p class="font-bold">Auto-generated CBC ID</p>
+                        <p class="mt-1 text-slate-600 dark:text-slate-300 text-xs">
+                            The next outsider/OJT/thesis identifier will be assigned automatically on save.
+                        </p>
+                        <p class="mt-2 font-mono text-sm font-bold text-lime-700 dark:text-lime-300">{{ externalEmployeeIdPreview }}</p>
+                    </div>
+                    <text-input
+                        required
+                        label="Affiliation / School / Agency"
+                        v-model="form.affiliation"
+                        :error="form.errors.affiliation"
+                    />
+                </div>
+                <div class="space-y-1">
+                    <text-input
+                        label="Expires At (optional)"
+                        type="date"
+                        v-model="form.expires_at"
+                        :error="form.errors.expires_at"
+                    />
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Set an expiry date for temporary personnel (OJT, Student, Thesis). Status will auto-set to Suspended after this date.
                     </p>
-                    <p class="mt-2 font-mono text-sm font-bold text-lime-700 dark:text-lime-300">{{ externalEmployeeIdPreview }}</p>
                 </div>
                 <div class="flex gap-2 justify-end pt-2">
                     <submit-btn :disabled="model.api.processing">

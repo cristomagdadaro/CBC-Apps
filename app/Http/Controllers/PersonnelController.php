@@ -64,7 +64,7 @@ class PersonnelController extends BaseController
         }
 
         $personnels = Personnel::query()
-            ->select(['id', 'fname', 'mname', 'lname', 'suffix', 'position', 'phone', 'address', 'email', 'updated_at'])
+            ->select(['id', 'fname', 'mname', 'lname', 'suffix', 'position', 'phone', 'address', 'email', 'affiliation', 'updated_at'])
             ->preferredEmployeeId($search)
             ->limit(1)
             ->get()
@@ -83,6 +83,7 @@ class PersonnelController extends BaseController
                     'phone' => $personnel->phone,
                     'address' => $personnel->address,
                     'email' => $personnel->email,
+                    'affiliation' => $personnel->affiliation,
                     'fullName' => collect([
                         $personnel->fname,
                         $personnel->mname,

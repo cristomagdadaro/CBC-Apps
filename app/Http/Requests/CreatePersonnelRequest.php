@@ -33,9 +33,16 @@ class CreatePersonnelRequest extends FormRequest
             'position' => 'required|string',
             'phone' => 'string|nullable',
             'address' => 'string|nullable',
+            'affiliation' => [
+                'nullable',
+                'string',
+                'max:191',
+                'required_if:is_philrice_employee,false',
+            ],
             'email' => 'nullable|email|unique:personnels,email',
             'employee_id' => 'nullable|string|max:32|unique:personnels,employee_id|required_if:is_philrice_employee,true',
             'status' => ['nullable', 'string', Rule::in([config('system.statuses.active', 'Active'), config('system.statuses.suspended', 'Suspended')])],
+            'expires_at' => ['nullable', 'date', 'after_or_equal:today'],
         ];
     }
 

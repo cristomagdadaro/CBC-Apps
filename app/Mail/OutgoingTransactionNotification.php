@@ -12,9 +12,7 @@ class OutgoingTransactionNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public Transaction $transaction)
-    {
-    }
+    public function __construct(public Transaction $transaction) {}
 
     public function build(): self
     {
@@ -26,7 +24,7 @@ class OutgoingTransactionNotification extends Mailable
             ->where('unit', $this->transaction->unit)
             ->selectRaw(
                 'SUM(CASE WHEN transac_type = ? THEN quantity ELSE 0 END) as total_incoming, ' .
-                'SUM(CASE WHEN transac_type = ? THEN ABS(quantity) ELSE 0 END) as total_outgoing',
+                    'SUM(CASE WHEN transac_type = ? THEN ABS(quantity) ELSE 0 END) as total_outgoing',
                 [Inventory::INCOMING->value, Inventory::OUTGOING->value]
             )
             ->first();
@@ -34,7 +32,7 @@ class OutgoingTransactionNotification extends Mailable
         $remaining = ($remainingQuantity?->total_incoming ?? 0) - ($remainingQuantity?->total_outgoing ?? 0);
 
         return $this->subject('New Outgoing Inventory Transaction')
-            ->view('emails.outgoing-transaction-notification', [
+            ->markdown('emails.outgoing-transaction-notification', [
                 'transaction' => $this->transaction,
                 'remainingQuantity' => $remaining,
             ]);

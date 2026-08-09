@@ -48,9 +48,9 @@ export default {
                 phone: record.phone ?? null,
                 address: record.address ?? null,
                 email: record.email ?? null,
+                affiliation: record.affiliation ?? null,
                 has_email: !!record.has_email,
                 profile_requires_update: !!record.profile_requires_update,
-                affiliation: "Philippine Rice Research Institute",
             };
         },
 

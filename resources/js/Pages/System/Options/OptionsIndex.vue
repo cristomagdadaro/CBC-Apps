@@ -116,7 +116,7 @@ export default {
                 return {
                     className:
                         "border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-200",
-                    text: "This module is fully unavailable and is hidden from the app layout where applicable.",
+                    text: "This module is fully unavailable and is hidden within the system.",
                 };
             }
 

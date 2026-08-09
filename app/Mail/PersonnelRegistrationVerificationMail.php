@@ -27,6 +27,6 @@ class PersonnelRegistrationVerificationMail extends Mailable
     public function build(): self
     {
         return $this->subject('Verify your OneCBC personnel registration')
-            ->view('emails.personnel.registration-verification');
+            ->markdown('emails.personnel.registration-verification');
     }
 }

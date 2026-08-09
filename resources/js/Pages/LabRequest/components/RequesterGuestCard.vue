@@ -6,11 +6,10 @@ import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import ResourceSelectionStep from "@/Pages/LabRequest/components/ResourceSelectionStep.vue";
 import { END_TIME_REQUEST_TYPES, REQUEST_FORM_STEPS, RESOURCE_STEP_CONFIG, STEP_TO_REQUEST_TYPE } from "@/Pages/LabRequest/config/requestStepConfig";
-import { LuCheckCircle2 } from "lucide-vue-next";
 
 export default {
     name: "RequesterGuestCard",
-    components: { ResourceSelectionStep, LuCheckCircle2 },
+    components: { ResourceSelectionStep },
     props: {
         requestTypeOptions: {
             type: Array,
@@ -328,7 +327,7 @@ export default {
                         I am a non-PhilRice employee/personnel
                     </label>
                 </div>
-                <div v-show="(isNonPhilRiceEmployee || employeeFound) && !isAuthenticated" class="flex flex-col gap-2 pt-2 border-t">
+                <div v-show="isNonPhilRiceEmployee || employeeFound" class="flex flex-col gap-2 pt-2 border-t">
                     <p class="text-sm text-gray-600">Manually enter your information</p>
                     <TextInput
                         v-if="isNonPhilRiceEmployee"

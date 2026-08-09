@@ -18,6 +18,7 @@ export default {
     data() {
         return {
             search: "",
+            registrationTypeFilter: "",
             selected: {},
             labels: [],
             previewReady: false,
@@ -42,12 +43,18 @@ export default {
             };
         },
         filteredCards() {
+            let result = this.cards;
+            
+            if (this.registrationTypeFilter) {
+                result = result.filter(card => card.registration_type === this.registrationTypeFilter);
+            }
+            
             const term = this.search?.toLowerCase()?.trim();
             if (!term) {
-                return this.cards;
+                return result;
             }
 
-            return this.cards.filter((card) => {
+            return result.filter((card) => {
                 return [
                     card.full_name,
                     card.employee_id,
@@ -351,6 +358,15 @@ export default {
                                         placeholder="Search IDs..."
                                     />
                                 </div>
+                                <select
+                                    v-model="registrationTypeFilter"
+                                    class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-lime-500 focus:border-transparent hidden sm:block"
+                                >
+                                    <option value="">All Types</option>
+                                    <option value="student">Student</option>
+                                    <option value="ojt">OJT</option>
+                                    <option value="thesis">Thesis</option>
+                                </select>
                                 <button
                                     type="button"
                                     class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"

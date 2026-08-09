@@ -119,6 +119,22 @@ export default {
                         <p v-if="form.errors.status" class="text-xs text-rose-500 mt-1 font-semibold">{{ form.errors.status }}</p>
                     </div>
                 </div>
+                <text-input
+                    label="Affiliation / School / Agency"
+                    v-model="form.affiliation"
+                    :error="form.errors.affiliation"
+                />
+                <div class="space-y-1">
+                    <text-input
+                        label="Expires At (optional)"
+                        type="date"
+                        v-model="form.expires_at"
+                        :error="form.errors.expires_at"
+                    />
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Set an expiry date for temporary personnel (OJT, Student, Thesis). Status will auto-set to Suspended after this date.
+                    </p>
+                </div>
                 <div class="flex flex-col sm:flex-row gap-3 justify-between items-center pt-2">
                     <div class="flex gap-2 w-full sm:w-auto">
                         <reset-btn @click="resetField($page.props.data)">

@@ -24,11 +24,13 @@ export default class PersonnelRegistration extends DtoPersonnelRegistration {
             suffix: null,
             position: null,
             course_program: null,
+            affiliation: null,
             id_photo: null,
             phone: null,
             address: null,
             email: null,
             employee_id: null,
+            expires_at: null,
         };
     }
 

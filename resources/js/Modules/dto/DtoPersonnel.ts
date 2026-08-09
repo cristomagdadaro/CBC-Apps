@@ -10,8 +10,11 @@ export default class DtoPersonnel extends DtoBaseClass implements IPersonnel {
     address: string;
     email: string;
     employee_id: string;
-    has_email?: boolean;    
+    affiliation: string;
+    has_email?: boolean;
     profile_requires_update?: boolean;
+    status: string;
+    expires_at: string;
 
     constructor(data: IPersonnel) {
         super(data);
@@ -25,8 +28,11 @@ export default class DtoPersonnel extends DtoBaseClass implements IPersonnel {
         this.address = data?.address;
         this.email = data?.email;
         this.employee_id = data?.employee_id;
+        this.affiliation = data?.affiliation;
         this.has_email = data?.has_email;
         this.profile_requires_update = data?.profile_requires_update;
+        this.status = data?.status;
+        this.expires_at = data?.expires_at;
 
         // sorted by created_at desc
         this.api.setSearchFields({

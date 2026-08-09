@@ -157,8 +157,10 @@ class PersonnelRegistrationRepo extends AbstractRepoService
             'employee_id' => $employeeId,
             'registration_type' => $registration->registration_type,
             'course_program' => $registration->course_program,
+            'affiliation' => $registration->affiliation,
             'id_photo_path' => $registration->id_photo_path,
             'id_issued_at' => $idIssuedAt,
+            'expires_at' => $registration->expires_at,
             'status' => config('system.statuses.active'),
         ]);
     }
@@ -180,7 +182,6 @@ class PersonnelRegistrationRepo extends AbstractRepoService
             ->whereIn('registration_type', PersonnelRegistration::idCardTypes())
             ->whereNotNull('personnel_id')
             ->whereNotNull('id_photo_path')
-            ->whereNull('id_issued_at')
             ->orderByDesc('reviewed_at')
             ->get();
     }
@@ -221,13 +222,26 @@ class PersonnelRegistrationRepo extends AbstractRepoService
 
         if ($isPhilRiceEmployee) {
             $data['course_program'] = null;
+            $data['expires_at'] = null;
             unset($data['id_photo']);
 
             return $data;
         }
 
         if (($data['id_photo'] ?? null) instanceof UploadedFile) {
-            $data['id_photo_path'] = $data['id_photo']->store('personnel/id-photos');
+            $uploadedFile = $data['id_photo'];
+            $filename = 'personnel/id-photos/' . pathinfo($uploadedFile->hashName(), PATHINFO_FILENAME) . '.jpg';
+
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $image = $manager->decodePath($uploadedFile->getRealPath());
+            $image->cover(600, 600);
+
+            \Illuminate\Support\Facades\Storage::disk('local')->put(
+                $filename,
+                (string) $image->encodeUsingFileExtension('jpg', quality: 85)
+            );
+
+            $data['id_photo_path'] = $filename;
         }
 
         unset($data['id_photo']);

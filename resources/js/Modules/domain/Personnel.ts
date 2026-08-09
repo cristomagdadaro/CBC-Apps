@@ -32,7 +32,9 @@ export default class Personnel extends DtoPersonnel {
             address: null,
             email: null,
             employee_id: null,
+            affiliation: null,
             status: 'Active',
+            expires_at: null,
         }
     }
 
@@ -50,7 +52,9 @@ export default class Personnel extends DtoPersonnel {
             address: data?.address,
             email: data?.email,
             employee_id: data?.employee_id,
+            affiliation: data?.affiliation,
             status: data?.status ?? 'Active',
+            expires_at: data?.expires_at,
         }
     }
 

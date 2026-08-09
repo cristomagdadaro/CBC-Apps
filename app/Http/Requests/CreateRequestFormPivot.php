@@ -11,18 +11,9 @@ class CreateRequestFormPivot extends FormRequest
     protected function prepareForValidation(): void
     {
         if ($this->user() && $this->user()->employee_id) {
-            $personnel = \App\Models\Personnel::where('employee_id', $this->user()->employee_id)->first();
-            if ($personnel) {
-                $name = trim($personnel->fname . ' ' . ($personnel->mname ? $personnel->mname . ' ' : '') . $personnel->lname . ' ' . $personnel->suffix);
-                $this->merge([
-                    'requester_philrice_id' => $personnel->employee_id,
-                    'name' => $name ?: $this->user()->name,
-                    'affiliation' => 'DA-PhilRice',
-                    'email' => $personnel->email ?: $this->user()->email,
-                    'position' => $personnel->position,
-                    'phone' => $personnel->phone,
-                ]);
-            }
+            $this->merge([
+                'requester_philrice_id' => $this->user()->employee_id,
+            ]);
         }
 
         $equipmentsToUse = $this->mergeUniqueArrays(

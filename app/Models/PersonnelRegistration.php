@@ -34,6 +34,7 @@ class PersonnelRegistration extends BaseModel
         'is_philrice_employee',
         'registration_type',
         'course_program',
+        'affiliation',
         'id_photo_path',
         'status',
         'email_verified_at',
@@ -43,6 +44,7 @@ class PersonnelRegistration extends BaseModel
         'reviewed_at',
         'personnel_id',
         'id_issued_at',
+        'expires_at',
     ];
 
     protected $casts = [
@@ -51,6 +53,7 @@ class PersonnelRegistration extends BaseModel
         'verification_sent_at' => 'datetime',
         'reviewed_at' => 'datetime',
         'id_issued_at' => 'datetime',
+        'expires_at' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -64,6 +67,7 @@ class PersonnelRegistration extends BaseModel
         'employee_id',
         'registration_type',
         'course_program',
+        'affiliation',
         'status',
     ];
 

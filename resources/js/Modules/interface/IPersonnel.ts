@@ -10,6 +10,8 @@ interface IPersonnel extends IBaseClass {
     employee_id: string;
     has_email?: boolean;
     profile_requires_update?: boolean;
-
+    affiliation: string;
+    status: string;
+    expires_at: string;
     fullName: string;
 }
