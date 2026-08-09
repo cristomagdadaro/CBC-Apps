@@ -53,7 +53,7 @@ class GeneratedCertificateMail extends Mailable implements ShouldQueue
         }
 
         return $this->subject('Your Certificate is Ready')
-            ->view('emails.generated-certificate', [
+            ->markdown('emails.generated-certificate', [
                 'eventId' => $this->eventId,
                 'recipientName' => $this->recipientName,
                 'eventTitle' => $event?->title,

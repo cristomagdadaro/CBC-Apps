@@ -31,6 +31,7 @@ class UpdateItemRequest extends FormRequest
             'category_id' => ['required','exists:categories,id', new UniqueItem($this->id)],
             'supplier_id' => ['required','exists:suppliers,id'],
             'image' => ['string','nullable'],
+            'simultaneous_users' => ['required','integer','min:1'],
         ];
     }
 

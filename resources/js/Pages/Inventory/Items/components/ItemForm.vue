@@ -15,7 +15,7 @@ export default defineComponent({
 });
 </script>
 
-<template>
+<template>{{ form }}
     <form
         v-if="!!form"
         @submit.prevent="submitCreate"
@@ -88,6 +88,13 @@ export default defineComponent({
                 label="Model / Short Physical Description"
                 v-model="form.description"
                 :error="form.errors.description"
+            />
+            <text-input
+                type-input="number"
+                label="Max Simultaneous Users"
+                v-model="form.simultaneous_users"
+                :error="form.errors.simultaneous_users"
+                min="1"
             />
             <text-area
                 label="Detailed Specifications"

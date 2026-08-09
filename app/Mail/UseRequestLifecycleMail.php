@@ -42,6 +42,6 @@ class UseRequestLifecycleMail extends Mailable
         };
 
         return $this->subject("{$subjectPrefix}: {$this->request->id}")
-            ->view('emails.lab-request.lifecycle');
+            ->markdown('emails.lab-request.lifecycle');
     }
 }

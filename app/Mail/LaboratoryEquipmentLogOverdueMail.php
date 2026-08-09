@@ -27,7 +27,7 @@ class LaboratoryEquipmentLogOverdueMail extends Mailable
         $typeLabel = $this->equipmentType === 'ict' ? 'ICT equipment' : 'laboratory equipment';
 
         return $this->subject("Overdue {$typeLabel} usage: {$equipmentName}")
-            ->view('emails.laboratory.equipment-log-overdue');
+            ->markdown('emails.laboratory.equipment-log-overdue');
     }
 
     private function resolveEquipmentUrl(): ?string

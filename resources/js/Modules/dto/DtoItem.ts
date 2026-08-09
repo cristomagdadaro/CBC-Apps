@@ -10,6 +10,7 @@ export default class DtoItem extends DtoBaseClass implements IItem {
     category_id: string;
     supplier_id: string;
     image: string;
+    simultaneous_users: number;
 
     supplier: ISupplier;
     category: ICategory;
@@ -24,6 +25,7 @@ export default class DtoItem extends DtoBaseClass implements IItem {
         this.category_id = data?.category_id;
         this.supplier_id = data?.supplier_id;
         this.image = data?.image;
+        this.simultaneous_users = data?.simultaneous_users;
 
         if (data?.supplier)
             this.supplier = new DtoSupplier(data.supplier);

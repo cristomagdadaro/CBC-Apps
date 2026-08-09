@@ -13,9 +13,7 @@ class PersonnelRegistrationApprovedMail extends Mailable
     use Queueable;
     use SerializesModels;
 
-    public function __construct(public readonly PersonnelRegistration $registration)
-    {
-    }
+    public function __construct(public readonly PersonnelRegistration $registration) {}
 
     public function build(): self
     {
@@ -24,7 +22,7 @@ class PersonnelRegistrationApprovedMail extends Mailable
         $card = $idCardService->cardData($registration);
 
         return $this->subject('Your OneCBC Personnel Registration is Approved')
-            ->view('emails.personnel.registration-approved', [
+            ->markdown('emails.personnel.registration-approved', [
                 'registration' => $registration,
                 'card' => $card,
             ])

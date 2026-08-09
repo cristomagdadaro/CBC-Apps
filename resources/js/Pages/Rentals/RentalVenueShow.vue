@@ -1,36 +1,8 @@
 <script>
-import {
-    LuAlertCircle,
-    LuBuilding2,
-    LuCalendar,
-    LuCheckCircle2,
-    LuClock,
-    LuClock3,
-    LuLoader2,
-    LuMapPin,
-    LuPhone,
-    LuUser,
-    LuUsers,
-    LuXCircle,
-} from '@/Components/Icons'
 import ApiMixin from '@/Modules/mixins/ApiMixin'
 
 export default {
     name: 'RentalVenueShow',
-    components: {
-        LuAlertCircle,
-        LuBuilding2,
-        LuCalendar,
-        LuCheckCircle2,
-        LuClock,
-        LuClock3,
-        LuLoader2,
-        LuMapPin,
-        LuPhone,
-        LuUser,
-        LuUsers,
-        LuXCircle,
-    },
     mixins: [ApiMixin],
     props: {
         rental_id: {

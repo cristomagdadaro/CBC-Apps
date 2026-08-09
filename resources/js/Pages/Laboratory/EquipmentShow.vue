@@ -1111,42 +1111,60 @@ export default {
                                     <LuActivity class="w-5 h-5" :class="isOverdue ? 'text-red-600' : 'text-emerald-600'" />
                                 </div>
                                 <div>
-                                    <span  class="inline-flex items-center gap-1.5 uppercase font-semibold rounded-full"
-                                        :class="isOverdue ? 'text-red-700' : 'text-emerald-700'">
-                                        {{ isOverdue ? 'Overdue' : 'In Use' }}
-                                    </span>
-                                    <h2 class="text-xs text-gray-900 leading-none">Current Status</h2>
+                                    <div class="flex items-center gap-2">
+                                        <span  class="inline-flex items-center gap-1.5 uppercase font-semibold rounded-full"
+                                            :class="isOverdue ? 'text-red-700' : 'text-emerald-700'">
+                                            {{ isOverdue ? 'Overdue' : 'In Use' }}
+                                        </span>
+                                    </div>
+                                    <h2 class="text-xs text-gray-900 leading-none mt-1">Current Status</h2>
                                 </div>
                             </div>
-                            <button v-if="canEditActiveLog" @click="showEstimatedEndUseModal = true"
-                                class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 transition-colors bg-emerald-50 rounded-lg hover:bg-emerald-100">
-                                <LuEdit class="w-3.5 h-3.5" />
-                                Edit Time
-                            </button>
+                            <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
+                                <div v-if="(equipment?.simultaneous_users || 1) > 1" class="text-right">
+                                    <div class="flex items-end justify-end gap-2">
+                                        <span  class="inline-flex items-center gap-1.5 uppercase font-semibold rounded-full" :class="isOverdue ? 'text-red-700' : 'text-emerald-700'">
+                                            {{ equipment.simultaneous_users - activeLogs.length }} / {{ equipment.simultaneous_users }}
+                                            <LuUsers class="w-5 h-5" :class="isOverdue ? 'text-red-700' : 'text-emerald-700'" />
+                                        </span>
+                                    </div>
+                                    <h2 class="text-xs text-gray-900 leading-none mt-1">Slots Remaining</h2>
+                                </div>
+                            
+                                <button v-if="canEditActiveLog" @click="showEstimatedEndUseModal = true"
+                                    class="flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 transition-colors bg-emerald-50 rounded-lg hover:bg-emerald-100 whitespace-nowrap">
+                                    <LuEdit class="w-3.5 h-3.5" />
+                                    Edit Time
+                                </button>
+                            </div>
                         </div>
 
-                        <div v-if="activeLogs && activeLogs.length > 0" class="divide-y divide-gray-50">
-                            <div v-for="log in activeLogs" :key="log.id" class="p-4 space-y-1 md:space-y-3" :class="{'bg-emerald-50/20': log.personnel?.employee_id === currentLaboratoryPersonnel?.employee_id}">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-500">Current User</span>
-                                    <span class="flex items-center gap-1.5 text-sm font-medium text-gray-900">
-                                        {{ formatPersonnelName(log.personnel) }}<LuUser class="w-4 h-4 text-gray-400" />
-                                    </span>
+                        <div v-if="activeLogs && activeLogs.length > 0" class="divide-y divide-gray-100">
+                            <div v-for="log in activeLogs" :key="log.id" class="p-4 flex flex-col md:flex-row md:items-center justify-between gap-3" :class="{'bg-emerald-50/30': log.personnel?.employee_id === currentLaboratoryPersonnel?.employee_id}">
+                                <div class="flex items-center gap-3">
+                                    <div class="p-2.5 rounded-full bg-gray-100 text-gray-500">
+                                        <LuUser class="w-4 h-4 text-emerald-700" />
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-semibold text-gray-900">{{ formatPersonnelName(log.personnel) }}</div>
+                                        <div v-if="log.personnel?.position || log.personnel?.affiliation || log.personnel?.course_program" class="flex flex-wrap items-center gap-1.5 mt-0.5 text-[0.65rem] text-gray-500 uppercase tracking-wider">
+                                            <span v-if="log.personnel?.position">{{ log.personnel.position }}</span>
+                                            <span v-if="log.personnel?.position && log.personnel?.affiliation" class="text-gray-300 text-[0.45rem]">●</span>
+                                            <span v-if="log.personnel?.affiliation">{{ log.personnel.affiliation }}</span>
+                                            <span v-if="(log.personnel?.position || log.personnel?.affiliation) && log.personnel?.course_program && ['student', 'ojt'].includes((log.personnel?.registration_type || '').toLowerCase())" class="text-gray-300 text-[0.45rem]">●</span>
+                                            <span v-if="log.personnel?.course_program && ['student', 'ojt'].includes((log.personnel?.registration_type || '').toLowerCase())">{{ log.personnel.course_program }}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-500">Checked In</span>
-                                    <span class="flex items-center gap-1.5 text-sm font-medium text-gray-900">
-                                        {{ formatDateTime(log.started_at) }}
-                                        <LuCalendar class="w-4 h-4 text-gray-400" />
-                                    </span>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-500">Expected End</span>
-                                    <span class="flex items-center gap-1.5 text-sm font-medium"
-                                        :class="isActiveItemOverdue(log) ? 'text-red-600' : 'text-gray-900'">
-                                        {{ formatDateTime(log.end_use_at) }}
-                                        <LuClock class="w-4 h-4" :class="isActiveItemOverdue(log) ? 'text-red-400' : 'text-gray-400'" />
-                                    </span>
+                                <div class="flex flex-col md:items-end gap-1 md:gap-1.5">
+                                    <div class="flex items-center gap-1.5 text-xs text-gray-600">
+                                        Started: <span class="font-medium text-gray-900">{{ formatDateTime(log.started_at) }}</span>
+                                        <LuCalendar class="w-3.5 h-3.5 text-gray-400" />
+                                    </div>
+                                    <div class="flex items-center gap-1.5 text-xs" :class="isActiveItemOverdue(log) ? 'text-red-600' : 'text-gray-900'">
+                                        Expected End: <span class="font-medium text-gray-900">{{ formatDateTime(log.end_use_at) }}</span>
+                                        <LuClock class="w-3.5 h-3.5" :class="isActiveItemOverdue(log) ? 'text-red-400' : 'text-gray-400'" />
+                                    </div>
                                 </div>
                             </div>
                         </div>

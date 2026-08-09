@@ -7,6 +7,7 @@ interface IItem extends IBaseClass {
     category_id: string;
     supplier_id: string;
     image: string;
+    simultaneous_users: number;
 
     supplier: ISupplier;
     category: ICategory;

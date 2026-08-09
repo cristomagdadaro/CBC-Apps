@@ -284,7 +284,20 @@ export default {
                 return 'Choose how this incoming stock can participate in equipment or shared-use logger workflows.';
             }
 
-            return `${this.selectedEquipmentLoggerModeOption.label} applies to this incoming stock record and any downstream logger visibility tied to it.`;
+            const mode = this.selectedEquipmentLoggerModeOption.name;
+            let explanation = '';
+
+            if (mode === 'borrowable') {
+                explanation = 'The equipment will be visible in the logger and can be checked out/in by personnel.';
+            } else if (mode === 'tracked_only') {
+                explanation = 'The equipment will be visible in the logger for location tracking only, but cannot be checked out.';
+            } else if (mode === 'excluded') {
+                explanation = 'The equipment will be entirely excluded and hidden from the equipment logger.';
+            } else {
+                explanation = `${this.selectedEquipmentLoggerModeOption.label} applies to this incoming stock record and any downstream logger visibility tied to it.`;
+            }
+
+            return explanation;
         },
         preGenerateBarcode() {
             return this.$page.props.barcode;

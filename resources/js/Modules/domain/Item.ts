@@ -30,6 +30,7 @@ export default class Item extends DtoItem {
             category_id: null,
             supplier_id: null,
             image: null,
+            simultaneous_users: 1,
         }
     }
 
@@ -43,6 +44,7 @@ export default class Item extends DtoItem {
             category_id: data?.category_id,
             supplier_id: data?.supplier_id,
             image: data?.image,
+            simultaneous_users: data?.simultaneous_users,
         }
     }
 

@@ -95,7 +95,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                         'items' => Item::get(),
                         'suppliers' => app(SupplierRepo::class)->getOptions(),
                         'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
-                        'projectCodes' => app(TransactionRepo::class)->getAvailableProjectCodes(),
+                        'projectCodes' => app(\App\Services\Inventory\InventoryReportService::class)->getAvailableProjectCodes(),
                         'equipment_logger_mode_options' => app(OptionRepo::class)->getEquipmentLoggerModeOptions(),
                         'equipment_logger_mode_default' => app(OptionRepo::class)->getDefaultEquipmentLoggerMode(),
                         'storage_locations' => app(OptionRepo::class)->getStorageLocations(),
@@ -110,7 +110,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                         'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                         'stockLevel' => app(OptionRepo::class)->getStockLevels(),
                         'categories' => app(CategoryRepo::class)->getInventoryFormCategories(),
-                        'projectCodes' => app(TransactionRepo::class)->getAvailableProjectCodes(),
+                        'projectCodes' => app(\App\Services\Inventory\InventoryReportService::class)->getAvailableProjectCodes(),
                         'storage_locations' => app(OptionRepo::class)->getStorageLocations(),
                     ]);
                 })->name('transactions.outgoing');

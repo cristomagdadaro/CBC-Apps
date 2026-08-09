@@ -44,6 +44,7 @@ class CreateItemRequest extends FormRequest
             'category_id' => ['required','exists:categories,id', new UniqueItem()],
             'supplier_id' => ['required','exists:suppliers,id'],
             'image' => ['string','nullable'],
+            'simultaneous_users' => ['required','integer','min:1'],
         ];
     }
 

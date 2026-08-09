@@ -1297,9 +1297,7 @@ class LaboratoryLogService
     }
     private function requestedAdminOverride(array $payload): bool
     {
-        // @ignore-start
         return !empty($payload['admin_override']) && (Auth::user()?->is_admin ?? false);
-        // @ignore-end
     }
 
     private function resolvePersonnelFromPayload(array $payload): Personnel

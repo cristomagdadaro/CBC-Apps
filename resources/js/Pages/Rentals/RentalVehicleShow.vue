@@ -1,17 +1,4 @@
 <script>
-import {
-    LuAlertCircle,
-    LuCalendar,
-    LuCar,
-    LuCheckCircle2,
-    LuClock,
-    LuClock3,
-    LuFileText,
-    LuMapPin,
-    LuPhone,
-    LuUser,
-    LuXCircle,
-} from '@/Components/Icons'
 import ApiMixin from '@/Modules/mixins/ApiMixin'
 import RentalTripRouteVisualizer from '@/Pages/Rentals/components/RentalTripRouteVisualizer.vue'
 import { getTripTypeMeta } from '@/Pages/Rentals/constants/tripWorkflows'
@@ -19,17 +6,6 @@ import { getTripTypeMeta } from '@/Pages/Rentals/constants/tripWorkflows'
 export default {
     name: 'RentalVehicleShow',
     components: {
-        LuAlertCircle,
-        LuCalendar,
-        LuCar,
-        LuCheckCircle2,
-        LuClock,
-        LuClock3,
-        LuFileText,
-        LuMapPin,
-        LuPhone,
-        LuUser,
-        LuXCircle,
         RentalTripRouteVisualizer,
     },
     mixins: [ApiMixin],

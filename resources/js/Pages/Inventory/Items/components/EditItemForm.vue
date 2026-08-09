@@ -70,6 +70,7 @@ export default defineComponent({
                     </template>
                 </custom-dropdown>
                 <text-input label="Model / Short Physical Description" v-model="form.description" :error="form.errors.description" />
+                <text-input type-input="number" label="Max Simultaneous Users" v-model="form.simultaneous_users" :error="form.errors.simultaneous_users" min="1" />
                 <text-area label="Detailed Specifications" v-model="form.specifications" :error="form.errors.specifications" />
                 <file-input label="Image" v-model="form.image" :error="form.errors.image" />
                 <div v-if="form.image" class="w-full  shadow bg-white focus:border-indigo-500 focus:ring-indigo-500 rounded-md border p-2 justify-center flex">
