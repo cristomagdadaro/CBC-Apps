@@ -140,7 +140,7 @@ class LaboratoryLogService
             abort(409, 'Please provide your email before checking in equipment.');
         }
 
-        return DB::transaction(function () use ($equipmentId, $payload, $personnel, $equipmentType) {
+        return DB::transaction(function () use ($equipmentId, $payload, $personnel, $equipmentType, $equipment) {
             $activeLogs = $this->lockActiveLogs($equipmentId);
             $simultaneousLimit = max(1, $equipment->simultaneous_users ?? 1);
             if ($activeLogs->count() >= $simultaneousLimit) {
@@ -1338,11 +1338,14 @@ class LaboratoryLogService
             'actual_end_at' => $activeLog->actual_end_at,
             'personnel' => $activeLog->personnel ? [
                 'id' => $activeLog->personnel->id,
-                'employee_id' => $activeLog->personnel->employee_id,
                 'fname' => $activeLog->personnel->fname,
                 'mname' => $activeLog->personnel->mname,
                 'lname' => $activeLog->personnel->lname,
                 'suffix' => $activeLog->personnel->suffix,
+                'position' => $activeLog->personnel->position,
+                'affiliation' => $activeLog->personnel->affiliation,
+                'course_program' => $activeLog->personnel->course_program,
+                'registration_type' => $activeLog->personnel->registration_type,
             ] : null,
         ];
     }
