@@ -38,4 +38,8 @@ return [
         'libreoffice_path' => env('LIBREOFFICE_PATH', 'soffice'),
     ],
 
+    'sproutai' => [
+        'host' => env('SPROUTAI_HOST', 'http://192.168.36.10'),
+    ],
+
 ];

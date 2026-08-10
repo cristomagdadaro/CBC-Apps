@@ -27,3 +27,4 @@ require __DIR__.'/api/file-reports.php';
 require __DIR__.'/api/options.php';
 require __DIR__.'/api/user-management.php';
 require __DIR__.'/api/golinks.php';
+require __DIR__.'/api/ai-context.php';

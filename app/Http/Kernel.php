@@ -73,5 +73,6 @@ class Kernel extends HttpKernel
         'check.form.suspended' => \App\Http\Middleware\CheckFormSuspended::class,
         'check.form.maxslot' => \App\Http\Middleware\CheckFormMaxSlot::class,
         'check.form.expired' => \App\Http\Middleware\CheckFormExpiration::class,
+        'sproutai.token' => \App\Http\Middleware\SproutAiTokenMiddleware::class,
     ];
 }

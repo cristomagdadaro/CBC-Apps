@@ -1,40 +1,48 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta property="og:image" content="{{ asset('imgs/philrice-cbc-compound.jpg') }}">
-        <meta property="og:image:secure_url" content="{{ secure_asset('imgs/philrice-cbc-compound.jpg') }}">
-        <meta property="og:image:type" content="image/jpeg">
-        <meta property="og:image:alt" content="PhilRice CBC compound aerial view">
-        <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:image" content="{{ asset('imgs/philrice-cbc-compound.jpg') }}">
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:image" content="{{ asset('imgs/philrice-cbc-compound.jpg') }}">
+    <meta property="og:image:secure_url" content="{{ secure_asset('imgs/philrice-cbc-compound.jpg') }}">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:alt" content="PhilRice CBC compound aerial view">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="{{ asset('imgs/philrice-cbc-compound.jpg') }}">
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Scripts -->
-        <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-        <script>
-            window.__CBC_REALTIME__ = @json(config('realtime'));
-        </script>
-        @routes
-        @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
-        @inertiaHead
-    </head>
-    <body class="font-sans antialiased">
-        @inertia
-    </body>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        window.__CBC_REALTIME__ = @json(config('realtime'));
+    </script>
+    @routes
+    @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
+    @inertiaHead
+</head>
+
+<body class="font-sans antialiased">
+    @inertia
+
+    {{-- SproutAi Chatbot Widget --}}
+    <script src="{{ config('services.sproutai.host') }}/embed.js" data-site-id="onecbc"
+        data-position="bottom-right" data-offset-y="4rem" defer></script>
+</body>
+
 </html>
 
 <style>
     @keyframes fall {
         to {
-            transform: translateY(100vh); /* Move to bottom */
+            transform: translateY(100vh);
+            /* Move to bottom */
             opacity: 0;
         }
     }
@@ -49,6 +57,7 @@
         0% {
             transform: rotate(0deg);
         }
+
         100% {
             transform: rotate(360deg);
         }
@@ -75,7 +84,6 @@
         left: -100%;
         animation: rotateGradient 10s linear infinite;
     }
-
 </style>
 
 
@@ -87,12 +95,14 @@
         width: 100%;
         height: 100%;
         overflow: hidden;
-        pointer-events: none; /* Prevent interaction */
+        pointer-events: none;
+        /* Prevent interaction */
     }
 
     .falling-logo {
         position: absolute;
-        top: -50px; /* Start slightly above viewport */
+        top: -50px;
+        /* Start slightly above viewport */
         animation: fall linear infinite;
     }
 </style>
