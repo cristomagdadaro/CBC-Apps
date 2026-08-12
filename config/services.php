@@ -39,7 +39,7 @@ return [
     ],
 
     'sproutai' => [
-        'host' => env('SPROUTAI_HOST', 'http://192.168.36.10'),
+        'host' => env('SPROUTAI_HOST', 'http://192.168.36.10/ai'),
     ],
 
 ];
