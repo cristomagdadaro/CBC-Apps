@@ -31,6 +31,7 @@ class AiContextController extends Controller
         $inventoryPaginator = $this->inventoryReportService->getRemainingStocks($inventoryParams);
 
         $mappedInventory = collect($inventoryPaginator->get('data'))->map(function ($item) {
+            $item = (object) $item;
             $brand = $item->brand ?? 'No Brand';
             $fullDescription = "Brand: {$brand}\n";
             if (!empty($item->description)) $fullDescription .= "Description: {$item->description}\n";
