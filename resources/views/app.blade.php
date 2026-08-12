@@ -11,11 +11,10 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="{{ asset('imgs/philrice-cbc-compound.jpg') }}">
 
-    <title inertia>{{ config('app.name', 'Laravel') }}</title>
+    <title inertia>{{ config('app.name', 'Laravel')config('app.name', 'Laravel') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 
     <!-- Scripts -->
@@ -31,7 +30,7 @@
 <body class="font-sans antialiased">
     @inertia
 
-    {{-- SproutAi Chatbot Widget --}}
+    {{-- Chatbot Widget --}}
     <script src="{{ config('services.sproutai.host') }}/embed.js" data-site-id="onecbc" data-position="bottom-right"
         data-offset-y="4rem" defer></script>
 </body>
