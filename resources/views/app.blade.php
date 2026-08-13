@@ -11,7 +11,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="{{ asset('imgs/philrice-cbc-compound.jpg') }}">
 
-    <title inertia>{{ config('app.name', 'Laravel')config('app.name', 'Laravel') }}</title>
+    <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
