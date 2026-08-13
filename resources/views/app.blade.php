@@ -31,8 +31,8 @@
     @inertia
 
     {{-- Chatbot Widget --}}
-    <script src="{{ config('services.sproutai.host') }}/embed.js" data-site-id="onecbc" data-position="bottom-right"
-        data-offset-y="4rem" defer></script>
+    <script src="{{ config('services.sproutai.host') }}/embed.js" data-site-id="onecbc" data-position="bottom-right" defer>
+    </script>
 </body>
 
 </html>

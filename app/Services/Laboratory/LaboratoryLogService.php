@@ -325,7 +325,7 @@ class LaboratoryLogService
             // Also delete any temporary survey since the location is now authoritative
             LaboratoryEquipmentLocationSurvey::where('equipment_id', $equipmentId)->delete();
 
-            $activeLog = $this->getActiveLogs($equipmentId)?->loadMissing(['personnel', 'equipment']);
+            $activeLog = $this->lockActiveLog($equipmentId)?->loadMissing(['personnel', 'equipment']);
             event(new EquipmentLogChanged('location_finalized', $equipmentType, $equipmentId, $activeLog, null));
 
             return $this->getEquipmentDetails($equipmentId, $equipmentType);

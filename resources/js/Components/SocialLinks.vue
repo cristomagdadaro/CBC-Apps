@@ -284,7 +284,7 @@ export default {
     </transition>
 
     <!-- Main Container -->
-    <div data-guide="social-links" class="fixed bottom-3.5 right-3.5 sm:bottom-6 sm:right-6 z-[1000] flex flex-col items-end gap-2 sm:gap-3">
+    <div data-guide="social-links" class="fixed bottom-3.5 right-3.5 sm:bottom-6 sm:right-24 z-[1000] flex flex-col items-end gap-2 sm:gap-3">
         <!-- Desktop View: Floating Pill -->
         <div class="hidden md:flex items-center gap-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-full px-2 py-1.5 shadow-xl transition-all duration-300 hover:scale-[1.02]"
             @mouseenter="isHovered = true" @mouseleave="isHovered = false">
@@ -570,44 +570,46 @@ export default {
         </div>
     </div>
 
-    <DialogModal :show="showPrivacyNotice" max-width="2xl" @close="closePrivacyNotice" :closeable="false">
-        <template #title>
-            <div class="flex items-center gap-3 px-5 pt-5">
-                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
-                    <LuShield class="h-5 w-5" />
+    <div class="relative z-[9999]">
+        <DialogModal :show="showPrivacyNotice" max-width="2xl" @close="closePrivacyNotice" :closeable="false">
+            <template #title>
+                <div class="flex items-center gap-3 px-5 pt-5">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                        <LuShield class="h-5 w-5" />
+                    </div>
+                    <div>
+                        <p class="text-base font-semibold text-slate-900 dark:text-slate-100">Terms & Privacy Policy</p>
+                        <p class="text-sm text-slate-600 dark:text-slate-300">DA-Crop Biotechnology Center</p>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-base font-semibold text-gray-900">Terms & Privacy Policy</p>
-                    <p class="text-sm text-gray-500">DA-Crop Biotechnology Center</p>
+            </template>
+
+            <template #content>
+                <div class="px-5 pb-2 text-sm leading-6 text-slate-700 dark:text-slate-200">
+                    <p>
+                        By continuing to use this platform, you acknowledge that you have read and agreed to the 
+                        <a href="https://dacbc.philrice.gov.ph/about-us/privacy-policy/" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 underline hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300">Privacy Policy</a> 
+                        and 
+                        <a href="https://dacbc.philrice.gov.ph/about-us/terms-and-conditions" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 underline hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300">Terms & Conditions</a>
+                        of the DA-Crop Biotechnology Center.
+                    </p>
                 </div>
-            </div>
-        </template>
+            </template>
 
-        <template #content>
-            <div class="px-5 pb-2 text-sm leading-6 text-gray-700">
-                <p>
-                    By continuing to use this platform, you acknowledge that you have read and agreed to the 
-                    <a href="https://dacbc.philrice.gov.ph/about-us/privacy-policy/" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:text-emerald-800 underline">Privacy Policy</a> 
-                    and 
-                    <a href="https://dacbc.philrice.gov.ph/about-us/terms-and-conditions" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:text-emerald-800 underline">Terms & Conditions</a>
-                    of the DA-Crop Biotechnology Center.
-                </p>
-            </div>
-        </template>
-
-        <template #footer>
-            <div class="flex w-full items-center justify-end gap-3">
-                <button type="button" @click="handleDisagree"
-                    class="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors select-none">
-                    Disagree
-                </button>
-                <button type="button" @click="closePrivacyNotice(true)"
-                    class="rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors select-none bg-emerald-600 hover:bg-emerald-700">
-                    I Agree & Continue
-                </button>
-            </div>
-        </template>
-    </DialogModal>
+            <template #footer>
+                <div class="flex w-full items-center justify-end gap-3 bg-white/90 px-3 py-2 dark:bg-slate-900/90">
+                    <button type="button" @click="handleDisagree"
+                        class="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 transition-colors select-none hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">
+                        Disagree
+                    </button>
+                    <button type="button" @click="closePrivacyNotice(true)"
+                        class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors select-none hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400">
+                        I Agree & Continue
+                    </button>
+                </div>
+            </template>
+        </DialogModal>
+    </div>
 </template>
 
 <style scoped>

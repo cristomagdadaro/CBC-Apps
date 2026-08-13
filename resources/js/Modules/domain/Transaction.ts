@@ -280,6 +280,13 @@ export default class Transaction extends DtoTransaction {
                 align: 'dataColor',
                 sortable: true,
                 visible: false,
+            },{
+                title: 'Date',
+                key: 'created_at',
+                db_key: 'created_at',
+                align: 'dataColor',
+                sortable: true,
+                visible: true,
             }
         ]
     }
