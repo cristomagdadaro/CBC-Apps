@@ -212,6 +212,10 @@ export default {
                 localStorage.setItem('privacyNoticeDismissed', expiry)
             }
         },
+        handleDisagree() {
+            window.close()
+            window.location.href = 'about:blank'
+        },
         handleScroll() {
             const el = this.$refs.privacyContent
 
@@ -545,9 +549,9 @@ export default {
                                 <LuShield class="w-3.5 h-3.5" />
                             </div>
                             <div class="flex-1 text-left">
-                                <span class="text-xs font-semibold">Data Privacy Notice</span>
+                                <span class="text-xs font-semibold">Terms & Privacy Policy</span>
                                 <p class="text-[0.68rem] text-slate-500 dark:text-slate-400">
-                                    Learn how OneCBC handles personal data
+                                    View DA-CBC official policies
                                 </p>
                             </div>
                         </button>
@@ -573,77 +577,35 @@ export default {
                     <LuShield class="h-5 w-5" />
                 </div>
                 <div>
-                    <p class="text-base font-semibold text-gray-900">Data Privacy Notice</p>
+                    <p class="text-base font-semibold text-gray-900">Terms & Privacy Policy</p>
                     <p class="text-sm text-gray-500">DA-Crop Biotechnology Center</p>
                 </div>
             </div>
         </template>
 
         <template #content>
-            <div ref="privacyContent" @scroll="handleScroll" class="max-h-[70vh] space-y-6 overflow-y-auto px-5 text-sm leading-6 text-gray-700 leading-snug">
+            <div class="px-5 pb-2 text-sm leading-6 text-gray-700">
                 <p>
-                    This Data Privacy Notice is issued by the Department of Agriculture – Crop Biotechnology Center
-                    (DA-CBC) pursuant to the <a href="https://privacy.gov.ph/data-privacy-act/"
-                        class="text-emerald-700 hover:text-emerald-800">Data Privacy Act of 2012 (Republic Act No.
-                        10173)</a>, its Implementing Rules and Regulations, and relevant issuances of the National
-                    Privacy Commission. This notice explains how the DA-CBC collects, uses, stores, shares, and protects
-                    personal data in the course of its operations.
+                    By continuing to use this platform, you acknowledge that you have read and agreed to the 
+                    <a href="https://dacbc.philrice.gov.ph/about-us/privacy-policy/" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:text-emerald-800 underline">Privacy Policy</a> 
+                    and 
+                    <a href="https://dacbc.philrice.gov.ph/about-us/terms-and-conditions" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:text-emerald-800 underline">Terms & Conditions</a>
+                    of the DA-Crop Biotechnology Center.
                 </p>
-
-                <section v-for="section in privacySections" :key="section.heading" class="space-y-3">
-                    <div>
-                        <h3 class="text-base font-semibold text-gray-900">{{ section.heading }}</h3>
-                    </div>
-
-                    <p v-for="paragraph in section.paragraphs || []" :key="paragraph">
-                        {{ paragraph }}
-                    </p>
-
-                    <div v-if="section.items?.length" class="space-y-2">
-                        <p v-for="item in section.items" :key="`${section.heading}-${item.label}`">
-                            <span class="font-semibold text-gray-900">{{ item.label }}:</span>
-                            {{ item.text }}
-                        </p>
-                    </div>
-
-                    <p v-if="section.closing">
-                        {{ section.closing }}
-                    </p>
-
-                    <div v-if="section.heading === '8. Contact Information'"
-                        class="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-gray-800 text-xs leading-tight">
-                        <p class="font-semibold text-gray-900">DA-Crop Biotechnology Center</p>
-                        <p>Barangay Maligaya, Science City of Muñoz, Nueva Ecija</p>
-                        <p>
-                            Email:
-                            <a href="mailto:cropbiotechcenter@gmail.com"
-                                class="font-medium text-emerald-700 hover:text-emerald-800">
-                                cropbiotechcenter@gmail.com
-                            </a>
-                        </p>
-                        <p>
-                            Website:
-                            <a href="https://onecbc.philrice.gov.ph" target="_blank" rel="noopener noreferrer"
-                                class="font-medium text-emerald-700 hover:text-emerald-800">
-                                https://onecbc.philrice.gov.ph
-                            </a>
-                        </p>
-                    </div>
-                </section>
-
-                <div class="pt-4 text-xs font-medium text-gray-300">
-                    Last Revised: March 18, 2026
-                </div>
             </div>
         </template>
 
         <template #footer>
-            <button type="button" :disabled="!hasReachedBottom" @click="closePrivacyNotice(true)"
-                class="rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors select-none" :class="hasReachedBottom
-                    ? 'bg-emerald-600 hover:bg-emerald-700'
-                    : 'bg-gray-400 cursor-not-allowed'">
-                Has Read and Acknowledged
-            </button>
+            <div class="flex w-full items-center justify-end gap-3">
+                <button type="button" @click="handleDisagree"
+                    class="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors select-none">
+                    Disagree
+                </button>
+                <button type="button" @click="closePrivacyNotice(true)"
+                    class="rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors select-none bg-emerald-600 hover:bg-emerald-700">
+                    I Agree & Continue
+                </button>
+            </div>
         </template>
     </DialogModal>
 </template>
