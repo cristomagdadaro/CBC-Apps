@@ -181,7 +181,7 @@ onMounted(() => {
                     </div>
 
                     <!-- Mobile App Downloads Section -->
-                    <div class="mt-4 sm:mt-8 flex flex-col items-center gap-4 sm:gap-5 w-full max-w-2xl px-2 sm:px-0">
+                    <div class="mt-4 sm:mt-8 flex flex-col items-center gap-4 sm:gap-5 w-full max-w-2xl px-2 sm:px-0" data-guide='mobile-app-version'>
                         <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-lime-500/10 dark:bg-lime-400/15 border border-lime-500/30 text-lime-400 dark:text-lime-400 font-extrabold text-[0.68rem] sm:text-xs uppercase tracking-widest shadow-sm">
                             Mobile App Version
                         </div>

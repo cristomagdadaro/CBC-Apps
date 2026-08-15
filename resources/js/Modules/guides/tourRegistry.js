@@ -71,6 +71,15 @@ export const TOUR_REGISTRY = {
                 },
             },
             {
+                element: "[data-guide='services-personnel-registration']",
+                popover: {
+                    title: "Register as Personnel",
+                    description: "Submit your personnel details here, verify your email, then wait for administrator approval.",
+                    side: "top",
+                    align: "center",
+                },
+            },
+            {
                 element: "[data-guide='services-event-registration']",
                 popover: {
                     title: "Sign Up for Events",
@@ -116,15 +125,6 @@ export const TOUR_REGISTRY = {
                 },
             },
             {
-                element: "[data-guide='services-personnel-registration']",
-                popover: {
-                    title: "Register as Personnel",
-                    description: "Submit your personnel details here, verify your email, then wait for administrator approval.",
-                    side: "top",
-                    align: "center",
-                },
-            },
-            {
                 element: "[data-guide='services-incident-reports']",
                 popover: {
                     title: "Report an Incident",
@@ -138,6 +138,15 @@ export const TOUR_REGISTRY = {
                 popover: {
                     title: "Log Your Experiments",
                     description: "Keep a record of your experiments and their progress with our experiment logging tool.",
+                    side: "top",
+                    align: "center",
+                },
+            },
+            {
+                element: "[data-guide='mobile-app-version']",
+                popover: {
+                    title: "Install OneCBC in your mobile device",
+                    description: "On the go access of OneCBC through our mobile app version.",
                     side: "top",
                     align: "center",
                 },
