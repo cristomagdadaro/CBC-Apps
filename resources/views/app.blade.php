@@ -22,6 +22,7 @@
     <script>
         window.__CBC_REALTIME__ = @json(config('realtime'));
     </script>
+    <script src="{{ config('services.sproutai.host') }}/embed.js?v=3" data-site-id="onecbc" data-token="{{ env('LLM_API_KEY') }}" data-position="bottom-right" defer></script>
     @routes
     @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
     @inertiaHead
@@ -29,10 +30,7 @@
 
 <body class="font-sans antialiased">
     @inertia
-
-    {{-- Chatbot Widget --}}
-    <script src="{{ config('services.sproutai.host') }}/embed.js" data-site-id="onecbc" data-position="bottom-right" defer>
-    </script>
+    
 </body>
 
 </html>
