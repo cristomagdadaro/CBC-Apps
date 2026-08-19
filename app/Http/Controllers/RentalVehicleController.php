@@ -270,6 +270,7 @@ class RentalVehicleController extends BaseController
             'id',
             'booking_id',
             'organization',
+            'requested_by',
             'vehicle_type',
             'trip_type',
             'date_from',

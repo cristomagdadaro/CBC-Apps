@@ -232,6 +232,7 @@ class RentalVenueController extends BaseController
             'id',
             'booking_id',
             'organization',
+            'requested_by',
             'venue_type',
             'date_from',
             'date_to',
