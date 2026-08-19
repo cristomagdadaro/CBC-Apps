@@ -294,11 +294,10 @@ export default {
 </script>
 
 <template>
-    <SuccessModal :show="showSuccessModal" title="Success!" :message="successMessage"
-        @close="showSuccessModal = false" />
-    <div class="grid md:grid-cols-4 grid-cols-1 gap-6 mt-3 md:mt-0">
-        <div data-guide='rental-form-shell' v-if="form" class="bg-white p-2 md:rounded-md flex flex-col gap-2 md:max-w-xl drop-shadow-lg h-fit col-span-3 md:col-span-1">
-            <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm">
+    <SuccessModal :show="showSuccessModal" title="Success!" :message="successMessage" @close="showSuccessModal = false" />
+    <div class="grid lg:grid-cols-4 gap-6 mt-3 md:mt-0">
+        <div data-guide='rental-form-shell' v-if="form" class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-gray-100 dark:border-slate-800 p-1 rounded-2xl flex flex-col gap-2 shadow-xl h-fit w-full lg:col-span-1">
+            <div class="bg-amber-50/80 dark:bg-amber-900/30 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm mx-2 mt-2">
                 <div class="flex items-start gap-3">
                     <svg class="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
@@ -306,7 +305,7 @@ export default {
                             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                     <div>
-                        <p class="text-amber-800 font-medium text-sm">
+                        <p class="text-amber-800 dark:text-amber-500 font-medium text-sm">
                             <span class="font-bold uppercase tracking-wide">Internal Use Only:</span>
                             This form is exclusively for CBC internal use.
                             Please note that submission does not replace the
@@ -317,15 +316,15 @@ export default {
                 </div>
             </div>
 
-            <div class="mt-2 bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
-                <h2 class="font-semibold text-gray-900 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="mt-2 bg-white/60 dark:bg-slate-800/40 border border-gray-200 dark:border-slate-700 rounded-xl p-4 mx-2 shadow-sm">
+                <h2 class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 mb-2">
+                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                     Important Reminders
                 </h2>
-                <ul class="text-sm text-gray-700">
+                <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-1">
                     <li class="flex items-start gap-2">
                         <span class="text-blue-500">•</span>
                         <span>Ensure all required fields are completed
@@ -337,9 +336,9 @@ export default {
                     </li>
                 </ul>
             </div>
-            <div v-if="form" class="bg-white s p-2 rounded-md flex gap-2">
-                <form @submit.prevent="submitProxyCreate" class="space-y-3 bg-white rounded-lg p-3 w-full">
-                    <div v-if="form.errors.general" class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            <div v-if="form" class="bg-transparent rounded-md flex gap-2">
+                <form @submit.prevent="submitProxyCreate" class="space-y-4 bg-white/60 dark:bg-slate-800/60 rounded-xl p-5 w-full">
+                    <div v-if="form.errors.general" class="p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-sm">
                         {{ form.errors.general }}
                     </div>
                     <custom-dropdown label="Trip Workflow" required placeholder="Select a trip workflow"
@@ -349,10 +348,10 @@ export default {
                             <caret-down class="h-4 w-4 text-gray-600" />
                         </template>
                     </custom-dropdown>
-                    <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Selected Workflow</p>
-                        <p class="mt-2 text-sm font-semibold text-gray-900">{{ selectedTripTypeMeta.label }}</p>
-                        <p class="mt-1 text-sm text-gray-600">{{ selectedTripTypeMeta.description }}</p>
+                    <div class="rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-700/30 p-4">
+                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Selected Workflow</p>
+                        <p class="mt-2 text-sm font-semibold text-gray-900 dark:text-gray-100">{{ selectedTripTypeMeta.label }}</p>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">{{ selectedTripTypeMeta.description }}</p>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <DateInput id="date_from" label="Start Date" required v-model="form.date_from" :min="minDate"
@@ -369,9 +368,9 @@ export default {
                     <TextArea id="purpose" v-model="form.purpose" label="Purpose" required
                         placeholder="Describe the purpose of your vehicle rental"
                         :class="{ 'border-red-500': form.errors.purpose }"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-AB focus:ring-AB"></TextArea>
+                        class="mt-1 block w-full rounded-xl border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-AB focus:ring-AB"></TextArea>
                     <div>
-                        <label class="text-xs text-gray-500 flex items-center justify-between mb-1">
+                        <label class="text-xs text-gray-500 dark:text-gray-400 flex items-center justify-between mb-1">
                             Destination Location
                         </label>
                         <div class="grid grid-cols-1 gap-4">
@@ -391,13 +390,13 @@ export default {
                     <TextArea id="destination_stops" v-model="destinationStopInput" label="Additional Stops"
                         placeholder="One stop per line for shuttle or multi-stop trips" @input="syncDestinationStops"
                         :error="form.errors.destination_stops"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-AB focus:ring-AB"></TextArea>
-                    <div class="rounded-lg border border-gray-200 p-4">
-                        <label class="flex items-start gap-3 text-sm text-gray-700">
+                        class="mt-1 block w-full rounded-xl border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-AB focus:ring-AB"></TextArea>
+                    <div class="rounded-xl border border-gray-200 dark:border-slate-700 p-4">
+                        <label class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
                             <Checkbox v-model:checked="form.is_shared_ride" name="is_shared_ride" />
                             <span>
-                                <span class="block font-medium text-gray-900">Shared/Hitch Ride</span>
-                                <span class="block text-xs text-gray-500">Enable this if the trip can be grouped with another approved request.</span>
+                                <span class="block font-medium text-gray-900 dark:text-gray-100">Shared/Hitch Ride</span>
+                                <span class="block text-xs text-gray-500 dark:text-gray-400">Enable this if the trip can be grouped with another approved request.</span>
                             </span>
                         </label>
                     </div>
@@ -407,17 +406,17 @@ export default {
                     <PersonnelLookup v-model="employee_id" @found="handlePersonnelFound" />
                     <TextInput id="requested_by" label="Your Name" required v-model="form.requested_by" type="text"
                         placeholder="Full name" :error="form.errors.requested_by" class="mt-1 block w-full" />
-                    <div class="mt-1 border border-gray-200 rounded-lg p-3 bg-white">
+                    <div class="mt-1 border border-gray-200 dark:border-slate-700 rounded-xl p-4 bg-white/50 dark:bg-slate-800/50">
                         <div class="flex items-center justify-between mb-2">
-                            <label class="text-sm font-semibold text-gray-900">Members of the Party (MOP)</label>
+                            <label class="text-sm font-semibold text-gray-900 dark:text-gray-100">Members of the Party (MOP)</label>
                             <button type="button"
-                                class="px-2 py-1 text-xs border border-dashed border-gray-400 rounded-md text-gray-700 hover:bg-gray-50"
+                                class="px-2 py-1 text-xs border border-dashed border-gray-400 dark:border-slate-500 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
                                 @click="addMemberOfPartyRow">
                                 + Add Member
                             </button>
                         </div>
 
-                        <p class="text-xs text-gray-500 mb-2">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
                             Add companions for this trip. Leave empty if none.
                         </p>
 
@@ -437,9 +436,9 @@ export default {
                                     </p>
                                 </div>
 
-                                <div class="flex gap-1">
+                                <div class="flex gap-1 pt-8">
                                     <button type="button"
-                                        class="px-2 py-1 text-xs border border-red-300 text-red-600 rounded hover:bg-red-50"
+                                        class="px-2 py-1 text-xs border border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 rounded hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
                                         @click="removeMemberOfPartyRow(index)" title="Remove member">
                                         <lu-x class="h-3 w-3" />
                                     </button>
@@ -455,33 +454,35 @@ export default {
                         class="mt-1 block w-full" />
                     <TextArea id="notes" label="Additional Notes" v-model="form.notes"
                         placeholder="Any additional information"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-AB focus:ring-AB"></TextArea>
-                    <div class="flex gap-4 pt-6 border-t">
-                        <PrimaryButton :disabled="processing" class="justify-center flex-1">
+                        class="mt-1 block w-full rounded-xl border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-AB focus:ring-AB"></TextArea>
+                    <div class="flex gap-4 pt-6 border-t border-gray-100 dark:border-slate-700">
+                        <PrimaryButton :disabled="processing" class="justify-center flex-1 rounded-xl shadow-md hover:-translate-y-0.5 transition-all duration-300">
                             <span v-if="processing" class="flex items-center justify-center gap-2">
                                 <loader-icon />
                                 Submitting...
                             </span>
-                            <span v-else>Submit Rental Request</span>
+                            <span v-else>Submit Booking Request</span>
                         </PrimaryButton>
                     </div>
                 </form>
             </div>
         </div>
-        <div class="bg-white p-4 md:rounded-lg shadow col-span-3 h-fit">
-            <h3 class="text-base font-semibold text-gray-900 mb-2">
-                Vehicle Availability Calendar
-            </h3>
-            <p class="text-sm text-gray-600 mb-3">
-                Review current request schedules and workflow states before submitting.
-            </p>
-            <div v-if="calendarLoading" class="text-sm text-gray-500 flex items-center gap-2 justify-center">
-                <loader-icon class="w-6 h-6 text-gray-500 animate-spin" />
+        <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-gray-100 dark:border-slate-800 p-6 rounded-2xl shadow-xl lg:col-span-3 h-fit flex flex-col gap-4">
+            <div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                    Vehicle Availability Calendar
+                </h3>
+                <p class="text-sm text-gray-500 dark:text-slate-400">
+                    Review current request schedules and workflow states before submitting.
+                </p>
+            </div>
+            <div v-if="calendarLoading" class="text-sm text-gray-500 dark:text-slate-400 flex items-center gap-2 justify-center py-10">
+                <loader-icon class="w-6 h-6 text-AB dark:text-emerald-400 animate-spin" />
                 Loading booking calendars...
             </div>
             <calendar-module v-else title="Vehicle Requests" :events="calendarEvents" :type-options="vehicleTypeOptions"
                 :status-options="statusOptions" :status-colors="statusColors" :show-today="true"
-                :show-type-filter="true" :show-status-filter="true" :show-stats="false" />
+                :show-type-filter="true" :show-status-filter="true" :show-stats="false" class="!bg-transparent !shadow-none !border-0" />
         </div>
     </div>
 </template>

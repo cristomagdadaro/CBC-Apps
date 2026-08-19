@@ -15,6 +15,6 @@ export default {
     </div>
 
     <!-- Gradient overlay -->
-    <div class="absolute inset-0 -z-10 bg-gradient-to-b pointer-events-none from-green-800/80 via-green-800/50 to-green-800/90 dark:from-lime-900/90 dark:via-lime-800/50 dark:to-lime-800/90 pointer-events-none"></div>
+    <div class="absolute inset-0 -z-10 bg-gradient-to-b pointer-events-none from-green-800/80 via-green-800/50 to-green-800/90 dark:from-slate-900/90 dark:via-slate-900/50 dark:to-slate-900/90"></div>
   </div>
 </template>

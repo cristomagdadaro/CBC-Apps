@@ -24,37 +24,37 @@ export default {
         statusConfig() {
             const configs = {
                 pending: {
-                    color: 'bg-amber-50 text-amber-800 border-amber-200',
+                    color: 'bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800',
                     icon: 'LuClock3',
                     label: 'Pending Approval',
                     accent: 'amber',
                 },
                 approved: {
-                    color: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+                    color: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
                     icon: 'LuCheckCircle2',
                     label: 'Approved',
                     accent: 'emerald',
                 },
                 in_progress: {
-                    color: 'bg-blue-50 text-blue-800 border-blue-200',
+                    color: 'bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800',
                     icon: 'LuClock',
                     label: 'In Progress',
                     accent: 'emerald',
                 },
                 rejected: {
-                    color: 'bg-red-50 text-red-800 border-red-200',
+                    color: 'bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800',
                     icon: 'LuXCircle',
                     label: 'Rejected',
                     accent: 'red',
                 },
                 completed: {
-                    color: 'bg-slate-50 text-slate-800 border-slate-200',
+                    color: 'bg-slate-50 dark:bg-slate-800/50 text-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700',
                     icon: 'LuCheckCircle2',
                     label: 'Event Completed',
                     accent: 'slate',
                 },
                 cancelled: {
-                    color: 'bg-gray-50 text-gray-800 border-gray-200',
+                    color: 'bg-slate-50 dark:bg-slate-800/50 text-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700',
                     icon: 'LuXCircle',
                     label: 'Cancelled',
                     accent: 'gray',
@@ -125,31 +125,32 @@ export default {
         subtitle="View your event booking details and status."
         guide-key="rental-venue-detail"
         :delay-ready="true"
+        max-width="max-w-4xl"
     >
         <!-- Loading State -->
-        <div v-if="loading" class="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+        <div v-if="loading" class="rounded-2xl border border-gray-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg p-8 shadow-sm">
             <div class="flex flex-col items-center justify-center space-y-4 py-12">
-                <LuLoader2 class="h-10 w-10 animate-spin text-indigo-600" />
+                <LuLoader2 class="h-10 w-10 animate-spin text-indigo-600 dark:text-indigo-400" />
                 <div class="text-center">
-                    <p class="text-sm font-medium text-gray-900">Loading venue details...</p>
-                    <p class="text-xs text-gray-500 mt-1">Please wait a moment</p>
+                    <p class="text-sm font-medium text-slate-900 dark:text-white">Loading venue details...</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Please wait a moment</p>
                 </div>
             </div>
         </div>
 
         <!-- Error State -->
-        <div v-else-if="error" class="rounded-2xl border border-red-200 bg-red-50/50 p-8 backdrop-blur-sm">
+        <div v-else-if="error" class="rounded-2xl border border-red-200 dark:border-red-900/50 bg-red-50/50 dark:bg-red-900/20 backdrop-blur-lg p-8">
             <div class="flex flex-col items-center justify-center space-y-4 py-8 text-center">
-                <div class="rounded-full bg-red-100 p-4 ring-4 ring-red-50">
-                    <LuAlertCircle class="h-8 w-8 text-red-600" />
+                <div class="rounded-full bg-red-100 dark:bg-red-900/50 p-4 ring-4 ring-red-50 dark:ring-red-900/20">
+                    <LuAlertCircle class="h-8 w-8 text-red-600 dark:text-red-400" />
                 </div>
                 <div>
-                    <h3 class="text-lg font-semibold text-red-900">Unable to Load Details</h3>
-                    <p class="mt-1 max-w-sm text-sm text-red-700">{{ error }}</p>
+                    <h3 class="text-lg font-semibold text-red-900 dark:text-red-200">Unable to Load Details</h3>
+                    <p class="mt-1 max-w-sm text-sm text-red-700 dark:text-red-300">{{ error }}</p>
                 </div>
                 <button 
                     @click="loadRental" 
-                    class="mt-2 inline-flex items-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-medium text-white transition-all hover:bg-red-700 hover:shadow-lg hover:shadow-red-600/20 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 active:scale-95"
+                    class="mt-2 inline-flex items-center gap-2 rounded-lg bg-red-600 dark:bg-red-700 px-5 py-2.5 text-sm font-medium text-white transition-all hover:bg-red-700 dark:hover:bg-red-600 hover:shadow-lg hover:shadow-red-600/20 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 active:scale-95"
                 >
                     Try Again
                 </button>
@@ -157,14 +158,14 @@ export default {
         </div>
 
         <!-- Empty State -->
-        <div v-else-if="!rental" class="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+        <div v-else-if="!rental" class="rounded-2xl border border-gray-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg p-8 shadow-sm">
             <div class="flex flex-col items-center justify-center space-y-4 py-12 text-center">
-                <div class="rounded-full bg-gray-100 p-4">
-                    <LuBuilding2 class="h-8 w-8 text-gray-400" />
+                <div class="rounded-full bg-slate-100 dark:bg-slate-800 p-4">
+                    <LuBuilding2 class="h-8 w-8 text-slate-400 dark:text-slate-500" />
                 </div>
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-900">Booking Not Found</h3>
-                    <p class="mt-1 max-w-sm text-sm text-gray-500">
+                    <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Booking Not Found</h3>
+                    <p class="mt-1 max-w-sm text-sm text-slate-500 dark:text-slate-400">
                         The venue rental you're looking for doesn't exist or may have been removed from our system.
                     </p>
                 </div>
@@ -172,71 +173,62 @@ export default {
         </div>
 
         <!-- Content State -->
-        <div v-else data-guide="rental-details" class="space-y-6 w-fit mx-auto">
+        <div v-else data-guide="rental-details" class="space-y-6">
             <!-- Status Banner -->
-            <div :class="['relative overflow-hidden rounded-2xl border-2 p-6 bg-gradient-to-br from-AB to-AB text-white', statusConfig.color]">
-                <div class="absolute -right-6 -top-6 opacity-10">
-                    <component :is="statusConfig.icon" class="h-32 w-32" />
-                </div>
-                <div class="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                     <!-- Event Header -->
-                    <div class="relative">
-                        <div class="relative">
-                            <div class="mb-3 inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-xs font-medium backdrop-blur-sm">
-                                <LuBuilding2 class="h-3.5 w-3.5" />
-                                <span class="uppercase tracking-wider">{{ rental.venue_type || 'Venue' }}</span>
-                            </div>
-                            <h2 class="text-2xl font-bold leading-tight">
-                                {{ rental.venue_type || 'Venue booking' }}
-                            </h2>
-                            <p v-if="formatDuration" class="mt-2 flex items-center gap-2 text-indigo-100">
-                                <LuClock class="h-4 w-4" />
-                                <span class="text-sm">{{ formatDuration }} duration</span>
+            <div :class="['rounded-2xl border-2 p-6 backdrop-blur-lg', statusConfig.color]">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <!-- Event Header -->
+                    <div class="flex items-center space-x-4">
+                        <div class="rounded-xl bg-blue-600 dark:bg-blue-500 p-3 text-white shadow-lg shadow-blue-600/20 shrink-0">
+                            <LuBuilding2 class="h-6 w-6" />
+                        </div>
+                        <div class="leading-tight">
+                            <h2 class="text-base sm:text-lg font-bold">{{ rental.event_name || 'Venue booking' }}</h2>
+                            <p class="text-sm opacity-80 uppercase tracking-wider mt-0.5">
+                                {{ rental.venue_type || 'Venue' }}
+                                <span v-if="formatDuration" class="normal-case opacity-90">&bull; {{ formatDuration }} duration</span>
                             </p>
                         </div>
                     </div>
-
-                    <div class="flex items-center gap-4">
-                        <div :class="['rounded-xl bg-white/80 p-3 shadow-sm backdrop-blur-sm']">
-                            <component :is="statusConfig.icon" class="h-6 w-6 text-AB" />
-                        </div>
-                        <div class="flex flex-col justify-center">
-                            <p class="text-xs font-bold uppercase tracking-wider opacity-70">Booking Status</p>
-                            <p class="text-xl font-bold leading-none">{{ statusConfig.label }}</p>
+                    <div class="flex items-center space-x-3 shrink-0">
+                        <component :is="statusConfig.icon" class="h-6 w-6" />
+                        <div class="leading-tight">
+                            <p class="text-base sm:text-lg font-bold">{{ statusConfig.label }}</p>
+                            <p class="text-xs font-semibold uppercase tracking-wider opacity-80">Booking Status</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Event Card -->
-            <div class="overflow-hidden rounded-2xl bg-white shadow-sm">
+            <div class="overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-gray-100 dark:border-slate-800 shadow-sm">
                 <div class="p-6">
                     <!-- Date & Time Section -->
                     <div class="mb-8">
-                        <h3 class="mb-4 flex items-center gap-2 text-sm font-bold text-gray-900">
-                            <LuCalendar class="h-4 w-4 text-indigo-600" />
+                        <h3 class="mb-4 flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
+                            <LuCalendar class="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                             Event Schedule
                         </h3>
                         <div class="grid gap-4 sm:grid-cols-2">
-                            <div class="group relative overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white p-5 transition-all hover:border-indigo-300 hover:shadow-md">
-                                <div class="absolute -right-4 -top-4 rounded-full bg-indigo-100 p-3 opacity-0 transition-opacity group-hover:opacity-100">
-                                    <LuCalendar class="h-6 w-6 text-indigo-600" />
+                            <div class="group relative overflow-hidden rounded-xl border border-gray-100 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-800/50 p-5 transition-all hover:border-indigo-300 dark:hover:border-indigo-500/50 hover:shadow-md">
+                                <div class="absolute -right-4 -top-4 rounded-full bg-indigo-100 dark:bg-indigo-900/50 p-3 opacity-0 transition-opacity group-hover:opacity-100">
+                                    <LuCalendar class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                                 </div>
                                 <div class="relative">
-                                    <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-500">Start Date & Time</p>
-                                    <p class="text-sm font-bold text-gray-900">
+                                    <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Start Date & Time</p>
+                                    <p class="text-sm font-bold text-slate-900 dark:text-white">
                                         {{ formatDateTime(rental.date_from, rental.time_from) }}
                                     </p>
                                 </div>
                             </div>
 
-                            <div class="group relative overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white p-5 transition-all hover:border-indigo-300 hover:shadow-md">
-                                <div class="absolute -right-4 -top-4 rounded-full bg-indigo-100 p-3 opacity-0 transition-opacity group-hover:opacity-100">
-                                    <LuClock class="h-6 w-6 text-indigo-600" />
+                            <div class="group relative overflow-hidden rounded-xl border border-gray-100 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-800/50 p-5 transition-all hover:border-indigo-300 dark:hover:border-indigo-500/50 hover:shadow-md">
+                                <div class="absolute -right-4 -top-4 rounded-full bg-indigo-100 dark:bg-indigo-900/50 p-3 opacity-0 transition-opacity group-hover:opacity-100">
+                                    <LuClock class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                                 </div>
                                 <div class="relative">
-                                    <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-500">End Date & Time</p>
-                                    <p class="text-sm font-bold text-gray-900">
+                                    <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">End Date & Time</p>
+                                    <p class="text-sm font-bold text-slate-900 dark:text-white">
                                         {{ formatDateTime(rental.date_to, rental.time_to) }}
                                     </p>
                                 </div>
@@ -247,53 +239,53 @@ export default {
                     <!-- Details Grid -->
                     <div class="grid gap-8 lg:grid-cols-2">
                         <div class="space-y-4">
-                            <h3 class="flex items-center gap-2 text-sm font-bold text-gray-900">
-                                <LuUsers class="h-4 w-4 text-indigo-600" />
+                            <h3 class="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
+                                <LuUsers class="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                                 Booking Snapshot
                             </h3>
-                            <div class="rounded-xl bg-indigo-50/50 p-4">
+                            <div class="rounded-xl bg-indigo-50/50 dark:bg-indigo-900/20 border border-indigo-100/50 dark:border-indigo-900/30 p-4">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-xs font-medium text-indigo-600 uppercase tracking-wider">Booking Reference</p>
-                                        <p class="mt-1 text-2xl font-bold text-indigo-900">{{ rental.id }}</p>
+                                        <p class="text-xs font-medium text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Booking Reference</p>
+                                        <p class="mt-1 text-xl sm:text-2xl font-bold text-indigo-900 dark:text-indigo-200">{{ rental.id }}</p>
                                     </div>
-                                    <div class="rounded-full bg-indigo-100 p-3">
-                                        <LuUsers class="h-6 w-6 text-indigo-600" />
+                                    <div class="rounded-full bg-indigo-100 dark:bg-indigo-900/50 p-3">
+                                        <LuUsers class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="space-y-4">
-                            <h3 class="flex items-center gap-2 text-sm font-bold text-gray-900">
-                                <LuUser class="h-4 w-4 text-indigo-600" />
+                            <h3 class="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
+                                <LuUser class="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                                 Public Details
                             </h3>
                             <div class="space-y-3">
-                                <div class="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50/50 p-3">
-                                    <LuBuilding2 class="mt-0.5 h-4 w-4 text-gray-400" />
+                                <div class="flex items-center gap-3 rounded-lg border border-gray-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-3">
+                                    <LuBuilding2 class="mt-0.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
                                     <div>
-                                        <p class="text-xs text-gray-500">Venue Type</p>
-                                        <p class="font-medium text-gray-900">{{ rental.venue_type || 'Not specified' }}</p>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400">Venue Type</p>
+                                        <p class="font-medium text-slate-900 dark:text-white">{{ rental.venue_type || 'Not specified' }}</p>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50/50 p-3">
-                                    <LuClock3 class="mt-0.5 h-4 w-4 text-gray-400" />
+                                <div class="flex items-center gap-3 rounded-lg border border-gray-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-3">
+                                    <LuClock3 class="mt-0.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
                                     <div>
-                                        <p class="text-xs text-gray-500">Current Status</p>
-                                        <p class="font-medium text-gray-900">{{ statusConfig.label }}</p>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400">Current Status</p>
+                                        <p class="font-medium text-slate-900 dark:text-white">{{ statusConfig.label }}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mt-8 rounded-xl border border-indigo-100 bg-indigo-50/50 p-5">
+                    <div class="mt-8 rounded-xl border border-indigo-100 dark:border-indigo-900/30 bg-indigo-50/50 dark:bg-indigo-900/10 p-5">
                         <div class="flex items-start gap-3">
-                            <LuAlertCircle class="mt-0.5 h-5 w-5 shrink-0 text-indigo-600" />
+                            <LuAlertCircle class="mt-0.5 h-5 w-5 shrink-0 text-indigo-600 dark:text-indigo-400" />
                             <div>
-                                <p class="text-xs font-bold uppercase tracking-wider text-indigo-800">Privacy Notice</p>
-                                <p class="mt-1 text-sm leading-relaxed text-indigo-900">
+                                <p class="text-xs font-bold uppercase tracking-wider text-indigo-800 dark:text-indigo-300">Privacy Notice</p>
+                                <p class="mt-1 text-sm leading-relaxed text-indigo-900 dark:text-indigo-300/80">
                                     This public page only shows non-sensitive booking details. Contact the rentals team if you need the full internal request record.
                                 </p>
                             </div>

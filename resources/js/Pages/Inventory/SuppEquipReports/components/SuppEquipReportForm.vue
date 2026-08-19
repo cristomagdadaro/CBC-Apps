@@ -271,20 +271,21 @@ export default {
 </script>
 
 <template>
-    <form v-if="!!form" class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6 sm:p-10 border border-gray-100 mx-auto w-full max-w-4xl" @submit.prevent="submitForm">
+<template>
+    <form v-if="!!form" class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg shadow-2xl rounded-2xl p-6 sm:p-10 border border-gray-100 dark:border-slate-800 mx-auto w-full max-w-4xl" @submit.prevent="submitForm">
         <div class="flex items-center justify-between mb-8">
             <div>
-                <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Attach Supplies & Equipment Report</h2>
-                <p class="text-sm text-gray-500">Link a structured report to a specific transaction for audit readiness.</p>
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Attach Supplies & Equipment Report</h2>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Link a structured report to a specific transaction for audit readiness.</p>
             </div>
             <transition-container type="fade">
-                <div v-if="successMessage" class="text-sm text-green-700 bg-green-100 px-3 py-1 rounded">
+                <div v-if="successMessage" class="text-sm text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 rounded">
                     {{ successMessage }}
                 </div>
             </transition-container>
         </div>
 
-        <div v-if="!hasTemplates" class="text-sm text-red-600 bg-red-50 px-3 py-2 rounded">
+        <div v-if="!hasTemplates" class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-3 py-2 rounded">
             Configure at least one template in config/suppequipreportforms.php to start logging reports.
         </div>
 
@@ -313,10 +314,10 @@ export default {
                     :error="resolveFieldError('reported_at')"
                 />
             </div>
-            <p class="text-xs text-gray-500">{{ templateDescription }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{ templateDescription }}</p>
 
             <div class="space-y-4">
-                <label class="text-sm font-semibold text-gray-700">Link Transaction <span class="text-red-500">*</span></label>
+                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Link Transaction <span class="text-red-500 dark:text-red-400">*</span></label>
                 <div v-if="!isUpdateMode" class="flex flex-col md:flex-row gap-3">
                     <text-input
                         class="flex-1 rounded-xl shadow-sm"
@@ -330,13 +331,13 @@ export default {
                     </search-btn>
                 </div>
                 <transition-container type="fade">
-                    <div v-if="transactionLoading" class="flex items-center gap-2 text-sm text-gray-500">
+                    <div v-if="transactionLoading" class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                         <loader-icon class="w-4 h-4" />
                         <span>Fetching transactions…</span>
                     </div>
                 </transition-container>
                 <transition-container type="fade">
-                    <div v-if="transactionLookupError" class="text-xs text-red-600">
+                    <div v-if="transactionLookupError" class="text-xs text-red-600 dark:text-red-400">
                         {{ transactionLookupError }}
                     </div>
                 </transition-container>
@@ -345,22 +346,22 @@ export default {
                     <div
                         v-for="tx in transactionResults"
                         :key="tx.id"
-                        class="border rounded px-3 py-2 cursor-pointer hover:border-AB"
+                        class="border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-2 cursor-pointer hover:border-emerald-500 dark:hover:border-emerald-400 transition-colors bg-white/50 dark:bg-slate-800/50"
                         @click="selectTransaction(tx)"
                     >
-                        <p class="text-sm font-semibold text-gray-700">{{ tx.item?.brand || '' }} {{ tx.item?.fullName || 'Unnamed Item' }} by {{ tx?.personnel?.fullName || 'Unassigned' }}</p>
-                        <p class="text-xs text-gray-500">Barcode: {{ tx.barcode || 'Not set' }} · {{ tx.transac_type }}</p>
-                        <p class="text-xs text-gray-500">Date: {{ tx.created_at || 'Not set' }}</p>
+                        <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ tx.item?.brand || '' }} {{ tx.item?.fullName || 'Unnamed Item' }} by {{ tx?.personnel?.fullName || 'Unassigned' }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Barcode: {{ tx.barcode || 'Not set' }} · {{ tx.transac_type }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Date: {{ tx.created_at || 'Not set' }}</p>
                     </div>
                 </div>
 
-                <div v-if="selectedTransaction" class="rounded border border-green-200 bg-green-50 px-3 py-2 flex flex-col gap-1">
+                <div v-if="selectedTransaction" class="rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/50 dark:bg-emerald-900/20 px-3 py-2 flex flex-col gap-1">
                     <div class="flex items-center justify-between">
-                        <p class="text-sm font-semibold text-green-800">Attached to {{ selectedTransaction.item?.brand || '' }} {{ selectedTransaction.item?.fullName || 'Item' }}</p>
-                        <button v-if="!isUpdateMode" type="button" class="text-xs text-red-500" @click="clearTransaction">Clear</button>
+                        <p class="text-sm font-semibold text-emerald-800 dark:text-emerald-400">Attached to {{ selectedTransaction.item?.brand || '' }} {{ selectedTransaction.item?.fullName || 'Item' }}</p>
+                        <button v-if="!isUpdateMode" type="button" class="text-xs text-red-500 dark:text-red-400 hover:underline" @click="clearTransaction">Clear</button>
                     </div>
-                    <p class="text-xs text-green-700">Barcode: {{ selectedTransaction.barcode || 'Not set' }} · {{ selectedTransaction.transac_type || 'Not set' }} · Qty {{ selectedTransaction.quantity || 'Not set' }}</p>
-                    <p class="text-xs text-green-700">Remarks: {{ selectedTransaction.remarks || 'n/a' }}</p>
+                    <p class="text-xs text-emerald-700 dark:text-emerald-500">Barcode: {{ selectedTransaction.barcode || 'Not set' }} · {{ selectedTransaction.transac_type || 'Not set' }} · Qty {{ selectedTransaction.quantity || 'Not set' }}</p>
+                    <p class="text-xs text-emerald-700 dark:text-emerald-500">Remarks: {{ selectedTransaction.remarks || 'n/a' }}</p>
                 </div>
             </div>
 
@@ -370,13 +371,13 @@ export default {
                     :key="fieldKey"
                     class="flex flex-col gap-2"
                 >
-                    <label class="text-sm text-gray-700 font-semibold">
+                    <label class="text-sm text-gray-700 dark:text-gray-300 font-semibold">
                         {{ fieldConfig.label || startCase(fieldKey) }}
-                        <span v-if="(fieldConfig.rules || '').includes('required')" class="text-red-500">*</span>
+                        <span v-if="(fieldConfig.rules || '').includes('required')" class="text-red-500 dark:text-red-400">*</span>
                     </label>
                     <textarea
                         v-if="fieldConfig.type === 'textarea'"
-                        class="w-full border border-gray-300 rounded-xl shadow-sm text-sm p-3 focus:border-AB focus:ring-AB transition-shadow"
+                        class="w-full border border-gray-300 dark:border-slate-700 rounded-xl shadow-sm text-sm p-3 focus:border-emerald-500 focus:ring-emerald-500 transition-shadow bg-white/50 dark:bg-slate-800/50 dark:text-gray-100"
                         rows="3"
                         :placeholder="getFieldPlaceholder(fieldConfig, 'Enter details')"
                         :value="getFieldValue(fieldKey)"
@@ -407,9 +408,9 @@ export default {
             </div>
 
             <div>
-                <label class="text-sm text-gray-700 font-semibold mb-2 block">Additional Notes</label>
+                <label class="text-sm text-gray-700 dark:text-gray-300 font-semibold mb-2 block">Additional Notes</label>
                 <textarea
-                    class="w-full border border-gray-300 rounded-xl shadow-sm text-sm p-3 focus:border-AB focus:ring-AB transition-shadow"
+                    class="w-full border border-gray-300 dark:border-slate-700 rounded-xl shadow-sm text-sm p-3 focus:border-emerald-500 focus:ring-emerald-500 transition-shadow bg-white/50 dark:bg-slate-800/50 dark:text-gray-100"
                     rows="3"
                     placeholder="Optional context, follow-up actions, or references"
                     v-model="form.notes"
@@ -417,10 +418,10 @@ export default {
                 <input-error v-if="form.errors.notes" :message="form.errors.notes" />
             </div>
 
-            <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+            <div class="flex justify-between items-center pt-4 border-t border-gray-100 dark:border-slate-800">
                 <div>
                     <a v-if="isUpdateMode" :href="route('suppEquipReports.pdf', form.id)" target="_blank"
-                       class="inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-gray-100 text-gray-700 font-bold shadow-sm hover:bg-gray-200 transition-all hover:-translate-y-0.5 duration-300 gap-2">
+                       class="inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300 font-bold shadow-sm hover:bg-gray-200 dark:hover:bg-slate-700 transition-all hover:-translate-y-0.5 duration-300 gap-2">
                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                         Print Report
                     </a>

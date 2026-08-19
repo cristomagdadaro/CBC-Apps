@@ -10,13 +10,18 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 class RentalVenueFactory extends Factory
 {
-    protected $model = RentalVenue::class;
+    protected static $personnels = null;
 
     public function definition(): array
     {
+        if (self::$personnels === null) {
+            self::$personnels = Personnel::query()->get(['fname', 'mname', 'lname', 'suffix', 'phone']);
+        }
+
         $dateFrom = Carbon::now()->addDays($this->faker->numberBetween(1, 10));
         $dateTo = $dateFrom->copy()->addDays($this->faker->numberBetween(1, 5));
-        $personnel = Personnel::query()->inRandomOrder()->first();
+        
+        $personnel = self::$personnels->isNotEmpty() ? self::$personnels->random() : null;
 
         $requestedBy = $personnel
             ? trim(implode(' ', array_filter([

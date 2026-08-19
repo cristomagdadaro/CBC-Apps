@@ -103,7 +103,7 @@ class RentalsSeeder extends Seeder
     public function run(): void
     {
         $vehicleTypes = ['innova', 'pickup', 'van', 'suv'];
-        $venueTypes = ['plenary', 'training_room', 'mph'];
+        $venueTypes = ['plenary', 'training_room', 'mph', 'meeting_room'];
         $statuses = ['pending', 'approved', 'rejected', 'completed', 'cancelled'];
         $tripTypes = RentalTripType::values();
         $multiStopType = RentalTripType::MULTI_STOP_TRIP->value;
@@ -120,21 +120,21 @@ class RentalsSeeder extends Seeder
             // Random status
             $status = $statuses[array_rand($statuses)];
             
-            // Random personnel or fallback
-            $personnel = $personnels->isNotEmpty() && rand(0, 10) > 2 
+            // Always use personnel for requested_by if available
+            $personnel = $personnels->isNotEmpty() 
                 ? $personnels->random() 
                 : null;
 
             $requestedBy = $personnel
                 ? $this->formatPersonnelName($personnel)
-                : "Random User " . Str::random(8);
+                : "Random User " . Str::random(8); // Fallback only if no personnel exists
 
             $contactNumber = $personnel?->phone
                 ?: '09' . rand(10, 99) . str_pad((string) rand(0, 9999999), 7, '0', STR_PAD_LEFT);
 
-            // Random members of party (0 to 6 people)
+            // Members of party (0 to 6 people), strictly from personnel
             $membersOfParty = $personnels->isNotEmpty() 
-                ? $personnels->shuffle()->take(rand(0, 6))->map(fn ($item) => $this->formatPersonnelName($item))->filter()->values()->all()
+                ? $personnels->random(min(rand(0, 6), $personnels->count()))->map(fn ($item) => $this->formatPersonnelName($item))->filter()->values()->all()
                 : [];
 
             // Random trip type

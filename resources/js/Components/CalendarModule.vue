@@ -74,6 +74,7 @@ export default {
             filterType: "all",
             filterStatus: "all",
             weekDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+            showFilters: false,
         };
     },
     computed: {
@@ -189,6 +190,12 @@ export default {
                 total: this.normalizedEvents.length,
                 visible: this.filteredEvents.length,
             };
+        },
+        activeFilterCount() {
+            let count = 0;
+            if (this.showTypeFilter && this.filterType !== "all") count++;
+            if (this.showStatusFilter && this.filterStatus !== "all") count++;
+            return count;
         },
     },
     methods: {
@@ -430,147 +437,94 @@ export default {
 </script>
 
 <template>
-    <div class="flex flex-col xl:flex-row gap-6">
-        <!-- Sidebar: Filters & Legend -->
-        <aside class="w-full xl:w-80 flex-shrink-0 space-y-4">
-            <!-- Header Card -->
-            <div
-                class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-5">
+    <div class="flex flex-col gap-4">
+        <!-- Top Control Bar -->
+        <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 p-4 sm:p-5 flex flex-col gap-3">
+            <!-- Header & Toggle -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
                     <div class="p-2.5 bg-primary-100 dark:bg-primary-900/30 rounded-xl">
-                        <lu-calendar-days class="text-gray-800 dark:text-gray-100" />
+                        <lu-calendar-days class="w-5 h-5 sm:w-6 sm:h-6 text-gray-800 dark:text-gray-100" />
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold text-slate-900 dark:text-white">
+                        <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight">
                             {{ title }}
                         </h2>
-                        <p v-if="subtitle" class="text-xs text-slate-500 dark:text-slate-400">
+                        <p v-if="subtitle" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                             {{ subtitle }}
                         </p>
                     </div>
                 </div>
-            </div>
 
-            <!-- Filters -->
-            <div data-guide='calendar-filters'
-                class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-5 space-y-4">
-                <h3
-                    class="text-xs font-semibold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                    <lu-filter class="w-4 h-4" />
-                    Filters
-                </h3>
-
-                <div v-if="showTypeFilter && typeOptions.length" class="space-y-1.5">
-                    <label class="text-xs font-medium text-slate-600 dark:text-slate-400">
-                        Resource Type
-                    </label>
-                    <div class="relative">
-                        <select v-model="filterType"
-                            class="w-full pl-9 pr-8 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all appearance-none cursor-pointer">
-                            <option value="all">All Resources</option>
-                            <option v-for="option in typeOptions" :key="option.key" :value="option.key">
-                                {{ option.label }}
-                            </option>
-                        </select>
-                        <lu-filter
-                            class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    </div>
-                </div>
-
-                <div v-if="showStatusFilter" class="space-y-1.5">
-                    <label class="text-xs font-medium text-slate-600 dark:text-slate-400">
-                        Status
-                    </label>
-                    <div class="relative">
-                        <select v-model="filterStatus"
-                            class="w-full pl-9 pr-8 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all appearance-none cursor-pointer">
-                            <option value="all">All Statuses</option>
-                            <option v-for="option in statusOptions" :key="option.key" :value="option.key">
-                                {{ option.label }}
-                            </option>
-                        </select>
-                        <lu-check-circle-2
-                            class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    </div>
-                </div>
-
-                <button v-if="showToday" type="button" @click="goToToday"
-                    class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 dark:bg-primary-600 dark:hover:bg-primary-500 text-gray-900 font-medium transition-all shadow-md hover:shadow-lg active:scale-[0.98]">
-                    <lu-refresh-cw />
-                    Jump to Today
+                <button
+                    type="button"
+                    @click="showFilters = !showFilters"
+                    class="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-semibold transition-all shrink-0 active:scale-95"
+                    :class="showFilters || activeFilterCount > 0
+                        ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 shadow-sm'
+                        : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'"
+                >
+                    <lu-filter class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                    <span>Filters</span>
+                    <span v-if="activeFilterCount > 0" class="px-1.5 py-0.5 rounded-full text-[0.65rem] font-bold bg-emerald-600 text-white">
+                        {{ activeFilterCount }}
+                    </span>
+                    <lu-chevron-up-icon v-if="showFilters" class="w-3.5 h-3.5 text-slate-400" />
+                    <lu-chevron-down v-else class="w-3.5 h-3.5 text-slate-400" />
                 </button>
             </div>
 
-            <!-- Legend -->
-            <div v-if="showLegend" data-guide='calendar-legends'
-                class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-5 space-y-4">
-                <h3
-                    class="text-xs font-semibold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                    <lu-layers />
-                    Legend
-                </h3>
-
-                <div class="space-y-3">
-                    <div v-for="group in legendData" :key="group.title">
-                        <h4
-                            class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
-                            {{ group.title }}
-                        </h4>
-                        <div class="space-y-1">
-                            <div v-for="item in group.items" :key="item.label"
-                                class="flex items-center gap-2.5 p-1.5 rounded-md hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer group"
-                                @click="handleLegendClick(item)">
-                                <div class="w-2.5 h-2.5 rounded-full ring-2 ring-offset-1 ring-offset-white dark:ring-offset-slate-800 transition-all"
-                                    :style="{
-                                        backgroundColor: item.color,
-                                        ringColor: item.color + '40',
-                                    }"></div>
-                                <span
-                                    class="text-xs text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{{
-                                    item.label }}</span>
+            <!-- Collapsible Filters & Legend (Compact) -->
+            <transition-container type="pop-in">
+                <div v-if="showFilters" class="flex flex-col gap-3 pt-3 mt-1 border-t border-slate-100 dark:border-slate-800">
+                    
+                    <!-- Filters -->
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div v-if="showTypeFilter && typeOptions.length" class="flex items-center gap-2">
+                            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Type:</span>
+                            <div class="relative">
+                                <select v-model="filterType"
+                                    class="text-xs pl-7 pr-7 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all appearance-none cursor-pointer">
+                                    <option value="all">All Resources</option>
+                                    <option v-for="option in typeOptions" :key="option.key" :value="option.key">
+                                        {{ option.label }}
+                                    </option>
+                                </select>
+                                <lu-filter class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Stats -->
-            <div v-if="showStats"
-                class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 p-5">
-                <h3
-                    class="text-xs font-semibold text-slate-900 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <lu-layout-grid />
-                    Overview
-                </h3>
-                <div class="grid grid-cols-2 gap-3">
-                    <div
-                        class="bg-white dark:bg-slate-700 rounded-xl p-3 border border-slate-200 dark:border-slate-600 shadow-sm">
-                        <div class="text-2xl font-bold text-slate-900 dark:text-white">
-                            {{ stats.total }}
+                        <div v-if="showStatusFilter" class="flex items-center gap-2">
+                            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Status:</span>
+                            <div class="relative">
+                                <select v-model="filterStatus"
+                                    class="text-xs pl-7 pr-7 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all appearance-none cursor-pointer">
+                                    <option value="all">All Statuses</option>
+                                    <option v-for="option in statusOptions" :key="option.key" :value="option.key">
+                                        {{ option.label }}
+                                    </option>
+                                </select>
+                                <lu-check-circle-2 class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            </div>
                         </div>
-                        <div class="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                            Total
-                        </div>
+
+                        <button v-if="showToday" type="button" @click="goToToday"
+                            class="ml-auto sm:ml-0 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition-all">
+                            <lu-refresh-cw class="w-3.5 h-3.5" />
+                            Today
+                        </button>
                     </div>
-                    <div
-                        class="bg-white dark:bg-slate-700 rounded-xl p-3 border border-slate-200 dark:border-slate-600 shadow-sm">
-                        <div class="text-2xl font-bold text-slate-900 dark:text-white">
-                            {{ stats.visible }}
-                        </div>
-                        <div class="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                            Visible
-                        </div>
-                    </div>
+
                 </div>
-            </div>
-        </aside>
+            </transition-container>
+        </div>
 
         <!-- Main Calendar Area -->
         <main class="flex-1 min-w-0" data-guide='calendar-main-area'>
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+            <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800">
                 <!-- Calendar Header -->
                 <div
-                    class="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-t-2xl sticky top-0 z-10">
+                    class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-t-2xl sticky top-0 z-10">
                     <button type="button" @click="previousMonth"
                         class="p-2 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm hover:shadow border border-transparent hover:border-slate-200 dark:hover:border-slate-600">
                         <lu-chevron-left-icon />
@@ -590,9 +544,9 @@ export default {
                 <div class="overflow-x-auto">
                     <div class="min-w-[900px]">
                         <!-- Week Headers -->
-                        <div class="grid grid-cols-7 border-b border-slate-200 dark:border-slate-700">
+                        <div class="grid grid-cols-7 border-b border-gray-100 dark:border-slate-800">
                             <div v-for="(day, index) in weekDays" :key="day"
-                                class="px-3 py-2 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50"
+                                class="px-3 py-2 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 bg-slate-50/50 dark:bg-slate-800/50"
                                 :class="{
                                     'text-red-500 dark:text-red-400':
                                         index === 0 || index === 6,
@@ -604,14 +558,14 @@ export default {
                         <!-- Calendar Weeks -->
                         <div class="calendar-weeks">
                             <div v-for="(week, weekIndex) in calendarWeeks" :key="weekIndex"
-                                class="calendar-week border-b border-slate-200 dark:border-slate-700">
+                                class="calendar-week border-b border-gray-100 dark:border-slate-800">
                                 <!-- OPTIMIZED: Use CSS Grid instead of absolute positioning -->
                                 <div class="week-grid" :style="{
                                     gridTemplateRows: `auto repeat(${Math.max(1, assignEventLanes(getEventsForWeek(week, weekIndex), week).lanes.length)}, minmax(28px, auto)) auto`
                                 }">
                                     <!-- Day Numbers Row -->
                                     <div v-for="(day, dayIndex) in week" :key="`day-${weekIndex}-${dayIndex}`"
-                                        class="day-cell border-r border-slate-200 dark:border-slate-700 p-2 transition-all hover:bg-slate-50 dark:hover:bg-slate-700/30"
+                                        class="day-cell border-r border-gray-100 dark:border-slate-800 p-2 transition-all hover:bg-slate-50/80 dark:hover:bg-slate-700/30"
                                         :class="{
                                             'bg-slate-50/30 dark:bg-slate-800/20': !day,
                                             'border-r-0': dayIndex === 6,
@@ -636,7 +590,7 @@ export default {
                                             :key="`lane-${weekIndex}-${laneIndex}`" class="event-lane contents">
                                             <!-- Empty cells for days without events in this lane -->
                                             <div v-for="col in 7" :key="`lane-${laneIndex}-col-${col}`"
-                                                class="event-cell border-r border-slate-200 dark:border-slate-700"
+                                                class="event-cell border-r border-gray-100 dark:border-slate-800"
                                                 :class="{ 'border-r-0': col === 7 }">
                                                 <!-- Find event for this column -->
                                                 <div v-for="event in lane.filter(e => {
@@ -676,7 +630,7 @@ export default {
                                     <div v-if="assignEventLanes(getEventsForWeek(week, weekIndex), week).overflowCount > 0"
                                         class="overflow-indicator contents">
                                         <div v-for="col in 7" :key="`overflow-${weekIndex}-${col}`"
-                                            class="border-r border-slate-200 dark:border-slate-700 p-1"
+                                            class="border-r border-gray-100 dark:border-slate-800 p-1"
                                             :class="{ 'border-r-0': col === 7 }">
                                             <!-- Show indicator only on first column -->
                                             <Dropdown v-if="col === 1" align="left" width="auto" max-height="16rem">
@@ -722,7 +676,7 @@ export default {
                                     <div v-if="getEventsForWeek(week, weekIndex).length === 0"
                                         class="empty-row contents">
                                         <div v-for="col in 7" :key="`empty-${weekIndex}-${col}`"
-                                            class="border-r border-slate-200 dark:border-slate-700 min-h-[60px]"
+                                            class="border-r border-gray-100 dark:border-slate-800 min-h-[60px]"
                                             :class="{ 'border-r-0': col === 7 }"></div>
                                     </div>
                                 </div>
@@ -731,8 +685,19 @@ export default {
                     </div>
                 </div>
             </div>
-            <div class="flex justify-end mt-2 mr-5 w-full">
-                <a :href="route('google-calendar.rentals')" class="text-xs text-blue-500" target="_blank"
+            <div class="flex items-center justify-between mt-3 px-4 w-full">
+                <!-- Stats in Footer -->
+                <div v-if="showStats" class="flex items-center gap-4 text-xs bg-slate-50 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                    <span class="text-slate-500 dark:text-slate-400">
+                        Total: <span class="font-semibold text-slate-800 dark:text-slate-200">{{ stats.total }}</span>
+                    </span>
+                    <span class="text-slate-500 dark:text-slate-400">
+                        Visible: <span class="font-semibold text-slate-800 dark:text-slate-200">{{ stats.visible }}</span>
+                    </span>
+                </div>
+                <div v-else></div>
+                
+                <a :href="route('google-calendar.rentals')" class="text-xs text-blue-500 hover:underline hover:text-blue-600 transition-colors" target="_blank"
                     rel="noopener noreferrer">
                     Add to Google Calendar
                 </a>

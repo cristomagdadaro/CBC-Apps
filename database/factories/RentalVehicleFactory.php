@@ -12,13 +12,18 @@ use Illuminate\Support\Str;
 
 class RentalVehicleFactory extends Factory
 {
-    protected $model = RentalVehicle::class;
+    protected static $personnels = null;
 
     public function definition(): array
     {
+        if (self::$personnels === null) {
+            self::$personnels = Personnel::query()->get(['fname', 'mname', 'lname', 'suffix', 'phone']);
+        }
+
         $dateFrom = Carbon::now()->addDays($this->faker->numberBetween(1, 10));
         $dateTo = $dateFrom->copy()->addDays($this->faker->numberBetween(1, 5));
-        $personnel = Personnel::query()->inRandomOrder()->first();
+        
+        $personnel = self::$personnels->isNotEmpty() ? self::$personnels->random() : null;
 
         $tripType = $this->faker->randomElement(RentalTripType::values());
         $isMultiStopTrip = $tripType === RentalTripType::MULTI_STOP_TRIP->value;
@@ -48,8 +53,22 @@ class RentalVehicleFactory extends Factory
 
         $membersOfParty = [];
         $membersCount = $this->faker->numberBetween(0, 4);
-        for ($index = 0; $index < $membersCount; $index++) {
-            $membersOfParty[] = $this->faker->name();
+        if (self::$personnels->isNotEmpty()) {
+            $membersOfParty = self::$personnels
+                ->random(min($membersCount, self::$personnels->count()))
+                ->map(fn ($item) => trim(implode(' ', array_filter([
+                    $item->fname,
+                    $item->mname,
+                    $item->lname,
+                    $item->suffix,
+                ]))))
+                ->filter()
+                ->values()
+                ->all();
+        } else {
+            for ($index = 0; $index < $membersCount; $index++) {
+                $membersOfParty[] = $this->faker->name();
+            }
         }
 
         $destinationLocation = $destinationCity

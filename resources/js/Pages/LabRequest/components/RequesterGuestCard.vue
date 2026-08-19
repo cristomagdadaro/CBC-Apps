@@ -264,14 +264,14 @@ export default {
 </script>
 
 <template>
-    <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden mx-auto w-full max-w-4xl">
+    <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 overflow-hidden mx-auto w-full max-w-4xl">
         <SuccessModal
             :show="showSuccessModal"
             title="Request submitted"
             :message="successMessage"
             @close="showSuccessModal = false"
         />
-        <div class="bg-slate-50 border-b border-gray-100 p-6">
+        <div class="bg-slate-50/50 dark:bg-slate-800/50 border-b border-gray-100 dark:border-slate-800 p-6">
             <div class="max-w-2xl mx-auto overflow-x-auto">
                 <ProgressTabs :steps="stepLabels" :current="currentStep" @update:current="handleStepChange" :clickable="true" />
             </div>
@@ -281,11 +281,11 @@ export default {
             <!-- Step 0: Request Type -->
             <transition name="slide-fade" mode="out-in">
             <div v-show="currentStepKey === 'request_type'" class="p-6 sm:p-10 flex flex-col min-h-[400px]">
-                <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Request Type</h3>
-                <p class="text-sm text-gray-500 mb-8">Select the type(s) of resources or facilities you need. You can choose multiple options.</p>
+                <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Request Type</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Select the type(s) of resources or facilities you need. You can choose multiple options.</p>
                 <div class="w-full relative max-w-2xl">
                     <h2 class="flex justify-between items-center mb-2">
-                        <span class="font-semibold text-gray-700">Select Categories <b class="text-red-500">*</b></span>
+                        <span class="font-semibold text-gray-700 dark:text-gray-300">Select Categories <b class="text-red-500">*</b></span>
                         <transition-container type="slide-bottom">
                             <InputError v-show="!!hasErr('request_type')" :message="errMsg('request_type')" />
                         </transition-container>
@@ -305,8 +305,8 @@ export default {
             <!-- Step 1: Requestor Information -->
             <transition name="slide-fade" mode="out-in">
             <div v-show="currentStepKey === 'requestor'" class="p-6 sm:p-10 flex flex-col min-h-[400px]">
-                <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Requestor Information</h3>
-                <p class="text-sm text-gray-500 mb-8">Provide your contact and affiliation details. You can search for your PhilRice ID to auto-fill some fields.</p>
+                <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Requestor Information</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Provide your contact and affiliation details. You can search for your PhilRice ID to auto-fill some fields.</p>
                 
                 <div class="max-w-2xl">
                 <PersonnelLookup
@@ -316,7 +316,7 @@ export default {
                     @error="handlePersonnelError"
                 />
                 
-                <div v-if="isAuthenticated" class="text-sm font-medium text-emerald-700 bg-emerald-50 p-3 rounded-lg mb-2 flex items-center gap-2">
+                <div v-if="isAuthenticated" class="text-sm font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 p-3 rounded-lg mb-2 flex items-center gap-2">
                     <LuCheckCircle2 class="w-4 h-4" />
                     <span>Using authenticated ID: {{ $page.props.auth.user.employee_id || 'Linked Account' }}</span>
                 </div>
@@ -329,12 +329,12 @@ export default {
                         v-model="isNonPhilRiceEmployee"
                         class="rounded border-gray-300 text-AB shadow-sm focus:border-AB focus:ring focus:ring-AB focus:ring-opacity-50"
                     />
-                    <label for="isNonPhilRice" class="text-gray-700 cursor-pointer font-medium">
+                    <label for="isNonPhilRice" class="text-gray-700 dark:text-gray-300 cursor-pointer font-medium">
                         I am a non-PhilRice employee/personnel
                     </label>
                 </div>
-                <div v-show="isNonPhilRiceEmployee || employeeFound" class="flex flex-col gap-5 pt-6 border-t border-gray-100">
-                    <p class="text-sm text-gray-500 mb-2">Manually enter your information</p>
+                <div v-show="isNonPhilRiceEmployee || employeeFound" class="flex flex-col gap-5 pt-6 border-t border-gray-100 dark:border-slate-800">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Manually enter your information</p>
                     <div class="grid md:grid-cols-2 gap-5">
                         <TextInput
                             v-if="isNonPhilRiceEmployee"
@@ -361,8 +361,8 @@ export default {
             <!-- Step 2: Request Form Details -->
             <transition name="slide-fade" mode="out-in">
             <div v-show="currentStepKey === 'details'" class="p-6 sm:p-10 flex flex-col min-h-[400px]">
-                <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Request Details</h3>
-                <p class="text-sm text-gray-500 mb-8">Tell us the purpose of your request and when you plan to use the resources.</p>
+                <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Request Details</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Tell us the purpose of your request and when you plan to use the resources.</p>
                 <div class="max-w-2xl flex flex-col gap-5">
                     <TextInput id="request_purpose" v-model="form.request_purpose" required type="text" :error="errMsg('request_purpose')" label="Purpose of Request" placeholder="Reason or purpose of your request" autocomplete="request_purpose" @input="form.clearErrors('request_purpose')" />
                     <TextInput id="request_details" v-model="form.request_details" type="text" :error="form.errors.request_details" label="Special Request or Instructions" placeholder="If applicable" autocomplete="request_details" @input="form.clearErrors('request_details')" />
@@ -390,16 +390,16 @@ export default {
             <!-- Terms & Conditions -->
             <transition name="slide-fade" mode="out-in">
             <div v-show="currentStepKey === 'terms'" class="p-6 sm:p-10 flex flex-col min-h-[400px]">
-                <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Terms & Conditions</h3>
-                <p class="text-sm text-gray-500 mb-8">Please read and agree to all terms and conditions below to complete your request.</p>
-                <div class="flex flex-col gap-6 max-w-2xl bg-slate-50 p-6 rounded-xl border border-gray-100">
+                <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Terms & Conditions</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Please read and agree to all terms and conditions below to complete your request.</p>
+                <div class="flex flex-col gap-6 max-w-2xl bg-slate-50/50 dark:bg-slate-800/50 p-6 rounded-xl border border-gray-100 dark:border-slate-800">
                     <label class="flex items-start text-left gap-3 cursor-pointer select-none group" title="Acknowledge lab usage risk">
                         <input 
                             type="checkbox" 
                             v-model="form.agreed_clause_1" 
                             class="mt-1 rounded border-gray-300 text-AB shadow-sm focus:border-AB focus:ring focus:ring-AB focus:ring-opacity-50"
                         />
-                        <span class="text-sm text-gray-700 leading-relaxed group-hover:text-gray-900 transition-colors">
+                        <span class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
                             I hereby acknowledge that I will utilize the supply/equipment/laboratory at my own risk; and agree to use it responsibly and in accordance with any provided instructions or safety guidelines.
                             <span v-if="hasErr('agreed_clause_1')" class="block text-sm text-red-500 mt-1 font-medium">
                                 {{ errMsg('agreed_clause_1') }}
@@ -413,7 +413,7 @@ export default {
                             v-model="form.agreed_clause_2" 
                             class="mt-1 rounded border-gray-300 text-AB shadow-sm focus:border-AB focus:ring focus:ring-AB focus:ring-opacity-50"
                         />
-                        <span class="text-sm text-gray-700 leading-relaxed group-hover:text-gray-900 transition-colors">
+                        <span class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
                             I agree to assume full responsibility for any damage or loss of the equipment while it is in my possession.
                             <span v-if="hasErr('agreed_clause_2')" class="block text-sm text-red-500 mt-1 font-medium">
                                 {{ errMsg('agreed_clause_2') }}
@@ -427,7 +427,7 @@ export default {
                             v-model="form.agreed_clause_3" 
                             class="mt-1 rounded border-gray-300 text-AB shadow-sm focus:border-AB focus:ring focus:ring-AB focus:ring-opacity-50"
                         />
-                        <span class="text-sm text-gray-700 leading-relaxed group-hover:text-gray-900 transition-colors">
+                        <span class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
                             I agree that the Center shall not be held liable for the quality, accuracy, reliability, or completeness of any data generated by the Requestor using the lab's facilities, equipment, or resources. The Requestor assumes full responsibility for the design, execution, and interpretation of the experiments and the data derived therefrom. The Center makes no warranties, express or implied, regarding the outcomes of the Requestor's research activities.
                             <span v-if="hasErr('agreed_clause_3')" class="block text-sm text-red-500 mt-1 font-medium">
                                 {{ errMsg('agreed_clause_3') }}
@@ -439,8 +439,8 @@ export default {
             </transition>
 
             <!-- Navigation Controls -->
-            <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex items-center justify-between">
-                <button type="button" class="px-6 py-2.5 rounded-xl border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 hover:shadow-sm font-medium transition-all duration-300 disabled:opacity-50" :disabled="currentStep === 0" @click="prevStep">Back</button>
+            <div class="bg-gray-50/50 dark:bg-slate-800/50 px-6 py-4 border-t border-gray-100 dark:border-slate-800 flex items-center justify-between">
+                <button type="button" class="px-6 py-2.5 rounded-xl border border-gray-200 dark:border-slate-600 text-gray-700 dark:text-gray-300 bg-white/50 dark:bg-slate-700/50 hover:bg-gray-50/50 dark:hover:bg-slate-700 hover:shadow-sm font-medium transition-all duration-300 disabled:opacity-50" :disabled="currentStep === 0" @click="prevStep">Back</button>
                 <div class="flex items-center gap-3">
                     <button v-if="currentStep < filteredSteps.length - 1" type="button" class="px-8 py-2.5 rounded-xl bg-AB text-white font-bold shadow-md hover:bg-AB/90 transition-all hover:-translate-y-0.5 duration-300" @click="nextStep">Next Step</button>
                     <submit-btn v-else :disabled="model.api.processing" :processing="model.api.processing" class="px-8 py-2.5 rounded-xl bg-AB text-white font-bold shadow-md hover:bg-AB/90 transition-all hover:-translate-y-0.5 duration-300">

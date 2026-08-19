@@ -273,40 +273,41 @@ export default {
         :message="successMessage"
         @close="showSuccessModal = false"
     />
-    <div class="grid grid-cols-4 gap-6">
+    <div class="grid lg:grid-cols-4 gap-6">
         <div
             v-if="form"
             data-guide='rental-form-shell'
-            class="bg-white p-2 rounded-md flex gap-2 drop-shadow-lg h-fit"
+            class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-gray-100 dark:border-slate-800 p-1 rounded-2xl flex gap-2 shadow-xl h-fit lg:col-span-1"
         >
             <form
                 @submit.prevent="submitProxyCreate"
-                class="space-y-3 bg-white rounded-lg p-3 w-full h-fit"
+                class="space-y-4 bg-white/60 dark:bg-slate-800/60 rounded-xl p-5 w-full h-fit"
             >
                 <!-- General Error -->
                 <div
                     v-if="form.errors.general"
-                    class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700"
+                    class="p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-sm"
                 >
                     {{ form.errors.general }}
                 </div>
                 <div
                     v-if="form.date_from && form.date_to && form.venue_type"
-                    class="px-4 py-2 rounded-md"
+                    class="px-4 py-3 rounded-xl transition-colors duration-300"
                     :class="
                         isAvailable
-                            ? 'bg-green-50 border border-green-200'
-                            : 'bg-red-50 border border-red-200'
+                            ? 'bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50'
+                            : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50'
                     "
                 >
                     <div class="flex items-center gap-2">
                         <loader-icon
                             v-if="availabilityChecking"
-                            class="text-AB"
+                            class="text-AB dark:text-emerald-400 animate-spin w-4 h-4"
                         />
                         <span
+                            class="text-sm font-medium"
                             :class="
-                                isAvailable ? 'text-green-700' : 'text-red-700'
+                                isAvailable ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-700 dark:text-red-400'
                             "
                         >
                             {{
@@ -333,7 +334,7 @@ export default {
                     :error="form.errors.venue_type"
                 >
                     <template #icon>
-                        <caret-down class="h-4 w-4 text-gray-600" />
+                        <caret-down class="h-4 w-4 text-gray-600 dark:text-gray-400" />
                     </template>
                 </custom-dropdown>
 
@@ -443,20 +444,20 @@ export default {
                     label="Additional Notes"
                     v-model="form.notes"
                     placeholder="Any additional information"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-AB focus:ring-AB"
+                    class="mt-1 block w-full rounded-xl border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-AB focus:ring-AB"
                 ></TextArea>
 
                 <!-- Submit Button -->
-                <div class="flex gap-4 pt-6 border-t">
+                <div class="flex gap-4 pt-6 border-t border-gray-100 dark:border-slate-700">
                     <PrimaryButton
                         :disabled="processing || !isAvailable"
-                        class="justify-center flex-1"
+                        class="justify-center flex-1 rounded-xl shadow-md hover:-translate-y-0.5 transition-all duration-300"
                     >
                         <span
                             v-if="processing"
                             class="flex items-center justify-center gap-2"
                         >
-                            <loader-icon />
+                            <loader-icon class="animate-spin w-4 h-4" />
                             Submitting...
                         </span>
                         <span v-else>Submit Venue Rental Request</span>
@@ -464,15 +465,17 @@ export default {
                 </div>
             </form>
         </div>
-        <div class="bg-white p-4 rounded-lg shadow col-span-3 h-fit">
-            <h3 class="text-base font-semibold text-gray-900 mb-2">
-                Venue Availability Calendar
-            </h3>
-            <p class="text-sm text-gray-600 mb-3">
-                Check current venue workflow states before submitting.
-            </p>
-            <div v-if="calendarLoading" class="text-sm text-gray-500 flex items-center gap-2 justify-center">
-                <loader-icon class="w-6 h-6 text-gray-500 animate-spin" />
+        <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-gray-100 dark:border-slate-800 p-6 rounded-2xl shadow-xl lg:col-span-3 h-fit flex flex-col gap-4">
+            <div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                    Venue Availability Calendar
+                </h3>
+                <p class="text-sm text-gray-500 dark:text-slate-400">
+                    Check current venue workflow states before submitting.
+                </p>
+            </div>
+            <div v-if="calendarLoading" class="text-sm text-gray-500 dark:text-slate-400 flex items-center gap-2 justify-center py-10">
+                <loader-icon class="w-6 h-6 text-AB dark:text-emerald-400 animate-spin" />
                 Loading booking calendars...
             </div>
             <calendar-module
@@ -486,6 +489,7 @@ export default {
                 :show-type-filter="true"
                 :show-status-filter="true"
                 :show-stats="false"
+                class="!bg-transparent !shadow-none !border-0"
             />
         </div>
     </div>

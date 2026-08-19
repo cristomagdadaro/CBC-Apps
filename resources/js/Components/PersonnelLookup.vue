@@ -122,20 +122,20 @@ export default {
 </script>
 
 <template>
-    <div v-if="currentLaboratoryPersonnel" key="saved" class="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-200">
+    <div v-if="currentLaboratoryPersonnel" key="saved" class="flex items-center justify-between p-4 rounded-xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-gray-100 dark:border-slate-800 shadow-sm">
         <div class="flex items-center gap-3">
-            <div class="p-2 rounded-lg bg-emerald-100">
-                <LuUser class="w-4 h-4 text-emerald-600" />
+            <div class="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/30">
+                <LuUser class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-                <p class="text-sm font-medium text-gray-900">{{
+                <p class="text-sm font-medium text-slate-900 dark:text-white">{{
                     currentLaboratoryPersonnel.fullName || currentLaboratoryPersonnel.name }}</p>
-                <p class="text-xs text-gray-500">{{ currentLaboratoryPersonnel.employee_id }}
+                <p class="text-xs text-slate-500 dark:text-slate-400">{{ currentLaboratoryPersonnel.employee_id }}
                 </p>
             </div>
         </div>
         <button type="button" @click="handlePersonnelSwitch"
-            class="p-2 text-gray-500 transition-colors rounded-lg hover:bg-gray-200"
+            class="p-2 text-slate-500 dark:text-slate-400 transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
             :class="{ 'animate-spin': processing }">
             <LuRefreshCw class="w-4 h-4" />
         </button>

@@ -261,26 +261,30 @@ export default {
             <div data-guide="rental-quick-links" class="grid md:grid-cols-2 gap-3">
                 <a
                     :href="route('rental.vehicle.guest')"
-                    class="flex gap-2 items-center rounded-lg border border-gray-200 bg-white px-4 py-3 hover:bg-gray-50"
+                    class="flex gap-4 items-center rounded-2xl border border-gray-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg px-5 py-4 hover:-translate-y-1 hover:shadow-xl transition-all duration-300"
                 >
-                    <lu-truck class="w-8 h-8 text-orange-500" />
+                    <div class="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-xl">
+                        <lu-truck class="w-8 h-8 text-orange-500" />
+                    </div>
                     <div>
-                        <p class="font-semibold text-gray-900">
+                        <p class="font-bold text-gray-900 dark:text-gray-100">
                             Vehicle Rental Form
                         </p>
-                        <p class="text-sm text-gray-600">
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
                             Request and check vehicle bookings.
                         </p>
                     </div>
                 </a>
                 <a
                     :href="route('rental.venue.guest')"
-                    class="flex gap-2 items-center rounded-lg border border-gray-200 bg-white px-4 py-3 hover:bg-gray-50"
+                    class="flex gap-4 items-center rounded-2xl border border-gray-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg px-5 py-4 hover:-translate-y-1 hover:shadow-xl transition-all duration-300"
                 >
-                    <lu-building class="w-8 h-8 text-indigo-500" />
+                    <div class="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl">
+                        <lu-building class="w-8 h-8 text-indigo-500 dark:text-indigo-400" />
+                    </div>
                     <div>
-                        <p class="font-semibold text-gray-900">Venue Rental Form</p>
-                        <p class="text-sm text-gray-600">
+                        <p class="font-bold text-gray-900 dark:text-gray-100">Venue Rental Form</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
                             Request and check venue bookings.
                         </p>
                     </div>
@@ -289,10 +293,10 @@ export default {
 
             <div
                 id="center-calendar"
-                class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"
+                class="rounded-2xl border border-gray-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg p-6 shadow-xl"
             >
-                <div class="w-full mb-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                <div class="w-full mb-6">
+                    <label class="block text-sm font-bold text-gray-900 dark:text-gray-100 mb-2"
                         >Search Bookings</label
                     >
                     <input
@@ -300,12 +304,12 @@ export default {
                         type="text"
                         data-guide='rental-calendar-search'
                         placeholder="Search by requester, event, type, or status"
-                        class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-AB focus:ring-AB"
+                        class="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 dark:text-white px-4 py-3 text-sm focus:border-AB focus:ring-AB shadow-inner"
                     />
                 </div>
 
-                <div v-if="loading" class="text-sm text-gray-500 flex items-center gap-2 justify-center">
-                    <loader-icon class="w-6 h-6 text-gray-500 animate-spin" />
+                <div v-if="loading" class="text-sm text-gray-500 dark:text-slate-400 flex items-center gap-2 justify-center py-10">
+                    <loader-icon class="w-6 h-6 text-AB dark:text-emerald-400 animate-spin" />
                     Loading booking calendars...
                 </div>
                 <div v-else-if="error" class="text-sm text-red-600">
@@ -330,6 +334,7 @@ export default {
                     :show-status-filter="true"
                     :show-stats="true"
                     :start-date="selectedStartDate"
+                    class="!bg-transparent !shadow-none !border-0"
                 />
             </div>
         </div>
