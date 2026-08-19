@@ -54,25 +54,25 @@ export default {
                 rejected: {
                     color: 'bg-red-100 text-red-700 border-red-200',
                     bg: 'bg-red-50',
-                    icon: LuXCircle,
+                    icon: 'LuXCircle',
                     label: 'Rejected',
                 },
                 cancelled: {
                     color: 'bg-gray-100 text-gray-700 border-gray-200',
                     bg: 'bg-gray-50',
-                    icon: LuXCircle,
+                    icon: 'LuXCircle',
                     label: 'Cancelled',
                 },
                 completed: {
                     color: 'bg-slate-100 text-slate-700 border-slate-200',
                     bg: 'bg-slate-50',
-                    icon: LuCheckCircle2,
+                    icon: 'LuCheckCircle2',
                     label: 'Completed',
                 },
                 pending: {
                     color: 'bg-amber-100 text-amber-700 border-amber-200',
                     bg: 'bg-amber-50',
-                    icon: LuAlertCircle,
+                    icon: 'LuAlertCircle',
                     label: 'Pending',
                 },
             }
