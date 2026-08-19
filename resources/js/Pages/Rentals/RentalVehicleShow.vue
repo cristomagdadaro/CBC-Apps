@@ -37,32 +37,32 @@ export default {
             const configs = {
                 pending: {
                     color: 'bg-amber-100 text-amber-800 border-amber-200',
-                    icon: LuClock3,
+                    icon: 'LuClock3',
                     label: 'Pending Approval',
                 },
                 approved: {
                     color: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-                    icon: LuCheckCircle2,
+                    icon: 'LuCheckCircle2',
                     label: 'Approved',
                 },
                 in_progress: {
                     color: 'bg-blue-100 text-blue-800 border-blue-200',
-                    icon: LuClock,
+                    icon: 'LuClock',
                     label: 'In Progress',
                 },
                 rejected: {
                     color: 'bg-red-100 text-red-800 border-red-200',
-                    icon: LuXCircle,
+                    icon: 'LuXCircle',
                     label: 'Rejected',
                 },
                 cancelled: {
                     color: 'bg-gray-100 text-gray-800 border-gray-200',
-                    icon: LuXCircle,
+                    icon: 'LuXCircle',
                     label: 'Cancelled',
                 },
                 completed: {
                     color: 'bg-slate-100 text-slate-800 border-slate-200',
-                    icon: LuCheckCircle2,
+                    icon: 'LuCheckCircle2',
                     label: 'Completed',
                 },
             }

@@ -25,37 +25,37 @@ export default {
             const configs = {
                 pending: {
                     color: 'bg-amber-50 text-amber-800 border-amber-200',
-                    icon: LuClock3,
+                    icon: 'LuClock3',
                     label: 'Pending Approval',
                     accent: 'amber',
                 },
                 approved: {
                     color: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-                    icon: LuCheckCircle2,
+                    icon: 'LuCheckCircle2',
                     label: 'Approved',
                     accent: 'emerald',
                 },
                 in_progress: {
                     color: 'bg-blue-50 text-blue-800 border-blue-200',
-                    icon: LuClock,
+                    icon: 'LuClock',
                     label: 'In Progress',
                     accent: 'emerald',
                 },
                 rejected: {
                     color: 'bg-red-50 text-red-800 border-red-200',
-                    icon: LuXCircle,
+                    icon: 'LuXCircle',
                     label: 'Rejected',
                     accent: 'red',
                 },
                 completed: {
                     color: 'bg-slate-50 text-slate-800 border-slate-200',
-                    icon: LuCheckCircle2,
+                    icon: 'LuCheckCircle2',
                     label: 'Event Completed',
                     accent: 'slate',
                 },
                 cancelled: {
                     color: 'bg-gray-50 text-gray-800 border-gray-200',
-                    icon: LuXCircle,
+                    icon: 'LuXCircle',
                     label: 'Cancelled',
                     accent: 'gray',
                 },
@@ -65,7 +65,7 @@ export default {
 
             return configs[status] || {
                 color: 'bg-gray-50 text-gray-800 border-gray-200',
-                icon: LuAlertCircle,
+                icon: 'LuAlertCircle',
                 label: this.rental?.status || 'Unknown',
                 accent: 'gray',
             }
