@@ -267,7 +267,7 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'event_hall_plenary',
-                'value' => '13',
+                'value' => 'plenary',
                 'label' => 'Plenary Hall',
                 'description' => 'Event location for plenary sessions',
                 'type' => 'text',
@@ -275,7 +275,7 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'event_hall_training_room',
-                'value' => '14',
+                'value' => 'training_room',
                 'label' => 'Training Room',
                 'description' => 'Event location for training sessions',
                 'type' => 'text',
@@ -283,7 +283,7 @@ class OptionSeeder extends Seeder
             ],
             [
                 'key' => 'event_hall_mph',
-                'value' => '15',
+                'value' => 'mph',
                 'label' => 'Multi-Purpose Hall',
                 'description' => 'Event location for multi-purpose activities',
                 'type' => 'text',

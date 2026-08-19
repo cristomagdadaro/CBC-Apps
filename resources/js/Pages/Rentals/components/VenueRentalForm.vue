@@ -349,47 +349,7 @@ export default {
                     class="mt-1 block w-full"
                 />
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 hidden">
-                    <div>
-                        <InputLabel value="Destination Region" required />
-                        <SelectRegion
-                            v-model="form.destination_region"
-                            :error="form.errors.destination_region"
-                            @update:modelValue="handleDestinationRegionChange"
-                        />
-                    </div>
-                    <div>
-                        <InputLabel value="Destination Province" required />
-                        <SelectProvince
-                            v-model="form.destination_province"
-                            :region="form.destination_region"
-                            :disabled="!form.destination_region"
-                            :error="form.errors.destination_province"
-                            @update:modelValue="handleDestinationProvinceChange"
-                        />
-                    </div>
-                    <div>
-                        <InputLabel value="Destination City" required />
-                        <SelectCity
-                            v-model="form.destination_city"
-                            :region="form.destination_region"
-                            :province="form.destination_province"
-                            :disabled="!form.destination_province"
-                            :error="form.errors.destination_city"
-                        />
-                    </div>
-                </div>
 
-                <TextInput
-                    id="destination_location"
-                    label="Destination Location"
-                    required
-                    v-model="form.destination_location"
-                    type="text"
-                    placeholder="Specific destination / address"
-                    :error="form.errors.destination_location"
-                    class="mt-1 block w-full hidden"
-                />
 
                 <!-- Date Range -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
