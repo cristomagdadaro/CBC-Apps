@@ -406,6 +406,8 @@ export default {
                     <PersonnelLookup v-model="employee_id" @found="handlePersonnelFound" />
                     <TextInput id="requested_by" label="Your Name" required v-model="form.requested_by" type="text"
                         placeholder="Full name" :error="form.errors.requested_by" class="mt-1 block w-full" />
+                    <TextInput id="organization" label="Division / Organization" required v-model="form.organization" type="text"
+                        placeholder="e.g. Crop Biotechnology Center" :error="form.errors.organization" class="mt-1 block w-full" />
                     <div class="mt-1 border border-gray-200 dark:border-slate-700 rounded-xl p-4 bg-white/50 dark:bg-slate-800/50">
                         <div class="flex items-center justify-between mb-2">
                             <label class="text-sm font-semibold text-gray-900 dark:text-gray-100">Members of the Party (MOP)</label>

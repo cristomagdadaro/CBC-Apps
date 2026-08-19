@@ -2,15 +2,31 @@
 
 namespace App\Models;
 
+use App\Services\BookingCodeService;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 use DateTimeInterface;
 
 class RentalHostel extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->id)) {
+                $model->id = (string) Str::uuid();
+            }
+            if (empty($model->booking_id)) {
+                $model->booking_id = BookingCodeService::generate('HT', 'rental_hostels');
+            }
+        });
+    }
 
     protected $table = 'rental_hostels';
 
@@ -19,6 +35,7 @@ class RentalHostel extends Model
     public $incrementing = false;
 
     protected $fillable = [
+        'booking_id',
         'hostel_unit',
         'check_in_date',
         'check_out_date',

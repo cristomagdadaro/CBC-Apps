@@ -268,7 +268,8 @@ class RentalVehicleController extends BaseController
     {
         return Arr::only($rental->toArray(), [
             'id',
-            'requested_by',
+            'booking_id',
+            'organization',
             'vehicle_type',
             'trip_type',
             'date_from',

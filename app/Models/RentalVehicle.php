@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\RentalTripType;
+use App\Services\BookingCodeService;
 use Database\Factories\RentalVehicleFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,6 +24,9 @@ class RentalVehicle extends Model
             if (empty($model->id)) {
                 $model->id = (string) Str::uuid();
             }
+            if (empty($model->booking_id)) {
+                $model->booking_id = BookingCodeService::generate('VH', 'rental_vehicles');
+            }
         });
     }
 
@@ -33,6 +37,7 @@ class RentalVehicle extends Model
     public $incrementing = false;
 
     protected $fillable = [
+        'booking_id',
         'vehicle_type',
         'trip_type',
         'date_from',
@@ -46,6 +51,7 @@ class RentalVehicle extends Model
         'destination_region',
         'destination_stops',
         'requested_by',
+        'organization',
         'members_of_party',
         'is_shared_ride',
         'shared_ride_reference',

@@ -43,6 +43,7 @@ class CreateRentalVehicleRequest extends FormRequest
             'destination_stops' => ['nullable', 'array', 'max:20'],
             'destination_stops.*' => ['required', 'string', 'max:255'],
             'requested_by' => ['required', 'string', 'max:255'],
+            'organization' => ['required', 'string', 'max:255'],
             'members_of_party' => ['nullable', 'array', 'max:30'],
             'members_of_party.*' => ['required', 'string', 'max:255'],
             'is_shared_ride' => ['nullable', 'boolean'],

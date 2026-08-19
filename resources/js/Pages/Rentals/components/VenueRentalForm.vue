@@ -426,6 +426,18 @@ export default {
                     class="mt-1 block w-full"
                 />
 
+                <!-- Division / Organization -->
+                <TextInput
+                    id="organization"
+                    label="Division / Organization"
+                    required
+                    v-model="form.organization"
+                    type="text"
+                    placeholder="e.g. Crop Biotechnology Division"
+                    :error="form.errors.organization"
+                    class="mt-1 block w-full"
+                />
+
                 <!-- Contact Number -->
                 <TextInput
                     id="contact_number"

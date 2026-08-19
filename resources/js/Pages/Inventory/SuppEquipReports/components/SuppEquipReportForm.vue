@@ -271,7 +271,6 @@ export default {
 </script>
 
 <template>
-<template>
     <form v-if="!!form" class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg shadow-2xl rounded-2xl p-6 sm:p-10 border border-gray-100 dark:border-slate-800 mx-auto w-full max-w-4xl" @submit.prevent="submitForm">
         <div class="flex items-center justify-between mb-8">
             <div>

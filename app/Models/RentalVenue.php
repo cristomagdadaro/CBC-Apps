@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\BookingCodeService;
 use Database\Factories\RentalVenueFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,6 +23,9 @@ class RentalVenue extends Model
             if (empty($model->id)) {
                 $model->id = (string) Str::uuid();
             }
+            if (empty($model->booking_id)) {
+                $model->booking_id = BookingCodeService::generate('VN', 'rental_venues');
+            }
         });
     }
 
@@ -32,6 +36,7 @@ class RentalVenue extends Model
     public $incrementing = false;
 
     protected $fillable = [
+        'booking_id',
         'venue_type',
         'date_from',
         'date_to',
@@ -44,6 +49,7 @@ class RentalVenue extends Model
         'destination_province',
         'destination_region',
         'requested_by',
+        'organization',
         'contact_number',
         'status',
         'notes',

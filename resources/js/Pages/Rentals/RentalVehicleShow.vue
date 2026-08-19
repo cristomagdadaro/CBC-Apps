@@ -221,7 +221,7 @@ export default {
                                     <div class="mt-0.5 h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400"></div>
                                     <div>
                                         <p class="text-xs text-slate-500 dark:text-slate-400">Booking Reference</p>
-                                        <p class="text-sm font-medium text-slate-900 dark:text-white">{{ rental.id }}</p>
+                                        <p class="text-sm font-bold text-blue-700 dark:text-blue-300 tracking-widest font-mono">{{ rental.booking_id || "NULL" }}</p>
                                     </div>
                                 </div>
                                 <div class="flex items-start space-x-3">
@@ -245,6 +245,13 @@ export default {
                                     <div>
                                         <p class="text-xs text-slate-500 dark:text-slate-400">Vehicle Type</p>
                                         <p class="text-sm font-medium text-slate-900 dark:text-white">{{ rental.vehicle_type || 'To be assigned' }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <div class="mt-0.5 h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400"></div>
+                                    <div>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400">Division / Organization</p>
+                                        <p class="text-sm font-medium text-slate-900 dark:text-white">{{ rental.organization || 'Not specified' }}</p>
                                     </div>
                                 </div>
                                 <div class="flex items-start space-x-3">

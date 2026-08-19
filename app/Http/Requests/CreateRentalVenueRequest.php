@@ -29,6 +29,7 @@ class CreateRentalVenueRequest extends FormRequest
             'destination_province' => ['nullable', 'string', 'exists:loc_cities,province'],
             'destination_region' => ['nullable', 'string', 'exists:loc_cities,region'],
             'requested_by' => ['required', 'string', 'max:255'],
+            'organization' => ['required', 'string', 'max:255'],
             'contact_number' => ['required', 'string', 'regex:/^[0-9\-\+\s\(\)]*$/'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ];
