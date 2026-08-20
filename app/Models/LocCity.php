@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class LocCity extends Model
+class LocCity extends BaseModel
 {
     protected $table = 'loc_cities';
 

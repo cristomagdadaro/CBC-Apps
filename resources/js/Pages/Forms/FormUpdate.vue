@@ -53,7 +53,7 @@ export default {
         ]"
       >
         <template #default="{ activeKey }">
-          <div v-if="activeKey === 'update'" class="mt-4 flex justify-center gap-5">
+          <div v-if="activeKey === 'update'" class="mt-4">
             <form-form :data="data" />
           </div>
 

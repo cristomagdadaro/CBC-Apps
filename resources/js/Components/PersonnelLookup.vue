@@ -156,7 +156,7 @@ export default {
                 @keydown.enter.prevent="searchPersonnel"
                 @input="delete clientErrors.employee_id"
             />
-            <button id="personnel-lookip-btn" type="button" class="px-3 py-[0.66rem] rounded bg-AB text-white text-sm hover:bg-AB-dark disabled:opacity-50" :disabled="processing" @click="searchPersonnel">
+            <button id="personnel-lookip-btn" type="button" class="px-3 py-[0.66rem] rounded bg-AB text-white text-sm hover:bg-AB-dark dark:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50 transition-colors" :disabled="processing" @click="searchPersonnel">
                 <search-icon v-if="!processing" class="w-5 h-5" />
                 <loader-icon v-else class="w-5 h-5 animate-spin" />
             </button>

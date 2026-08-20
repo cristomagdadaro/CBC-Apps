@@ -1,56 +1,22 @@
 <script>
-import {
-    AlertCircle,
-    CheckCircle2,
-    AlignLeft,
-    HelpCircle,
-    X,
-    Maximize2,
-    Minimize2
-} from 'lucide-vue-next';
+import FieldMixin from '@/Components/Forms/FieldMixin';
 
 export default {
     name: 'TextArea',
-    components: {
-        AlertCircle,
-        CheckCircle2,
-        AlignLeft,
-        HelpCircle,
-        X,
-        Maximize2,
-        Minimize2,
-    },
+    mixins: [FieldMixin],
     props: {
-        modelValue: { type: [String, Number], default: '' },
         autocomplete: { type: String, default: '' },
-        placeholder: { type: String, default: '' },
-        error: { type: String, default: '' },
         type: { type: String, default: '' },
-        classes: { type: String, default: '' },
-        required: { type: Boolean, default: false },
-        id: { type: String, default: '' },
-        label: { type: String, default: '' },
         rows: { type: Number, default: 4 },
-        guide: { type: String, default: null },
-        datalistId: { type: String, default: null },
-        datalistOptions: { type: Array, default: null },
         maxLength: { type: Number, default: null },
-        clearable: { type: Boolean, default: false },
         expandable: { type: Boolean, default: false },
-        hint: { type: String, default: null },
-        disabled: { type: Boolean, default: false },
     },
-    emits: ['update:modelValue', 'clear'],
     data() {
         return {
             isExpanded: false,
-            isFocused: false,
         }
     },
     mounted() {
-        if (this.$refs.input && this.$refs.input.hasAttribute('autofocus')) {
-            this.$refs.input.focus();
-        }
         this.$nextTick(() => this.adjustHeight());
     },
     watch: {
@@ -59,25 +25,15 @@ export default {
         }
     },
     computed: {
-        inputId() {
-            const value = String(this.id || '').trim();
-            return value === '' ? `textarea-${Math.random().toString(36).substr(2, 9)}` : value;
-        },
-        hasValue() {
-            return String(this.modelValue || '').length > 0;
-        },
         charCount() {
             return String(this.modelValue || '').length;
-        },
-        isValid() {
-            return this.hasValue && !this.error && (!this.maxLength || this.charCount <= this.maxLength);
-        },
-        isInvalid() {
-            return !!this.error || (this.maxLength && this.charCount > this.maxLength);
         },
         isNearLimit() {
             return this.maxLength && this.charCount > this.maxLength * 0.9 && this.charCount <= this.maxLength;
         },
+        isOverLimit() {
+            return this.maxLength && this.charCount > this.maxLength;
+        }
     },
     methods: {
         adjustHeight() {
@@ -93,23 +49,9 @@ export default {
             this.$emit('update:modelValue', e.target.value);
             this.adjustHeight();
         },
-        focus() {
-            this.$refs.input?.focus();
-        },
-        onClear() {
-            this.$emit('update:modelValue', '');
-            this.$emit('clear');
-            this.focus();
-        },
         toggleExpand() {
             this.isExpanded = !this.isExpanded;
             this.$nextTick(() => this.adjustHeight());
-        },
-        onFocus() {
-            this.isFocused = true;
-        },
-        onBlur() {
-            this.isFocused = false;
         },
     }
 }
@@ -117,168 +59,104 @@ export default {
 
 <template>
     <div
-        class="w-full relative"
-        :class="[
-            classes,
-            isExpanded ? 'fixed inset-4 z-50 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-2xl flex flex-col' : ''
-        ]"
+        class="w-full transition-all duration-300 ease-out"
+        :class="isExpanded ? 'fixed inset-4 sm:inset-10 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-5 sm:p-6 rounded-2xl shadow-2xl border border-slate-200/60 dark:border-slate-800 flex flex-col' : ''"
     >
-        <!-- Expanded Overlay Backdrop -->
-        <div v-if="isExpanded" class="fixed inset-0 bg-black/50 -z-10" @click="toggleExpand"></div>
+        <Transition name="fade">
+            <div v-if="isExpanded" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm -z-10" @click="toggleExpand"></div>
+        </Transition>
 
-        <!-- Label Row -->
-        <div v-if="label" class="flex items-center justify-between mb-1.5" :class="{ 'mb-3': isExpanded }">
-            <label
-                :for="inputId"
-                class="text-xs font-medium text-gray-700 dark:text-gray-200 flex items-center gap-1 cursor-pointer"
-            >
-                <AlignLeft class="w-3.5 h-3.5 text-gray-400" />
-                <span class="flex items-center gap-0.5">
-                    {{ label }}
-                    <span v-if="required" class="text-red-500" aria-label="required">*</span>
-                </span>
-                <HelpCircle
-                    v-if="hint"
-                    :tooltip="hint"
-                    class="w-3.5 h-3.5 text-gray-400 hover:text-gray-500 cursor-help ml-1"
-                />
-            </label>
+        <Field
+            :id="id"
+            :label="label"
+            :required="required"
+            :hint="hint"
+            :guide="isExpanded ? null : guide"
+            :error="error || (isOverLimit ? 'Character limit exceeded' : null)"
+            :clearable="clearable && !isExpanded"
+            :has-value="hasValue"
+            :disabled="disabled"
+            :datalist-id="datalistId"
+            :datalist-options="datalistOptions"
+            :classes="[classes, isExpanded ? 'flex-1 h-full flex flex-col' : '']"
+            @clear="onClear"
+        >
+            <template #label-icon>
+                <LuAlignLeft class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
+            </template>
 
-            <div class="flex items-center gap-2">
-                <!-- Character Count -->
+            <template #header-actions>
                 <span
                     v-if="maxLength"
-                    class="text-xs"
+                    class="text-[0.65rem] font-semibold tracking-wider"
                     :class="{
-                        'text-gray-400': !isNearLimit && !isInvalid,
+                        'text-slate-400 dark:text-slate-500': !isNearLimit && !isOverLimit,
                         'text-amber-500': isNearLimit,
-                        'text-red-500': isInvalid,
+                        'text-rose-500': isOverLimit,
                     }"
                 >
-                    {{ charCount }}/{{ maxLength }}
+                    {{ charCount }} / {{ maxLength }}
                 </span>
-
-                <!-- Expand Toggle -->
+                
                 <button
                     v-if="expandable"
                     type="button"
                     @click="toggleExpand"
-                    class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-400 transition-colors"
                     :aria-label="isExpanded ? 'Collapse' : 'Expand'"
                 >
-                    <Minimize2 v-if="isExpanded" class="w-4 h-4" />
-                    <Maximize2 v-else class="w-4 h-4" />
+                    <LuMinimize2 v-if="isExpanded" class="w-3.5 h-3.5" />
+                    <LuMaximize2 v-else class="w-3.5 h-3.5" />
                 </button>
+            </template>
 
-                <transition name="fade">
-                    <div v-if="error" class="flex items-center gap-1 text-xs text-red-600 dark:text-red-400">
-                        <AlertCircle class="w-3.5 h-3.5" />
-                        <span class="max-w-[200px] truncate">{{ error }}</span>
-                    </div>
-                </transition>
-            </div>
-        </div>
-
-        <!-- Textarea Wrapper -->
-        <div
-            class="relative flex items-start group"
-            :class="{
-                'opacity-60 cursor-not-allowed': disabled,
-                'flex-1': isExpanded
-            }"
-        >
-            <textarea
-                :id="inputId"
-                ref="input"
-                :rows="rows"
-                :class="[
-                    'w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100',
-                    'placeholder:text-gray-400 dark:placeholder:text-gray-500',
-                    'rounded-lg shadow-sm px-3 py-2.5 text-sm leading-relaxed',
-                    'transition-all duration-200 ease-in-out',
-                    'border resize-none overflow-hidden',
-                    isInvalid
-                        ? 'border-red-300 dark:border-red-700 focus:border-red-500 focus:ring-2 focus:ring-red-200 dark:focus:ring-red-900'
-                        : isValid
-                            ? 'border-green-300 dark:border-green-700 focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-900'
-                            : 'border-gray-300 dark:border-gray-600 focus:border-AA focus:ring-2 focus:ring-AA/20',
-                    disabled ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : '',
-                    isExpanded ? 'flex-1 h-full' : '',
-                    (clearable || isValid || isInvalid) && !isExpanded ? 'pr-10' : '',
-                ]"
-                :value="modelValue"
-                :placeholder="placeholder"
-                :disabled="disabled"
-                :list="datalistId"
-                :maxlength="maxLength"
-                :required="required"
-                :aria-invalid="isInvalid"
-                :aria-describedby="guide ? `${inputId}-guide` : undefined"
-                @input="onInput"
-                @focus="onFocus"
-                @blur="onBlur"
-            />
-
-            <!-- Action Buttons (Inline, only when not expanded) -->
-            <div v-if="!isExpanded" class="absolute right-2 top-2 flex items-center gap-1">
-                <!-- Clear Button -->
-                <button
-                    v-if="clearable && hasValue && !disabled"
-                    type="button"
-                    @click="onClear"
-                    class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    aria-label="Clear textarea"
-                >
-                    <X class="w-4 h-4" />
-                </button>
-
-                <!-- Validation Icons -->
-                <CheckCircle2
-                    v-else-if="isValid"
-                    class="w-4 h-4 text-green-500"
-                    aria-hidden="true"
+            <template #default="{ inputId, isInvalid, isValid, guideId }">
+                <textarea
+                    :id="inputId"
+                    ref="input"
+                    :rows="rows"
+                    :class="[
+                        'w-full rounded-xl px-4 py-3 text-sm transition-all duration-200 ease-out border resize-none overflow-hidden',
+                        'placeholder:text-slate-400 dark:placeholder:text-slate-500',
+                        isInvalid
+                            ? 'border-rose-300 dark:border-rose-700 bg-rose-50/50 dark:bg-rose-900/10 text-rose-900 dark:text-rose-100 focus:border-rose-500 focus:ring-1 focus:ring-rose-500'
+                            : isValid
+                                ? 'border-emerald-300 dark:border-emerald-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500'
+                                : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500',
+                        disabled ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed text-slate-500 dark:text-slate-400' : '',
+                        isExpanded ? 'flex-1 h-full shadow-inner min-h-[200px]' : 'shadow-sm',
+                        (clearable || isValid || isInvalid) && !isExpanded ? 'pr-11' : '',
+                    ]"
+                    :value="modelValue"
+                    :placeholder="placeholder"
+                    :disabled="disabled"
+                    :list="datalistId"
+                    :required="required"
+                    :aria-invalid="isInvalid"
+                    :aria-describedby="guideId"
+                    @input="onInput"
+                    @focus="onFocus"
+                    @blur="onBlur"
                 />
-                <AlertCircle
-                    v-else-if="isInvalid"
-                    class="w-4 h-4 text-red-500"
-                    aria-hidden="true"
-                />
-            </div>
 
-            <!-- Expanded Actions -->
-            <div v-if="isExpanded" class="flex justify-end gap-2 mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                <button
-                    type="button"
-                    @click="toggleExpand"
-                    class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                >
-                    Done
-                </button>
-            </div>
-
-            <!-- Datalist -->
-            <datalist v-if="datalistId && datalistOptions?.length" :id="datalistId">
-                <option v-for="opt in datalistOptions" :key="opt" :value="opt" />
-            </datalist>
-        </div>
-
-        <!-- Guide Text -->
-        <p
-            v-if="guide && !isExpanded"
-            :id="`${inputId}-guide`"
-            class="mt-1.5 text-xs text-gray-500 dark:text-gray-400 flex items-start gap-1"
-        >
-            <HelpCircle class="w-3 h-3 mt-0.5 flex-shrink-0" />
-            <span>{{ guide }}</span>
-        </p>
+                <div v-if="isExpanded" class="absolute bottom-4 right-4 flex justify-end">
+                    <button
+                        type="button"
+                        @click="toggleExpand"
+                        class="px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md shadow-indigo-600/20 transition-all active:scale-95"
+                    >
+                        Done
+                    </button>
+                </div>
+            </template>
+        </Field>
     </div>
 </template>
 
 <style scoped>
-/* Transitions */
 .fade-enter-active,
 .fade-leave-active {
-    transition: opacity 0.2s ease;
+    transition: opacity 0.3s ease;
 }
 
 .fade-enter-from,
@@ -286,28 +164,26 @@ export default {
     opacity: 0;
 }
 
-/* Focus ring animation */
 textarea:focus {
     outline: none;
 }
 
-/* Custom autofill styling */
+/* Custom autofill styling tailored for slate theme */
 textarea:-webkit-autofill,
 textarea:-webkit-autofill:hover,
 textarea:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0px 1000px white inset;
-    -webkit-text-fill-color: inherit;
+    -webkit-box-shadow: 0 0 0px 1000px #f8fafc inset;
+    -webkit-text-fill-color: #0f172a;
 }
 
 .dark textarea:-webkit-autofill,
 .dark textarea:-webkit-autofill:hover,
 .dark textarea:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0px 1000px rgb(31, 41, 55) inset;
-    -webkit-text-fill-color: rgb(243, 244, 246);
+    -webkit-box-shadow: 0 0 0px 1000px #0f172a inset;
+    -webkit-text-fill-color: #f1f5f9;
 }
 
-/* Smooth height transition */
 textarea {
-    transition: height 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 </style>

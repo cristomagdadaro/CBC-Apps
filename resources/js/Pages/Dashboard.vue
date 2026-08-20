@@ -1,5 +1,6 @@
 <script>
 import { Link } from '@inertiajs/vue3';
+import { markRaw } from 'vue';
 import {
     Chart,
     PieController,
@@ -28,13 +29,6 @@ export default {
     },
     data() {
         return {
-            trendChartInstance: null,
-            eventsChartInstance: null,
-            accessChartInstance: null,
-            inventoryChartInstance: null,
-            vehicleChartInstance: null,
-            venueChartInstance: null,
-            labChartInstance: null,
             eventColors: ['#22c55e', '#0ea5e9', '#eab308', '#ef4444'],
             accessColors: ['#eab308', '#22c55e', '#ef4444'],
             invColors: ['#6b7280', '#f97316', '#0ea5e9', '#22c55e'],
@@ -163,97 +157,105 @@ export default {
                     return g;
                 };
 
-                this.trendChartInstance = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels,
-                        datasets: [
-                            {
-                                label: 'Transactions',
-                                data: trend.map(d => d.transactions),
-                                borderColor: '#0ea5e9',
-                                backgroundColor: makeGradient('14, 165, 233', 0.25),
-                                tension: 0.4,
-                                fill: true,
-                                pointRadius: 4,
-                                pointBackgroundColor: '#0ea5e9',
-                                borderWidth: 2.5,
-                            },
-                            {
-                                label: 'Equipment',
-                                data: trend.map(d => d.equipment),
-                                borderColor: '#8b5cf6',
-                                backgroundColor: makeGradient('139, 92, 246', 0.2),
-                                tension: 0.4,
-                                fill: true,
-                                pointRadius: 4,
-                                pointBackgroundColor: '#8b5cf6',
-                                borderWidth: 2.5,
-                            },
-                            {
-                                label: 'Rentals',
-                                data: trend.map(d => d.rentals),
-                                borderColor: '#f59e0b',
-                                backgroundColor: makeGradient('245, 158, 11', 0.15),
-                                tension: 0.4,
-                                fill: true,
-                                pointRadius: 4,
-                                pointBackgroundColor: '#f59e0b',
-                                borderWidth: 2.5,
-                            },
-                            {
-                                label: 'Events',
-                                data: trend.map(d => d.events),
-                                borderColor: '#22c55e',
-                                backgroundColor: makeGradient('34, 197, 94', 0.15),
-                                tension: 0.4,
-                                fill: true,
-                                pointRadius: 4,
-                                pointBackgroundColor: '#22c55e',
-                                borderWidth: 2.5,
-                            },
-                        ],
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: { mode: 'index', intersect: false },
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'top',
-                                align: 'end',
-                                labels: {
-                                    usePointStyle: true,
-                                    pointStyle: 'circle',
-                                    padding: 16,
-                                    font: { size: 11, weight: '600' },
-                                    color: '#94a3b8',
+                if (this.trendChartInstance) {
+                    this.trendChartInstance.destroy();
+                }
+
+                try {
+                        this.trendChartInstance = markRaw(new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels,
+                            datasets: [
+                                {
+                                    label: 'Transactions',
+                                    data: trend.map(d => d.transactions),
+                                    borderColor: '#0ea5e9',
+                                    backgroundColor: makeGradient('14, 165, 233', 0.25),
+                                    tension: 0.4,
+                                    fill: true,
+                                    pointRadius: 4,
+                                    pointBackgroundColor: '#0ea5e9',
+                                    borderWidth: 2.5,
+                                },
+                                {
+                                    label: 'Equipment',
+                                    data: trend.map(d => d.equipment),
+                                    borderColor: '#8b5cf6',
+                                    backgroundColor: makeGradient('139, 92, 246', 0.2),
+                                    tension: 0.4,
+                                    fill: true,
+                                    pointRadius: 4,
+                                    pointBackgroundColor: '#8b5cf6',
+                                    borderWidth: 2.5,
+                                },
+                                {
+                                    label: 'Rentals',
+                                    data: trend.map(d => d.rentals),
+                                    borderColor: '#f59e0b',
+                                    backgroundColor: makeGradient('245, 158, 11', 0.15),
+                                    tension: 0.4,
+                                    fill: true,
+                                    pointRadius: 4,
+                                    pointBackgroundColor: '#f59e0b',
+                                    borderWidth: 2.5,
+                                },
+                                {
+                                    label: 'Events',
+                                    data: trend.map(d => d.events),
+                                    borderColor: '#22c55e',
+                                    backgroundColor: makeGradient('34, 197, 94', 0.15),
+                                    tension: 0.4,
+                                    fill: true,
+                                    pointRadius: 4,
+                                    pointBackgroundColor: '#22c55e',
+                                    borderWidth: 2.5,
+                                },
+                            ],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { mode: 'index', intersect: false },
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top',
+                                    align: 'end',
+                                    labels: {
+                                        usePointStyle: true,
+                                        pointStyle: 'circle',
+                                        padding: 16,
+                                        font: { size: 11, weight: '600' },
+                                        color: '#94a3b8',
+                                    },
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(15, 23, 42, 0.92)',
+                                    padding: 12,
+                                    cornerRadius: 10,
+                                    titleFont: { size: 12, weight: '600' },
+                                    bodyFont: { size: 11 },
                                 },
                             },
-                            tooltip: {
-                                backgroundColor: 'rgba(15, 23, 42, 0.92)',
-                                padding: 12,
-                                cornerRadius: 10,
-                                titleFont: { size: 12, weight: '600' },
-                                bodyFont: { size: 11 },
+                            scales: {
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { color: '#94a3b8', font: { size: 11, weight: '500' } },
+                                    border: { display: false },
+                                },
+                                y: {
+                                    grid: { color: 'rgba(148, 163, 184, 0.08)' },
+                                    ticks: { color: '#94a3b8', font: { size: 11 }, stepSize: 1 },
+                                    border: { display: false },
+                                    beginAtZero: true,
+                                },
                             },
                         },
-                        scales: {
-                            x: {
-                                grid: { display: false },
-                                ticks: { color: '#94a3b8', font: { size: 11, weight: '500' } },
-                                border: { display: false },
-                            },
-                            y: {
-                                grid: { color: 'rgba(148, 163, 184, 0.08)' },
-                                ticks: { color: '#94a3b8', font: { size: 11 }, stepSize: 1 },
-                                border: { display: false },
-                                beginAtZero: true,
-                            },
-                        },
-                    },
-                });
+                    }));
+                } catch(e) {
+                    console.warn(e)
+                }
             });
         },
         buildModuleCharts() {
@@ -363,20 +365,28 @@ export default {
                         },
                     };
 
-                    this[config.key] = new Chart(canvas, {
-                        type: config.type,
-                        data: {
-                            labels: config.labels,
-                            datasets: [{
-                                label: config.label,
-                                data: config.data,
-                                backgroundColor: config.colors,
-                                borderWidth: 0,
-                                borderRadius: config.type === 'bar' ? 4 : 0,
-                            }],
-                        },
-                        options,
-                    });
+                    if (this[config.key]) {
+                        this[config.key].destroy();
+                    }
+
+                    try {
+                        this[config.key] = markRaw(new Chart(canvas, {
+                            type: config.type,
+                            data: {
+                                labels: config.labels,
+                                datasets: [{
+                                    label: config.label,
+                                    data: config.data,
+                                    backgroundColor: config.colors,
+                                    borderWidth: 0,
+                                    borderRadius: config.type === 'bar' ? 4 : 0,
+                                }],
+                            },
+                            options,
+                        }));
+                    } catch(e) {
+                        console.warn(e)
+                    }
                 });
             });
         },

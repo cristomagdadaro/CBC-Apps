@@ -113,11 +113,11 @@ export default {
             return Math.round(((this.currentMaxSlots - (this.slotsAvailable ?? 0)) / this.currentMaxSlots) * 100);
         },
         slotStatusClass() {
-            if (this.slotsAvailable === 0) return 'slot-full';
+            if (this.slotsAvailable === 0) return 'bg-red-500';
             const ratio = (this.slotsAvailable ?? 0) / (this.currentMaxSlots ?? 1);
-            if (ratio <= 0.25) return 'slot-critical';
-            if (ratio <= 0.5) return 'slot-low';
-            return 'slot-ok';
+            if (ratio <= 0.25) return 'bg-orange-500';
+            if (ratio <= 0.5) return 'bg-amber-500';
+            return 'bg-emerald-500';
         },
         eventStartAt() {
             const startDate = this.data?.date_from;
@@ -183,10 +183,6 @@ export default {
                 s: String(s).padStart(2, '0'),
             };
         },
-        countdownDisplay() {
-            const p = this.countdownParts;
-            return `${p.d}d ${p.h}h ${p.m}m ${p.s}s`;
-        },
         isExpired() {
             return this.eventState === 'expired';
         },
@@ -202,7 +198,6 @@ export default {
         this.hydrateParticipantLookupEmail();
         this.loadWorkflow();
         this.isInitialized = true;
-        window.addEventListener('resize', this.handleResize);
     },
     watch: {
         participantHashes: {
@@ -221,10 +216,8 @@ export default {
     beforeDestroy() {
         clearInterval(this.intervalId);
         clearInterval(this.formCountdownIntervalId);
-        window.removeEventListener('resize', this.handleResize);
     },
     methods: {
-        handleResize() { this.$forceUpdate(); },
         normalizeParticipantHash(value) {
             if (!value || typeof value !== 'string') return null;
             const normalized = value.trim();
@@ -487,17 +480,6 @@ export default {
             const step = this.getStep(identifier) ?? this.whatForm(identifier);
             return step ? step.id : null;
         },
-        isFormOpen(form) {
-            if (!form) return false;
-            const open_from = form.open_from ?? form.config?.open_from;
-            const open_to = form.open_to ?? form.config?.open_to;
-            if (!open_from || !open_to) return false;
-            const now = new Date();
-            const openFrom = new Date(open_from);
-            const openTo = new Date(open_to);
-            if (isNaN(openFrom.getTime()) || isNaN(openTo.getTime())) return false;
-            return now >= openFrom && now <= openTo;
-        },
         styleFor(key) {
             const token = this.resolvedStyleTokens?.[key];
             const textColorToken = this.resolvedStyleTokens?.[`${key}-text-color`];
@@ -516,13 +498,6 @@ export default {
             if (textColorToken?.value) styles.color = textColorToken.value;
             if (textShadowToken?.value) styles.textShadow = textShadowToken.value;
             return styles;
-        },
-        isFormFull(formType) {
-            const form = this.getStep(formType) ?? this.whatForm(formType);
-            if (!form) return false;
-            const maxSlots = form?.max_slots ?? this.data?.max_slots ?? null;
-            const responsesCount = form?.responses_count ?? 0;
-            return !!maxSlots && maxSlots > 0 && responsesCount >= maxSlots;
         },
         getStepMessage(step) {
             if (!step) return 'This step is not available';
@@ -568,12 +543,6 @@ export default {
             const step = this.getStep(identifier);
             return step?.description || '';
         },
-        useLegacyComponent(formType) {
-            const step = this.getStep(formType);
-            if (this.hasDynamicSchema(step)) return false;
-            const legacyTypes = ['preregistration', 'preregistration_biotech', 'preregistration_quizbee', 'registration', 'feedback'];
-            return legacyTypes.includes(formType);
-        },
         getStepIcon(status) {
             const map = {
                 locked: 'Lock',
@@ -590,1247 +559,361 @@ export default {
 </script>
 
 <template>
-    <div v-if="!!data" class="pin-guest-card">
+    <div v-if="!!data" class="max-w-3xl mx-auto space-y-5 pb-24 md:pb-8 w-full">
 
-        <!-- ─── Mobile Header ─── -->
-        <div v-if="workflowTabs.length > 1" class="mobile-header md:hidden" :style="styleFor('form-background')">
-            <button
-                @click="showMobileMenu = !showMobileMenu"
-                class="mobile-menu-btn"
-            >
-                <Menu :size="18" :stroke-width="1.75" />
+        <!-- Mobile Header (Hidden on Desktop) -->
+        <div v-if="workflowTabs.length > 1" class="md:hidden sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 shadow-sm px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2 min-w-0">
+                <span class="inline-flex items-center gap-1 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 text-xs font-medium font-mono px-2 py-0.5 rounded-full tracking-wide shrink-0">
+                    <Hash :size="12" :stroke-width="2" /> {{ data.event_id }}
+                </span>
+                <span class="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">{{ data.title }}</span>
+            </div>
+            <button @click="showMobileMenu = !showMobileMenu" class="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0">
+                <Menu :size="18" :stroke-width="2" />
             </button>
         </div>
 
-        <!-- ─── Mobile Drawer ─── -->
-        <Transition name="drawer">
-            <div
-                v-if="showMobileMenu && workflowTabs.length > 1"
-                class="drawer-overlay md:hidden"
-                @click="showMobileMenu = false"
-            >
-                <div class="drawer-panel" @click.stop>
-                    <div class="drawer-header">
-                        <span class="drawer-title">Form Steps</span>
-                        <button @click="showMobileMenu = false" class="drawer-close">
-                            <X :size="16" :stroke-width="1.75" />
+        <!-- Mobile Steps Drawer -->
+        <Transition
+            enter-active-class="transition duration-300 ease-out"
+            enter-from-class="opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="transition duration-200 ease-in"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0"
+        >
+            <div v-if="showMobileMenu && workflowTabs.length > 1" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm md:hidden" @click="showMobileMenu = false">
+                <div class="absolute right-0 top-0 h-full w-64 bg-white dark:bg-slate-900 shadow-2xl p-5 flex flex-col gap-4 transform transition-transform" @click.stop>
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 mb-2">
+                        <span class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Form Steps</span>
+                        <button @click="showMobileMenu = false" class="p-1 rounded-md text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <X :size="16" :stroke-width="2" />
                         </button>
                     </div>
-                    <div class="drawer-steps">
+                    <div class="flex flex-col gap-1.5">
                         <button
-                            v-for="(tab, i) in workflowTabs"
-                            :key="tab.key"
+                            v-for="(tab, i) in workflowTabs" :key="tab.key"
                             @click="activeTab = tab.key; showMobileMenu = false"
-                            class="drawer-step-btn"
-                            :class="{ 'active': activeTab === tab.key, 'disabled': tab.disabled }"
+                            class="flex items-center gap-3 w-full text-left px-3 py-2.5 rounded-xl transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            :class="activeTab === tab.key ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50'"
                             :disabled="tab.disabled"
                         >
-                            <span class="step-num">{{ i + 1 }}</span>
-                            <span class="step-label">{{ tab.label }}</span>
-                            <span
-                                class="step-dot"
-                                :class="`dot-${tab.status}`"
-                            />
+                            <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium shrink-0" :class="activeTab === tab.key ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'">{{ i + 1 }}</span>
+                            <span class="flex-1 truncate">{{ tab.label }}</span>
                         </button>
                     </div>
                 </div>
             </div>
         </Transition>
 
-        <!-- ─── Main layout ─── -->
-        <div class="card-shell">
-
-            <!-- ══ EVENT HEADER CARD ══ -->
-            <div class="event-card" :style="styleFor('form-background')">
-
-                <!-- Header block -->
-                <div class="event-header" :style="styleFor('form-header-box')">
-                    <div class="event-header-content">
-                        <div class="event-meta">
-                            <div class="event-id-badge">
-                                <Hash :size="11" :stroke-width="2.5" />
-                                <span>{{ data.event_id }}</span>
-                            </div>
-                            <h2 class="event-title" :style="{ color: resolvedStyleTokens?.['form-header-box-text-color']?.value }">
-                                {{ data.title }}
-                            </h2>
-                            <p class="event-desc" :style="{ color: resolvedStyleTokens?.['form-header-box-text-color']?.value }">
-                                {{ data.description }}
-                            </p>
-                        </div>
+        <!-- EVENT HEADER CARD -->
+        <div class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden" :style="styleFor('form-background')">
+            
+            <div class="p-6 sm:p-8 border-b border-white/10 dark:border-slate-800/50 relative" :style="{ ...styleFor('form-header-box') }">
+                <div class="relative z-10 flex flex-col gap-2.5">
+                    <div class="inline-flex items-center gap-1.5 bg-black/5 dark:bg-white/5 backdrop-blur-md text-xs font-medium font-mono px-2.5 py-1 rounded-full uppercase tracking-wide w-fit" :style="{ color: resolvedStyleTokens?.['form-header-box-text-color']?.value }">
+                        <Hash :size="12" :stroke-width="2" /> {{ data.event_id }}
                     </div>
+                    <h2 class="text-xl sm:text-2xl font-semibold tracking-tight leading-tight" :style="{ color: resolvedStyleTokens?.['form-header-box-text-color']?.value }">
+                        {{ data.title }}
+                    </h2>
+                    <p class="text-sm font-normal opacity-90 leading-relaxed max-w-2xl" :style="{ color: resolvedStyleTokens?.['form-header-box-text-color']?.value }">
+                        {{ data.description }}
+                    </p>
                 </div>
+            </div>
 
-                <!-- Status ribbon -->
-                <div class="status-ribbon">
-                    <div class="status-left">
-                        <span class="status-badge" :class="`badge-${eventState}`">
-                            <span v-if="eventState === 'ongoing'" class="live-ring">
-                                <span class="live-ring-ping" />
-                                <span class="live-ring-dot" />
-                            </span>
-                            <span v-else class="status-dot" :class="`dot-state-${eventState}`" />
-                            {{ eventState === 'ongoing' ? 'Live' : eventState === 'upcoming' ? 'Upcoming' : 'Ended' }}
+            <!-- Status Ribbon -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between px-5 sm:px-6 py-3.5 bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 gap-3">
+                <div class="flex items-center">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium uppercase tracking-wide rounded-full"
+                        :class="eventState === 'ongoing' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : eventState === 'upcoming' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' : 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'">
+                        <span v-if="eventState === 'ongoing'" class="relative flex h-1.5 w-1.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                         </span>
-                    </div>
-                    <div class="countdown-ticker">
-                        <template v-if="eventCountdownTargetAt">
-                            <div class="ticker-unit">
-                                <span class="ticker-num">{{ countdownParts.d }}</span>
-                                <span class="ticker-label">d</span>
-                            </div>
-                            <span class="ticker-sep">:</span>
-                            <div class="ticker-unit">
-                                <span class="ticker-num">{{ countdownParts.h }}</span>
-                                <span class="ticker-label">h</span>
-                            </div>
-                            <span class="ticker-sep">:</span>
-                            <div class="ticker-unit">
-                                <span class="ticker-num">{{ countdownParts.m }}</span>
-                                <span class="ticker-label">m</span>
-                            </div>
-                            <span class="ticker-sep">:</span>
-                            <div class="ticker-unit">
-                                <span class="ticker-num">{{ countdownParts.s }}</span>
-                                <span class="ticker-label">s</span>
-                            </div>
-                        </template>
-                        <span v-else class="ticker-ended">—</span>
-                    </div>
+                        <span v-else class="w-1.5 h-1.5 rounded-full" :class="eventState === 'upcoming' ? 'bg-amber-500' : 'bg-red-500'"></span>
+                        {{ eventState === 'ongoing' ? 'Live' : eventState === 'upcoming' ? 'Upcoming' : 'Ended' }}
+                    </span>
                 </div>
-
-                <!-- Dates grid -->
-                <div class="dates-grid">
-                    <div class="date-cell" :style="styleFor('form-time-from')">
-                        <div class="date-cell-label">
-                            <CalendarDays :size="12" :stroke-width="1.75" />
-                            Starts
-                        </div>
-                        <p class="date-cell-value" :style="{ color: resolvedStyleTokens?.['form-time-from-text-color']?.value }">
-                            {{ formatDate(data.date_from) }}
-                        </p>
-                        <p class="date-cell-time" :style="{ color: resolvedStyleTokens?.['form-time-from-text-color']?.value }">
-                            {{ formatTime(data.time_from) }}
-                        </p>
-                    </div>
-                    <div class="date-divider" />
-                    <div class="date-cell" :style="styleFor('form-time-to')">
-                        <div class="date-cell-label">
-                            <CalendarDays :size="12" :stroke-width="1.75" />
-                            Ends
-                        </div>
-                        <p class="date-cell-value" :style="{ color: resolvedStyleTokens?.['form-time-to-text-color']?.value }">
-                            {{ formatDate(data.date_to) }}
-                        </p>
-                        <p class="date-cell-time" :style="{ color: resolvedStyleTokens?.['form-time-to-text-color']?.value }">
-                            {{ formatTime(data.time_to) }}
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Venue -->
-                <div v-if="data.venue" class="venue-row">
-                    <MapPin :size="14" :stroke-width="1.75" class="venue-icon" />
-                    <div class="venue-text">
-                        <p class="venue-name">{{ data.venue }}</p>
-                        <p v-if="data.details" class="venue-details">{{ data.details }}</p>
-                    </div>
-                </div>
-
-                <!-- Slots -->
-                <div v-if="currentMaxSlots && currentMaxSlots > 0" class="slots-row">
-                    <div class="slots-info">
-                        <Users :size="13" :stroke-width="1.75" class="slots-icon" />
-                        <span class="slots-text">
-                            <strong>{{ slotsAvailable }}</strong> of {{ currentMaxSlots }} slots available
-                        </span>
-                    </div>
-                    <div class="slots-bar-track">
-                        <div
-                            class="slots-bar-fill"
-                            :class="slotStatusClass"
-                            :style="{ width: `${slotFillPercent}%` }"
-                        />
-                    </div>
+                
+                <!-- Countdown Ticker -->
+                <div class="flex items-center gap-1.5">
+                    <template v-if="eventCountdownTargetAt">
+                        <div class="flex items-baseline gap-0.5"><span class="font-mono text-sm font-medium text-slate-800 dark:text-slate-200">{{ countdownParts.d }}</span><span class="text-xs font-medium text-slate-500 dark:text-slate-400">d</span></div>
+                        <span class="text-slate-300 dark:text-slate-600 font-mono">:</span>
+                        <div class="flex items-baseline gap-0.5"><span class="font-mono text-sm font-medium text-slate-800 dark:text-slate-200">{{ countdownParts.h }}</span><span class="text-xs font-medium text-slate-500 dark:text-slate-400">h</span></div>
+                        <span class="text-slate-300 dark:text-slate-600 font-mono">:</span>
+                        <div class="flex items-baseline gap-0.5"><span class="font-mono text-sm font-medium text-slate-800 dark:text-slate-200">{{ countdownParts.m }}</span><span class="text-xs font-medium text-slate-500 dark:text-slate-400">m</span></div>
+                        <span class="text-slate-300 dark:text-slate-600 font-mono">:</span>
+                        <div class="flex items-baseline gap-0.5"><span class="font-mono text-sm font-medium text-slate-800 dark:text-slate-200">{{ countdownParts.s }}</span><span class="text-xs font-medium text-slate-500 dark:text-slate-400">s</span></div>
+                    </template>
+                    <span v-else class="text-sm font-medium text-slate-400">—</span>
                 </div>
             </div>
 
-            <!-- ══ STATUS ALERTS ══ -->
-            <div v-if="data.is_suspended" class="alert alert-warning">
-                <AlertTriangle :size="16" :stroke-width="1.75" class="alert-icon" />
-                <div>
-                    <p class="alert-title">Event Temporarily Unavailable</p>
-                    <p class="alert-body">This event is currently suspended and not accepting responses.</p>
-                </div>
-            </div>
-
-            <div v-else-if="isExpired" class="alert alert-danger">
-                <XCircle :size="16" :stroke-width="1.75" class="alert-icon" />
-                <div>
-                    <p class="alert-title">Event Has Ended</p>
-                    <p class="alert-body">This event is no longer accepting responses.</p>
-                </div>
-            </div>
-
-            <!-- ══ PARTICIPANT SELECTOR ══ -->
-            <div
-                v-if="participantHashes?.length && !data.is_suspended && !isExpired"
-                class="section-card"
-            >
-                <label class="field-label">Continue as</label>
-                <div class="participant-row">
-                    <custom-dropdown
-                        @selectedChange="onParticipantHashChange"
-                        :value="selectedParticipantHash"
-                        :options="[
-                            { name: null, label: 'New participant' },
-                            ...storedLocalHashedIds.map(item => ({
-                                name: item.participant_hash,
-                                label: item.participant.name
-                            })),
-                        ]"
-                        :withAllOption="false"
-                        class="flex-1"
-                    />
-                    <button v-if="selectedParticipantHash" @click="clearParticipant" class="btn-ghost-danger">
-                        <LogOut :size="15" :stroke-width="1.75" />
-                    </button>
-                </div>
-            </div>
-
-            <!-- ══ PARTICIPANT VERIFICATION ══ -->
-            <div
-                v-if="activeStep?.status === 'available' && participantWorkflowEnabled && participantVerificationEnabled && requiresParticipant(activeTab) && !selectedParticipantHash && !data.is_suspended && !isExpired"
-                class="section-card verify-card"
-            >
-                <div class="verify-header">
-                    <Shield :size="15" :stroke-width="1.75" class="verify-icon" />
-                    <span>Verify Your Registration</span>
-                </div>
-                <p class="verify-body">This step requires a registered participant profile. Have you used this form before?</p>
-
-                <div v-if="!participantFlowChoice" class="choice-grid">
-                    <button @click="setParticipantFlowChoice('yes')" class="choice-btn choice-yes">
-                        <UserCheck :size="22" :stroke-width="1.5" />
-                        <span class="choice-label">Yes, I have</span>
-                        <span class="choice-sub">Continue with my profile</span>
-                    </button>
-                    <button @click="setParticipantFlowChoice('no')" class="choice-btn choice-no">
-                        <UserPlus :size="22" :stroke-width="1.5" />
-                        <span class="choice-label">No, I'm new</span>
-                        <span class="choice-sub">Start preregistration</span>
-                    </button>
-                </div>
-
-                <div v-if="participantFlowChoice === 'yes'" class="email-lookup">
-                    <p class="lookup-hint">Enter your registered email address:</p>
-                    <div class="lookup-row">
-                        <div class="input-with-icon">
-                            <Mail :size="14" :stroke-width="1.75" class="input-icon" />
-                            <input
-                                v-model="participantLookupEmail"
-                                type="email"
-                                placeholder="your@email.com"
-                                class="pin-input"
-                                @keyup.enter="lookupRegisteredParticipant"
-                            />
-                        </div>
-                        <button
-                            @click="lookupRegisteredParticipant"
-                            :disabled="participantLookupLoading"
-                            class="btn-primary"
-                        >
-                            <Loader2 v-if="participantLookupLoading" :size="14" :stroke-width="1.75" class="spin" />
-                            <Search v-else :size="14" :stroke-width="1.75" />
-                            <span>Find</span>
-                        </button>
+            <!-- Dates Grid -->
+            <div class="grid grid-cols-2 divide-x divide-slate-100 dark:divide-slate-800 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+                <div class="p-4 sm:p-5 text-center" :style="styleFor('form-time-from')">
+                    <div class="flex items-center justify-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-1.5">
+                        <CalendarDays :size="14" :stroke-width="1.5" class="text-indigo-500 dark:text-indigo-400" /> Starts
                     </div>
+                    <p class="text-sm font-medium text-slate-900 dark:text-white" :style="{ color: resolvedStyleTokens?.['form-time-from-text-color']?.value }">{{ formatDate(data.date_from) }}</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5" :style="{ color: resolvedStyleTokens?.['form-time-from-text-color']?.value }">{{ formatTime(data.time_from) }}</p>
                 </div>
-
-                <div v-if="participantFlowChoice === 'no'" class="prereg-nudge">
-                    <p class="nudge-text">Complete preregistration first to get started.</p>
-                    <button @click="goToPreregistrationStep" class="btn-success">
-                        Go to Preregistration
-                        <ArrowRight :size="13" :stroke-width="2" />
-                    </button>
-                </div>
-
-                <div v-if="participantLookupSuccess" class="inline-alert inline-success">
-                    <CheckCircle :size="13" :stroke-width="1.75" />
-                    {{ participantLookupSuccess }}
-                </div>
-                <div v-if="participantLookupError" class="inline-alert inline-danger">
-                    <AlertCircle :size="13" :stroke-width="1.75" />
-                    {{ participantLookupError }}
+                <div class="p-4 sm:p-5 text-center" :style="styleFor('form-time-to')">
+                    <div class="flex items-center justify-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-1.5">
+                        <CalendarDays :size="14" :stroke-width="1.5" class="text-indigo-500 dark:text-indigo-400" /> Ends
+                    </div>
+                    <p class="text-sm font-medium text-slate-900 dark:text-white" :style="{ color: resolvedStyleTokens?.['form-time-to-text-color']?.value }">{{ formatDate(data.date_to) }}</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5" :style="{ color: resolvedStyleTokens?.['form-time-to-text-color']?.value }">{{ formatTime(data.time_to) }}</p>
                 </div>
             </div>
 
-            <!-- ══ LOADING ══ -->
-            <div v-if="workflowLoading" class="loading-state">
-                <Loader2 :size="18" :stroke-width="1.75" class="spin" />
-                <span>Loading forms…</span>
-            </div>
-
-            <!-- ══ ERROR ══ -->
-            <div v-if="workflowError" class="alert alert-danger text-center">
-                <AlertCircle :size="16" :stroke-width="1.75" class="alert-icon" />
-                <div>
-                    <p class="alert-title">Failed to load</p>
-                    <p class="alert-body">{{ workflowError }}</p>
+            <!-- Venue & Slots -->
+            <div v-if="data.venue" class="flex items-start gap-3 p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+                <MapPin :size="16" :stroke-width="1.5" class="text-indigo-500 dark:text-indigo-400 mt-0.5 shrink-0" />
+                <div class="flex flex-col gap-0.5">
+                    <p class="text-sm font-medium text-slate-800 dark:text-slate-200">{{ data.venue }}</p>
+                    <p v-if="data.details" class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{{ data.details }}</p>
                 </div>
             </div>
 
-            <!-- ══ TABS — Desktop ══ -->
-            <div v-if="workflowTabs.length > 1 && !workflowLoading" class="tabs-bar hidden md:flex">
-                <button
-                    v-for="(tab, i) in workflowTabs"
-                    :key="tab.key"
-                    @click="activeTab = tab.key"
-                    class="tab-btn"
-                    :class="{ 'tab-active': activeTab === tab.key, 'tab-disabled': tab.disabled }"
-                    :disabled="tab.disabled"
-                >
-                    <span class="tab-index">{{ i + 1 }}</span>
-                    <span class="tab-dot" :class="`dot-${tab.status}`" />
-                    <span class="tab-label">{{ tab.label }}</span>
+            <div v-if="currentMaxSlots && currentMaxSlots > 0" class="flex items-center justify-between gap-4 p-4 sm:p-5 bg-slate-50/80 dark:bg-slate-800/40">
+                <div class="flex items-center gap-2">
+                    <Users :size="14" :stroke-width="1.5" class="text-indigo-500 dark:text-indigo-400" />
+                    <span class="text-xs text-slate-500 dark:text-slate-400">
+                        <span class="font-medium text-slate-800 dark:text-slate-200">{{ slotsAvailable }}</span> of {{ currentMaxSlots }} slots available
+                    </span>
+                </div>
+                <div class="w-24 h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden shrink-0">
+                    <div class="h-full rounded-full transition-all duration-500" :class="slotStatusClass" :style="{ width: `${slotFillPercent}%` }"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATUS ALERTS -->
+        <div v-if="data.is_suspended" class="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-2xl shadow-sm">
+            <AlertTriangle :size="18" :stroke-width="1.5" class="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <div>
+                <p class="text-sm font-medium text-amber-900 dark:text-amber-200">Event Temporarily Unavailable</p>
+                <p class="text-xs text-amber-700 dark:text-amber-400/80 mt-1">This event is currently suspended and not accepting responses.</p>
+            </div>
+        </div>
+        <div v-else-if="isExpired" class="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-2xl shadow-sm">
+            <XCircle :size="18" :stroke-width="1.5" class="text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+            <div>
+                <p class="text-sm font-medium text-red-900 dark:text-red-200">Event Has Ended</p>
+                <p class="text-xs text-red-700 dark:text-red-400/80 mt-1">This event is no longer accepting responses.</p>
+            </div>
+        </div>
+
+        <!-- PARTICIPANT SELECTOR -->
+        <div v-if="participantHashes?.length && !data.is_suspended && !isExpired" class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm p-5 flex flex-col gap-3">
+            <label class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Continue as</label>
+            <div class="flex items-center gap-3">
+                <custom-dropdown
+                    @selectedChange="onParticipantHashChange"
+                    :value="selectedParticipantHash"
+                    :options="[
+                        { name: null, label: 'New participant' },
+                        ...storedLocalHashedIds.map(item => ({ name: item.participant_hash, label: item.participant.name }))
+                    ]"
+                    :withAllOption="false"
+                    class="flex-1 text-sm font-medium"
+                />
+                <button v-if="selectedParticipantHash" @click="clearParticipant" class="p-2 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors border border-transparent hover:border-red-200 dark:hover:border-red-500/30" title="Sign out">
+                    <LogOut :size="16" :stroke-width="1.5" />
+                </button>
+            </div>
+        </div>
+
+        <!-- PARTICIPANT VERIFICATION -->
+        <div v-if="activeStep?.status === 'available' && participantWorkflowEnabled && participantVerificationEnabled && requiresParticipant(activeTab) && !selectedParticipantHash && !data.is_suspended && !isExpired" class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm p-6 flex flex-col gap-5">
+            <div class="flex items-center gap-2.5 text-indigo-600 dark:text-indigo-400">
+                <Shield :size="18" :stroke-width="1.5" />
+                <span class="text-sm font-medium uppercase tracking-wide text-slate-900 dark:text-white">Verify Registration</span>
+            </div>
+            <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">This step requires a registered profile. Have you used this form before?</p>
+
+            <div v-if="!participantFlowChoice" class="grid grid-cols-2 gap-4">
+                <button @click="setParticipantFlowChoice('yes')" class="flex flex-col items-center gap-2 p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:border-indigo-500/50 dark:hover:bg-indigo-500/10 rounded-xl transition-all duration-200 group text-center">
+                    <UserCheck :size="24" :stroke-width="1.5" class="text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400" />
+                    <span class="text-sm font-medium text-slate-900 dark:text-white">Yes, I have</span>
+                    <span class="text-xs text-slate-500 dark:text-slate-400">Continue with profile</span>
+                </button>
+                <button @click="setParticipantFlowChoice('no')" class="flex flex-col items-center gap-2 p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:border-indigo-500/50 dark:hover:bg-indigo-500/10 rounded-xl transition-all duration-200 group text-center">
+                    <UserPlus :size="24" :stroke-width="1.5" class="text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400" />
+                    <span class="text-sm font-medium text-slate-900 dark:text-white">No, I'm new</span>
+                    <span class="text-xs text-slate-500 dark:text-slate-400">Start preregistration</span>
                 </button>
             </div>
 
-            <!-- ══ STEP INDICATOR — Mobile ══ -->
-            <div v-if="workflowTabs.length > 1 && !workflowLoading" class="step-indicator md:hidden">
-                <span class="step-prog">{{ workflowTabs.findIndex(t => t.key === activeTab) + 1 }} / {{ workflowTabs.length }}</span>
-                <span class="step-cur-label">{{ workflowTabs.find(t => t.key === activeTab)?.label }}</span>
+            <div v-if="participantFlowChoice === 'yes'" class="flex flex-col gap-3">
+                <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Enter your registered email:</p>
+                <div class="flex gap-2.5">
+                    <div class="relative flex-1">
+                        <Mail :size="14" :stroke-width="1.5" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input
+                            v-model="participantLookupEmail"
+                            type="email"
+                            placeholder="your@email.com"
+                            class="w-full pl-9 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all shadow-sm"
+                            @keyup.enter="lookupRegisteredParticipant"
+                        />
+                    </div>
+                    <button @click="lookupRegisteredParticipant" :disabled="participantLookupLoading" class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl shadow-sm transition-all disabled:opacity-50 shrink-0">
+                        <Loader2 v-if="participantLookupLoading" :size="14" :stroke-width="1.5" class="animate-spin" />
+                        <Search v-else :size="14" :stroke-width="1.5" />
+                        Find
+                    </button>
+                </div>
             </div>
 
-            <!-- ══ FORM CONTENT ══ -->
-            <div v-if="activeTab && !workflowLoading">
+            <div v-if="participantFlowChoice === 'no'" class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl">
+                <p class="text-sm text-slate-600 dark:text-slate-300">Complete preregistration first to get started.</p>
+                <button @click="goToPreregistrationStep" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl shadow-sm transition-all w-full sm:w-auto justify-center">
+                    Go to Preregistration <ArrowRight :size="14" :stroke-width="1.5" />
+                </button>
+            </div>
 
-                <!-- Step countdown banner -->
-                <div v-if="getStepCountdownMeta(getStep(activeTab))" class="step-countdown">
-                    <div class="step-countdown-inner">
-                        <Hourglass :size="13" :stroke-width="1.75" />
-                        <span>{{ getStepCountdownMeta(getStep(activeTab)).label }}</span>
-                    </div>
-                    <span
-                        class="step-countdown-value"
-                        :class="getStepCountdownMeta(getStep(activeTab)).label === 'Closes in' ? 'countdown-warn' : 'countdown-info'"
-                    >
-                        {{ getStepCountdownMeta(getStep(activeTab)).value }}
-                    </span>
+            <!-- Lookup Alerts -->
+            <div v-if="participantLookupSuccess" class="inline-flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-medium rounded-xl shadow-sm">
+                <CheckCircle :size="14" :stroke-width="1.5" /> {{ participantLookupSuccess }}
+            </div>
+            <div v-if="participantLookupError" class="inline-flex items-center gap-2 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400 text-xs font-medium rounded-xl shadow-sm">
+                <AlertCircle :size="14" :stroke-width="1.5" /> {{ participantLookupError }}
+            </div>
+        </div>
+
+        <!-- LOADING STATE -->
+        <div v-if="workflowLoading" class="flex flex-col items-center justify-center py-12 gap-3 text-indigo-600 dark:text-indigo-400">
+            <Loader2 :size="24" :stroke-width="1.5" class="animate-spin" />
+            <span class="text-sm font-medium uppercase tracking-wide opacity-80">Loading forms...</span>
+        </div>
+
+        <!-- ERROR STATE -->
+        <div v-if="workflowError" class="flex flex-col items-center justify-center p-8 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-2xl text-center">
+            <AlertCircle :size="28" :stroke-width="1.5" class="text-red-500 mb-2" />
+            <p class="text-sm font-medium text-red-900 dark:text-red-200">Failed to load</p>
+            <p class="text-xs text-red-700 dark:text-red-400 mt-1">{{ workflowError }}</p>
+        </div>
+
+        <!-- TABS (Desktop) -->
+        <div v-if="workflowTabs.length > 1 && !workflowLoading" class="hidden md:flex gap-1.5 p-1.5 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 rounded-xl overflow-x-auto no-scrollbar shadow-inner">
+            <button
+                v-for="(tab, i) in workflowTabs" :key="tab.key"
+                @click="activeTab = tab.key"
+                class="flex items-center gap-2.5 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap min-w-0"
+                :class="activeTab === tab.key ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400 ring-1 ring-slate-200 dark:ring-slate-600' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 disabled:opacity-50 disabled:cursor-not-allowed'"
+                :disabled="tab.disabled"
+            >
+                <span class="w-4 h-4 rounded-full flex items-center justify-center text-[0.65rem] shrink-0" :class="activeTab === tab.key ? 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'">{{ i + 1 }}</span>
+                <span class="truncate">{{ tab.label }}</span>
+                <!-- Status Dot -->
+                <span class="w-1.5 h-1.5 rounded-full shrink-0" :class="{
+                    'bg-emerald-500': tab.status === 'available',
+                    'bg-blue-500': tab.status === 'completed',
+                    'bg-slate-400': ['locked', 'not_yet_open', 'disabled', 'hidden'].includes(tab.status),
+                    'bg-red-500': ['expired', 'full'].includes(tab.status)
+                }"></span>
+            </button>
+        </div>
+
+        <!-- MAIN FORM AREA -->
+        <div v-if="activeTab && !workflowLoading" class="flex flex-col gap-4">
+            
+            <!-- Step Countdown Banner -->
+            <div v-if="getStepCountdownMeta(getStep(activeTab))" class="flex items-center justify-between p-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm">
+                <div class="flex items-center gap-2.5 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    <Hourglass :size="14" :stroke-width="1.5" />
+                    <span>{{ getStepCountdownMeta(getStep(activeTab)).label }}</span>
+                </div>
+                <span class="font-mono text-sm font-semibold" :class="getStepCountdownMeta(getStep(activeTab)).label === 'Closes in' ? 'text-amber-600 dark:text-amber-400' : 'text-blue-600 dark:text-blue-400'">
+                    {{ getStepCountdownMeta(getStep(activeTab)).value }}
+                </span>
+            </div>
+
+            <!-- Form Shell -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden flex flex-col mt-2">
+                <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
+                    <h3 class="text-base font-semibold text-slate-900 dark:text-white tracking-tight">{{ getStepTitle(activeTab) }}</h3>
+                    <p v-if="getDescription(activeTab)" class="text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">{{ getDescription(activeTab) }}</p>
                 </div>
 
-                <!-- Form shell -->
-                <div class="form-shell">
-                    <div class="form-shell-header">
-                        <h3 class="form-title">{{ getStepTitle(activeTab) }}</h3>
-                        <p v-if="getDescription(activeTab)" class="form-desc">{{ getDescription(activeTab) }}</p>
-                    </div>
+                <div class="p-6">
+                    <template v-if="activeStep?.status === 'available' && canRenderForm(activeTab)">
+                        <DynamicFormRenderer
+                            v-if="hasDynamicSchema(activeStep)"
+                            :field-schema="getFieldSchema(activeTab)"
+                            :event-id="getRequirementFormId(activeTab)"
+                            :subform-type="getStep(activeTab)?.form_type || activeTab"
+                            :participant-id="getParticipantIdForStep(activeTab)"
+                            :config="getStep(activeTab)"
+                            :title="getStepTitle(activeTab)"
+                            :description="getDescription(activeTab)"
+                            @createdModel="handleCreatedModel"
+                        />
+                        <preregistration-card
+                            v-else-if="getStep(activeTab)?.form_type === 'preregistration'"
+                            :event-id="getRequirementFormId(activeTab)"
+                            :config="getStep(activeTab)"
+                            @createdModel="handleCreatedModel"
+                        />
+                        <preregistration-quiz-bee-card
+                            v-else-if="getStep(activeTab)?.form_type === 'preregistration_biotech'"
+                            :event-id="getRequirementFormId(activeTab)"
+                            :config="getStep(activeTab)"
+                            @createdModel="handleCreatedModel"
+                        />
+                        <preregistration-quizbee-team-card
+                            v-else-if="getStep(activeTab)?.form_type === 'preregistration_quizbee'"
+                            :event-id="getRequirementFormId(activeTab)"
+                            :config="getStep(activeTab)"
+                            @createdModel="handleCreatedModel"
+                        />
+                        <registration-card
+                            v-else-if="getStep(activeTab)?.form_type === 'registration'"
+                            :event-id="getRequirementFormId(activeTab)"
+                            :participant-id="getParticipantIdForStep(activeTab)"
+                            :config="getStep(activeTab)"
+                            @createdModel="handleCreatedModel"
+                        />
+                        <feedback-card
+                            v-else-if="getStep(activeTab)?.form_type === 'feedback'"
+                            :event-id="getRequirementFormId(activeTab)"
+                            :participant-id="getParticipantIdForStep(activeTab)"
+                            :config="getStep(activeTab)"
+                            @createdModel="handleCreatedModel"
+                        />
+                    </template>
 
-                    <div class="form-body">
-                        <template v-if="activeStep?.status === 'available' && canRenderForm(activeTab)">
-                            <DynamicFormRenderer
-                                v-if="hasDynamicSchema(activeStep)"
-                                :field-schema="getFieldSchema(activeTab)"
-                                :event-id="getRequirementFormId(activeTab)"
-                                :subform-type="getStep(activeTab)?.form_type || activeTab"
-                                :participant-id="getParticipantIdForStep(activeTab)"
-                                :config="getStep(activeTab)"
-                                :title="getStepTitle(activeTab)"
-                                :description="getDescription(activeTab)"
-                                @createdModel="handleCreatedModel"
-                            />
-                            <preregistration-card
-                                v-else-if="getStep(activeTab)?.form_type === 'preregistration'"
-                                :event-id="getRequirementFormId(activeTab)"
-                                :config="getStep(activeTab)"
-                                @createdModel="handleCreatedModel"
-                            />
-                            <preregistration-quiz-bee-card
-                                v-else-if="getStep(activeTab)?.form_type === 'preregistration_biotech'"
-                                :event-id="getRequirementFormId(activeTab)"
-                                :config="getStep(activeTab)"
-                                @createdModel="handleCreatedModel"
-                            />
-                            <preregistration-quizbee-team-card
-                                v-else-if="getStep(activeTab)?.form_type === 'preregistration_quizbee'"
-                                :event-id="getRequirementFormId(activeTab)"
-                                :config="getStep(activeTab)"
-                                @createdModel="handleCreatedModel"
-                            />
-                            <registration-card
-                                v-else-if="getStep(activeTab)?.form_type === 'registration'"
-                                :event-id="getRequirementFormId(activeTab)"
-                                :participant-id="getParticipantIdForStep(activeTab)"
-                                :config="getStep(activeTab)"
-                                @createdModel="handleCreatedModel"
-                            />
-                            <feedback-card
-                                v-else-if="getStep(activeTab)?.form_type === 'feedback'"
-                                :event-id="getRequirementFormId(activeTab)"
-                                :participant-id="getParticipantIdForStep(activeTab)"
-                                :config="getStep(activeTab)"
-                                @createdModel="handleCreatedModel"
-                            />
-                        </template>
-
-                        <!-- Unavailable state -->
-                        <div v-else class="unavailable-state">
-                            <div class="unavail-icon-ring" :class="`ring-${activeStep?.status}`">
-                                <component
-                                    :is="getStepIcon(activeStep?.status)"
-                                    :size="24"
-                                    :stroke-width="1.5"
-                                    class="unavail-icon"
-                                    :class="`icon-${activeStep?.status}`"
-                                />
-                            </div>
-                            <p class="unavail-title">{{ getStepMessage(getStep(activeTab)) }}</p>
-                            <p v-if="activeStep?.status === 'locked'" class="unavail-sub">
-                                Complete previous steps to unlock this form.
-                            </p>
+                    <!-- Unavailable state inside shell -->
+                    <div v-else class="flex flex-col items-center justify-center py-16 px-4 text-center">
+                        <div class="w-14 h-14 rounded-full flex items-center justify-center mb-4" :class="{
+                            'bg-slate-100 dark:bg-slate-800 text-slate-400': ['locked', 'disabled'].includes(activeStep?.status),
+                            'bg-amber-50 dark:bg-amber-500/10 text-amber-500': activeStep?.status === 'not_yet_open',
+                            'bg-red-50 dark:bg-red-500/10 text-red-500': ['expired', 'full'].includes(activeStep?.status),
+                            'bg-blue-50 dark:bg-blue-500/10 text-blue-500': activeStep?.status === 'completed'
+                        }">
+                            <component :is="getStepIcon(activeStep?.status)" :size="28" :stroke-width="1.5" />
                         </div>
+                        <h3 class="text-base font-semibold text-slate-900 dark:text-white tracking-wide">{{ getStepMessage(getStep(activeTab)) }}</h3>
+                        <p v-if="activeStep?.status === 'locked'" class="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">Complete previous steps in the workflow to unlock this form.</p>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </template>
 
 <style scoped>
-/* ─── Design Tokens ─── */
-.pin-guest-card {
-    --pin-green: #1a7a4a;
-    --pin-green-light: #e8f5ee;
-    --pin-green-muted: #b4d9c5;
-    --pin-green-dark: #115233;
-    --pin-surface: #ffffff;
-    --pin-surface-2: #f8faf9;
-    --pin-surface-3: #f2f5f3;
-    --pin-border: #e2ebe6;
-    --pin-border-strong: #c8d9d1;
-    --pin-text: #111c16;
-    --pin-text-2: #3d5448;
-    --pin-text-3: #6b8578;
-    --pin-text-4: #9ab4a8;
-    --pin-red: #c0392b;
-    --pin-red-light: #fdf0ee;
-    --pin-amber: #b45309;
-    --pin-amber-light: #fef9ee;
-    --pin-blue: #1d5fa8;
-    --pin-blue-light: #eef4fc;
-    --pin-radius: 12px;
-    --pin-radius-sm: 8px;
-    --pin-radius-xs: 6px;
-    --pin-font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-
-    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-    background: var(--pin-surface-2);
-    padding-bottom: 5rem;
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
 }
-
-@media (min-width: 768px) {
-    .pin-guest-card { padding-bottom: 0; }
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
-
-/* ─── Mobile Header ─── */
-.mobile-header {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    background: var(--pin-surface);
-    border-bottom: 1px solid var(--pin-border);
-    padding: 0.625rem 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-}
-.mobile-header-inner {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    min-width: 0;
-    flex: 1;
-}
-.mobile-id-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    background: var(--pin-green-light);
-    color: var(--pin-green-dark);
-    font-size: 10px;
-    font-weight: 600;
-    font-family: var(--pin-font-mono);
-    padding: 3px 7px;
-    border-radius: 999px;
-    flex-shrink: 0;
-    letter-spacing: 0.04em;
-}
-.mobile-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--pin-text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.mobile-menu-btn {
-    padding: 6px;
-    color: var(--pin-text-2);
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    flex-shrink: 0;
-    border-radius: var(--pin-radius-xs);
-    transition: background 0.15s;
-}
-.mobile-menu-btn:hover { background: var(--pin-surface-3); }
-
-/* ─── Drawer ─── */
-.drawer-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 40;
-    background: rgba(0,0,0,0.45);
-}
-.drawer-panel {
-    position: absolute;
-    right: 0;
-    top: 0;
-    height: 100%;
-    width: 260px;
-    background: var(--pin-surface);
-    padding: 1.25rem 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-.drawer-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--pin-border);
-    margin-bottom: 0.25rem;
-}
-.drawer-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--pin-text);
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-}
-.drawer-close {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: var(--pin-text-3);
-    padding: 4px;
-    border-radius: var(--pin-radius-xs);
-}
-.drawer-steps { display: flex; flex-direction: column; gap: 4px; }
-.drawer-step-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: var(--pin-radius-sm);
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    text-align: left;
-    transition: background 0.15s;
-    width: 100%;
-}
-.drawer-step-btn:hover:not(.disabled) { background: var(--pin-surface-3); }
-.drawer-step-btn.active { background: var(--pin-green-light); }
-.drawer-step-btn.disabled { opacity: 0.45; cursor: not-allowed; }
-.step-num {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: var(--pin-surface-3);
-    color: var(--pin-text-2);
-    font-size: 11px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-.drawer-step-btn.active .step-num {
-    background: var(--pin-green);
-    color: #fff;
-}
-.step-label { font-size: 13px; color: var(--pin-text-2); flex: 1; }
-.drawer-step-btn.active .step-label { color: var(--pin-green-dark); font-weight: 500; }
-
-/* ─── Shell ─── */
-.card-shell {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.875rem;
-}
-@media (min-width: 768px) {
-    .card-shell { padding: 1.5rem; }
-}
-
-/* ─── Event Card ─── */
-.event-card {
-    background: var(--pin-surface);
-    border: 1px solid var(--pin-border);
-    border-radius: var(--pin-radius);
-    overflow: hidden;
-}
-
-/* Header block */
-.event-header {
-    padding: 1.25rem 1.25rem 1rem;
-    border-left: 3px solid var(--pin-green);
-    background: var(--pin-surface);
-}
-.event-header-content { display: flex; flex-direction: column; gap: 0.5rem; }
-.event-id-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    background: var(--pin-green-light);
-    color: var(--pin-green-dark);
-    font-family: var(--pin-font-mono);
-    font-size: 16px;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 999px;
-    letter-spacing: 0.04em;
-    width: fit-content;
-    margin-bottom: 2px;
-}
-.event-title {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--pin-text);
-    line-height: 1.3;
-    letter-spacing: -0.01em;
-}
-.event-desc {
-    font-size: 13px;
-    color: var(--pin-text-3);
-    line-height: 1.6;
-    margin: 0;
-}
-
-/* Status ribbon */
-.status-ribbon {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.625rem 1.25rem;
-    background: var(--pin-surface-2);
-    border-top: 1px solid var(--pin-border);
-    border-bottom: 1px solid var(--pin-border);
-    gap: 0.75rem;
-}
-.status-left { display: flex; align-items: center; }
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11.5px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 999px;
-    letter-spacing: 0.03em;
-}
-.badge-ongoing {
-    background: #dcfce7;
-    color: #15803d;
-}
-.badge-upcoming {
-    background: #fef9c3;
-    color: #92400e;
-}
-.badge-expired {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-/* Live ring animation */
-.live-ring {
-    position: relative;
-    display: inline-flex;
-    width: 8px;
-    height: 8px;
-}
-.live-ring-ping {
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: #4ade80;
-    opacity: 0.75;
-    animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
-}
-.live-ring-dot {
-    position: relative;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #16a34a;
-}
-@keyframes ping {
-    75%, 100% { transform: scale(2); opacity: 0; }
-}
-.status-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-}
-.dot-state-upcoming { background: #f59e0b; }
-.dot-state-expired { background: #ef4444; }
-
-/* Countdown ticker */
-.countdown-ticker {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-.ticker-unit {
-    display: flex;
-    align-items: baseline;
-    gap: 1px;
-}
-.ticker-num {
-    font-family: var(--pin-font-mono);
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--pin-text);
-    letter-spacing: -0.02em;
-    min-width: 22px;
-    text-align: center;
-}
-.ticker-label {
-    font-size: 10px;
-    color: var(--pin-text-4);
-    font-weight: 500;
-}
-.ticker-sep {
-    font-size: 12px;
-    color: var(--pin-border-strong);
-    font-family: var(--pin-font-mono);
-    padding: 0 1px;
-}
-.ticker-ended {
-    font-size: 13px;
-    color: var(--pin-text-4);
-}
-
-/* Dates grid */
-.dates-grid {
-    display: grid;
-    grid-template-columns: 1fr 1px 1fr;
-    border-top: 1px solid var(--pin-border);
-}
-.date-cell {
-    padding: 0.875rem 1.25rem;
-    text-align: center;
-}
-.date-divider {
-    background: var(--pin-border);
-}
-.date-cell-label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    font-size: 11px;
-    color: var(--pin-text-4);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 4px;
-}
-.date-cell-value {
-    font-size: 13.5px;
-    font-weight: 600;
-    color: var(--pin-text);
-    margin: 0;
-}
-.date-cell-time {
-    font-size: 12px;
-    color: var(--pin-text-3);
-    margin: 0;
-    margin-top: 1px;
-}
-
-/* Venue */
-.venue-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 0.875rem 1.25rem;
-    border-top: 1px solid var(--pin-border);
-}
-.venue-icon { color: var(--pin-text-4); margin-top: 1px; flex-shrink: 0; }
-.venue-text { display: flex; flex-direction: column; gap: 2px; }
-.venue-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--pin-text);
-    margin: 0;
-}
-.venue-details {
-    font-size: 12px;
-    color: var(--pin-text-3);
-    line-height: 1.5;
-    margin: 0;
-}
-
-/* Slots */
-.slots-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.75rem 1.25rem;
-    border-top: 1px solid var(--pin-border);
-    background: var(--pin-surface-2);
-}
-.slots-info {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-.slots-icon { color: var(--pin-text-4); }
-.slots-text {
-    font-size: 12.5px;
-    color: var(--pin-text-3);
-}
-.slots-text strong {
-    color: var(--pin-text);
-    font-weight: 600;
-}
-.slots-bar-track {
-    width: 80px;
-    height: 5px;
-    background: var(--pin-border);
-    border-radius: 999px;
-    overflow: hidden;
-    flex-shrink: 0;
-}
-.slots-bar-fill {
-    height: 100%;
-    border-radius: 999px;
-    transition: width 0.6s ease;
-}
-.slot-ok { background: var(--pin-green); }
-.slot-low { background: #f59e0b; }
-.slot-critical { background: #f97316; }
-.slot-full { background: #ef4444; }
-
-/* ─── Alerts ─── */
-.alert {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 0.875rem 1rem;
-    border-radius: var(--pin-radius);
-    border: 1px solid;
-}
-.alert-warning {
-    background: var(--pin-amber-light);
-    border-color: #fcd34d;
-}
-.alert-warning .alert-icon { color: var(--pin-amber); margin-top: 1px; }
-.alert-warning .alert-title { color: #78350f; }
-.alert-warning .alert-body { color: #92400e; }
-.alert-danger {
-    background: var(--pin-red-light);
-    border-color: #fca5a5;
-}
-.alert-danger .alert-icon { color: var(--pin-red); margin-top: 1px; }
-.alert-danger .alert-title { color: #7f1d1d; }
-.alert-danger .alert-body { color: #991b1b; }
-.alert-icon { flex-shrink: 0; }
-.alert-title { font-size: 13.5px; font-weight: 600; margin: 0; }
-.alert-body { font-size: 12.5px; margin: 2px 0 0; line-height: 1.5; }
-
-/* ─── Section Card ─── */
-.section-card {
-    background: var(--pin-surface);
-    border: 1px solid var(--pin-border);
-    border-radius: var(--pin-radius);
-    padding: 1rem 1.125rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.625rem;
-}
-.field-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--pin-text-3);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
-.participant-row { display: flex; align-items: center; gap: 8px; }
-.btn-ghost-danger {
-    padding: 7px;
-    color: var(--pin-red);
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: var(--pin-radius-xs);
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
-    flex-shrink: 0;
-}
-.btn-ghost-danger:hover {
-    background: var(--pin-red-light);
-    border-color: #fca5a5;
-}
-
-/* ─── Verify Card ─── */
-.verify-card { gap: 0.875rem; }
-.verify-header {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    font-size: 13.5px;
-    font-weight: 600;
-    color: var(--pin-blue);
-}
-.verify-icon { color: var(--pin-blue); }
-.verify-body { font-size: 13px; color: var(--pin-text-3); margin: 0; line-height: 1.6; }
-
-/* Choice grid */
-.choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.choice-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    padding: 1rem 0.75rem;
-    border: 1.5px solid var(--pin-border-strong);
-    border-radius: var(--pin-radius-sm);
-    background: var(--pin-surface);
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
-    text-align: center;
-}
-.choice-btn:hover { border-color: var(--pin-green); background: var(--pin-green-light); }
-.choice-yes:hover { color: var(--pin-green-dark); }
-.choice-no:hover { border-color: var(--pin-green); color: var(--pin-green-dark); }
-.choice-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--pin-text);
-    display: block;
-}
-.choice-sub {
-    font-size: 11px;
-    color: var(--pin-text-4);
-    display: block;
-}
-
-/* Email lookup */
-.email-lookup { display: flex; flex-direction: column; gap: 8px; }
-.lookup-hint { font-size: 12.5px; color: var(--pin-text-3); margin: 0; }
-.lookup-row { display: flex; gap: 8px; }
-.input-with-icon { position: relative; flex: 1; }
-.input-icon {
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--pin-text-4);
-    pointer-events: none;
-}
-.pin-input {
-    width: 100%;
-    padding: 8px 10px 8px 32px;
-    border: 1px solid var(--pin-border-strong);
-    border-radius: var(--pin-radius-xs);
-    font-size: 13px;
-    color: var(--pin-text);
-    background: var(--pin-surface);
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    box-sizing: border-box;
-}
-.pin-input:focus {
-    border-color: var(--pin-green);
-    box-shadow: 0 0 0 3px rgba(26,122,74,0.12);
-}
-.btn-primary {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 8px 14px;
-    background: var(--pin-green);
-    color: #fff;
-    font-size: 13px;
-    font-weight: 600;
-    border: none;
-    border-radius: var(--pin-radius-xs);
-    cursor: pointer;
-    transition: background 0.15s;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-.btn-primary:hover { background: var(--pin-green-dark); }
-.btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
-
-/* Prereg nudge */
-.prereg-nudge {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.75rem;
-    background: var(--pin-surface-2);
-    border-radius: var(--pin-radius-xs);
-    border: 1px solid var(--pin-border);
-    flex-wrap: wrap;
-}
-.nudge-text { font-size: 12.5px; color: var(--pin-text-3); margin: 0; }
-.btn-success {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 7px 13px;
-    background: var(--pin-green);
-    color: #fff;
-    font-size: 12.5px;
-    font-weight: 600;
-    border: none;
-    border-radius: var(--pin-radius-xs);
-    cursor: pointer;
-    transition: background 0.15s;
-    white-space: nowrap;
-}
-.btn-success:hover { background: var(--pin-green-dark); }
-
-/* Inline alerts */
-.inline-alert {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    padding: 8px 10px;
-    border-radius: var(--pin-radius-xs);
-    font-size: 12.5px;
-}
-.inline-success { background: #f0fdf4; color: #15803d; }
-.inline-danger { background: var(--pin-red-light); color: var(--pin-red); }
-
-/* ─── Loading ─── */
-.loading-state {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 2.5rem 0;
-    color: var(--pin-text-3);
-    font-size: 13px;
-}
-.spin { animation: spin 0.9s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ─── Tabs ─── */
-.tabs-bar {
-    background: var(--pin-surface);
-    border: 1px solid var(--pin-border);
-    border-radius: var(--pin-radius);
-    padding: 4px;
-    display: flex;
-    gap: 3px;
-    overflow-x: auto;
-}
-.tab-btn {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 7px 10px;
-    border-radius: var(--pin-radius-sm);
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-size: 13px;
-    color: var(--pin-text-3);
-    transition: background 0.15s, color 0.15s;
-    white-space: nowrap;
-}
-.tab-btn:hover:not(.tab-disabled) {
-    background: var(--pin-surface-3);
-    color: var(--pin-text-2);
-}
-.tab-active {
-    background: var(--pin-green) !important;
-    color: #fff !important;
-    font-weight: 600;
-}
-.tab-disabled { opacity: 0.45; cursor: not-allowed; }
-.tab-index {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    font-weight: 700;
-    flex-shrink: 0;
-}
-.tab-btn:not(.tab-active) .tab-index {
-    background: var(--pin-surface-3);
-    color: var(--pin-text-3);
-}
-.tab-label { overflow: hidden; text-overflow: ellipsis; }
-.tab-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-.tab-btn.tab-active .tab-dot { background: rgba(255,255,255,0.7); }
-
-/* Step dots (shared) */
-.dot-available { background: #22c55e; }
-.dot-completed { background: #3b82f6; }
-.dot-locked, .dot-not_yet_open, .dot-disabled, .dot-hidden { background: #d1d5db; }
-.dot-expired, .dot-full { background: #ef4444; }
-
-/* Step indicator mobile */
-.step-indicator {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 0.25rem;
-}
-.step-prog { font-size: 12px; color: var(--pin-text-4); }
-.step-cur-label { font-size: 12.5px; font-weight: 600; color: var(--pin-green); }
-
-/* ─── Step countdown ─── */
-.step-countdown {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.625rem 1rem;
-    background: var(--pin-surface);
-    border: 1px solid var(--pin-border);
-    border-radius: var(--pin-radius-sm);
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-}
-.step-countdown-inner {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12.5px;
-    color: var(--pin-text-3);
-}
-.step-countdown-value {
-    font-family: var(--pin-font-mono);
-    font-size: 13px;
-    font-weight: 600;
-}
-.countdown-warn { color: var(--pin-amber); }
-.countdown-info { color: var(--pin-blue); }
-
-/* ─── Form Shell ─── */
-.form-shell {
-    background: var(--pin-surface);
-    border: 1px solid var(--pin-border);
-    border-radius: var(--pin-radius);
-    overflow: hidden;
-}
-.form-shell-header {
-    padding: 0.875rem 1.25rem;
-    border-bottom: 1px solid var(--pin-border);
-    background: var(--pin-surface-2);
-}
-.form-title {
-    font-size: 14.5px;
-    font-weight: 700;
-    color: var(--pin-text);
-    margin: 0;
-    letter-spacing: -0.01em;
-}
-.form-desc {
-    font-size: 12.5px;
-    color: var(--pin-text-3);
-    margin: 4px 0 0;
-    line-height: 1.5;
-}
-.form-body { padding: 1.25rem; }
-
-/* ─── Unavailable state ─── */
-.unavailable-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 1rem;
-    gap: 8px;
-    text-align: center;
-}
-.unavail-icon-ring {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 4px;
-}
-.ring-locked, .ring-disabled { background: var(--pin-surface-3); }
-.ring-not_yet_open { background: var(--pin-amber-light); }
-.ring-expired, .ring-full { background: var(--pin-red-light); }
-.ring-completed { background: var(--pin-blue-light); }
-.icon-locked, .icon-disabled { color: var(--pin-text-4); }
-.icon-not_yet_open { color: var(--pin-amber); }
-.icon-expired, .icon-full { color: var(--pin-red); }
-.icon-completed { color: var(--pin-blue); }
-.unavail-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--pin-text);
-    margin: 0;
-}
-.unavail-sub {
-    font-size: 12.5px;
-    color: var(--pin-text-3);
-    margin: 0;
-}
-
-/* ─── Transitions ─── */
-.drawer-enter-active, .drawer-leave-active { transition: opacity 0.2s ease; }
-.drawer-enter-from, .drawer-leave-to { opacity: 0; }
-
-/* ─── Dark Mode ─── */
-.dark .pin-guest-card {
-    --pin-surface: #111916;
-    --pin-surface-2: #161e1a;
-    --pin-surface-3: #1c2721;
-    --pin-border: #243020;
-    --pin-border-strong: #2d3d32;
-    --pin-text: #e8f0eb;
-    --pin-text-2: #a8c4b0;
-    --pin-text-3: #6b9278;
-    --pin-text-4: #415c4a;
-    --pin-green-light: #0f2d1c;
-    --pin-green-dark: #6dd49a;
-    --pin-red-light: #2d1212;
-    --pin-amber-light: #2d1f08;
-    --pin-blue-light: #0d1f35;
-}
-.dark .badge-ongoing { background: #14532d; color: #86efac; }
-.dark .badge-upcoming { background: #451a03; color: #fde68a; }
-.dark .badge-expired { background: #450a0a; color: #fca5a5; }
-.dark .inline-success { background: #14532d; color: #86efac; }
-.dark .inline-danger { background: #2d1212; color: #fca5a5; }
 </style>

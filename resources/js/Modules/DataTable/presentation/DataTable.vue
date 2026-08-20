@@ -116,7 +116,7 @@ export default {
                         default: () => [],
                 },
         },
-        emits: ['sort', 'delete-record', 'row-click', 'export'],
+        emits: ['sort', 'delete-record', 'row-click', 'row-dblclick', 'export'],
         data() {
                 return {
                         showColumnPanel: false,
@@ -430,8 +430,6 @@ export default {
 
                                 return nextColumn;
                         });
-
-                        console.log('Synced columns:', this.localColumns);
                 },
                 resetDataApi() {
                         this.dataApi = null;
@@ -707,6 +705,9 @@ export default {
                 handleRowClick(row) {
                         this.$emit('row-click', row);
                 },
+                handleRowDblclick(row) {
+                        this.$emit('row-dblclick', row);
+                },
                 created() {
                         this.syncColumns();
                         this.resetDataApi();
@@ -901,7 +902,7 @@ export default {
                                                                 'transition-colors duration-150',
                                                                 striped && index % 2 === 1 ? 'bg-slate-50/50 dark:bg-slate-800/30' : 'bg-white dark:bg-slate-900',
                                                                 hoverable ? 'hover:bg-slate-100 dark:hover:bg-slate-800/60' : ''
-                                                        ]" @click="handleRowClick(row)">
+                                                        ]" @click="handleRowClick(row)" @dblclick="handleRowDblclick(row)">
                                                         <DtData
                                                                 class="px-4 py-3 text-center text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700/50 font-medium tabular-nums">
                                                                 {{ fromRow + index }}

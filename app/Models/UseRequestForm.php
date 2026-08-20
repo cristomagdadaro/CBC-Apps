@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 use App\Traits\Auditable;
 use App\Repositories\OptionRepo;
 
-class UseRequestForm extends Model
+class UseRequestForm extends BaseModel
 {
     use HasFactory, HasUuids, Auditable;
 

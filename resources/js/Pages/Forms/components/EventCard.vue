@@ -52,25 +52,13 @@ export default {
         styles() {
             return {
                 background: this.resolveStyle("form-background", "background"),
-                backgroundText: this.resolveStyle(
-                    "form-background-text-color",
-                    "text",
-                ),
+                backgroundText: this.resolveStyle("form-background-text-color", "text"),
                 headerBox: this.resolveStyle("form-header-box", "background"),
-                headerText: this.resolveStyle(
-                    "form-header-box-text-color",
-                    "text",
-                ),
+                headerText: this.resolveStyle("form-header-box-text-color", "text"),
                 timeFrom: this.resolveStyle("form-time-from", "background"),
-                timeFromText: this.resolveStyle(
-                    "form-time-from-text-color",
-                    "text",
-                ),
+                timeFromText: this.resolveStyle("form-time-from-text-color", "text"),
                 timeTo: this.resolveStyle("form-time-to", "background"),
-                timeToText: this.resolveStyle(
-                    "form-time-to-text-color",
-                    "text",
-                ),
+                timeToText: this.resolveStyle("form-time-to-text-color", "text"),
             };
         },
         requirementStats() {
@@ -121,27 +109,27 @@ export default {
             if (this.isExpired) {
                 return {
                     text: "Expired",
-                    class: "bg-red-100 text-red-700 border-red-200",
+                    class: "bg-red-50 text-red-600 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 shadow-sm",
                     icon: "LuAlertCircle",
                 };
             }
             if (this.formsData?.is_suspended) {
                 return {
                     text: "Suspended",
-                    class: "bg-amber-100 text-amber-700 border-amber-200",
+                    class: "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20 shadow-sm",
                     icon: "LuAlertTriangle",
                 };
             }
             if (this.formsData?.is_active) {
                 return {
                     text: "Active",
-                    class: "bg-green-100 text-green-700 border-green-200",
-                    icon: "LuCheckCircle",
+                    class: "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 shadow-sm",
+                    icon: "LuCheckCircle2",
                 };
             }
             return {
                 text: "Draft",
-                class: "bg-gray-100 text-gray-700 border-gray-200",
+                class: "bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-500/10 dark:text-slate-400 dark:border-slate-500/20 shadow-sm",
                 icon: "LuCircle",
             };
         },
@@ -253,7 +241,6 @@ export default {
         },
         copyLink() {
             navigator.clipboard.writeText(this.formGuestUrl);
-            // Could add toast notification here
         },
     },
 };
@@ -262,248 +249,151 @@ export default {
 <template>
     <div
         v-if="formsData"
-        class="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 max-w-md w-full"
-        :class="{ 'opacity-75': isExpired || formsData?.is_suspended }"
+        class="group relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-xl border border-slate-200/80 dark:border-slate-700/60 overflow-hidden flex flex-col transition-all duration-300 max-w-md w-full"
+        :class="{ 'opacity-70 grayscale-[0.3]': isExpired || formsData?.is_suspended }"
         :style="styles.background"
     >
         <!-- Status Badge -->
-        <div class="absolute top-3 right-3 z-10">
-            <span
-                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium border"
-                :class="statusBadge.class"
-            >
+        <div class="absolute top-4 right-4 z-20">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.65rem] font-bold uppercase tracking-widest border backdrop-blur-md" :class="statusBadge.class">
                 <component :is="statusBadge.icon" class="w-3.5 h-3.5" />
                 {{ statusBadge.text }}
             </span>
         </div>
 
         <!-- Header Section -->
-        <div
-            class="relative p-5 pb-4 bg-AB text-gray-50"
-            :style="{ ...styles.headerBox, ...styles.headerText }"
-        >
-            <div class="relative flex justify-between items-center gap-3">
-                <div class="flex-1 min-w-0">
-                    <h3
-                        class="text-lg font-bold text-gray-50 leading-tight line-clamp-2 mb-1"
-                    >
+        <div class="relative p-6 pb-5 border-b border-white/10 dark:border-slate-800/50" :style="{ ...styles.headerBox, ...styles.headerText }">
+            <div class="relative flex justify-between items-start gap-4 z-10">
+                <div class="flex-1 min-w-0 pr-2">
+                    <h3 class="text-normal sm:text-lg font-black leading-tight line-clamp-2 mb-2 tracking-tight drop-shadow-md">
                         {{ formsData.title }}
                     </h3>
-                    <p
-                        class="text-sm text-gray-50/80 line-clamp-2 leading-relaxed"
-                    >
+                    <p class="text-sm font-medium opacity-90 line-clamp-2 leading-relaxed drop-shadow-sm">
                         {{ formsData.description }}
                     </p>
                 </div>
 
-                <div class="flex flex-col items-center justify-center">
-                    <label class="text-xl md:text-4xl leading-none font-[1000]">
+                <!-- Event ID Frosted Badge -->
+                <div class="flex flex-col items-center justify-center shrink-0 bg-black/10 dark:bg-white/10 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-xl p-3 shadow-inner">
+                    <label class="text-2xl font-black leading-none tracking-tighter drop-shadow-md">
                         {{ formsData.event_id }}
                     </label>
-                    <span class="text-[0.65rem] leading-none">Event ID</span>
+                    <span class="text-[0.6rem] font-bold uppercase tracking-widest opacity-80 mt-1.5 drop-shadow-md">Event ID</span>
                 </div>
             </div>
         </div>
 
         <!-- Date & Time Info -->
-        <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
-            <div
-                class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 mb-3"
-            >
-                <LuCalendar class="w-4 h-4 text-gray-400" />
-                <span class="font-medium">{{
-                    dateRange ||
-                    `${safeFormatDate(formsData.date_from)} - ${safeFormatDate(formsData.date_to)}`
-                }}</span>
-            </div>
-
-            <div class="flex items-center gap-4 text-sm">
-                <div
-                    class="flex items-center gap-1.5 text-gray-600 dark:text-gray-300"
-                >
-                    <LuClock class="w-4 h-4 text-gray-400" />
-                    <span>{{ safeFormatTime(formsData.time_from) }}</span>
+        <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+            <div class="flex flex-col gap-3">
+                <div class="flex items-center gap-3 text-sm font-bold text-slate-700 dark:text-slate-200">
+                    <div class="p-1.5 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg border border-indigo-100 dark:border-indigo-500/20 shadow-sm shrink-0">
+                        <LuCalendar class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                    </div>
+                    <span class="truncate">{{ dateRange || `${safeFormatDate(formsData.date_from)} - ${safeFormatDate(formsData.date_to)}` }}</span>
                 </div>
-                <LuArrowRight class="w-4 h-4 text-gray-300" />
-                <div
-                    class="flex items-center gap-1.5 text-gray-600 dark:text-gray-300"
-                >
-                    <LuClock class="w-4 h-4 text-gray-400" />
-                    <span>{{ safeFormatTime(formsData.time_to) }}</span>
+
+                <div class="flex items-center gap-3 text-sm font-bold text-slate-700 dark:text-slate-200">
+                    <div class="p-1.5 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-100 dark:border-blue-500/20 shadow-sm shrink-0">
+                        <LuClock class="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div class="flex items-center gap-2 truncate">
+                        <span>{{ safeFormatTime(formsData.time_from) }}</span>
+                        <LuArrowRight class="w-3.5 h-3.5 text-slate-400" />
+                        <span>{{ safeFormatTime(formsData.time_to) }}</span>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Statistics Section -->
-        <div class="px-5 py-4 bg-gray-50/50 dark:bg-gray-700/30">
-            <div class="flex items-center justify-between mb-3">
-                <span
-                    class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                    >Responses</span
-                >
-                <span
-                    v-if="visibleResponseTypes.length"
-                    class="text-xs text-gray-400 dark:text-gray-500"
-                >
-                    {{
-                        visibleResponseTypes.reduce(
-                            (acc, item) => acc + item.count,
-                            0,
-                        )
-                    }}
-                    total
+        <div class="px-6 py-5 bg-slate-50/80 dark:bg-slate-800/40 flex-1">
+            <div class="flex items-center justify-between mb-3.5">
+                <span class="text-[0.65rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Responses</span>
+                <span v-if="visibleResponseTypes.length" class="text-xs font-semibold text-slate-400 dark:text-slate-500">
+                    {{ visibleResponseTypes.reduce((acc, item) => acc + item.count, 0) }} total
                 </span>
             </div>
 
-            <div
-                v-if="visibleResponseTypes.length"
-                class="grid grid-cols-2 sm:grid-cols-3 gap-2"
-            >
-                <div
-                    v-for="item in visibleResponseTypes"
-                    :key="item.key"
-                    class="relative p-3 rounded-xl bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 shadow-sm"
-                    :class="{
-                        'ring-2 ring-red-100 dark:ring-red-900/30': item.isFull,
-                    }"
-                >
-                    <div class="flex items-center justify-between mb-1">
-                        <span
-                            class="text-2xl font-bold"
-                            :class="
-                                item.isFull
-                                    ? 'text-red-600 dark:text-red-400'
-                                    : 'text-gray-900 dark:text-gray-50'
-                            "
-                        >
+            <div v-if="visibleResponseTypes.length" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                <div v-for="item in visibleResponseTypes" :key="item.key"
+                    class="relative p-3 rounded-xl bg-white dark:bg-slate-800 border shadow-sm transition-all"
+                    :class="item.isFull 
+                        ? 'border-red-200 dark:border-red-900/50 ring-1 ring-red-100 dark:ring-red-900/30' 
+                        : 'border-slate-200 dark:border-slate-700'">
+                    
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-xl font-black tracking-tight" :class="item.isFull ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-slate-50'">
                             {{ item.count }}
                         </span>
-                        <LuUsers
-                            v-if="item.isFull"
-                            class="w-4 h-4 text-red-500"
-                        />
+                        <LuUsers v-if="item.isFull" class="w-4 h-4 text-red-500" />
                     </div>
-                    <p
-                        class="text-[0.65rem] text-gray-500 dark:text-gray-400 leading-tight line-clamp-2"
-                    >
+                    <p class="text-[0.65rem] font-semibold text-slate-500 dark:text-slate-400 leading-tight line-clamp-2">
                         {{ item.label }}
                     </p>
-                    <div v-if="item.isFull" class="absolute -top-1 -right-1">
-                        <span class="flex h-2 w-2">
-                            <span
-                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"
-                            ></span>
-                            <span
-                                class="relative inline-flex rounded-full h-2 w-2 bg-red-500"
-                            ></span>
+                    
+                    <!-- Pulsing Indicator for Full Slots -->
+                    <div v-if="item.isFull" class="absolute -top-1.5 -right-1.5">
+                        <span class="flex h-3 w-3 relative">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500 border-2 border-white dark:border-slate-800"></span>
                         </span>
                     </div>
                 </div>
             </div>
 
-            <div
-                v-else
-                class="text-center py-6 text-gray-400 dark:text-gray-500"
-            >
-                <LuClipboardList class="w-8 h-8 mx-auto mb-2 opacity-30" />
-                <p class="text-sm">
+            <div v-else class="text-center py-6 text-slate-400 dark:text-slate-500">
+                <LuClipboardList class="w-8 h-8 mx-auto mb-2 opacity-40" />
+                <p class="text-sm font-medium">
                     <template v-if="totalResponseCount > 0">
                         {{ totalResponseCount }} {{ totalResponseCount === 1 ? 'response' : 'responses' }} recorded
-                        <span v-if="!visibleResponseTypes.length">(awaiting detailed breakdown)</span>
+                        <span v-if="!visibleResponseTypes.length" class="block text-xs opacity-70 mt-0.5">(awaiting detailed breakdown)</span>
                     </template>
-                    <template v-else>
-                        No responses yet
-                    </template>
+                    <template v-else>No responses yet</template>
                 </p>
             </div>
         </div>
 
         <!-- Quick Actions Bar -->
-        <div
-            class="px-5 py-3 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700"
-        >
+        <div class="px-5 py-3 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800/80">
             <div class="flex items-center justify-between">
+                <!-- Group 1: Manage -->
                 <div class="flex items-center gap-1">
-                    <Link
-                        :href="route('forms.update', formsData.event_id)"
-                        class="p-2 rounded-lg text-gray-600 hover:text-blue-600 hover:bg-blue-50 dark:text-gray-400 dark:hover:text-blue-400 dark:hover:bg-blue-900/20 transition-colors"
-                        title="Edit form"
-                    >
+                    <Link :href="route('forms.update', formsData.event_id)" class="p-2 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-500/10 transition-colors" title="Edit form">
                         <LuSettings class="w-4 h-4" />
                     </Link>
-
-                    <button
-                        @click="copyLink"
-                        class="p-2 rounded-lg text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/20 transition-colors"
-                        title="Copy link"
-                    >
+                    <button @click="copyLink" class="p-2 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:text-slate-400 dark:hover:text-indigo-400 dark:hover:bg-indigo-500/10 transition-colors" title="Copy link">
                         <LuCopy class="w-4 h-4" />
                     </button>
-
-                    <button
-                        @click="downloadFormQr"
-                        class="p-2 rounded-lg text-gray-600 hover:text-purple-600 hover:bg-purple-50 dark:text-gray-400 dark:hover:text-purple-400 dark:hover:bg-purple-900/20 transition-colors"
-                        title="Download QR"
-                    >
+                    <button @click="downloadFormQr" class="p-2 rounded-xl text-slate-500 hover:text-purple-600 hover:bg-purple-50 dark:text-slate-400 dark:hover:text-purple-400 dark:hover:bg-purple-500/10 transition-colors" title="Download QR">
                         <LuDownload class="w-4 h-4" />
                     </button>
                 </div>
 
+                <!-- Group 2: Actions -->
                 <div class="flex items-center gap-1">
-                    <Link
-                        :href="route('forms.guest.index', formsData.event_id)"
-                        target="_blank"
-                        class="p-2 rounded-lg text-gray-600 hover:text-green-600 hover:bg-green-50 dark:text-gray-400 dark:hover:text-green-400 dark:hover:bg-green-900/20 transition-colors"
-                        title="Preview"
-                    >
+                    <Link :href="route('forms.guest.index', formsData.event_id)" target="_blank" class="p-2 rounded-xl text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:text-slate-400 dark:hover:text-emerald-400 dark:hover:bg-emerald-500/10 transition-colors" title="Preview Form">
                         <LuEye class="w-4 h-4" />
                     </Link>
-
-                    <Link
-                        :href="route('forms.scan', formsData.event_id)"
-                        class="p-2 rounded-lg text-gray-600 hover:text-amber-600 hover:bg-amber-50 dark:text-gray-400 dark:hover:text-amber-400 dark:hover:bg-amber-900/20 transition-colors"
-                        title="Scan QR"
-                    >
+                    <Link :href="route('forms.scan', formsData.event_id)" class="p-2 rounded-xl text-slate-500 hover:text-amber-600 hover:bg-amber-50 dark:text-slate-400 dark:hover:text-amber-400 dark:hover:bg-amber-500/10 transition-colors" title="Scan QR">
                         <LuScanLine class="w-4 h-4" />
                     </Link>
-
-                    <suspend-form-btn
-                        v-if="!isExpired"
-                        :data="formsData"
-                        @updated="updatedData = $event"
-                        @failedUpdate="errors = $event"
-                        class="p-2"
-                    />
-
-                    <button
-                        @click="confirmAction"
-                        class="p-2 rounded-lg text-gray-600 hover:text-red-600 hover:bg-red-50 dark:text-gray-400 dark:hover:text-red-400 dark:hover:bg-red-900/20 transition-colors"
-                        title="Delete"
-                    >
+                    <suspend-form-btn v-if="!isExpired" :data="formsData" @updated="updatedData = $event" @failedUpdate="errors = $event" class="p-2" />
+                    <button @click="confirmAction" class="p-2 rounded-xl text-slate-500 hover:text-red-600 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-500/10 transition-colors" title="Delete Form">
                         <LuTrash2 class="w-4 h-4" />
                     </button>
                 </div>
             </div>
 
-            <p
-                v-if="errors?.message"
-                class="mt-2 text-xs text-red-600 dark:text-red-400 text-center"
-            >
-                <LuAlertCircle class="w-3 h-3 inline mr-1" />
+            <p v-if="errors?.message" class="mt-2.5 text-[0.7rem] font-bold text-red-600 dark:text-red-400 text-center">
+                <LuAlertCircle class="w-3.5 h-3.5 inline mr-1 -mt-0.5" />
                 {{ errors.message }}
             </p>
         </div>
 
         <!-- Hidden QR Download -->
         <div ref="formQrDownloadHost" class="hidden" aria-hidden="true">
-            <qrcode-vue
-                v-if="formGuestUrl"
-                :value="formGuestUrl"
-                :size="500"
-                level="M"
-                render-as="canvas"
-                @ready="qrDownloadReady = true"
-            />
+            <qrcode-vue v-if="formGuestUrl" :value="formGuestUrl" :size="500" level="M" render-as="canvas" @ready="qrDownloadReady = true" />
         </div>
 
         <!-- Delete Confirmation -->
@@ -518,12 +408,3 @@ export default {
         />
     </div>
 </template>
-
-<style scoped>
-.line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-</style>

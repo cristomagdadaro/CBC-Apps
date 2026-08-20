@@ -97,9 +97,6 @@ export default {
             this.$emit('update:modelValue', list)
         },
 
-        /**
-         * Map sorted index to actual index in requirements array
-         */
         getActualIndex(sortedIndex) {
             const sorted = this.sortedRequirements[sortedIndex]
             return this.requirements.indexOf(sorted)
@@ -120,31 +117,7 @@ export default {
                 this.successMessage = null
             }, 3000)
         },
-        validateRequirement(req, index) {
-            const errors = []
 
-            if (!req.form_type) {
-                errors.push(`Step ${index + 1}: Form type is required`)
-            }
-
-            if (req.step_order != null && (!Number.isInteger(req.step_order) || req.step_order < 1)) {
-                errors.push(`Step ${index + 1}: Step order must be a positive integer`)
-            }
-
-            if (req.max_slots != null && (isNaN(req.max_slots) || req.max_slots < 0)) {
-                errors.push(`Step ${index + 1}: Max slots must be a non-negative integer`)
-            }
-
-            if (req.open_from && req.open_to) {
-                const from = new Date(req.open_from)
-                const to = new Date(req.open_to)
-                if (from >= to) {
-                    errors.push(`Step ${index + 1}: Open time must be before close time`)
-                }
-            }
-
-            return errors
-        },
         normalize(list) {
             const copy = [...list]
 
@@ -160,6 +133,7 @@ export default {
 
             return copy
         },
+
         addRequirement() {
             const copy = this.cloneRequirements()
 
@@ -211,7 +185,6 @@ export default {
                 return
             }
 
-            // Check if this is a custom template
             const isCustom = value.startsWith('custom:')
             const templateId = isCustom ? value.replace('custom:', '') : null
             const formType = isCustom ? 'custom' : value
@@ -230,9 +203,6 @@ export default {
             this.showSuccess('Form type updated')
         },
 
-        /**
-         * Load custom templates from API
-         */
         async loadCustomTemplates() {
             this.loadingTemplates = true
             try {
@@ -245,9 +215,6 @@ export default {
             }
         },
 
-        /**
-         * Get the display value for form type select
-         */
         getFormTypeValue(req) {
             if (req.form_type === 'custom' && req.form_type_template_id) {
                 return `custom:${req.form_type_template_id}`
@@ -255,9 +222,6 @@ export default {
             return req.form_type || ''
         },
 
-        /**
-         * Get template info for a requirement
-         */
         getTemplateInfo(req) {
             if (req.form_type !== 'custom' || !req.form_type_template_id) return null
             return this.customTemplates.find(t => t.id === req.form_type_template_id)
@@ -392,7 +356,6 @@ export default {
 
             const copy = this.cloneRequirements()
 
-            // 🔑 Swap step_order values
             const temp = copy[currentIndex].step_order
             copy[currentIndex].step_order = copy[targetIndex].step_order
             copy[targetIndex].step_order = temp
@@ -406,7 +369,6 @@ export default {
             const used = this.requirements
                 .filter(r => r !== sorted)
                 .map(r => {
-                    // Handle custom templates
                     if (r.form_type === 'custom' && r.form_type_template_id) {
                         return `custom:${r.form_type_template_id}`
                     }
@@ -429,87 +391,102 @@ export default {
 }
 </script>
 
-
 <template>
-    <div class="px-1 flex flex-col gap-2">
+    <div class="flex flex-col gap-4">
+        
+        <!-- Alerts -->
         <transition-container type="slide-bottom">
-            <div>
-                <InputError v-show="!!error" class="" :message="error" />
-                <InputError v-show="localErrors.requirements" class="" :message="localErrors.requirements" />
+            <div v-if="error || localErrors.requirements" class="flex flex-col gap-2">
+                <div v-if="error" class="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl text-red-700 dark:text-red-400 text-sm font-semibold shadow-sm">
+                    <LuAlertCircle class="w-4 h-4 shrink-0" /> {{ error }}
+                </div>
+                <div v-if="localErrors.requirements" class="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl text-red-700 dark:text-red-400 text-sm font-semibold shadow-sm">
+                    <LuAlertCircle class="w-4 h-4 shrink-0" /> {{ localErrors.requirements }}
+                </div>
             </div>
         </transition-container>
 
         <!-- Requirements List -->
-        <div class="space-y-2">
+        <div class="space-y-4">
             <div
                 v-for="(req, index) in sortedRequirements"
                 :key="req.id || index"
-                class="relative flex flex-col gap-1 border border-gray-200 dark:border-gray-700 rounded-md p-2 bg-white dark:bg-gray-900"
-                :class="{ 'border-red-400': localErrors[`req_${index}`] }"
+                class="group relative flex flex-col gap-3 border rounded-2xl p-4 sm:p-5 transition-all duration-300"
+                :class="[
+                    localErrors[`req_${index}`] ? 'border-red-400 dark:border-red-500/50 bg-red-50/30 dark:bg-red-900/10' : 'border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/40 hover:border-indigo-300 dark:hover:border-indigo-500/40 hover:shadow-md'
+                ]"
             >
                 <!-- Step Header -->
-                <div class="flex w-full justify-between items-center">
-                    <span class="text-xs font-semibold">STEP {{ req.step_order ?? index + 1 }}</span>
-                    <div class="flex gap-1">
-                        <div class="flex items-center gap-1 text-xs border p-0.5 px-2 bg-gray-50 dark:bg-gray-800 rounded opacity-100">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/60 dark:border-slate-700/60 pb-3">
+                    <div class="flex items-center gap-2.5 ml-1">
+                        <span class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold shrink-0" :class="req.is_enabled !== false ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400' : 'bg-slate-200 text-slate-500 dark:bg-slate-700'">
+                            {{ req.step_order ?? index + 1 }}
+                        </span>
+                        <span class="text-sm font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300">Step {{ req.step_order ?? index + 1 }}</span>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2">
+                        <!-- Toggles -->
+                        <label class="flex items-center gap-2 px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer transition-colors shadow-sm">
                             <input 
                                 type="checkbox" 
                                 :checked="req.is_enabled !== false" 
                                 @change="toggleEnabled(index)" 
-                                class="rounded-full" 
-                                title="Enable/disable this form"
+                                class="w-3.5 h-3.5 text-indigo-600 rounded border-slate-300 dark:border-slate-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-800" 
                             />
-                            <span>{{ req.is_enabled !== false ? 'Enabled' : 'Disabled' }}</span>
-                        </div>
-                        <div class="flex items-center gap-1 text-xs border p-0.5 px-2 bg-gray-50 dark:bg-gray-800 rounded opacity-100">
+                            <span class="text-[0.65rem] font-bold uppercase tracking-widest" :class="req.is_enabled !== false ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-500'">{{ req.is_enabled !== false ? 'Enabled' : 'Disabled' }}</span>
+                        </label>
+                        
+                        <label class="flex items-center gap-2 px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer transition-colors shadow-sm" :class="{ 'opacity-50 cursor-not-allowed': req.is_enabled === false }">
                             <input 
                                 type="checkbox" 
                                 :checked="req.is_required" 
                                 @change="toggleRequired(index)" 
-                                class="rounded-full"
                                 :disabled="!req?.is_enabled"
-                                title="Mark as required for completion"
+                                class="w-3.5 h-3.5 text-indigo-600 rounded border-slate-300 dark:border-slate-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-800" 
                             />
-                            <span>{{ req.is_required ? 'Required' : 'Optional' }}</span>
-                        </div>
-                        <div class="flex items-center gap-1 text-xs" :class="{'opacity-50': req.is_enabled === false}">
+                            <span class="text-[0.65rem] font-bold uppercase tracking-widest" :class="req.is_required ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-500'">{{ req.is_required ? 'Required' : 'Optional' }}</span>
+                        </label>
+
+                        <div class="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-1 hidden sm:block"></div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex items-center gap-1.5" :class="{'opacity-50': req.is_enabled === false}">
                             <button 
                                 type="button" 
-                                class="px-2 py-1 border rounded flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                                 @click="moveRequirement(index, -1)"
                                 :disabled="index === 0 || !req.is_enabled"
+                                class="p-1.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 transition-colors disabled:opacity-50"
                                 title="Move up"
                             >
-                                <caret-down class="w-3 h-3 transform -rotate-180" />
-                                Up
+                                <LuChevronDown class="w-4 h-4 rotate-180" />
                             </button>
                             <button 
                                 type="button" 
-                                class="px-2 py-1 border rounded flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                                 @click="moveRequirement(index, 1)"
                                 :disabled="index === sortedRequirements.length - 1 || !req.is_enabled"
+                                class="p-1.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 transition-colors disabled:opacity-50"
                                 title="Move down"
                             >
-                                <caret-down class="w-3 h-3 transform" />
-                                Down
+                                <LuChevronDown class="w-4 h-4" />
                             </button>
                             <button
                                 type="button" 
-                                class="px-2 py-1 border rounded flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                                 :disabled="!req?.is_enabled"
                                 @click="addLimit(index)"
+                                class="p-1.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-200 dark:hover:border-indigo-500/30 rounded-lg text-slate-500 transition-colors disabled:opacity-50"
+                                title="Add Limit"
                             >
-                                <add-icon class="w-3 h-3" />
-                                Add Limit
+                                <LuSettings2 class="w-4 h-4" />
                             </button>
                             <button
                                 type="button"
-                                class="text-xs text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900 px-2 py-1 rounded transition"
                                 @click="removeRequirement(index)"
                                 :disabled="!req?.is_enabled"
+                                class="p-1.5 ml-1 border border-transparent hover:border-red-200 dark:hover:border-red-500/30 bg-transparent hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg text-red-400 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50"
                                 title="Remove this form"
                             >
-                                ✕
+                                <LuTrash2 class="w-4 h-4" />
                             </button>
                         </div>
                     </div>
@@ -520,99 +497,77 @@ export default {
                     <InputError v-if="localErrors[`req_${index}`]" :message="localErrors[`req_${index}`]" class="text-xs" />
                 </transition>
 
-                <!-- Form Fields -->
-                <div class="flex flex-col gap-1" :class="{'opacity-50': req.is_enabled === false}">
-                    <div class="grid grid-cols-3 grid-rows-2 justify-center items-center gap-2">
-                        <!-- Left Column: Form Type and Max Slots -->
-                        <div class="flex gap-2 col-span-3">
-                            <div class="flex flex-col gap-1 w-full">
-                                <label class="text-[11px] text-gray-500">Form Type *</label>
-                                <select
-                                    class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 rounded-md shadow-sm text-xs py-0.5 px-2 transition"
-                                    :class="{ 'border-red-500': localErrors[`req_${index}_type`] }"
-                                    :value="getFormTypeValue(req)"
-                                    :disabled="!req?.is_enabled || loadingTemplates"
-                                    @change="handleTypeChange(index, $event.target.value)"
-                                    title="Select the type of form"
-                                >
-                                    <option value="" disabled>{{ loadingTemplates ? 'Loading...' : 'Select form type...' }}</option>
-                                    <optgroup label="System Forms">
-                                        <option
-                                            v-for="opt in availableFormTypeOptions(index).filter(o => o.isSystem)"
-                                            :key="opt.value"
-                                            :value="opt.value"
-                                        >
-                                            {{ opt.label }}
-                                        </option>
-                                    </optgroup>
-                                    <optgroup v-if="customFormTypeOptions.length" label="Custom Templates">
-                                        <option
-                                            v-for="opt in availableFormTypeOptions(index).filter(o => o.isCustom)"
-                                            :key="opt.value"
-                                            :value="opt.value"
-                                        >
-                                            {{ opt.label }} ({{ opt.fieldCount }} fields)
-                                        </option>
-                                    </optgroup>
-                                </select>
-                                <div v-if="getTemplateInfo(req)" class="text-[10px] text-blue-600 dark:text-blue-400">
-                                    Custom: {{ getTemplateInfo(req)?.name }}
-                                </div>
-                                <transition name="slide-down">
-                                    <InputError 
-                                        v-if="localErrors[`req_${index}_type`]" 
-                                        :message="localErrors[`req_${index}_type`]" 
-                                        class="text-xs" 
-                                    />
-                                </transition>
-                            </div>
+                <!-- Form Fields Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start mt-2" :class="{'opacity-60 grayscale-[0.2] pointer-events-none': req.is_enabled === false}">
+                    
+                    <!-- Form Type (Full width on mobile, spans 4 cols on desktop) -->
+                    <div class="md:col-span-5">
+                        <label class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5 block">Form Type *</label>
+                        <select
+                            class="w-full border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl shadow-sm text-sm py-2.5 px-3 transition-colors focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-medium text-slate-800 dark:text-slate-200"
+                            :class="{ 'border-red-500 ring-1 ring-red-500': localErrors[`req_${index}_type`] }"
+                            :value="getFormTypeValue(req)"
+                            :disabled="!req?.is_enabled || loadingTemplates"
+                            @change="handleTypeChange(index, $event.target.value)"
+                        >
+                            <option value="" disabled>{{ loadingTemplates ? 'Loading...' : 'Select form type...' }}</option>
+                            <optgroup label="System Forms">
+                                <option v-for="opt in availableFormTypeOptions(index).filter(o => o.isSystem)" :key="opt.value" :value="opt.value">
+                                    {{ opt.label }}
+                                </option>
+                            </optgroup>
+                            <optgroup v-if="customFormTypeOptions.length" label="Custom Templates">
+                                <option v-for="opt in availableFormTypeOptions(index).filter(o => o.isCustom)" :key="opt.value" :value="opt.value">
+                                    {{ opt.label }} ({{ opt.fieldCount }} fields)
+                                </option>
+                            </optgroup>
+                        </select>
+                        <div v-if="getTemplateInfo(req)" class="text-[0.65rem] font-bold uppercase tracking-widest mt-1.5 flex items-center gap-1 text-indigo-600 dark:text-indigo-400">
+                            <LuFileCode2 class="w-3.5 h-3.5" /> Custom: {{ getTemplateInfo(req)?.name }}
+                        </div>
+                        <transition name="slide-down">
+                            <InputError v-if="localErrors[`req_${index}_type`]" :message="localErrors[`req_${index}_type`]" class="text-xs mt-1" />
+                        </transition>
+                    </div>
+
+                    <!-- Timings & Limits Grid -->
+                    <div class="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        
+                        <!-- Open Time -->
+                        <div>
+                            <label class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5 block">Opens At</label>
+                            <input
+                                type="datetime-local"
+                                class="w-full border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl shadow-sm text-xs py-2.5 px-3 transition-colors focus:ring-2 focus:ring-indigo-500 font-medium text-slate-800 dark:text-slate-200"
+                                :class="{ 'border-red-500 ring-1 ring-red-500': localErrors[`req_${index}_from`] }"
+                                :value="req.open_from || ''"
+                                :disabled="!req.is_enabled"
+                                @change="updateOpenFrom(index, $event.target.value)"
+                            />
+                            <transition name="slide-down">
+                                <InputError v-if="localErrors[`req_${index}_from`]" :message="localErrors[`req_${index}_from`]" class="text-xs mt-1" />
+                            </transition>
+                        </div>
+                        
+                        <!-- Close Time -->
+                        <div>
+                            <label class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5 block">Closes At</label>
+                            <input
+                                type="datetime-local"
+                                class="w-full border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl shadow-sm text-xs py-2.5 px-3 transition-colors focus:ring-2 focus:ring-indigo-500 font-medium text-slate-800 dark:text-slate-200"
+                                :class="{ 'border-red-500 ring-1 ring-red-500': localErrors[`req_${index}_to`] }"
+                                :value="req.open_to || ''"
+                                :disabled="!req?.is_enabled"
+                                @change="updateOpenTo(index, $event.target.value)"
+                            />
+                            <transition name="slide-down">
+                                <InputError v-if="localErrors[`req_${index}_to`]" :message="localErrors[`req_${index}_to`]" class="text-xs mt-1" />
+                            </transition>
                         </div>
 
-                        <!-- Middle Column: Open/Close Times -->
-                        <div class="flex flex-col items-start gap-1 text-[11px] mt-1 w-full">
-                            <div class="flex flex-col items-start gap-1">
-                                <span class="text-gray-500">Open:</span>
-                                <input
-                                    type="datetime-local"
-                                    class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 rounded-md shadow-sm text-[11px] px-1 py-0.5 border transition"
-                                    :class="{ 'border-red-500': localErrors[`req_${index}_from`] }"
-                                    :value="req.open_from || ''"
-                                    :disabled="!req.is_enabled"
-                                    @change="updateOpenFrom(index, $event.target.value)"
-                                    title="When this form becomes available"
-                                />
-                                <transition name="slide-down">
-                                    <InputError 
-                                        v-if="localErrors[`req_${index}_from`]" 
-                                        :message="localErrors[`req_${index}_from`]" 
-                                        class="text-xs" 
-                                    />
-                                </transition>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-start gap-1 text-[11px] mt-1 w-full">
-                            <div class="flex flex-col items-start gap-1">
-                                <span class="text-gray-500">Close:</span>
-                                <input
-                                    type="datetime-local"
-                                    class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 rounded-md shadow-sm text-[11px] px-1 py-0.5 border transition"
-                                    :class="{ 'border-red-500': localErrors[`req_${index}_to`] }"
-                                    :value="req.open_to || ''"
-                                    :disabled="!req?.is_enabled"
-                                    @change="updateOpenTo(index, $event.target.value)"
-                                    title="When this form is no longer available"
-                                />
-                                <transition name="slide-down">
-                                    <InputError 
-                                        v-if="localErrors[`req_${index}_to`]" 
-                                        :message="localErrors[`req_${index}_to`]" 
-                                        class="text-xs" 
-                                    />
-                                </transition>
-                            </div>
-                        </div>
-                        <div class="flex flex-col items-start gap-1 text-[11px] mt-1 w-full">
-                            <span class="text-gray-500">Max Slots (optional)</span>
+                        <!-- Max Slots -->
+                        <div class="col-span-2 sm:col-span-1">
+                            <label class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5 block">Max Slots <span class="opacity-70 normal-case tracking-normal font-medium">(opt)</span></label>
                             <input
                                 type="number"
                                 min="0"
@@ -620,115 +575,110 @@ export default {
                                 :value="req.max_slots || ''"
                                 :disabled="!req?.is_enabled"
                                 @change="updateMaxSlots(index, $event.target.value)"
-                                class="text-xs py-0.5 px-2 rounded-md border border-gray-300 dark:border-gray-700 dark:bg-gray-900 transition"
-                                :class="{ 'border-red-500': localErrors[`req_${index}_slots`] }"
-                                title="Maximum number of participants allowed"
+                                class="w-full border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl shadow-sm text-sm py-2.5 px-3 transition-colors focus:ring-2 focus:ring-indigo-500 font-medium text-slate-800 dark:text-slate-200"
+                                :class="{ 'border-red-500 ring-1 ring-red-500': localErrors[`req_${index}_slots`] }"
                             />
                             <transition name="slide-down">
-                                <InputError 
-                                    v-if="localErrors[`req_${index}_slots`]" 
-                                    :message="localErrors[`req_${index}_slots`]" 
-                                    class="text-xs" 
-                                />
+                                <InputError v-if="localErrors[`req_${index}_slots`]" :message="localErrors[`req_${index}_slots`]" class="text-xs mt-1" />
                             </transition>
                         </div>
                     </div>
+                </div>
 
-                    <div v-if="req?.config?.limits?.length" class="mt-2 border-t pt-2" :class="{'opacity-50': req.is_enabled === false}">
-                        <div class="flex items-center justify-between">
-                            <label class="text-[11px] text-gray-500 uppercase">Conditional Limits</label>
-                            <span class="text-[10px] text-gray-400">Limit submissions per field value</span>
-                        </div>
+                <!-- Conditional Limits Section -->
+                <div v-if="req?.config?.limits?.length" class="mt-4 pt-4 border-t border-dashed border-slate-300 dark:border-slate-700" :class="{'opacity-60 grayscale-[0.2] pointer-events-none': req.is_enabled === false}">
+                    <div class="flex items-center gap-2 mb-3">
+                        <LuListFilter class="w-4 h-4 text-indigo-500" />
+                        <h4 class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300">Conditional Limits</h4>
+                        <span class="text-xs font-medium text-slate-400 dark:text-slate-500 ml-1">Limit submissions based on specific field values.</span>
+                    </div>
 
-                        <div class="mt-2 flex flex-col gap-2">
-                            <div
-                                v-for="(limit, limitIndex) in req.config.limits"
-                                :key="`${index}-limit-${limitIndex}`"
-                                class="grid grid-cols-3 gap-2 items-center"
-                            >
-                                <div class="flex flex-col gap-1">
-                                    <label class="text-[10px] text-gray-500">Column</label>
-                                    <input
-                                        list="limit-field-options"
-                                        type="text"
-                                        class="text-xs p-0.5 px-2 rounded-md border border-gray-300"
-                                        :value="limit.field"
-                                        :disabled="!req?.is_enabled"
-                                        @change="updateLimitField(index, limitIndex, $event.target.value)"
-                                        placeholder="e.g. province_address"
-                                    />
-                                </div>
-                                <div class="flex flex-col gap-1">
-                                    <label class="text-[10px] text-gray-500">Max per value</label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        class="text-xs p-0.5 px-2 rounded-md border border-gray-300"
-                                        :value="limit.max"
-                                        :disabled="!req?.is_enabled"
-                                        @change="updateLimitMax(index, limitIndex, $event.target.value)"
-                                        placeholder="Max"
-                                    />
-                                </div>
-                                <div class="flex items-end justify-end">
-                                    <button
-                                        type="button"
-                                        class="text-[11px] text-red-500 hover:text-red-700"
-                                        :disabled="!req?.is_enabled"
-                                        @click="removeLimit(index, limitIndex)"
-                                    >
-                                        Remove
-                                    </button>
-                                </div>
+                    <div class="flex flex-col gap-2.5">
+                        <div
+                            v-for="(limit, limitIndex) in req.config.limits"
+                            :key="`${index}-limit-${limitIndex}`"
+                            class="flex flex-col sm:flex-row sm:items-end gap-3 p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm"
+                        >
+                            <div class="flex-1">
+                                <label class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5 block">Target Field</label>
+                                <input
+                                    list="limit-field-options"
+                                    type="text"
+                                    class="w-full border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 rounded-lg text-xs py-2 px-3 font-medium focus:ring-1 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                                    :value="limit.field"
+                                    :disabled="!req?.is_enabled"
+                                    @change="updateLimitField(index, limitIndex, $event.target.value)"
+                                    placeholder="e.g. province_address"
+                                />
+                            </div>
+                            <div class="w-full sm:w-32">
+                                <label class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5 block">Max per value</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    class="w-full border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 rounded-lg text-xs py-2 px-3 font-medium focus:ring-1 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                                    :value="limit.max"
+                                    :disabled="!req?.is_enabled"
+                                    @change="updateLimitMax(index, limitIndex, $event.target.value)"
+                                    placeholder="Max limit"
+                                />
+                            </div>
+                            <div class="flex items-center justify-end sm:justify-start w-full sm:w-auto shrink-0 pt-2 sm:pt-0 pb-1 sm:pb-0">
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center gap-1.5 px-3 py-2 sm:p-2 text-xs font-bold text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                                    :disabled="!req?.is_enabled"
+                                    @click="removeLimit(index, limitIndex)"
+                                >
+                                    <LuTrash2 class="w-4 h-4" /> <span class="sm:hidden">Remove Limit</span>
+                                </button>
                             </div>
                         </div>
-
-                        <datalist id="limit-field-options">
-                            <option v-for="opt in limitFieldOptions" :key="opt.value" :value="opt.value">
-                                {{ opt.label }}
-                            </option>
-                        </datalist>
                     </div>
+
+                    <datalist id="limit-field-options">
+                        <option v-for="opt in limitFieldOptions" :key="opt.value" :value="opt.value">
+                            {{ opt.label }}
+                        </option>
+                    </datalist>
                 </div>
             </div>
 
             <!-- Empty State -->
-            <div v-if="!requirements.length" class="p-4 text-center text-gray-400 border border-dashed border-gray-300 rounded">
-                <p>No forms added yet. Click "Add a form" to get started.</p>
+            <div v-if="!requirements.length" class="py-10 px-4 text-center border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/20 rounded-2xl">
+                <LuFilePlus2 class="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+                <p class="text-sm font-bold text-slate-500 dark:text-slate-400">No forms attached yet.</p>
+                <p class="text-xs font-medium text-slate-400 dark:text-slate-500 mt-1">Click the button below to add your first workflow step.</p>
             </div>
         </div>
 
         <!-- Add Button -->
-        <button
-            v-if="availableFormTypeOptions().length"
-            type="button"
-            class="mt-1 inline-flex items-center px-2 py-1 text-xs border border-dashed border-gray-400 rounded-md text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800 transition"
-            @click="addRequirement"
-            title="Add a new form to this event"
-        >
-            + Add a form
-        </button>
-        <div v-else class="text-xs text-gray-400 italic">All form types have been used.</div>
+        <div class="pt-2">
+            <button
+                v-if="availableFormTypeOptions().length"
+                type="button"
+                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 rounded-xl transition-colors active:scale-95 shadow-sm"
+                @click="addRequirement"
+            >
+                <LuPlus class="w-4 h-4" /> Add Workflow Step
+            </button>
+            <div v-else class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-center py-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700">
+                <LuCheckCircle2 class="w-4 h-4 inline-block mr-1.5 -mt-0.5 text-emerald-500" /> All available form types have been attached.
+            </div>
+        </div>
     </div>
 </template>
 
 <style scoped>
-.fade-enter-active, .fade-leave-active {
-    transition: opacity 0.3s ease;
-}
-.fade-enter-from, .fade-leave-to {
-    opacity: 0;
-}
-
 .slide-down-enter-active, .slide-down-leave-active {
-    transition: all 0.2s ease;
+    transition: all 0.2s ease-out;
 }
 .slide-down-enter-from {
     opacity: 0;
-    transform: translateY(-5px);
+    transform: translateY(-8px);
 }
 .slide-down-leave-to {
     opacity: 0;
-    transform: translateY(-5px);
+    transform: translateY(-8px);
 }
 </style>

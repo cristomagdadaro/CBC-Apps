@@ -162,21 +162,21 @@ export default {
         <!-- Content State -->
         <div v-else data-guide="rental-details" class="space-y-6">
             <!-- Status Banner -->
-            <div :class="['rounded-2xl border-2 p-6 backdrop-blur-lg', statusConfig.color]">
-                <div class="flex items-center justify-between gap-5">
+            <div :class="['rounded-2xl border-2 p-4 sm:p-6 backdrop-blur-lg', statusConfig.color]">
+                <div class="flex items-center justify-between gap-3 sm:gap-5">
                     <!-- Vehicle Header -->
-                    <div class="flex items-center space-x-4">
-                        <div class="rounded-xl bg-blue-600 dark:bg-blue-500 p-3 text-white shadow-lg shadow-blue-600/20">
-                            <LuCar class="h-6 w-6" />
+                    <div class="flex items-center space-x-3 sm:space-x-4">
+                        <div class="rounded-xl bg-blue-600 dark:bg-blue-500 p-2 sm:p-3 text-white shadow-lg shadow-blue-600/20 shrink-0">
+                            <LuCar class="h-5 w-5 sm:h-6 sm:w-6" />
                         </div>
                         <div class="leading-tight">
-                            <h2 class="text-base sm:text-lg font-bold">{{ rental.vehicle_type || 'Vehicle Not Assigned Yet' }}</h2>
-                            <p class="text-sm opacity-80">{{ tripTypeMeta.label }}</p>
+                            <h2 class="text-sm sm:text-lg font-bold">{{ rental.vehicle_type || 'Vehicle Not Assigned Yet' }}</h2>
+                            <p class="text-xs sm:text-sm opacity-80 mt-0.5">{{ tripTypeMeta.label }}</p>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-3">
-                        <component :is="statusConfig.icon" class="h-6 w-6" />
-                        <div class="leading-tight">
+                    <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+                        <component :is="statusConfig.icon" class="h-5 w-5 sm:h-6 sm:w-6" />
+                        <div class="leading-tight hidden sm:block">
                             <p class="text-base sm:text-lg font-bold">{{ statusConfig.label }}</p>
                             <p class="text-xs font-semibold uppercase tracking-wider opacity-80">Current Status</p>
                         </div>
@@ -221,7 +221,7 @@ export default {
                                     <div class="mt-0.5 h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400"></div>
                                     <div>
                                         <p class="text-xs text-slate-500 dark:text-slate-400">Booking Reference</p>
-                                        <p class="text-sm font-bold text-blue-700 dark:text-blue-300 tracking-widest font-mono">{{ rental.booking_id || "NULL" }}</p>
+                                        <p class="text-sm sm:text-base font-bold text-blue-700 dark:text-blue-300 tracking-widest font-mono">{{ rental.booking_id || "NULL" }}</p>
                                     </div>
                                 </div>
                                 <div class="flex items-start space-x-3">

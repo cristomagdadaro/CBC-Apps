@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\Auditable;
 use Illuminate\Support\Str;
 
-class EventSubformResponse extends Model
+class EventSubformResponse extends BaseModel
 {
     use HasFactory, HasUuids, Auditable;
 

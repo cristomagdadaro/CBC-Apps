@@ -1,23 +1,37 @@
 <template>
-    <div class="flex flex-col gap-0.5">
-        <div class="text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center justify-between">
-            <span class="flex gap-0.5 whitespace-nowrap">Search by</span>
-            <div class="flex items-center gap-0.5">
-                <label for="exactValue"></label>
-                <input type="checkbox" v-model="is_exact" @click="toggle()" class="rounded-full h-3 w-4 accent-lime-600 focus:outline-none focus:ring-0 cursor-pointer" title="turn on filter by exact value">
+    <custom-dropdown 
+        label="Search by"
+        :show-clear="false" 
+        :value="value" 
+        placeholder="Columns" 
+        :options="options" 
+        @selectedChange="$emit('searchBy', $event)"
+    >
+        <template #header-actions>
+            <div class="flex items-center gap-1.5" title="Turn on exact match filter">
+                <span class="text-[10px] uppercase font-semibold tracking-wider text-slate-500">Exact</span>
+                <input 
+                    type="checkbox" 
+                    v-model="is_exact" 
+                    @change="toggle" 
+                    class="rounded-sm border-slate-300 text-indigo-600 focus:ring-indigo-600 dark:border-slate-700 dark:bg-slate-900 cursor-pointer w-3.5 h-3.5 transition-colors"
+                >
             </div>
-        </div>
-        <custom-dropdown :show-clear="false" :value="value" placeholder="Columns" :options="options" @selectedChange="$emit('searchBy', $event)">
-            <template #icon>
-                <filter-icon class="h-4 w-4 text-slate-400" />
-            </template>
-        </custom-dropdown>
-    </div>
+        </template>
+        <template #label-icon>
+            <LuFilter class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
+        </template>
+    </custom-dropdown>
 </template>
+
 <script>
+import CustomDropdown from '@/Components/CustomDropdown/CustomDropdown.vue';
 
 export default {
     name: "SearchBy",
+    components: {
+        CustomDropdown,
+    },
     props: {
         options: {
             type: Array,
@@ -43,7 +57,7 @@ export default {
     },
     methods: {
         toggle(){
-            this.$emit('isExact', !this.is_exact )
+            this.$emit('isExact', this.is_exact)
         },
     },
 }

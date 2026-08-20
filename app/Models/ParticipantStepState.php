@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ParticipantStepState extends Model
+class ParticipantStepState extends BaseModel
 {
     use HasFactory, HasUuids;
 

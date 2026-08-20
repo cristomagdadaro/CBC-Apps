@@ -285,15 +285,17 @@ export default {
                 subtitle="Generate and print A7 ID cards for approved Student, OJT, and Thesis personnel."
                 :route-link="fromUrl || route('personnels.registrations.index')"
             >
-                <button
-                    type="button"
-                    class="inline-flex items-center gap-1.5 rounded-xl bg-lime-600 hover:bg-lime-700 text-white font-bold px-4 py-2 text-xs sm:text-sm shadow-xs transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-                    :disabled="!previewReady"
-                    @click="printCards"
-                >
-                    <LuPrinter class="w-4 h-4" />
-                    Print IDs
-                </button>
+                <transition-container type="pop-in" :duration="500">
+                    <button
+                        type="button"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition-all active:scale-95 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                        :disabled="!previewReady"
+                        @click="printCards"
+                    >
+                        <LuPrinter class="w-4 h-4 text-emerald-500" />
+                        <span>Print IDs</span>
+                    </button>
+                </transition-container>
             </ActionHeaderLayout>
         </template>
 

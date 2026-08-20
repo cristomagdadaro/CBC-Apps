@@ -175,24 +175,24 @@ export default {
         <!-- Content State -->
         <div v-else data-guide="rental-details" class="space-y-6">
             <!-- Status Banner -->
-            <div :class="['rounded-2xl border-2 p-6 backdrop-blur-lg', statusConfig.color]">
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div :class="['rounded-2xl border-2 p-4 sm:p-6 backdrop-blur-lg', statusConfig.color]">
+                <div class="flex items-center justify-between gap-3 sm:gap-5">
                     <!-- Event Header -->
-                    <div class="flex items-center space-x-4">
-                        <div class="rounded-xl bg-blue-600 dark:bg-blue-500 p-3 text-white shadow-lg shadow-blue-600/20 shrink-0">
-                            <LuBuilding2 class="h-6 w-6" />
+                    <div class="flex items-center space-x-3 sm:space-x-4">
+                        <div class="rounded-xl bg-blue-600 dark:bg-blue-500 p-2 sm:p-3 text-white shadow-lg shadow-blue-600/20 shrink-0">
+                            <LuBuilding2 class="h-5 w-5 sm:h-6 sm:w-6" />
                         </div>
                         <div class="leading-tight">
-                            <h2 class="text-base sm:text-lg font-bold">{{ rental.event_name || 'Venue booking' }}</h2>
-                            <p class="text-sm opacity-80 uppercase tracking-wider mt-0.5">
+                            <h2 class="text-sm sm:text-lg font-bold">{{ rental.event_name || 'Venue booking' }}</h2>
+                            <p class="text-xs sm:text-sm opacity-80 uppercase tracking-wider mt-0.5">
                                 {{ rental.venue_type || 'Venue' }}
                                 <span v-if="formatDuration" class="normal-case opacity-90">&bull; {{ formatDuration }} duration</span>
                             </p>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-3 shrink-0">
-                        <component :is="statusConfig.icon" class="h-6 w-6" />
-                        <div class="leading-tight">
+                    <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+                        <component :is="statusConfig.icon" class="h-5 w-5 sm:h-6 sm:w-6" />
+                        <div class="leading-tight hidden sm:block">
                             <p class="text-base sm:text-lg font-bold">{{ statusConfig.label }}</p>
                             <p class="text-xs font-semibold uppercase tracking-wider opacity-80">Booking Status</p>
                         </div>
@@ -247,10 +247,10 @@ export default {
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="text-xs font-medium text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Booking Reference</p>
-                                        <p class="mt-1 text-xl sm:text-2xl font-bold text-indigo-900 dark:text-indigo-200 font-mono tracking-widest">{{ rental.booking_id || "NULL" }}</p>
+                                        <p class="mt-1 text-sm sm:text-base font-bold text-indigo-900 dark:text-indigo-200 font-mono tracking-widest">{{ rental.booking_id || "NULL" }}</p>
                                     </div>
-                                    <div class="rounded-full bg-indigo-100 dark:bg-indigo-900/50 p-3">
-                                        <LuUsers class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                                    <div class="rounded-full bg-indigo-100 dark:bg-indigo-900/50 p-2 sm:p-3">
+                                        <LuUsers class="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600 dark:text-indigo-400" />
                                     </div>
                                 </div>
                             </div>

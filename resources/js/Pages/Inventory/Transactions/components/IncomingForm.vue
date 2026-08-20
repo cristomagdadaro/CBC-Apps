@@ -29,7 +29,8 @@ import {
     Box,
     Tag,
     MapPin,
-    AlertCircle
+    AlertCircle,
+    Info
 } from 'lucide-vue-next';
 
 export default {
@@ -78,6 +79,7 @@ export default {
         Tag,
         MapPin,
         AlertCircle,
+        Info
     },
     mixins: [ApiMixin],
     data() {
@@ -341,7 +343,6 @@ export default {
                     this.form.unit = null;
                     this.form.total_cost = null;
                 }
-
                 return;
             }
 
@@ -374,353 +375,329 @@ export default {
 </script>
 
 <template>
-    <form v-if="!!form" @submit.prevent="submitForm" class="grid gap-4 w-full" :class="currentFormAction === 'create' ? 'grid-cols-1' : 'grid-cols-2'">
+    <form v-if="!!form" @submit.prevent="submitForm" class="grid gap-6 w-full" :class="currentFormAction === 'create' ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-[1fr,320px] xl:grid-cols-[1fr,360px]'">
+        
         <!-- Main Form Column -->
-        <div class="flex flex-col gap-4 w-full mx-auto p-4 lg:p-6 bg-white dark:bg-slate-900 overflow-hidden rounded-2xl h-fit border border-slate-200 dark:border-slate-800 shadow-xs text-slate-900 dark:text-slate-100">
-            <div class="flex flex-col gap-4 mx-auto w-full h-fit">
-                <!-- Header -->
-                <div class="flex border-b border-slate-200 dark:border-slate-800 justify-between items-center pb-4">
-                    <div>
-                        <div class="flex items-center gap-2 mb-1">
-                            <Package class="w-5 h-5 text-lime-600 dark:text-lime-400" />
-                            <h2 class="font-bold uppercase tracking-tight text-lg text-slate-900 dark:text-slate-100">
-                                {{ isUpdate ? 'Update Incoming Transaction' : 'Incoming Transaction' }}
-                            </h2>
+        <div class="flex flex-col w-full mx-auto bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl overflow-hidden rounded-2xl h-fit border border-slate-200/60 dark:border-slate-800 shadow-sm ring-1 ring-slate-900/5 dark:ring-white/5 transition-all duration-300">
+            
+            <!-- Header Section -->
+            <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-800/20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <div class="flex items-center gap-2.5 mb-1.5">
+                        <div class="p-1.5 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg shrink-0">
+                            <Package class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                         </div>
-                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                            {{ isUpdate ? 'Update the details of this incoming transaction.' : 'Submit details for a new incoming transaction.' }}
-                        </p>
+                        <h2 class="font-black uppercase tracking-tight text-lg text-slate-900 dark:text-white leading-none">
+                            {{ isUpdate ? 'Update Transaction' : 'Incoming Transaction' }}
+                        </h2>
                     </div>
-                    <!-- Barcode Display -->
-                    <div v-if="svgText && selectedStorage" class="flex sm:flex-row flex-col gap-3 w-fit h-16 items-center relative border border-slate-200 dark:border-slate-700 rounded-xl p-1 bg-white">
-                        <img id="barcode-image" :src="svgText" alt="Generated barcode" class="w-full h-full max-w-md rounded bg-white" />
-                    </div>
+                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                        {{ isUpdate ? 'Update the details of this incoming transaction.' : 'Submit details for a new incoming transaction.' }}
+                    </p>
                 </div>
+                
+                <!-- Barcode Display -->
+                <div v-if="svgText && selectedStorage" class="flex items-center justify-center p-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm shrink-0 min-h-[4rem]">
+                    <img id="barcode-image" :src="svgText" alt="Generated barcode" class="h-12 w-auto object-contain rounded bg-white mix-blend-multiply dark:mix-blend-normal" />
+                </div>
+            </div>
 
-                <!-- Reports Accordion -->
+            <!-- Form Content Body -->
+            <div class="p-6 space-y-6">
+                
+                <!-- Reports Accordion (Only visible on Update) -->
                 <transaction-report-accordion
                     v-if="isUpdate"
                     class="w-full"
                     :reports="attachedReportsList"
                 />
 
-                <!-- Item Selection -->
-                <div class="flex flex-row gap-2 h-fit">
-                    <select-search-field
-                        :disabled="isUpdate"
-                        required
-                        :api-link="'api.inventory.items.options'"
-                        :error="form.errors.item_id"
-                        label="Item"
-                        v-model="form.item_id"
-                    />
-                    <div v-if="!isUpdate" class="flex items-end">
-                        <button
-                            v-if="!showNewItemForm"
-                            @click.prevent="toggleShowNewItemForm"
-                            class="h-fit w-full py-2.5 border border-slate-200 dark:border-slate-700 flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl gap-1.5 text-xs sm:text-sm px-3 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors font-semibold"
-                        >
-                            <Plus class="h-4 w-4 text-lime-600 dark:text-lime-400" />
-                            <span class="whitespace-nowrap">New Item</span>
-                        </button>
+                <!-- Core Information Card -->
+                <div class="bg-slate-50/50 dark:bg-slate-800/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/60 space-y-5">
+                    <div class="flex flex-col sm:flex-row items-end gap-3 w-full">
+                        <div class="w-full flex-1">
+                            <select-search-field
+                                :disabled="isUpdate"
+                                required
+                                :api-link="'api.inventory.items.options'"
+                                :error="form.errors.item_id"
+                                label="Catalog Item"
+                                v-model="form.item_id"
+                            />
+                        </div>
+                        <div v-if="!isUpdate" class="w-full sm:w-auto shrink-0">
+                            <button
+                                v-if="!showNewItemForm"
+                                @click.prevent="toggleShowNewItemForm"
+                                class="w-full inline-flex justify-center items-center gap-1.5 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-xl shadow-sm transition-all active:scale-95 whitespace-nowrap"
+                            >
+                                <Plus class="h-4 w-4" /> New Item
+                            </button>
+                            <button
+                                v-else
+                                @click.prevent="toggleShowNewItemForm"
+                                class="w-full inline-flex justify-center items-center gap-1.5 px-4 py-2.5 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-400 text-sm font-bold rounded-xl shadow-sm hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all active:scale-95 whitespace-nowrap"
+                            >
+                                <X class="h-4 w-4" /> Close Panel
+                            </button>
+                        </div>
+                    </div>
 
-                        <button
-                            v-else
-                            @click.prevent="toggleShowNewItemForm"
-                            class="h-fit w-full py-2.5 border border-rose-300 dark:border-rose-800 flex items-center justify-center bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 rounded-xl gap-1.5 text-xs sm:text-sm px-3 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-colors font-semibold"
+                    <text-input
+                        type="text"
+                        label="Project Code"
+                        required
+                        v-model="form.project_code"
+                        datalist-id="incoming-project-code-options"
+                        :datalist-options="projectCodeSuggestions"
+                        :error="form.errors.project_code"
+                        hint="Enter the project code assigned to this transaction"
+                    >
+                        <template #icon>
+                            <FileText class="w-4 h-4 text-slate-400" />
+                        </template>
+                    </text-input>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <custom-dropdown
+                            searchable
+                            :with-all-option="false"
+                            :value="form.personnel_id"
+                            :options="personnels"
+                            placeholder="Select Personnel"
+                            label="Accountable Personnel"
+                            required
+                            :error="form.errors.personnel_id"
+                            @selectedChange="form.personnel_id = $event"
                         >
-                            <X class="h-4 w-4" />
-                            <span class="whitespace-nowrap">Close</span>
-                        </button>
+                            <template #icon>
+                                <User class="w-4 h-4 text-slate-400" />
+                            </template>
+                        </custom-dropdown>
+
+                        <custom-dropdown
+                            required
+                            :disabled="isUpdate"
+                            :with-all-option="false"
+                            :value="selectedStorage"
+                            :options="storage_locations"
+                            placeholder="Select Storage"
+                            label="Storage Location"
+                            :error="form.errors.barcode"
+                            @selectedChange="generateBarcode($event)"
+                        >
+                            <template #icon>
+                                <MapPin class="w-4 h-4 text-slate-400" />
+                            </template>
+                        </custom-dropdown>
                     </div>
                 </div>
 
-                <!-- Project Code -->
-                <text-input
-                    type="text"
-                    label="Project Code"
-                    required
-                    v-model="form.project_code"
-                    datalist-id="incoming-project-code-options"
-                    :datalist-options="projectCodeSuggestions"
-                    :error="form.errors.project_code"
-                    :hint="'Enter the project code for this transaction'"
-                >
-                    <template #icon>
-                        <FileText class="w-4 h-4 text-slate-400" />
-                    </template>
-                </text-input>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <!-- Personnel -->
-                    <custom-dropdown
-                        searchable
-                        :with-all-option="false"
-                        :value="form.personnel_id"
-                        :options="personnels"
-                        placeholder="Select Personnel"
-                        label="Accountable Personnel"
-                        required
-                        :error="form.errors.personnel_id"
-                        @selectedChange="form.personnel_id = $event"
+                <!-- Identification & Barcodes Card -->
+                <div class="bg-slate-50/50 dark:bg-slate-800/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/60 space-y-4">
+                    <text-input
+                        label="Parent Barcode / Link"
+                        v-model="form.parent_barcode"
+                        :error="form.errors.parent_barcode"
+                        placeholder="Optional: link this as a sub-component"
+                        hint="Used to link this as a sub-component of another transaction"
                     >
                         <template #icon>
-                            <User class="w-4 h-4 text-slate-400" />
+                            <GitBranch class="w-4 h-4 text-slate-400" />
                         </template>
-                    </custom-dropdown>
+                    </text-input>
 
-                    <!-- Storage Location -->
-                    <custom-dropdown
-                        required
-                        :disabled="isUpdate"
-                        :with-all-option="false"
-                        :value="selectedStorage"
-                        :options="storage_locations"
-                        placeholder="Select Storage"
-                        label="Storage Location"
-                        :error="form.errors.barcode"
-                        @selectedChange="generateBarcode($event)"
-                    >
-                        <template #icon>
-                            <MapPin class="w-4 h-4 text-slate-400" />
-                        </template>
-                    </custom-dropdown>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <text-input label="PRRI QR/Barcode" v-model="form.barcode_prri" :error="form.errors.barcode_prri">
+                            <template #icon><Hash class="w-4 h-4 text-slate-400" /></template>
+                        </text-input>
+                        
+                        <text-input label="PAR No." v-model="form.par_no" :error="form.errors.par_no">
+                            <template #icon><Tag class="w-4 h-4 text-slate-400" /></template>
+                        </text-input>
+                        
+                        <custom-dropdown
+                            required
+                            :disabled="isUpdate"
+                            :with-all-option="false"
+                            :value="selectCondition"
+                            :options="listConditions"
+                            placeholder="Current Condition"
+                            label="Condition"
+                            :error="form.errors.condition"
+                            @selectedChange="form.condition = $event"
+                        >
+                            <template #icon><Info class="w-4 h-4 text-slate-400" /></template>
+                        </custom-dropdown>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <text-input label="PO No." v-model="form.po_no" :error="form.errors.po_no">
+                            <template #icon><FileText class="w-4 h-4 text-slate-400" /></template>
+                        </text-input>
+                        
+                        <text-input label="PR No." v-model="form.pr_no" :error="form.errors.pr_no">
+                            <template #icon><FileText class="w-4 h-4 text-slate-400" /></template>
+                        </text-input>
+                        
+                        <text-input label="Serial No." v-model="form.serial_no" :error="form.errors.serial_no">
+                            <template #icon><Hash class="w-4 h-4 text-slate-400" /></template>
+                        </text-input>
+                    </div>
                 </div>
 
-                <!-- Parent Barcode -->
-                <text-input
-                    label="Parent Barcode / PRRI Barcode"
-                    v-model="form.parent_barcode"
-                    :error="form.errors.parent_barcode"
-                    placeholder="Optional: link this as a sub-component"
-                    :hint="'Used to link this as a sub-component of another transaction'"
-                >
-                    <template #icon>
-                        <GitBranch class="w-4 h-4 text-slate-400" />
-                    </template>
-                </text-input>
+                <!-- Pricing & Details Card -->
+                <div class="bg-slate-50/50 dark:bg-slate-800/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/60 space-y-4">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <text-input required type="number" label="Quantity" v-model="form.quantity" :error="form.errors.quantity">
+                            <template #icon><Box class="w-4 h-4 text-slate-400" /></template>
+                        </text-input>
+                        
+                        <text-input required label="Unit" v-model="form.unit" :error="form.errors.unit">
+                            <template #icon><Scale class="w-4 h-4 text-slate-400" /></template>
+                        </text-input>
+                        
+                        <text-input type="number" label="Unit Price" v-model="form.unit_price" :error="form.errors.unit_price">
+                            <template #icon><DollarSign class="w-4 h-4 text-slate-400" /></template>
+                        </text-input>
+                        
+                        <text-input type="number" label="Total Cost" v-model="form.total_cost" :error="form.errors.total_cost" :disabled="true">
+                            <template #icon><DollarSign class="w-4 h-4 text-slate-400" /></template>
+                        </text-input>
+                    </div>
 
-                <!-- Barcodes & PAR -->
-                <div class="grid grid-cols-3 gap-3">
-                    <text-input label="PRRI QR/Barcode No." v-model="form.barcode_prri" :error="form.errors.barcode_prri">
-                        <template #icon>
-                            <Hash class="w-4 h-4 text-slate-400" />
-                        </template>
-                    </text-input>
-                    <text-input label="PAR No." v-model="form.par_no" :error="form.errors.par_no">
-                        <template #icon>
-                            <Tag class="w-4 h-4 text-slate-400" />
-                        </template>
-                    </text-input>
-                    <custom-dropdown
-                        required
-                        :disabled="isUpdate"
-                        :with-all-option="false"
-                        :value="selectCondition"
-                        :options="listConditions"
-                        placeholder="Current Condition"
-                        label="Condition"
-                        :error="form.errors.condition"
-                        @selectedChange="form.condition = $event"
-                    >
-                        <template #icon>
-                            <MapPin class="w-4 h-4 text-slate-400" />
-                        </template>
-                    </custom-dropdown>
-                </div>
+                    <div class="grid grid-cols-1 gap-4 pt-2">
+                        <date-input type="date" label="Expiration Date" v-model="form.expiration" :error="form.errors.expiration" />
+                        <text-area label="PR Details / Remarks" v-model="form.remarks" :error="form.errors.remarks" :rows="3" />
+                    </div>
 
-                <!-- Acquisition & Identification -->
-                <div class="grid grid-cols-3 gap-3">
-                    <text-input label="PO No." v-model="form.po_no" :error="form.errors.po_no">
-                        <template #icon>
-                            <FileText class="w-4 h-4 text-slate-400" />
-                        </template>
-                    </text-input>
-                    <text-input label="PR No." v-model="form.pr_no" :error="form.errors.pr_no">
-                        <template #icon>
-                            <FileText class="w-4 h-4 text-slate-400" />
-                        </template>
-                    </text-input>
-                    <text-input label="Serial No." v-model="form.serial_no" :error="form.errors.serial_no">
-                        <template #icon>
-                            <Hash class="w-4 h-4 text-slate-400" />
-                        </template>
-                    </text-input>
-                </div>
-
-                <!-- Quantity & Pricing -->
-                <div class="grid grid-cols-2 gap-3">
-                    <text-input required type="number" label="Quantity" v-model="form.quantity" :error="form.errors.quantity">
-                        <template #icon>
-                            <Box class="w-4 h-4 text-slate-400" />
-                        </template>
-                    </text-input>
-                    <text-input type="number" label="Unit Price" v-model="form.unit_price" :error="form.errors.unit_price">
-                        <template #icon>
-                            <DollarSign class="w-4 h-4 text-slate-400" />
-                        </template>
-                    </text-input>
-                    <text-input required label="Unit" v-model="form.unit" :error="form.errors.unit">
-                        <template #icon>
-                            <Scale class="w-4 h-4 text-slate-400" />
-                        </template>
-                    </text-input>
-                    <text-input type="number" label="Total Cost" v-model="form.total_cost" :error="form.errors.total_cost" :disabled="true">
-                        <template #icon>
-                            <DollarSign class="w-4 h-4 text-slate-400" />
-                        </template>
-                    </text-input>
-                </div>
-
-                <!-- Expiration -->
-                <date-input type="date" label="Expiration" v-model="form.expiration" :error="form.errors.expiration" />
-
-                <!-- Remarks -->
-                <text-area label="PR Details/Remarks" v-model="form.remarks" :error="form.errors.remarks" />
-                <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 p-4">
-                    <custom-dropdown
-                        required
-                        :with-all-option="false"
-                        :value="form.equipment_logger_mode"
-                        :options="equipmentLoggerModeOptions"
-                        placeholder="Select logger availability"
-                        label="Equipment Logger Availability"
-                        :error="form.errors.equipment_logger_mode"
-                        @selectedChange="form.equipment_logger_mode = $event"
-                    >
-                        <template #icon>
-                            <AlertCircle class="w-4 h-4 text-lime-600 dark:text-lime-400" />
-                        </template>
-                    </custom-dropdown>
-                    <p class="mt-2 text-xs text-slate-600 dark:text-slate-400 font-medium">
-                        {{ equipmentLoggerModeHelpText }}
-                    </p>
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 mt-2 shadow-sm">
+                        <custom-dropdown
+                            required
+                            :with-all-option="false"
+                            :value="form.equipment_logger_mode"
+                            :options="equipmentLoggerModeOptions"
+                            placeholder="Select logger availability"
+                            label="Equipment Logger Availability"
+                            :error="form.errors.equipment_logger_mode"
+                            @selectedChange="form.equipment_logger_mode = $event"
+                        >
+                            <template #icon><AlertCircle class="w-4 h-4 text-indigo-500" /></template>
+                        </custom-dropdown>
+                        <p class="mt-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400 leading-relaxed">
+                            {{ equipmentLoggerModeHelpText }}
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Actions -->
-            <div class="flex gap-3 justify-between pt-4 border-t border-slate-200 dark:border-slate-800">
+            <!-- Form Footer Actions -->
+            <div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-4 sticky bottom-0 z-10">
                 <button
                     type="button"
                     @click="resetIncomingForm"
-                    class="flex items-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors border border-slate-200 dark:border-slate-700"
+                    class="flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl shadow-sm transition-all active:scale-95"
                 >
-                    <RotateCcw class="w-4 h-4" />
-                    Reset
+                    <RotateCcw class="w-4 h-4" /> Reset
                 </button>
 
                 <button
                     type="submit"
                     :disabled="model.api.processing"
-                    class="flex items-center gap-2 px-6 py-2.5 text-xs sm:text-sm font-bold text-white bg-lime-600 hover:bg-lime-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-all"
+                    class="flex items-center gap-2 px-8 py-2.5 text-sm font-black text-white bg-indigo-600 hover:bg-indigo-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl shadow-md shadow-indigo-600/20 hover:shadow-lg hover:shadow-indigo-600/30 transition-all"
                 >
                     <Loader2 v-if="model.api.processing" class="w-4 h-4 animate-spin" />
                     <Save v-else class="w-4 h-4" />
                     <span v-if="model.api.processing">{{ isUpdate ? 'Updating...' : 'Saving...' }}</span>
-                    <span v-else>{{ isUpdate ? 'Update' : 'Save' }}</span>
+                    <span v-else>{{ isUpdate ? 'Update Transaction' : 'Save Transaction' }}</span>
                 </button>
             </div>
-
-            <!-- Audit Info -->
+            
             <audit-info-card
                 v-if="isUpdate"
+                class="border-t-0 rounded-none rounded-b-2xl"
                 :audit-logs="$page.props.auditLogs"
                 :created-at="data?.created_at"
                 :updated-at="data?.updated_at"
             />
         </div>
 
-        <!-- Side Panel (Update Mode) -->
-        <div v-if="currentFormAction !== 'create'" class="flex flex-col gap-4 rounded-2xl p-4 lg:p-6 bg-white dark:bg-slate-900 h-fit border border-slate-200 dark:border-slate-800 shadow-xs">
-            <div class="flex flex-col gap-4">
+        <!-- Side Panel (Update Mode Info) -->
+        <div v-if="currentFormAction !== 'create'" class="flex flex-col gap-6">
+            
+            <div class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl shadow-sm ring-1 ring-slate-900/5 dark:ring-white/5 border border-slate-200/60 dark:border-slate-800 p-5 sm:p-6 space-y-6">
                 <!-- Workflow Info -->
-                <div class="border border-blue-100 dark:border-blue-800 rounded-lg p-4 bg-blue-50/50 dark:bg-blue-900/20">
+                <div class="p-4 bg-indigo-50/80 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/30 rounded-xl shadow-sm">
                     <div class="flex items-start gap-3">
-                        <div class="p-2 bg-blue-100 dark:bg-blue-800 rounded-lg flex-shrink-0">
-                            <GitBranch class="w-5 h-5 text-blue-600 dark:text-blue-300" />
+                        <div class="p-2 bg-white dark:bg-slate-800 rounded-lg border border-indigo-100 dark:border-slate-700 shrink-0 shadow-sm">
+                            <GitBranch class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                         </div>
-                        <div class="flex-1">
-                            <h3 class="font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide text-sm mb-1">
+                        <div class="flex-1 min-w-0 pt-0.5">
+                            <h3 class="font-bold text-xs uppercase tracking-widest text-indigo-900 dark:text-indigo-300 mb-1.5">
                                 Sub-Component Workflow
                             </h3>
-                            <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                            <p class="text-xs font-medium text-indigo-700 dark:text-indigo-400/80 leading-relaxed">
                                 Save each equipment part as its own incoming transaction, then use the parent CBC or PRRI barcode above to link it back to the main equipment record.
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Parent Transaction -->
-                <div v-if="hasParentTransaction" class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-700/50 shadow-sm">
-                    <div class="flex items-start justify-between gap-3 mb-4">
+                <!-- Parent Transaction Card -->
+                <div v-if="hasParentTransaction" class="border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 rounded-xl p-5 space-y-4">
+                    <div class="flex items-start justify-between gap-3">
                         <div class="flex items-start gap-3">
-                            <div class="p-2 bg-AA/10 dark:bg-AA/20 rounded-lg flex-shrink-0">
-                                <ArrowUpRight class="w-5 h-5 text-AA" />
+                            <div class="p-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg shrink-0">
+                                <ArrowUpRight class="w-4 h-4 text-slate-600 dark:text-slate-400" />
                             </div>
                             <div>
-                                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">Parent Transaction</h3>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                    This transaction is linked as a sub-component
-                                </p>
+                                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200">Parent Transaction</h3>
+                                <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">Linked as sub-component</p>
                             </div>
                         </div>
                         <Link
                             :href="route('transactions.show', parentTransaction.id)"
-                            class="group flex items-center gap-1.5 text-xs font-medium text-AA hover:text-AA-dark whitespace-nowrap transition-colors"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm group"
                         >
-                            <span class="underline-offset-2 group-hover:underline">View Parent</span>
-                            <ArrowUpRight class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                            <span>View</span>
+                            <ArrowUpRight class="w-3 h-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                         </Link>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3 text-sm ml-11">
-                        <div class="flex items-center gap-2">
-                            <Package class="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                    <div class="grid grid-cols-1 gap-3 text-sm bg-white dark:bg-slate-900 rounded-lg p-3 border border-slate-100 dark:border-slate-800">
+                        <div class="flex items-start gap-2.5">
+                            <Package class="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                             <div class="min-w-0">
-                                <span class="text-gray-500 dark:text-gray-400 text-xs block">Item</span>
-                                <span class="text-gray-900 dark:text-gray-100 font-medium truncate block">
-                                    {{ parentTransaction?.item?.name ?? '—' }}
-                                </span>
+                                <span class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 block mb-0.5">Item</span>
+                                <span class="text-slate-800 dark:text-slate-200 font-semibold truncate block">{{ parentTransaction?.item?.name ?? '—' }}</span>
                             </div>
                         </div>
-
-                        <div class="flex items-center gap-2">
-                            <Hash class="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
-                            <div>
-                                <span class="text-gray-500 dark:text-gray-400 text-xs block">CBC Barcode</span>
-                                <span class="font-mono text-gray-700 dark:text-gray-200">
-                                    {{ parentTransaction?.barcode ?? '—' }}
-                                </span>
+                        <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                            <div class="flex items-start gap-2">
+                                <Hash class="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
+                                <div>
+                                    <span class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 block mb-0.5">CBC Barcode</span>
+                                    <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">{{ parentTransaction?.barcode ?? '—' }}</span>
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="flex items-center gap-2">
-                            <Hash class="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
-                            <div>
-                                <span class="text-gray-500 dark:text-gray-400 text-xs block">PRRI Barcode</span>
-                                <span class="font-mono text-gray-700 dark:text-gray-200">
-                                    {{ parentTransaction?.barcode_prri ?? '—' }}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-2">
-                            <User class="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
-                            <div class="min-w-0">
-                                <span class="text-gray-500 dark:text-gray-400 text-xs block">Accountable</span>
-                                <span class="text-gray-700 dark:text-gray-200 truncate block">
-                                    {{ parentTransaction?.actor_display_name ?? '—' }}
-                                </span>
+                            <div class="flex items-start gap-2">
+                                <Hash class="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
+                                <div>
+                                    <span class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 block mb-0.5">PRRI Barcode</span>
+                                    <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">{{ parentTransaction?.barcode_prri ?? '—' }}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Sub-Components Accordion -->
+            <!-- Sub-Components Accordion -->
+            <div v-if="currentFormAction !== 'create'" class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl shadow-sm ring-1 ring-slate-900/5 dark:ring-white/5 border border-slate-200/60 dark:border-slate-800 overflow-hidden">
                 <transaction-component-accordion
                     :components="attachedComponentsList"
                     title="Sub-Components"
-                    :empty-message="'No sub-components linked to this transaction yet.'"
+                    empty-message="No sub-components linked to this transaction yet."
                 />
             </div>
         </div>
@@ -729,8 +706,8 @@ export default {
 
 <style scoped>
 /* Smooth transitions */
-button {
-    transition: all 0.2s ease;
+button, select {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Barcode image styling */

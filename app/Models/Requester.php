@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use App\Traits\Auditable;
 
-class Requester extends Model
+class Requester extends BaseModel
 {
     use HasFactory, SoftDeletes, HasUuids, Auditable;
 

@@ -49,16 +49,31 @@ export default {
         statusClass() {
             switch (this.status) {
                 case "success":
-                    return "bg-emerald-100 text-emerald-800 border-emerald-300";
+                    return "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30";
                 case "already_scanned":
-                    return "bg-yellow-100 text-yellow-800 border-yellow-300";
+                    return "bg-amber-50 dark:bg-amber-500/10 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-500/30";
                 case "invalid":
                 case "wrong_event":
                 case "full":
                 case "ineligible":
-                    return "bg-rose-100 text-rose-800 border-rose-300";
+                    return "bg-rose-50 dark:bg-rose-500/10 text-rose-800 dark:text-rose-400 border-rose-200 dark:border-rose-500/30";
                 default:
-                    return "bg-slate-100 text-slate-700 border-slate-200";
+                    return "bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700";
+            }
+        },
+        statusIcon() {
+            switch (this.status) {
+                case "success":
+                    return "LuCheckCircle2";
+                case "already_scanned":
+                    return "LuAlertCircle";
+                case "invalid":
+                case "wrong_event":
+                case "full":
+                case "ineligible":
+                    return "LuXCircle";
+                default:
+                    return "LuScanLine";
             }
         },
         scanTypeLabel() {
@@ -193,115 +208,192 @@ export default {
         </template>
 
         <div class="py-10">
-            <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
-                <div class="bg-white rounded-2xl shadow-xl border border-slate-100 p-5">
-                    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                        <div class="flex flex-col gap-3 md:flex-row md:items-end">
-                            <div>
-                                <label class="text-xs uppercase tracking-[0.3em] text-slate-400">Event ID</label>
-                                <input
-                                    v-model="eventId"
-                                    type="text"
-                                    maxlength="4"
-                                    class="mt-1 w-32 rounded-xl border border-slate-200 px-3 py-2 text-lg font-semibold tracking-widest text-slate-700"
-                                    placeholder="0000"
-                                />
-                            </div>
-                            <div>
-                                <label class="text-xs uppercase tracking-[0.3em] text-slate-400">Scan Type</label>
-                                <select v-model="scanType" class="mt-1 rounded-xl border border-slate-200 px-3 py-2 text-sm">
-                                    <option value="checkin">Check-in</option>
-                                    <option value="breakfast">Breakfast</option>
-                                    <option value="lunch">Lunch</option>
-                                     <option value="dinner">Dinner</option>
-                                    <option value="certificate">Certificate</option>
-                                    <option value="snack_am">Snack (AM)</option>
-                                    <option value="snack_pm">Snack (PM)</option>
-                                </select>
+            <div class="max-w-6xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                
+                <!-- Main Scanner & Controls Card -->
+                <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-800 overflow-hidden transition-all duration-300">
+                    
+                    <!-- Control Panel Header -->
+                    <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
+                        <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+                            <div class="flex flex-col gap-4 md:flex-row md:items-end w-full">
+                                
+                                <!-- Event ID Input -->
+                                <div>
+                                    <label class="text-[0.65rem] uppercase font-bold tracking-widest text-slate-500 dark:text-slate-400 mb-2 block">Event ID</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                            <LuHash class="w-4 h-4 text-slate-400" />
+                                        </div>
+                                        <input
+                                            v-model="eventId"
+                                            type="text"
+                                            maxlength="4"
+                                            class="block w-36 pl-10 pr-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-lg font-black tracking-widest text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm transition-all"
+                                            placeholder="0000"
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <!-- Scan Type Input -->
+                                <div class="flex-1 md:max-w-xs">
+                                    <label class="text-[0.65rem] uppercase font-bold tracking-widest text-slate-500 dark:text-slate-400 mb-2 block">Scan Type</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                            <LuTags class="w-4 h-4 text-slate-400" />
+                                        </div>
+                                        <select v-model="scanType" class="block w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm transition-all appearance-none">
+                                            <option v-for="option in scanTypeFilterOptions.filter(o => o.value !== 'all')" :key="option.value" :value="option.value">
+                                                {{ option.label }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
-
                     </div>
 
-                    <div class="mt-5 grid gap-4 md:grid-cols-[2fr,1fr]">
-                        <div>
-                            <CameraScanner
-                                :enabled="!isProcessing && !!eventId"
-                                label="Available Camera Devices"
-                                :defaultOpenSmall="true"
-                                @decoded="handleDecode"
-                                @error="(err) => setStatus('invalid', 'Camera error', err?.toString() || 'Unknown error')"
-                            />
-                            <p class="text-xs text-slate-400 mt-2">Scanning for {{ scanTypeLabel }} • {{ eventId || "Select event" }}</p>
+                    <!-- Scanner & Status Display -->
+                    <div class="p-6 grid gap-6 lg:gap-8 md:grid-cols-[1.5fr,1fr]">
+                        
+                        <!-- Left Side: Camera -->
+                        <div class="flex flex-col">
+                            <div class="rounded-2xl overflow-hidden border-2 border-slate-200/50 dark:border-slate-700/50 bg-black shadow-inner flex-1 min-h-[300px] relative">
+                                <CameraScanner
+                                    :enabled="!isProcessing && !!eventId"
+                                    label="Available Camera Devices"
+                                    :defaultOpenSmall="true"
+                                    @decoded="handleDecode"
+                                    @error="(err) => setStatus('invalid', 'Camera error', err?.toString() || 'Unknown error')"
+                                    class="absolute inset-0 w-full h-full object-cover"
+                                />
+                            </div>
+                            <div class="mt-3 flex items-center justify-between px-1">
+                                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                                    <LuScanLine class="w-3.5 h-3.5" />
+                                    Scanning for <span class="text-slate-700 dark:text-slate-300">{{ scanTypeLabel }}</span>
+                                </p>
+                                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                    Event: <span class="text-slate-700 dark:text-slate-300">{{ eventId || "None selected" }}</span>
+                                </p>
+                            </div>
                         </div>
 
-                        <div class="flex flex-col gap-3">
-                            <div :class="['rounded-xl border px-4 py-3', statusClass]">
-                                <p class="text-xs uppercase tracking-[0.3em]">Status</p>
-                                <p class="text-lg font-semibold mt-1">{{ statusMessage }}</p>
-                                <p class="text-sm mt-1" v-if="statusDetail">{{ statusDetail }}</p>
+                        <!-- Right Side: Status & Last Scan -->
+                        <div class="flex flex-col gap-5">
+                            
+                            <!-- Dynamic Status Box -->
+                            <div :class="['rounded-2xl border p-5 transition-colors duration-300 shadow-sm flex flex-col justify-center min-h-[140px]', statusClass]">
+                                <div class="flex items-start gap-4">
+                                    <component :is="statusIcon" class="w-8 h-8 mt-1 shrink-0 opacity-90" />
+                                    <div>
+                                        <p class="text-[0.65rem] uppercase font-bold tracking-widest opacity-70 mb-1">Current Status</p>
+                                        <p class="text-xl font-black tracking-tight leading-tight">{{ statusMessage }}</p>
+                                        <p class="text-sm font-semibold mt-1.5 opacity-90" v-if="statusDetail">{{ statusDetail }}</p>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="rounded-xl border border-slate-200 px-4 py-3 bg-slate-50">
-                                <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Last Scan</p>
-                                <p class="text-sm font-semibold text-slate-700" v-if="lastScan?.registration?.name">
-                                    {{ lastScan.registration.name }}
-                                </p>
-                                <p class="text-xs text-slate-500" v-if="lastScan?.registration?.organization">
-                                    {{ lastScan.registration.organization }}
-                                </p>
-                                <p class="text-xs text-slate-400 mt-2" v-if="lastScan?.registration?.id">
-                                    {{ lastScan.registration.id }}
-                                </p>
+                            <!-- Last Scan ID Card -->
+                            <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/40 p-5 shadow-sm flex-1">
+                                <p class="text-[0.65rem] uppercase font-bold tracking-widest text-slate-500 dark:text-slate-400 mb-4">Last Scanned Profile</p>
+                                
+                                <div v-if="lastScan?.registration?.name" class="flex gap-4 items-start">
+                                    <div class="h-12 w-12 rounded-xl bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-xl shrink-0 border border-indigo-200 dark:border-indigo-500/30 shadow-inner">
+                                        {{ lastScan.registration.name.charAt(0).toUpperCase() }}
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-base font-bold text-slate-900 dark:text-white truncate">{{ lastScan.registration.name }}</p>
+                                        <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 truncate" v-if="lastScan?.registration?.organization">
+                                            {{ lastScan.registration.organization }}
+                                        </p>
+                                        <div class="mt-2.5 inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm" v-if="lastScan?.registration?.id">
+                                            <LuHash class="w-3 h-3 text-slate-400" />
+                                            <span class="text-[0.65rem] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest">{{ lastScan.registration.id }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div v-else class="flex flex-col items-center justify-center h-full text-slate-400 dark:text-slate-500 opacity-70 pb-4">
+                                    <LuUserSquare class="w-10 h-10 mb-2 stroke-1" />
+                                    <span class="text-sm font-semibold">Waiting for scan...</span>
+                                </div>
                             </div>
+                            
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow border border-slate-100 p-5">
-                    <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                <!-- Recent Scans Data Table Card -->
+                <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-800 overflow-hidden transition-all duration-300 p-6">
+                    
+                    <!-- Table Header -->
+                    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-6">
                         <div>
-                            <p class="text-sm font-semibold text-slate-600">Recent Scans</p>
-                            <p class="text-xs text-slate-400">Search participants and filter by scan type</p>
+                            <div class="flex items-center gap-2 mb-1">
+                                <LuHistory class="w-5 h-5 text-indigo-500" />
+                                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Recent Scans</h3>
+                            </div>
+                            <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Search participants and filter by scan type</p>
                         </div>
-                        <p class="text-xs text-slate-400">{{ filteredRecentScans.length }} / {{ recentScans.length }}</p>
+                        <div class="inline-flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Showing</span>
+                            <span class="text-sm font-black text-indigo-600 dark:text-indigo-400">{{ filteredRecentScans.length }} <span class="text-slate-400 font-medium mx-0.5">/</span> {{ recentScans.length }}</span>
+                        </div>
                     </div>
-                    <div class="mt-4 grid gap-3 md:grid-cols-[2fr,1fr]">
-                        <input
-                            v-model="recentScanSearch"
-                            type="text"
-                            class="rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                            placeholder="Search by name, email, organization, status"
-                        />
-                        <select
-                            v-model="recentScanTypeFilter"
-                            class="rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                        >
-                            <option
-                                v-for="option in scanTypeFilterOptions"
-                                :key="option.value"
-                                :value="option.value"
+
+                    <!-- Search & Filter Controls -->
+                    <div class="grid gap-4 md:grid-cols-[2fr,1fr] mb-5">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <LuSearch class="w-4 h-4 text-slate-400" />
+                            </div>
+                            <input
+                                v-model="recentScanSearch"
+                                type="text"
+                                class="block w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm transition-all"
+                                placeholder="Search by name, email, organization, or status..."
+                            />
+                        </div>
+                        
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <LuFilter class="w-4 h-4 text-slate-400" />
+                            </div>
+                            <select
+                                v-model="recentScanTypeFilter"
+                                class="block w-full pl-9 pr-10 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm transition-all appearance-none"
                             >
-                                {{ option.label }}
-                            </option>
-                        </select>
-                    </div>
-                    <div class="mt-3">
-                        <data-table
-                            :api-response="recentScansTableResponse"
-                            :processing="false"
-                            :model="recentScanModel"
-                            :append-actions="false"
-                        />
-                        <div v-if="!filteredRecentScans.length" class="text-sm text-slate-400 mt-2">
-                            No matching scans.
+                                <option
+                                    v-for="option in scanTypeFilterOptions"
+                                    :key="option.value"
+                                    :value="option.value"
+                                >
+                                    {{ option.label }}
+                                </option>
+                            </select>
                         </div>
                     </div>
+
+                    <!-- Data Table -->
+                    <div class="mt-2">
+                        <div class="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+                            <data-table
+                                :api-response="recentScansTableResponse"
+                                :processing="false"
+                                :model="recentScanModel"
+                                :append-actions="false"
+                            />
+                        </div>
+                        <div v-if="!filteredRecentScans.length" class="text-center py-8">
+                            <LuSearchX class="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+                            <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">No matching scans found.</p>
+                        </div>
+                    </div>
+                    
                 </div>
             </div>
         </div>
     </AppLayout>
 </template>
-
-<style scoped>
-</style>

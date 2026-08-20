@@ -1,26 +1,11 @@
-<template>
-    <div class="w-full relative tagify-wrapper">
-        <label v-if="label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            {{ label }}
-        </label>
-        <input 
-            ref="tagifyInput" 
-            :name="name" 
-            class="w-full" 
-            :placeholder="placeholder" 
-        />
-        <div v-if="error" class="text-xs text-red-600 mt-1">
-            {{ error }}
-        </div>
-    </div>
-</template>
-
 <script>
 import Tagify from '@yaireo/tagify';
 import '@yaireo/tagify/dist/tagify.css';
+import FieldMixin from '@/Components/Forms/FieldMixin';
 
 export default {
     name: "SingleSelectTagify",
+    mixins: [FieldMixin],
     props: {
         modelValue: {
             type: [String, Array],
@@ -37,14 +22,6 @@ export default {
         name: {
             type: String,
             default: 'location'
-        },
-        label: {
-            type: String,
-            default: ''
-        },
-        error: {
-            type: String,
-            default: ''
         }
     },
     emits: ['update:modelValue', 'keydown'],
@@ -69,6 +46,11 @@ export default {
                     this.tagify.loadOriginalValues(newValue ? [newValue] : []);
                 }
             }
+        }
+    },
+    methods: {
+        clearValue() {
+            this.$emit('update:modelValue', '');
         }
     },
     mounted() {
@@ -122,6 +104,35 @@ export default {
     }
 }
 </script>
+
+<template>
+    <Field
+        :id="id"
+        :label="label"
+        :error="error"
+        :required="required"
+        :hint="hint"
+        :guide="guide"
+        :clearable="clearable"
+        :has-value="!!modelValue"
+        :disabled="disabled"
+        @clear="clearValue"
+        class="tagify-wrapper"
+    >
+        <template #default="{ inputId, isInvalid, isValid, guideId }">
+            <input 
+                :id="inputId"
+                ref="tagifyInput" 
+                :name="name" 
+                :disabled="disabled"
+                :aria-invalid="isInvalid"
+                :aria-describedby="guideId"
+                class="w-full" 
+                :placeholder="placeholder" 
+            />
+        </template>
+    </Field>
+</template>
 
 <style>
 .tagify-wrapper .tagify {

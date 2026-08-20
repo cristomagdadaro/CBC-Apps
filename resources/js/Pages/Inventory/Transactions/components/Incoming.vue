@@ -91,30 +91,32 @@ export default {
             <transaction-header-action />
         </template>
 
-        <div class="flex flex-col px-3 sm:px-6 py-4 sm:py-6 gap-4 sm:gap-6 relative max-w-7xl mx-auto text-slate-900 dark:text-slate-100">
+        <div class="flex flex-col px-4 sm:px-6 lg:px-8 py-6 gap-6 relative max-w-[1600px] mx-auto text-slate-900 dark:text-slate-100">
+            
             <!-- Info Banner -->
-            <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-2xl p-4 sm:p-5 shadow-xs">
-                <div class="flex items-start gap-3">
-                    <div class="p-2 bg-amber-100 dark:bg-amber-900/60 rounded-xl flex-shrink-0">
+            <div class="bg-amber-50/80 dark:bg-amber-500/10 backdrop-blur-xl border border-amber-200/60 dark:border-amber-500/20 rounded-2xl p-5 shadow-sm transition-all">
+                <div class="flex items-start gap-3.5">
+                    <div class="p-2.5 bg-amber-100 dark:bg-amber-500/20 rounded-xl shrink-0 border border-amber-200/50 dark:border-amber-500/30">
                         <Info class="w-5 h-5 text-amber-600 dark:text-amber-400" />
                     </div>
-                    <div class="space-y-1.5 text-xs sm:text-sm text-amber-900 dark:text-amber-200">
-                        <p class="flex items-start gap-2">
-                            <FileText class="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-600 dark:text-amber-400" />
-                            <span>Please refer to the <strong>RIS (Requisition and Issue Slip)</strong> for the correct details that should be entered in this form.</span>
+                    <div class="space-y-2 text-sm text-amber-900 dark:text-amber-200 mt-0.5">
+                        <p class="flex items-start gap-2.5">
+                            <FileText class="w-4 h-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
+                            <span class="leading-relaxed">Please refer to the <span class="font-semibold">RIS (Requisition and Issue Slip)</span> for the correct details that should be entered in this form.</span>
                         </p>
-                        <p class="flex items-start gap-2">
-                            <Package class="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-600 dark:text-amber-400" />
-                            <span>For older stocks without an RIS or proper documentation, please enter details that can be physically verified, such as serial numbers, PhilRice barcodes, or other identifiable markings.</span>
+                        <p class="flex items-start gap-2.5">
+                            <Package class="w-4 h-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
+                            <span class="leading-relaxed">For older stocks without an RIS or proper documentation, please enter details that can be physically verified, such as serial numbers, PhilRice barcodes, or other identifiable markings.</span>
                         </p>
                     </div>
                 </div>
             </div>
 
             <!-- Main Content Grid -->
-            <div class="flex flex-col lg:flex-row gap-5 relative">
+            <div class="flex flex-col lg:flex-row gap-6 relative">
+                
                 <!-- Primary Form -->
-                <div class="flex-1">
+                <div class="flex-1 min-w-0">
                     <incoming-form
                         :data="data"
                         :attached-reports="attachedReports"
@@ -127,24 +129,23 @@ export default {
 
                 <!-- Side Panel: New Item Form -->
                 <transition-container type="slide-right">
-                    <div
-                        v-if="showNewItemForm"
-                        class="lg:w-96 w-full flex-shrink-0"
-                    >
-                        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-                            <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80">
-                                <div class="flex items-center gap-2">
-                                    <Plus class="w-4 h-4 text-lime-600 dark:text-lime-400" />
-                                    <h3 class="font-bold text-xs sm:text-sm uppercase tracking-wider text-slate-800 dark:text-slate-200">New Item Catalog Entry</h3>
+                    <div v-if="showNewItemForm" class="lg:w-[400px] w-full shrink-0">
+                        <div class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl shadow-xl ring-1 ring-slate-900/5 dark:ring-white/5 border border-slate-200/60 dark:border-slate-800 overflow-hidden">
+                            <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-800/20">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="p-1.5 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg">
+                                        <Plus class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                                    </div>
+                                    <h3 class="font-semibold text-xs uppercase tracking-widest text-slate-800 dark:text-slate-200">New Item Entry</h3>
                                 </div>
                                 <button
                                     @click="showNewItemForm = false"
-                                    class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                    class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                                 >
                                     <X class="w-4 h-4" />
                                 </button>
                             </div>
-                            <div class="p-4">
+                            <div class="p-1">
                                 <item-form @close="showNewItemForm = false" />
                             </div>
                         </div>
@@ -155,55 +156,60 @@ export default {
                 <transition-container type="pop-in">
                     <div
                         v-if="showStorageReference"
-                        class="fixed lg:absolute right-5 top-20 z-30 w-fit max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden"
+                        class="fixed lg:absolute right-4 bottom-20 lg:right-0 lg:top-0 lg:bottom-auto z-30 w-[calc(100vw-2rem)] sm:w-96 max-w-md bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-200/60 dark:border-slate-800 overflow-hidden flex flex-col"
                     >
                         <!-- Header -->
-                        <div class="flex items-center justify-between px-4 py-3 bg-slate-900 dark:bg-slate-800 text-white border-b border-slate-800">
-                            <div class="flex items-center gap-2">
-                                <Warehouse class="w-5 h-5 text-lime-400" />
-                                <h3 class="font-bold text-sm">Storage Locations Reference</h3>
+                        <div class="flex items-center justify-between px-5 py-4 bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800">
+                            <div class="flex items-center gap-2.5">
+                                <Warehouse class="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                                <h3 class="font-semibold text-xs uppercase tracking-widest text-slate-700 dark:text-slate-300">Storage Locations</h3>
                             </div>
                             <button
                                 @click="toggleStorageReference"
-                                class="p-1 rounded-lg hover:bg-white/20 transition-colors"
+                                class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                             >
                                 <X class="w-4 h-4" />
                             </button>
                         </div>
 
                         <!-- Table -->
-                        <div class="max-h-[60vh] overflow-y-auto">
-                            <table class="w-full text-xs sm:text-sm">
-                                <thead class="bg-slate-50 dark:bg-slate-800/80 sticky top-0 border-b border-slate-200 dark:border-slate-700">
-                                <tr>
-                                    <th class="px-3 py-2 text-left font-bold text-slate-700 dark:text-slate-300 w-20">
-                                        Room Code
-                                    </th>
-                                    <th class="px-3 py-2 text-left font-bold text-slate-700 dark:text-slate-300">
-                                        Storage Facility
-                                    </th>
-                                </tr>
+                        <div class="max-h-[50vh] overflow-y-auto custom-scrollbar">
+                            <table class="w-full text-sm">
+                                <thead class="bg-slate-50 dark:bg-slate-800/80 sticky top-0 border-b border-slate-200 dark:border-slate-700 backdrop-blur-md">
+                                    <tr>
+                                        <th class="px-5 py-3 text-left font-semibold text-[0.65rem] uppercase tracking-widest text-slate-500 dark:text-slate-400 w-24">
+                                            Room Code
+                                        </th>
+                                        <th class="px-5 py-3 text-left font-semibold text-[0.65rem] uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                                            Storage Facility
+                                        </th>
+                                    </tr>
                                 </thead>
-                                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                                <tr
-                                    v-for="location in storage_locations"
-                                    :key="location.name"
-                                    class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
-                                >
-                                    <td class="px-3 py-2 font-mono text-lime-600 dark:text-lime-400 font-bold">
-                                        {{ location.name }}
-                                    </td>
-                                    <td class="px-3 py-2 text-slate-700 dark:text-slate-300 font-medium">
-                                        {{ location.label }}
-                                    </td>
-                                </tr>
+                                <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 bg-white dark:bg-slate-900/50">
+                                    <tr
+                                        v-for="location in storage_locations"
+                                        :key="location.name"
+                                        class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+                                    >
+                                        <td class="px-5 py-3 font-mono text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                                            {{ location.name }}
+                                        </td>
+                                        <td class="px-5 py-3 text-slate-700 dark:text-slate-300 font-medium">
+                                            {{ location.label }}
+                                        </td>
+                                    </tr>
+                                    <tr v-if="!storage_locations.length">
+                                        <td colspan="2" class="px-5 py-8 text-center text-slate-400 dark:text-slate-500 font-medium text-sm">
+                                            No storage locations registered.
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
 
                         <!-- Footer -->
-                        <div class="px-4 py-2 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-500 dark:text-slate-400 text-center">
-                            {{ storage_locations.length }} storage locations registered
+                        <div class="px-5 py-3 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 text-center">
+                            {{ storage_locations.length }} Locations Registered
                         </div>
                     </div>
                 </transition-container>
@@ -214,17 +220,17 @@ export default {
                 type="button"
                 @click="toggleStorageReference"
                 :class="[
-                    'fixed right-5 bottom-5 z-20',
-                    'flex items-center gap-2 px-4 py-3 rounded-full shadow-lg transition-all duration-300 active:scale-95',
+                    'fixed right-5 bottom-5 z-40',
+                    'flex items-center gap-2 px-4 py-3 rounded-full shadow-lg transition-all duration-300 active:scale-95 border backdrop-blur-md',
                     showStorageReference
-                        ? 'bg-slate-900 dark:bg-slate-800 text-white hover:bg-slate-800 border border-slate-700'
-                        : 'bg-lime-600 hover:bg-lime-700 text-white font-bold shadow-lime-500/20 hover:shadow-xl hover:-translate-y-0.5'
+                        ? 'bg-slate-800/90 dark:bg-slate-800/90 text-slate-200 border-slate-700 hover:bg-slate-700 shadow-xl'
+                        : 'bg-indigo-600/95 hover:bg-indigo-700 text-white font-medium border-indigo-500/50 shadow-indigo-600/20 hover:shadow-xl hover:-translate-y-0.5'
                 ]"
             >
-                <MapPin class="w-5 h-5" />
-                <span class="text-xs sm:text-sm font-semibold whitespace-nowrap">Storage Reference</span>
+                <MapPin class="w-4 h-4" />
+                <span class="text-sm font-semibold whitespace-nowrap">Storage Reference</span>
                 <component
-                    :is="showStorageReference ? 'ChevronUp' : 'ChevronDown'"
+                    :is="showStorageReference ? 'ChevronDown' : 'ChevronUp'"
                     class="w-4 h-4 transition-transform"
                 />
             </button>
@@ -233,27 +239,19 @@ export default {
 </template>
 
 <style scoped>
-/* Smooth transitions for floating button */
-button {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 /* Custom scrollbar for storage reference table */
-.max-h-\[60vh\]::-webkit-scrollbar {
+.custom-scrollbar::-webkit-scrollbar {
     width: 6px;
 }
-
-.max-h-\[60vh\]::-webkit-scrollbar-track {
+.custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
 }
-
-.max-h-\[60vh\]::-webkit-scrollbar-thumb {
-    background-color: rgba(156, 163, 175, 0.5);
-    border-radius: 3px;
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(148, 163, 184, 0.4);
+    border-radius: 9999px;
 }
-
-.dark .max-h-\[60vh\]::-webkit-scrollbar-thumb {
-    background-color: rgba(75, 85, 99, 0.5);
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(71, 85, 105, 0.4);
 }
 
 /* Responsive adjustments */

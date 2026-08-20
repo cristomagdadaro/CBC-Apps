@@ -1,57 +1,20 @@
 <script>
-import {
-    AlertCircle,
-    CheckCircle2,
-    XCircle,
-    Eye,
-    EyeOff,
-    HelpCircle,
-    X
-} from 'lucide-vue-next';
+import FieldMixin from '@/Components/Forms/FieldMixin';
 
 export default {
     name: 'TextInput',
-    components: {
-        AlertCircle,
-        CheckCircle2,
-        XCircle,
-        Eye,
-        EyeOff,
-        HelpCircle,
-        X,
-    },
+    mixins: [FieldMixin],
     props: {
-        modelValue: { type: [String, Number], default: '' },
         autocomplete: { type: String, default: '' },
         name: { type: String, default: '' },
-        placeholder: { type: String, default: '' },
-        error: { type: String, default: '' },
         type: { type: String, default: 'text' },
-        classes: { type: String, default: '' },
-        id: { type: String, default: '' },
-        label: { type: String, default: '' },
-        required: { type: Boolean, default: false },
         typeInput: { type: String, default: '' },
-        disabled: { type: Boolean, default: false },
         chameleon: { type: Boolean, default: false },
-        guide: { type: String, default: null },
-        datalistId: { type: String, default: null },
-        datalistOptions: { type: Array, default: null },
-        clearable: { type: Boolean, default: false },
-        hint: { type: String, default: null },
     },
-    emits: ['update:modelValue', 'clear'],
     data() {
         return {
             isChameleon: this.chameleon,
             showPassword: false,
-            isFocused: false,
-        }
-    },
-    mounted() {
-        const input = this.$refs.input;
-        if (input && input.hasAttribute && input.hasAttribute('autofocus')) {
-            input.focus();
         }
     },
     watch: {
@@ -63,10 +26,6 @@ export default {
         inputAutocomplete() {
             const value = String(this.autocomplete || '').trim();
             return value === '' ? null : value;
-        },
-        inputId() {
-            const value = String(this.id || '').trim();
-            return value === '' ? `input-${Math.random().toString(36).substr(2, 9)}` : value;
         },
         inputName() {
             const value = String(this.name || this.id || '').trim();
@@ -81,88 +40,51 @@ export default {
             }
             return this.typeInput || this.type;
         },
-        hasValue() {
-            return String(this.modelValue || '').length > 0;
-        },
-        isValid() {
-            return this.hasValue && !this.error;
-        },
-        isInvalid() {
-            return !!this.error;
-        },
     },
     methods: {
-        focus() {
-            this.$refs.input?.focus();
-        },
-        onInput(e) {
-            this.$emit('update:modelValue', e.target.value);
-        },
-        onClear() {
-            this.$emit('update:modelValue', '');
-            this.$emit('clear');
-            this.focus();
-        },
         togglePassword() {
             this.showPassword = !this.showPassword;
-        },
-        onFocus() {
-            this.isFocused = true;
-        },
-        onBlur() {
-            this.isFocused = false;
         },
     }
 }
 </script>
 
 <template>
-    <div class="w-full relative" :class="classes">
-        <!-- Label Row -->
-        <div v-if="label" class="flex items-center justify-between mb-1.5">
-            <label
-                :for="inputId"
-                class="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1 cursor-pointer"
-            >
-                <span class="flex items-center gap-0.5">
-                    {{ label }}
-                    <span v-if="required" class="text-rose-500" aria-label="required">*</span>
-                </span>
-                <HelpCircle
-                    v-if="hint"
-                    :tooltip="hint"
-                    class="w-3.5 h-3.5 text-slate-400 hover:text-slate-500 cursor-help"
-                />
-            </label>
-
-            <transition name="fade">
-                <div v-if="error" class="flex items-center gap-1 text-xs text-rose-600 dark:text-rose-400 font-medium">
-                    <AlertCircle class="w-3.5 h-3.5" />
-                    <span>{{ error }}</span>
-                </div>
-            </transition>
-        </div>
-
-        <!-- Input Wrapper -->
-        <div
-            class="relative flex items-center group"
-            :class="{ 'opacity-60 cursor-not-allowed': disabled }"
-        >
+    <Field
+        :id="id"
+        :label="label"
+        :required="required"
+        :hint="hint"
+        :guide="guide"
+        :error="error"
+        :clearable="clearable"
+        :has-value="hasValue"
+        :disabled="disabled"
+        :datalist-id="datalistId"
+        :datalist-options="datalistOptions"
+        :classes="classes"
+        :show-valid-indicator="!isPassword"
+        @clear="onClear"
+    >
+        <template #default="{ inputId, isInvalid, isValid, guideId }">
             <input
                 :id="inputId"
                 :name="inputName"
                 ref="input"
                 :class="[
-                    'w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100',
+                    'w-full rounded-xl px-4 py-2.5 text-sm transition-all duration-200 ease-out border',
                     'placeholder:text-slate-400 dark:placeholder:text-slate-500',
-                    'rounded-xl shadow-xs px-3 py-2.5 text-xs sm:text-sm',
-                    'transition-all duration-200 ease-in-out',
-                    'border',
                     isInvalid
-                        ? 'border-rose-300 dark:border-rose-700 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-900'
-                        : 'border-slate-200 dark:border-slate-700 focus:border-lime-500 focus:ring-2 focus:ring-lime-500/20',
-                    (clearable || isPassword) && hasValue ? 'pr-20' : isPassword || clearable ? 'pr-10' : '',
-                    disabled ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : '',
+                        ? 'border-rose-300 dark:border-rose-700 bg-rose-50/50 dark:bg-rose-900/10 text-rose-900 dark:text-rose-100 focus:border-rose-500 focus:ring-1 focus:ring-rose-500'
+                        : isValid
+                            ? 'border-emerald-300 dark:border-emerald-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500'
+                            : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500',
+                    disabled ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed text-slate-500 dark:text-slate-400' : '',
+                    isPassword && ((clearable && hasValue && !disabled) || isInvalid)
+                        ? 'pr-20'
+                        : (isPassword || (clearable && hasValue && !disabled) || (!isPassword && isValid) || isInvalid)
+                            ? 'pr-10'
+                            : ''
                 ]"
                 :autocomplete="inputAutocomplete"
                 :value="modelValue"
@@ -172,66 +94,26 @@ export default {
                 :list="datalistId"
                 :required="required"
                 :aria-invalid="isInvalid"
-                :aria-describedby="guide ? `${inputId}-guide` : undefined"
+                :aria-describedby="guideId"
                 @input="onInput"
                 @focus="onFocus"
                 @blur="onBlur"
             >
+        </template>
 
-            <!-- Action Buttons -->
-            <div class="absolute right-2 flex items-center gap-1">
-                <!-- Clear Button -->
-                <button
-                    v-if="clearable && hasValue && !disabled"
-                    type="button"
-                    @click="onClear"
-                    class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    aria-label="Clear input"
-                >
-                    <X class="w-4 h-4" />
-                </button>
-
-                <!-- Password Toggle -->
-                <button
-                    v-if="isPassword && !disabled"
-                    type="button"
-                    @click="togglePassword"
-                    class="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    :aria-label="showPassword ? 'Hide password' : 'Show password'"
-                >
-                    <EyeOff v-if="showPassword" class="w-4 h-4" />
-                    <Eye v-else class="w-4 h-4" />
-                </button>
-
-                <!-- Validation Icons -->
-                <CheckCircle2
-                    v-if="isValid && !isPassword && !clearable"
-                    class="w-4 h-4 text-green-500"
-                    aria-hidden="true"
-                />
-                <XCircle
-                    v-if="isInvalid"
-                    class="w-4 h-4 text-red-500"
-                    aria-hidden="true"
-                />
-            </div>
-
-            <!-- Datalist -->
-            <datalist v-if="datalistId && datalistOptions?.length" :id="datalistId">
-                <option v-for="opt in datalistOptions" :key="opt" :value="opt" />
-            </datalist>
-        </div>
-
-        <!-- Guide Text -->
-        <p
-            v-if="guide"
-            :id="`${inputId}-guide`"
-            class="mt-1.5 text-xs text-gray-500 dark:text-gray-400 flex items-start gap-1"
-        >
-            <HelpCircle class="w-3 h-3 mt-0.5 flex-shrink-0" />
-            <span>{{ guide }}</span>
-        </p>
-    </div>
+        <template #input-actions>
+            <button
+                v-if="isPassword && !disabled"
+                type="button"
+                @click="togglePassword"
+                class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 bg-white/80 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors backdrop-blur-sm"
+                :aria-label="showPassword ? 'Hide password' : 'Show password'"
+            >
+                <LuEyeOff v-if="showPassword" class="w-4 h-4" />
+                <LuEye v-else class="w-4 h-4" />
+            </button>
+        </template>
+    </Field>
 </template>
 
 <style scoped>
@@ -246,34 +128,23 @@ input[type="number"] {
     -moz-appearance: textfield;
 }
 
-/* Transitions */
-.fade-enter-active,
-.fade-leave-active {
-    transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-    opacity: 0;
-}
-
 /* Focus ring animation */
 input:focus {
     outline: none;
 }
 
-/* Custom autofill styling */
+/* Custom autofill styling tailored for slate theme */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0px 1000px white inset;
-    -webkit-text-fill-color: inherit;
+    -webkit-box-shadow: 0 0 0px 1000px #f8fafc inset;
+    -webkit-text-fill-color: #0f172a;
 }
 
 .dark input:-webkit-autofill,
 .dark input:-webkit-autofill:hover,
 .dark input:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0px 1000px rgb(31, 41, 55) inset;
-    -webkit-text-fill-color: rgb(243, 244, 246);
+    -webkit-box-shadow: 0 0 0px 1000px #0f172a inset;
+    -webkit-text-fill-color: #f1f5f9;
 }
 </style>

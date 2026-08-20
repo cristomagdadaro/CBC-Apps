@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use DateTimeInterface;
 
-class RentalVenue extends Model
+class RentalVenue extends BaseModel
 {
     use HasFactory, HasUuids, SoftDeletes;
 

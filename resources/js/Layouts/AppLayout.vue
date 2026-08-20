@@ -6,6 +6,7 @@ import ResponsiveNavLink from "@/Components/ResponsiveNavLink.vue";
 import SwitchBtn from "@/Components/Buttons/SwitchBtn.vue";
 import {router} from "@inertiajs/vue3";
 import NavigationItems from "@/Components/NavigationItems.vue";
+import Dropdown from "@/Components/Dropdown.vue";
 
 export default {
     name: "AppLayout",
@@ -16,6 +17,7 @@ export default {
         ResponsiveNavLink,
         SwitchBtn,
         NavigationItems,
+        Dropdown,
     },
     props: {
         title: String,
@@ -469,7 +471,7 @@ export default {
 </script>
 
 <template>
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="min-h-screen bg-slate-50 dark:bg-[#0B1120] text-slate-900 dark:text-slate-100">
         <Head :title="title"/>
 
         <Banner/>
@@ -487,12 +489,12 @@ export default {
             >
                 <aside
                     v-if="isSidebarModeResponsive"
-                    class="hidden max-h-screen overflow-visible sticky top-0 lg:flex lg:flex-col lg:sticky inset-y-0 left-0 z-40 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg lg:shadow-none transition-all duration-300"
+                    class="hidden max-h-screen overflow-visible sticky top-0 lg:flex lg:flex-col lg:sticky inset-y-0 left-0 z-40 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-r border-slate-200/60 dark:border-slate-800/60 shadow-lg lg:shadow-none transition-all duration-300"
                     :class="sidebarCollapsed ? 'w-20' : 'w-64'"
                 >
                     <!-- Sidebar Header -->
                     <div
-                        class="bg-AA dark:bg-gray-800 shadow-sm border-b border-AA dark:border-gray-700 h-16"
+                        class="bg-transparent border-b border-slate-200/60 dark:border-slate-800/60 h-16 relative"
                     >
                         <!-- User Profile Summary -->
                         <div v-if="!sidebarCollapsed" class="flex items-center h-full pl-3">
@@ -513,11 +515,11 @@ export default {
                                 </div>
                                 <div class="flex-1 min-w-0 leading-tight">
                                     <div
-                                        class="text-sm font-semibold text-gray-50 dark:text-gray-200 truncate uppercase"
+                                        class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate uppercase"
                                     >
                                         {{ $page.props.auth?.user?.name || "User" }}
                                     </div>
-                                    <div class="text-xs text-gray-200 dark:text-gray-500 truncate">
+                                    <div class="text-xs text-slate-500 dark:text-slate-400 truncate font-medium">
                                         {{ singleRoleLabel || "Member" }}
                                     </div>
                                 </div>
@@ -525,7 +527,7 @@ export default {
                         </div>
                         <div
                             v-else
-                            class="p-3 border-b border-gray-200 dark:border-gray-700 flex justify-center"
+                            class="p-3 border-b border-slate-200/60 dark:border-slate-800/60 flex justify-center h-full items-center"
                         >
                             <img
                                 v-if="
@@ -547,39 +549,39 @@ export default {
                     <button
                         @click="toggleSidebarCollapse"
                         :class="{ 'rotate-180': !sidebarCollapsed }"
-                        class="absolute -right-3 top-20 bg-blue-600 text-white p-1.5 rounded-full shadow-lg hover:bg-blue-700 transition-colors z-50 duration-600 transition-transform hover:scale-110"
+                        class="absolute -right-3 top-20 bg-indigo-600 dark:bg-indigo-500 text-white p-1 rounded-full shadow-lg hover:bg-indigo-700 dark:hover:bg-indigo-400 transition-all duration-300 z-50 transform hover:scale-110 ring-2 ring-white dark:ring-slate-900"
                         title="Expand sidebar"
                     >
                         <LuChevronRight class="w-4 h-4"/>
                     </button>
 
                     <!-- Navigation Items -->
-                    <nav class="flex-1 overflow-y-auto overflow-x-hidden overflow-visible py-4 px-3 space-y-1">
+                    <nav class="flex-1 overflow-y-auto overflow-x-hidden overflow-visible py-4 px-3 space-y-1 custom-scrollbar">
                         <template v-for="service in visibleServices" :key="service.label">
                             <!-- Single Link -->
                             <Link
                                 v-if="!service.children || !visibleChildren(service).length"
                                 :href="route(service.href)"
-                                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group relative"
+                                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group relative"
                                 :class="
                   isServiceActive(service)
-                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50'
+                    ? 'bg-indigo-50/80 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100/50 dark:border-indigo-500/20'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 border border-transparent hover:text-slate-900 dark:hover:text-slate-200'
                 "
                             >
                                 <component
                                     :is="service.icon"
-                                    class="w-5 h-5 flex-shrink-0"
+                                    class="w-5 h-5 flex-shrink-0 transition-colors"
                                     :class="
                     isServiceActive(service)
-                      ? 'text-blue-600 dark:text-blue-400'
-                      : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300'
+                      ? 'text-indigo-600 dark:text-indigo-400'
+                      : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'
                   "
                                 />
                                 <span v-if="!sidebarCollapsed" class="truncate">{{ service.label }}</span>
                                 <span
                                     v-if="isServiceActive(service) && !sidebarCollapsed"
-                                    class="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600"
+                                    class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-500 dark:bg-indigo-400"
                                 ></span>
 
                                 <!-- Tooltip for collapsed state -->
@@ -595,20 +597,20 @@ export default {
                             <div v-else class="space-y-1">
                                 <button
                                     @click="service.isOpen = !service.isOpen"
-                                    class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group"
+                                    class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group"
                                     :class="
                     isServiceActive(service)
-                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50'
+                      ? 'bg-indigo-50/80 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100/50 dark:border-indigo-500/20'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 border border-transparent hover:text-slate-900 dark:hover:text-slate-200'
                   "
                                 >
                                     <component
                                         :is="service.icon"
-                                        class="w-5 h-5 flex-shrink-0"
+                                        class="w-5 h-5 flex-shrink-0 transition-colors"
                                         :class="
                       isServiceActive(service)
-                        ? 'text-blue-600 dark:text-blue-400'
-                        : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300'
+                        ? 'text-indigo-600 dark:text-indigo-400'
+                        : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'
                     "
                                     />
                                     <span v-if="!sidebarCollapsed" class="flex-1 text-left truncate">{{
@@ -617,42 +619,42 @@ export default {
                                     <LuChevronDown
                                         v-if="!sidebarCollapsed"
                                         class="w-4 h-4 transition-transform duration-200"
-                                        :class="service.isOpen ? 'rotate-180' : ''"
+                                        :class="service.isOpen ? 'rotate-180 text-indigo-500 dark:text-indigo-400' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'"
                                     />
 
                                     <!-- Collapsed dropdown indicator -->
                                     <div
                                         v-if="sidebarCollapsed && isServiceActive(service)"
-                                        class="absolute left-0 w-1 h-8 bg-blue-600 rounded-r-full"
+                                        class="absolute left-0 w-1 h-8 bg-indigo-500 dark:bg-indigo-400 rounded-r-full"
                                     ></div>
                                 </button>
 
                                 <!-- Expanded children -->
                                 <div
                                     v-if="!sidebarCollapsed && service.isOpen"
-                                    class="ml-4 pl-4 border-l-2 border-gray-200 dark:border-gray-700 space-y-1"
+                                    class="ml-5 pl-3 border-l-2 border-slate-200/60 dark:border-slate-800/60 space-y-1 py-1"
                                 >
                                     <Link
                                         v-for="child in visibleChildren(service)"
                                         :key="child.label"
                                         :href="route(child.href)"
-                                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200"
+                                        class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all duration-200"
                                         :class="
                       isChildActive(child)
-                        ? 'text-blue-700 dark:text-blue-300 bg-blue-50/50 dark:bg-blue-900/10 font-medium'
-                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/30'
+                        ? 'text-indigo-700 dark:text-indigo-300 bg-indigo-50/50 dark:bg-indigo-500/10 font-medium shadow-sm border border-indigo-100/30 dark:border-indigo-500/10'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 border border-transparent'
                     "
                                     >
                                         <component
                                             :is="child.icon"
                                             v-if="child.icon"
-                                            class="w-4 h-4"
-                                            :class="isChildActive(child) ? 'text-blue-600' : 'text-gray-400'"
+                                            class="w-4 h-4 transition-colors"
+                                            :class="isChildActive(child) ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-slate-500'"
                                         />
                                         <span
                                             v-else
-                                            class="w-1.5 h-1.5 rounded-full"
-                                            :class="isChildActive(child) ? 'bg-blue-600' : 'bg-gray-300'"
+                                            class="w-1.5 h-1.5 rounded-full transition-colors"
+                                            :class="isChildActive(child) ? 'bg-indigo-500 dark:bg-indigo-400' : 'bg-slate-300 dark:bg-slate-600'"
                                         ></span>
                                         <span class="truncate">{{ child.label }}</span>
                                     </Link>
@@ -662,31 +664,31 @@ export default {
                     </nav>
 
                     <!-- Sidebar Footer -->
-                    <div class="p-3 border-t border-gray-200 dark:border-gray-700 space-y-1">
+                    <div class="p-3 border-t border-slate-200/60 dark:border-slate-800/60 space-y-1">
                         <Link
                             :href="route('profile.show')"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors group relative"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors group relative"
                         >
                             <LuUser
-                                class="w-5 h-5 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300"
+                                class="w-5 h-5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors"
                             />
                             <span v-if="!sidebarCollapsed">Profile</span>
                             <div
                                 v-if="sidebarCollapsed"
-                                class="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50"
+                                class="absolute left-full ml-2 px-2 py-1 bg-slate-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50"
                             >
                                 Profile
                             </div>
                         </Link>
                         <button
                             @click="logout"
-                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors group relative"
+                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50/50 dark:hover:bg-red-500/10 transition-colors group relative border border-transparent"
                         >
-                            <LuLogOut class="w-5 h-5"/>
+                            <LuLogOut class="w-5 h-5 group-hover:scale-110 transition-transform"/>
                             <span v-if="!sidebarCollapsed">Log Out</span>
                             <div
                                 v-if="sidebarCollapsed"
-                                class="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50"
+                                class="absolute left-full ml-2 px-2 py-1 bg-slate-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50"
                             >
                                 Log Out
                             </div>
@@ -722,16 +724,16 @@ export default {
             >
                 <aside
                     v-if="isSidebarModeResponsive && sidebarOpen"
-                    class="fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-gray-800 shadow-2xl lg:hidden flex flex-col"
+                    class="fixed inset-y-0 left-0 z-50 w-72 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl shadow-2xl lg:hidden flex flex-col border-r border-slate-200/50 dark:border-slate-800/50"
                 >
                     <!-- Mobile Header -->
                     <div
-                        class="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-600 to-indigo-600"
+                        class="h-16 flex items-center justify-between px-4 border-b border-slate-200/50 dark:border-slate-800/50 bg-transparent"
                     >
-                        <span class="font-bold text-white">FES System</span>
+                        <span class="font-bold text-slate-900 dark:text-white">FES System</span>
                         <button
                             @click="closeSidebar"
-                            class="p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                            class="p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-200/50 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 transition-colors"
                         >
                             <LuX class="w-5 h-5"/>
                         </button>
@@ -739,7 +741,7 @@ export default {
 
                     <!-- Mobile User Info -->
                     <div
-                        class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50"
+                        class="p-4 border-b border-slate-200/50 dark:border-slate-800/50 bg-transparent"
                     >
                         <div class="flex items-center gap-3">
                             <img
@@ -747,19 +749,19 @@ export default {
                   $page.props.jetstream.managesProfilePhotos && $page.props.auth?.user
                 "
                                 :src="$page.props.auth.user.profile_photo_url"
-                                class="h-12 w-12 rounded-full object-cover ring-2 ring-white dark:ring-gray-700"
+                                class="h-12 w-12 rounded-full object-cover ring-2 ring-white dark:ring-slate-800 shadow-sm"
                             />
                             <div
                                 v-else
-                                class="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg"
+                                class="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-sm"
                             >
                                 {{ $page.props.auth?.user?.name?.charAt(0)?.toUpperCase() || "U" }}
                             </div>
-                            <div>
-                                <p class="font-semibold text-gray-900 dark:text-white">
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-slate-900 dark:text-white truncate">
                                     {{ $page.props.auth?.user?.name }}
                                 </p>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                <p class="text-sm text-slate-500 dark:text-slate-400 truncate">
                                     {{ $page.props.auth?.user?.email }}
                                 </p>
                             </div>
@@ -767,30 +769,30 @@ export default {
                     </div>
 
                     <!-- Mobile Navigation -->
-                    <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+                    <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1 custom-scrollbar">
                         <template v-for="service in visibleServices" :key="`mobile-${service.label}`">
                             <Link
                                 v-if="!service.children || !visibleChildren(service).length"
                                 :href="route(service.href)"
                                 @click="closeSidebar"
-                                class="flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors"
+                                class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors"
                                 :class="
                   isServiceActive(service)
-                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50'
+                    ? 'bg-indigo-50/80 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 shadow-sm border border-indigo-100/50 dark:border-indigo-500/20'
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 border border-transparent'
                 "
                             >
                                 <component
                                     :is="service.icon"
-                                    class="w-5 h-5"
-                                    :class="isServiceActive(service) ? 'text-blue-600' : 'text-gray-400'"
+                                    class="w-5 h-5 transition-colors"
+                                    :class="isServiceActive(service) ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'"
                                 />
                                 {{ service.label }}
                             </Link>
 
                             <div v-else>
                                 <div
-                                    class="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider"
+                                    class="px-3 py-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider"
                                 >
                                     {{ service.label }}
                                 </div>
@@ -800,15 +802,15 @@ export default {
                                         :key="`mobile-child-${child.label}`"
                                         :href="route(child.href)"
                                         @click="closeSidebar"
-                                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors"
+                                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors"
                                         :class="
                       isChildActive(child)
-                        ? 'text-blue-700 dark:text-blue-300 bg-blue-50/50 dark:bg-blue-900/10 font-medium'
-                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/30'
+                        ? 'text-indigo-700 dark:text-indigo-300 bg-indigo-50/50 dark:bg-indigo-500/10 font-medium shadow-sm border border-indigo-100/30 dark:border-indigo-500/10'
+                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 border border-transparent hover:text-slate-900 dark:hover:text-slate-200'
                     "
                                     >
-                                        <component :is="child.icon" v-if="child.icon" class="w-4 h-4"/>
-                                        <span v-else class="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+                                        <component :is="child.icon" v-if="child.icon" class="w-4 h-4 transition-colors" :class="isChildActive(child) ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'"/>
+                                        <span v-else class="w-1.5 h-1.5 rounded-full transition-colors" :class="isChildActive(child) ? 'bg-indigo-500 dark:bg-indigo-400' : 'bg-slate-300 dark:bg-slate-600'"></span>
                                         {{ child.label }}
                                     </Link>
                                 </div>
@@ -817,18 +819,18 @@ export default {
                     </nav>
 
                     <!-- Mobile Footer -->
-                    <div class="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                    <div class="p-4 border-t border-slate-200/50 dark:border-slate-800/50 space-y-2">
                         <Link
                             :href="route('profile.show')"
                             @click="closeSidebar"
-                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors"
                         >
-                            <LuUser class="w-5 h-5 text-gray-400"/>
+                            <LuUser class="w-5 h-5 text-slate-400"/>
                             Profile Settings
                         </Link>
                         <button
                             @click="logout"
-                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50/50 dark:hover:bg-red-500/10 transition-colors border border-transparent"
                         >
                             <LuLogOut class="w-5 h-5"/>
                             Log Out
@@ -842,7 +844,7 @@ export default {
                 <!-- Top Navigation (Top mode or mobile) -->
                 <nav
                     v-if="!isSidebarModeResponsive || !isSidebarMode"
-                    class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30"
+                    class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200/50 dark:border-slate-800/50 sticky top-0 z-30"
                 >
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div class="flex justify-between h-16">
@@ -851,15 +853,15 @@ export default {
                                 <button
                                     v-if="isSidebarModeResponsive"
                                     @click="sidebarOpen = true"
-                                    class="lg:hidden p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-700 transition-colors"
+                                    class="lg:hidden p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-colors"
                                 >
                                     <LuMenu class="w-6 h-6"/>
                                 </button>
 
                                 <Link :href="route('dashboard')" class="flex items-center gap-2">
-                                    <ApplicationMark class="h-8 w-8 text-blue-600"/>
+                                    <ApplicationMark class="h-8 w-8 text-indigo-600 dark:text-indigo-500"/>
                                     <span
-                                        class="font-bold text-xl text-gray-900 dark:text-white hidden sm:block"
+                                        class="font-bold text-xl text-slate-900 dark:text-white hidden sm:block tracking-tight"
                                     >FES</span
                                     >
                                 </Link>
@@ -877,16 +879,16 @@ export default {
                                         >
                                             <template #trigger>
                                                 <button
-                                                    class="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                                                    class="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap"
                                                     :class="
                             isServiceActive(service)
-                              ? 'text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20'
-                              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50'
+                              ? 'text-indigo-700 dark:text-indigo-300 bg-indigo-50/80 dark:bg-indigo-500/10'
+                              : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50'
                           "
                                                 >
-                                                    <component :is="service.icon" class="w-4 h-4"/>
+                                                    <component :is="service.icon" class="w-4 h-4 flex-shrink-0"/>
                                                     {{ service.label }}
-                                                    <LuChevronDown class="w-4 h-4 opacity-50"/>
+                                                    <LuChevronDown class="w-4 h-4 flex-shrink-0 opacity-50"/>
                                                 </button>
                                             </template>
                                             <template #content>
@@ -895,12 +897,12 @@ export default {
                                                         v-for="child in visibleChildren(service)"
                                                         :key="child.label"
                                                         :href="route(child.href)"
-                                                        class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 first:rounded-t-md last:rounded-b-md"
+                                                        class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                                                     >
                                                         <component
                                                             :is="child.icon"
                                                             v-if="child.icon"
-                                                            class="w-4 h-4 text-gray-400"
+                                                            class="w-4 h-4 text-slate-400"
                                                         />
                                                         {{ child.label }}
                                                     </Link>
@@ -911,14 +913,14 @@ export default {
                                         <Link
                                             v-else
                                             :href="route(service.href)"
-                                            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                                            class="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap"
                                             :class="
                         isServiceActive(service)
-                          ? 'text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20'
-                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50'
+                          ? 'text-indigo-700 dark:text-indigo-300 bg-indigo-50/80 dark:bg-indigo-500/10'
+                          : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100/50 dark:hover:bg-slate-800/50'
                       "
                                         >
-                                            <component :is="service.icon" class="w-4 h-4"/>
+                                            <component :is="service.icon" class="w-4 h-4 flex-shrink-0"/>
                                             {{ service.label }}
                                         </Link>
                                     </template>
@@ -929,18 +931,18 @@ export default {
                             <div class="flex items-center gap-2">
                                 <!-- Notifications (placeholder) -->
                                 <button
-                                    class="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-700 transition-colors relative"
+                                    class="p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-colors relative"
                                 >
                                     <LuBell class="w-5 h-5"/>
                                     <span
-                                        class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-gray-800"
+                                        class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"
                                     ></span>
                                 </button>
 
                                 <!-- User Dropdown -->
                                 <button
                                     @click="showingNavigationDropdown = !showingNavigationDropdown"
-                                    class="flex items-center gap-3 p-1.5 pr-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors"
+                                    class="flex items-center gap-3 p-1.5 pr-3 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                                 >
                                     <img
                                         v-if="
@@ -960,15 +962,15 @@ export default {
                                     </div>
                                     <div class="hidden sm:block text-left">
                                         <p
-                                            class="text-sm font-medium text-gray-900 dark:text-white leading-tight"
+                                            class="text-sm font-semibold text-slate-900 dark:text-white leading-tight truncate"
                                         >
                                             {{ $page.props.auth?.user?.name }}
                                         </p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400 leading-tight">
+                                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-tight font-medium">
                                             {{ singleRoleLabel }}
                                         </p>
                                     </div>
-                                    <LuChevronDown class="w-4 h-4 text-gray-400 hidden sm:block"/>
+                                    <LuChevronDown class="w-4 h-4 text-slate-400 hidden sm:block"/>
                                 </button>
                             </div>
                         </div>
@@ -1001,7 +1003,7 @@ export default {
                     >
                         <div
                             v-if="showingNavigationDropdown"
-                            class="md:hidden relative z-50 border-t border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl max-h-[80vh] overflow-y-auto"
+                            class="md:hidden relative z-50 border-t border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl max-h-[80vh] overflow-y-auto"
                         >
                             <div class="px-4 py-3 space-y-1">
                                 <template
@@ -1012,11 +1014,11 @@ export default {
                                         v-if="!service.children || !visibleChildren(service).length"
                                         :href="route(service.href)"
                                         @click="showingNavigationDropdown = false"
-                                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors"
                                         :class="
                       isServiceActive(service)
-                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700'
+                        ? 'bg-indigo-50/80 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400'
+                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                     "
                                     >
                                         <component :is="service.icon" class="w-5 h-5"/>
@@ -1025,7 +1027,7 @@ export default {
 
                                     <div v-else class="space-y-1">
                                         <div
-                                            class="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider"
+                                            class="px-3 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider"
                                         >
                                             {{ service.label }}
                                         </div>
@@ -1034,7 +1036,7 @@ export default {
                                             :key="`mobile-top-child-${child.label}`"
                                             :href="route(child.href)"
                                             @click="showingNavigationDropdown = false"
-                                            class="flex items-center gap-3 px-3 py-2 ml-4 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-700 transition-colors"
+                                            class="flex items-center gap-3 px-3 py-2 ml-4 rounded-xl text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                                         >
                                             <component :is="child.icon" v-if="child.icon" class="w-4 h-4"/>
                                             {{ child.label }}
@@ -1044,20 +1046,18 @@ export default {
                             </div>
 
                             <!-- Mobile User Section -->
-                            <div class="border-t border-gray-200 dark:border-gray-700 px-4 py-3">
+                            <div class="border-t border-slate-200 dark:border-slate-800 px-4 py-3">
                                 <div class="flex items-center gap-3 mb-3">
                                     <img
-                                        v-if="
-                      $page.props.jetstream.managesProfilePhotos && $page.props.auth?.user
-                    "
+                                        v-if="$page.props.jetstream.managesProfilePhotos && $page.props.auth?.user"
                                         :src="$page.props.auth.user.profile_photo_url"
                                         class="h-10 w-10 rounded-full"
                                     />
                                     <div>
-                                        <p class="font-medium text-gray-900 dark:text-white">
+                                        <p class="font-medium text-slate-900 dark:text-white">
                                             {{ $page.props.auth?.user?.name }}
                                         </p>
-                                        <p class="text-sm text-gray-500">
+                                        <p class="text-sm text-slate-500">
                                             {{ $page.props.auth?.user?.email }}
                                         </p>
                                     </div>
@@ -1065,14 +1065,14 @@ export default {
                                 <div class="space-y-1">
                                     <Link
                                         :href="route('profile.show')"
-                                        class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700"
+                                        class="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                                     >
                                         <LuUser class="w-4 h-4"/>
                                         Profile
                                     </Link>
                                     <button
                                         @click="logout"
-                                        class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                        class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                                     >
                                         <LuLogOut class="w-4 h-4"/>
                                         Log Out
@@ -1086,7 +1086,7 @@ export default {
                 <!-- Page Header -->
                 <header
                     v-if="$slots.header"
-                    class="bg-AA dark:bg-gray-800 shadow-sm border-b border-AA dark:border-gray-700 min-h-16 h-auto py-1 sm:py-0 transition-all"
+                    class="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md shadow-sm border-b border-slate-200/60 dark:border-slate-800/60 min-h-16 h-auto py-1 sm:py-0 transition-all z-20 relative"
                 >
                     <div class="default-container">
                         <slot name="header"/>
@@ -1094,7 +1094,7 @@ export default {
                 </header>
 
                 <!-- Main Content -->
-                <main class="overflow-x-auto bg-gray-50 dark:bg-gray-900">
+                <main class="overflow-x-auto bg-transparent flex-1">
                     <slot/>
                 </main>
             </div>

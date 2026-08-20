@@ -1,18 +1,10 @@
 <script>
 import LocationMixin from '@/Modules/mixins/LocationMixin';
+import FieldMixin from '@/Components/Forms/FieldMixin';
 
 export default {
     name: 'SelectRegion',
-    mixins: [LocationMixin],
-    props: {
-        modelValue: {
-            type: String,
-            default: ''
-        },
-        disabled: Boolean,
-        error: String
-    },
-    emits: ['update:modelValue'],
+    mixins: [LocationMixin, FieldMixin],
     data() {
         return {
             isOpen: false
@@ -47,71 +39,74 @@ export default {
 </script>
 
 <template>
-    <div class="flex flex-col gap-1">
-        <div class="relative">
-            <button
-                type="button"
-                @click="toggleDropdown"
-                :disabled="disabled || locationLoading"
-                :class="{
-                    'border-red-500': error,
-                    'opacity-50 cursor-not-allowed': disabled || locationLoading
-                }"
-                class="inline-flex items-center justify-between px-3 py-3 border shadow-sm text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white w-full dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150"
-            >
-                <span>{{ selectedLabel }}</span>
-                <svg
-                    class="ms-2 -me-0.5 h-4 w-4 transition-transform flex-shrink-0"
-                    :class="{ 'rotate-180': isOpen }"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
+    <Field
+        :id="id"
+        :label="label"
+        :error="error"
+        :required="required"
+        :hint="hint"
+        :guide="guide"
+        :clearable="clearable"
+        :has-value="!!selectedOption"
+        :disabled="disabled || locationLoading"
+        @clear="selectOption(null)"
+    >
+        <template #label-icon>
+            <LuMap class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
+        </template>
+        <template #default="{ inputId, isInvalid, isValid, guideId }">
+            <div class="relative w-full">
+                <button
+                    :id="inputId"
+                    type="button"
+                    @click="toggleDropdown"
+                    :disabled="disabled || locationLoading"
+                    :aria-invalid="isInvalid"
+                    :aria-describedby="guideId"
+                    :class="[
+                        'w-full flex gap-2 justify-between items-center rounded-xl px-4 py-2.5 transition-all duration-200 text-sm font-medium border-0',
+                        'bg-transparent text-slate-700 dark:text-slate-200',
+                        (disabled || locationLoading) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50',
+                        isInvalid ? '' : 'focus:ring-0',
+                    ]"
                 >
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                </svg>
-            </button>
+                    <span class="truncate">{{ selectedLabel }}</span>
+                    <LuChevronDown
+                        :class="[
+                            'ms-2 -me-0.5 h-4 w-4 transition-transform flex-shrink-0 text-slate-400',
+                            isOpen ? 'rotate-180' : ''
+                        ]"
+                    />
+                </button>
 
-            <!-- Dropdown Menu -->
-            <transition
-                enter-active-class="transition ease-out duration-100"
-                enter-from-class="transform opacity-0 scale-95"
-                enter-to-class="transform opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-75"
-                leave-from-class="transform opacity-100 scale-100"
-                leave-to-class="transform opacity-0 scale-95"
-            >
-                <div
-                    v-show="isOpen && regionOptions.length"
-                    class="absolute left-0 z-50 w-full mt-2 bg-white dark:bg-gray-800 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 max-h-48 overflow-y-auto"
-                >
-                    <div class="py-1">
-                        <button
-                            v-for="option in regionOptions"
-                            :key="option.name"
-                            type="button"
-                            @click="selectOption(option.name)"
-                            :class="{ 'bg-gray-100 dark:bg-gray-700': selectedOption?.name === option.name }"
-                            class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-                        >
-                            {{ option.label }}
-                        </button>
+                <!-- Backdrop -->
+                <div v-show="isOpen && regionOptions.length" class="fixed inset-0 z-40" @click.prevent="isOpen = false" />
+
+                <!-- Dropdown Menu -->
+                <transition-container type="fade">
+                    <div
+                        v-show="isOpen && regionOptions.length"
+                        class="z-50 absolute w-full mt-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg max-h-[30vh] overflow-hidden flex flex-col"
+                    >
+                        <div class="overflow-y-auto flex-1 py-1">
+                            <button
+                                v-for="option in regionOptions"
+                                :key="option.name"
+                                type="button"
+                                @click="selectOption(option.name)"
+                                :class="[
+                                    'w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors',
+                                    selectedOption?.name === option.name 
+                                        ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 font-medium' 
+                                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                                ]"
+                            >
+                                {{ option.label }}
+                            </button>
+                        </div>
                     </div>
-                </div>
-            </transition>
-        </div>
-
-        <!-- Error Message -->
-        <transition
-            enter-active-class="transition ease-out duration-100"
-            enter-from-class="opacity-0"
-            enter-to-class="opacity-100"
-            leave-active-class="transition ease-in duration-75"
-            leave-from-class="opacity-100"
-            leave-to-class="opacity-0"
-        >
-            <p v-if="error" class="text-sm text-red-500">{{ error }}</p>
-        </transition>
-    </div>
+                </transition-container>
+            </div>
+        </template>
+    </Field>
 </template>

@@ -5,14 +5,12 @@ import RequestFormPivot from "@/Modules/domain/RequestFormPivot";
 import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
 import { extractRequestErrorMessage } from "@/Pages/LabRequest/utils/requestErrorUtils";
 import axios from "axios";
-import { Printer, AlertCircle, Loader2 } from "lucide-vue-next";
+import { Printer, AlertCircle, Loader2, X, FileText, CheckCircle2, XCircle, Package } from "lucide-vue-next";
 
 export default {
     name: "UseRequestApprovalBtn",
     components: {
-        Printer,
-        AlertCircle,
-        Loader2
+        Printer, AlertCircle, Loader2, X, FileText, CheckCircle2, XCircle, Package
     },
     props: {
         data: Object
@@ -95,7 +93,6 @@ export default {
                     document.body.removeChild(link);
                     window.URL.revokeObjectURL(url);
 
-                    // Auto-close after successful download
                     setTimeout(() => {
                         this.isPrinting = false;
                         this.showPrintModal = false;
@@ -177,7 +174,6 @@ export default {
             if (this.form.request_status === this.rejected && this.form.approved_by) {
                 return `Rejected by: ${this.form.approved_by}`;
             }
-
             return null;
         }
     }
@@ -185,132 +181,165 @@ export default {
 </script>
 
 <template>
-    <div class="flex flex-col w-full gap-3">
-        <h3 class="text-left leading-none">To be filled by the Officer In-Charge</h3>
-        <p v-if="updateError" class="text-sm text-red-600">{{ updateError }}</p>
-        <div class="flex flex-col w-full">
-            <div class="flex flex-col w-full gap-1">
-                <div class="flex flex-col w-full">
-                    <text-area v-if="shouldShowApprovalConditions" v-model="form.approval_constraint" label="Approval Special Conditions" />
-                    <text-area v-if="form.request_status === rejected" v-model="form.disapproved_remarks" label="Remarks for Disapproval" />
-                </div>
-                <submit-btn v-if="areRemarksUpdated" @click="handleUpdateApprovalBtn(form.request_status)" :disabled="isProcessing">
-                    <span v-if="isProcessing">
-                        Saving Changes
-                    </span>
-                    <span v-else>
-                        Save Changes
-                    </span>
-                </submit-btn>
+    <div class="flex flex-col w-full">
+        <!-- Error Alert -->
+        <div v-if="updateError" class="mb-4 flex items-center gap-2 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl text-red-700 dark:text-red-400 text-sm font-semibold shadow-sm">
+            <AlertCircle class="w-4 h-4 shrink-0" /> {{ updateError }}
+        </div>
+
+        <!-- Remarks & Conditions -->
+        <div class="flex flex-col w-full gap-3 mb-5">
+            <div v-if="shouldShowApprovalConditions || form.request_status === rejected" class="flex flex-col gap-1 w-full">
+                <text-area 
+                    v-if="shouldShowApprovalConditions" 
+                    v-model="form.approval_constraint" 
+                    label="Approval Special Conditions" 
+                    class="w-full text-sm font-medium bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-indigo-500" 
+                />
+                <text-area 
+                    v-if="form.request_status === rejected" 
+                    v-model="form.disapproved_remarks" 
+                    label="Remarks for Disapproval" 
+                    class="w-full text-sm font-medium bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 rounded-xl focus:ring-indigo-500" 
+                />
+            </div>
+            
+            <div v-if="areRemarksUpdated" class="flex justify-end mt-1">
+                <button 
+                    @click="handleUpdateApprovalBtn(form.request_status)" 
+                    :disabled="isProcessing"
+                    class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-bold rounded-xl shadow-md shadow-indigo-600/20 transition-all active:scale-95"
+                >
+                    <Loader2 v-if="isProcessing" class="w-4 h-4 animate-spin" />
+                    {{ isProcessing ? 'Saving Changes...' : 'Save Remarks' }}
+                </button>
             </div>
         </div>
-        <div class="flex justify-between">
-            <div class="flex text-xs flex-col leading-none text-left">
-                <span v-if="statusActorLabel">{{ statusActorLabel }}</span>
+
+        <!-- Actions Footer -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <!-- Left Info -->
+            <div class="flex flex-col items-center sm:items-start text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                <span v-if="statusActorLabel" class="text-slate-600 dark:text-slate-300 mb-0.5">{{ statusActorLabel }}</span>
                 <span>Last updated: {{ formatDate(data.updated_at) }}</span>
             </div>
-            <div class="flex flex-wrap justify-end gap-2">
-                <button v-if="data.request_status !== 'pending'" type="button" @click.stop="handlePrint"
+            
+            <!-- Right Buttons -->
+            <div class="flex flex-wrap items-center justify-center sm:justify-end gap-2.5 w-full sm:w-auto">
+                
+                <!-- Print Button -->
+                <button 
+                    v-if="data.request_status !== 'pending'" 
+                    type="button" 
+                    @click.stop="handlePrint"
                     :disabled="isPrinting"
-                    aria-label="Download request form PDF"
-                    class="flex items-center gap-1 text-gray-900 w-fit px-3 py-1.5 rounded transition hover:scale-105 bg-white border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                    <Printer class="w-4 h-4" :class="{ 'animate-pulse': isPrinting }" />
+                    class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-xl shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <Printer class="w-4 h-4 text-slate-400" :class="{ 'animate-pulse text-indigo-500': isPrinting }" />
                     <span v-if="isPrinting">Printing...</span>
                     <span v-else>Print</span>
                 </button>
 
+                <!-- Reject Button -->
                 <form v-if="!!form && canReject" @submit.prevent="handleUpdateApprovalBtn(rejected)">
                     <button
                         type="submit"
                         :disabled="isProcessing"
-                        class="flex items-center gap-1 text-gray-900 w-fit px-3 py-1.5 rounded transition hover:scale-105 bg-red-400 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
-                        aria-label="Reject request"
+                        class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-400 text-sm font-bold rounded-xl shadow-sm hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
+                        <Loader2 v-if="isProcessing" class="w-4 h-4 animate-spin" />
+                        <XCircle v-else class="w-4 h-4" />
                         <span v-if="isProcessing">Saving...</span>
                         <span v-else>Reject</span>
                     </button>
                 </form>
 
+                <!-- Approve Button -->
                 <form v-if="!!form && canApprove" @submit.prevent="handleUpdateApprovalBtn(approved)">
                     <button
                         type="submit"
                         :disabled="isProcessing"
-                        class="flex items-center gap-1 text-gray-900 w-fit px-3 py-1.5 rounded transition hover:scale-105 bg-green-400 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
-                        aria-label="Approve request"
+                        class="inline-flex items-center gap-1.5 px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-xl shadow-md shadow-emerald-500/20 transition-all active:scale-95 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed disabled:shadow-none"
                     >
+                        <Loader2 v-if="isProcessing" class="w-4 h-4 animate-spin" />
+                        <CheckCircle2 v-else class="w-4 h-4" />
                         <span v-if="isProcessing">Saving...</span>
                         <span v-else>Approve</span>
                     </button>
                 </form>
 
+                <!-- Release Button -->
                 <form v-if="!!form && canRelease" @submit.prevent="handleUpdateApprovalBtn(released)">
                     <button
                         type="submit"
                         :disabled="isProcessing"
-                        class="flex items-center gap-1 text-gray-900 w-fit px-3 py-1.5 rounded transition hover:scale-105 bg-blue-400 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
-                        aria-label="Release request"
+                        class="inline-flex items-center gap-1.5 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl shadow-md shadow-blue-600/20 transition-all active:scale-95 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed disabled:shadow-none"
                     >
+                        <Loader2 v-if="isProcessing" class="w-4 h-4 animate-spin" />
+                        <Package v-else class="w-4 h-4" />
                         <span v-if="isProcessing">Saving...</span>
                         <span v-else>Release</span>
                     </button>
                 </form>
 
+                <!-- Return Button -->
                 <form v-if="!!form && canReturn" @submit.prevent="handleUpdateApprovalBtn(returned)">
                     <button
                         type="submit"
                         :disabled="isProcessing"
-                        class="flex items-center gap-1 text-gray-900 w-fit px-3 py-1.5 rounded transition hover:scale-105 bg-slate-300 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
-                        aria-label="Mark request returned"
+                        class="inline-flex items-center gap-1.5 px-6 py-2.5 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white text-sm font-bold rounded-xl shadow-md transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
+                        <Loader2 v-if="isProcessing" class="w-4 h-4 animate-spin" />
+                        <CheckCircle2 v-else class="w-4 h-4" />
                         <span v-if="isProcessing">Saving...</span>
                         <span v-else>Mark Returned</span>
                     </button>
                 </form>
 
-                <span v-if="isClosedState" class="text-xs text-gray-500 self-center">
-                    Workflow completed for this request.
+                <span v-if="isClosedState" class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                    Workflow Completed
                 </span>
             </div>
         </div>
-    </div>
 
-    <!-- Print Modal -->
-    <Modal :show="showPrintModal" :closeable="!isPrinting" @close="showPrintModal = false" max-width="sm">
-        <div class="p-6">
-            <div class="text-center">
-                <div class="mx-auto w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mb-4">
-                    <Loader2 v-if="!printError" class="w-6 h-6 text-blue-600 animate-spin" />
-                    <AlertCircle v-else class="w-6 h-6 text-red-600" />
-                </div>
-
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">
-                    {{ printError ? 'Download Failed' : 'Generating PDF' }}
-                </h3>
-
-                <div v-if="!printError" class="space-y-3">
-                    <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                        <div class="h-full bg-blue-600 transition-all duration-500 ease-out rounded-full"
-                            :style="{ width: `${Math.min(printProgress, 100)}%` }"></div>
+        <!-- Print PDF Generation Modal -->
+        <Modal :show="showPrintModal" :closeable="!isPrinting" @close="showPrintModal = false" max-width="sm">
+            <div class="p-8 bg-white dark:bg-slate-900 rounded-2xl">
+                <div class="text-center flex flex-col items-center">
+                    
+                    <div class="w-16 h-16 rounded-full flex items-center justify-center mb-5 border-2 shadow-inner" 
+                         :class="printError ? 'bg-red-50 border-red-100 dark:bg-red-500/10 dark:border-red-500/20' : 'bg-blue-50 border-blue-100 dark:bg-blue-500/10 dark:border-blue-500/20'">
+                        <Loader2 v-if="!printError" class="w-7 h-7 text-blue-600 dark:text-blue-400 animate-spin" />
+                        <AlertCircle v-else class="w-7 h-7 text-red-600 dark:text-red-400" />
                     </div>
-                    <p class="text-sm text-gray-500">
-                        {{ printProgress < 100 ? 'Preparing your document...' : 'Download starting...' }} </p>
-                </div>
 
-                <div v-if="printError" class="mt-4">
-                    <p class="text-sm text-red-600 bg-red-50 rounded-lg p-3">
-                        {{ printError }}
-                    </p>
-                    <button @click="showPrintModal = false"
-                        aria-label="Close print dialog"
-                        class="mt-4 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">
-                        Close
-                    </button>
+                    <h3 class="text-lg font-black text-slate-900 dark:text-white mb-2">
+                        {{ printError ? 'Download Failed' : 'Generating Document' }}
+                    </h3>
+
+                    <div v-if="!printError" class="w-full space-y-3 mt-2">
+                        <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden shadow-inner">
+                            <div class="h-full bg-blue-600 dark:bg-blue-500 transition-all duration-300 ease-out rounded-full"
+                                :style="{ width: `${Math.min(printProgress, 100)}%` }"></div>
+                        </div>
+                        <p class="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                            {{ printProgress < 100 ? 'Rendering PDF...' : 'Starting download...' }} 
+                        </p>
+                    </div>
+
+                    <div v-if="printError" class="mt-4 w-full">
+                        <div class="text-sm font-medium text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl p-3 shadow-sm mb-4">
+                            {{ printError }}
+                        </div>
+                        <button @click="showPrintModal = false" class="w-full px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-sm font-bold transition-colors">
+                            Close
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </Modal>
+        </Modal>
+    </div>
 </template>
 
 <style scoped>
-
 </style>

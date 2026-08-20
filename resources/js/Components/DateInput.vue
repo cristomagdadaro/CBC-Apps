@@ -1,24 +1,15 @@
 <script>
+import FieldMixin from '@/Components/Forms/FieldMixin';
+
 export default {
     name: 'DateInput',
+    mixins: [FieldMixin],
     props: {
-        modelValue: { type: String, default: '' },
-        placeholder: { type: String, default: '' },
-        error: { type: String, default: '' },
-        label: { type: String, default: '' },
-        required: { type: Boolean, default: false },
         chameleon: { type: Boolean, default: false },
     },
-    emits: ['update:modelValue'],
     data() {
         return {
             isChameleon: this.chameleon,
-        }
-    },
-    mounted() {
-        const input = this.$refs.input;
-        if (input && input.hasAttribute && input.hasAttribute('autofocus')) {
-            input.focus();
         }
     },
     watch: {
@@ -27,9 +18,6 @@ export default {
         }
     },
     methods: {
-        focus() {
-            this.$refs.input?.focus();
-        },
         onInput(e) {
             this.$emit('update:modelValue', e.target.value);
         }
@@ -38,21 +26,78 @@ export default {
 </script>
 
 <template>
-    <div class="w-full relative border-none p-0" :class="{'border-red-500': error}">
-        <div v-if="label" class="text-xs text-gray-500 flex items-center justify-between">
-            <span class="flex gap-0.5 whitespace-nowrap">{{ label }}<b v-if="required" class="text-red-500 ">*</b></span>
-            <transition-container type="slide-bottom">
-                <InputError v-show="!!error" :message="error" />
-            </transition-container>
-        </div>
-        <input
-            ref="input"
-            class="border w-full dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-AB dark:focus:border-AB focus:ring-AB dark:focus:ring-AB rounded-md shadow-sm"
-            :value="modelValue"
-            :placeholder="placeholder"
-            type="date"
-            name="trip-start"
-            @input="$emit('update:modelValue', $event.target.value)"
-        />
-    </div>
+    <Field
+        :id="id"
+        :label="label"
+        :error="error"
+        :required="required"
+        :hint="hint"
+        :guide="guide"
+        :clearable="clearable"
+        :has-value="hasValue"
+        :disabled="disabled"
+        @clear="onClear"
+    >
+        <template #label-icon>
+            <LuCalendar class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
+        </template>
+        
+        <template #default="{ inputId, isInvalid, isValid, guideId }">
+            <input
+                :id="inputId"
+                ref="input"
+                type="date"
+                :value="modelValue"
+                :placeholder="placeholder"
+                :disabled="disabled"
+                :aria-invalid="isInvalid"
+                :aria-describedby="guideId"
+                @input="onInput"
+                @focus="onFocus"
+                @blur="onBlur"
+                :class="[
+                    'w-full rounded-xl px-4 py-2.5 text-sm transition-all duration-200 ease-out border [color-scheme:light] dark:[color-scheme:dark]',
+                    'placeholder:text-slate-400 dark:placeholder:text-slate-500',
+                    isInvalid
+                        ? 'border-rose-300 dark:border-rose-700 bg-rose-50/50 dark:bg-rose-900/10 text-rose-900 dark:text-rose-100 focus:border-rose-500 focus:ring-1 focus:ring-rose-500'
+                        : isValid
+                            ? 'border-emerald-300 dark:border-emerald-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500'
+                            : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500',
+                    disabled ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed text-slate-500 dark:text-slate-400' : '',
+                    (clearable && hasValue && !disabled) || isValid || isInvalid ? 'pr-10' : ''
+                ]"
+            />
+        </template>
+    </Field>
 </template>
+
+<style scoped>
+/* Custom date input styling */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.4);
+    cursor: pointer;
+    padding: 0.25rem;
+    margin-right: -0.25rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    filter: invert(0.6);
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.6);
+}
+
+.dark input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    filter: invert(0.8);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Focus ring animation */
+input:focus {
+    outline: none;
+}
+</style>
