@@ -41,7 +41,7 @@ class RentalsSeeder extends Seeder
 
         if ($cities->isEmpty()) {
             return [
-                'location' => 'CBC Central Office',
+                'location' => 'Central Experiment Station',
                 'city' => 'Quezon City',
                 'province' => 'Metro Manila',
                 'region' => 'NCR',
@@ -51,7 +51,7 @@ class RentalsSeeder extends Seeder
         $city = $cities->get($index % $cities->count());
 
         return [
-            'location' => sprintf('CBC Outpost (%s)', $city->city),
+            'location' => sprintf('PhilRice (%s)', $city->city),
             'city' => $city->city,
             'province' => $city->province,
             'region' => $city->region,

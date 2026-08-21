@@ -1,32 +1,6 @@
 <script>
-import { ExternalLink, Menu } from 'lucide-vue-next'
-import {
-    LuFacebook,
-    LuGlobe,
-    LuLayoutGrid,
-    LuMail,
-    LuMapPin,
-    LuShield,
-    LuStar,
-    LuUser,
-    LuX,
-} from '@/Components/Icons'
-
 export default {
     name: 'SocialLinks',
-    components: {
-        ExternalLink,
-        LuFacebook,
-        LuGlobe,
-        LuLayoutGrid,
-        LuMail,
-        LuMapPin,
-        LuShield,
-        LuStar,
-        LuUser,
-        LuX,
-        Menu,
-    },
     props: {
         canLogin: Boolean,
         canRegister: Boolean,

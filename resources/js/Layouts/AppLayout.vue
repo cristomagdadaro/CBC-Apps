@@ -851,8 +851,7 @@ export default {
                             <!-- Left: Logo & Mobile Menu -->
                             <div class="flex items-center gap-4">
                                 <button
-                                    v-if="isSidebarModeResponsive"
-                                    @click="sidebarOpen = true"
+                                    @click="isSidebarMode ? (sidebarOpen = true) : (showingNavigationDropdown = !showingNavigationDropdown)"
                                     class="lg:hidden p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-colors"
                                 >
                                     <LuMenu class="w-6 h-6"/>
@@ -940,38 +939,60 @@ export default {
                                 </button>
 
                                 <!-- User Dropdown -->
-                                <button
-                                    @click="showingNavigationDropdown = !showingNavigationDropdown"
-                                    class="flex items-center gap-3 p-1.5 pr-3 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                >
-                                    <img
-                                        v-if="
-                          $page.props.jetstream.managesProfilePhotos &&
-                          $page.props.auth?.user
-                        "
-                                        :src="$page.props.auth.user.profile_photo_url"
-                                        class="h-8 w-8 rounded-full object-cover ring-2 ring-white dark:ring-gray-700"
-                                    />
-                                    <div
-                                        v-else
-                                        class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm"
-                                    >
-                                        {{
-                                            $page.props.auth?.user?.name?.charAt(0)?.toUpperCase() || "U"
-                                        }}
-                                    </div>
-                                    <div class="hidden sm:block text-left">
-                                        <p
-                                            class="text-sm font-semibold text-slate-900 dark:text-white leading-tight truncate"
-                                        >
-                                            {{ $page.props.auth?.user?.name }}
-                                        </p>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-tight font-medium">
-                                            {{ singleRoleLabel }}
-                                        </p>
-                                    </div>
-                                    <LuChevronDown class="w-4 h-4 text-slate-400 hidden sm:block"/>
-                                </button>
+                                <div class="hidden lg:flex items-center">
+                                    <Dropdown align="right" width="48">
+                                        <template #trigger>
+                                            <button
+                                                class="flex items-center gap-3 p-1.5 pr-3 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                            >
+                                                <img
+                                                    v-if="
+                                      $page.props.jetstream.managesProfilePhotos &&
+                                      $page.props.auth?.user
+                                    "
+                                                    :src="$page.props.auth.user.profile_photo_url"
+                                                    class="h-8 w-8 rounded-full object-cover ring-2 ring-white dark:ring-gray-700"
+                                                />
+                                                <div
+                                                    v-else
+                                                    class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm"
+                                                >
+                                                    {{
+                                                        $page.props.auth?.user?.name?.charAt(0)?.toUpperCase() || "U"
+                                                    }}
+                                                </div>
+                                                <div class="hidden sm:block text-left">
+                                                    <p
+                                                        class="text-sm font-semibold text-slate-900 dark:text-white leading-tight truncate"
+                                                    >
+                                                        {{ $page.props.auth?.user?.name }}
+                                                    </p>
+                                                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-tight font-medium">
+                                                        {{ singleRoleLabel }}
+                                                    </p>
+                                                </div>
+                                                <LuChevronDown class="w-4 h-4 text-slate-400 hidden sm:block"/>
+                                            </button>
+                                        </template>
+
+                                        <template #content>
+                                            <Link
+                                                :href="route('profile.show')"
+                                                class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                            >
+                                                <LuUser class="w-4 h-4"/>
+                                                Profile
+                                            </Link>
+                                            <button
+                                                @click="logout"
+                                                class="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-transparent"
+                                            >
+                                                <LuLogOut class="w-4 h-4"/>
+                                                Log Out
+                                            </button>
+                                        </template>
+                                    </Dropdown>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -986,9 +1007,9 @@ export default {
                         leave-to-class="opacity-0"
                     >
                         <div
-                            v-if="showingNavigationDropdown"
+                            v-if="showingNavigationDropdown && (!isSidebarModeResponsive || !isSidebarMode)"
                             @click="showingNavigationDropdown = false"
-                            class="fixed inset-0 bg-slate-900/60 z-40 md:hidden backdrop-blur-xs"
+                            class="fixed inset-0 bg-slate-900/60 z-40 lg:hidden backdrop-blur-xs"
                         ></div>
                     </Transition>
 
@@ -1002,8 +1023,8 @@ export default {
                         leave-to-class="opacity-0 -translate-y-2"
                     >
                         <div
-                            v-if="showingNavigationDropdown"
-                            class="md:hidden relative z-50 border-t border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl max-h-[80vh] overflow-y-auto"
+                            v-if="showingNavigationDropdown && (!isSidebarModeResponsive || !isSidebarMode)"
+                            class="lg:hidden relative z-50 border-t border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl max-h-[80vh] overflow-y-auto"
                         >
                             <div class="px-4 py-3 space-y-1">
                                 <template

@@ -1,5 +1,5 @@
 <script>
-import { computed, ref, watchEffect } from "vue";
+import { computed, ref, watchEffect, shallowRef } from "vue";
 import { usePage } from "@inertiajs/vue3";
 import OverviewTopic from "./Topics/OverviewTopic.vue";
 import CustomFormTopic from "./Topics/CustomFormTopic.vue";
@@ -19,27 +19,28 @@ import GoogleCalendarTopic from "./Topics/GoogleCalendarTopic.vue";
 import ResearchMonitoringTopic from "./Topics/ResearchMonitoringTopic.vue";
 import DriverJsGuidesTopic from "./Topics/DriverJsGuidesTopic.vue";
 
+
 export default {
   name: "ManualsIndex",
   components: {
-    OverviewTopic,
-    CustomFormTopic,
-    FESRequestFormTopic,
-    InventorySystemTopic,
-    InventoryTransactionsTopic,
-    InventoryReportTopic,
-    AddSupplierTopic,
-    AddItemTopic,
-    ProfilePasswordTopic,
-    ConsoleLoggerTopic,
-    RentalServicesTopic,
-    SystemOptionsTopic,
-    CertificateGeneratorTopic,
-    IconsLibraryTopic,
-    GoogleCalendarTopic,
-    ResearchMonitoringTopic,
-    DriverJsGuidesTopic,
-  },
+        OverviewTopic,
+        CustomFormTopic,
+        FESRequestFormTopic,
+        InventorySystemTopic,
+        InventoryTransactionsTopic,
+        InventoryReportTopic,
+        AddSupplierTopic,
+        AddItemTopic,
+        ProfilePasswordTopic,
+        ConsoleLoggerTopic,
+        RentalServicesTopic,
+        SystemOptionsTopic,
+        CertificateGeneratorTopic,
+        IconsLibraryTopic,
+        GoogleCalendarTopic,
+        ResearchMonitoringTopic,
+        DriverJsGuidesTopic
+    },
   setup() {
     const page = usePage();
     const initialSection =
@@ -53,113 +54,109 @@ export default {
     const sections = {
       overview: {
         title: "Overview",
-        icon: "📖",
+        icon: 'LuBookOpen',
         component: OverviewTopic,
       },
       addCustomForm: {
         title: "How to add a new custom form",
-        icon: "📝",
+        icon: 'LuFileText',
         component: CustomFormTopic,
       },
       fesRequestForm: {
         title: "How to use Facilities, Equipment, and Supplies Request Form",
-        icon: "🏛️",
+        icon: 'LuLandmark',
         component: FESRequestFormTopic,
       },
       inventorySystem: {
         title: "How to use the Inventory System",
-        icon: "📦",
+        icon: 'LuBox',
         component: InventorySystemTopic,
       },
       inventoryTransactions: {
         title: "How to add Incoming or Outgoing Transactions and set Logger Availability",
-        icon: "📊",
+        icon: 'LuBarChart2',
         component: InventoryTransactionsTopic,
       },
       inventoryReport: {
         title: "How to file a Report",
-        icon: "📄",
+        icon: 'LuFileBox',
         component: InventoryReportTopic,
       },
       addSupplier: {
         title: "How to add a new Supplier",
-        icon: "🤝",
+        icon: 'LuHandshake',
         component: AddSupplierTopic,
       },
       addItem: {
         title: "How to add a new Item",
-        icon: "🏷️",
+        icon: 'LuTag',
         component: AddItemTopic,
       },
       profilePassword: {
         title: "How to update Profile and Password",
-        icon: "👤",
+        icon: 'LuUserCog',
         component: ProfilePasswordTopic,
       },
       consoleLogger: {
         title: "Console Logger (Development)",
-        icon: "🖥️",
+        icon: 'LuTerminal',
         component: ConsoleLoggerTopic,
       },
       rentalServices: {
         title: "Rental Services Module",
-        icon: "🚗",
+        icon: 'LuCar',
         component: RentalServicesTopic,
       },
       systemOptions: {
         title: "How to use System Options and maintain Logger Modes",
-        icon: "⚙️",
+        icon: 'LuSettings',
         component: SystemOptionsTopic,
       },
       certificateGenerator: {
         title: "How to use Certificate Generator",
-        icon: "🎓",
+        icon: 'LuGraduationCap',
         component: CertificateGeneratorTopic,
       },
       iconsLibrary: {
         title: "Icons Library",
-        icon: "🎨",
+        icon: 'LuPalette',
         component: IconsLibraryTopic,
       },
       googleCalendar: {
         title: "Google Calendar Integration",
-        icon: "🗓️",
+        icon: 'LuCalendar',
         component: GoogleCalendarTopic,
       },
       researchMonitoring: {
         title: "Research Monitoring Module",
-        icon: "🧬",
+        icon: 'LuDna',
         component: ResearchMonitoringTopic,
       },
       driverJsGuides: {
         title: "Driver.js Tour Guides",
-        icon: "🧭",
+        icon: 'LuCompass',
         component: DriverJsGuidesTopic,
       },
     };
 
     const menuItems = [
-      { id: "overview", label: "Overview", icon: "📖" },
-      { id: "addCustomForm", label: "How to add a custom form", icon: "📝" },
-      { id: "fesRequestForm", label: "How to use FES Request Form", icon: "🏛️" },
-      { id: "inventorySystem", label: "How to use the Inventory System", icon: "📦" },
-      { id: "inventoryTransactions", label: "Incoming/Outgoing + Logger Availability", icon: "📊" },
-      { id: "rentalServices", label: "Rental Services Module", icon: "🚗" },
-      { id: "inventoryReport", label: "How to file a Report", icon: "📄" },
-      { id: "addSupplier", label: "How to add a new Supplier", icon: "🤝" },
-      { id: "addItem", label: "How to add a new Item", icon: "🏷️" },
-      { id: "profilePassword", label: "How to update Profile and Password", icon: "👤" },
-      { id: "consoleLogger", label: "Console Logger (Development)", icon: "🖥️" },
-      { id: "systemOptions", label: "System Options + Logger Modes", icon: "⚙️" },
-      {
-        id: "certificateGenerator",
-        label: "How to use Certificate Generator",
-        icon: "🎓",
-      },
-      { id: "iconsLibrary", label: "Icons Library", icon: "🎨" },
-      { id: "googleCalendar", label: "Google Calendar Integration", icon: "🗓️" },
-      { id: "researchMonitoring", label: "Research Monitoring Module", icon: "🧬" },
-      { id: "driverJsGuides", label: "Driver.js Tour Guides", icon: "🧭" },
+      { id: "overview", label: "Overview", icon: 'LuBookOpen' },
+      { id: "addCustomForm", label: "How to add a custom form", icon: 'LuFileText' },
+      { id: "fesRequestForm", label: "How to use FES Request Form", icon: 'LuLandmark' },
+      { id: "inventorySystem", label: "How to use the Inventory System", icon: 'LuBox' },
+      { id: "inventoryTransactions", label: "Incoming/Outgoing + Logger Availability", icon: 'LuBarChart2' },
+      { id: "rentalServices", label: "Rental Services Module", icon: 'LuCar' },
+      { id: "inventoryReport", label: "How to file a Report", icon: 'LuFileBox' },
+      { id: "addSupplier", label: "How to add a new Supplier", icon: 'LuHandshake' },
+      { id: "addItem", label: "How to add a new Item", icon: 'LuTag' },
+      { id: "profilePassword", label: "How to update Profile and Password", icon: 'LuUserCog' },
+      { id: "consoleLogger", label: "Console Logger (Development)", icon: 'LuTerminal' },
+      { id: "systemOptions", label: "System Options + Logger Modes", icon: 'LuSettings' },
+      { id: "certificateGenerator", label: "How to use Certificate Generator", icon: 'LuGraduationCap' },
+      { id: "iconsLibrary", label: "Icons Library", icon: 'LuPalette' },
+      { id: "googleCalendar", label: "Google Calendar Integration", icon: 'LuCalendar' },
+      { id: "researchMonitoring", label: "Research Monitoring Module", icon: 'LuDna' },
+      { id: "driverJsGuides", label: "Driver.js Tour Guides", icon: 'LuCompass' },
     ];
 
     const visibleSections = computed(() => {
@@ -212,90 +209,108 @@ export default {
     </template>
 
     <div class="py-6 px-4 sm:px-6 lg:px-8">
-      <div class="mx-auto">
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+          
+          <!-- Navigation Sidebar -->
           <div class="lg:col-span-1">
-            <nav
-              class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 space-y-2 sticky top-0"
-            >
+            <nav class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm p-3 sticky top-6 flex flex-col gap-1">
+              <h3 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 px-3 py-2 mb-1">
+                Topics
+              </h3>
               <button
                 v-for="item in visibleMenuItems"
                 :key="item.id"
                 @click="activeSection = item.id"
                 :class="[
-                  'w-full text-left px-4 py-2 rounded-md transition-colors duration-200',
+                  'w-full flex items-center justify-between text-left px-3 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium',
                   activeSection === item.id
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
+                    ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400 shadow-sm ring-1 ring-indigo-100 dark:ring-indigo-500/20'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200',
                 ]"
               >
-                <span class="mr-2">{{ item.icon }}</span>
-                {{ item.label }}
+                <div class="flex items-center gap-3 truncate">
+                  <component 
+                    :is="item.icon" 
+                    :class="[
+                        'w-4 h-4 shrink-0', 
+                        activeSection === item.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'
+                    ]" 
+                  />
+                  <span class="truncate">{{ item.label }}</span>
+                </div>
+                <LuChevronRight 
+                    v-if="activeSection === item.id"
+                    class="w-4 h-4 shrink-0 text-indigo-400 opacity-70"
+                />
               </button>
             </nav>
           </div>
 
+          <!-- Content Area -->
           <div class="lg:col-span-3">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 sm:p-8">
-              <div
-                class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200 dark:border-gray-700"
-              >
-                <span class="text-3xl">{{ visibleSections[activeSection]?.icon }}</span>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {{ visibleSections[activeSection]?.title }}
-                </h1>
+            <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+              <!-- Content Header -->
+              <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-800/20">
+                <div class="flex items-center gap-3.5">
+                  <div class="p-2.5 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-xl shadow-sm shrink-0">
+                    <component :is="visibleSections[activeSection]?.icon" class="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <div>
+                    <h1 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                      {{ visibleSections[activeSection]?.title }}
+                    </h1>
+                  </div>
+                </div>
               </div>
 
-              <component
-                :is="visibleSections[activeSection]?.component"
-                :show-developer-sections="showDeveloperSections"
-                class="prose prose-sm dark:prose-invert max-w-none"
-              />
+              <!-- Component Rendering -->
+              <div class="p-6">
+                <component
+                  :is="visibleSections[activeSection]?.component"
+                  :show-developer-sections="showDeveloperSections"
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
     </div>
   </AppLayout>
 </template>
 
 <style scoped>
-:deep(code) {
-  background-color: #f3f4f6;
-  color: #1f2937;
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-  font-family: "Courier New", monospace;
-}
-
-:deep(.dark code) {
-  background-color: #374151;
-  color: #f3f4f6;
-}
-
-:deep(p) {
+/* Scoped styles have been simplified because deep stylings break modern topic layouts 
+   that already implement their own typography & spacing utility classes */
+:deep(p:not([class])) {
   margin-bottom: 1rem;
   line-height: 1.6;
 }
 
-:deep(h3) {
+:deep(h3:not([class])) {
   margin-top: 1.5rem;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 700;
 }
 
-:deep(h4) {
+:deep(h4:not([class])) {
   margin-top: 1rem;
   margin-bottom: 0.5rem;
+  font-weight: 600;
 }
 
-:deep(ul) {
+:deep(ul:not([class])) {
   margin: 0.5rem 0;
+  list-style-type: disc;
+  padding-left: 1.5rem;
 }
 
-:deep(ol) {
+:deep(ol:not([class])) {
   margin: 0.5rem 0;
+  list-style-type: decimal;
+  padding-left: 1.5rem;
 }
 
-:deep(li) {
+:deep(li:not([class])) {
   margin-bottom: 0.5rem;
 }
 </style>

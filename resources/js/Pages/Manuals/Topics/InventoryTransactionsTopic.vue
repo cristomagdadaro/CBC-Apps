@@ -1,96 +1,126 @@
-<template>
-    <div class="space-y-6">
-        <section>
-            <h3 class="text-lg font-bold mb-3">For Non-Programmers (Warehouse Staff & Managers)</h3>
-
-            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4">
-                <h4 class="font-semibold mb-2">Adding an Incoming Transaction:</h4>
-                <ol class="list-decimal list-inside space-y-2 text-sm">
-                    <li>Go to <strong>Inventory Management → Transactions → Incoming</strong></li>
-                    <li>Select the <strong>Item</strong> you are receiving</li>
-                    <li>Enter the <strong>Quantity</strong> received</li>
-                    <li>Select the <strong>Unit</strong> (pieces, boxes, kilos, etc.)</li>
-                    <li>Enter the <strong>Unit Price</strong> (cost per unit)</li>
-                    <li>Select the <strong>Storage Location</strong> (where items are stored)</li>
-                    <li>Select the <strong>Equipment Logger Availability</strong> for that incoming stock record so shared/borrowable behavior follows the transaction or project code, not just the base item.</li>
-                    <li><strong>Optional:</strong> Add supplier info, project code, expiration date, and remarks</li>
-                    <li>Click <strong>Submit</strong> to record the transaction</li>
-                </ol>
-            </div>
-
-            <div class="bg-indigo-50 border-l-4 border-indigo-400 p-4 mb-4">
-                <h4 class="font-semibold mb-2">Equipment Logger Availability</h4>
-                <ul class="list-disc list-inside space-y-2 text-sm">
-                    <li>Set this on each <strong>incoming transaction</strong>, not on the item master record.</li>
-                    <li>This allows the same item name to have different sharing rules across different project codes, procurement batches, or stock entries.</li>
-                    <li>The available logger modes come from the <strong>System Options</strong> module, so administrators can maintain the stored values and labels centrally.</li>
-                </ul>
-            </div>
-
-            <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-4">
-                <h4 class="font-semibold mb-2">Adding an Outgoing Transaction:</h4>
-                <ol class="list-decimal list-inside space-y-2 text-sm">
-                    <li>Go to <strong>Inventory Management → Transactions → Outgoing</strong></li>
-                    <li>Select the <strong>Item</strong> being issued</li>
-                    <li>Select the <strong>Personnel</strong> receiving the item</li>
-                    <li>Enter the <strong>Quantity</strong> being issued</li>
-                    <li>Select the <strong>Unit</strong></li>
-                    <li><strong>Optional:</strong> Add project code and remarks</li>
-                    <li>Click <strong>Submit</strong> to record the transaction</li>
-                </ol>
-            </div>
-
-            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
-                <h4 class="font-semibold mb-2">Understanding Barcodes:</h4>
-                <ul class="list-disc list-inside space-y-2 text-sm">
-                    <li>Each incoming transaction generates a <strong>unique barcode</strong></li>
-                    <li>Barcodes help track items and identify them quickly</li>
-                    <li>You can scan barcodes to update transactions</li>
-                    <li>Use the <strong>Barcode Printing</strong> feature to print labels</li>
-                </ul>
-            </div>
-        </section>
-
-        <hr class="my-6">
-
-        <section v-if="showDeveloperSections">
-            <h3 class="text-lg font-bold mb-3">For Programmers (Implementation Details)</h3>
-            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4">
-                <h4 class="font-semibold mb-2">Transaction Fields:</h4>
-                <ul class="list-disc list-inside space-y-1 text-sm">
-                    <li><code class="bg-gray-100 px-1">transac_type</code> – 'incoming' or 'outgoing'</li>
-                    <li><code class="bg-gray-100 px-1">item_id</code> – Reference to item</li>
-                    <li><code class="bg-gray-100 px-1">quantity</code> – Amount of items</li>
-                    <li><code class="bg-gray-100 px-1">unit</code> – Unit of measurement</li>
-                    <li><code class="bg-gray-100 px-1">unit_price</code> – Cost per unit (incoming only)</li>
-                    <li><code class="bg-gray-100 px-1">barcode</code> – Unique identifier</li>
-                    <li><code class="bg-gray-100 px-1">storage_location</code> – Where stored (incoming only)</li>
-                    <li><code class="bg-gray-100 px-1">equipment_logger_mode</code> – Sharing/logger availability for the incoming stock record</li>
-                    <li><code class="bg-gray-100 px-1">personnel_id</code> – Who received/issued (outgoing)</li>
-                </ul>
-            </div>
-
-            <div class="bg-purple-50 border-l-4 border-purple-400 p-4">
-                <h4 class="font-semibold mb-2">API Endpoints:</h4>
-                <ul class="list-disc list-inside space-y-1 text-sm">
-                    <li><code class="bg-gray-100 px-1">POST /api/inventory/transactions</code> – Create transaction</li>
-                    <li><code class="bg-gray-100 px-1">PUT /api/inventory/transactions/{id}</code> – Update transaction</li>
-                    <li><code class="bg-gray-100 px-1">DELETE /api/inventory/transactions/{id}</code> – Delete transaction</li>
-                    <li><code class="bg-gray-100 px-1">GET /api/inventory/transactions/generate-barcode/{room}</code> – Generate barcode</li>
-                </ul>
-            </div>
-        </section>
-    </div>
-</template>
-
 <script>
+import TopicLayout from '@/Pages/Manuals/Components/TopicLayout.vue';
+
 export default {
+    name: 'InventoryTransactionsTopic',
+    components: {
+        TopicLayout
+    },
     props: {
         showDeveloperSections: {
             type: Boolean,
             default: true,
         },
     },
-    name: 'InventoryTransactionsTopic',
 }
 </script>
+
+<template>
+    <TopicLayout
+        title="Inventory Transactions"
+        description="Guidelines for logging incoming and outgoing stock movements, assigning logger availability, and understanding barcode tracking."
+        icon="LuNetwork"
+    >
+                <!-- For Non-Programmers -->
+                <div class="space-y-4">
+                    <h3 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-1">For Non-Programmers (Staff & Managers)</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        
+                        <!-- Incoming Transaction -->
+                        <div class="bg-sky-50/50 dark:bg-sky-500/5 border border-sky-100 dark:border-sky-500/20 rounded-xl p-5 shadow-sm">
+                            <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400 mb-3 flex items-center gap-1.5">
+                                <LuArrowDownToLine class="w-3.5 h-3.5" /> Adding Incoming Transaction
+                            </h4>
+                            <ol class="space-y-2 text-xs font-medium text-slate-600 dark:text-slate-300 list-decimal list-inside ml-1">
+                                <li>Go to Inventory Management &rarr; Transactions</li>
+                                <li>Select the Item you are receiving</li>
+                                <li>Enter the Quantity received and Unit</li>
+                                <li>Enter the Unit Price (cost per unit)</li>
+                                <li>Select the Storage Location</li>
+                                <li>Set the <span class="font-semibold text-slate-800 dark:text-slate-200">Equipment Logger Availability</span></li>
+                                <li>Click Submit to record the transaction</li>
+                            </ol>
+                        </div>
+
+                        <!-- Outgoing Transaction -->
+                        <div class="bg-emerald-50/50 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/20 rounded-xl p-5 shadow-sm">
+                            <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-3 flex items-center gap-1.5">
+                                <LuArrowUpFromLine class="w-3.5 h-3.5" /> Adding Outgoing Transaction
+                            </h4>
+                            <ol class="space-y-2 text-xs font-medium text-slate-600 dark:text-slate-300 list-decimal list-inside ml-1">
+                                <li>Go to Inventory Management &rarr; Transactions</li>
+                                <li>Select the Item being issued</li>
+                                <li>Select the Personnel receiving it</li>
+                                <li>Enter the Quantity being issued</li>
+                                <li>Select the Unit</li>
+                                <li>Add optional project code or remarks</li>
+                                <li>Click Submit to record the transaction</li>
+                            </ol>
+                        </div>
+
+                        <!-- Equipment Logger -->
+                        <div class="bg-purple-50/50 dark:bg-purple-500/5 border border-purple-100 dark:border-purple-500/20 rounded-xl p-5 shadow-sm">
+                            <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400 mb-3 flex items-center gap-1.5">
+                                <LuSettings2 class="w-3.5 h-3.5" /> Equipment Logger Availability
+                            </h4>
+                            <ul class="space-y-2 text-xs font-medium text-slate-600 dark:text-slate-300 ml-1">
+                                <li class="flex items-start gap-2"><LuCheckCircle2 class="w-3.5 h-3.5 text-purple-400 shrink-0 mt-0.5" /> Set this on each incoming transaction, not the item master.</li>
+                                <li class="flex items-start gap-2"><LuCheckCircle2 class="w-3.5 h-3.5 text-purple-400 shrink-0 mt-0.5" /> Allows the same item to have different sharing rules across batches.</li>
+                                <li class="flex items-start gap-2"><LuCheckCircle2 class="w-3.5 h-3.5 text-purple-400 shrink-0 mt-0.5" /> Logger modes are fetched from the central System Options.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Barcodes -->
+                        <div class="bg-amber-50/50 dark:bg-amber-500/5 border border-amber-100 dark:border-amber-500/20 rounded-xl p-5 shadow-sm">
+                            <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400 mb-3 flex items-center gap-1.5">
+                                <LuBarcode class="w-3.5 h-3.5" /> Understanding Barcodes
+                            </h4>
+                            <ul class="space-y-2 text-xs font-medium text-slate-600 dark:text-slate-300 ml-1">
+                                <li class="flex items-start gap-2"><LuCheckCircle2 class="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" /> Each incoming transaction gets a unique barcode.</li>
+                                <li class="flex items-start gap-2"><LuCheckCircle2 class="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" /> Barcodes help track items and identify them quickly.</li>
+                                <li class="flex items-start gap-2"><LuCheckCircle2 class="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" /> Use the Barcode Printing feature to print physical labels.</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- For Programmers -->
+                <div v-if="showDeveloperSections" class="space-y-4 pt-6 border-t border-slate-100 dark:border-slate-800/60">
+                    <h3 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-1">For Programmers (Implementation)</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-slate-50/50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-5 shadow-sm">
+                            <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-600 dark:text-slate-300 mb-3 flex items-center gap-1.5">
+                                <LuNetwork class="w-3.5 h-3.5" /> Transaction Fields
+                            </h4>
+                            <ul class="space-y-2 text-xs font-medium text-slate-600 dark:text-slate-400">
+                                <li><code class="px-1.5 py-0.5 mr-1 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-indigo-500">transac_type</code> 'incoming' or 'outgoing'</li>
+                                <li><code class="px-1.5 py-0.5 mr-1 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-indigo-500">item_id</code> Ref to item</li>
+                                <li><code class="px-1.5 py-0.5 mr-1 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-indigo-500">quantity</code> Amount of items</li>
+                                <li><code class="px-1.5 py-0.5 mr-1 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-indigo-500">unit_price</code> Cost per unit (incoming)</li>
+                                <li><code class="px-1.5 py-0.5 mr-1 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-indigo-500">barcode</code> Unique identifier</li>
+                                <li><code class="px-1.5 py-0.5 mr-1 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-indigo-500">equipment_logger_mode</code> Sharing availability</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-slate-50/50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-5 shadow-sm">
+                            <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-600 dark:text-slate-300 mb-3 flex items-center gap-1.5">
+                                <LuCode2 class="w-3.5 h-3.5" /> API Endpoints
+                            </h4>
+                            <ul class="space-y-2 text-xs font-medium text-slate-600 dark:text-slate-400">
+                                <li><code class="px-1.5 py-0.5 mr-1 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-emerald-500">POST</code> /api/inventory/transactions</li>
+                                <li><code class="px-1.5 py-0.5 mr-1 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-blue-500">PUT</code> /api/inventory/transactions/{id}</li>
+                                <li><code class="px-1.5 py-0.5 mr-1 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-rose-500">DELETE</code> /api/inventory/transactions/{id}</li>
+                                <li><code class="px-1.5 py-0.5 mr-1 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-sky-500">GET</code> /generate-barcode/{room}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+    </TopicLayout>
+</template>
+
+<style scoped>
+</style>

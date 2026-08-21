@@ -1,286 +1,292 @@
-<template>
-  <div class="space-y-6">
-    <!-- Introduction -->
-    <section>
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
-        What is the System Options Module?
-      </h3>
-      <p>
-        The System Options Module allows you to manage system-wide settings, configuration values, and dropdown options directly from the database instead of hardcoding them in configuration files. This makes it easy to update settings without redeploying code.
-      </p>
-    </section>
-
-    <!-- Key Features -->
-    <section>
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
-        Key Features
-      </h3>
-      <ul class="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
-        <li><strong>Dynamic Configuration</strong> - Update settings without code changes</li>
-        <li><strong>Multiple Types</strong> - Support for text, numbers, booleans, JSON, select options, and more</li>
-        <li><strong>Organized Groups</strong> - Group related options (system, email, inventory, etc.)</li>
-        <li><strong>Search & Filter</strong> - Easily find options in the UI</li>
-        <li><strong>Full CRUD</strong> - Create, read, update, and delete options</li>
-        <li><strong>API Access</strong> - REST API endpoints for programmatic access</li>
-        <li><strong>Audit Trail</strong> - Tracks creation and modification timestamps</li>
-      </ul>
-    </section>
-
-    <!-- Where to Access -->
-    <section>
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
-        Where to Access
-      </h3>
-      <p class="mb-3">
-        You can manage system options from the admin panel:
-      </p>
-      <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
-        <code class="text-gray-900 dark:text-gray-100">/apps/system/options</code>
-      </div>
-    </section>
-
-    <!-- Available Option Groups -->
-    <section>
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
-        Available Option Groups
-      </h3>
-      <div class="space-y-3">
-        <div class="border-l-4 border-blue-500 pl-4">
-          <h4 class="font-semibold text-gray-900 dark:text-gray-100">System</h4>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Application name, version, approving officers, center chief</p>
-        </div>
-        <div class="border-l-4 border-green-500 pl-4">
-          <h4 class="font-semibold text-gray-900 dark:text-gray-100">Email</h4>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Email settings, sender information, notification emails</p>
-        </div>
-        <div class="border-l-4 border-purple-500 pl-4">
-          <h4 class="font-semibold text-gray-900 dark:text-gray-100">Inventory</h4>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Stock levels, storage locations, transaction types, thresholds, and equipment logger mode choices used by incoming transactions</p>
-        </div>
-        <div class="border-l-4 border-yellow-500 pl-4">
-          <h4 class="font-semibold text-gray-900 dark:text-gray-100">Forms</h4>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Form submission deadlines, maximum slots</p>
-        </div>
-        <div class="border-l-4 border-red-500 pl-4">
-          <h4 class="font-semibold text-gray-900 dark:text-gray-100">Rental</h4>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Vehicles, event halls, cancellation policies</p>
-        </div>
-        <div class="border-l-4 border-indigo-500 pl-4">
-          <h4 class="font-semibold text-gray-900 dark:text-gray-100">Requests</h4>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Supply types, equipment types, materials, space types</p>
-        </div>
-        <div class="border-l-4 border-pink-500 pl-4">
-          <h4 class="font-semibold text-gray-900 dark:text-gray-100">Locations</h4>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Office spaces, screenhouses, laboratories</p>
-        </div>
-        <div class="border-l-4 border-cyan-500 pl-4">
-          <h4 class="font-semibold text-gray-900 dark:text-gray-100">Reports</h4>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Report templates with field definitions</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- How to Create an Option -->
-    <section>
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
-        How to Create an Option
-      </h3>
-      <ol class="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
-        <li>Go to <code class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">/apps/system/options</code></li>
-        <li>Click the <strong>"+ New Option"</strong> button in the top right</li>
-        <li>Fill in the form with:
-          <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
-            <li><strong>Key</strong> - Unique identifier (snake_case)</li>
-            <li><strong>Label</strong> - Human-readable name</li>
-            <li><strong>Description</strong> - What this option is for</li>
-            <li><strong>Type</strong> - text, number, textarea, boolean, select, json, checkbox</li>
-            <li><strong>Group</strong> - Which category to organize under</li>
-            <li><strong>Value</strong> - The actual value or default</li>
-          </ul>
-        </li>
-        <li>Click <strong>"Create Option"</strong> to save</li>
-      </ol>
-      <p class="mt-3 text-sm text-gray-600 dark:text-gray-400">
-        Example: the inventory option key <code>equipment_logger_modes</code> stores the allowed sharing/logger modes for incoming inventory transactions.
-      </p>
-    </section>
-
-    <!-- How to Edit an Option -->
-    <section>
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
-        How to Edit an Option
-      </h3>
-      <ol class="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
-        <li>Go to <code class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">/apps/system/options</code></li>
-        <li>Find the option in the table (use search or filters)</li>
-        <li>Click the <strong>"Edit"</strong> button in the Actions column</li>
-        <li>Update the fields you want to change
-          <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
-            <li><em>Note: Key and Type cannot be changed after creation</em></li>
-          </ul>
-        </li>
-        <li>Click <strong>"Save Changes"</strong> to update</li>
-      </ol>
-    </section>
-
-    <!-- How to Delete an Option -->
-    <section>
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
-        How to Delete an Option
-      </h3>
-      <ol class="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
-        <li>Go to <code class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">/apps/system/options</code></li>
-        <li>Find the option in the table</li>
-        <li>Click the <strong>"Delete"</strong> button in the Actions column</li>
-        <li>Confirm the deletion in the modal dialog</li>
-        <li><strong>⚠️ Warning:</strong> This action cannot be undone</li>
-      </ol>
-    </section>
-
-    <!-- Option Types -->
-    <section>
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
-        Option Types Explained
-      </h3>
-      <div class="space-y-3">
-        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-          <h4 class="font-semibold text-gray-900 dark:text-gray-100">Text</h4>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Single-line text input. Use for short strings, emails, names, etc.</p>
-          <p class="text-xs text-gray-500 dark:text-gray-500 mt-2">Example: <code>app_name</code>, <code>support_email</code></p>
-        </div>
-        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-          <h4 class="font-semibold text-gray-900 dark:text-gray-100">Number</h4>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Numeric value input. Use for counts, thresholds, percentages.</p>
-          <p class="text-xs text-gray-500 dark:text-gray-500 mt-2">Example: <code>low_stock_threshold</code>, <code>max_form_slots</code></p>
-        </div>
-        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-          <h4 class="font-semibold text-gray-900 dark:text-gray-100">Textarea</h4>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Multi-line text input. Use for descriptions, messages, content blocks.</p>
-          <p class="text-xs text-gray-500 dark:text-gray-500 mt-2">Example: <code>app_description</code>, <code>footer_text</code></p>
-        </div>
-        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-          <h4 class="font-semibold text-gray-900 dark:text-gray-100">Boolean</h4>
-          <p class="text-sm text-gray-600 dark:text-gray-400">True/false toggle. Use for feature flags and yes/no settings.</p>
-          <p class="text-xs text-gray-500 dark:text-gray-500 mt-2">Example: <code>enable_inventory_notifications</code>, <code>enable_api</code></p>
-        </div>
-        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-          <h4 class="font-semibold text-gray-900 dark:text-gray-100">Select</h4>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Dropdown with predefined choices. Define options as JSON.</p>
-          <p class="text-xs text-gray-500 dark:text-gray-500 mt-2">Example: <code>default_theme</code> with choices: light, dark, auto</p>
-        </div>
-        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-          <h4 class="font-semibold text-gray-900 dark:text-gray-100">Checkbox</h4>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Boolean value. Similar to Boolean but displayed as checkbox.</p>
-          <p class="text-xs text-gray-500 dark:text-gray-500 mt-2">Example: <code>agree_terms</code>, <code>is_active</code></p>
-        </div>
-        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-          <h4 class="font-semibold text-gray-900 dark:text-gray-100">JSON</h4>
-          <p class="text-sm text-gray-600 dark:text-gray-400">Complex data structure. Use for arrays, objects, and nested data.</p>
-          <p class="text-xs text-gray-500 dark:text-gray-500 mt-2">Example: <code>storage_locations</code>, <code>vehicles</code> array</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Search and Filter -->
-    <section>
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
-        Using Search and Filters
-      </h3>
-      <p class="mb-3">The options index page provides several ways to find what you're looking for:</p>
-      <ul class="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
-        <li><strong>Search Box</strong> - Type to search by key, label, or description</li>
-        <li><strong>Group Filter</strong> - Filter by category (system, email, inventory, etc.)</li>
-        <li><strong>Type Filter</strong> - Filter by option type (text, select, json, etc.)</li>
-        <li><strong>Pagination</strong> - Navigate through pages of 10 options each</li>
-      </ul>
-    </section>
-
-    <!-- Using Options in Code -->
-    <section v-if="showDeveloperSections">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
-        Using Options in Code
-      </h3>
-      <p class="mb-3">
-        Developers can access options programmatically in the application code:
-      </p>
-      <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg text-xs font-mono space-y-3 overflow-x-auto">
-        <div>
-          <p class="text-gray-600 dark:text-gray-400 mb-2 font-sans">Get a single option:</p>
-          <p class="text-gray-900 dark:text-gray-100">$appName = Option::getByKey('app_name');</p>
-        </div>
-        <div>
-          <p class="text-gray-600 dark:text-gray-400 mb-2 font-sans">Get all options in a group:</p>
-          <p class="text-gray-900 dark:text-gray-100">$emails = Option::getByGroup('email');</p>
-        </div>
-        <div>
-          <p class="text-gray-600 dark:text-gray-400 mb-2 font-sans">Check a boolean option:</p>
-          <p class="text-gray-900 dark:text-gray-100">if (Option::getByKey('enable_api') === 'true') { ... }</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Tips & Best Practices -->
-    <section>
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
-        Tips & Best Practices
-      </h3>
-      <div class="space-y-2 text-gray-700 dark:text-gray-300">
-        <p><strong>✓ Do:</strong></p>
-        <ul class="list-disc list-inside ml-4 space-y-1">
-          <li>Use descriptive labels and keys</li>
-          <li>Add helpful descriptions for each option</li>
-          <li>Organize related options into groups</li>
-          <li>Use snake_case for key names</li>
-          <li>Backup your database before bulk changes</li>
-        </ul>
-      </div>
-      <div class="space-y-2 text-gray-700 dark:text-gray-300 mt-4">
-        <p><strong>✗ Don't:</strong></p>
-        <ul class="list-disc list-inside ml-4 space-y-1">
-          <li>Store sensitive data (passwords, API keys)</li>
-          <li>Use special characters in option keys</li>
-          <li>Create options with identical keys</li>
-          <li>Store extremely large data in JSON options</li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- Need Help -->
-    <section class="bg-blue-50 dark:bg-blue-900 p-6 rounded-lg border border-blue-200 dark:border-blue-700">
-      <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">
-        📚 Need More Help?
-      </h3>
-      <p class="text-blue-800 dark:text-blue-200 text-sm">
-        For detailed technical documentation, visit the
-        <strong>System Options Module</strong> documentation in the docs folder or ask your administrator.
-      </p>
-    </section>
-  </div>
-</template>
-
 <script>
+import TopicLayout from '@/Pages/Manuals/Components/TopicLayout.vue';
+
 export default {
-  props: {
-    showDeveloperSections: {
-      type: Boolean,
-      default: true,
+    name: 'SystemOptionsTopic',
+    components: {
+        TopicLayout
     },
-  },
-  name: 'SystemOptionsTopic',
+    props: {
+        showDeveloperSections: {
+            type: Boolean,
+            default: true,
+        },
+    },
 };
 </script>
 
+<template>
+    <TopicLayout
+        title="System Options Module"
+        description="Manage system-wide settings, configuration values, and dropdown options directly from the database instead of hardcoding them in configuration files[cite: 7]. This makes it easy to update settings without redeploying code[cite: 7]."
+        icon="LuSettings"
+    >
+        <!-- Key Features & Access -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Key Features -->
+                    <div class="bg-slate-50/50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-5 shadow-sm">
+                        <h3 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3.5 flex items-center gap-1.5">
+                            <LuSparkles class="w-3.5 h-3.5" /> Key Features
+                        </h3>
+                        <ul class="space-y-2.5 text-xs font-medium text-slate-700 dark:text-slate-300">
+                            <li class="flex items-start gap-2.5"><LuCheckCircle2 class="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" /> <span><span class="font-semibold text-slate-900 dark:text-slate-200">Dynamic Configuration</span> - Update settings without code changes[cite: 7].</span></li>
+                            <li class="flex items-start gap-2.5"><LuCheckCircle2 class="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" /> <span><span class="font-semibold text-slate-900 dark:text-slate-200">Multiple Types</span> - Support for text, numbers, booleans, JSON, select options, and more[cite: 7].</span></li>
+                            <li class="flex items-start gap-2.5"><LuCheckCircle2 class="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" /> <span><span class="font-semibold text-slate-900 dark:text-slate-200">Organized Groups</span> - Group related options (system, email, inventory, etc.)[cite: 7].</span></li>
+                            <li class="flex items-start gap-2.5"><LuCheckCircle2 class="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" /> <span><span class="font-semibold text-slate-900 dark:text-slate-200">Full CRUD & API</span> - Manage options via UI or REST API endpoints[cite: 7].</span></li>
+                            <li class="flex items-start gap-2.5"><LuCheckCircle2 class="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" /> <span><span class="font-semibold text-slate-900 dark:text-slate-200">Audit Trail</span> - Tracks creation and modification timestamps[cite: 7].</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- Where to Access -->
+                    <div class="bg-sky-50/50 dark:bg-sky-500/10 border border-sky-100 dark:border-sky-500/20 rounded-xl p-5 shadow-sm flex flex-col">
+                        <h3 class="text-[0.65rem] font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400 mb-3 flex items-center gap-1.5">
+                            <LuDatabase class="w-3.5 h-3.5" /> Where to Access
+                        </h3>
+                        <p class="text-xs font-medium text-slate-700 dark:text-slate-300 mb-4 leading-relaxed">
+                            You can manage system options directly from the admin panel interface[cite: 7].
+                        </p>
+                        <div class="mt-auto p-3 bg-white/60 dark:bg-slate-900/50 rounded-lg border border-sky-100 dark:border-sky-500/20 flex items-center gap-2">
+                            <LuMonitorSmartphone class="w-4 h-4 text-sky-500 shrink-0" />
+                            <code class="font-mono text-xs font-semibold text-sky-700 dark:text-sky-300">/apps/system/options</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Available Option Groups -->
+                <div class="space-y-3">
+                    <h3 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-1 flex items-center gap-1.5">
+                        <LuLayoutList class="w-3.5 h-3.5" /> Available Option Groups
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm flex flex-col gap-1.5 hover:border-blue-300 dark:hover:border-blue-600 transition-colors">
+                            <div class="flex items-center gap-2 text-blue-600 dark:text-blue-400"><LuMonitorSmartphone class="w-4 h-4" /><span class="text-xs font-semibold uppercase tracking-wide">System</span></div>
+                            <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400 leading-relaxed">Application name, version, approving officers, center chief[cite: 7].</p>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm flex flex-col gap-1.5 hover:border-emerald-300 dark:hover:border-emerald-600 transition-colors">
+                            <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400"><LuMail class="w-4 h-4" /><span class="text-xs font-semibold uppercase tracking-wide">Email</span></div>
+                            <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400 leading-relaxed">Email settings, sender information, notification emails[cite: 7].</p>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm flex flex-col gap-1.5 hover:border-purple-300 dark:hover:border-purple-600 transition-colors">
+                            <div class="flex items-center gap-2 text-purple-600 dark:text-purple-400"><LuPackage class="w-4 h-4" /><span class="text-xs font-semibold uppercase tracking-wide">Inventory</span></div>
+                            <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400 leading-relaxed">Stock levels, storage locations, equipment logger mode choices[cite: 7].</p>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm flex flex-col gap-1.5 hover:border-amber-300 dark:hover:border-amber-600 transition-colors">
+                            <div class="flex items-center gap-2 text-amber-600 dark:text-amber-400"><LuFileText class="w-4 h-4" /><span class="text-xs font-semibold uppercase tracking-wide">Forms</span></div>
+                            <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400 leading-relaxed">Form submission deadlines, maximum slots[cite: 7].</p>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm flex flex-col gap-1.5 hover:border-rose-300 dark:hover:border-rose-600 transition-colors">
+                            <div class="flex items-center gap-2 text-rose-600 dark:text-rose-400"><LuKey class="w-4 h-4" /><span class="text-xs font-semibold uppercase tracking-wide">Rental</span></div>
+                            <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400 leading-relaxed">Vehicles, event halls, cancellation policies[cite: 7].</p>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm flex flex-col gap-1.5 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors">
+                            <div class="flex items-center gap-2 text-indigo-600 dark:text-indigo-400"><LuLayoutList class="w-4 h-4" /><span class="text-xs font-semibold uppercase tracking-wide">Requests</span></div>
+                            <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400 leading-relaxed">Supply types, equipment types, materials, space types[cite: 7].</p>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm flex flex-col gap-1.5 hover:border-pink-300 dark:hover:border-pink-600 transition-colors">
+                            <div class="flex items-center gap-2 text-pink-600 dark:text-pink-400"><LuMapPin class="w-4 h-4" /><span class="text-xs font-semibold uppercase tracking-wide">Locations</span></div>
+                            <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400 leading-relaxed">Office spaces, screenhouses, laboratories[cite: 7].</p>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm flex flex-col gap-1.5 hover:border-cyan-300 dark:hover:border-cyan-600 transition-colors">
+                            <div class="flex items-center gap-2 text-cyan-600 dark:text-cyan-400"><LuBarChart3 class="w-4 h-4" /><span class="text-xs font-semibold uppercase tracking-wide">Reports</span></div>
+                            <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400 leading-relaxed">Report templates with field definitions[cite: 7].</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CRUD Operations -->
+                <div class="space-y-3">
+                    <h3 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-1 flex items-center gap-1.5">
+                        <LuSettings class="w-3.5 h-3.5" /> Managing Options
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        
+                        <!-- Create -->
+                        <div class="bg-emerald-50/50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-xl p-5 shadow-sm">
+                            <h4 class="text-xs font-semibold text-emerald-800 dark:text-emerald-300 mb-3 flex items-center gap-2">
+                                <LuPlusCircle class="w-4 h-4" /> Create an Option
+                            </h4>
+                            <ol class="space-y-2 text-xs font-medium text-slate-600 dark:text-slate-300 list-decimal list-inside">
+                                <li>Go to <code class="px-1 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem]">/apps/system/options</code>[cite: 7]</li>
+                                <li>Click <strong>+ New Option</strong>[cite: 7]</li>
+                                <li>Fill in Key (snake_case), Label, Description, Type, Group, and Value[cite: 7]</li>
+                                <li>Click <strong>Create Option</strong>[cite: 7]</li>
+                            </ol>
+                        </div>
+
+                        <!-- Edit -->
+                        <div class="bg-blue-50/50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-xl p-5 shadow-sm">
+                            <h4 class="text-xs font-semibold text-blue-800 dark:text-blue-300 mb-3 flex items-center gap-2">
+                                <LuEdit2 class="w-4 h-4" /> Edit an Option
+                            </h4>
+                            <ol class="space-y-2 text-xs font-medium text-slate-600 dark:text-slate-300 list-decimal list-inside">
+                                <li>Find the option in the table[cite: 7]</li>
+                                <li>Click the <strong>Edit</strong> button[cite: 7]</li>
+                                <li>Update fields <span class="italic text-slate-400 dark:text-slate-500">(Key and Type cannot be changed)</span>[cite: 7]</li>
+                                <li>Click <strong>Save Changes</strong>[cite: 7]</li>
+                            </ol>
+                        </div>
+
+                        <!-- Delete -->
+                        <div class="bg-rose-50/50 dark:bg-rose-500/10 border border-rose-100 dark:border-rose-500/20 rounded-xl p-5 shadow-sm">
+                            <h4 class="text-xs font-semibold text-rose-800 dark:text-rose-300 mb-3 flex items-center gap-2">
+                                <LuTrash2 class="w-4 h-4" /> Delete an Option
+                            </h4>
+                            <ol class="space-y-2 text-xs font-medium text-slate-600 dark:text-slate-300 list-decimal list-inside">
+                                <li>Find the option in the table[cite: 7]</li>
+                                <li>Click the <strong>Delete</strong> button[cite: 7]</li>
+                                <li>Confirm the deletion[cite: 7]</li>
+                                <li class="text-rose-600 dark:text-rose-400 font-semibold">Warning: This action cannot be undone[cite: 7]</li>
+                            </ol>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Option Types Explained -->
+                <div class="space-y-3">
+                    <h3 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-1 flex items-center gap-1.5">
+                        <LuType class="w-3.5 h-3.5" /> Option Types Explained
+                    </h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-slate-50/50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-4 shadow-sm">
+                            <LuType class="w-4 h-4 text-indigo-500 mb-2" />
+                            <h4 class="text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Text</h4>
+                            <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400 mb-2">Single-line input for short strings[cite: 7].</p>
+                            <code class="text-[0.6rem] font-mono text-slate-400 dark:text-slate-500">app_name</code>
+                        </div>
+                        <div class="bg-slate-50/50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-4 shadow-sm">
+                            <LuHash class="w-4 h-4 text-indigo-500 mb-2" />
+                            <h4 class="text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Number</h4>
+                            <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400 mb-2">Numeric input for counts/thresholds[cite: 7].</p>
+                            <code class="text-[0.6rem] font-mono text-slate-400 dark:text-slate-500">max_slots</code>
+                        </div>
+                        <div class="bg-slate-50/50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-4 shadow-sm">
+                            <LuAlignLeft class="w-4 h-4 text-indigo-500 mb-2" />
+                            <h4 class="text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Textarea</h4>
+                            <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400 mb-2">Multi-line input for descriptions[cite: 7].</p>
+                            <code class="text-[0.6rem] font-mono text-slate-400 dark:text-slate-500">footer_text</code>
+                        </div>
+                        <div class="bg-slate-50/50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-4 shadow-sm">
+                            <LuToggleLeft class="w-4 h-4 text-indigo-500 mb-2" />
+                            <h4 class="text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Boolean</h4>
+                            <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400 mb-2">True/false toggle for feature flags[cite: 7].</p>
+                            <code class="text-[0.6rem] font-mono text-slate-400 dark:text-slate-500">enable_api</code>
+                        </div>
+                        <div class="bg-slate-50/50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-4 shadow-sm">
+                            <LuLayoutList class="w-4 h-4 text-indigo-500 mb-2" />
+                            <h4 class="text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Select</h4>
+                            <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400 mb-2">Dropdown with predefined choices[cite: 7].</p>
+                            <code class="text-[0.6rem] font-mono text-slate-400 dark:text-slate-500">default_theme</code>
+                        </div>
+                        <div class="bg-slate-50/50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-4 shadow-sm">
+                            <LuCheckSquare class="w-4 h-4 text-indigo-500 mb-2" />
+                            <h4 class="text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Checkbox</h4>
+                            <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400 mb-2">Boolean value displayed as checkbox[cite: 7].</p>
+                            <code class="text-[0.6rem] font-mono text-slate-400 dark:text-slate-500">is_active</code>
+                        </div>
+                        <div class="md:col-span-2 bg-slate-50/50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-4 shadow-sm flex items-start gap-4">
+                            <LuBraces class="w-6 h-6 text-indigo-500 shrink-0" />
+                            <div>
+                                <h4 class="text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">JSON</h4>
+                                <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400 mb-1.5 leading-relaxed">Complex data structure. Use for arrays, objects, and nested data[cite: 7].</p>
+                                <code class="text-[0.6rem] font-mono text-slate-400 dark:text-slate-500">storage_locations</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Using Options in Code (Developer) -->
+                <div v-if="showDeveloperSections" class="space-y-3">
+                    <h3 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-1 flex items-center gap-1.5">
+                        <LuCode2 class="w-3.5 h-3.5" /> Using Options in Code
+                    </h3>
+                    <p class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-3 ml-1">Developers can access options programmatically in the application code[cite: 7]:</p>
+                    
+                    <!-- VS Code Theme Block -->
+                    <div class="rounded-xl overflow-hidden shadow-inner border border-slate-200 dark:border-[#2d2d2d] bg-[#1e1e1e]">
+                        <div class="flex items-center px-4 py-2.5 bg-[#2d2d2d] border-b border-[#1e1e1e]">
+                            <div class="flex gap-1.5">
+                                <div class="w-2.5 h-2.5 rounded-full bg-[#ff5f56]"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-[#27c93f]"></div>
+                            </div>
+                            <div class="ml-4 text-[0.65rem] font-medium text-[#858585] font-mono tracking-wide">OptionsExample.php</div>
+                        </div>
+                        <pre class="p-4 text-[0.75rem] font-mono overflow-x-auto leading-loose vscode-scrollbar text-[#d4d4d4]"><code class="!bg-transparent !p-0 !border-0 !shadow-none !text-inherit"><span class="text-[#6a9955]">// Get a single option:[cite: 7]</span>
+<span class="text-[#9cdcfe]">$appName</span> = <span class="text-[#4ec9b0]">Option</span>::<span class="text-[#dcdcaa]">getByKey</span>(<span class="text-[#ce9178]">'app_name'</span>);
+
+<span class="text-[#6a9955]">// Get all options in a group:[cite: 7]</span>
+<span class="text-[#9cdcfe]">$emails</span> = <span class="text-[#4ec9b0]">Option</span>::<span class="text-[#dcdcaa]">getByGroup</span>(<span class="text-[#ce9178]">'email'</span>);
+
+<span class="text-[#6a9955]">// Check a boolean option:[cite: 7]</span>
+<span class="text-[#c586c0]">if</span> (<span class="text-[#4ec9b0]">Option</span>::<span class="text-[#dcdcaa]">getByKey</span>(<span class="text-[#ce9178]">'enable_api'</span>) === <span class="text-[#ce9178]">'true'</span>) { 
+    <span class="text-[#6a9955]">// ...</span>
+}</code></pre>
+                    </div>
+                </div>
+
+                <!-- Tips & Best Practices -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                    <div class="bg-emerald-50/50 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/20 rounded-xl p-5 shadow-sm">
+                        <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-3 flex items-center gap-1.5">
+                            <LuCheckCircle2 class="w-3.5 h-3.5" /> Best Practices
+                        </h4>
+                        <ul class="space-y-2 text-xs font-medium text-slate-600 dark:text-slate-300">
+                            <li class="flex items-start gap-2"><div class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0"></div>Use descriptive labels and keys[cite: 7].</li>
+                            <li class="flex items-start gap-2"><div class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0"></div>Add helpful descriptions for each option[cite: 7].</li>
+                            <li class="flex items-start gap-2"><div class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0"></div>Use snake_case for key names[cite: 7].</li>
+                            <li class="flex items-start gap-2"><div class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0"></div>Backup your database before bulk changes[cite: 7].</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-rose-50/50 dark:bg-rose-500/5 border border-rose-100 dark:border-rose-500/20 rounded-xl p-5 shadow-sm">
+                        <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400 mb-3 flex items-center gap-1.5">
+                            <LuXCircle class="w-3.5 h-3.5" /> Avoid Doing
+                        </h4>
+                        <ul class="space-y-2 text-xs font-medium text-slate-600 dark:text-slate-300">
+                            <li class="flex items-start gap-2"><div class="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 shrink-0"></div>Store sensitive data (passwords, API keys)[cite: 7].</li>
+                            <li class="flex items-start gap-2"><div class="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 shrink-0"></div>Use special characters in option keys[cite: 7].</li>
+                            <li class="flex items-start gap-2"><div class="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 shrink-0"></div>Create options with identical keys[cite: 7].</li>
+                            <li class="flex items-start gap-2"><div class="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 shrink-0"></div>Store extremely large data in JSON options[cite: 7].</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Need Help Footer -->
+                <div class="mt-6 p-4 bg-indigo-50/80 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/30 rounded-xl shadow-sm flex items-center gap-3">
+                    <LuBookOpen class="w-5 h-5 text-indigo-500 shrink-0" />
+                    <p class="text-xs font-medium text-indigo-900 dark:text-indigo-200">
+                        For detailed technical documentation, visit the <span class="font-semibold">System Options Module</span> documentation in the docs folder or ask your administrator[cite: 7].
+                    </p>
+                </div>
+
+    </TopicLayout>
+</template>
+
 <style scoped>
-code {
-  background-color: #f3f4f6;
-  color: #1f2937;
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-  font-family: 'Courier New', monospace;
+/* VS Code Scrollbar Replication */
+.vscode-scrollbar::-webkit-scrollbar {
+    height: 10px;
+    width: 10px;
+}
+.vscode-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.vscode-scrollbar::-webkit-scrollbar-thumb {
+    background: #424242;
+    border: 2px solid #1e1e1e;
+    border-radius: 6px;
+}
+.vscode-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #4f4f4f;
 }
 
-:deep(.dark) code {
-  background-color: #374151;
-  color: #f3f4f6;
+/* Force strip global backgrounds applied to code tags */
+pre code {
+    background-color: transparent !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: inherit !important;
 }
 </style>
