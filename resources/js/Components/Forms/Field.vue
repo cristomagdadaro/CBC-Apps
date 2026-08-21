@@ -13,7 +13,7 @@ const props = defineProps({
     hasValue: Boolean,
     datalistId: String,
     datalistOptions: Array,
-    classes: String,
+    classes: { type: [String, Array, Object], default: '' },
     showValidIndicator: { type: Boolean, default: true }
 });
 

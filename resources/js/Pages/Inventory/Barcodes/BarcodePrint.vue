@@ -563,9 +563,9 @@ export default {
                                 <input v-model="search" @input="onSearchChange" class="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-lime-500 focus:border-transparent bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm" placeholder="Search items, brands, or barcodes..."
                                     type="text" />
                             </div>
-                            <custom-dropdown :options="categoryOptions" :value="categoryId"
+                            <custom-dropdown :options="categoryOptions" :value="categoryId" :show-valid-indicator="false"
                                 :with-all-option="false" class="w-full sm:w-64" placeholder="All Categories" @selectedChange="onCategoryChange($event)" />
-                            <custom-dropdown :options="storage_locations" :value="storageLocationId"
+                            <custom-dropdown :options="storage_locations" :value="storageLocationId" :show-valid-indicator="false"
                                 :with-all-option="false" class="w-full sm:w-64" placeholder="Storage Locations" @selectedChange="onStorageLocationChange($event)" />
                         </div>
 
@@ -682,7 +682,7 @@ export default {
                             <!-- Size Template -->
                             <div class="space-y-3">
                                 <label class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">Label Size</label>
-                                <custom-dropdown :options="sizeTemplates" :value="sizeTemplate"
+                                <custom-dropdown :options="sizeTemplates" :value="sizeTemplate" :show-valid-indicator="false"
                                     class="w-full" @selectedChange="sizeTemplate = $event" />
                                 <div v-if="isCustomSize" class="flex gap-2">
                                     <div class="flex-1">
@@ -762,7 +762,7 @@ export default {
                                 <div>
                                     <label class="text-xs text-slate-500 dark:text-slate-400 block mb-1 font-medium">Rotation</label>
                                     <custom-dropdown :options="[{ name: 0, label: '0°' }, { name: 90, label: '90°' }, { name: 180, label: '180°' }, { name: 270, label: '270°' }]" :value="rotationDeg"
-                                        @selectedChange="rotationDeg = $event" />
+                                        :show-valid-indicator="false" @selectedChange="rotationDeg = $event" />
                                 </div>
                             </div>
                         </div>
@@ -848,7 +848,7 @@ export default {
                                 type="text" />
                         </div>
 
-                        <custom-dropdown :options="categoryOptions" :value="categoryId"
+                        <custom-dropdown :options="categoryOptions" :value="categoryId" :show-valid-indicator="false"
                             :with-all-option="false" class="w-full" placeholder="All Categories" @selectedChange="onCategoryChange($event)" />
 
                         <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-800">
@@ -927,7 +927,7 @@ export default {
 
                         <div class="space-y-3">
                             <label class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">Label Size</label>
-                            <custom-dropdown :options="sizeTemplates" :value="sizeTemplate"
+                            <custom-dropdown :options="sizeTemplates" :value="sizeTemplate" :show-valid-indicator="false"
                                 class="w-full" @selectedChange="sizeTemplate = $event" />
                             <div v-if="isCustomSize" class="grid grid-cols-2 gap-2">
                                 <div>

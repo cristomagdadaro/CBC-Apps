@@ -389,12 +389,14 @@ class LaboratoryLogService
         return $query->get();
     }
 
-    public function getDashboardMetrics(string $equipmentType = 'all'): array
+    public function getDashboardMetrics(string $equipmentType = 'all', array $filters = []): array
     {
-        $activeLogs = $this->getDashboardLogsByStatuses(['active'], $equipmentType);
+        $scope = strtolower((string) ($filters['scope'] ?? 'month'));
+        [$start, $end] = $this->resolveDashboardDateRange($scope, $filters);
 
+        $activeLogs = $this->getDashboardLogsByStatuses(['active'], $equipmentType);
         $overdueLogs = $this->getDashboardLogsByStatuses(['overdue'], $equipmentType);
-        $completedLogs = $this->getDashboardLogsByStatuses(['completed'], $equipmentType);
+        $completedLogs = $this->getDashboardLogsByStatuses(['completed'], $equipmentType, $start, $end);
 
         $this->enrichLogsWithLocationDetails($activeLogs, $overdueLogs, $completedLogs);
 
@@ -417,6 +419,9 @@ class LaboratoryLogService
                 });
             })
             ->whereIn('status', ['completed', 'overdue'])
+            ->when($start && $end, function (Builder $query) use ($start, $end) {
+                $query->whereBetween('started_at', [$start, $end]);
+            })
             ->groupBy('equipment_id')
             ->orderByDesc('usage_count')
             ->limit(10)
@@ -461,6 +466,9 @@ class LaboratoryLogService
                     $this->applyEquipmentCategoryConstraint($categoryQuery, $equipmentType, 'categories');
                 });
             })
+            ->when($start && $end, function (Builder $query) use ($start, $end) {
+                $query->whereBetween('started_at', [$start, $end]);
+            })
             ->groupBy('day_of_week', 'hour_of_day')
             ->get();
 
@@ -477,6 +485,9 @@ class LaboratoryLogService
                 })->whereHas('category', function (Builder $categoryQuery) use ($equipmentType) {
                     $this->applyEquipmentCategoryConstraint($categoryQuery, $equipmentType, 'categories');
                 });
+            })
+            ->when($start && $end, function (Builder $query) use ($start, $end) {
+                $query->whereBetween('reported_at', [$start, $end]);
             })
             ->orderByDesc('reported_at')
             ->limit(5)
@@ -935,7 +946,7 @@ class LaboratoryLogService
         };
     }
 
-    private function getDashboardLogsByStatuses(array $statuses, string $equipmentType = 'laboratory'): Collection
+    private function getDashboardLogsByStatuses(array $statuses, string $equipmentType = 'laboratory', ?Carbon $start = null, ?Carbon $end = null): Collection
     {
         return LaboratoryEquipmentLog::query()
             ->with(['equipment', 'personnel'])
@@ -951,6 +962,9 @@ class LaboratoryLogService
                 })->whereHas('category', function (Builder $categoryQuery) use ($equipmentType) {
                     $this->applyEquipmentCategoryConstraint($categoryQuery, $equipmentType, 'categories');
                 });
+            })
+            ->when($start && $end, function (Builder $query) use ($start, $end) {
+                $query->whereBetween('started_at', [$start, $end]);
             })
             ->orderByDesc('actual_end_at')
             ->orderBy('end_use_at')
@@ -1403,6 +1417,72 @@ class LaboratoryLogService
                 'recipient' => $recipient,
                 'message' => $exception->getMessage(),
             ]);
+        }
+    }
+
+    private function resolveDashboardDateRange(string $scope, array $filters): array
+    {
+        $now = Carbon::now();
+
+        return match ($scope) {
+            'all', 'all_time' => [null, null],
+            'day' => [$now->copy()->subDay(), $now->copy()],
+            'daily' => $this->resolveDailyRange($filters['date'] ?? null),
+            'week' => [$now->copy()->subHours(168), $now->copy()],
+            'weekly' => $this->resolveWeeklyRange($filters['week'] ?? null),
+            'month' => [$now->copy()->subMonth(), $now->copy()],
+            'monthly' => $this->resolveMonthlyRange($filters['month'] ?? null),
+            'year' => [$now->copy()->subDays(365), $now->copy()],
+            'yearly' => $this->resolveYearlyRange($filters['year'] ?? null),
+            default => [$now->copy()->subMonth(), $now->copy()],
+        };
+    }
+
+    private function resolveDailyRange(?string $date): array
+    {
+        $selected = $this->parseDashboardDate($date) ?? Carbon::now();
+        return [$selected->copy()->startOfDay(), $selected->copy()->endOfDay()];
+    }
+
+    private function resolveWeeklyRange(?string $week): array
+    {
+        if (is_string($week) && preg_match('/^(\d{4})-W(\d{2})$/', $week, $matches)) {
+            $selected = Carbon::now()->setISODate((int) $matches[1], (int) $matches[2]);
+            return [$selected->copy()->startOfWeek(), $selected->copy()->endOfWeek()];
+        }
+        $selected = Carbon::now();
+        return [$selected->copy()->startOfWeek(), $selected->copy()->endOfWeek()];
+    }
+
+    private function resolveMonthlyRange(?string $month): array
+    {
+        if (is_string($month) && preg_match('/^(\d{4})-(\d{2})$/', $month, $matches)) {
+            $selected = Carbon::createFromDate((int) $matches[1], (int) $matches[2], 1);
+            return [$selected->copy()->startOfMonth(), $selected->copy()->endOfMonth()];
+        }
+        $selected = Carbon::now();
+        return [$selected->copy()->startOfMonth(), $selected->copy()->endOfMonth()];
+    }
+
+    private function resolveYearlyRange(?string $year): array
+    {
+        if (is_string($year) && preg_match('/^\d{4}$/', $year)) {
+            $selected = Carbon::createFromDate((int) $year, 1, 1);
+            return [$selected->copy()->startOfYear(), $selected->copy()->endOfYear()];
+        }
+        $selected = Carbon::now();
+        return [$selected->copy()->startOfYear(), $selected->copy()->endOfYear()];
+    }
+
+    private function parseDashboardDate(?string $date): ?Carbon
+    {
+        if (!is_string($date) || trim($date) === '') {
+            return null;
+        }
+        try {
+            return Carbon::parse($date);
+        } catch (\Throwable) {
+            return null;
         }
     }
 }

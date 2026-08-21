@@ -22,6 +22,7 @@ import {
     CheckCircle2,
     AlertTriangle,
     Layers,
+    RefreshCw,
 } from 'lucide-vue-next';
 import CalendarModule from '@/Components/CalendarModule.vue';
 import EquipmentLoggerAsset from '@/Modules/domain/EquipmentLoggerAsset';
@@ -57,10 +58,40 @@ export default {
         CheckCircle2,
         AlertTriangle,
         Layers,
+        RefreshCw,
     },
     mixins: [ApiMixin, DataFormatterMixin],
     data() {
+        const today = new Date();
+        const selectedDate = [
+            today.getFullYear(),
+            String(today.getMonth() + 1).padStart(2, "0"),
+            String(today.getDate()).padStart(2, "0"),
+        ].join("-");
+        const weekDate = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+        const weekDay = weekDate.getUTCDay() || 7;
+        weekDate.setUTCDate(weekDate.getUTCDate() + 4 - weekDay);
+        const yearStart = new Date(Date.UTC(weekDate.getUTCFullYear(), 0, 1));
+        const selectedWeek = `${weekDate.getUTCFullYear()}-W${String(Math.ceil((((weekDate - yearStart) / 86400000) + 1) / 7)).padStart(2, "0")}`;
+        const selectedMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+
         return {
+            scope: "month",
+            selectedDate,
+            selectedWeek,
+            selectedMonth,
+            selectedYear: String(today.getFullYear()),
+            scopeOptions: [
+                { name: "all", label: "All Time (Entire Database)" },
+                { name: "day", label: "Last 24 Hours" },
+                { name: "daily", label: "Specific Day" },
+                { name: "week", label: "Last 7 Days" },
+                { name: "weekly", label: "Specific Week" },
+                { name: "month", label: "Last 30 Days" },
+                { name: "monthly", label: "Specific Month" },
+                { name: "year", label: "Last 365 Days" },
+                { name: "yearly", label: "Specific Year" },
+            ],
             dashboard: null,
             loading: false,
             updatingLoggerMode: false,
@@ -99,6 +130,55 @@ export default {
         };
     },
     computed: {
+        dashboardParams() {
+            const params = { scope: this.scope };
+            if (this.scope === "daily") params.date = this.selectedDate;
+            if (this.scope === "weekly") params.week = this.selectedWeek;
+            if (this.scope === "monthly") params.month = this.selectedMonth;
+            if (this.scope === "yearly") params.year = this.selectedYear;
+            return params;
+        },
+        usesAnchoredPeriod() {
+            return ["daily", "weekly", "monthly", "yearly"].includes(this.scope);
+        },
+        periodInputLabel() {
+            return {
+                daily: "Date",
+                weekly: "Week",
+                monthly: "Month",
+                yearly: "Year",
+            }[this.scope] || "Period";
+        },
+        periodInputType() {
+            return {
+                daily: "date",
+                weekly: "week",
+                monthly: "month",
+                yearly: "number",
+            }[this.scope] || "text";
+        },
+        periodInputValue() {
+            return {
+                daily: this.selectedDate,
+                weekly: this.selectedWeek,
+                monthly: this.selectedMonth,
+                yearly: this.selectedYear,
+            }[this.scope] || "";
+        },
+        scopeCaption() {
+            const captions = {
+                all: "across all time (entire database)",
+                day: "Last 24 hours",
+                daily: this.selectedDate ? `${this.formatDisplayDate(this.selectedDate)}` : "Selected day",
+                week: "Last 7 days",
+                weekly: this.selectedWeek ? `Week ${this.selectedWeek}` : "Selected week",
+                month: "Last 30 days",
+                monthly: this.selectedMonth ? `${this.formatDisplayMonth(this.selectedMonth)}` : "Selected month",
+                year: "Last 365 days",
+                yearly: this.selectedYear ? `${this.selectedYear}` : "Selected year",
+            };
+            return captions[this.scope] || "Current month";
+        },
         activeLogs() {
             return this.dashboard?.active ?? [];
         },
@@ -554,7 +634,9 @@ export default {
             this.loading = true;
 
             try {
-                const response = await axios.get(route('api.equipment-logger.dashboard'));
+                const response = await axios.get(route('api.equipment-logger.dashboard'), {
+                    params: this.dashboardParams
+                });
                 const payload = response?.data?.data ?? response?.data ?? response;
                 this.dashboard = payload?.data ?? payload;
             } finally {
@@ -719,6 +801,12 @@ export default {
         },
     },
     watch: {
+        dashboardParams: {
+            deep: true,
+            handler() {
+                this.loadDashboard();
+            }
+        },
         mostUsed() {
             this.$nextTick(() => {
                 requestAnimationFrame(() => {
@@ -726,15 +814,15 @@ export default {
                 });
             });
         },
-        activeTab(newValue) {
-            if (newValue === 'stats') {
+        activeTab(newVal) {
+            if (newVal === 'stats') {
                 this.$nextTick(() => {
                     requestAnimationFrame(() => {
-                        setTimeout(() => {
-                            this.buildAllCharts();
-                        }, 100);
+                        this.buildAllCharts();
                     });
                 });
+            } else {
+                this.destroyCharts();
             }
         },
     },
@@ -772,8 +860,48 @@ export default {
         </template>
 
         <div class="space-y-6">
-            <div class="flex justify-end px-5" v-if="loading">
-                <span class="text-xs text-slate-500 animate-pulse">Refreshing dashboard data...</span>
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-xs">
+                <div class="space-y-0.5">
+                    <div class="flex items-center gap-2">
+                        <Activity class="w-5 h-5 text-lime-600 dark:text-lime-400" />
+                        <h2 class="text-lg sm:text-xl font-bold tracking-tight">Equipment Analytics</h2>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                        Viewing equipment logs <span class="font-semibold text-lime-600 dark:text-lime-400">{{ scopeCaption }}</span>
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+                    <div class="w-full sm:w-52">
+                        <custom-dropdown
+                            label="Filter Scope"
+                            :value="scope"
+                            :options="scopeOptions"
+                            :withAllOption="false"
+                            :show-clear="false"
+                            @selectedChange="scope = $event || 'all'"
+                            :show-valid-indicator="false"
+                        />
+                    </div>
+                    <div v-if="usesAnchoredPeriod" class="w-full sm:w-44">
+                        <label class="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">{{ periodInputLabel }}</label>
+                        <input
+                            class="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-lime-500 focus:ring-1 focus:ring-lime-500 shadow-xs transition-colors"
+                            :type="periodInputType"
+                            :value="periodInputValue"
+                            min="2000"
+                            max="2100"
+                            @input="updatePeriodAnchor($event.target.value)"
+                        />
+                    </div>
+                    <button
+                        @click="loadDashboard"
+                        class="p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-600 dark:text-slate-300 transition-all active:scale-95 shadow-xs"
+                        title="Refresh Analytics"
+                    >
+                        <RefreshCw class="w-4 h-4 sm:w-4.5 sm:h-4.5" :class="{ 'animate-spin': loading }" />
+                    </button>
+                </div>
             </div>
 
             <TabNavigation v-model="activeTab" :tabs="tabs" />
@@ -1147,6 +1275,7 @@ export default {
                             :with-all-option="true"
                             all-option-label="All Groups"
                             @selectedChange="(value) => { customFilters.equipment_type = value; refresh(); }"
+                            :show-valid-indicator="false"
                         >
                             <template #icon>
                                 <LuFilter class="w-4 h-4 text-gray-400" />
@@ -1257,6 +1386,7 @@ export default {
                             :error="loggerModeFormError"
                             guide="This updates the latest incoming transaction linked to the selected equipment row."
                             @selectedChange="selectedLoggerMode = $event"
+                            :show-valid-indicator="false"
                         />
                     </div>
                 </template>
@@ -1314,6 +1444,7 @@ export default {
                             placeholder="Select location"
                             guide="This permanently updates the equipment barcode location, and finalizes any temporary survey report."
                             @selectedChange="selectedLocationCode = $event"
+                            :show-valid-indicator="false"
                         />
                     </div>
                 </template>

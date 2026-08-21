@@ -25,7 +25,7 @@ public/build/manifest.json
 /public/build/manifest.json
 manifest.json
 /coverage-report
-
+temp.chat
 # Playwright
 node_modules/
 /test-results/

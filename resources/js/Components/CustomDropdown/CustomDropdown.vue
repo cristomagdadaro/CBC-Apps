@@ -23,7 +23,7 @@
         <template #default="{ inputId, isInvalid, isValid, guideId }">
 
         <!-- Dropdown Trigger -->
-        <div class="relative w-full">
+        <div class="relative w-full rounded-xl border ">
             <div
                 :id="inputId"
                 :class="[
@@ -144,6 +144,7 @@ export default {
     components: {
         DropdownOption,
     },
+    emits: ['selectedChange'],
     props: {
         searchable: {
             type: Boolean,
@@ -218,30 +219,31 @@ export default {
         'options': {
             handler() {
                 if (this.value !== undefined && this.value !== null) {
-                    const selectedOption = this.options.find(option => option.name === this.value);
+                    const selectedOption = this.options?.find(option => option.name === this.value);
                     if (selectedOption) {
                         this.selected = selectedOption;
                         this.filteredOptions = [selectedOption, ...this.options.filter(option => option.name !== this.value)];
                         return;
                     }
                 }
-                this.selected = this.options.find(option => option.selected) || null;
-                this.filteredOptions = this.options;
+                this.selected = this.options?.find(option => option.selected) || null;
+                this.filteredOptions = this.options || [];
             },
             deep: true,
         },
         'value': {
             handler(newVal) {
+                const opts = Array.isArray(this.options) ? this.options : [];
                 if (newVal !== undefined && newVal !== null) {
-                    const selectedOption = this.options.find(option => option.name === this.value);
+                    const selectedOption = opts.find(option => option.name === this.value);
                     if (selectedOption) {
                         this.selected = selectedOption;
-                        this.filteredOptions = [selectedOption, ...this.options.filter(option => option.name !== newVal)];
+                        this.filteredOptions = [selectedOption, ...opts.filter(option => option.name !== newVal)];
                         return;
                     }
                 } else {
-                    this.selected = this.options.find(option => option.selected) || null;
-                    this.filteredOptions = this.options;
+                    this.selected = opts.find(option => option.selected) || null;
+                    this.filteredOptions = opts;
                 }
             },
             immediate: true

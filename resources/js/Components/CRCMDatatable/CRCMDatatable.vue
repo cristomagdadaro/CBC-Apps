@@ -392,8 +392,7 @@
         </dialog-form-modal>
 
         <!-- Delete Confirmation -->
-        <dialog-modal :show="showDeleteDialog && canDelete" @close="closeDialog" :processing="dt.processing"
-            :forceClose="dt.closeAllModal">
+        <dialog-modal :show="showDeleteDialog && canDelete" @close="closeDialog">
             <template #title>
                 <div class="flex items-center gap-2 text-red-600">
                     <alert-triangle-icon class="w-5 h-5" />
@@ -426,8 +425,7 @@
         </dialog-modal>
 
         <!-- Bulk Delete Confirmation -->
-        <dialog-modal :show="showDeleteSelectedDialog && canDelete" @close="closeDialog" :processing="dt.processing"
-            :forceClose="dt.closeAllModal">
+        <dialog-modal :show="showDeleteSelectedDialog && canDelete" @close="closeDialog">
             <template #title>
                 <div class="flex items-center gap-2 text-red-600">
                     <alert-triangle-icon class="w-5 h-5" />

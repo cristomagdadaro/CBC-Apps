@@ -75,7 +75,7 @@ export default {
                         <div class="text-xs text-gray-500 flex items-center justify-between">
                             <span class="flex gap-0.5 whitespace-nowrap">Filter by Status</span>
                         </div>
-                        <custom-dropdown :with-all-option="false" :show-clear="true" @selectedChange="fetchDataFilterStatus($event)"  placeholder="Select a Status" :options="statusOptions">
+                        <custom-dropdown :with-all-option="false" :show-clear="true" :show-valid-indicator="false" @selectedChange="fetchDataFilterStatus($event)"  placeholder="Select a Status" :options="statusOptions">
                             <template #icon>
                                 <filter-icon class="h-4 w-4" />
                             </template>

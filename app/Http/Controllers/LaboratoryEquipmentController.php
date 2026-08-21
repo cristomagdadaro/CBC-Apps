@@ -165,12 +165,12 @@ class LaboratoryEquipmentController extends BaseController
         ]);
     }
 
-    public function dashboard(): JsonResponse
+    public function dashboard(GetRequest $request): JsonResponse
     {
         $this->logService->markOverdue();
 
         return response()->json([
-            'data' => $this->logService->getDashboardMetrics('all'),
+            'data' => $this->logService->getDashboardMetrics('all', $request->validated()),
         ]);
     }
 

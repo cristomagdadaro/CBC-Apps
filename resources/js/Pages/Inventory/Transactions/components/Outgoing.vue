@@ -223,7 +223,7 @@ export default {
             </div>
         </div>
         <div v-else class="default-container py-4 sm:py-6 text-slate-900 dark:text-slate-100">
-            <div class="flex flex-col justify-between max-w-7xl mx-auto gap-4 sm:gap-6">
+            <div class="flex flex-col justify-between gap-4 sm:gap-6">
                 <!-- Search Bar & Controls Container -->
                 <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 sm:p-5 rounded-2xl shadow-xs space-y-3">
                     <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
@@ -257,11 +257,11 @@ export default {
                     <transition-container type="pop-in">
                         <div v-if="showFilters" class="flex flex-col gap-3 pt-3 pb-1 border-t border-slate-100 dark:border-slate-800">
                             <div class="grid grid-cols-2 md:grid-cols-5 gap-2 items-center w-full justify-center">
-                                <custom-dropdown :with-all-option="false" placeholder="Category" label="Filter by Category" @selectedChange="setFilter('category', $event)" :options="categories" />
-                                <custom-dropdown v-if="projectCodes" placeholder="Project Code" label="Filter by Project Code" :options="projectCodes" @selectedChange="setFilter('project_code', $event)" />
-                                <custom-dropdown :with-all-option="false" placeholder="Storage Room" label="Filter by Storage Room" @selectedChange="applyStorageRoomFilter($event)" :options="storage_locations" />
+                                <custom-dropdown :show-valid-indicator="false" :with-all-option="false" placeholder="Category" label="Filter by Category" @selectedChange="setFilter('category', $event)" :options="categories" />
+                                <custom-dropdown v-if="projectCodes" :show-valid-indicator="false" placeholder="Project Code" label="Filter by Project Code" :options="projectCodes" @selectedChange="setFilter('project_code', $event)" />
+                                <custom-dropdown :with-all-option="false" :show-valid-indicator="false" placeholder="Storage Room" label="Filter by Storage Room" @selectedChange="applyStorageRoomFilter($event)" :options="storage_locations" />
                                 <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
-                                <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
+                                <custom-dropdown :show-valid-indicator="false" :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
                             </div>
                             <div class="w-full">
                                 <label class="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 block">Categories for Remaining Stocks (IDs)</label>

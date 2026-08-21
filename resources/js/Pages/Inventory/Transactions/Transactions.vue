@@ -19,8 +19,8 @@ const transactionTypeOptions = [
             :can-delete="true">
             <!-- Custom Filters -->
             <template #custom-filters="{ datatable, refresh }">
-                <custom-dropdown :options="transactionTypeOptions" label="Filter by Type" placeholder="Select type"
-                    :value="datatable.request.getParam('transac_type')" :with-all-option="false"
+                <custom-dropdown :options="transactionTypeOptions" label="Filter by Type" placeholder="Select type" 
+                    :value="datatable.request.getParam('transac_type')" :with-all-option="false" :show-valid-indicator="false"
                     @selectedChange="(value) => { datatable.request.updateParam('transac_type', value); refresh(); }">
                     <template #icon>
                         <lu-filter class="w-4 h-4 text-gray-400" />

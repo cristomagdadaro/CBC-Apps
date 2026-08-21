@@ -91,7 +91,7 @@ export default {
             <transaction-header-action />
         </template>
 
-        <div class="flex flex-col px-4 sm:px-6 lg:px-8 py-6 gap-6 relative max-w-[1600px] mx-auto text-slate-900 dark:text-slate-100">
+        <div class="flex flex-col px-4 sm:px-6 lg:px-8 py-6 gap-6 relative text-slate-900 dark:text-slate-100">
             
             <!-- Info Banner -->
             <div class="bg-amber-50/80 dark:bg-amber-500/10 backdrop-blur-xl border border-amber-200/60 dark:border-amber-500/20 rounded-2xl p-5 shadow-sm transition-all">

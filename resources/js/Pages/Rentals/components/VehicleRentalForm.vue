@@ -341,7 +341,7 @@ export default {
                     <div v-if="form.errors.general" class="p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-sm">
                         {{ form.errors.general }}
                     </div>
-                    <custom-dropdown label="Trip Workflow" required placeholder="Select a trip workflow"
+                    <custom-dropdown label="Trip Workflow" required placeholder="Select a trip workflow" 
                         @selectedChange="handleTripTypeChange" :value="form.trip_type" :with-all-option="false"
                         :options="tripTypeOptions" :error="form.errors.trip_type">
                         <template #icon>

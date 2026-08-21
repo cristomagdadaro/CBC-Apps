@@ -86,6 +86,7 @@ export default {
                                 @selectedChange="fetchDataFilterStatus($event)"
                                 placeholder="Select a Status"
                                 :options="statusOptions"
+                                :show-valid-indicator="false"
                             >
                                 <template #icon>
                                     <filter-icon class="h-4 w-4" />

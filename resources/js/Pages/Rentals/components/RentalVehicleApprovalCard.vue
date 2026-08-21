@@ -312,7 +312,7 @@ export default {
                 <!-- Reviewer Form Section -->
                 <div v-if="canApprove" class="p-6 border-b border-gray-100 dark:border-slate-800/50 bg-gray-50/50 dark:bg-slate-800/20">
                     <div class="flex flex-col gap-4 max-w-2xl mx-auto">
-                        <custom-dropdown label="Assign Vehicle" required searchable :withAllOption="false"
+                        <custom-dropdown label="Assign Vehicle" required searchable :withAllOption="false" :show-valid-indicator="false"
                             :options="vehicleOptions" @selectedChange="formState.vehicle_type = $event"
                             :value="formState.vehicle_type"
                             class="w-full">

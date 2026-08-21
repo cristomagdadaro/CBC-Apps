@@ -6,6 +6,7 @@
         placeholder="Columns" 
         :options="options" 
         @selectedChange="$emit('searchBy', $event)"
+        :show-valid-indicator="false"
     >
         <template #header-actions>
             <div class="flex items-center gap-1.5" title="Turn on exact match filter">

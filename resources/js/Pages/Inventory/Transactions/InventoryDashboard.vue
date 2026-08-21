@@ -370,6 +370,7 @@ export default {
                             :withAllOption="false"
                             :show-clear="false"
                             @selectedChange="scope = $event || 'all'"
+                            :show-valid-indicator="false"
                         />
                     </div>
                     <div v-if="usesAnchoredPeriod" class="w-full sm:w-44">

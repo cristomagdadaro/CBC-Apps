@@ -196,7 +196,7 @@ export default {
             <transaction-header-action />
         </template>
         <div class="min-h-screen bg-slate-50 dark:bg-slate-950 px-3 sm:px-6 py-4 sm:py-6 text-slate-900 dark:text-slate-100">
-            <div class="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+            <div class="space-y-4 sm:space-y-6">
                 <!-- Process Overview -->
                 <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-xs">
                     <div class="flex items-center gap-4">

@@ -8,7 +8,7 @@ export default {
         modelValue: { type: [String, Number], default: '' },
         placeholder: { type: String, default: '' },
         error: { type: String, default: '' },
-        classes: { type: String, default: '' },
+        classes: { type: [String, Array, Object], default: '' },
         id: { type: String, default: '' },
         label: { type: String, default: '' },
         required: { type: Boolean, default: false },

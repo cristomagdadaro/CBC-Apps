@@ -23,6 +23,7 @@
             :options="options" 
             @selectedChange="$emit('searchBy', $event)"
             class="w-full"
+            :show-valid-indicator="false"
         >
             <template #icon>
                 <LuFilter class="w-4 h-4 text-gray-400" />
