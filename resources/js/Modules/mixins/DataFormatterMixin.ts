@@ -104,6 +104,19 @@ export default {
                 day: "numeric"
             }).format(date);
         },
+        formatDisplayDate(dateInput: string | Date | null) {
+            return this.formatDate(dateInput);
+        },
+        formatDisplayMonth(monthStr: string | null) {
+            if (!monthStr) return "";
+            const [year, month] = monthStr.split("-").map(Number);
+            if (!year || !month) return "";
+            const date = new Date(year, month - 1, 1);
+            return new Intl.DateTimeFormat("en-US", {
+                year: "numeric",
+                month: "long"
+            }).format(date);
+        },
         formatTime(timeString: string) {
             if (!timeString) return "";
 

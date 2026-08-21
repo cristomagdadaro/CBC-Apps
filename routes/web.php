@@ -25,3 +25,23 @@ require __DIR__.'/web/golinks.php';
 if (app()->environment('local')) {
     require __DIR__.'/web/dev.php';
 }
+
+Route::get('/ai', function() {
+    $user = auth()->user();
+    
+    $payload = base64_encode(json_encode([
+        'id' => $user->id,
+        'name' => $user->name,
+        'email' => $user->email,
+        'timestamp' => now()->timestamp,
+    ]));
+
+    $signature = hash_hmac('sha256', $payload, env('SPROUTAI_INTERNAL_SYNC_TOKEN'));
+
+    $redirectUrl = rtrim(env('SPROUTAI_HOST', 'https://onecbc.philrice.gov.ph/ai'), '/') . '/sso-login?' . http_build_query([
+        'payload' => $payload,
+        'signature' => $signature,
+    ]);
+
+    return redirect()->away($redirectUrl);
+})->middleware('auth')->name('sproutai.microservice');

@@ -229,6 +229,12 @@ export default {
                     href: "manuals.index",
                     icon: "LuBookOpen",
                 },
+                {
+                    label: "SproutAi Microservice",
+                    href: "sproutai.microservice",
+                    icon: "LuBot",
+                    newTab: true,
+                },
             ],
         };
     },
@@ -559,9 +565,11 @@ export default {
                     <nav class="flex-1 overflow-y-auto overflow-x-hidden overflow-visible py-4 px-3 space-y-1 custom-scrollbar">
                         <template v-for="service in visibleServices" :key="service.label">
                             <!-- Single Link -->
-                            <Link
+                            <component
+                                :is="service.newTab ? 'a' : 'Link'"
                                 v-if="!service.children || !visibleChildren(service).length"
                                 :href="route(service.href)"
+                                :target="service.newTab ? '_blank' : undefined"
                                 class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group relative"
                                 :class="
                   isServiceActive(service)
@@ -591,7 +599,7 @@ export default {
                                 >
                                     {{ service.label }}
                                 </div>
-                            </Link>
+                            </component>
 
                             <!-- Dropdown Group -->
                             <div v-else class="space-y-1">
@@ -634,10 +642,12 @@ export default {
                                     v-if="!sidebarCollapsed && service.isOpen"
                                     class="ml-5 pl-3 border-l-2 border-slate-200/60 dark:border-slate-800/60 space-y-1 py-1"
                                 >
-                                    <Link
+                                    <component
+                                        :is="child.newTab ? 'a' : 'Link'"
                                         v-for="child in visibleChildren(service)"
                                         :key="child.label"
                                         :href="route(child.href)"
+                                        :target="child.newTab ? '_blank' : undefined"
                                         class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all duration-200"
                                         :class="
                       isChildActive(child)
@@ -657,7 +667,7 @@ export default {
                                             :class="isChildActive(child) ? 'bg-indigo-500 dark:bg-indigo-400' : 'bg-slate-300 dark:bg-slate-600'"
                                         ></span>
                                         <span class="truncate">{{ child.label }}</span>
-                                    </Link>
+                                    </component>
                                 </div>
                             </div>
                         </template>
