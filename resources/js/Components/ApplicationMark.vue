@@ -1,5 +1,7 @@
 <template>
-    <svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 443.46 452.08">
+    <svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 443.46 452.08">
+        <!-- White background circle -->
+        <circle fill="#ffffff" cx="212.17" cy="239.92" r="212"/>
         <path class="cls-5"
               d="M232.98,407.03c-9.59,1.04-19.27,1.32-28.92.85h-.01c-32.79-22-69.95-36.16-108.52-42.82h-.01s0-.01,0-.01c-15.24-13.59-28.04-30.38-37.22-50.3,66.27,8.5,129.39,38.69,174.69,92.28Z"/>
         <path class="cls-7"
@@ -129,6 +131,7 @@
     </svg>
 </template>
 <style>
+
 .cls-1 {
     fill: #d4d75e;
 }

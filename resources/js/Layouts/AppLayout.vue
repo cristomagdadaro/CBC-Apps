@@ -302,8 +302,8 @@ export default {
     computed: {
         isSidebarModeResponsive() {
             if (typeof window === "undefined") return false;
-            const isLg = window.matchMedia("(min-width: 1024px)").matches;
-            return this.$page.props.layout_navigation_mode === "sidebar" && isLg;
+            const isXl = window.matchMedia("(min-width: 1280px)").matches;
+            return this.$page.props.layout_navigation_mode === "sidebar" && isXl;
         },
         isSidebarMode() {
             return this.navigationMode === "sidebar" || this.rawLayoutMode === "sidebar";
@@ -501,7 +501,7 @@ export default {
             >
                 <aside
                     v-if="isSidebarModeResponsive"
-                    class="hidden max-h-screen overflow-visible sticky top-0 lg:flex lg:flex-col lg:sticky inset-y-0 left-0 z-40 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-r border-slate-200/60 dark:border-slate-800/60 shadow-lg lg:shadow-none transition-all duration-300"
+                    class="hidden max-h-screen overflow-visible sticky top-0 xl:flex xl:flex-col xl:sticky inset-y-0 left-0 z-40 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-r border-slate-200/60 dark:border-slate-800/60 shadow-lg xl:shadow-none transition-all duration-300"
                     :class="sidebarCollapsed ? 'w-20' : 'w-64'"
                 >
                     <!-- Sidebar Header -->
@@ -724,7 +724,7 @@ export default {
             >
                 <div
                     v-if="isSidebarModeResponsive && sidebarOpen"
-                    class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+                    class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm xl:hidden"
                     @click="closeSidebar"
                 ></div>
             </Transition>
@@ -740,7 +740,7 @@ export default {
             >
                 <aside
                     v-if="isSidebarModeResponsive && sidebarOpen"
-                    class="fixed inset-y-0 left-0 z-50 w-72 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl shadow-2xl lg:hidden flex flex-col border-r border-slate-200/50 dark:border-slate-800/50"
+                    class="fixed inset-y-0 left-0 z-50 w-72 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl shadow-2xl xl:hidden flex flex-col border-r border-slate-200/50 dark:border-slate-800/50"
                 >
                     <!-- Mobile Header -->
                     <div
@@ -862,27 +862,27 @@ export default {
                     v-if="!isSidebarModeResponsive || !isSidebarMode"
                     class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200/50 dark:border-slate-800/50 sticky top-0 z-30"
                 >
-                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="mx-auto px-4 sm:px-6 lg:px-8">
                         <div class="flex justify-between h-16">
                             <!-- Left: Logo & Mobile Menu -->
-                            <div class="flex items-center gap-4">
+                            <div class="flex flex-1 min-w-0 items-center gap-4">
                                 <button
                                     @click="isSidebarMode ? (sidebarOpen = true) : (showingNavigationDropdown = !showingNavigationDropdown)"
-                                    class="lg:hidden p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-colors"
+                                    class="xl:hidden p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-colors"
                                 >
                                     <LuMenu class="w-6 h-6"/>
                                 </button>
 
-                                <Link :href="route('dashboard')" class="flex items-center gap-2">
-                                    <ApplicationMark class="h-8 w-8 text-indigo-600 dark:text-indigo-500"/>
+                                <Link :href="route('dashboard')" class="flex items-center gap-2 flex-shrink-0">
+                                    <ApplicationMark class="h-8 md:h-10 lg:h-12 w-auto text-indigo-600 dark:text-indigo-500"/>
                                     <span
-                                        class="font-bold text-xl text-slate-900 dark:text-white hidden sm:block tracking-tight"
-                                    >FES</span
+                                        class="font-bold text-xl text-slate-900 dark:text-white tracking-tight"
+                                    >{{ $appName }}</span
                                     >
                                 </Link>
 
                                 <!-- Desktop Navigation -->
-                                <div class="hidden md:flex items-center gap-1 ml-8">
+                                <div class="hidden xl:flex flex-1 min-w-0 items-center gap-1 ml-8 overflow-visible custom-scrollbar py-2 mask-linear-fade">
                                     <template
                                         v-for="service in visibleServices"
                                         :key="`top-${service.label}`"
@@ -912,7 +912,7 @@ export default {
                                                         v-for="child in visibleChildren(service)"
                                                         :key="child.label"
                                                         :href="route(child.href)"
-                                                        class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                                                        class="flex whitespace-nowrap items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                                                     >
                                                         <component
                                                             :is="child.icon"
@@ -955,7 +955,7 @@ export default {
                                 </button>
 
                                 <!-- User Dropdown -->
-                                <div class="hidden lg:flex items-center">
+                                <div class="hidden xl:flex items-center">
                                     <Dropdown align="right" width="48">
                                         <template #trigger>
                                             <button
@@ -1025,7 +1025,7 @@ export default {
                         <div
                             v-if="showingNavigationDropdown && (!isSidebarModeResponsive || !isSidebarMode)"
                             @click="showingNavigationDropdown = false"
-                            class="fixed inset-0 bg-slate-900/60 z-40 lg:hidden backdrop-blur-xs"
+                            class="fixed inset-0 bg-slate-900/60 z-40 xl:hidden backdrop-blur-xs"
                         ></div>
                     </Transition>
 
@@ -1040,7 +1040,7 @@ export default {
                     >
                         <div
                             v-if="showingNavigationDropdown && (!isSidebarModeResponsive || !isSidebarMode)"
-                            class="lg:hidden relative z-50 border-t border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl max-h-[80vh] overflow-y-auto"
+                            class="xl:hidden relative z-50 border-t border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl max-h-[80vh] overflow-y-auto"
                         >
                             <div class="px-4 py-3 space-y-1">
                                 <template
@@ -1125,7 +1125,7 @@ export default {
                     v-if="$slots.header"
                     class="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md shadow-sm border-b border-slate-200/60 dark:border-slate-800/60 min-h-16 h-auto py-1 sm:py-0 transition-all z-20 relative"
                 >
-                    <div class="default-container">
+                    <div class="mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1">
                         <slot name="header"/>
                     </div>
                 </header>
