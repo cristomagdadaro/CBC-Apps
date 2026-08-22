@@ -14,6 +14,8 @@ export default {
             <go-links-header-actions />
         </template>
 
-        <go-link-form />
+        <div class="default-container pt-5">
+            <go-link-form />
+        </div>
     </AppLayout>
 </template>

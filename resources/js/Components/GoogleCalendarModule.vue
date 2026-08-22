@@ -2,11 +2,41 @@
 import CalendarModule from '@/Components/CalendarModule.vue'
 import ApiMixin from '@/Modules/mixins/ApiMixin'
 import { subscribeToRealtimeChannels } from '@/Modules/realtime/subscriptions'
+import { 
+    CalendarDays, 
+    Link, 
+    Unlink, 
+    RefreshCcw, 
+    CloudUpload, 
+    Info, 
+    CalendarClock, 
+    CalendarSearch, 
+    ExternalLink, 
+    CheckCircle2, 
+    Clock,
+    ShieldCheck,
+    AlertTriangle,
+    XCircle
+} from 'lucide-vue-next'
 
 export default {
     name: 'GoogleCalendarModule',
     components: {
         CalendarModule,
+        CalendarDays,
+        Link,
+        Unlink,
+        RefreshCcw,
+        CloudUpload,
+        Info,
+        CalendarClock,
+        CalendarSearch,
+        ExternalLink,
+        CheckCircle2,
+        Clock,
+        ShieldCheck,
+        AlertTriangle,
+        XCircle
     },
     mixins: [ApiMixin],
     props: {
@@ -83,27 +113,34 @@ export default {
                 })
                 .slice(0, 8)
         },
-        syncStatusTone() {
+        syncStatusConfig() {
             if (!this.googleMeta.sync_enabled) {
-                return 'bg-amber-50 border-amber-200 text-amber-800'
+                return {
+                    tone: 'bg-amber-50 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30 text-amber-800 dark:text-amber-300',
+                    iconTone: 'text-amber-500',
+                    icon: AlertTriangle,
+                    title: 'Sync Disabled',
+                    label: 'Google Calendar sync is disabled in configuration.'
+                }
             }
 
             if (!this.googleMeta.configured) {
-                return 'bg-red-50 border-red-200 text-red-800'
+                return {
+                    tone: 'bg-rose-50 border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/30 text-rose-800 dark:text-rose-300',
+                    iconTone: 'text-rose-500',
+                    icon: XCircle,
+                    title: 'Not Configured',
+                    label: this.googleMeta.configuration_message || 'Google Calendar is not configured yet.'
+                }
             }
 
-            return 'bg-emerald-50 border-emerald-200 text-emerald-800'
-        },
-        syncStatusLabel() {
-            if (!this.googleMeta.sync_enabled) {
-                return 'Google Calendar sync is disabled in configuration.'
+            return {
+                tone: 'bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300',
+                iconTone: 'text-emerald-500',
+                icon: ShieldCheck,
+                title: 'Connected & Active',
+                label: 'Google Calendar is connected through a server-side credential flow.'
             }
-
-            if (!this.googleMeta.configured) {
-                return this.googleMeta.configuration_message || 'Google Calendar is not configured yet.'
-            }
-
-            return 'Google Calendar is connected through a server-side credential flow.'
         },
         canStartOauthConnect() {
             return this.googleMeta.auth_profile === 'oauth' && Boolean(this.googleMeta.oauth_connectable)
@@ -392,72 +429,114 @@ export default {
 
 <template>
     <div class="space-y-6">
-        <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div class="space-y-2">
-                    <h2 class="text-2xl font-bold text-slate-900">{{ title }}</h2>
-                    <p class="max-w-3xl text-sm leading-6 text-slate-600">
+        <!-- Main Header & Controls -->
+        <section class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-800 p-6 md:p-8">
+            <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                
+                <!-- Title Area -->
+                <div class="space-y-3 flex-1">
+                    <div class="flex items-center gap-3.5 mb-1">
+                        <div class="p-2.5 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-xl shadow-sm shrink-0">
+                            <CalendarDays class="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                        </div>
+                        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ title }}</h2>
+                    </div>
+                    <p class="text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed">
                         {{ subtitle }} The browser only talks to internal Laravel endpoints. Calendar credentials stay on the server, and sync is limited to authenticated users.
                     </p>
                 </div>
 
-                <div class="flex flex-wrap gap-3">
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap items-center gap-3 shrink-0 pt-2 lg:pt-0">
                     <button
                         v-if="canStartOauthConnect && !googleMeta.configured"
                         type="button"
-                        class="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                        class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-indigo-700 active:scale-95"
                         @click="startOauthConnect"
                     >
-                        Connect Google Calendar
+                        <Link class="w-4 h-4" /> Connect Google Calendar
                     </button>
+                    
                     <button
                         v-if="canDisconnectOauth"
                         type="button"
-                        class="rounded-xl border border-red-200 px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        class="inline-flex items-center gap-2 rounded-xl border border-rose-200 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-500/10 px-5 py-2.5 text-sm font-bold text-rose-700 dark:text-rose-400 shadow-sm transition-all hover:bg-rose-100 dark:hover:bg-rose-500/20 active:scale-95 disabled:opacity-60 disabled:pointer-events-none"
                         :disabled="disconnectingOauth"
                         @click="disconnectOauth"
                     >
-                        {{ disconnectingOauth ? 'Disconnecting...' : 'Disconnect Google Calendar' }}
+                        <Unlink class="w-4 h-4" /> 
+                        {{ disconnectingOauth ? 'Disconnecting...' : 'Disconnect Calendar' }}
                     </button>
+                    
                     <button
                         type="button"
-                        class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                        class="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-5 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-300 shadow-sm transition-all hover:bg-slate-50 dark:hover:bg-slate-700/50 active:scale-95 disabled:opacity-60 disabled:pointer-events-none"
                         :disabled="loadingGoogleEvents"
                         @click="loadGoogleEvents"
                     >
-                        {{ loadingGoogleEvents ? 'Refreshing...' : 'Refresh Google Events' }}
+                        <RefreshCcw class="w-4 h-4" :class="{'animate-spin': loadingGoogleEvents}" />
+                        {{ loadingGoogleEvents ? 'Refreshing...' : 'Refresh Events' }}
                     </button>
+                    
                     <button
                         type="button"
-                        class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-95 disabled:opacity-60 disabled:pointer-events-none"
                         :disabled="syncingVisible || !events.length || !googleMeta.configured"
                         @click="syncVisibleEvents"
                     >
+                        <CloudUpload class="w-4 h-4" :class="{'animate-bounce': syncingVisible}" />
                         {{ syncingVisible ? 'Syncing...' : 'Sync Loaded Events' }}
                     </button>
                 </div>
             </div>
 
-            <div :class="['mt-5 rounded-2xl border px-4 py-3 text-sm', syncStatusTone]">
-                <p class="font-semibold">{{ syncStatusLabel }}</p>
-                <p class="mt-1 opacity-80">
-                    Auth profile: <b>{{ googleMeta.auth_profile || 'service_account' }}</b>
-                    <span class="mx-2">•</span>
-                    Connected account: <b>{{ googleMeta.connected_account_email || 'Unknown' }}</b>
-                    <span class="mx-2">•</span>
-                    Target calendar: <b>{{ googleMeta.calendar_id }}</b>
-                    <span class="mx-2">•</span>
-                    Timezone: <b>{{ googleMeta.timezone || 'Asia/Manila' }}</b>
-                    <span class="mx-2">•</span>
-                    Synced: <b>{{ syncedEventCount }} / {{ events.length }}</b> portal events
-                </p>
-                <p v-if="canStartOauthConnect && !googleMeta.configured" class="mt-2 opacity-80">
-                    Complete a one-time Google OAuth consent flow to create the server-side token file used for syncing.
-                </p>
+            <!-- Status Banner -->
+            <div class="mt-8 rounded-xl border p-5 transition-colors duration-300" :class="syncStatusConfig.tone">
+                <div class="flex flex-col md:flex-row md:items-start gap-4 justify-between">
+                    <div class="flex flex-wrap justify-between gap-5 text-xs font-medium opacity-90 shrink-0 whitespace-nowrap w-full">
+                        <div class="flex items-start gap-3 w-fit whitespace-nowrap">
+                            <component :is="syncStatusConfig.icon" class="w-5 h-5 shrink-0 mt-0.5" :class="syncStatusConfig.iconTone" />
+                            <div>
+                                <p class="text-sm font-bold tracking-tight mb-1">{{ syncStatusConfig.title }}</p>
+                                <p class="text-xs font-medium opacity-90 leading-relaxed">{{ syncStatusConfig.label }}</p>
+                                
+                                <p v-if="canStartOauthConnect && !googleMeta.configured" class="mt-2 text-[0.65rem] font-bold uppercase tracking-widest opacity-80 flex items-center gap-1.5">
+                                    <Info class="w-3.5 h-3.5" /> Complete OAuth consent flow to create the server-side token.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-[0.6rem] font-bold uppercase tracking-widest opacity-70 mb-0.5">Auth Profile</span>
+                            <span class="truncate max-w-[150px]">{{ googleMeta.auth_profile || 'service_account' }}</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-[0.6rem] font-bold uppercase tracking-widest opacity-70 mb-0.5">Timezone</span>
+                            <span class="truncate max-w-[150px]">{{ googleMeta.timezone || 'Asia/Manila' }}</span>
+                        </div>
+                        <div class="flex flex-col col-span-2 md:col-span-1 lg:col-span-2">
+                            <span class="text-[0.6rem] font-bold uppercase tracking-widest opacity-70 mb-0.5">Connected Account</span>
+                            <span class="truncate max-w-[300px]">{{ googleMeta.connected_account_email || 'Unknown' }}</span>
+                        </div>
+                        <div class="flex flex-col col-span-2 md:col-span-1 lg:col-span-2">
+                            <span class="text-[0.6rem] font-bold uppercase tracking-widest opacity-70 mb-0.5">Target Calendar</span>
+                            <span class="truncate max-w-[300px]">{{ googleMeta.calendar_id }}</span>
+                        </div>
+                        <div class="flex flex-col col-span-2 md:col-span-1 lg:col-span-2 mt-1">
+                            <span class="text-[0.6rem] font-bold uppercase tracking-widest opacity-70 mb-0.5">Sync Status</span>
+                            <span class="font-bold">
+                                {{ syncedEventCount }} / {{ events.length }} <span class="font-medium opacity-80">portal events synced</span>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </section>
 
-        <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <!-- Main Content Grid -->
+        <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+            
+            <!-- Left Column: Portal Calendar -->
             <CalendarModule
                 :title="'Portal Calendar'"
                 :subtitle="'Review bookings and schedules before syncing them to Google Calendar.'"
@@ -466,107 +545,137 @@ export default {
                 :status-options="statusOptions"
                 :status-colors="statusColors"
                 :start-date="startDate"
+                class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-800 h-fit"
             />
 
-            <aside class="space-y-4">
-                <section class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Sync Queue</h3>
-                        <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+            <!-- Right Column: Queues -->
+            <aside class="space-y-6">
+                
+                <!-- Sync Queue -->
+                <section class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-800 p-5">
+                    <div class="flex items-center justify-between mb-5 border-b border-slate-100 dark:border-slate-800/60 pb-3">
+                        <div class="flex items-center gap-2">
+                            <CalendarClock class="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                            <h3 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Sync Queue</h3>
+                        </div>
+                        <span class="rounded-md bg-indigo-50 dark:bg-indigo-500/10 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 shadow-sm">
                             {{ nextPortalEvents.length }} upcoming
                         </span>
                     </div>
 
-                    <div class="mt-4 space-y-3">
+                    <div class="space-y-3">
                         <article
                             v-for="event in nextPortalEvents"
                             :key="event.id"
-                            class="rounded-2xl border border-slate-200 p-4"
+                            class="rounded-xl border border-slate-200/60 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-800/30 p-4 transition-colors hover:border-slate-300 dark:hover:border-slate-600"
                         >
-                            <div class="flex items-start justify-between gap-3">
-                                <div class="min-w-0">
-                                    <p class="truncate text-sm font-semibold text-slate-900">{{ event.label }}</p>
-                                    <p class="mt-1 text-xs leading-5 text-slate-500">
-                                        {{ event.date_from }}
-                                        <span v-if="event.date_to && event.date_to !== event.date_from">to {{ event.date_to }}</span>
-                                    </p>
-                                    <p v-if="event.subtitle" class="mt-1 text-xs leading-5 text-slate-500">
+                            <div class="flex items-start justify-between gap-3 mb-3">
+                                <div class="min-w-0 flex-1">
+                                    <p class="truncate text-sm font-bold text-slate-900 dark:text-white">{{ event.label }}</p>
+                                    
+                                    <div class="flex items-center gap-1.5 mt-1.5">
+                                        <Clock class="w-3 h-3 text-slate-400 shrink-0" />
+                                        <p class="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                            {{ event.date_from }}
+                                            <span v-if="event.date_to && event.date_to !== event.date_from" class="opacity-70 mx-0.5">to</span> 
+                                            <span v-if="event.date_to && event.date_to !== event.date_from">{{ event.date_to }}</span>
+                                        </p>
+                                    </div>
+                                    
+                                    <p v-if="event.subtitle" class="mt-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 truncate">
                                         {{ event.subtitle }}
                                     </p>
                                 </div>
                                 <span
                                     :class="[
-                                        'rounded-full px-2 py-1 text-[11px] font-semibold uppercase tracking-wide',
+                                        'rounded-md px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-widest border shadow-sm shrink-0',
                                         isSynced(event)
-                                            ? 'bg-emerald-100 text-emerald-700'
-                                            : 'bg-slate-100 text-slate-600',
+                                            ? 'bg-emerald-50 border-emerald-200 text-emerald-600 dark:bg-emerald-500/10 dark:border-emerald-500/30 dark:text-emerald-400'
+                                            : 'bg-white border-slate-200 text-slate-500 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400',
                                     ]"
                                 >
                                     {{ isSynced(event) ? 'Synced' : 'Pending' }}
                                 </span>
                             </div>
 
-                            <div class="mt-3 flex flex-wrap gap-2">
+                            <div class="flex flex-wrap gap-2 pt-3 border-t border-slate-200/60 dark:border-slate-700/60">
                                 <button
                                     type="button"
-                                    class="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-700 disabled:opacity-60"
+                                    class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-900 dark:bg-slate-700 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-white transition hover:bg-slate-800 dark:hover:bg-slate-600 disabled:opacity-60 disabled:pointer-events-none"
                                     :disabled="syncingEventIds.includes(event.id) || !googleMeta.configured"
                                     @click="syncEvent(event)"
                                 >
+                                    <CloudUpload class="w-3 h-3" :class="{'animate-bounce': syncingEventIds.includes(event.id)}" />
                                     {{ syncingEventIds.includes(event.id) ? 'Syncing...' : (isSynced(event) ? 'Update Sync' : 'Sync to Google') }}
                                 </button>
+                                
                                 <button
                                     v-if="isSynced(event)"
                                     type="button"
-                                    class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                                    class="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-700/50"
                                     @click="openGoogleEvent(event)"
                                 >
-                                    Open in Google
+                                    <ExternalLink class="w-3 h-3" />
+                                    Open
                                 </button>
                             </div>
                         </article>
 
-                        <p v-if="!nextPortalEvents.length" class="text-sm text-slate-500">
-                            No portal events are currently available for sync.
-                        </p>
+                        <div v-if="!nextPortalEvents.length" class="flex flex-col items-center justify-center py-8 text-center border border-dashed border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/30">
+                            <CalendarClock class="w-8 h-8 text-slate-300 dark:text-slate-600 mb-2" />
+                            <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">No portal events available.</p>
+                        </div>
                     </div>
                 </section>
 
-                <section class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Google Events</h3>
-                        <span class="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-700">
+                <!-- Google Events -->
+                <section class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-800 p-5">
+                    <div class="flex items-center justify-between mb-5 border-b border-slate-100 dark:border-slate-800/60 pb-3">
+                        <div class="flex items-center gap-2">
+                            <CalendarSearch class="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                            <h3 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Google Events</h3>
+                        </div>
+                        <span class="rounded-md bg-sky-50 dark:bg-sky-500/10 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-500/20 shadow-sm">
                             {{ googleEvents.length }} loaded
                         </span>
                     </div>
 
-                    <div class="mt-4 space-y-3">
+                    <div class="space-y-3">
                         <article
                             v-for="event in googleEvents.slice(0, 8)"
                             :key="event.id"
-                            class="rounded-2xl border border-slate-200 p-4"
+                            class="rounded-xl border border-slate-200/60 dark:border-slate-700/60 bg-white dark:bg-slate-800/50 p-4 shadow-sm"
                         >
-                            <p class="truncate text-sm font-semibold text-slate-900">{{ event.label }}</p>
-                            <p class="mt-1 text-xs leading-5 text-slate-500">
-                                {{ event.date_from }}
-                                <span v-if="event.date_to && event.date_to !== event.date_from">to {{ event.date_to }}</span>
+                            <p class="truncate text-sm font-bold text-slate-900 dark:text-white">{{ event.label }}</p>
+                            
+                            <div class="flex items-center gap-1.5 mt-2">
+                                <Clock class="w-3 h-3 text-slate-400 shrink-0" />
+                                <p class="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                    {{ event.date_from }}
+                                    <span v-if="event.date_to && event.date_to !== event.date_from" class="opacity-70 mx-0.5">to</span> 
+                                    <span v-if="event.date_to && event.date_to !== event.date_from">{{ event.date_to }}</span>
+                                </p>
+                            </div>
+
+                            <p v-if="event.portal_event_key" class="mt-2 text-[0.6rem] font-mono text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-900 px-2 py-1 rounded border border-slate-100 dark:border-slate-700/50 truncate">
+                                <span class="font-semibold text-slate-500 dark:text-slate-400 mr-1">KEY:</span>{{ event.portal_event_key }}
                             </p>
-                            <p v-if="event.portal_event_key" class="mt-1 text-xs text-slate-500">
-                                Linked portal event: {{ event.portal_event_key }}
-                            </p>
+
                             <button
                                 v-if="event.html_link"
                                 type="button"
-                                class="mt-3 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                                class="mt-3 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300 transition hover:bg-white dark:hover:bg-slate-700 active:scale-95"
                                 @click="openGoogleLink(event.html_link)"
                             >
-                                Open Event
+                                <ExternalLink class="w-3 h-3" />
+                                View in Google Calendar
                             </button>
                         </article>
 
-                        <p v-if="!googleEvents.length && !loadingGoogleEvents" class="text-sm text-slate-500">
-                            No Google Calendar events were returned for the active range.
-                        </p>
+                        <div v-if="!googleEvents.length && !loadingGoogleEvents" class="flex flex-col items-center justify-center py-8 text-center border border-dashed border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/30">
+                            <CalendarSearch class="w-8 h-8 text-slate-300 dark:text-slate-600 mb-2" />
+                            <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">No events found in active range.</p>
+                        </div>
                     </div>
                 </section>
             </aside>

@@ -51,12 +51,12 @@ export default class Options extends DtoOptions {
     static getColumns() {
         return [
             { title: 'ID', key: 'id', db_key: 'id', align: 'center', sortable: true, visible: false },
-            { title: 'Key', key: 'key', db_key: 'key', align: 'left', sortable: true, visible: true },
             { title: 'Label', key: 'label', db_key: 'label', align: 'left', sortable: true, visible: true },
+            { title: 'Key', key: 'key', db_key: 'key', align: 'left', sortable: true, visible: true },
+            { title: 'Value', key: 'value', db_key: 'value', align: 'left', sortable: true, visible: true },
             { title: 'Group', key: 'group', db_key: 'group', align: 'center', sortable: true, visible: true },
             { title: 'Type', key: 'type', db_key: 'type', align: 'center', sortable: true, visible: true },
-            { title: 'Value', key: 'value', db_key: 'value', align: 'left', sortable: false, visible: true },
-            { title: 'Created At', key: 'created_at', db_key: 'created_at', align: 'center', sortable: true, visible: false },
+            { title: 'Created At', key: 'created_at', db_key: 'created_at', align: 'center', sortable: true, visible: true },
         ]
     }
 }

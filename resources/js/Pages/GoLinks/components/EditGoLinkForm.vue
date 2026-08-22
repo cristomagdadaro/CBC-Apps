@@ -14,6 +14,8 @@ export default {
             <go-links-header-actions />
         </template>
 
-        <go-link-form :data="$page.props.data" />
+        <div class="default-container pt-5">
+            <go-link-form :data="$page.props.data" />
+        </div>
     </AppLayout>
 </template>

@@ -1,6 +1,9 @@
 <script>
+import { Link } from "@inertiajs/vue3";
+
 export default {
     name: 'RentalsHeaderAction',
+    components: { Link },
     computed: {
         headerTitle() {
             if (route().current('rentals.calendar.index')) {
@@ -21,26 +24,37 @@ export default {
 </script>
 
 <template>
-    <ActionHeaderLayout :title="headerTitle" :subtitle="headerSubtitle" :route-link="route('rentals.vehicle.index')">
-        <Link
-            :href="route('rentals.vehicle.index')"
-            class="inline-flex items-center px-4 py-2 bg-blue-600 dark:bg-blue-700 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 dark:hover:bg-blue-600 focus:bg-blue-700 dark:focus:bg-blue-600 active:bg-blue-900 dark:active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150"
-        >
-            Vehicle Rental
-        </Link>
-        
-        <Link
-            :href="route('rentals.venue.index')"
-            class="inline-flex items-center px-4 py-2 bg-purple-600 dark:bg-purple-700 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-purple-700 dark:hover:bg-purple-600 focus:bg-purple-700 dark:focus:bg-purple-600 active:bg-purple-900 dark:active:bg-purple-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150"
-        >
-            Venue Rental
-        </Link>
+    <ActionHeaderLayout 
+        :title="headerTitle" 
+        :subtitle="headerSubtitle" 
+        :route-link="route('rentals.vehicle.index')"
+    >
+        <transition-container type="pop-in" :duration="500">
+            <div class="flex flex-wrap items-center gap-2">
+                <Link
+                    :href="route('rentals.vehicle.index')"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition-all active:scale-95 shrink-0"
+                >
+                    <lu-car class="w-4 h-4 text-blue-500" />
+                    <span>Vehicle Rental</span>
+                </Link>
+                
+                <Link
+                    :href="route('rentals.venue.index')"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition-all active:scale-95 shrink-0"
+                >
+                    <lu-building class="w-4 h-4 text-purple-500" />
+                    <span>Venue Rental</span>
+                </Link>
 
-        <Link
-            :href="route('rentals.calendar.index')"
-            class="inline-flex items-center px-4 py-2 bg-green-600 dark:bg-green-700 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 dark:hover:bg-green-600 focus:bg-green-700 dark:focus:bg-green-600 active:bg-green-900 dark:active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150"
-        >
-            Google Calendar
-        </Link>
+                <Link
+                    :href="route('rentals.calendar.index')"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition-all active:scale-95 shrink-0"
+                >
+                    <lu-calendar-days class="w-4 h-4 text-emerald-500" />
+                    <span>Google Calendar</span>
+                </Link>
+            </div>
+        </transition-container>
     </ActionHeaderLayout>
 </template>
