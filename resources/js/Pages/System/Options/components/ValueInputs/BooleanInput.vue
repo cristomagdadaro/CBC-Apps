@@ -1,21 +1,33 @@
 <template>
-  <select
-    :value="modelValue === 'true' || modelValue === true || modelValue === '1' ? 'true' : 'false'"
-    @change="$emit('update:modelValue', $event.target.value === 'true' ? 'true' : 'false')"
-    class="block w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-  >
-    <option value="true">True</option>
-    <option value="false">False</option>
-  </select>
+  <custom-dropdown
+    :value="normalizedValue"
+    @selectedChange="$emit('update:modelValue', $event)"
+    :options="booleanOptions"
+    :withAllOption="false"
+    class="w-full"
+  />
 </template>
 
 <script setup>
-defineProps({
+import { computed } from "vue";
+
+const props = defineProps({
   modelValue: {
     type: [String, Boolean],
     default: 'false',
   },
-})
+});
 
-defineEmits(['update:modelValue'])
+defineEmits(['update:modelValue']);
+
+const normalizedValue = computed(() => {
+  return props.modelValue === 'true' || props.modelValue === true || props.modelValue === '1' 
+    ? 'true' 
+    : 'false';
+});
+
+const booleanOptions = [
+  { name: 'true', label: 'True', value: 'true' },
+  { name: 'false', label: 'False', value: 'false' },
+];
 </script>

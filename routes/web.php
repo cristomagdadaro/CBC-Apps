@@ -41,5 +41,5 @@ Route::get('/ai', function() {
         'signature' => $signature,
     ]);
 
-    return redirect()->away($redirectUrl);
+    return \Inertia\Inertia::location($redirectUrl);
 })->middleware('auth')->name('sproutai.microservice');

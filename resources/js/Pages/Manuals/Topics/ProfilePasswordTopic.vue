@@ -193,7 +193,6 @@ export default {
                             </div>
                         </div>
                     </div>
-                </div>
 
                 <!-- For Programmers -->
                 <div v-if="showDeveloperSections" class="space-y-4 pt-6 border-t border-slate-100 dark:border-slate-800/60">

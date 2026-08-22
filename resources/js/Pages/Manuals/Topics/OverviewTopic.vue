@@ -37,9 +37,6 @@ export default {
                             <li class="flex items-center gap-2.5"><LuCheckCircle2 class="w-4 h-4 text-indigo-400 shrink-0" /> Maintain user profiles and access control</li>
                             <li class="flex items-center gap-2.5"><LuCheckCircle2 class="w-4 h-4 text-indigo-400 shrink-0" /> Audit system activities for compliance and security</li>
                         </ul>
-                    </div>
-                </div>
-
                 <!-- Core Modules -->
                 <div class="space-y-3">
                     <h3 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-1 flex items-center gap-1.5">
@@ -145,7 +142,7 @@ export default {
                         </div>
                     </div>
                 </div>
-
+                </div>
     </TopicLayout>
 </template>
 

@@ -141,5 +141,6 @@ export default {
                     </div>
                 </div>
 
+                </div>
     </TopicLayout>
 </template>

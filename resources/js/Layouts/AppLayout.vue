@@ -787,9 +787,11 @@ export default {
                     <!-- Mobile Navigation -->
                     <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1 custom-scrollbar">
                         <template v-for="service in visibleServices" :key="`mobile-${service.label}`">
-                            <Link
+                            <component
+                                :is="service.newTab ? 'a' : 'Link'"
                                 v-if="!service.children || !visibleChildren(service).length"
                                 :href="route(service.href)"
+                                :target="service.newTab ? '_blank' : undefined"
                                 @click="closeSidebar"
                                 class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors"
                                 :class="
@@ -804,7 +806,7 @@ export default {
                                     :class="isServiceActive(service) ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'"
                                 />
                                 {{ service.label }}
-                            </Link>
+                            </component>
 
                             <div v-else>
                                 <div
@@ -813,10 +815,12 @@ export default {
                                     {{ service.label }}
                                 </div>
                                 <div class="ml-2 space-y-1">
-                                    <Link
+                                    <component
+                                        :is="child.newTab ? 'a' : 'Link'"
                                         v-for="child in visibleChildren(service)"
                                         :key="`mobile-child-${child.label}`"
                                         :href="route(child.href)"
+                                        :target="child.newTab ? '_blank' : undefined"
                                         @click="closeSidebar"
                                         class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors"
                                         :class="
@@ -828,7 +832,7 @@ export default {
                                         <component :is="child.icon" v-if="child.icon" class="w-4 h-4 transition-colors" :class="isChildActive(child) ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'"/>
                                         <span v-else class="w-1.5 h-1.5 rounded-full transition-colors" :class="isChildActive(child) ? 'bg-indigo-500 dark:bg-indigo-400' : 'bg-slate-300 dark:bg-slate-600'"></span>
                                         {{ child.label }}
-                                    </Link>
+                                    </component>
                                 </div>
                             </div>
                         </template>
