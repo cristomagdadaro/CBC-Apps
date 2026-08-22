@@ -170,7 +170,7 @@ export default {
                             <LuCar class="h-5 w-5 sm:h-6 sm:w-6" />
                         </div>
                         <div class="leading-tight">
-                            <h2 class="text-sm sm:text-lg font-bold">{{ rental.vehicle_type || 'Vehicle Not Assigned Yet' }}</h2>
+                            <h2 class="text-sm sm:text-lg font-bold">{{ rental.vehicle_type_label || rental.vehicle_type || 'Vehicle Not Assigned Yet' }}</h2>
                             <p class="text-xs sm:text-sm opacity-80 mt-0.5">{{ tripTypeMeta.label }}</p>
                         </div>
                     </div>
@@ -244,7 +244,7 @@ export default {
                                     <div class="mt-0.5 h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400"></div>
                                     <div>
                                         <p class="text-xs text-slate-500 dark:text-slate-400">Vehicle Type</p>
-                                        <p class="text-sm font-medium text-slate-900 dark:text-white">{{ rental.vehicle_type || 'To be assigned' }}</p>
+                                        <p class="text-sm font-medium text-slate-900 dark:text-white">{{ rental.vehicle_type_label || rental.vehicle_type || 'To be assigned' }}</p>
                                     </div>
                                 </div>
                                 <div class="flex items-start space-x-3">

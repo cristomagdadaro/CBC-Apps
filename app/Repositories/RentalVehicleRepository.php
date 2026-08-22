@@ -86,7 +86,15 @@ class RentalVehicleRepository extends AbstractRepoService
 
     public function find(string $id)
     {
-        $rental = $this->model->newQuery()->find($id);
+        $query = $this->model->newQuery();
+        
+        if (\Illuminate\Support\Str::isUuid($id)) {
+            $query->where('id', $id);
+        } else {
+            $query->where('booking_id', $id);
+        }
+        
+        $rental = $query->first();
 
         return $rental ? $this->syncLifecycleStatus($rental) : null;
     }

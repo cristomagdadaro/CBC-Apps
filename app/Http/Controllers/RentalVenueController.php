@@ -228,7 +228,7 @@ class RentalVenueController extends BaseController
 
     private function buildPublicRentalPayload(RentalVenue $rental): array
     {
-        return Arr::only($rental->toArray(), [
+        $payload = Arr::only($rental->toArray(), [
             'id',
             'booking_id',
             'organization',
@@ -240,6 +240,12 @@ class RentalVenueController extends BaseController
             'time_to',
             'status',
         ]);
+
+        $options = app(\App\Repositories\OptionRepo::class)->getEventHalls();
+        $option = collect($options)->firstWhere('name', $rental->venue_type);
+        $payload['venue_type_label'] = $option ? $option['label'] : $rental->venue_type;
+
+        return $payload;
     }
 
     private function buildPublicAvailabilityWindow(?string $dateFrom, ?string $timeFrom, ?string $dateTo, ?string $timeTo, ?string $status): array

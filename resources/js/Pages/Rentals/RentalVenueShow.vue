@@ -185,7 +185,7 @@ export default {
                         <div class="leading-tight">
                             <h2 class="text-sm sm:text-lg font-bold">{{ rental.event_name || 'Venue booking' }}</h2>
                             <p class="text-xs sm:text-sm opacity-80 uppercase tracking-wider mt-0.5">
-                                {{ rental.venue_type || 'Venue' }}
+                                {{ rental.venue_type_label || rental.venue_type || 'Venue' }}
                                 <span v-if="formatDuration" class="normal-case opacity-90">&bull; {{ formatDuration }} duration</span>
                             </p>
                         </div>
@@ -266,7 +266,7 @@ export default {
                                     <LuBuilding2 class="mt-0.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
                                     <div>
                                         <p class="text-xs text-slate-500 dark:text-slate-400">Venue Type</p>
-                                        <p class="font-medium text-slate-900 dark:text-white">{{ rental.venue_type || 'Not specified' }}</p>
+                                        <p class="font-medium text-slate-900 dark:text-white">{{ rental.venue_type_label || rental.venue_type || 'Not specified' }}</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-3 rounded-lg border border-gray-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-3">

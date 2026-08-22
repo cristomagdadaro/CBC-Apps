@@ -266,7 +266,7 @@ class RentalVehicleController extends BaseController
 
     private function buildPublicRentalPayload(RentalVehicle $rental): array
     {
-        return Arr::only($rental->toArray(), [
+        $payload = Arr::only($rental->toArray(), [
             'id',
             'booking_id',
             'organization',
@@ -279,6 +279,12 @@ class RentalVehicleController extends BaseController
             'time_to',
             'status',
         ]);
+
+        $options = app(\App\Repositories\OptionRepo::class)->getVehicles();
+        $option = collect($options)->firstWhere('name', $rental->vehicle_type);
+        $payload['vehicle_type_label'] = $option ? $option['label'] : $rental->vehicle_type;
+
+        return $payload;
     }
 
     private function buildPublicAvailabilityWindow(?string $dateFrom, ?string $timeFrom, ?string $dateTo, ?string $timeTo, ?string $status): array
