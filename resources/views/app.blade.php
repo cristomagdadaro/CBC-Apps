@@ -4,12 +4,32 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="{{ config('app.name', 'OneCBC') }}">
+    <meta name="description"
+        content="The centralized digital workplace for PhilRice CBC. Access apps, tools, and resources in one unified platform.">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="author" content="PhilRice CBC">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request()->url() }}">
+    <meta property="og:title" content="{{ config('app.name', 'OneCBC') }}">
+    <meta property="og:description"
+        content="The centralized digital workplace for DA-Crop Biotecnology Center. Access apps, tools, and resources in one unified platform.">
     <meta property="og:image" content="{{ asset('imgs/philrice-cbc-compound.jpg') }}">
     <meta property="og:image:secure_url" content="{{ secure_asset('imgs/philrice-cbc-compound.jpg') }}">
     <meta property="og:image:type" content="image/jpeg">
     <meta property="og:image:alt" content="PhilRice CBC compound aerial view">
+
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="{{ asset('imgs/philrice-cbc-compound.jpg') }}">
+    <meta name="twitter:url" content="{{ request()->url() }}">
+    <meta name="twitter:title" content="{{ config('app.name', 'OneCBC') }}">
+    <meta name="twitter:description"
+        content="The centralized digital workplace for PhilRice CBC. Access apps, tools, and resources in one unified platform.">
+    <meta name="twitter:image" content="{{ asset('imgs/landing-page.png') }}">
 
     <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
@@ -22,7 +42,8 @@
     <script>
         window.__CBC_REALTIME__ = @json(config('realtime'));
     </script>
-    <script src="{{ config('services.sproutai.host') }}/embed.js?v=3" data-site-id="onecbc" data-token="{{ env('LLM_API_KEY') }}" data-position="bottom-right" defer></script>
+    <script src="{{ config('services.sproutai.host') }}/embed.js?v=3" data-site-id="onecbc"
+        data-token="{{ env('LLM_API_KEY') }}" data-position="bottom-right" defer></script>
     @routes
     @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
     @inertiaHead
@@ -30,7 +51,7 @@
 
 <body class="font-sans antialiased">
     @inertia
-    
+
 </body>
 
 </html>

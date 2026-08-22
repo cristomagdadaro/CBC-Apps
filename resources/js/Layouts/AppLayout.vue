@@ -222,6 +222,12 @@ export default {
                             roles: ["admin"],
                             icon: "LuUserCog",
                         },
+                        {
+                            label: "Email Templates",
+                            href: "dev.views.index",
+                            roles: ["admin"],
+                            icon: "LuCode2",
+                        },
                     ],
                 },
                 {

@@ -22,9 +22,7 @@ require __DIR__.'/web/options.php';
 require __DIR__.'/web/user-management.php';
 require __DIR__.'/web/golinks.php';
 
-if (app()->environment('local')) {
-    require __DIR__.'/web/dev.php';
-}
+require __DIR__.'/web/dev.php';
 
 Route::get('/ai', function() {
     $user = auth()->user();

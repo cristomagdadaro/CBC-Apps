@@ -1,4 +1,6 @@
 <script>
+import LuMenu from './Icons/LuMenu.vue';
+
 export default {
     name: 'SocialLinks',
     props: {
@@ -461,7 +463,7 @@ export default {
                             </div>
                             <div class="flex-1">
                                 <span class="text-xs font-semibold">Facebook</span>
-                                <ExternalLink class="w-3 h-3 text-slate-400 inline-block ml-1" />
+                                <LuExternalLink class="w-3 h-3 text-slate-400 inline-block ml-1" />
                             </div>
                         </a>
 
@@ -486,7 +488,7 @@ export default {
                             </div>
                             <div class="flex-1">
                                 <span class="text-xs font-semibold">Corporate Website</span>
-                                <ExternalLink class="w-3 h-3 text-slate-400 inline-block ml-1" />
+                                <LuExternalLink class="w-3 h-3 text-slate-400 inline-block ml-1" />
                             </div>
                         </a>
 
@@ -498,7 +500,7 @@ export default {
                             </div>
                             <div class="flex-1">
                                 <span class="text-xs font-semibold">Virtual Tour</span>
-                                <ExternalLink class="w-3 h-3 text-slate-400 inline-block ml-1" />
+                                <LuExternalLink class="w-3 h-3 text-slate-400 inline-block ml-1" />
                             </div>
                         </a>
 
@@ -538,7 +540,7 @@ export default {
                 data-guide='social-links'
                 class="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-slate-900 dark:bg-slate-800 text-white border border-slate-700 dark:border-slate-700 shadow-md sm:shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none opacity-85 hover:opacity-100"
                 :class="{ 'rotate-90 opacity-100 bg-lime-600 text-white': open }" aria-label="Toggle quick links menu">
-                <Menu v-if="!open" class="w-5 h-5 sm:w-6 sm:h-6 text-lime-400" />
+                <LuMenu v-if="!open" class="w-5 h-5 sm:w-6 sm:h-6 text-lime-400" />
                 <LuX v-else class="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
         </div>
