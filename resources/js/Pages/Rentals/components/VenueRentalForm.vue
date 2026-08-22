@@ -433,7 +433,7 @@ export default {
                     required
                     v-model="form.organization"
                     type="text"
-                    placeholder="e.g. Crop Biotechnology Division"
+                    placeholder="e.g. Crop Biotechnology Center"
                     :error="form.errors.organization"
                     class="mt-1 block w-full"
                 />
