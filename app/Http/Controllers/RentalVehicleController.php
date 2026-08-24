@@ -278,6 +278,8 @@ class RentalVehicleController extends BaseController
             'time_from',
             'time_to',
             'status',
+            'purpose',
+            'destination_location',
         ]);
 
         $options = app(\App\Repositories\OptionRepo::class)->getVehicles();

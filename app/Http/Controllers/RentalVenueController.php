@@ -239,6 +239,8 @@ class RentalVenueController extends BaseController
             'time_from',
             'time_to',
             'status',
+            'event_name',
+            'destination_location',
         ]);
 
         $options = app(\App\Repositories\OptionRepo::class)->getEventHalls();
