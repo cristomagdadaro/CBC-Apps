@@ -178,4 +178,95 @@ class GuestOutgoingTest extends TestCase
         $this->assertContains('CBC-01-000111', $barcodes);
         $this->assertNotContains('CBC-02-000222', $barcodes);
     }
+
+    public function test_guest_remaining_stocks_concurrent_filters_prevent_equipment_leak(): void
+    {
+        $user = $this->createAdminUser();
+
+        // Create an equipment category (not in the default consumable IDs 1,2,3,5,6)
+        $equipmentCategory = Category::factory()->create(['name' => 'Equipment']);
+        $equipmentCategory->id = 99; // Arbitrary non-consumable ID
+        $equipmentCategory->save();
+
+        $consumableCategoryNames = ['Office Supplies', 'IEC Materials', 'Tokens', 'ICT Supplies', 'Laboratory Consumables'];
+        $officeCategory = Category::query()->whereIn('name', $consumableCategoryNames)->first()
+            ?? Category::factory()->create(['name' => 'Office Supplies']);
+
+        $supplier = Supplier::query()->first() ?? Supplier::factory()->create();
+        $personnel = Personnel::query()->first() ?? Personnel::factory()->create([
+            'employee_id' => 'EMP-GUEST-CONCURRENT',
+        ]);
+
+        // Equipment item with Project Code
+        $equipmentItem = Item::factory()->create([
+            'category_id' => $equipmentCategory->id,
+            'supplier_id' => $supplier->id,
+            'name' => 'Server Rack',
+        ]);
+
+        Transaction::factory()->create([
+            'item_id' => $equipmentItem->id,
+            'barcode' => 'CBC-01-EQP001',
+            'transac_type' => Inventory::INCOMING->value,
+            'quantity' => 1,
+            'unit' => 'unit',
+            'user_id' => $user->id,
+            'personnel_id' => $personnel->id,
+            'project_code' => 'PROJ-XYZ',
+        ]);
+
+        // Consumable item with the same Project Code
+        $consumableItem = Item::factory()->create([
+            'category_id' => $officeCategory->id,
+            'supplier_id' => $supplier->id,
+            'name' => 'Printer Paper',
+        ]);
+
+        Transaction::factory()->create([
+            'item_id' => $consumableItem->id,
+            'barcode' => 'CBC-01-CON001',
+            'transac_type' => Inventory::INCOMING->value,
+            'quantity' => 10,
+            'unit' => 'ream',
+            'user_id' => $user->id,
+            'personnel_id' => $personnel->id,
+            'project_code' => 'PROJ-XYZ',
+        ]);
+
+        // Another Consumable item with different Project Code
+        $consumableItemOther = Item::factory()->create([
+            'category_id' => $officeCategory->id,
+            'supplier_id' => $supplier->id,
+            'name' => 'Pens',
+        ]);
+
+        Transaction::factory()->create([
+            'item_id' => $consumableItemOther->id,
+            'barcode' => 'CBC-01-CON002',
+            'transac_type' => Inventory::INCOMING->value,
+            'quantity' => 50,
+            'unit' => 'pc',
+            'user_id' => $user->id,
+            'personnel_id' => $personnel->id,
+            'project_code' => 'PROJ-ABC',
+        ]);
+
+        // Apply multiple filters (project_code and generic search column filtering)
+        $response = $this->getJson(route('api.inventory.transactions.remaining-stocks', [
+            'project_code_filter' => 'PROJ-XYZ',
+        ]));
+
+        $response->assertOk()->assertJsonStructure(['data']);
+
+        $barcodes = collect($response->json('data'))->pluck('barcode')->all();
+
+        // Should contain the consumable that matches the project code
+        $this->assertContains('CBC-01-CON001', $barcodes);
+
+        // Should NOT contain the equipment, despite matching the project code
+        $this->assertNotContains('CBC-01-EQP001', $barcodes);
+
+        // Should NOT contain the other consumable, because it doesn't match the project code
+        $this->assertNotContains('CBC-01-CON002', $barcodes);
+    }
 }

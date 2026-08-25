@@ -49,6 +49,19 @@ export default {
     beforeMount() {
         this.model = new Transaction();
         this.setFormAction("get");
+
+        // Re-initialize the Inertia form with the extra properties so they are included in form.data()
+        this.form = this.createFormWithRemember(
+            {
+                ...this.form.data(),
+                category_filter: null,
+                project_code_filter: null,
+                stock_level_filter: null,
+                storage_location_id: null,
+            },
+            "get",
+        );
+
         this.applyNameSort();
     },
     async mounted() {
@@ -83,7 +96,10 @@ export default {
         },
         activeFilterCount() {
             let count = 0;
-            if (this.form?.filter && this.form?.filter_by) count++;
+            if (this.form?.filter) count++; // generic search column
+            if (this.form?.category_filter) count++;
+            if (this.form?.project_code_filter) count++;
+            if (this.form?.stock_level_filter) count++;
             if (this.form?.storage_location_id) count++;
             return count;
         },
@@ -107,15 +123,15 @@ export default {
             });
             this.processing = false;
         },
-        setFilter(filter, filter_by) {
-            if (this.form.filter_by === filter_by) {
-                this.form.filter = "";
-                this.form.filter_by = "";
+        updateSpecificFilter(field, value) {
+            if (this.form[field] === value) {
+                this.form[field] = null;
+                this.form.page = 1;
                 this.searchEvent();
                 return;
             }
-            this.form.filter = filter;
-            this.form.filter_by = filter_by;
+            this.form[field] = value || null;
+            this.form.page = 1;
             this.searchEvent();
         },
         applyStorageRoomFilter(roomCode) {
@@ -205,13 +221,12 @@ export default {
         :title="'Supplies Checkout Form'"
         :subtitle="'Kindly fill out the form below to record your transaction'"
         guide-key="supplies-checkout-guest"
-        :delay-ready="delayReady"
-        :max-width="'max-w-2xl'">
+        :delay-ready="delayReady">
         <transition-container
             v-show="delayReady"
             :duration="1000"
             type="slide-bottom">
-            <div class="shadow-xs mx-auto flex w-full max-w-7xl flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 sm:p-5 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+            <div class="shadow-xs mx-auto flex w-full flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 sm:p-5 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
                 <div class="flex w-full flex-col justify-start gap-3">
                     <!-- Search Bar & Collapsible Filter Toggle -->
                     <div
@@ -265,32 +280,42 @@ export default {
                                 :with-all-option="false"
                                 placeholder="Category"
                                 label="Filter by Category"
-                                @selectedChange="setFilter('category', $event)"
-                                :options="categories" />
+                                :value="form.category_filter"
+                                @selectedChange="updateSpecificFilter('category_filter', $event)"
+                                :options="categories"
+                                :show-valid-indicator="false" />
                             <custom-dropdown
                                 v-if="projectCodes"
                                 placeholder="Project Code"
                                 label="Filter by Project Code"
+                                :value="form.project_code_filter"
                                 :options="projectCodes"
-                                @selectedChange="setFilter('project_code', $event)" />
+                                @selectedChange="updateSpecificFilter('project_code_filter', $event)"
+                                :show-valid-indicator="false" />
                             <custom-dropdown
                                 :with-all-option="false"
                                 placeholder="Storage Room"
                                 label="Filter by Storage Room"
+                                :value="form.storage_location_id"
                                 @selectedChange="applyStorageRoomFilter($event)"
-                                :options="storage_locations" />
-                            <search-by
-                                :value="form.filter"
-                                :is-exact="form.is_exact"
-                                :options="model.constructor.getFilterColumns()"
-                                @isExact="form.is_exact = $event"
-                                @searchBy="form.filter = $event" />
+                                :options="storage_locations"
+                                :show-valid-indicator="false" />
                             <custom-dropdown
                                 :with-all-option="false"
                                 placeholder="Stock Level"
                                 label="Filter by Stock"
-                                @selectedChange="setFilter('quantity', $event)"
-                                :options="stockLevel" />
+                                :value="form.stock_level_filter"
+                                @selectedChange="updateSpecificFilter('stock_level_filter', $event)"
+                                :options="stockLevel"
+                                :show-valid-indicator="false" />
+                            <search-by
+                                class="col-span-2 md:col-span-1"
+                                :value="form.filter"
+                                placeholder="Select a column"
+                                :is-exact="form.is_exact"
+                                :options="model.constructor.getFilterColumns()"
+                                @isExact="form.is_exact = $event"
+                                @searchBy="form.filter = $event" />
                         </div>
                     </transition-container>
 
@@ -305,12 +330,12 @@ export default {
                         v-if="outgoingFromApi"
                         class="flex w-full flex-col items-center gap-3">
                         <div class="flex w-full items-center justify-between px-1 pt-1">
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 sm:text-sm dark:text-slate-300">Stock Inventory Results</h3>
-                            <span class="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-extrabold text-lime-600 dark:border-slate-700 dark:bg-slate-800 dark:text-lime-400">{{ outgoingFromApi?.data?.length || 0 }} Items Available</span>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Inventory Results</h3>
+                            <span class="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-bold text-lime-600 dark:border-slate-700 dark:bg-slate-800 dark:text-lime-400">{{ outgoingFromApi?.data?.length || 0 }} Items Available</span>
                         </div>
                         <div
                             data-guide="supplies-results"
-                            class="max-h-[60vh] w-full overflow-y-auto overflow-x-hidden">
+                            class="max-h-[60vh] w-full overflow-y-auto overflow-x-hidden border-y p-3 drop-shadow sm:p-5">
                             <div
                                 v-show="processing"
                                 class="rounded-2xl border border-slate-200 bg-slate-50 py-6 text-center text-xs font-semibold text-slate-500 dark:border-slate-800 dark:bg-slate-800/40">
@@ -319,6 +344,7 @@ export default {
                             <outgoing-item-card
                                 v-if="outgoingFromApi && Array.isArray(outgoingFromApi.data) && outgoingFromApi.data.length > 0"
                                 :outgoing-from-api="outgoingFromApi"
+                                class="shadow-none"
                                 @select-item="selectItem" />
                             <!-- Show "Searching" when processing -->
                             <div
@@ -345,13 +371,19 @@ export default {
                 </div>
                 <modal
                     :show="!!selectedItem && showModel"
-                    @close="showModel = false; selectedItem = null">
+                    @close="
+                        showModel = false;
+                        selectedItem = null;
+                    ">
                     <outgoing-form
                         :data="selectedItem"
                         :personnels="personnels"
                         :is-guest="true"
                         @submitted="closeForm"
-                        @close="showModel = false; selectedItem = null"
+                        @close="
+                            showModel = false;
+                            selectedItem = null;
+                        "
                         @error="showModel = true" />
                 </modal>
             </div>

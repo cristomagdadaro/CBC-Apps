@@ -69,8 +69,13 @@ class InventoryReportService
             ->whereRaw('TRIM(transactions.barcode) <> ""')
             ->groupBy('items.id', 'items.name', 'items.description', 'items.brand', 'transactions.barcode');
 
-        if ($filter === 'category' && $filterBy) {
-            $values = is_array($filterBy) ? $filterBy : [$filterBy];
+        $categoryFilter    = $parameters->get('category_filter');
+        $projectCodeFilter = $parameters->get('project_code_filter');
+        $stockLevelFilter  = $parameters->get('stock_level_filter');
+
+        $activeCategoryFilter = $categoryFilter ?? ($filter === 'category' ? $filterBy : null);
+        if ($activeCategoryFilter) {
+            $values = is_array($activeCategoryFilter) ? $activeCategoryFilter : [$activeCategoryFilter];
 
             $ids = [];
             $names = [];
@@ -111,12 +116,17 @@ class InventoryReportService
                     }
                 });
             }
-        } elseif (!$filter && !$includeAllCategories && !empty($consumableCategoryIds)) {
-            $query->whereIn('items.category_id', $consumableCategoryIds);
-        } elseif ($filter === 'quantity' && $filterBy) {
+        } else {
+            if (!$includeAllCategories && !empty($consumableCategoryIds)) {
+                $query->whereIn('items.category_id', $consumableCategoryIds);
+            }
+        }
+        
+        $activeStockLevelFilter = $stockLevelFilter ?? ($filter === 'quantity' ? $filterBy : null);
+        if ($activeStockLevelFilter) {
             $percentageExpr = 'CASE WHEN total_ingoing <> 0 THEN remaining_quantity / total_ingoing ELSE 0 END';
 
-            switch ($filterBy) {
+            switch ($activeStockLevelFilter) {
                 case 'empty':
                     $query->havingRaw("$percentageExpr <= 0");
                     break;
@@ -130,13 +140,16 @@ class InventoryReportService
                     $query->havingRaw("$percentageExpr > 0.75");
                     break;
             }
-        } elseif ($filter === 'barcode') {
-            if ($hasSearchTerm) {
-                $like = '%' . $searchTerm . '%';
-                $query->havingRaw('barcode LIKE ?', [$like]);
-            }
-        } elseif ($filter === 'project_code' && $filterBy) {
-            $query->where('transactions.project_code', $filterBy);
+        }
+        
+        $activeProjectCodeFilter = $projectCodeFilter ?? ($filter === 'project_code' ? $filterBy : null);
+        if ($activeProjectCodeFilter) {
+            $query->where('transactions.project_code', $activeProjectCodeFilter);
+        }
+
+        if ($filter === 'barcode' && $hasSearchTerm) {
+            $like = '%' . $searchTerm . '%';
+            $query->havingRaw('barcode LIKE ?', [$like]);
         }
 
         if ($storageLocationCode !== null) {

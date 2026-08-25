@@ -36,6 +36,7 @@ class Transaction extends BaseModel
     protected $keyType = 'string';
     protected $casts = [
         'id' => 'string',
+        'expiration' => 'date:Y-m-d'
     ];
     protected $appends = [
         'actor_display_name',

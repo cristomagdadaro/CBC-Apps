@@ -50,9 +50,9 @@ export default {
     <div
         id="main-content-overlay"
         class="m-0 flex min-h-screen justify-center overflow-visible px-4 py-6 sm:px-6 sm:py-10 md:m-5">
-        <div class="pointer-events-none relative mt-8 flex h-full w-full flex-col items-center justify-start overflow-visible md:mt-0 md:gap-6">
+        <div class="pointer-events-none relative mt-2 flex h-full w-full flex-col items-center justify-start overflow-visible md:mt-0 md:gap-6">
             <div
-                class="pointer-events-auto flex w-full flex-col gap-6 overflow-visible md:relative"
+                class="pointer-events-auto flex w-full flex-col gap-3 overflow-visible md:relative md:gap-6"
                 :class="maxWidth">
                 <!-- Header / search / top content -->
                 <slot name="top">
@@ -62,12 +62,12 @@ export default {
                         <!-- Premium Frosted Glass Header -->
                         <div
                             data-guide="guest-page-header"
-                            class="relative flex w-full flex-row items-start gap-2.5 rounded-xl border border-gray-200/60 bg-white/80 p-4 shadow-lg backdrop-blur-lg transition-all duration-300 sm:items-center sm:gap-4 sm:rounded-2xl dark:border-slate-700/60 dark:bg-slate-900/80">
+                            class="relative flex w-full flex-row items-start gap-2.5 rounded-xl border border-gray-200/60 bg-white/80 p-4 !pl-1 shadow-lg backdrop-blur-lg transition-all duration-300 sm:items-center sm:gap-4 sm:rounded-2xl sm:!pl-4 dark:border-slate-700/60 dark:bg-slate-900/80">
                             <!-- Mobile Back Button -->
                             <!-- UX Fix: Reduced padding, aligned near the top to match the title -->
                             <button
                                 @click="goBack"
-                                class="mt-0.5 flex flex-shrink-0 items-center justify-center rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-200/50 hover:text-slate-900 sm:mt-0 md:hidden dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-white">
+                                class="my-auto flex flex-shrink-0 items-center justify-center rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-200/50 hover:text-slate-900 md:hidden dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-white">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     width="22"
@@ -85,7 +85,7 @@ export default {
                             <!-- UX Fix: Shrunk logo slightly on mobile (w-10 h-10) to give text more horizontal space -->
                             <Link
                                 href="/"
-                                class="mt-0.5 flex-shrink-0 sm:mt-0">
+                                class="my-auto flex-shrink-0">
                                 <!-- Visible in Light Mode, Hidden in Dark Mode -->
                                 <img
                                     src="/imgs/logo-black.png"
