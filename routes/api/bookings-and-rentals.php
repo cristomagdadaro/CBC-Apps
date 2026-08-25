@@ -18,6 +18,7 @@ Route::prefix('guest')->group(function () {
 
         Route::prefix('venues')->group(function () {
             Route::get('/', [RentalVenueController::class, 'publicIndex'])->name('api.guest.rental.venues.index');
+            Route::get('/rates', [RentalVenueController::class, 'publicRates'])->name('api.guest.rental.venues.rates');
             Route::get('/{id}', [RentalVenueController::class, 'publicShow'])->name('api.guest.rental.venues.show');
             Route::post('/', [RentalVenueController::class, 'store'])->name('api.guest.rental.venues.store');
             Route::get('/check-availability/{venueType}/{dateFrom}/{dateTo}', [RentalVenueController::class, 'checkAvailability'])

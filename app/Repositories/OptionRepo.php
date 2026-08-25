@@ -580,4 +580,20 @@ class OptionRepo extends AbstractRepoService
             ->values()
             ->all();
     }
+
+    /**
+     * Get all venue rental rates
+     */
+    public function getVenueRates(): array
+    {
+        $raw = $this->getByKey('venue_rates');
+        
+        if (!$raw) {
+            return [];
+        }
+
+        $decoded = is_string($raw) ? json_decode($raw, true) : $raw;
+
+        return is_array($decoded) ? $decoded : [];
+    }
 }

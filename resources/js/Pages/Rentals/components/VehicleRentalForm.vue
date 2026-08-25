@@ -5,13 +5,34 @@ import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 import { subscribeToRealtimeChannels } from "@/Modules/realtime/subscriptions";
 import SuccessModal from "@/Components/SuccessModal.vue";
 import CalendarModule from "@/Components/CalendarModule.vue";
-import { rentalVehicleTripOptions, getTripTypeMeta } from "@/Pages/Rentals/constants/tripWorkflows";
+import {
+    rentalVehicleTripOptions,
+    getTripTypeMeta,
+} from "@/Pages/Rentals/constants/tripWorkflows";
+import {
+    Car,
+    CalendarDays,
+    Loader2,
+    AlertTriangle,
+    Info,
+    X,
+    ChevronDown,
+    CheckCircle2,
+} from "lucide-vue-next";
 
 export default {
     name: "VehicleRentalForm",
     components: {
         SuccessModal,
         CalendarModule,
+        Car,
+        CalendarDays,
+        Loader2,
+        AlertTriangle,
+        Info,
+        X,
+        ChevronDown,
+        CheckCircle2,
     },
     mixins: [ApiMixin, FormLocalMixin],
     props: {
@@ -47,9 +68,9 @@ export default {
             return {
                 pending: "#FBBF24",
                 approved: "#10B981",
-                in_progress: "#3B82F6",
+                in_progress: "#6366F1",
                 rejected: "#EF4444",
-                cancelled: "#6B7280",
+                cancelled: "#64748B",
                 completed: "#334155",
             };
         },
@@ -68,7 +89,7 @@ export default {
                 key: option.name,
                 name: option.name,
                 label: option.label,
-                color: "#6B7280",
+                color: "#64748B",
             }));
         },
         selectedTripTypeMeta() {
@@ -78,7 +99,7 @@ export default {
             return this.vehicleOptions.map((option) => ({
                 key: option.name,
                 label: option.label,
-                color: "#6B7280",
+                color: "#64748B",
             }));
         },
         isGuestContext() {
@@ -86,7 +107,7 @@ export default {
         },
     },
     watch: {
-        'form.destination_region'(value) {
+        "form.destination_region"(value) {
             if (!this.form) return;
             if (!value) {
                 this.form.destination_province = null;
@@ -97,7 +118,7 @@ export default {
             this.form.destination_province = null;
             this.form.destination_city = null;
         },
-        'form.destination_province'(value) {
+        "form.destination_province"(value) {
             if (!this.form) return;
             if (!value) {
                 this.form.destination_city = null;
@@ -121,7 +142,9 @@ export default {
             this.realtimeCleanup = subscribeToRealtimeChannels([
                 {
                     type: this.isGuestContext ? "public" : "private",
-                    channel: this.isGuestContext ? "public.rentals.calendar" : "rentals.calendar",
+                    channel: this.isGuestContext
+                        ? "public.rentals.calendar"
+                        : "rentals.calendar",
                     event: "rentals.calendar.changed",
                     handler: () => this.scheduleRealtimeRefresh(),
                 },
@@ -227,15 +250,16 @@ export default {
                 const response = await this.fetchGetApi(
                     this.routeNameFor("index"),
                     {
-                        statuses: "pending,approved,in_progress,rejected,cancelled,completed",
+                        statuses:
+                            "pending,approved,in_progress,rejected,cancelled,completed",
                     },
                 );
 
                 const rows = Array.isArray(response?.data)
                     ? response.data
                     : Array.isArray(response)
-                        ? response
-                        : [];
+                      ? response
+                      : [];
 
                 this.calendarEvents = this.normalizeCalendarEvents(rows);
             } catch (error) {
@@ -250,9 +274,9 @@ export default {
 
             const data = this.isGuestContext
                 ? await this.fetchPostApi(
-                    this.routeNameFor("create"),
-                    this.form.data(),
-                )
+                      this.routeNameFor("create"),
+                      this.form.data(),
+                  )
                 : await this.submitCreate();
 
             if (
@@ -294,197 +318,472 @@ export default {
 </script>
 
 <template>
-    <SuccessModal :show="showSuccessModal" title="Success!" :message="successMessage" @close="showSuccessModal = false" />
+    <SuccessModal
+        :show="showSuccessModal"
+        title="Success!"
+        :message="successMessage"
+        @close="showSuccessModal = false"
+    />
+
     <div class="grid lg:grid-cols-4 gap-6 mt-3 md:mt-0">
-        <div data-guide='rental-form-shell' v-if="form" class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-gray-100 dark:border-slate-800 p-1 rounded-2xl flex flex-col gap-2 shadow-xl h-fit w-full lg:col-span-1">
-            <div class="bg-amber-50/80 dark:bg-amber-900/30 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm mx-2 mt-2">
-                <div class="flex items-start gap-3">
-                    <svg class="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    <div>
-                        <p class="text-amber-800 dark:text-amber-500 font-medium text-sm">
-                            <span class="font-bold uppercase tracking-wide">Internal Use Only:</span>
-                            This form is exclusively for CBC internal use.
-                            Please note that submission does not replace the
-                            official PhilRice Travel Filing Protocols, which
-                            must still be followed.
-                        </p>
-                    </div>
+        <!-- Left Column: Form -->
+        <div
+            data-guide="rental-form-shell"
+            v-if="form"
+            class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 p-6 rounded-2xl shadow-sm h-fit w-full lg:col-span-1"
+        >
+            <div
+                class="flex items-center gap-3 pb-5 mb-5 border-b border-slate-100 dark:border-slate-800/60"
+            >
+                <div
+                    class="p-2.5 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-xl shadow-sm shrink-0"
+                >
+                    <Car class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div>
+                    <p
+                        class="text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-0.5"
+                    >
+                        Booking
+                    </p>
+                    <h2
+                        class="text-lg font-bold text-slate-900 dark:text-white tracking-tight"
+                    >
+                        Vehicle Request
+                    </h2>
                 </div>
             </div>
 
-            <div class="mt-2 bg-white/60 dark:bg-slate-800/40 border border-gray-200 dark:border-slate-700 rounded-xl p-4 mx-2 shadow-sm">
-                <h2 class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 mb-2">
-                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                    Important Reminders
-                </h2>
-                <ul class="text-sm text-gray-700 dark:text-gray-300 space-y-1">
-                    <li class="flex items-start gap-2">
-                        <span class="text-blue-500">•</span>
-                        <span>Ensure all required fields are completed
-                            accurately.</span>
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <span class="text-blue-500">•</span>
-                        <span>Refer to the filled Travel Order (TO) .</span>
-                    </li>
-                </ul>
-            </div>
-            <div v-if="form" class="bg-transparent rounded-md flex gap-2">
-                <form @submit.prevent="submitProxyCreate" class="space-y-4 bg-white/60 dark:bg-slate-800/60 rounded-xl p-5 w-full">
-                    <div v-if="form.errors.general" class="p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-sm">
-                        {{ form.errors.general }}
+            <!-- Informational Alerts -->
+            <div class="space-y-3 mb-6">
+                <div
+                    class="bg-amber-50/80 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 p-4 rounded-xl shadow-xs"
+                >
+                    <div class="flex items-start gap-3">
+                        <AlertTriangle
+                            class="w-5 h-5 text-amber-600 dark:text-amber-500 mt-0.5 shrink-0"
+                        />
+                        <div>
+                            <p
+                                class="text-amber-800 dark:text-amber-400 font-medium text-xs leading-relaxed"
+                            >
+                                <span
+                                    class="font-bold uppercase tracking-wider block mb-1"
+                                    >Internal Use Only:</span
+                                >
+                                This form is exclusively for CBC internal use.
+                                Please note that submission does not replace the
+                                official PhilRice Travel Filing Protocols, which
+                                must still be followed.
+                            </p>
+                        </div>
                     </div>
-                    <custom-dropdown label="Trip Workflow" required placeholder="Select a trip workflow" 
-                        @selectedChange="handleTripTypeChange" :value="form.trip_type" :with-all-option="false"
-                        :options="tripTypeOptions" :error="form.errors.trip_type">
+                </div>
+
+                <div
+                    class="bg-indigo-50/80 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 rounded-xl p-4 shadow-xs"
+                >
+                    <h2
+                        class="text-xs font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 flex items-center gap-2 mb-2"
+                    >
+                        <Info
+                            class="w-4 h-4 text-indigo-600 dark:text-indigo-400"
+                        />
+                        Important Reminders
+                    </h2>
+                    <ul
+                        class="text-[0.7rem] font-medium text-indigo-800 dark:text-indigo-400 space-y-1.5 ml-6 list-disc"
+                    >
+                        <li>
+                            Ensure all required fields are completed accurately.
+                        </li>
+                        <li>Refer to the filled Travel Order (TO).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <form
+                @submit.prevent="submitProxyCreate"
+                class="space-y-5 w-full h-fit"
+            >
+                <!-- General Error -->
+                <div
+                    v-if="form.errors.general"
+                    class="p-4 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-xl text-rose-700 dark:text-rose-400 text-xs font-bold shadow-sm"
+                >
+                    {{ form.errors.general }}
+                </div>
+
+                <!-- Trip Workflow -->
+                <div class="space-y-3">
+                    <custom-dropdown
+                        label="Trip Workflow"
+                        required
+                        placeholder="Select a trip workflow"
+                        @selectedChange="handleTripTypeChange"
+                        :value="form.trip_type"
+                        :with-all-option="false"
+                        :options="tripTypeOptions"
+                        :error="form.errors.trip_type"
+                        class="w-full"
+                    >
                         <template #icon>
-                            <caret-down class="h-4 w-4 text-gray-600" />
+                            <ChevronDown
+                                class="h-4 w-4 text-slate-400 dark:text-slate-500"
+                            />
                         </template>
                     </custom-dropdown>
-                    <div class="rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-700/30 p-4">
-                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Selected Workflow</p>
-                        <p class="mt-2 text-sm font-semibold text-gray-900 dark:text-gray-100">{{ selectedTripTypeMeta.label }}</p>
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">{{ selectedTripTypeMeta.description }}</p>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <DateInput id="date_from" label="Start Date" required v-model="form.date_from" :min="minDate"
-                            :error="form.errors.date_from" />
-                        <DateInput id="date_to" label="End Date" required v-model="form.date_to" type="date"
-                            :min="form.date_from || minDate" :error="form.errors.date_to" />
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <TimeInput id="time_from" label="Start Time" required v-model="form.time_from"
-                            :error="form.errors.time_from" class="mt-1 block w-full" />
-                        <TimeInput id="time_to" label="End Time" required v-model="form.time_to"
-                            :error="form.errors.time_to" class="mt-1 block w-full" />
-                    </div>
-                    <TextArea id="purpose" v-model="form.purpose" label="Purpose" required
-                        placeholder="Describe the purpose of your vehicle rental"
-                        :class="{ 'border-red-500': form.errors.purpose }"
-                        class="mt-1 block w-full rounded-xl border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-AB focus:ring-AB"></TextArea>
-                    <div>
-                        <label class="text-xs text-gray-500 dark:text-gray-400 flex items-center justify-between mb-1">
-                            Destination Location
-                        </label>
-                        <div class="grid grid-cols-1 gap-4">
-                            <SelectRegion v-model="form.destination_region" :error="form.errors.destination_region"
-                                @update:modelValue="handleDestinationRegionChange" />
-                            <SelectProvince v-model="form.destination_province" :region="form.destination_region"
-                                :disabled="!form.destination_region" :error="form.errors.destination_province"
-                                @update:modelValue="handleDestinationProvinceChange" />
-                            <SelectCity v-model="form.destination_city" :region="form.destination_region"
-                                :province="form.destination_province" :disabled="!form.destination_province"
-                                :error="form.errors.destination_city" />
-                        </div>
-                    </div>
-                    <TextInput id="destination_location" label="Specific Address" required
-                        v-model="form.destination_location" type="text" placeholder="Specific destination / address"
-                        :error="form.errors.destination_location" class="mt-1 block w-full" />
-                    <TextArea id="destination_stops" v-model="destinationStopInput" label="Additional Stops"
-                        placeholder="One stop per line for shuttle or multi-stop trips" @input="syncDestinationStops"
-                        :error="form.errors.destination_stops"
-                        class="mt-1 block w-full rounded-xl border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-AB focus:ring-AB"></TextArea>
-                    <div class="rounded-xl border border-gray-200 dark:border-slate-700 p-4">
-                        <label class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <Checkbox v-model:checked="form.is_shared_ride" name="is_shared_ride" />
-                            <span>
-                                <span class="block font-medium text-gray-900 dark:text-gray-100">Shared/Hitch Ride</span>
-                                <span class="block text-xs text-gray-500 dark:text-gray-400">Enable this if the trip can be grouped with another approved request.</span>
-                            </span>
-                        </label>
-                    </div>
-                    <TextInput v-if="form.is_shared_ride" id="shared_ride_reference" label="Shared/Hitch Ride Reference"
-                        v-model="form.shared_ride_reference" type="text" placeholder="Full name of the person you're sharing with"
-                        :error="form.errors.shared_ride_reference" class="mt-1 block w-full" />
-                    <PersonnelLookup v-model="employee_id" @found="handlePersonnelFound" />
-                    <TextInput id="requested_by" label="Your Name" required v-model="form.requested_by" type="text"
-                        placeholder="Full name" :error="form.errors.requested_by" class="mt-1 block w-full" />
-                    <TextInput id="organization" label="Division / Organization" required v-model="form.organization" type="text"
-                        placeholder="e.g. Crop Biotechnology Center" :error="form.errors.organization" class="mt-1 block w-full" />
-                    <div class="mt-1 border border-gray-200 dark:border-slate-700 rounded-xl p-4 bg-white/50 dark:bg-slate-800/50">
-                        <div class="flex items-center justify-between mb-2">
-                            <label class="text-sm font-semibold text-gray-900 dark:text-gray-100">Members of the Party (MOP)</label>
-                            <button type="button"
-                                class="px-2 py-1 text-xs border border-dashed border-gray-400 dark:border-slate-500 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
-                                @click="addMemberOfPartyRow">
-                                + Add Member
-                            </button>
-                        </div>
 
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                            Add companions for this trip. Leave empty if none.
+                    <div
+                        v-if="selectedTripTypeMeta"
+                        class="rounded-xl border border-slate-200/60 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-800/30 p-4 shadow-xs"
+                    >
+                        <p
+                            class="text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400"
+                        >
+                            Selected Workflow
                         </p>
+                        <p
+                            class="mt-1 text-sm font-bold text-slate-900 dark:text-white"
+                        >
+                            {{ selectedTripTypeMeta.label }}
+                        </p>
+                        <p
+                            class="mt-1 text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed"
+                        >
+                            {{ selectedTripTypeMeta.description }}
+                        </p>
+                    </div>
+                </div>
 
-                        <div v-if="form.errors.members_of_party" class="text-xs text-red-600 mb-2">
-                            {{ form.errors.members_of_party }}
-                        </div>
+                <!-- Date Range -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <DateInput
+                        id="date_from"
+                        label="Start Date"
+                        required
+                        v-model="form.date_from"
+                        :min="minDate"
+                        :error="form.errors.date_from"
+                        class="block w-full"
+                    />
+                    <DateInput
+                        id="date_to"
+                        label="End Date"
+                        required
+                        v-model="form.date_to"
+                        type="date"
+                        :min="form.date_from || minDate"
+                        :error="form.errors.date_to"
+                        class="block w-full"
+                    />
+                </div>
 
-                        <div v-if="membersOfPartyRows.length" class="flex flex-col gap-2">
-                            <div v-for="(member, index) in membersOfPartyRows" :key="`mop-${index}`"
-                                class="flex gap-2 items-start">
-                                <div class="flex-1">
-                                    <TextInput :id="`members_of_party_${index}`" :label="`Member ${index + 1}`"
-                                        v-model="member.name" type="text" placeholder="Enter member full name"
-                                        @input="syncMembersOfPartyPayload" class="mt-1 block w-full" />
-                                    <p v-if="memberRowError(index)" class="text-xs text-red-600 mt-1">
-                                        {{ memberRowError(index) }}
-                                    </p>
-                                </div>
+                <!-- Time Range -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <TimeInput
+                        id="time_from"
+                        label="Start Time"
+                        required
+                        v-model="form.time_from"
+                        :error="form.errors.time_from"
+                        class="block w-full"
+                    />
+                    <TimeInput
+                        id="time_to"
+                        label="End Time"
+                        required
+                        v-model="form.time_to"
+                        :error="form.errors.time_to"
+                        class="block w-full"
+                    />
+                </div>
 
-                                <div class="flex gap-1 pt-8">
-                                    <button type="button"
-                                        class="px-2 py-1 text-xs border border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 rounded hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
-                                        @click="removeMemberOfPartyRow(index)" title="Remove member">
-                                        <lu-x class="h-3 w-3" />
-                                    </button>
-                                </div>
+                <!-- Purpose -->
+                <TextArea
+                    id="purpose"
+                    v-model="form.purpose"
+                    label="Purpose"
+                    required
+                    placeholder="Describe the purpose of your vehicle rental"
+                    :error="form.errors.purpose"
+                    class="block w-full"
+                ></TextArea>
+
+                <!-- Destination Location -->
+                <div>
+                    <label
+                        class="block text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2"
+                    >
+                        Destination Location
+                    </label>
+                    <div class="grid grid-cols-1 gap-4">
+                        <SelectRegion
+                            v-model="form.destination_region"
+                            :error="form.errors.destination_region"
+                            @update:modelValue="handleDestinationRegionChange"
+                            class="block w-full"
+                        />
+                        <SelectProvince
+                            v-model="form.destination_province"
+                            :region="form.destination_region"
+                            :disabled="!form.destination_region"
+                            :error="form.errors.destination_province"
+                            @update:modelValue="handleDestinationProvinceChange"
+                            class="block w-full"
+                        />
+                        <SelectCity
+                            v-model="form.destination_city"
+                            :region="form.destination_region"
+                            :province="form.destination_province"
+                            :disabled="!form.destination_province"
+                            :error="form.errors.destination_city"
+                            class="block w-full"
+                        />
+                    </div>
+                </div>
+
+                <TextInput
+                    id="destination_location"
+                    label="Specific Address"
+                    required
+                    v-model="form.destination_location"
+                    type="text"
+                    placeholder="Specific destination / address"
+                    :error="form.errors.destination_location"
+                    class="block w-full"
+                />
+
+                <TextArea
+                    id="destination_stops"
+                    v-model="destinationStopInput"
+                    label="Additional Stops"
+                    placeholder="One stop per line for shuttle or multi-stop trips"
+                    @input="syncDestinationStops"
+                    :error="form.errors.destination_stops"
+                    class="block w-full"
+                ></TextArea>
+
+                <!-- Shared Ride Checkbox -->
+                <div
+                    class="rounded-xl border border-slate-200/60 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-800/30 p-4 shadow-xs"
+                >
+                    <Checkbox
+                        v-model:checked="form.is_shared_ride"
+                        name="is_shared_ride"
+                        label="Shared/Hitch Ride"
+                    />
+                    <span
+                        class="block text-xs font-medium text-slate-500 dark:text-slate-400 mt-1.5 pl-6 leading-relaxed"
+                    >
+                        Enable this if the trip can be grouped with another
+                        approved request.
+                    </span>
+                </div>
+
+                <TextInput
+                    v-if="form.is_shared_ride"
+                    id="shared_ride_reference"
+                    label="Shared/Hitch Ride Reference"
+                    v-model="form.shared_ride_reference"
+                    type="text"
+                    placeholder="Full name of the person you're sharing with"
+                    :error="form.errors.shared_ride_reference"
+                    class="block w-full"
+                />
+
+                <!-- Requestor Details -->
+                <div class="space-y-5">
+                    <PersonnelLookup
+                        v-model="employee_id"
+                        @found="handlePersonnelFound"
+                    />
+                    <TextInput
+                        id="requested_by"
+                        label="Your Name"
+                        required
+                        v-model="form.requested_by"
+                        type="text"
+                        placeholder="Full name"
+                        :error="form.errors.requested_by"
+                        class="block w-full"
+                    />
+                </div>
+
+                <TextInput
+                    id="organization"
+                    label="Division / Organization"
+                    required
+                    v-model="form.organization"
+                    type="text"
+                    placeholder="e.g. Crop Biotechnology Center"
+                    :error="form.errors.organization"
+                    class="block w-full"
+                />
+
+                <div
+                    class="rounded-xl border border-slate-200/60 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-800/30 p-5 shadow-xs space-y-4"
+                >
+                    <div class="flex items-center justify-between">
+                        <label
+                            class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400"
+                            >Members of the Party (MOP)</label
+                        >
+                        <button
+                            type="button"
+                            class="inline-flex items-center gap-1 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-wider border border-dashed border-indigo-300 dark:border-indigo-500/50 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors"
+                            @click="addMemberOfPartyRow"
+                        >
+                            + Add Member
+                        </button>
+                    </div>
+
+                    <p
+                        class="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed"
+                    >
+                        Add companions for this trip. Leave empty if none.
+                    </p>
+
+                    <div
+                        v-if="form.errors.members_of_party"
+                        class="text-xs font-semibold text-rose-600 dark:text-rose-400"
+                    >
+                        {{ form.errors.members_of_party }}
+                    </div>
+
+                    <div
+                        v-if="membersOfPartyRows.length"
+                        class="flex flex-col gap-3"
+                    >
+                        <div
+                            v-for="(member, index) in membersOfPartyRows"
+                            :key="`mop-${index}`"
+                            class="flex gap-3 items-start"
+                        >
+                            <div class="flex-1">
+                                <TextInput
+                                    :id="`members_of_party_${index}`"
+                                    :label="`Member ${index + 1}`"
+                                    v-model="member.name"
+                                    type="text"
+                                    placeholder="Enter member full name"
+                                    @input="syncMembersOfPartyPayload"
+                                    class="block w-full"
+                                />
+                                <p
+                                    v-if="memberRowError(index)"
+                                    class="text-xs font-semibold text-rose-600 dark:text-rose-400 mt-1"
+                                >
+                                    {{ memberRowError(index) }}
+                                </p>
+                            </div>
+
+                            <div class="flex gap-1 pt-[1.65rem]">
+                                <button
+                                    type="button"
+                                    class="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-colors border border-transparent hover:border-rose-200 dark:hover:border-rose-500/30"
+                                    @click="removeMemberOfPartyRow(index)"
+                                    title="Remove member"
+                                >
+                                    <X class="h-4 w-4" />
+                                </button>
                             </div>
                         </div>
-                        <p v-else class="text-xs text-gray-400">
-                            No members added.
-                        </p>
                     </div>
-                    <TextInput id="contact_number" label="Contact Number" required v-model="form.contact_number"
-                        type="tel" placeholder="09XX-XXX-XXXX" :error="form.errors.contact_number"
-                        class="mt-1 block w-full" />
-                    <TextArea id="notes" label="Additional Notes" v-model="form.notes"
-                        placeholder="Any additional information"
-                        class="mt-1 block w-full rounded-xl border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-AB focus:ring-AB"></TextArea>
-                    <div class="flex gap-4 pt-6 border-t border-gray-100 dark:border-slate-700">
-                        <PrimaryButton :disabled="processing" class="justify-center flex-1 rounded-xl shadow-md hover:-translate-y-0.5 transition-all duration-300">
-                            <span v-if="processing" class="flex items-center justify-center gap-2">
-                                <loader-icon />
-                                Submitting...
-                            </span>
-                            <span v-else>Submit Booking Request</span>
-                        </PrimaryButton>
-                    </div>
-                </form>
-            </div>
+                </div>
+
+                <TextInput
+                    id="contact_number"
+                    label="Contact Number"
+                    required
+                    v-model="form.contact_number"
+                    type="tel"
+                    placeholder="09XX-XXX-XXXX"
+                    :error="form.errors.contact_number"
+                    class="block w-full"
+                />
+
+                <TextArea
+                    id="notes"
+                    label="Additional Notes"
+                    v-model="form.notes"
+                    placeholder="Any additional information..."
+                    class="block w-full"
+                ></TextArea>
+
+                <!-- Submit Button -->
+                <div
+                    class="pt-5 border-t border-slate-100 dark:border-slate-800/60 mt-6"
+                >
+                    <button
+                        type="submit"
+                        :disabled="processing"
+                        class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3.5 text-sm shadow-sm transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+                    >
+                        <Loader2
+                            v-if="processing"
+                            class="animate-spin w-4 h-4"
+                        />
+                        <span>{{
+                            processing
+                                ? "Submitting..."
+                                : "Submit Vehicle Request"
+                        }}</span>
+                    </button>
+                </div>
+            </form>
         </div>
-        <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-gray-100 dark:border-slate-800 p-6 rounded-2xl shadow-xl lg:col-span-3 h-fit flex flex-col gap-4">
-            <div>
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1">
-                    Vehicle Availability Calendar
-                </h3>
-                <p class="text-sm text-gray-500 dark:text-slate-400">
-                    Review current request schedules and workflow states before submitting.
-                </p>
+
+        <!-- Right Column: Calendar -->
+        <div
+            class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 p-6 rounded-2xl shadow-sm lg:col-span-3 h-fit flex flex-col gap-4"
+        >
+            <div
+                class="border-b border-slate-100 dark:border-slate-800/60 pb-4 flex items-center gap-3"
+            >
+                <div
+                    class="p-2 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-xl shadow-sm shrink-0"
+                >
+                    <CalendarDays
+                        class="w-5 h-5 text-indigo-600 dark:text-indigo-400"
+                    />
+                </div>
+                <div>
+                    <h3
+                        class="text-base font-bold text-slate-900 dark:text-white tracking-tight"
+                    >
+                        Vehicle Availability Calendar
+                    </h3>
+                    <p
+                        class="text-xs font-medium text-slate-500 dark:text-slate-400"
+                    >
+                        Review current request schedules and workflow states
+                        before submitting.
+                    </p>
+                </div>
             </div>
-            <div v-if="calendarLoading" class="text-sm text-gray-500 dark:text-slate-400 flex items-center gap-2 justify-center py-10">
-                <loader-icon class="w-6 h-6 text-AB dark:text-emerald-400 animate-spin" />
+
+            <div
+                v-if="calendarLoading"
+                class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 flex items-center gap-2 justify-center py-16"
+            >
+                <Loader2 class="w-5 h-5 text-indigo-500 animate-spin" />
                 Loading booking calendars...
             </div>
-            <calendar-module v-else title="Vehicle Requests" :events="calendarEvents" :type-options="vehicleTypeOptions"
-                :status-options="statusOptions" :status-colors="statusColors" :show-today="true"
-                :show-type-filter="true" :show-status-filter="true" :show-stats="false" class="!bg-transparent !shadow-none !border-0" />
+
+            <calendar-module
+                v-else
+                title="Vehicle Requests"
+                :events="calendarEvents"
+                :type-options="vehicleTypeOptions"
+                :status-options="statusOptions"
+                :status-colors="statusColors"
+                :show-today="true"
+                :show-type-filter="true"
+                :show-status-filter="true"
+                :show-stats="false"
+                class="!bg-transparent !shadow-none !border-0"
+            />
         </div>
     </div>
 </template>

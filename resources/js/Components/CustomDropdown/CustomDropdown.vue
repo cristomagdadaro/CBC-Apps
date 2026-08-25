@@ -28,7 +28,7 @@
                 :id="inputId"
                 :class="[
                     'w-full flex gap-2 justify-between items-center rounded-xl px-3 py-2.5 transition-all duration-200',
-                    'bg-transparent',
+                    'bg-white dark:bg-slate-900 dark:text-slate-100',
                     disabled
                         ? 'opacity-60 cursor-not-allowed'
                         : 'cursor-pointer',

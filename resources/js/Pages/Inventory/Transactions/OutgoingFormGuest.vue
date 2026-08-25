@@ -207,6 +207,7 @@ export default {
         :subtitle="'Kindly fill out the form below to record your transaction'"
         guide-key="supplies-checkout-guest"
         :delay-ready="delayReady"
+        :max-width="'max-w-2xl'"
     >
         <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
             <div class="border border-slate-200 dark:border-slate-800 p-4 sm:p-5 rounded-2xl flex flex-col gap-4 bg-white dark:bg-slate-900 w-full max-w-7xl mx-auto shadow-xs text-slate-900 dark:text-slate-100">

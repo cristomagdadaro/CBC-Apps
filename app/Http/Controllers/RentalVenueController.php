@@ -283,4 +283,9 @@ class RentalVenueController extends BaseController
             'invalidate' => ['rentals.calendar', 'rentals.venues'],
         ]));
     }
+
+    public function publicRates(\App\Repositories\OptionRepo $optionRepo): JsonResponse
+    {
+        return response()->json(['data' => $optionRepo->getVenueRates()]);
+    }
 }
