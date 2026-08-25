@@ -83,7 +83,11 @@
                 <transition-container type="fade">
                     <div
                         v-show="open"
-                        class="absolute z-50 mt-1.5 flex max-h-[30vh] min-w-full w-max flex-col overflow-visible rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900">
+                        ref="dropdownMenu"
+                        :class="[
+                            'absolute z-50 mt-1.5 flex max-h-[30vh] min-w-full w-max flex-col overflow-visible rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900',
+                            menuAlignRight ? 'right-0' : 'left-0'
+                        ]">
                         <!-- Options List -->
                         <div class="flex-1 overflow-visible overflow-y-auto py-1">
                             <!-- No Options -->
@@ -168,17 +172,31 @@ export default {
             selected: null,
             search: null,
             filteredOptions: [],
+            menuAlignRight: false,
         };
     },
     methods: {
         toggle() {
             if (this.disabled) return;
             this.open = !this.open;
-            if (this.open && this.searchable) {
+            if (this.open) {
                 this.$nextTick(() => {
-                    this.$refs.searchInput?.focus();
+                    this.adjustAlignment();
+                    if (this.searchable) {
+                        this.$refs.searchInput?.focus();
+                    }
                 });
             }
+        },
+        adjustAlignment() {
+            if (!this.$refs.dropdownMenu) return;
+            this.menuAlignRight = false; // default to left
+            this.$nextTick(() => {
+                const rect = this.$refs.dropdownMenu.getBoundingClientRect();
+                if (rect.right > window.innerWidth) {
+                    this.menuAlignRight = true;
+                }
+            });
         },
         select(option) {
             if (this.disabled) return;

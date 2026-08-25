@@ -257,37 +257,25 @@ export default {
                             <!-- Event ID Input -->
                             <div>
                                 <label class="mb-2 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Event ID</label>
-                                <div class="relative">
-                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
-                                        <LuHash class="h-4 w-4 text-slate-400" />
-                                    </div>
-                                    <input
-                                        v-model="eventId"
-                                        type="text"
-                                        maxlength="4"
-                                        class="block w-36 rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-lg font-black tracking-widest text-slate-900 shadow-sm transition-all focus:border-transparent focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                                        placeholder="0000" />
-                                </div>
+                                <input
+                                    v-model="eventId"
+                                    type="number"
+                                    maxlength="4"
+                                    class="ext-lg block rounded-xl border border-slate-300 bg-white py-1.5 font-black tracking-widest text-slate-900 shadow-sm transition-all focus:border-transparent focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                    placeholder="0000" />
                             </div>
 
                             <!-- Scan Type Input -->
                             <div class="flex-1 md:max-w-xs">
                                 <label class="mb-2 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Scan Type</label>
-                                <div class="relative">
-                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
-                                        <LuTags class="h-4 w-4 text-slate-400" />
-                                    </div>
-                                    <select
-                                        v-model="scanType"
-                                        class="block w-full appearance-none rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-10 text-sm font-semibold text-slate-700 shadow-sm transition-all focus:border-transparent focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                                        <option
-                                            v-for="option in scanTypeFilterOptions.filter((o) => o.value !== 'all')"
-                                            :key="option.value"
-                                            :value="option.value">
-                                            {{ option.label }}
-                                        </option>
-                                    </select>
-                                </div>
+                                <custom-dropdown
+                                    required
+                                    :value="scanType"
+                                    :with-all-option="false"
+                                    :show-clear="false"
+                                    placeholder="Select"
+                                    :options="scanTypeFilterOptions.filter((o) => o.value !== 'all')"
+                                    :show-valid-indicator="false" />
                             </div>
                         </div>
                     </div>
