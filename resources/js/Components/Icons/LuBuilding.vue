@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { Building } from 'lucide-vue-next'
+import { Building } from "lucide-vue-next";
 
 withDefaults(
     defineProps<{
-        size?: number
-        strokeWidth?: number
+        size?: number;
+        strokeWidth?: number;
     }>(),
     {
         size: 20,
         strokeWidth: 2,
     },
-)
+);
 </script>
 
 <template>
-    <Building :size="size" :stroke-width="strokeWidth" v-bind="$attrs" />
+    <Building
+        :size="size"
+        :stroke-width="strokeWidth"
+        v-bind="$attrs" />
 </template>

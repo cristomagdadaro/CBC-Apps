@@ -37,11 +37,13 @@ export const rentalVehicleTripOptionsByName = rentalVehicleTripOptions.reduce((c
 }, {});
 
 export const getTripTypeMeta = (tripType) => {
-    return rentalVehicleTripOptionsByName[tripType] || {
-        name: tripType || "dedicated_trip",
-        label: "Trip Workflow",
-        description: "Trip workflow details were not provided.",
-    };
+    return (
+        rentalVehicleTripOptionsByName[tripType] || {
+            name: tripType || "dedicated_trip",
+            label: "Trip Workflow",
+            description: "Trip workflow details were not provided.",
+        }
+    );
 };
 
 export const buildTripRoute = (tripType, destinations = [], originLabel = "CES") => {
@@ -69,25 +71,11 @@ export const buildTripRoute = (tripType, destinations = [], originLabel = "CES")
                 { label: originLabel, kind: "return" },
             ];
         case "shuttle_service":
-            return [
-                { label: originLabel, kind: "origin" },
-                ...cleanedStops.map((label) => ({ label, kind: "stop" })),
-                { label: "Repeat trips as scheduled", kind: "transfer" },
-                { label: originLabel, kind: "return" },
-            ];
+            return [{ label: originLabel, kind: "origin" }, ...cleanedStops.map((label) => ({ label, kind: "stop" })), { label: "Repeat trips as scheduled", kind: "transfer" }, { label: originLabel, kind: "return" }];
         case "multi_stop_trip":
-            return [
-                { label: originLabel, kind: "origin" },
-                { label: primaryDestination, kind: "stop" },
-                ...extraStops.map((label) => ({ label, kind: "stop" })),
-                { label: originLabel, kind: "return" },
-            ];
+            return [{ label: originLabel, kind: "origin" }, { label: primaryDestination, kind: "stop" }, ...extraStops.map((label) => ({ label, kind: "stop" })), { label: originLabel, kind: "return" }];
         case "dedicated_trip":
         default:
-            return [
-                { label: originLabel, kind: "origin" },
-                ...cleanedStops.map((label) => ({ label, kind: "stop" })),
-                { label: "Vehicle stays assigned until trip end", kind: "transfer" },
-            ];
+            return [{ label: originLabel, kind: "origin" }, ...cleanedStops.map((label) => ({ label, kind: "stop" })), { label: "Vehicle stays assigned until trip end", kind: "transfer" }];
     }
 };

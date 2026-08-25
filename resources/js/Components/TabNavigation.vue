@@ -1,6 +1,6 @@
 <script>
 export default {
-    name: 'TabNavigation',
+    name: "TabNavigation",
     props: {
         tabs: {
             type: Array,
@@ -12,10 +12,10 @@ export default {
         },
         size: {
             type: String,
-            default: 'md',
+            default: "md",
         },
     },
-    emits: ['update:modelValue', 'change'],
+    emits: ["update:modelValue", "change"],
     data() {
         return {
             localActiveKey: null,
@@ -28,7 +28,7 @@ export default {
         tabs() {
             // ensure localActiveKey falls back to first tab when tabs change
             if (this.localActiveKey == null) this.localActiveKey = this.tabs[0]?.key ?? null;
-        }
+        },
     },
     computed: {
         activeKey: {
@@ -37,8 +37,8 @@ export default {
             },
             set(val) {
                 this.localActiveKey = val;
-                this.$emit('update:modelValue', val);
-                this.$emit('change', val);
+                this.$emit("update:modelValue", val);
+                this.$emit("change", val);
                 // Update hash in URL
                 if (val !== null && val !== undefined) {
                     window.location.hash = `#tab-${val}`;
@@ -46,7 +46,7 @@ export default {
             },
         },
         baseClasses() {
-            return this.size === 'sm' ? 'px-3 py-1 text-xs' : 'px-4 py-2 text-sm';
+            return this.size === "sm" ? "px-3 py-1 text-xs" : "px-4 py-2 text-sm";
         },
     },
     methods: {
@@ -56,50 +56,47 @@ export default {
         },
         setTabFromHash() {
             const hash = window.location.hash;
-            if (hash && hash.startsWith('#tab-')) {
-                const key = hash.replace('#tab-', '');
+            if (hash && hash.startsWith("#tab-")) {
+                const key = hash.replace("#tab-", "");
                 // Only set if the tab exists
-                if (this.tabs.some(tab => String(tab.key) === key)) {
-                    this.activeKey = typeof this.tabs[0].key === 'number' ? Number(key) : key;
+                if (this.tabs.some((tab) => String(tab.key) === key)) {
+                    this.activeKey = typeof this.tabs[0].key === "number" ? Number(key) : key;
                 }
             }
         },
     },
     mounted() {
         this.setTabFromHash();
-        window.addEventListener('hashchange', this.setTabFromHash);
+        window.addEventListener("hashchange", this.setTabFromHash);
     },
     beforeUnmount() {
-        window.removeEventListener('hashchange', this.setTabFromHash);
+        window.removeEventListener("hashchange", this.setTabFromHash);
     },
 };
 </script>
 
 <template>
     <div class="bg-white dark:bg-gray-700 border border-gray-400 rounded-xl dark:border-gray-700 transition-colors p-3">
-        <nav class="flex space-x-4" aria-label="Tabs">
+        <nav
+            class="flex space-x-4"
+            aria-label="Tabs">
             <button
                 v-for="tab in tabs"
                 :key="tab.key"
                 type="button"
                 @click="onTabClick(tab)"
-                :class="[
-                    baseClasses,
-                    'rounded-t-md inline-flex items-center gap-1 border-b-2 font-medium focus:outline-none transition-colors',
-                    tab.disabled
-                        ? 'text-gray-400 dark:text-gray-500 cursor-not-allowed border-transparent'
-                        : activeKey === tab.key
-                            ? 'text-blue-600 dark:text-blue-400 border-blue-500 bg-blue-50/60 dark:bg-blue-950/40'
-                            : 'text-gray-600 dark:text-gray-300 border-transparent hover:text-gray-700 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50',
-                ]"
-            >
-                <slot name="icon" :tab="tab" v-if="tab.icon">
-                    <component :is="tab.icon" class="w-4 h-4" />
+                :class="[baseClasses, 'rounded-t-md inline-flex items-center gap-1 border-b-2 font-medium focus:outline-none transition-colors', tab.disabled ? 'text-gray-400 dark:text-gray-500 cursor-not-allowed border-transparent' : activeKey === tab.key ? 'text-blue-600 dark:text-blue-400 border-blue-500 bg-blue-50/60 dark:bg-blue-950/40' : 'text-gray-600 dark:text-gray-300 border-transparent hover:text-gray-700 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50']">
+                <slot
+                    name="icon"
+                    :tab="tab"
+                    v-if="tab.icon">
+                    <component
+                        :is="tab.icon"
+                        class="w-4 h-4" />
                 </slot>
                 <span>{{ tab.label }}</span>
             </button>
         </nav>
-        <slot :activeKey="activeKey"/>
+        <slot :activeKey="activeKey" />
     </div>
 </template>
-

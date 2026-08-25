@@ -3,21 +3,24 @@ import PersonnelCard from "@/Pages/Inventory/Personnel/components/PersonnelCard.
 
 export default {
     name: "PersonnelList",
-    components: {PersonnelCard},
+    components: { PersonnelCard },
     props: {
         apiResponse: {
             type: Object,
-        }
-    }
-}
+        },
+    },
+};
 </script>
 
 <template>
-    <div v-if="apiResponse" class="flex flex-wrap gap-2">
-        <personnel-card v-for="data in apiResponse.data" :key="data.id" :data="data" />
+    <div
+        v-if="apiResponse"
+        class="flex flex-wrap gap-2">
+        <personnel-card
+            v-for="data in apiResponse.data"
+            :key="data.id"
+            :data="data" />
     </div>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

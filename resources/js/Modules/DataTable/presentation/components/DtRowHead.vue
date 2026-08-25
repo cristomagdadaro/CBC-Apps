@@ -1,7 +1,7 @@
 <script>
 export default {
-    name: "DtRowHead"
-}
+    name: "DtRowHead",
+};
 </script>
 
 <template>

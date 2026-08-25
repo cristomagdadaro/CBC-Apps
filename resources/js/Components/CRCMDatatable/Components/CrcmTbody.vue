@@ -1,5 +1,5 @@
 <template>
-  <tbody id="dtBody">
-    <slot />
-  </tbody>
+    <tbody id="dtBody">
+        <slot />
+    </tbody>
 </template>

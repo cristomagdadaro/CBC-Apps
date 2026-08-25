@@ -10,14 +10,18 @@ export default {
         error: { type: String, default: null },
         required: { type: Boolean, default: false },
     },
-    emits: ['update:modelValue'],
+    emits: ["update:modelValue"],
     computed: {
         inputValue: {
-            get() { return this.modelValue; },
-            set(val) { this.$emit('update:modelValue', val); }
+            get() {
+                return this.modelValue;
+            },
+            set(val) {
+                this.$emit("update:modelValue", val);
+            },
         },
         placeholder() {
-            return this.field.placeholder || this.field.field_config?.placeholder || 'Choose an option';
+            return this.field.placeholder || this.field.field_config?.placeholder || "Choose an option";
         },
         options() {
             return this.field.options || [];
@@ -28,29 +32,46 @@ export default {
 
 <template>
     <div class="relative">
-        <label v-if="field.label" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-            {{ field.label }}<span v-if="required" class="text-red-600 dark:text-red-400">*</span>
+        <label
+            v-if="field.label"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            {{ field.label }}
+            <span
+                v-if="required"
+                class="text-red-600 dark:text-red-400">
+                *
+            </span>
         </label>
         <select
             :id="field.field_key"
             v-model="inputValue"
             :required="required"
             class="w-full px-3 py-2 border border-gray-600 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-AB focus:border-transparent dark:focus:border-gray-600 transition-colors"
-            :class="{'border-red-500 dark:border-red-600': error}"
-        >
-            <option value="" disabled class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">{{ placeholder }}</option>
-            <option 
-                v-for="option in options" 
-                :key="option.value" 
+            :class="{ 'border-red-500 dark:border-red-600': error }">
+            <option
+                value=""
+                disabled
+                class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+                {{ placeholder }}
+            </option>
+            <option
+                v-for="option in options"
+                :key="option.value"
                 :value="option.value"
-                class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            >
+                class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
                 {{ option.label }}
             </option>
         </select>
-        <div v-if="field.description" class="text-xs text-gray-600 dark:text-gray-400 mt-1">{{ field.description }}</div>
+        <div
+            v-if="field.description"
+            class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+            {{ field.description }}
+        </div>
         <transition-container type="slide-bottom">
-            <InputError v-show="!!error" class="mt-1" :message="error" />
+            <InputError
+                v-show="!!error"
+                class="mt-1"
+                :message="error" />
         </transition-container>
     </div>
 </template>

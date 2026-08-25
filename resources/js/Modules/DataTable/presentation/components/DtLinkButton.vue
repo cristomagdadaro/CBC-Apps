@@ -1,22 +1,22 @@
 <script>
-import { Link } from '@inertiajs/vue3';
+import { Link } from "@inertiajs/vue3";
 
 export default {
     name: "DtLinkButton",
-    components: {Link},
+    components: { Link },
     props: {
         href: {
             type: String,
             required: false,
-            default: '#'
+            default: "#",
         },
         target: {
             type: String,
             required: false,
-            default: '_self'
+            default: "_self",
         },
-    }
-}
+    },
+};
 </script>
 
 <template>
@@ -25,11 +25,13 @@ export default {
         :href="href"
         :target="target"
         :rel="target === '_blank' ? 'noopener noreferrer' : null"
-        class="inline-flex items-center justify-center transition-colors duration-200"
-    >
+        class="inline-flex items-center justify-center transition-colors duration-200">
         <slot />
     </Link>
-    <button v-else type="button" class="inline-flex items-center justify-center transition-colors duration-200">
+    <button
+        v-else
+        type="button"
+        class="inline-flex items-center justify-center transition-colors duration-200">
         <slot />
     </button>
 </template>

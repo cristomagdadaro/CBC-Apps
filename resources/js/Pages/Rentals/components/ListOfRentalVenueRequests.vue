@@ -22,7 +22,6 @@ export default {
             :key="data.id"
             :data="data"
             @updated="$emit('updated', $event)"
-            @failedUpdate="$emit('failedUpdate', $event)"
-        />
+            @failedUpdate="$emit('failedUpdate', $event)" />
     </div>
 </template>

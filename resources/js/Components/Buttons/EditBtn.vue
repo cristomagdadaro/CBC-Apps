@@ -1,13 +1,9 @@
 <script>
 export default {
-    name: "EditBtn"
-}
+    name: "EditBtn",
+};
 </script>
 
-<template>
+<template></template>
 
-</template>
-
-<style scoped>
-
-</style>
+<style scoped></style>

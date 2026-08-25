@@ -20,14 +20,18 @@ export default {
         provinces: { type: Array, default: () => [] },
         cities: { type: Array, default: () => [] },
     },
-    emits: ['update:modelValue'],
+    emits: ["update:modelValue"],
     computed: {
         inputValue: {
-            get() { return this.modelValue; },
-            set(val) { this.$emit('update:modelValue', val); }
+            get() {
+                return this.modelValue;
+            },
+            set(val) {
+                this.$emit("update:modelValue", val);
+            },
         },
         placeholder() {
-            const p = this.field.placeholder || this.field.label || 'Select';
+            const p = this.field.placeholder || this.field.label || "Select";
             return this.required ? `${p}*` : p;
         },
         locationType() {
@@ -35,12 +39,12 @@ export default {
         },
         options() {
             switch (this.locationType) {
-                case 'location_region':
-                    return this.regions.map(r => ({ value: r, label: r }));
-                case 'location_province':
-                    return this.provinces.map(p => ({ value: p, label: p }));
-                case 'location_city':
-                    return this.cities.map(c => ({ value: c, label: c }));
+                case "location_region":
+                    return this.regions.map((r) => ({ value: r, label: r }));
+                case "location_province":
+                    return this.provinces.map((p) => ({ value: p, label: p }));
+                case "location_city":
+                    return this.cities.map((c) => ({ value: c, label: c }));
                 default:
                     return [];
             }
@@ -57,18 +61,18 @@ export default {
     methods: {
         applyConfiguredDefaultIfMissing() {
             const currentValue = this.modelValue;
-            if (currentValue !== null && currentValue !== undefined && currentValue !== '') {
+            if (currentValue !== null && currentValue !== undefined && currentValue !== "") {
                 return;
             }
 
             const configuredDefault = this.field?.field_config?.defaultValue;
-            if (configuredDefault === null || configuredDefault === undefined || configuredDefault === '') {
+            if (configuredDefault === null || configuredDefault === undefined || configuredDefault === "") {
                 return;
             }
 
-            const hasMatchingOption = this.options.some(option => option.value === configuredDefault);
+            const hasMatchingOption = this.options.some((option) => option.value === configuredDefault);
             if (hasMatchingOption) {
-                this.$emit('update:modelValue', configuredDefault);
+                this.$emit("update:modelValue", configuredDefault);
             }
         },
     },
@@ -77,10 +81,22 @@ export default {
 
 <template>
     <div class="relative">
-        <div v-if="field.label" class="text-xs text-gray-700 dark:text-gray-200 flex items-center justify-between">
-            <span class="flex gap-0.5 whitespace-nowrap">{{ field.label }} <b v-if="required" class="text-red-500 ">*</b></span>
+        <div
+            v-if="field.label"
+            class="text-xs text-gray-700 dark:text-gray-200 flex items-center justify-between">
+            <span class="flex gap-0.5 whitespace-nowrap">
+                {{ field.label }}
+                <b
+                    v-if="required"
+                    class="text-red-500">
+                    *
+                </b>
+            </span>
             <transition-container type="slide-bottom">
-                <InputError v-show="!!error" class="" :message="error" />
+                <InputError
+                    v-show="!!error"
+                    class=""
+                    :message="error" />
             </transition-container>
         </div>
         <SelectSearchField
@@ -89,9 +105,11 @@ export default {
             :options="options"
             :required="required"
             :disabled="disabled"
-            :placeholder="placeholder"
-        />
-        <div v-if="field.description" class="text-xs text-gray-500 mt-1">{{ field.description }}</div>
-        
+            :placeholder="placeholder" />
+        <div
+            v-if="field.description"
+            class="text-xs text-gray-500 mt-1">
+            {{ field.description }}
+        </div>
     </div>
 </template>

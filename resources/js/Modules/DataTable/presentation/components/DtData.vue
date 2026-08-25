@@ -4,10 +4,10 @@ export default {
     props: {
         truncate: {
             type: Boolean,
-            default: true
-        }
-    }
-}
+            default: true,
+        },
+    },
+};
 </script>
 
 <template>

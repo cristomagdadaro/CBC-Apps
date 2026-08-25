@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { ChevronRight } from 'lucide-vue-next'
+import { ChevronRight } from "lucide-vue-next";
 
 withDefaults(
     defineProps<{
-        size?: number
-        strokeWidth?: number
+        size?: number;
+        strokeWidth?: number;
     }>(),
     {
         size: 20,
         strokeWidth: 2,
     },
-)
+);
 </script>
 
 <template>
-    <ChevronRight :size="size" :stroke-width="strokeWidth" v-bind="$attrs" />
+    <ChevronRight
+        :size="size"
+        :stroke-width="strokeWidth"
+        v-bind="$attrs" />
 </template>

@@ -1,5 +1,5 @@
 <template>
-  <tr class="dtHeaderRow">
-    <slot />
-  </tr>
+    <tr class="dtHeaderRow">
+        <slot />
+    </tr>
 </template>

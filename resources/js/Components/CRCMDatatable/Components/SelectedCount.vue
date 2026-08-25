@@ -1,6 +1,9 @@
 <template>
     <div v-if="count">
-        <span>Selected {{ count }} row<span v-if="count > 1">s</span></span>
+        <span>
+            Selected {{ count }} row
+            <span v-if="count > 1">s</span>
+        </span>
     </div>
 </template>
 <script>
@@ -12,5 +15,5 @@ export default {
             default: 0,
         },
     },
-}
+};
 </script>

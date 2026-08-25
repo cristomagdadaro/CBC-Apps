@@ -1,5 +1,5 @@
 <script>
-import {Link} from "@inertiajs/vue3";
+import { Link } from "@inertiajs/vue3";
 import CreateItemLink from "@/Pages/Inventory/Transactions/components/presentation/CreateItemLink.vue";
 import CreateSupplierLink from "@/Pages/Inventory/Transactions/components/presentation/CreateSupplierLink.vue";
 import CreatePersonnelLink from "@/Pages/Inventory/Transactions/components/presentation/CreatePersonnelLink.vue";
@@ -9,18 +9,27 @@ import BarcodePrintingLink from "@/Pages/Inventory/Transactions/components/prese
 
 export default {
     name: "ItemsHeaderActions",
-    components: {Link, CreateItemLink, CreateSupplierLink, CreatePersonnelLink, IncommingTransactionLink, OutgoingTransactionLink, BarcodePrintingLink},
-}
+    components: {
+        Link,
+        CreateItemLink,
+        CreateSupplierLink,
+        CreatePersonnelLink,
+        IncommingTransactionLink,
+        OutgoingTransactionLink,
+        BarcodePrintingLink,
+    },
+};
 </script>
 
 <template>
-    <ActionHeaderLayout title="Inventory Items" subtitle="Manage your inventory items and related actions." :route-link="route('items.index')">
+    <ActionHeaderLayout
+        title="Inventory Items"
+        subtitle="Manage your inventory items and related actions."
+        :route-link="route('items.index')">
         <CreateItemLink />
         <IncommingTransactionLink />
         <OutgoingTransactionLink />
     </ActionHeaderLayout>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

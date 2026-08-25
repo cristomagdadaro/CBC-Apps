@@ -1,5 +1,5 @@
 <script>
-import QrcodeVue from 'qrcode.vue';
+import QrcodeVue from "qrcode.vue";
 import { createCanvas } from "canvas";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import Transaction from "@/Modules/domain/Transaction";
@@ -9,29 +9,7 @@ import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/T
 import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/TransactionReportAccordion.vue";
 import TransactionComponentAccordion from "@/Pages/Inventory/Transactions/components/TransactionComponentAccordion.vue";
 import AuditInfoCard from "@/Components/AuditInfoCard.vue";
-import {
-    Plus,
-    X,
-    Printer,
-    RotateCcw,
-    Save,
-    Loader2,
-    Package,
-    GitBranch,
-    ArrowUpRight,
-    Filter,
-    Calendar,
-    Hash,
-    User,
-    FileText,
-    DollarSign,
-    Scale,
-    Box,
-    Tag,
-    MapPin,
-    AlertCircle,
-    Info
-} from 'lucide-vue-next';
+import { Plus, X, Printer, RotateCcw, Save, Loader2, Package, GitBranch, ArrowUpRight, Filter, Calendar, Hash, User, FileText, DollarSign, Scale, Box, Tag, MapPin, AlertCircle, Info } from "lucide-vue-next";
 
 export default {
     name: "IncomingForm",
@@ -51,7 +29,7 @@ export default {
         parentTransaction: {
             type: Object,
             default: null,
-        },  
+        },
     },
     components: {
         TransactionHeaderAction,
@@ -79,7 +57,7 @@ export default {
         Tag,
         MapPin,
         AlertCircle,
-        Info
+        Info,
     },
     mixins: [ApiMixin],
     data() {
@@ -87,12 +65,12 @@ export default {
             api: null,
             noModelApi: null,
             barcodeCanvas: null,
-            svgText: '',
+            svgText: "",
             showNewItemForm: false,
-            rememberFormKey: 'incomingTransactionForm',
-        }
+            rememberFormKey: "incomingTransactionForm",
+        };
     },
-    emits: ['showNewItemForm'],
+    emits: ["showNewItemForm"],
     methods: {
         async submitForm() {
             if (this.isUpdate) {
@@ -106,20 +84,7 @@ export default {
             await this.handleCreateSuccess(response, selectedStorage);
         },
         getCreateRetainedFields() {
-            return [
-                'transac_type',
-                'user_id',
-                'project_code',
-                'equipment_logger_mode',
-                'personnel_id',
-                'condition',
-                'remarks',
-                'par_no',
-                'po_no',
-                'pr_no',
-                'serial_no',
-                'parent_barcode',
-            ];
+            return ["transac_type", "user_id", "project_code", "equipment_logger_mode", "personnel_id", "condition", "remarks", "par_no", "po_no", "pr_no", "serial_no", "parent_barcode"];
         },
         currentUserId() {
             return this.$page.props?.auth?.user?.id ?? null;
@@ -139,7 +104,7 @@ export default {
                 return;
             }
 
-            await this.fetchGetApi('api.inventory.transactions.genbarcode', { room: room }).then(response => {
+            await this.fetchGetApi("api.inventory.transactions.genbarcode", { room: room }).then((response) => {
                 this.form.barcode = response.data.barcode;
                 this.renderBarcode();
             });
@@ -149,7 +114,7 @@ export default {
                 return;
             }
 
-            this.form.transac_type = this.form.transac_type ?? 'incoming';
+            this.form.transac_type = this.form.transac_type ?? "incoming";
             this.form.user_id = this.form.user_id ?? this.currentUserId();
             this.form.parent_barcode = this.form.parent_barcode ?? this.getParentReferenceBarcode();
             this.form.equipment_logger_mode = this.form.equipment_logger_mode ?? this.defaultEquipmentLoggerMode;
@@ -166,7 +131,7 @@ export default {
                 return;
             }
 
-            this.svgText = '';
+            this.svgText = "";
         },
         async handleCreateSuccess(response, storage = null) {
             if (!(response instanceof DtoResponse)) {
@@ -205,31 +170,20 @@ export default {
             return !!this.data?.id;
         },
         items() {
-            if (!this.$page.props?.items)
-                return [];
-            return this.$page.props.items.map(item => {
+            if (!this.$page.props?.items) return [];
+            return this.$page.props.items.map((item) => {
                 const supplement = item.brand || item.description;
 
                 return {
                     name: item.id,
-                    label: item.name + (supplement ? ' (' + supplement + ')' : ''),
-                }
+                    label: item.name + (supplement ? " (" + supplement + ")" : ""),
+                };
             });
         },
         personnels() {
-            if (!this.$page.props?.personnels)
-                return [];
-            return this.$page.props.personnels.map(personnel => {
-                const fullName = [
-                    personnel.lname,
-                    ', ',
-                    personnel.fname,
-                    personnel.mname,
-                    personnel.suffix,
-                    ' (',
-                    personnel.employee_id,
-                    ')'
-                ].filter(Boolean).join(' ');
+            if (!this.$page.props?.personnels) return [];
+            return this.$page.props.personnels.map((personnel) => {
+                const fullName = [personnel.lname, ", ", personnel.fname, personnel.mname, personnel.suffix, " (", personnel.employee_id, ")"].filter(Boolean).join(" ");
 
                 return {
                     name: personnel.id,
@@ -244,15 +198,19 @@ export default {
                 return [];
             }
 
-            return [...new Set(projectCodes
-                .map((projectCode) => {
-                    if (typeof projectCode === 'string') {
-                        return projectCode.trim();
-                    }
+            return [
+                ...new Set(
+                    projectCodes
+                        .map((projectCode) => {
+                            if (typeof projectCode === "string") {
+                                return projectCode.trim();
+                            }
 
-                    return String(projectCode?.label ?? projectCode?.name ?? projectCode?.value ?? '').trim();
-                })
-                .filter(Boolean))];
+                            return String(projectCode?.label ?? projectCode?.name ?? projectCode?.value ?? "").trim();
+                        })
+                        .filter(Boolean),
+                ),
+            ];
         },
         equipmentLoggerModeOptions() {
             const options = this.$page.props?.equipment_logger_mode_options;
@@ -269,32 +227,28 @@ export default {
                 .filter((option) => option.name && option.label);
         },
         defaultEquipmentLoggerMode() {
-            return this.$page.props?.equipment_logger_mode_default
-                ?? this.equipmentLoggerModeOptions[0]?.name
-                ?? null;
+            return this.$page.props?.equipment_logger_mode_default ?? this.equipmentLoggerModeOptions[0]?.name ?? null;
         },
         defaultCondition() {
-            return this.form.condition ??
-                this.listConditions[0]?.name
-                ?? null;
+            return this.form.condition ?? this.listConditions[0]?.name ?? null;
         },
         selectedEquipmentLoggerModeOption() {
             return this.equipmentLoggerModeOptions.find((option) => option.name === this.form?.equipment_logger_mode) ?? null;
         },
         equipmentLoggerModeHelpText() {
             if (!this.selectedEquipmentLoggerModeOption) {
-                return 'Choose how this incoming stock can participate in equipment or shared-use logger workflows.';
+                return "Choose how this incoming stock can participate in equipment or shared-use logger workflows.";
             }
 
             const mode = this.selectedEquipmentLoggerModeOption.name;
-            let explanation = '';
+            let explanation = "";
 
-            if (mode === 'borrowable') {
-                explanation = 'The equipment will be visible in the logger and can be checked out/in by personnel.';
-            } else if (mode === 'tracked_only') {
-                explanation = 'The equipment will be visible in the logger for location tracking only, but cannot be checked out.';
-            } else if (mode === 'excluded') {
-                explanation = 'The equipment will be entirely excluded and hidden from the equipment logger.';
+            if (mode === "borrowable") {
+                explanation = "The equipment will be visible in the logger and can be checked out/in by personnel.";
+            } else if (mode === "tracked_only") {
+                explanation = "The equipment will be visible in the logger for location tracking only, but cannot be checked out.";
+            } else if (mode === "excluded") {
+                explanation = "The equipment will be entirely excluded and hidden from the equipment logger.";
             } else {
                 explanation = `${this.selectedEquipmentLoggerModeOption.label} applies to this incoming stock record and any downstream logger visibility tied to it.`;
             }
@@ -325,17 +279,15 @@ export default {
         },
         toggleShowNewItemForm() {
             this.showNewItemForm = !this.showNewItemForm;
-            this.$emit('showNewItemForm', this.showNewItemForm);
+            this.$emit("showNewItemForm", this.showNewItemForm);
         },
     },
     watch: {
-        'form.barcode': function () {
+        "form.barcode": function () {
             this.renderBarcode();
         },
-        'form.item_id': function (val) {
-            const selectedItem = typeof val === 'object' && val !== null
-                ? val
-                : (this.$page.props?.items ?? []).find(item => item.id === val);
+        "form.item_id": function (val) {
+            const selectedItem = typeof val === "object" && val !== null ? val : (this.$page.props?.items ?? []).find((item) => item.id === val);
 
             if (!selectedItem) {
                 if (!val) {
@@ -348,20 +300,18 @@ export default {
 
             this.form.unit_price = selectedItem.unit_price ?? null;
             this.form.unit = selectedItem.unit ?? this.form.unit;
-            this.form.total_cost = this.form.quantity && this.form.unit_price
-                ? this.form.unit_price * this.form.quantity
-                : null;
+            this.form.total_cost = this.form.quantity && this.form.unit_price ? this.form.unit_price * this.form.quantity : null;
         },
-        'form.quantity': function (val) {
+        "form.quantity": function (val) {
             this.form.total_cost = this.form.unit_price ? this.form.unit_price * val : null;
         },
-        'form.unit_price': function (val) {
+        "form.unit_price": function (val) {
             this.form.total_cost = this.form.quantity ? val * this.form.quantity : null;
         },
     },
     async mounted() {
         this.model = new Transaction();
-        this.setFormAction(this.isUpdate ? 'update' : 'create');
+        this.setFormAction(this.isUpdate ? "update" : "create");
 
         if (!this.isUpdate) {
             await this.applyCreateDefaults(this.selectedStorage);
@@ -371,15 +321,17 @@ export default {
         this.applyParentReference();
         this.renderBarcode();
     },
-}
+};
 </script>
 
 <template>
-    <form v-if="!!form" @submit.prevent="submitForm" class="grid gap-6 w-full" :class="currentFormAction === 'create' ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-[1fr,320px] xl:grid-cols-[1fr,360px]'">
-        
+    <form
+        v-if="!!form"
+        @submit.prevent="submitForm"
+        class="grid gap-6 w-full"
+        :class="currentFormAction === 'create' ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-[1fr,320px] xl:grid-cols-[1fr,360px]'">
         <!-- Main Form Column -->
         <div class="flex flex-col w-full mx-auto bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl overflow-hidden rounded-2xl h-fit border border-slate-200/60 dark:border-slate-800 shadow-sm ring-1 ring-slate-900/5 dark:ring-white/5 transition-all duration-300">
-            
             <!-- Header Section -->
             <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-800/20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
@@ -388,29 +340,33 @@ export default {
                             <Package class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         <h2 class="font-black uppercase tracking-tight text-lg text-slate-900 dark:text-white leading-none">
-                            {{ isUpdate ? 'Update Transaction' : 'Incoming Transaction' }}
+                            {{ isUpdate ? "Update Transaction" : "Incoming Transaction" }}
                         </h2>
                     </div>
                     <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                        {{ isUpdate ? 'Update the details of this incoming transaction.' : 'Submit details for a new incoming transaction.' }}
+                        {{ isUpdate ? "Update the details of this incoming transaction." : "Submit details for a new incoming transaction." }}
                     </p>
                 </div>
-                
+
                 <!-- Barcode Display -->
-                <div v-if="svgText && selectedStorage" class="flex items-center justify-center p-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm shrink-0 min-h-[4rem]">
-                    <img id="barcode-image" :src="svgText" alt="Generated barcode" class="h-12 w-auto object-contain rounded bg-white mix-blend-multiply dark:mix-blend-normal" />
+                <div
+                    v-if="svgText && selectedStorage"
+                    class="flex items-center justify-center p-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm shrink-0 min-h-[4rem]">
+                    <img
+                        id="barcode-image"
+                        :src="svgText"
+                        alt="Generated barcode"
+                        class="h-12 w-auto object-contain rounded bg-white mix-blend-multiply dark:mix-blend-normal" />
                 </div>
             </div>
 
             <!-- Form Content Body -->
             <div class="p-6 space-y-6">
-                
                 <!-- Reports Accordion (Only visible on Update) -->
                 <transaction-report-accordion
                     v-if="isUpdate"
                     class="w-full"
-                    :reports="attachedReportsList"
-                />
+                    :reports="attachedReportsList" />
 
                 <!-- Core Information Card -->
                 <div class="bg-slate-50/50 dark:bg-slate-800/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/60 space-y-5">
@@ -422,23 +378,24 @@ export default {
                                 :api-link="'api.inventory.items.options'"
                                 :error="form.errors.item_id"
                                 label="Catalog Item"
-                                v-model="form.item_id"
-                            />
+                                v-model="form.item_id" />
                         </div>
-                        <div v-if="!isUpdate" class="w-full sm:w-auto shrink-0">
+                        <div
+                            v-if="!isUpdate"
+                            class="w-full sm:w-auto shrink-0">
                             <button
                                 v-if="!showNewItemForm"
                                 @click.prevent="toggleShowNewItemForm"
-                                class="w-full inline-flex justify-center items-center gap-1.5 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-xl shadow-sm transition-all active:scale-95 whitespace-nowrap"
-                            >
-                                <Plus class="h-4 w-4" /> New Item
+                                class="w-full inline-flex justify-center items-center gap-1.5 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-xl shadow-sm transition-all active:scale-95 whitespace-nowrap">
+                                <Plus class="h-4 w-4" />
+                                New Item
                             </button>
                             <button
                                 v-else
                                 @click.prevent="toggleShowNewItemForm"
-                                class="w-full inline-flex justify-center items-center gap-1.5 px-4 py-2.5 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-400 text-sm font-bold rounded-xl shadow-sm hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all active:scale-95 whitespace-nowrap"
-                            >
-                                <X class="h-4 w-4" /> Close Panel
+                                class="w-full inline-flex justify-center items-center gap-1.5 px-4 py-2.5 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-400 text-sm font-bold rounded-xl shadow-sm hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all active:scale-95 whitespace-nowrap">
+                                <X class="h-4 w-4" />
+                                Close Panel
                             </button>
                         </div>
                     </div>
@@ -451,8 +408,7 @@ export default {
                         datalist-id="incoming-project-code-options"
                         :datalist-options="projectCodeSuggestions"
                         :error="form.errors.project_code"
-                        hint="Enter the project code assigned to this transaction"
-                    >
+                        hint="Enter the project code assigned to this transaction">
                         <template #icon>
                             <FileText class="w-4 h-4 text-slate-400" />
                         </template>
@@ -468,8 +424,7 @@ export default {
                             label="Accountable Personnel"
                             required
                             :error="form.errors.personnel_id"
-                            @selectedChange="form.personnel_id = $event"
-                        >
+                            @selectedChange="form.personnel_id = $event">
                             <template #icon>
                                 <User class="w-4 h-4 text-slate-400" />
                             </template>
@@ -484,8 +439,7 @@ export default {
                             placeholder="Select Storage"
                             label="Storage Location"
                             :error="form.errors.barcode"
-                            @selectedChange="generateBarcode($event)"
-                        >
+                            @selectedChange="generateBarcode($event)">
                             <template #icon>
                                 <MapPin class="w-4 h-4 text-slate-400" />
                             </template>
@@ -500,22 +454,27 @@ export default {
                         v-model="form.parent_barcode"
                         :error="form.errors.parent_barcode"
                         placeholder="Optional: link this as a sub-component"
-                        hint="Used to link this as a sub-component of another transaction"
-                    >
+                        hint="Used to link this as a sub-component of another transaction">
                         <template #icon>
                             <GitBranch class="w-4 h-4 text-slate-400" />
                         </template>
                     </text-input>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <text-input label="PRRI QR/Barcode" v-model="form.barcode_prri" :error="form.errors.barcode_prri">
+                        <text-input
+                            label="PRRI QR/Barcode"
+                            v-model="form.barcode_prri"
+                            :error="form.errors.barcode_prri">
                             <template #icon><Hash class="w-4 h-4 text-slate-400" /></template>
                         </text-input>
-                        
-                        <text-input label="PAR No." v-model="form.par_no" :error="form.errors.par_no">
+
+                        <text-input
+                            label="PAR No."
+                            v-model="form.par_no"
+                            :error="form.errors.par_no">
                             <template #icon><Tag class="w-4 h-4 text-slate-400" /></template>
                         </text-input>
-                        
+
                         <custom-dropdown
                             required
                             :disabled="isUpdate"
@@ -525,22 +484,30 @@ export default {
                             placeholder="Current Condition"
                             label="Condition"
                             :error="form.errors.condition"
-                            @selectedChange="form.condition = $event"
-                        >
+                            @selectedChange="form.condition = $event">
                             <template #icon><Info class="w-4 h-4 text-slate-400" /></template>
                         </custom-dropdown>
                     </div>
-                    
+
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <text-input label="PO No." v-model="form.po_no" :error="form.errors.po_no">
+                        <text-input
+                            label="PO No."
+                            v-model="form.po_no"
+                            :error="form.errors.po_no">
                             <template #icon><FileText class="w-4 h-4 text-slate-400" /></template>
                         </text-input>
-                        
-                        <text-input label="PR No." v-model="form.pr_no" :error="form.errors.pr_no">
+
+                        <text-input
+                            label="PR No."
+                            v-model="form.pr_no"
+                            :error="form.errors.pr_no">
                             <template #icon><FileText class="w-4 h-4 text-slate-400" /></template>
                         </text-input>
-                        
-                        <text-input label="Serial No." v-model="form.serial_no" :error="form.errors.serial_no">
+
+                        <text-input
+                            label="Serial No."
+                            v-model="form.serial_no"
+                            :error="form.errors.serial_no">
                             <template #icon><Hash class="w-4 h-4 text-slate-400" /></template>
                         </text-input>
                     </div>
@@ -549,26 +516,52 @@ export default {
                 <!-- Pricing & Details Card -->
                 <div class="bg-slate-50/50 dark:bg-slate-800/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/60 space-y-4">
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        <text-input required type="number" label="Quantity" v-model="form.quantity" :error="form.errors.quantity">
+                        <text-input
+                            required
+                            type="number"
+                            label="Quantity"
+                            v-model="form.quantity"
+                            :error="form.errors.quantity">
                             <template #icon><Box class="w-4 h-4 text-slate-400" /></template>
                         </text-input>
-                        
-                        <text-input required label="Unit" v-model="form.unit" :error="form.errors.unit">
+
+                        <text-input
+                            required
+                            label="Unit"
+                            v-model="form.unit"
+                            :error="form.errors.unit">
                             <template #icon><Scale class="w-4 h-4 text-slate-400" /></template>
                         </text-input>
-                        
-                        <text-input type="number" label="Unit Price" v-model="form.unit_price" :error="form.errors.unit_price">
+
+                        <text-input
+                            type="number"
+                            label="Unit Price"
+                            v-model="form.unit_price"
+                            :error="form.errors.unit_price">
                             <template #icon><DollarSign class="w-4 h-4 text-slate-400" /></template>
                         </text-input>
-                        
-                        <text-input type="number" label="Total Cost" v-model="form.total_cost" :error="form.errors.total_cost" :disabled="true">
+
+                        <text-input
+                            type="number"
+                            label="Total Cost"
+                            v-model="form.total_cost"
+                            :error="form.errors.total_cost"
+                            :disabled="true">
                             <template #icon><DollarSign class="w-4 h-4 text-slate-400" /></template>
                         </text-input>
                     </div>
 
                     <div class="grid grid-cols-1 gap-4 pt-2">
-                        <date-input type="date" label="Expiration Date" v-model="form.expiration" :error="form.errors.expiration" />
-                        <text-area label="PR Details / Remarks" v-model="form.remarks" :error="form.errors.remarks" :rows="3" />
+                        <date-input
+                            type="date"
+                            label="Expiration Date"
+                            v-model="form.expiration"
+                            :error="form.errors.expiration" />
+                        <text-area
+                            label="PR Details / Remarks"
+                            v-model="form.remarks"
+                            :error="form.errors.remarks"
+                            :rows="3" />
                     </div>
 
                     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 mt-2 shadow-sm">
@@ -580,9 +573,10 @@ export default {
                             placeholder="Select logger availability"
                             label="Equipment Logger Availability"
                             :error="form.errors.equipment_logger_mode"
-                            @selectedChange="form.equipment_logger_mode = $event"
-                        >
-                            <template #icon><AlertCircle class="w-4 h-4 text-indigo-500" /></template>
+                            @selectedChange="form.equipment_logger_mode = $event">
+                            <template #icon>
+                                <AlertCircle class="w-4 h-4 text-indigo-500" />
+                            </template>
                         </custom-dropdown>
                         <p class="mt-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400 leading-relaxed">
                             {{ equipmentLoggerModeHelpText }}
@@ -596,35 +590,40 @@ export default {
                 <button
                     type="button"
                     @click="resetIncomingForm"
-                    class="flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl shadow-sm transition-all active:scale-95"
-                >
-                    <RotateCcw class="w-4 h-4" /> Reset
+                    class="flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl shadow-sm transition-all active:scale-95">
+                    <RotateCcw class="w-4 h-4" />
+                    Reset
                 </button>
 
                 <button
                     type="submit"
                     :disabled="model.api.processing"
-                    class="flex items-center gap-2 px-8 py-2.5 text-sm font-black text-white bg-indigo-600 hover:bg-indigo-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl shadow-md shadow-indigo-600/20 hover:shadow-lg hover:shadow-indigo-600/30 transition-all"
-                >
-                    <Loader2 v-if="model.api.processing" class="w-4 h-4 animate-spin" />
-                    <Save v-else class="w-4 h-4" />
-                    <span v-if="model.api.processing">{{ isUpdate ? 'Updating...' : 'Saving...' }}</span>
-                    <span v-else>{{ isUpdate ? 'Update Transaction' : 'Save Transaction' }}</span>
+                    class="flex items-center gap-2 px-8 py-2.5 text-sm font-black text-white bg-indigo-600 hover:bg-indigo-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl shadow-md shadow-indigo-600/20 hover:shadow-lg hover:shadow-indigo-600/30 transition-all">
+                    <Loader2
+                        v-if="model.api.processing"
+                        class="w-4 h-4 animate-spin" />
+                    <Save
+                        v-else
+                        class="w-4 h-4" />
+                    <span v-if="model.api.processing">
+                        {{ isUpdate ? "Updating..." : "Saving..." }}
+                    </span>
+                    <span v-else>{{ isUpdate ? "Update Transaction" : "Save Transaction" }}</span>
                 </button>
             </div>
-            
+
             <audit-info-card
                 v-if="isUpdate"
                 class="border-t-0 rounded-none rounded-b-2xl"
                 :audit-logs="$page.props.auditLogs"
                 :created-at="data?.created_at"
-                :updated-at="data?.updated_at"
-            />
+                :updated-at="data?.updated_at" />
         </div>
 
         <!-- Side Panel (Update Mode Info) -->
-        <div v-if="currentFormAction !== 'create'" class="flex flex-col gap-6">
-            
+        <div
+            v-if="currentFormAction !== 'create'"
+            class="flex flex-col gap-6">
             <div class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl shadow-sm ring-1 ring-slate-900/5 dark:ring-white/5 border border-slate-200/60 dark:border-slate-800 p-5 sm:p-6 space-y-6">
                 <!-- Workflow Info -->
                 <div class="p-4 bg-indigo-50/80 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/30 rounded-xl shadow-sm">
@@ -633,18 +632,16 @@ export default {
                             <GitBranch class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         <div class="flex-1 min-w-0 pt-0.5">
-                            <h3 class="font-bold text-xs uppercase tracking-widest text-indigo-900 dark:text-indigo-300 mb-1.5">
-                                Sub-Component Workflow
-                            </h3>
-                            <p class="text-xs font-medium text-indigo-700 dark:text-indigo-400/80 leading-relaxed">
-                                Save each equipment part as its own incoming transaction, then use the parent CBC or PRRI barcode above to link it back to the main equipment record.
-                            </p>
+                            <h3 class="font-bold text-xs uppercase tracking-widest text-indigo-900 dark:text-indigo-300 mb-1.5">Sub-Component Workflow</h3>
+                            <p class="text-xs font-medium text-indigo-700 dark:text-indigo-400/80 leading-relaxed">Save each equipment part as its own incoming transaction, then use the parent CBC or PRRI barcode above to link it back to the main equipment record.</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Parent Transaction Card -->
-                <div v-if="hasParentTransaction" class="border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 rounded-xl p-5 space-y-4">
+                <div
+                    v-if="hasParentTransaction"
+                    class="border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 rounded-xl p-5 space-y-4">
                     <div class="flex items-start justify-between gap-3">
                         <div class="flex items-start gap-3">
                             <div class="p-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg shrink-0">
@@ -657,8 +654,7 @@ export default {
                         </div>
                         <Link
                             :href="route('transactions.show', parentTransaction.id)"
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm group"
-                        >
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm group">
                             <span>View</span>
                             <ArrowUpRight class="w-3 h-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                         </Link>
@@ -669,7 +665,9 @@ export default {
                             <Package class="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                             <div class="min-w-0">
                                 <span class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 block mb-0.5">Item</span>
-                                <span class="text-slate-800 dark:text-slate-200 font-semibold truncate block">{{ parentTransaction?.item?.name ?? '—' }}</span>
+                                <span class="text-slate-800 dark:text-slate-200 font-semibold truncate block">
+                                    {{ parentTransaction?.item?.name ?? "—" }}
+                                </span>
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
@@ -677,14 +675,18 @@ export default {
                                 <Hash class="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
                                 <div>
                                     <span class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 block mb-0.5">CBC Barcode</span>
-                                    <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">{{ parentTransaction?.barcode ?? '—' }}</span>
+                                    <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">
+                                        {{ parentTransaction?.barcode ?? "—" }}
+                                    </span>
                                 </div>
                             </div>
                             <div class="flex items-start gap-2">
                                 <Hash class="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
                                 <div>
                                     <span class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 block mb-0.5">PRRI Barcode</span>
-                                    <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">{{ parentTransaction?.barcode_prri ?? '—' }}</span>
+                                    <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">
+                                        {{ parentTransaction?.barcode_prri ?? "—" }}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -693,12 +695,13 @@ export default {
             </div>
 
             <!-- Sub-Components Accordion -->
-            <div v-if="currentFormAction !== 'create'" class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl shadow-sm ring-1 ring-slate-900/5 dark:ring-white/5 border border-slate-200/60 dark:border-slate-800 overflow-hidden">
+            <div
+                v-if="currentFormAction !== 'create'"
+                class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl shadow-sm ring-1 ring-slate-900/5 dark:ring-white/5 border border-slate-200/60 dark:border-slate-800 overflow-hidden">
                 <transaction-component-accordion
                     :components="attachedComponentsList"
                     title="Sub-Components"
-                    empty-message="No sub-components linked to this transaction yet."
-                />
+                    empty-message="No sub-components linked to this transaction yet." />
             </div>
         </div>
     </form>
@@ -706,7 +709,8 @@ export default {
 
 <style scoped>
 /* Smooth transitions */
-button, select {
+button,
+select {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 

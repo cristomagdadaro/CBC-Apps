@@ -1,47 +1,68 @@
 <template>
-    <div v-if="!resolvedIndexEndpoint" class="p-4 text-center text-red-600 bg-red-50 rounded-lg border border-red-200">
+    <div
+        v-if="!resolvedIndexEndpoint"
+        class="p-4 text-center text-red-600 bg-red-50 rounded-lg border border-red-200">
         <alert-circle-icon class="w-12 h-12 mx-auto mb-2 opacity-50" />
         <p class="font-medium">Configuration Error</p>
         <p class="text-sm">Unable to retrieve data. Please check model endpoints.</p>
     </div>
 
-    <div v-else-if="!canView" class="p-8 text-center text-gray-500">
+    <div
+        v-else-if="!canView"
+        class="p-8 text-center text-gray-500">
         <shield-icon class="w-16 h-16 mx-auto mb-3 opacity-30" />
         <p class="text-lg font-medium">Access Denied</p>
         <p class="text-sm">You don't have permission to view this data.</p>
     </div>
 
-    <div v-else-if="dt instanceof CRCMDatatable" id="dtContainer"
+    <div
+        v-else-if="dt instanceof CRCMDatatable"
+        id="dtContainer"
         :class="['flex flex-col gap-3 p-2 sm:p-4 overflow-visible transition-colors duration-300', presetClasses.container]">
-
         <!-- Top Bar: Filters & Actions -->
-        <div
-            class="relative z-30 flex flex-col lg:flex-row gap-3 justify-between items-start lg:items-center bg-white dark:bg-slate-900 rounded-2xl p-3 sm:p-4 border border-gray-200 dark:border-slate-800 shadow-sm">
-
+        <div class="relative z-30 flex flex-col lg:flex-row gap-3 justify-between items-start lg:items-center bg-white dark:bg-slate-900 rounded-2xl p-3 sm:p-4 border border-gray-200 dark:border-slate-800 shadow-sm">
             <!-- Left: Filters Section -->
             <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto items-start sm:items-center flex-wrap">
                 <!-- Default Filters -->
                 <div class="flex flex-col sm:flex-row gap-2 w-full items-stretch sm:items-end">
                     <!-- PerPage & SearchBy paired side-by-side on mobile -->
                     <div class="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto">
-                        <per-page :value="dt.request.getPerPage" @changePerPage="dt.perPageFunc({ per_page: $event })"
-                            :theme="colorPreset" class="w-full" />
+                        <per-page
+                            :value="dt.request.getPerPage"
+                            @changePerPage="dt.perPageFunc({ per_page: $event })"
+                            :theme="colorPreset"
+                            class="w-full" />
 
-                        <search-by :value="dt.request.getFilter" :is-exact="dt.request.getIsExact" :options="dt.columns"
+                        <search-by
+                            :value="dt.request.getFilter"
+                            :is-exact="dt.request.getIsExact"
+                            :options="dt.columns"
                             @isExact="dt.isExactFilter({ is_exact: $event })"
-                            @searchBy="dt.filterByColumn({ column: $event })" :theme="colorPreset" class="w-full" />
+                            @searchBy="dt.filterByColumn({ column: $event })"
+                            :theme="colorPreset"
+                            class="w-full" />
                     </div>
 
-                    <search-filter :model-value="dt.request.getSearch" @searchString="dt.searchFunc({ search: $event })"
-                        class="w-full sm:flex-1" :theme="colorPreset" />
+                    <search-filter
+                        :model-value="dt.request.getSearch"
+                        @searchString="dt.searchFunc({ search: $event })"
+                        class="w-full sm:flex-1"
+                        :theme="colorPreset" />
 
-                    <scope-filter v-if="showScopeFilter" :value="dt.request.getScope"
-                        @change-scope-filter="dt.scopeBy({ 'scope_by': $event })" :theme="colorPreset" class="w-full sm:w-auto" />
+                    <scope-filter
+                        v-if="showScopeFilter"
+                        :value="dt.request.getScope"
+                        @change-scope-filter="dt.scopeBy({ scope_by: $event })"
+                        :theme="colorPreset"
+                        class="w-full sm:w-auto" />
                 </div>
 
                 <!-- Custom Filters Slot -->
                 <div class="flex flex-wrap gap-2 items-center">
-                    <slot name="custom-filters" :datatable="dt" :customFilters="dt.request"
+                    <slot
+                        name="custom-filters"
+                        :datatable="dt"
+                        :customFilters="dt.request"
                         :refresh="() => dt.refresh()" />
                 </div>
             </div>
@@ -50,7 +71,9 @@
             <action-container class="w-full lg:w-auto flex-wrap sm:flex-nowrap gap-1.5">
                 <!-- Theme Selector -->
                 <div class="relative group">
-                    <top-action-btn @click="showThemeMenu = !showThemeMenu" :class="presetClasses.secondaryBtn"
+                    <top-action-btn
+                        @click="showThemeMenu = !showThemeMenu"
+                        :class="presetClasses.secondaryBtn"
                         title="Change Theme">
                         <template #icon>
                             <palette-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5" />
@@ -58,14 +81,24 @@
                     </top-action-btn>
 
                     <!-- Theme Dropdown -->
-                    <transition enter-active-class="transition ease-out duration-200"
-                        enter-from-class="opacity-0 scale-95" enter-to-class="opacity-100 scale-100">
-                        <div v-if="showThemeMenu"
+                    <transition
+                        enter-active-class="transition ease-out duration-200"
+                        enter-from-class="opacity-0 scale-95"
+                        enter-to-class="opacity-100 scale-100">
+                        <div
+                            v-if="showThemeMenu"
                             class="absolute right-0 mt-2 w-40 z-[80] bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-200 dark:border-slate-800 overflow-hidden">
-                            <button v-for="(preset, key) in colorPresets" :key="key" @click="setColorPreset(key)"
+                            <button
+                                v-for="(preset, key) in colorPresets"
+                                :key="key"
+                                @click="setColorPreset(key)"
                                 class="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
-                                :class="{ 'bg-slate-50 dark:bg-slate-800/60': colorPreset === key }">
-                                <div class="w-3 h-3 rounded-full" :class="preset.indicator"></div>
+                                :class="{
+                                    'bg-slate-50 dark:bg-slate-800/60': colorPreset === key,
+                                }">
+                                <div
+                                    class="w-3 h-3 rounded-full"
+                                    :class="preset.indicator"></div>
                                 <span class="capitalize">{{ key }}</span>
                             </button>
                         </div>
@@ -73,56 +106,81 @@
                 </div>
 
                 <!-- Custom Actions Slot -->
-                <slot name="custom-actions" :datatable="dt" :selected="dt.selected" :processing="dt.processing" />
+                <slot
+                    name="custom-actions"
+                    :datatable="dt"
+                    :selected="dt.selected"
+                    :processing="dt.processing" />
 
                 <!-- Standard Actions -->
-                <top-action-btn v-if="showActionBtns && canCreate" @click="handleCreateAction()"
-                    :class="presetClasses.primaryBtn" title="Add new record">
+                <top-action-btn
+                    v-if="showActionBtns && canCreate"
+                    @click="handleCreateAction()"
+                    :class="presetClasses.primaryBtn"
+                    title="Add new record">
                     <template #icon>
                         <plus-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                     </template>
                 </top-action-btn>
 
-                <top-action-btn @click="dt.refresh()"
+                <top-action-btn
+                    @click="dt.refresh()"
                     :class="dt.processing ? 'opacity-75 cursor-not-allowed' : presetClasses.secondaryBtn"
-                    :disabled="dt.processing" title="Refresh data">
+                    :disabled="dt.processing"
+                    title="Refresh data">
                     <template #icon>
-                        <refresh-cw-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5" :class="{ 'animate-spin': dt.processing }" />
+                        <refresh-cw-icon
+                            class="w-4.5 h-4.5 sm:w-5 sm:h-5"
+                            :class="{ 'animate-spin': dt.processing }" />
                     </template>
                 </top-action-btn>
 
-                <top-action-btn v-if="canDelete && dataDb.length && dt.selected.length && showActionBtns"
+                <top-action-btn
+                    v-if="canDelete && dataDb.length && dt.selected.length && showActionBtns"
                     @click="showDeleteSelectedDialogFunc()"
-                    class="bg-red-600 hover:bg-red-700 text-white shadow-red-200" :title="`Delete selected (${dt.selected.length})`">
+                    class="bg-red-600 hover:bg-red-700 text-white shadow-red-200"
+                    :title="`Delete selected (${dt.selected.length})`">
                     <template #icon>
                         <trash-2-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                     </template>
                 </top-action-btn>
 
-                <top-action-btn v-if="dataDb.length && showActionBtns" :class="presetClasses.ghostBtn"
-                    @click="dt.selectAll()" :top-text="dt.selected.length || null" title="Select all visible">
+                <top-action-btn
+                    v-if="dataDb.length && showActionBtns"
+                    :class="presetClasses.ghostBtn"
+                    @click="dt.selectAll()"
+                    :top-text="dt.selected.length || null"
+                    title="Select all visible">
                     <template #icon>
                         <check-square-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                     </template>
                 </top-action-btn>
 
-                <top-action-btn v-if="selected.length && dataDb.length && showActionBtns"
+                <top-action-btn
+                    v-if="selected.length && dataDb.length && showActionBtns"
                     class="hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-600 dark:text-slate-300 transition-colors"
-                    @click="dt.deselectAll()" title="Clear selection">
+                    @click="dt.deselectAll()"
+                    title="Clear selection">
                     <template #icon>
                         <square-x-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5 text-red-500 dark:text-red-400" />
                     </template>
                 </top-action-btn>
 
-                <top-action-btn v-if="dataDb.length && showActionBtns && canView" :class="presetClasses.secondaryBtn"
-                    @click="dt.exportCSV()" title="Export CSV">
+                <top-action-btn
+                    v-if="dataDb.length && showActionBtns && canView"
+                    :class="presetClasses.secondaryBtn"
+                    @click="dt.exportCSV()"
+                    title="Export CSV">
                     <template #icon>
                         <file-down-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                     </template>
                 </top-action-btn>
 
-                <top-action-btn v-if="showActionBtns && canCreate" :class="presetClasses.secondaryBtn"
-                    @click="showImportModal = true" title="Import CSV">
+                <top-action-btn
+                    v-if="showActionBtns && canCreate"
+                    :class="presetClasses.secondaryBtn"
+                    @click="showImportModal = true"
+                    title="Import CSV">
                     <template #icon>
                         <upload-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                     </template>
@@ -131,55 +189,77 @@
         </div>
 
         <!-- Table Container -->
-        <div id="dtTableContainer"
+        <div
+            id="dtTableContainer"
             class="relative z-10 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
-            <div v-if="actionWarnings.length" class="border-b border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
+            <div
+                v-if="actionWarnings.length"
+                class="border-b border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
                 <p class="text-sm font-semibold">Action configuration warning</p>
                 <ul class="mt-2 list-disc pl-5 text-sm">
-                    <li v-for="warning in actionWarnings" :key="warning">{{ warning }}</li>
+                    <li
+                        v-for="warning in actionWarnings"
+                        :key="warning">
+                        {{ warning }}
+                    </li>
                 </ul>
             </div>
 
             <!-- Loading Overlay -->
-            <transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0"
-                enter-to-class="opacity-100" leave-active-class="transition ease-in duration-150"
-                leave-from-class="opacity-100" leave-to-class="opacity-0">
-                <div v-if="dt.processing"
+            <transition
+                enter-active-class="transition ease-out duration-200"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="transition ease-in duration-150"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0">
+                <div
+                    v-if="dt.processing"
                     class="absolute inset-0 bg-white/90 dark:bg-slate-900/90 z-40 flex flex-col items-center justify-center gap-3">
-                    <loader-2-icon class="w-10 h-10 animate-spin" :class="presetClasses.textPrimary" />
+                    <loader-2-icon
+                        class="w-10 h-10 animate-spin"
+                        :class="presetClasses.textPrimary" />
                     <span class="text-sm font-medium text-slate-600 dark:text-slate-400">Loading data...</span>
                 </div>
             </transition>
 
             <div class="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-slate-700 z-10">
-                <table id="dtTable" class="w-full text-sm text-left">
+                <table
+                    id="dtTable"
+                    class="w-full text-sm text-left">
                     <crcm-thead :class="presetClasses.headerBg">
                         <thead-row>
                             <th class="w-10 p-3 text-center">
                                 <span class="sr-only">Select</span>
                             </th>
-                            <th v-for="column in dt.model.getColumns()" :key="column.key + column.title"
-                                class="p-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer select-none transition-colors "
-                                :class="[
-                                    column.sortable ? 'hover:bg-black/5 dark:hover:bg-white/5' : '',
-                                    column.visible !== false ? '' : 'hidden',
-                                    getSortClasses(column)
-                                ]" @click="onColumnSort(column)">
-                                <div class="flex items-center gap-1.5"
+                            <th
+                                v-for="column in dt.model.getColumns()"
+                                :key="column.key + column.title"
+                                class="p-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer select-none transition-colors"
+                                :class="[column.sortable ? 'hover:bg-black/5 dark:hover:bg-white/5' : '', column.visible !== false ? '' : 'hidden', getSortClasses(column)]"
+                                @click="onColumnSort(column)">
+                                <div
+                                    class="flex items-center gap-1.5"
                                     :class="column.align ? column.align : 'text-left'">
                                     <span>{{ column.title }}</span>
-                                    <span v-if="column.sortable" class="text-[10px] opacity-50">
+                                    <span
+                                        v-if="column.sortable"
+                                        class="text-[10px] opacity-50">
                                         <arrow-up-icon
                                             v-if="dt.request.getSort === column.key && dt.request.getParam('order') === 'asc'"
                                             class="w-3 h-3" />
                                         <arrow-down-icon
                                             v-else-if="dt.request.getSort === column.key && dt.request.getParam('order') === 'desc'"
                                             class="w-3 h-3" />
-                                        <more-horizontal-icon v-else class="w-3 h-3 opacity-0 group-hover:opacity-50" />
+                                        <more-horizontal-icon
+                                            v-else
+                                            class="w-3 h-3 opacity-0 group-hover:opacity-50" />
                                     </span>
                                 </div>
                             </th>
-                            <th v-if="showActionBtns" class="p-3 text-right text-xs uppercase tracking-wider">
+                            <th
+                                v-if="showActionBtns"
+                                class="p-3 text-right text-xs uppercase tracking-wider">
                                 Actions
                             </th>
                         </thead-row>
@@ -188,7 +268,9 @@
                     <tbody class="divide-y divide-gray-200 dark:divide-slate-800">
                         <template v-if="!dt.processing">
                             <tr v-if="dataDb.length === 0">
-                                <td :colspan="dt.model.getColumns().length + 2" class="p-8 text-center text-slate-500">
+                                <td
+                                    :colspan="dt.model.getColumns().length + 2"
+                                    class="p-8 text-center text-slate-500">
                                     <div class="flex flex-col items-center gap-2">
                                         <search-x-icon class="w-12 h-12 opacity-20" />
                                         <p class="font-medium">No records found</p>
@@ -197,55 +279,71 @@
                                 </td>
                             </tr>
 
-                            <tr v-for="row in dataDb" :key="row.id"
+                            <tr
+                                v-for="row in dataDb"
+                                :key="row.id"
                                 class="group transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 border-b border-gray-100 dark:border-slate-800 last:border-0"
                                 :class="[dt.isSelected(row.id) ? presetClasses.selectedRow : '']"
                                 @contextmenu.prevent="showContextMenu($event, row)">
-
                                 <!-- Selection Cell -->
                                 <td class="p-3 text-center">
                                     <div class="flex items-center justify-center gap-2">
-                                        <span class="text-xs text-slate-400 font-mono w-6 text-right">{{ meta_from +
-                                            dataDb.indexOf(row) }}</span>
-                                        <input type="checkbox" :checked="dt.isSelected(row.id)"
-                                            :disabled="!isRowDeletable(row)" @click.stop="dt.addSelected(row.id)"
+                                        <span class="text-xs text-slate-400 font-mono w-6 text-right">
+                                            {{ meta_from + dataDb.indexOf(row) }}
+                                        </span>
+                                        <input
+                                            type="checkbox"
+                                            :checked="dt.isSelected(row.id)"
+                                            :disabled="!isRowDeletable(row)"
+                                            @click.stop="dt.addSelected(row.id)"
                                             class="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-current focus:ring-offset-0 focus:ring-2 transition-all disabled:opacity-50"
-                                            :class="presetClasses.checkbox">
+                                            :class="presetClasses.checkbox" />
                                     </div>
                                 </td>
 
                                 <!-- Data Cells -->
-                                <td v-for="column in visibleColumns" :key="column.key"
+                                <td
+                                    v-for="column in visibleColumns"
+                                    :key="column.key"
                                     class="p-3 text-slate-700 dark:text-slate-300 max-w-xs truncate"
                                     :class="[column.align || 'text-left', column.visible === false ? 'hidden' : '']"
-                                    @dblclick="dt.addSelected(row.id)" @click.ctrl="dt.addSelected(row.id)">
-                                    <slot :name="`cell-${column.key}`" :row="row"
+                                    @dblclick="dt.addSelected(row.id)"
+                                    @click.ctrl="dt.addSelected(row.id)">
+                                    <slot
+                                        :name="`cell-${column.key}`"
+                                        :row="row"
                                         :value="getNestedValue(row, column.key)">
                                         {{ getNestedValue(row, column.key) }}
                                     </slot>
                                 </td>
 
                                 <!-- Actions Cell -->
-                                <td v-if="showActionBtns" class="p-3 text-right">
-                                    <div
-                                        class="flex items-center justify-end gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                                        <slot name="rowActions" :row="row" />
+                                <td
+                                    v-if="showActionBtns"
+                                    class="p-3 text-right">
+                                    <div class="flex items-center justify-end gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                        <slot
+                                            name="rowActions"
+                                            :row="row" />
 
-                                        <button v-if="canView && resolveRowShowEndpoint(row)"
+                                        <button
+                                            v-if="canView && resolveRowShowEndpoint(row)"
                                             @click="visitRowEndpoint(row, 'show')"
                                             class="p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 transition-colors"
                                             title="View">
                                             <eye-icon class="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                                         </button>
 
-                                        <button v-if="canUpdate && isRowUpdatable(row) && resolveRowUpdateEndpoint(row)"
+                                        <button
+                                            v-if="canUpdate && isRowUpdatable(row) && resolveRowUpdateEndpoint(row)"
                                             @click="visitRowEndpoint(row, 'update')"
                                             class="p-1.5 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30 text-amber-600 dark:text-amber-400 transition-colors"
                                             title="Edit">
                                             <file-edit-icon class="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                                         </button>
 
-                                        <button v-if="canDelete && isRowDeletable(row)"
+                                        <button
+                                            v-if="canDelete && isRowDeletable(row)"
                                             @click="showDeleteDialogFunc(row.id)"
                                             class="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors"
                                             title="Delete">
@@ -260,12 +358,17 @@
             </div>
 
             <!-- Footer Info -->
-            <div
-                class="flex flex-col sm:flex-row justify-between items-center p-3 sm:p-4 border-t border-gray-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-xs text-slate-600 dark:text-slate-400 gap-2">
+            <div class="flex flex-col sm:flex-row justify-between items-center p-3 sm:p-4 border-t border-gray-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-xs text-slate-600 dark:text-slate-400 gap-2">
                 <div class="flex items-center gap-2">
-                    <span>Showing <strong>{{ meta_from }}-{{ meta_to }}</strong> of <strong>{{ total_entries
-                    }}</strong></span>
-                    <span v-if="dt.selected.length" class="px-2 py-0.5 rounded-full text-white text-[10px] font-medium"
+                    <span>
+                        Showing
+                        <strong>{{ meta_from }}-{{ meta_to }}</strong>
+                        of
+                        <strong>{{ total_entries }}</strong>
+                    </span>
+                    <span
+                        v-if="dt.selected.length"
+                        class="px-2 py-0.5 rounded-full text-white text-[10px] font-medium"
                         :class="presetClasses.badge">
                         {{ dt.selected.length }} selected
                     </span>
@@ -273,45 +376,66 @@
 
                 <!-- Mobile Pagination -->
                 <div class="flex items-center gap-1 sm:hidden">
-                    <button @click="dt.prevPage()" :disabled="!prev_page" class="p-2 rounded-lg disabled:opacity-50"
+                    <button
+                        @click="dt.prevPage()"
+                        :disabled="!prev_page"
+                        class="p-2 rounded-lg disabled:opacity-50"
                         :class="presetClasses.ghostBtn">
                         <chevron-left-icon class="w-5 h-5" />
                     </button>
                     <span class="px-3 py-1 text-sm font-medium">{{ current_page }} / {{ total_pages }}</span>
-                    <button @click="dt.nextPage()" :disabled="current_page === last_page"
-                        class="p-2 rounded-lg disabled:opacity-50" :class="presetClasses.ghostBtn">
+                    <button
+                        @click="dt.nextPage()"
+                        :disabled="current_page === last_page"
+                        class="p-2 rounded-lg disabled:opacity-50"
+                        :class="presetClasses.ghostBtn">
                         <chevron-right-icon class="w-5 h-5" />
                     </button>
                 </div>
 
                 <!-- Desktop Pagination -->
                 <div class="hidden sm:flex items-center gap-1">
-                    <button @click="dt.firstPage()" :disabled="current_page === first_page"
+                    <button
+                        @click="dt.firstPage()"
+                        :disabled="current_page === first_page"
                         class="px-3 py-1.5 rounded-lg text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         :class="presetClasses.secondaryBtn">
                         First
                     </button>
-                    <button @click="dt.prevPage()" :disabled="!prev_page"
+                    <button
+                        @click="dt.prevPage()"
+                        :disabled="!prev_page"
                         class="px-3 py-1.5 rounded-lg text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
                         :class="presetClasses.secondaryBtn">
-                        <chevron-left-icon class="w-3 h-3" /> Prev
+                        <chevron-left-icon class="w-3 h-3" />
+                        Prev
                     </button>
 
                     <div class="flex items-center gap-1 px-2">
-                        <input ref="pageInput" type="number" :value="current_page" min="1" :max="total_pages"
+                        <input
+                            ref="pageInput"
+                            type="number"
+                            :value="current_page"
+                            min="1"
+                            :max="total_pages"
                             @keydown.enter="handlePageInput"
                             class="w-12 px-2 py-1 text-center text-xs border rounded-md focus:ring-2 focus:border-transparent bg-transparent"
-                            :class="presetClasses.input">
+                            :class="presetClasses.input" />
                         <span class="text-slate-400">/</span>
                         <span class="text-xs font-medium">{{ total_pages }}</span>
                     </div>
 
-                    <button @click="dt.nextPage()" :disabled="current_page === last_page"
+                    <button
+                        @click="dt.nextPage()"
+                        :disabled="current_page === last_page"
                         class="px-3 py-1.5 rounded-lg text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
                         :class="presetClasses.secondaryBtn">
-                        Next <chevron-right-icon class="w-3 h-3" />
+                        Next
+                        <chevron-right-icon class="w-3 h-3" />
                     </button>
-                    <button @click="dt.lastPage()" :disabled="current_page === last_page"
+                    <button
+                        @click="dt.lastPage()"
+                        :disabled="current_page === last_page"
                         class="px-3 py-1.5 rounded-lg text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         :class="presetClasses.secondaryBtn">
                         Last
@@ -321,21 +445,26 @@
         </div>
 
         <!-- Mobile Floating Selection Pill -->
-        <transition enter-active-class="transition-all duration-300 ease-out"
-            enter-from-class="opacity-0 translate-y-8" enter-to-class="opacity-100 translate-y-0"
+        <transition
+            enter-active-class="transition-all duration-300 ease-out"
+            enter-from-class="opacity-0 translate-y-8"
+            enter-to-class="opacity-100 translate-y-0"
             leave-active-class="transition-all duration-200 ease-in"
-            leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-8">
-            <div v-if="dt.selected.length && showActionBtns"
+            leave-from-class="opacity-100 translate-y-0"
+            leave-to-class="opacity-0 translate-y-8">
+            <div
+                v-if="dt.selected.length && showActionBtns"
                 class="fixed bottom-4 left-4 right-4 sm:hidden z-40 bg-slate-900/95 text-white border border-slate-800 shadow-2xl rounded-2xl p-2.5 flex items-center justify-between gap-2">
-                <span class="text-xs font-semibold px-2">
-                    {{ dt.selected.length }} selected
-                </span>
+                <span class="text-xs font-semibold px-2">{{ dt.selected.length }} selected</span>
                 <div class="flex items-center gap-1.5">
-                    <button v-if="canDelete" @click="showDeleteSelectedDialogFunc()"
+                    <button
+                        v-if="canDelete"
+                        @click="showDeleteSelectedDialogFunc()"
                         class="px-3 py-1.5 bg-red-600 text-white rounded-xl text-xs font-semibold hover:bg-red-700 transition-colors">
                         Delete
                     </button>
-                    <button @click="dt.deselectAll()"
+                    <button
+                        @click="dt.deselectAll()"
                         class="px-2.5 py-1.5 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold hover:bg-slate-700 transition-colors">
                         Clear
                     </button>
@@ -344,32 +473,40 @@
         </transition>
 
         <!-- Context Menu -->
-        <context-menu ref="contextMenu" v-if="rowContextMenu" @close="rowContextMenu = null">
-            <div
-                class="min-w-[160px] py-1 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-200 dark:border-slate-800">
-                <div
-                    class="px-3 py-2 text-xs font-semibold text-slate-500 border-b border-gray-100 dark:border-slate-800 mb-1">
-                    Actions
-                </div>
-                <slot name="rowActionsMenu" :row="rowContextMenu" />
+        <context-menu
+            ref="contextMenu"
+            v-if="rowContextMenu"
+            @close="rowContextMenu = null">
+            <div class="min-w-[160px] py-1 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-200 dark:border-slate-800">
+                <div class="px-3 py-2 text-xs font-semibold text-slate-500 border-b border-gray-100 dark:border-slate-800 mb-1">Actions</div>
+                <slot
+                    name="rowActionsMenu"
+                    :row="rowContextMenu" />
 
-                <button v-if="canView && resolveRowShowEndpoint(rowContextMenu)"
+                <button
+                    v-if="canView && resolveRowShowEndpoint(rowContextMenu)"
                     @click="visitRowEndpoint(rowContextMenu, 'show')"
                     class="w-full px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-300">
                     <eye-icon class="w-4 h-4 text-blue-500" />
                     View Details
                 </button>
 
-                <button v-if="canUpdate && isRowUpdatable(rowContextMenu) && resolveRowUpdateEndpoint(rowContextMenu)"
+                <button
+                    v-if="canUpdate && isRowUpdatable(rowContextMenu) && resolveRowUpdateEndpoint(rowContextMenu)"
                     @click="visitRowEndpoint(rowContextMenu, 'update')"
                     class="w-full px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-300">
                     <file-edit-icon class="w-4 h-4 text-amber-500" />
                     Edit Record
                 </button>
 
-                <div v-if="canDelete && isRowDeletable(rowContextMenu)"
+                <div
+                    v-if="canDelete && isRowDeletable(rowContextMenu)"
                     class="border-t border-gray-100 dark:border-slate-800 mt-1 pt-1">
-                    <button @click="showDeleteDialogFunc(rowContextMenu.id); rowContextMenu = null"
+                    <button
+                        @click="
+                            showDeleteDialogFunc(rowContextMenu.id);
+                            rowContextMenu = null;
+                        "
                         class="w-full px-3 py-2 text-left text-sm hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 text-red-600">
                         <trash-2-icon class="w-4 h-4" />
                         Delete
@@ -379,20 +516,38 @@
         </context-menu>
 
         <!-- Modals remain similar but styled with presets -->
-        <dialog-form-modal :show="showImportModal && canCreate" @close="closeDialog">
-            <component :is="importModal" v-if="importModal" :processing="dt.processing" :errors="errorBag"
-                @uploadForm="dt.importCSV($event)" @close="closeDialog" :forceClose="dt.closeAllModal"
+        <dialog-form-modal
+            :show="showImportModal && canCreate"
+            @close="closeDialog">
+            <component
+                :is="importModal"
+                v-if="importModal"
+                :processing="dt.processing"
+                :errors="errorBag"
+                @uploadForm="dt.importCSV($event)"
+                @close="closeDialog"
+                :forceClose="dt.closeAllModal"
                 :theme="colorPreset" />
         </dialog-form-modal>
 
-        <dialog-form-modal :show="showAddDialog && canCreate" @close="closeDialog">
-            <component :is="addForm" v-if="addForm" :processing="dt.processing" :errors="errorBag"
-                @submitForm="dt.create($event)" @close="closeDialog" :forceClose="dt.closeAllModal"
+        <dialog-form-modal
+            :show="showAddDialog && canCreate"
+            @close="closeDialog">
+            <component
+                :is="addForm"
+                v-if="addForm"
+                :processing="dt.processing"
+                :errors="errorBag"
+                @submitForm="dt.create($event)"
+                @close="closeDialog"
+                :forceClose="dt.closeAllModal"
                 :theme="colorPreset" />
         </dialog-form-modal>
 
         <!-- Delete Confirmation -->
-        <dialog-modal :show="showDeleteDialog && canDelete" @close="closeDialog">
+        <dialog-modal
+            :show="showDeleteDialog && canDelete"
+            @close="closeDialog">
             <template #title>
                 <div class="flex items-center gap-2 text-red-600">
                     <alert-triangle-icon class="w-5 h-5" />
@@ -402,7 +557,9 @@
             <template #content>
                 <div class="text-sm text-gray-600 dark:text-gray-400 space-y-2">
                     <p>Are you sure you want to delete this record?</p>
-                    <div class="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg font-mono text-xs" v-if="toDeleteId">
+                    <div
+                        class="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg font-mono text-xs"
+                        v-if="toDeleteId">
                         ID: {{ toDeleteId }}
                     </div>
                     <p class="text-xs text-red-500">This action cannot be undone.</p>
@@ -410,13 +567,20 @@
             </template>
             <template #footer>
                 <div class="flex justify-between w-full">
-                    <button @click="confirmSingleDelete" :disabled="dt.processing"
+                    <button
+                        @click="confirmSingleDelete"
+                        :disabled="dt.processing"
                         class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center gap-2">
-                        <trash-2-icon v-if="!dt.processing" class="w-4 h-4" />
-                        <loader-2-icon v-else class="w-4 h-4 animate-spin" />
+                        <trash-2-icon
+                            v-if="!dt.processing"
+                            class="w-4 h-4" />
+                        <loader-2-icon
+                            v-else
+                            class="w-4 h-4 animate-spin" />
                         Delete
                     </button>
-                    <button @click="closeDialog"
+                    <button
+                        @click="closeDialog"
                         class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
                         Cancel
                     </button>
@@ -425,7 +589,9 @@
         </dialog-modal>
 
         <!-- Bulk Delete Confirmation -->
-        <dialog-modal :show="showDeleteSelectedDialog && canDelete" @close="closeDialog">
+        <dialog-modal
+            :show="showDeleteSelectedDialog && canDelete"
+            @close="closeDialog">
             <template #title>
                 <div class="flex items-center gap-2 text-red-600">
                     <alert-triangle-icon class="w-5 h-5" />
@@ -434,26 +600,43 @@
             </template>
             <template #content>
                 <div class="text-sm text-gray-600 dark:text-gray-400 space-y-3">
-                    <p>You are about to delete <strong>{{ dt.selected.length }}</strong> records:</p>
-                    <div
-                        class="max-h-32 overflow-y-auto p-2 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono space-y-1">
-                        <div v-for="id in dt.selected.slice(0, 10)" :key="id" class="text-gray-600 dark:text-gray-400">
-                            ID: {{ id }}</div>
-                        <div v-if="dt.selected.length > 10" class="text-gray-400 italic">... and {{ dt.selected.length -
-                            10 }} more</div>
+                    <p>
+                        You are about to delete
+                        <strong>{{ dt.selected.length }}</strong>
+                        records:
+                    </p>
+                    <div class="max-h-32 overflow-y-auto p-2 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono space-y-1">
+                        <div
+                            v-for="id in dt.selected.slice(0, 10)"
+                            :key="id"
+                            class="text-gray-600 dark:text-gray-400">
+                            ID: {{ id }}
+                        </div>
+                        <div
+                            v-if="dt.selected.length > 10"
+                            class="text-gray-400 italic">
+                            ... and {{ dt.selected.length - 10 }} more
+                        </div>
                     </div>
                     <p class="text-xs text-red-500">This action cannot be undone.</p>
                 </div>
             </template>
             <template #footer>
-                <button @click="closeDialog"
+                <button
+                    @click="closeDialog"
                     class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
                     Cancel
                 </button>
-                <button @click="confirmBulkDelete" :disabled="dt.processing"
+                <button
+                    @click="confirmBulkDelete"
+                    :disabled="dt.processing"
                     class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center gap-2">
-                    <trash-2-icon v-if="!dt.processing" class="w-4 h-4" />
-                    <loader-2-icon v-else class="w-4 h-4 animate-spin" />
+                    <trash-2-icon
+                        v-if="!dt.processing"
+                        class="w-4 h-4" />
+                    <loader-2-icon
+                        v-else
+                        class="w-4 h-4 animate-spin" />
                     Delete All
                 </button>
             </template>
@@ -463,21 +646,13 @@
 
 <script setup>
 // Lucide Icons - assuming globally registered or import specific ones
-import {
-    Plus, RefreshCw, Trash2, CheckSquare, Square, SquareX, FileDown, Upload,
-    Eye, FileEdit, ChevronLeft, ChevronRight, Loader2, Search, Filter,
-    Palette, Type, ToggleRight, ArrowUp, ArrowDown, MoreHorizontal,
-    AlertCircle, AlertTriangle, Shield, SearchX
-} from 'lucide-vue-next';
+import { Plus, RefreshCw, Trash2, CheckSquare, Square, SquareX, FileDown, Upload, Eye, FileEdit, ChevronLeft, ChevronRight, Loader2, Search, Filter, Palette, Type, ToggleRight, ArrowUp, ArrowDown, MoreHorizontal, AlertCircle, AlertTriangle, Shield, SearchX } from "lucide-vue-next";
 
 import ActionContainer from "@/Components/CRCMDatatable/Layouts/ActionContainer.vue";
 import DialogFormModal from "@/Components/CRCMDatatable/Layouts/DialogFormModal.vue";
 
 // Component imports remain similar
-import {
-    ContextMenu,
-    CrcmTable, CrcmTbody, CrcmThead, TheadRow, TbodyRow
-} from '@/Components/CRCMDatatable/Components';
+import { ContextMenu, CrcmTable, CrcmTbody, CrcmThead, TheadRow, TbodyRow } from "@/Components/CRCMDatatable/Components";
 
 import SearchFilter from "@/Components/CRCMDatatable/Components/SearchBox.vue";
 import PerPage from "@/Components/CRCMDatatable/Components/PerPage.vue";
@@ -521,7 +696,7 @@ const icons = {
     AlertCircleIcon: AlertCircle,
     AlertTriangleIcon: AlertTriangle,
     ShieldIcon: Shield,
-    SearchXIcon: SearchX
+    SearchXIcon: SearchX,
 };
 
 export default {
@@ -542,7 +717,7 @@ export default {
         canView: { type: Boolean, default: false },
         rowCanUpdate: { type: Function, default: null },
         rowCanDelete: { type: Function, default: null },
-        defaultColorPreset: { type: String, default: 'lime' },
+        defaultColorPreset: { type: String, default: "lime" },
         storageKey: { type: String, default: null },
     },
     data() {
@@ -556,103 +731,107 @@ export default {
             toDeleteId: null,
             rowContextMenu: null,
             showThemeMenu: false,
-            colorPreset: localStorage.getItem('dt_color_preset') || this.defaultColorPreset,
+            colorPreset: localStorage.getItem("dt_color_preset") || this.defaultColorPreset,
             clickSortCtr: 0,
             realtimeCleanup: null,
             realtimeRefreshTimer: null,
             themeMenuClickHandler: null,
             preservedScrollState: null,
-        }
+        };
     },
     computed: {
         colorPresets() {
             return {
                 lime: {
-                    indicator: 'bg-lime-500',
-                    primaryBtn: 'bg-lime-600 hover:bg-lime-700 text-white shadow-sm',
-                    secondaryBtn: 'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200',
-                    ghostBtn: 'hover:bg-slate-100 text-slate-600 dark:hover:bg-slate-800 dark:text-slate-300',
-                    headerBg: 'bg-lime-50 dark:bg-lime-950/40 text-lime-950 dark:text-lime-200',
-                    selectedRow: 'bg-lime-50/70 dark:bg-lime-950/30',
-                    textPrimary: 'text-lime-600 dark:text-lime-400',
-                    checkbox: 'text-lime-600 focus:ring-lime-500',
-                    badge: 'bg-lime-600',
-                    input: 'border-slate-300 dark:border-slate-700 focus:ring-lime-500',
-                    container: ''
+                    indicator: "bg-lime-500",
+                    primaryBtn: "bg-lime-600 hover:bg-lime-700 text-white shadow-sm",
+                    secondaryBtn: "bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200",
+                    ghostBtn: "hover:bg-slate-100 text-slate-600 dark:hover:bg-slate-800 dark:text-slate-300",
+                    headerBg: "bg-lime-50 dark:bg-lime-950/40 text-lime-950 dark:text-lime-200",
+                    selectedRow: "bg-lime-50/70 dark:bg-lime-950/30",
+                    textPrimary: "text-lime-600 dark:text-lime-400",
+                    checkbox: "text-lime-600 focus:ring-lime-500",
+                    badge: "bg-lime-600",
+                    input: "border-slate-300 dark:border-slate-700 focus:ring-lime-500",
+                    container: "",
                 },
                 emerald: {
-                    indicator: 'bg-emerald-500',
-                    primaryBtn: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm',
-                    secondaryBtn: 'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200',
-                    ghostBtn: 'hover:bg-slate-100 text-slate-600 dark:hover:bg-slate-800 dark:text-slate-300',
-                    headerBg: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-200',
-                    selectedRow: 'bg-emerald-50 dark:bg-emerald-950/30',
-                    textPrimary: 'text-emerald-600 dark:text-emerald-400',
-                    checkbox: 'text-emerald-600 focus:ring-emerald-500',
-                    badge: 'bg-emerald-600',
-                    input: 'border-slate-300 dark:border-slate-700 focus:ring-emerald-500',
-                    container: ''
+                    indicator: "bg-emerald-500",
+                    primaryBtn: "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm",
+                    secondaryBtn: "bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200",
+                    ghostBtn: "hover:bg-slate-100 text-slate-600 dark:hover:bg-slate-800 dark:text-slate-300",
+                    headerBg: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-200",
+                    selectedRow: "bg-emerald-50 dark:bg-emerald-950/30",
+                    textPrimary: "text-emerald-600 dark:text-emerald-400",
+                    checkbox: "text-emerald-600 focus:ring-emerald-500",
+                    badge: "bg-emerald-600",
+                    input: "border-slate-300 dark:border-slate-700 focus:ring-emerald-500",
+                    container: "",
                 },
                 blue: {
-                    indicator: 'bg-blue-500',
-                    primaryBtn: 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm',
-                    secondaryBtn: 'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200',
-                    ghostBtn: 'hover:bg-slate-100 text-slate-600 dark:hover:bg-slate-800 dark:text-slate-300',
-                    headerBg: 'bg-blue-50 dark:bg-blue-950/40 text-blue-950 dark:text-blue-200',
-                    selectedRow: 'bg-blue-50 dark:bg-blue-950/30',
-                    textPrimary: 'text-blue-600 dark:text-blue-400',
-                    checkbox: 'text-blue-600 focus:ring-blue-500',
-                    badge: 'bg-blue-600',
-                    input: 'border-slate-300 dark:border-slate-700 focus:ring-blue-500',
-                    container: ''
+                    indicator: "bg-blue-500",
+                    primaryBtn: "bg-blue-600 hover:bg-blue-700 text-white shadow-sm",
+                    secondaryBtn: "bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200",
+                    ghostBtn: "hover:bg-slate-100 text-slate-600 dark:hover:bg-slate-800 dark:text-slate-300",
+                    headerBg: "bg-blue-50 dark:bg-blue-950/40 text-blue-950 dark:text-blue-200",
+                    selectedRow: "bg-blue-50 dark:bg-blue-950/30",
+                    textPrimary: "text-blue-600 dark:text-blue-400",
+                    checkbox: "text-blue-600 focus:ring-blue-500",
+                    badge: "bg-blue-600",
+                    input: "border-slate-300 dark:border-slate-700 focus:ring-blue-500",
+                    container: "",
                 },
                 purple: {
-                    indicator: 'bg-purple-500',
-                    primaryBtn: 'bg-purple-600 hover:bg-purple-700 text-white shadow-sm',
-                    secondaryBtn: 'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200',
-                    ghostBtn: 'hover:bg-slate-100 text-slate-600 dark:hover:bg-slate-800 dark:text-slate-300',
-                    headerBg: 'bg-purple-50 dark:bg-purple-950/40 text-purple-950 dark:text-purple-200',
-                    selectedRow: 'bg-purple-50 dark:bg-purple-950/30',
-                    textPrimary: 'text-purple-600 dark:text-purple-400',
-                    checkbox: 'text-purple-600 focus:ring-purple-500',
-                    badge: 'bg-purple-600',
-                    input: 'border-slate-300 dark:border-slate-700 focus:ring-purple-500',
-                    container: ''
+                    indicator: "bg-purple-500",
+                    primaryBtn: "bg-purple-600 hover:bg-purple-700 text-white shadow-sm",
+                    secondaryBtn: "bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200",
+                    ghostBtn: "hover:bg-slate-100 text-slate-600 dark:hover:bg-slate-800 dark:text-slate-300",
+                    headerBg: "bg-purple-50 dark:bg-purple-950/40 text-purple-950 dark:text-purple-200",
+                    selectedRow: "bg-purple-50 dark:bg-purple-950/30",
+                    textPrimary: "text-purple-600 dark:text-purple-400",
+                    checkbox: "text-purple-600 focus:ring-purple-500",
+                    badge: "bg-purple-600",
+                    input: "border-slate-300 dark:border-slate-700 focus:ring-purple-500",
+                    container: "",
                 },
                 orange: {
-                    indicator: 'bg-orange-500',
-                    primaryBtn: 'bg-orange-600 hover:bg-orange-700 text-white shadow-sm',
-                    secondaryBtn: 'bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200',
-                    ghostBtn: 'hover:bg-slate-100 text-slate-600 dark:hover:bg-slate-800 dark:text-slate-300',
-                    headerBg: 'bg-orange-50 dark:bg-orange-950/40 text-orange-950 dark:text-orange-200',
-                    selectedRow: 'bg-orange-50 dark:bg-orange-950/30',
-                    textPrimary: 'text-orange-600 dark:text-orange-400',
-                    checkbox: 'text-orange-600 focus:ring-orange-500',
-                    badge: 'bg-orange-600',
-                    input: 'border-slate-300 dark:border-slate-700 focus:ring-orange-500',
-                    container: ''
+                    indicator: "bg-orange-500",
+                    primaryBtn: "bg-orange-600 hover:bg-orange-700 text-white shadow-sm",
+                    secondaryBtn: "bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200",
+                    ghostBtn: "hover:bg-slate-100 text-slate-600 dark:hover:bg-slate-800 dark:text-slate-300",
+                    headerBg: "bg-orange-50 dark:bg-orange-950/40 text-orange-950 dark:text-orange-200",
+                    selectedRow: "bg-orange-50 dark:bg-orange-950/30",
+                    textPrimary: "text-orange-600 dark:text-orange-400",
+                    checkbox: "text-orange-600 focus:ring-orange-500",
+                    badge: "bg-orange-600",
+                    input: "border-slate-300 dark:border-slate-700 focus:ring-orange-500",
+                    container: "",
                 },
                 slate: {
-                    indicator: 'bg-slate-700',
-                    primaryBtn: 'bg-slate-800 hover:bg-slate-900 text-white shadow-sm',
-                    secondaryBtn: 'bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200',
-                    ghostBtn: 'hover:bg-slate-200 text-slate-700 dark:hover:bg-slate-800 dark:text-slate-300',
-                    headerBg: 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100',
-                    selectedRow: 'bg-slate-100 dark:bg-slate-800/60',
-                    textPrimary: 'text-slate-800 dark:text-slate-200',
-                    checkbox: 'text-slate-800 focus:ring-slate-700',
-                    badge: 'bg-slate-800',
-                    input: 'border-slate-300 dark:border-slate-700 focus:ring-slate-700',
-                    container: ''
-                }
+                    indicator: "bg-slate-700",
+                    primaryBtn: "bg-slate-800 hover:bg-slate-900 text-white shadow-sm",
+                    secondaryBtn: "bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200",
+                    ghostBtn: "hover:bg-slate-200 text-slate-700 dark:hover:bg-slate-800 dark:text-slate-300",
+                    headerBg: "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100",
+                    selectedRow: "bg-slate-100 dark:bg-slate-800/60",
+                    textPrimary: "text-slate-800 dark:text-slate-200",
+                    checkbox: "text-slate-800 focus:ring-slate-700",
+                    badge: "bg-slate-800",
+                    input: "border-slate-300 dark:border-slate-700 focus:ring-slate-700",
+                    container: "",
+                },
             };
         },
         presetClasses() {
             return this.colorPresets[this.colorPreset] || this.colorPresets.lime;
         },
         // ... other computed properties remain the same as original
-        isAuthenticated() { return !!this.$page?.props?.auth?.user; },
-        modelEndpoints() { return this.baseModel?.endpoints || {}; },
+        isAuthenticated() {
+            return !!this.$page?.props?.auth?.user;
+        },
+        modelEndpoints() {
+            return this.baseModel?.endpoints || {};
+        },
         resolvedIndexEndpoint() {
             if (this.isAuthenticated) return this.modelEndpoints.indexAuth || this.modelEndpoints.index || this.modelEndpoints.indexGuest || null;
             return this.modelEndpoints.indexGuest || this.modelEndpoints.index || this.modelEndpoints.indexAuth || null;
@@ -664,65 +843,97 @@ export default {
         resolvedCreateEndpoint() {
             return this.modelEndpoints.create || this.baseModel?.createPage || null;
         },
-        resolvedPutEndpoint() { return this.modelEndpoints.put || null; },
-        resolvedDeleteEndpoint() { return this.modelEndpoints.delete || null; },
-        resolvedDeleteManyEndpoint() {
-            return this.modelEndpoints.deleteMany
-                || this.modelEndpoints.multiDestroy
-                || (this.resolvedDeleteEndpoint ? this.resolvedDeleteEndpoint.replace('.destroy', '.multi-destroy') : null);
+        resolvedPutEndpoint() {
+            return this.modelEndpoints.put || null;
         },
-        resolvedShowEndpoint() { return this.modelEndpoints.show || null; },
+        resolvedDeleteEndpoint() {
+            return this.modelEndpoints.delete || null;
+        },
+        resolvedDeleteManyEndpoint() {
+            return this.modelEndpoints.deleteMany || this.modelEndpoints.multiDestroy || (this.resolvedDeleteEndpoint ? this.resolvedDeleteEndpoint.replace(".destroy", ".multi-destroy") : null);
+        },
+        resolvedShowEndpoint() {
+            return this.modelEndpoints.show || null;
+        },
         actionWarnings() {
             const warnings = [];
 
             if (this.canCreate) {
                 if (!this.resolvedCreateEndpoint && !this.addForm) {
-                    warnings.push('Create is enabled, but no create page endpoint or add-form component is defined for this model.');
+                    warnings.push("Create is enabled, but no create page endpoint or add-form component is defined for this model.");
                 }
 
                 if (this.addForm && !this.resolvedPostEndpoint) {
-                    warnings.push('Create modal is enabled, but the create API endpoint is not defined for this model.');
+                    warnings.push("Create modal is enabled, but the create API endpoint is not defined for this model.");
                 }
             }
 
             if (this.canUpdate && !this.resolvedShowEndpoint) {
-                warnings.push('Update is enabled, but the show page endpoint is not defined for this model.');
+                warnings.push("Update is enabled, but the show page endpoint is not defined for this model.");
             }
 
             if (this.canDelete && !this.resolvedDeleteEndpoint) {
-                warnings.push('Delete is enabled, but the delete API endpoint is not defined for this model.');
+                warnings.push("Delete is enabled, but the delete API endpoint is not defined for this model.");
             }
 
             return warnings;
         },
-        dataDb() { return this.checkIfDataIsLoaded ? this.dt.response['data'] : []; },
-        errorBag() { return this.dt?.errorBag?.errors || this.dt?.errorBag || null; },
-        visibleColumns() { return this.dt.model.getColumns().filter(column => column.visible !== false); },
-        selected() { return this.dt.selected; },
-        current_page() { return this.checkIfDataIsLoaded ? this.dt.response['meta']['current_page'] : 1; },
-        last_page() { return this.checkIfDataIsLoaded ? this.dt.response['meta']['last_page'] : 1; },
-        next_page() { return this.checkIfDataIsLoaded ? this.dt.response['meta']['current_page'] + 1 : 1; },
-        prev_page() { return this.checkIfDataIsLoaded ? this.dt.response['meta']['current_page'] - 1 : 0; },
-        first_page() { return 1; },
-        total_pages() { return this.checkIfDataIsLoaded ? this.dt.response['meta']['last_page'] : 1; },
-        total_entries() { return this.checkIfDataIsLoaded ? this.dt.response['meta']['total'] : 0; },
-        meta_from() { return this.checkIfDataIsLoaded ? this.dt.response['meta']['from'] : 0; },
-        meta_to() { return this.checkIfDataIsLoaded ? this.dt.response['meta']['to'] : 0; },
-        checkIfDataIsLoaded() { return Array.isArray(this.dt?.response?.data) && this.dt.response.data.length >= 0; },
+        dataDb() {
+            return this.checkIfDataIsLoaded ? this.dt.response["data"] : [];
+        },
+        errorBag() {
+            return this.dt?.errorBag?.errors || this.dt?.errorBag || null;
+        },
+        visibleColumns() {
+            return this.dt.model.getColumns().filter((column) => column.visible !== false);
+        },
+        selected() {
+            return this.dt.selected;
+        },
+        current_page() {
+            return this.checkIfDataIsLoaded ? this.dt.response["meta"]["current_page"] : 1;
+        },
+        last_page() {
+            return this.checkIfDataIsLoaded ? this.dt.response["meta"]["last_page"] : 1;
+        },
+        next_page() {
+            return this.checkIfDataIsLoaded ? this.dt.response["meta"]["current_page"] + 1 : 1;
+        },
+        prev_page() {
+            return this.checkIfDataIsLoaded ? this.dt.response["meta"]["current_page"] - 1 : 0;
+        },
+        first_page() {
+            return 1;
+        },
+        total_pages() {
+            return this.checkIfDataIsLoaded ? this.dt.response["meta"]["last_page"] : 1;
+        },
+        total_entries() {
+            return this.checkIfDataIsLoaded ? this.dt.response["meta"]["total"] : 0;
+        },
+        meta_from() {
+            return this.checkIfDataIsLoaded ? this.dt.response["meta"]["from"] : 0;
+        },
+        meta_to() {
+            return this.checkIfDataIsLoaded ? this.dt.response["meta"]["to"] : 0;
+        },
+        checkIfDataIsLoaded() {
+            return Array.isArray(this.dt?.response?.data) && this.dt.response.data.length >= 0;
+        },
     },
     methods: {
         setColorPreset(preset) {
             this.colorPreset = preset;
-            localStorage.setItem('dt_color_preset', preset);
+            localStorage.setItem("dt_color_preset", preset);
             this.showThemeMenu = false;
         },
         toggleIconText() {
             this.showIconText = !this.showIconText;
-            localStorage.setItem('dt_show_icon_text', this.showIconText);
+            localStorage.setItem("dt_show_icon_text", this.showIconText);
         },
         getSortClasses(column) {
-            if (this.dt.request.getSort !== column.key) return 'text-gray-600 dark:text-gray-400';
-            return this.presetClasses.textPrimary + ' font-semibold';
+            if (this.dt.request.getSort !== column.key) return "text-gray-600 dark:text-gray-400";
+            return this.presetClasses.textPrimary + " font-semibold";
         },
         handlePageInput(e) {
             const page = parseInt(e.target.value);
@@ -732,8 +943,8 @@ export default {
                 e.target.value = this.current_page;
             }
         },
-        resolveRowRouteParams(row, action = 'show') {
-            const actionParamsKey = action === 'update' ? 'updatePageParams' : 'showPageParams';
+        resolveRowRouteParams(row, action = "show") {
+            const actionParamsKey = action === "update" ? "updatePageParams" : "showPageParams";
             const params = row?.[actionParamsKey];
 
             if (params !== undefined && params !== null) {
@@ -748,44 +959,42 @@ export default {
         resolveRowUpdateEndpoint(row) {
             return row?.updatePage || row?.showPage || this.resolvedShowEndpoint || null;
         },
-        visitRowEndpoint(row, action = 'show') {
-            const endpoint = action === 'update'
-                ? this.resolveRowUpdateEndpoint(row)
-                : this.resolveRowShowEndpoint(row);
+        visitRowEndpoint(row, action = "show") {
+            const endpoint = action === "update" ? this.resolveRowUpdateEndpoint(row) : this.resolveRowShowEndpoint(row);
 
             if (!endpoint) {
-                this.notifyActionWarning(`Unable to ${action === 'update' ? 'open edit' : 'view'} page. No page endpoint is configured for this row.`);
+                this.notifyActionWarning(`Unable to ${action === "update" ? "open edit" : "view"} page. No page endpoint is configured for this row.`);
                 return;
             }
 
             const params = this.resolveRowRouteParams(row, action);
             // @ts-ignore
             const url = params ? route(endpoint, params) : route(endpoint);
-            const target = action === 'update'
-                ? row?.updatePageTarget || row?.showPageTarget || '_self'
-                : row?.showPageTarget || '_self';
+            const target = action === "update" ? row?.updatePageTarget || row?.showPageTarget || "_self" : row?.showPageTarget || "_self";
 
-            if (target && target !== '_self') {
-                window.open(url, target, 'noopener');
+            if (target && target !== "_self") {
+                window.open(url, target, "noopener");
                 return;
             }
 
             router.visit(url);
         },
         // ... other methods remain similar to original
-        getNestedValue(obj, path) { return path.split('.').reduce((acc, part) => acc && acc[part], obj); },
+        getNestedValue(obj, path) {
+            return path.split(".").reduce((acc, part) => acc && acc[part], obj);
+        },
         notifyActionWarning(message) {
-            if (!message || typeof window === 'undefined') {
+            if (!message || typeof window === "undefined") {
                 return;
             }
 
             window.dispatchEvent(
-                new CustomEvent('cbc:notify', {
+                new CustomEvent("cbc:notify", {
                     detail: {
-                        type: 'warning',
+                        type: "warning",
                         message,
                     },
-                })
+                }),
             );
         },
         getScrollableAncestors() {
@@ -809,7 +1018,7 @@ export default {
             return elements;
         },
         captureScrollState() {
-            if (typeof window === 'undefined') {
+            if (typeof window === "undefined") {
                 return null;
             }
 
@@ -823,7 +1032,7 @@ export default {
                 })),
             };
 
-            const tableContainer = this.$el?.querySelector?.('#dtTableContainer');
+            const tableContainer = this.$el?.querySelector?.("#dtTableContainer");
             if (tableContainer instanceof HTMLElement) {
                 state.tableTop = tableContainer.scrollTop;
                 state.tableLeft = tableContainer.scrollLeft;
@@ -832,7 +1041,7 @@ export default {
             return state;
         },
         restoreScrollState(state = null) {
-            if (!state || typeof window === 'undefined') {
+            if (!state || typeof window === "undefined") {
                 return;
             }
 
@@ -846,7 +1055,7 @@ export default {
                     }
                 });
 
-                const tableContainer = this.$el?.querySelector?.('#dtTableContainer');
+                const tableContainer = this.$el?.querySelector?.("#dtTableContainer");
                 if (tableContainer instanceof HTMLElement) {
                     tableContainer.scrollTop = state.tableTop ?? tableContainer.scrollTop;
                     tableContainer.scrollLeft = state.tableLeft ?? tableContainer.scrollLeft;
@@ -890,12 +1099,15 @@ export default {
                 return;
             }
 
-            this.notifyActionWarning(this.actionWarnings[0] || 'Create action is not configured for this model.');
+            this.notifyActionWarning(this.actionWarnings[0] || "Create action is not configured for this model.");
         },
-        showAddDialogFunc() { this.showModal = true; this.showAddDialog = true; },
+        showAddDialogFunc() {
+            this.showModal = true;
+            this.showAddDialog = true;
+        },
         showDeleteDialogFunc(id) {
             if (!this.resolvedDeleteEndpoint) {
-                this.notifyActionWarning('Delete action is enabled, but the delete API endpoint is not defined for this model.');
+                this.notifyActionWarning("Delete action is enabled, but the delete API endpoint is not defined for this model.");
                 return;
             }
 
@@ -905,7 +1117,7 @@ export default {
         },
         showDeleteSelectedDialogFunc() {
             if (!this.resolvedDeleteEndpoint) {
-                this.notifyActionWarning('Delete action is enabled, but the delete API endpoint is not defined for this model.');
+                this.notifyActionWarning("Delete action is enabled, but the delete API endpoint is not defined for this model.");
                 return;
             }
 
@@ -913,9 +1125,14 @@ export default {
             this.showDeleteSelectedDialog = true;
         },
         closeDialog() {
-            this.showModal = false; this.showDeleteDialog = false; this.showAddDialog = false;
-            this.showImportModal = false; this.showDeleteSelectedDialog = false;
-            this.dt.closeAllModal = false; this.dt.errorBag = null; this.toDeleteId = null;
+            this.showModal = false;
+            this.showDeleteDialog = false;
+            this.showAddDialog = false;
+            this.showImportModal = false;
+            this.showDeleteSelectedDialog = false;
+            this.dt.closeAllModal = false;
+            this.dt.errorBag = null;
+            this.toDeleteId = null;
         },
         async confirmSingleDelete() {
             if (!this.toDeleteId) return;
@@ -930,9 +1147,7 @@ export default {
         async confirmBulkDelete() {
             if (!this.dt.selected?.length) return;
 
-            const confirmed = window.confirm(
-                `Delete ${this.dt.selected.length} selected records? This action cannot be undone.`
-            );
+            const confirmed = window.confirm(`Delete ${this.dt.selected.length} selected records? This action cannot be undone.`);
 
             if (!confirmed) {
                 return;
@@ -946,24 +1161,27 @@ export default {
             }
         },
         async initializeDatatable() {
-            const requireEndpoint = (endpoint, action) => { if (!endpoint) throw new Error(`Missing ${action} endpoint`); return endpoint; };
+            const requireEndpoint = (endpoint, action) => {
+                if (!endpoint) throw new Error(`Missing ${action} endpoint`);
+                return endpoint;
+            };
             const apiAdapter = {
-                get: (params, model) => this.fetchGetApi(requireEndpoint(this.resolvedIndexEndpoint, 'index'), params, model),
-                post: (payload) => this.fetchPostApi(requireEndpoint(this.resolvedPostEndpoint, 'post'), payload),
+                get: (params, model) => this.fetchGetApi(requireEndpoint(this.resolvedIndexEndpoint, "index"), params, model),
+                post: (payload) => this.fetchPostApi(requireEndpoint(this.resolvedPostEndpoint, "post"), payload),
                 put: (payload) => {
-                    const putEndpoint = requireEndpoint(this.resolvedPutEndpoint, 'put');
-                    if (!payload || typeof payload !== 'object') return this.fetchPutApi(putEndpoint, null, payload);
-                    const idKey = Object.keys(payload).find((key) => key === 'id' || key.endsWith('_id'));
+                    const putEndpoint = requireEndpoint(this.resolvedPutEndpoint, "put");
+                    if (!payload || typeof payload !== "object") return this.fetchPutApi(putEndpoint, null, payload);
+                    const idKey = Object.keys(payload).find((key) => key === "id" || key.endsWith("_id"));
                     return this.fetchPutApi(putEndpoint, idKey ? payload[idKey] : null, payload);
                 },
-                delete: (id) => this.fetchDeleteApi(requireEndpoint(this.resolvedDeleteEndpoint, 'delete'), id),
+                delete: (id) => this.fetchDeleteApi(requireEndpoint(this.resolvedDeleteEndpoint, "delete"), id),
                 deleteMany: (ids) => {
                     const deleteManyEndpoint = this.resolvedDeleteManyEndpoint;
                     if (deleteManyEndpoint) {
                         return this.fetchDeleteApi(deleteManyEndpoint, null, { ids });
                     }
 
-                    const deleteEndpoint = requireEndpoint(this.resolvedDeleteEndpoint, 'delete');
+                    const deleteEndpoint = requireEndpoint(this.resolvedDeleteEndpoint, "delete");
                     return Promise.all((ids || []).map((id) => this.fetchDeleteApi(deleteEndpoint, id)));
                 },
             };
@@ -977,17 +1195,21 @@ export default {
             if (this.clickSortCtr === 0) return false;
             return this.dt.sortFunc({ sort: column.key });
         },
-        isRowUpdatable(row) { return this.rowCanUpdate ? !!this.rowCanUpdate(row) : true; },
-        isRowDeletable(row) { return this.rowCanDelete ? !!this.rowCanDelete(row) : true; },
+        isRowUpdatable(row) {
+            return this.rowCanUpdate ? !!this.rowCanUpdate(row) : true;
+        },
+        isRowDeletable(row) {
+            return this.rowCanDelete ? !!this.rowCanDelete(row) : true;
+        },
         showContextMenu(event, row) {
             this.rowContextMenu = row;
             this.$nextTick(() => {
                 const menu = this.$refs.contextMenu;
-                if (menu && typeof menu.showMenu === 'function') menu.showMenu(event);
+                if (menu && typeof menu.showMenu === "function") menu.showMenu(event);
             });
         },
         cleanupRealtime() {
-            if (typeof this.realtimeCleanup === 'function') {
+            if (typeof this.realtimeCleanup === "function") {
                 this.realtimeCleanup();
             }
 
@@ -999,7 +1221,7 @@ export default {
             }
 
             this.realtimeRefreshTimer = setTimeout(() => {
-                if (this.dt && typeof this.dt.refresh === 'function') {
+                if (this.dt && typeof this.dt.refresh === "function") {
                     this.dt.refresh();
                 }
             }, 400);
@@ -1007,33 +1229,32 @@ export default {
         configureRealtime() {
             this.cleanupRealtime();
 
-            const subscriptions = resolveDatatableRealtimeSubscriptions(this.resolvedIndexEndpoint)
-                .map((subscription) => ({
-                    ...subscription,
-                    handler: (payload) => {
-                        if (typeof subscription.shouldRefresh === 'function' && !subscription.shouldRefresh(payload)) {
-                            return;
-                        }
+            const subscriptions = resolveDatatableRealtimeSubscriptions(this.resolvedIndexEndpoint).map((subscription) => ({
+                ...subscription,
+                handler: (payload) => {
+                    if (typeof subscription.shouldRefresh === "function" && !subscription.shouldRefresh(payload)) {
+                        return;
+                    }
 
-                        this.scheduleRealtimeRefresh();
-                    },
-                }));
+                    this.scheduleRealtimeRefresh();
+                },
+            }));
 
             if (!subscriptions.length) {
                 return;
             }
 
             this.realtimeCleanup = subscribeToRealtimeChannels(subscriptions);
-        }
+        },
     },
     async mounted() {
         if (this.resolvedIndexEndpoint) await this.initializeDatatable();
         this.configureRealtime();
         // Close theme menu when clicking outside
         this.themeMenuClickHandler = (e) => {
-            if (!e.target.closest('.group')) this.showThemeMenu = false;
+            if (!e.target.closest(".group")) this.showThemeMenu = false;
         };
-        document.addEventListener('click', this.themeMenuClickHandler);
+        document.addEventListener("click", this.themeMenuClickHandler);
     },
     beforeUnmount() {
         if (this.realtimeRefreshTimer) {
@@ -1043,10 +1264,12 @@ export default {
         this.cleanupRealtime();
 
         if (this.themeMenuClickHandler) {
-            document.removeEventListener('click', this.themeMenuClickHandler);
+            document.removeEventListener("click", this.themeMenuClickHandler);
         }
     },
-    setup() { return { CRCMDatatable, router }; }
+    setup() {
+        return { CRCMDatatable, router };
+    },
 };
 </script>
 
@@ -1080,8 +1303,8 @@ button {
 }
 
 /* Number input spinner hide */
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }

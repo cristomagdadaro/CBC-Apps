@@ -74,10 +74,7 @@ export default {
                     return {
                         key: req.id || formType,
                         form_type: formType,
-                        label:
-                            req.name ||
-                            req.title ||
-                            this.getFormTypeLabel(formType),
+                        label: req.name || req.title || this.getFormTypeLabel(formType),
                         count,
                         isFull: maxSlots > 0 && count >= maxSlots,
                         maxSlots,
@@ -85,15 +82,10 @@ export default {
                 });
         },
         visibleResponseTypes() {
-            return this.requirementStats.filter(
-                (item) => item.count > 0 || item.maxSlots > 0,
-            );
+            return this.requirementStats.filter((item) => item.count > 0 || item.maxSlots > 0);
         },
         totalResponseCount() {
-            const breakdownTotal = this.visibleResponseTypes.reduce(
-                (acc, item) => acc + Number(item.count || 0),
-                0,
-            );
+            const breakdownTotal = this.visibleResponseTypes.reduce((acc, item) => acc + Number(item.count || 0), 0);
             if (breakdownTotal > 0) {
                 return breakdownTotal;
             }
@@ -134,17 +126,11 @@ export default {
             };
         },
         dateRange() {
-            const from = this.formsData?.date_from
-                ? new Date(this.formsData.date_from)
-                : null;
-            const to = this.formsData?.date_to
-                ? new Date(this.formsData.date_to)
-                : null;
+            const from = this.formsData?.date_from ? new Date(this.formsData.date_from) : null;
+            const to = this.formsData?.date_to ? new Date(this.formsData.date_to) : null;
             if (!from || !to) return null;
 
-            const sameMonth =
-                from.getMonth() === to.getMonth() &&
-                from.getFullYear() === to.getFullYear();
+            const sameMonth = from.getMonth() === to.getMonth() && from.getFullYear() === to.getFullYear();
             const fromStr = from.toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -155,9 +141,7 @@ export default {
                 year: "numeric",
             });
 
-            return sameMonth
-                ? `${fromStr} - ${to.getDate()}, ${to.getFullYear()}`
-                : `${fromStr} - ${toStr}`;
+            return sameMonth ? `${fromStr} - ${to.getDate()}, ${to.getFullYear()}` : `${fromStr} - ${toStr}`;
         },
     },
     beforeMount() {
@@ -210,17 +194,13 @@ export default {
         getFormTypeLabel(formType) {
             if (!formType) return "Form";
             const normalized = String(formType).trim();
-            if (this.formTypeLabels[normalized])
-                return this.formTypeLabels[normalized];
-            return normalized
-                .replace(/_/g, " ")
-                .replace(/\b\w/g, (char) => char.toUpperCase());
+            if (this.formTypeLabels[normalized]) return this.formTypeLabels[normalized];
+            return normalized.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
         },
         resolveStyle(tokenKey, type = "background") {
             const token = this.formsData?.style_tokens?.[tokenKey] ?? {};
             const value = token.value ?? null;
-            if (!value || (typeof value === "string" && value.trim() === ""))
-                return {};
+            if (!value || (typeof value === "string" && value.trim() === "")) return {};
             const mode = token.mode ?? null;
 
             if (mode === "image") {
@@ -251,18 +231,23 @@ export default {
         v-if="formsData"
         class="group relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-xl border border-slate-200/80 dark:border-slate-700/60 overflow-hidden flex flex-col transition-all duration-300 max-w-md w-full"
         :class="{ 'opacity-70 grayscale-[0.3]': isExpired || formsData?.is_suspended }"
-        :style="styles.background"
-    >
+        :style="styles.background">
         <!-- Status Badge -->
         <div class="absolute top-4 right-4 z-20">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.65rem] font-bold uppercase tracking-widest border backdrop-blur-md" :class="statusBadge.class">
-                <component :is="statusBadge.icon" class="w-3.5 h-3.5" />
+            <span
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.65rem] font-bold uppercase tracking-widest border backdrop-blur-md"
+                :class="statusBadge.class">
+                <component
+                    :is="statusBadge.icon"
+                    class="w-3.5 h-3.5" />
                 {{ statusBadge.text }}
             </span>
         </div>
 
         <!-- Header Section -->
-        <div class="relative p-6 pb-5 border-b border-white/10 dark:border-slate-800/50" :style="{ ...styles.headerBox, ...styles.headerText }">
+        <div
+            class="relative p-6 pb-5 border-b border-white/10 dark:border-slate-800/50"
+            :style="{ ...styles.headerBox, ...styles.headerText }">
             <div class="relative flex justify-between items-start gap-4 z-10">
                 <div class="flex-1 min-w-0 pr-2">
                     <h3 class="text-normal sm:text-lg font-black leading-tight line-clamp-2 mb-2 tracking-tight drop-shadow-md">
@@ -290,7 +275,9 @@ export default {
                     <div class="p-1.5 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg border border-indigo-100 dark:border-indigo-500/20 shadow-sm shrink-0">
                         <LuCalendar class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                     </div>
-                    <span class="truncate">{{ dateRange || `${safeFormatDate(formsData.date_from)} - ${safeFormatDate(formsData.date_to)}` }}</span>
+                    <span class="truncate">
+                        {{ dateRange || `${safeFormatDate(formsData.date_from)} - ${safeFormatDate(formsData.date_to)}` }}
+                    </span>
                 </div>
 
                 <div class="flex items-center gap-3 text-sm font-bold text-slate-700 dark:text-slate-200">
@@ -310,30 +297,39 @@ export default {
         <div class="px-6 py-5 bg-slate-50/80 dark:bg-slate-800/40 flex-1">
             <div class="flex items-center justify-between mb-3.5">
                 <span class="text-[0.65rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Responses</span>
-                <span v-if="visibleResponseTypes.length" class="text-xs font-semibold text-slate-400 dark:text-slate-500">
+                <span
+                    v-if="visibleResponseTypes.length"
+                    class="text-xs font-semibold text-slate-400 dark:text-slate-500">
                     {{ visibleResponseTypes.reduce((acc, item) => acc + item.count, 0) }} total
                 </span>
             </div>
 
-            <div v-if="visibleResponseTypes.length" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                <div v-for="item in visibleResponseTypes" :key="item.key"
+            <div
+                v-if="visibleResponseTypes.length"
+                class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                <div
+                    v-for="item in visibleResponseTypes"
+                    :key="item.key"
                     class="relative p-3 rounded-xl bg-white dark:bg-slate-800 border shadow-sm transition-all"
-                    :class="item.isFull 
-                        ? 'border-red-200 dark:border-red-900/50 ring-1 ring-red-100 dark:ring-red-900/30' 
-                        : 'border-slate-200 dark:border-slate-700'">
-                    
+                    :class="item.isFull ? 'border-red-200 dark:border-red-900/50 ring-1 ring-red-100 dark:ring-red-900/30' : 'border-slate-200 dark:border-slate-700'">
                     <div class="flex items-center justify-between mb-1.5">
-                        <span class="text-xl font-black tracking-tight" :class="item.isFull ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-slate-50'">
+                        <span
+                            class="text-xl font-black tracking-tight"
+                            :class="item.isFull ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-slate-50'">
                             {{ item.count }}
                         </span>
-                        <LuUsers v-if="item.isFull" class="w-4 h-4 text-red-500" />
+                        <LuUsers
+                            v-if="item.isFull"
+                            class="w-4 h-4 text-red-500" />
                     </div>
                     <p class="text-[0.65rem] font-semibold text-slate-500 dark:text-slate-400 leading-tight line-clamp-2">
                         {{ item.label }}
                     </p>
-                    
+
                     <!-- Pulsing Indicator for Full Slots -->
-                    <div v-if="item.isFull" class="absolute -top-1.5 -right-1.5">
+                    <div
+                        v-if="item.isFull"
+                        class="absolute -top-1.5 -right-1.5">
                         <span class="flex h-3 w-3 relative">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500 border-2 border-white dark:border-slate-800"></span>
@@ -342,12 +338,19 @@ export default {
                 </div>
             </div>
 
-            <div v-else class="text-center py-6 text-slate-400 dark:text-slate-500">
+            <div
+                v-else
+                class="text-center py-6 text-slate-400 dark:text-slate-500">
                 <LuClipboardList class="w-8 h-8 mx-auto mb-2 opacity-40" />
                 <p class="text-sm font-medium">
                     <template v-if="totalResponseCount > 0">
-                        {{ totalResponseCount }} {{ totalResponseCount === 1 ? 'response' : 'responses' }} recorded
-                        <span v-if="!visibleResponseTypes.length" class="block text-xs opacity-70 mt-0.5">(awaiting detailed breakdown)</span>
+                        {{ totalResponseCount }}
+                        {{ totalResponseCount === 1 ? "response" : "responses" }} recorded
+                        <span
+                            v-if="!visibleResponseTypes.length"
+                            class="block text-xs opacity-70 mt-0.5">
+                            (awaiting detailed breakdown)
+                        </span>
                     </template>
                     <template v-else>No responses yet</template>
                 </p>
@@ -359,41 +362,76 @@ export default {
             <div class="flex items-center justify-between">
                 <!-- Group 1: Manage -->
                 <div class="flex items-center gap-1">
-                    <Link :href="route('forms.update', formsData.event_id)" class="p-2 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-500/10 transition-colors" title="Edit form">
+                    <Link
+                        :href="route('forms.update', formsData.event_id)"
+                        class="p-2 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-blue-500/10 transition-colors"
+                        title="Edit form">
                         <LuSettings class="w-4 h-4" />
                     </Link>
-                    <button @click="copyLink" class="p-2 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:text-slate-400 dark:hover:text-indigo-400 dark:hover:bg-indigo-500/10 transition-colors" title="Copy link">
+                    <button
+                        @click="copyLink"
+                        class="p-2 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:text-slate-400 dark:hover:text-indigo-400 dark:hover:bg-indigo-500/10 transition-colors"
+                        title="Copy link">
                         <LuCopy class="w-4 h-4" />
                     </button>
-                    <button @click="downloadFormQr" class="p-2 rounded-xl text-slate-500 hover:text-purple-600 hover:bg-purple-50 dark:text-slate-400 dark:hover:text-purple-400 dark:hover:bg-purple-500/10 transition-colors" title="Download QR">
+                    <button
+                        @click="downloadFormQr"
+                        class="p-2 rounded-xl text-slate-500 hover:text-purple-600 hover:bg-purple-50 dark:text-slate-400 dark:hover:text-purple-400 dark:hover:bg-purple-500/10 transition-colors"
+                        title="Download QR">
                         <LuDownload class="w-4 h-4" />
                     </button>
                 </div>
 
                 <!-- Group 2: Actions -->
                 <div class="flex items-center gap-1">
-                    <Link :href="route('forms.guest.index', formsData.event_id)" target="_blank" class="p-2 rounded-xl text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:text-slate-400 dark:hover:text-emerald-400 dark:hover:bg-emerald-500/10 transition-colors" title="Preview Form">
+                    <Link
+                        :href="route('forms.guest.index', formsData.event_id)"
+                        target="_blank"
+                        class="p-2 rounded-xl text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:text-slate-400 dark:hover:text-emerald-400 dark:hover:bg-emerald-500/10 transition-colors"
+                        title="Preview Form">
                         <LuEye class="w-4 h-4" />
                     </Link>
-                    <Link :href="route('forms.scan', formsData.event_id)" class="p-2 rounded-xl text-slate-500 hover:text-amber-600 hover:bg-amber-50 dark:text-slate-400 dark:hover:text-amber-400 dark:hover:bg-amber-500/10 transition-colors" title="Scan QR">
+                    <Link
+                        :href="route('forms.scan', formsData.event_id)"
+                        class="p-2 rounded-xl text-slate-500 hover:text-amber-600 hover:bg-amber-50 dark:text-slate-400 dark:hover:text-amber-400 dark:hover:bg-amber-500/10 transition-colors"
+                        title="Scan QR">
                         <LuScanLine class="w-4 h-4" />
                     </Link>
-                    <suspend-form-btn v-if="!isExpired" :data="formsData" @updated="updatedData = $event" @failedUpdate="errors = $event" class="p-2" />
-                    <button @click="confirmAction" class="p-2 rounded-xl text-slate-500 hover:text-red-600 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-500/10 transition-colors" title="Delete Form">
+                    <suspend-form-btn
+                        v-if="!isExpired"
+                        :data="formsData"
+                        @updated="updatedData = $event"
+                        @failedUpdate="errors = $event"
+                        class="p-2" />
+                    <button
+                        @click="confirmAction"
+                        class="p-2 rounded-xl text-slate-500 hover:text-red-600 hover:bg-red-50 dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-500/10 transition-colors"
+                        title="Delete Form">
                         <LuTrash2 class="w-4 h-4" />
                     </button>
                 </div>
             </div>
 
-            <p v-if="errors?.message" class="mt-2.5 text-[0.7rem] font-bold text-red-600 dark:text-red-400 text-center">
+            <p
+                v-if="errors?.message"
+                class="mt-2.5 text-[0.7rem] font-bold text-red-600 dark:text-red-400 text-center">
                 <LuAlertCircle class="w-3.5 h-3.5 inline mr-1 -mt-0.5" />
                 {{ errors.message }}
             </p>
         </div>
 
         <!-- Hidden QR Download -->
-        <div ref="formQrDownloadHost" class="hidden" aria-hidden="true">
-            <qrcode-vue v-if="formGuestUrl" :value="formGuestUrl" :size="500" level="M" render-as="canvas" @ready="qrDownloadReady = true" />
+        <div
+            ref="formQrDownloadHost"
+            class="hidden"
+            aria-hidden="true">
+            <qrcode-vue
+                v-if="formGuestUrl"
+                :value="formGuestUrl"
+                :size="500"
+                level="M"
+                render-as="canvas"
+                @ready="qrDownloadReady = true" />
         </div>
 
         <!-- Delete Confirmation -->
@@ -404,7 +442,6 @@ export default {
             message="This action cannot be undone. All responses and data will be permanently removed."
             :item-name="formsData.title"
             @confirm="handleDelete"
-            @close="confirmDelete = false"
-        />
+            @close="confirmDelete = false" />
     </div>
 </template>

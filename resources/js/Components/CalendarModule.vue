@@ -1,5 +1,5 @@
 <script>
-import { Link } from 'lucide-vue-next';
+import { Link } from "lucide-vue-next";
 
 export default {
     name: "CalendarModule",
@@ -83,9 +83,7 @@ export default {
                 ...event,
                 label: event.label || event.title || event.purpose || "(Untitled)",
                 subtitle: event.subtitle || event.requested_by || "",
-                type: this.normalizeTypeValue(
-                    event.type || event.vehicle_type || "GENERAL",
-                ),
+                type: this.normalizeTypeValue(event.type || event.vehicle_type || "GENERAL"),
                 status: this.normalizeStatusValue(event.status || ""),
             }));
         },
@@ -99,26 +97,16 @@ export default {
 
             if (this.showStatusFilter && this.filterStatus !== "all") {
                 const selectedStatus = this.normalizeStatusValue(this.filterStatus);
-                list = list.filter(
-                    (event) => event.status === selectedStatus,
-                );
+                list = list.filter((event) => event.status === selectedStatus);
             }
 
             return list;
         },
         daysInMonth() {
-            return new Date(
-                this.currentDate.getFullYear(),
-                this.currentDate.getMonth() + 1,
-                0,
-            ).getDate();
+            return new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0).getDate();
         },
         firstDayOfMonth() {
-            return new Date(
-                this.currentDate.getFullYear(),
-                this.currentDate.getMonth(),
-                1,
-            ).getDay();
+            return new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1).getDay();
         },
         calendarWeeks() {
             const weeks = [];
@@ -171,15 +159,13 @@ export default {
             if (this.statusColors && Object.keys(this.statusColors).length) {
                 groups.push({
                     title: "Status",
-                    items: Object.entries(this.statusColors).map(
-                        ([key, value]) => ({
-                            label: key.charAt(0).toUpperCase() + key.slice(1),
-                            color: value,
-                            key: key,
-                            filterKey: this.normalizeStatusValue(key),
-                            filterTarget: "status",
-                        }),
-                    ),
+                    items: Object.entries(this.statusColors).map(([key, value]) => ({
+                        label: key.charAt(0).toUpperCase() + key.slice(1),
+                        color: value,
+                        key: key,
+                        filterKey: this.normalizeStatusValue(key),
+                        filterTarget: "status",
+                    })),
                 });
             }
 
@@ -200,10 +186,14 @@ export default {
     },
     methods: {
         normalizeTypeValue(value) {
-            return String(value || "general").trim().toUpperCase();
+            return String(value || "general")
+                .trim()
+                .toUpperCase();
         },
         normalizeStatusValue(value) {
-            return String(value || "").trim().toLowerCase();
+            return String(value || "")
+                .trim()
+                .toLowerCase();
         },
         formatLocalDate(date) {
             const year = date.getFullYear();
@@ -213,27 +203,17 @@ export default {
             return `${year}-${month}-${day}`;
         },
         previousMonth() {
-            this.currentDate = new Date(
-                this.currentDate.getFullYear(),
-                this.currentDate.getMonth() - 1,
-            );
+            this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() - 1);
         },
         nextMonth() {
-            this.currentDate = new Date(
-                this.currentDate.getFullYear(),
-                this.currentDate.getMonth() + 1,
-            );
+            this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1);
         },
         goToToday() {
             this.currentDate = new Date();
         },
         isToday(day) {
             const today = new Date();
-            return (
-                day === today.getDate() &&
-                this.currentDate.getMonth() === today.getMonth() &&
-                this.currentDate.getFullYear() === today.getFullYear()
-            );
+            return day === today.getDate() && this.currentDate.getMonth() === today.getMonth() && this.currentDate.getFullYear() === today.getFullYear();
         },
         toDateOnly(value) {
             if (!value) return null;
@@ -255,15 +235,8 @@ export default {
             const weekEndDate = this.getWeekEndDate(weekDays);
 
             return this.filteredEvents.filter((event) => {
-                const dateFrom = this.toDateOnly(
-                    event.date_from || event.start_at || event.started_at,
-                );
-                const dateTo = this.toDateOnly(
-                    event.date_to ||
-                    event.end_at ||
-                    event.end_use_at ||
-                    event.date_from,
-                );
+                const dateFrom = this.toDateOnly(event.date_from || event.start_at || event.started_at);
+                const dateTo = this.toDateOnly(event.date_to || event.end_at || event.end_use_at || event.date_from);
                 if (!dateFrom || !dateTo) return false;
 
                 return dateFrom <= weekEndDate && dateTo >= weekStartDate;
@@ -272,28 +245,16 @@ export default {
         getWeekStartDate(weekDays) {
             const firstDay = weekDays.find((d) => d !== null);
             if (!firstDay) return null;
-            return this.formatLocalDate(new Date(
-                this.currentDate.getFullYear(),
-                this.currentDate.getMonth(),
-                firstDay,
-            ));
+            return this.formatLocalDate(new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), firstDay));
         },
         getWeekEndDate(weekDays) {
             const lastDay = [...weekDays].reverse().find((d) => d !== null);
             if (!lastDay) return null;
-            return this.formatLocalDate(new Date(
-                this.currentDate.getFullYear(),
-                this.currentDate.getMonth(),
-                lastDay,
-            ));
+            return this.formatLocalDate(new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), lastDay));
         },
         getEventWeekLayout(event, weekDays) {
-            const eventStart = this.toDateOnly(
-                event.date_from || event.start_at || event.started_at,
-            );
-            const eventEnd = this.toDateOnly(
-                event.date_to || event.end_at || event.end_use_at || event.date_from,
-            );
+            const eventStart = this.toDateOnly(event.date_from || event.start_at || event.started_at);
+            const eventEnd = this.toDateOnly(event.date_to || event.end_at || event.end_use_at || event.date_from);
 
             const weekStart = this.getWeekStartDate(weekDays);
             const weekEnd = this.getWeekEndDate(weekDays);
@@ -333,8 +294,7 @@ export default {
 
                     const hasConflict = lanes[laneIndex].some((existingEvent) => {
                         const existingLayout = this.getEventWeekLayout(existingEvent, weekDays);
-                        return !(layout.endCol < existingLayout.startCol ||
-                            layout.startCol > existingLayout.endCol);
+                        return !(layout.endCol < existingLayout.startCol || layout.startCol > existingLayout.endCol);
                     });
 
                     if (!hasConflict) {
@@ -358,9 +318,7 @@ export default {
                 return this.statusColors[event.status];
             }
             if (event.color) return event.color;
-            const typeMatch = this.typeOptions.find(
-                (item) => this.normalizeTypeValue(item.key) === event.type,
-            );
+            const typeMatch = this.typeOptions.find((item) => this.normalizeTypeValue(item.key) === event.type);
             return typeMatch?.color || "#6B7280";
         },
         handleLegendClick(item) {
@@ -389,31 +347,20 @@ export default {
         // NEW: Handle clicking the overflow indicator
         handleOverflowClick(weekDays, overflowEvents) {
             // Emit event or open modal with overflow events
-            this.$emit('show-overflow-events', {
+            this.$emit("show-overflow-events", {
                 weekStart: this.getWeekStartDate(weekDays),
                 weekEnd: this.getWeekEndDate(weekDays),
-                events: overflowEvents
+                events: overflowEvents,
             });
         },
         getBookingsForDate(day) {
             if (!day) return [];
 
-            const dateStr = this.formatLocalDate(new Date(
-                this.currentDate.getFullYear(),
-                this.currentDate.getMonth(),
-                day,
-            ));
+            const dateStr = this.formatLocalDate(new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), day));
 
             return this.filteredEvents.filter((event) => {
-                const dateFrom = this.toDateOnly(
-                    event.date_from || event.start_at || event.started_at,
-                );
-                const dateTo = this.toDateOnly(
-                    event.date_to ||
-                    event.end_at ||
-                    event.end_use_at ||
-                    event.date_from,
-                );
+                const dateFrom = this.toDateOnly(event.date_from || event.start_at || event.started_at);
+                const dateTo = this.toDateOnly(event.date_to || event.end_at || event.end_use_at || event.date_from);
                 if (!dateFrom || !dateTo) return false;
                 return dateStr >= dateFrom && dateStr <= dateTo;
             });
@@ -450,7 +397,9 @@ export default {
                         <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight">
                             {{ title }}
                         </h2>
-                        <p v-if="subtitle" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        <p
+                            v-if="subtitle"
+                            class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                             {{ subtitle }}
                         </p>
                     </div>
@@ -460,33 +409,43 @@ export default {
                     type="button"
                     @click="showFilters = !showFilters"
                     class="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-semibold transition-all shrink-0 active:scale-95"
-                    :class="showFilters || activeFilterCount > 0
-                        ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 shadow-sm'
-                        : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'"
-                >
+                    :class="showFilters || activeFilterCount > 0 ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 shadow-sm' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'">
                     <lu-filter class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                     <span>Filters</span>
-                    <span v-if="activeFilterCount > 0" class="px-1.5 py-0.5 rounded-full text-[0.65rem] font-bold bg-emerald-600 text-white">
+                    <span
+                        v-if="activeFilterCount > 0"
+                        class="px-1.5 py-0.5 rounded-full text-[0.65rem] font-bold bg-emerald-600 text-white">
                         {{ activeFilterCount }}
                     </span>
-                    <lu-chevron-up-icon v-if="showFilters" class="w-3.5 h-3.5 text-slate-400" />
-                    <lu-chevron-down v-else class="w-3.5 h-3.5 text-slate-400" />
+                    <lu-chevron-up-icon
+                        v-if="showFilters"
+                        class="w-3.5 h-3.5 text-slate-400" />
+                    <lu-chevron-down
+                        v-else
+                        class="w-3.5 h-3.5 text-slate-400" />
                 </button>
             </div>
 
             <!-- Collapsible Filters & Legend (Compact) -->
             <transition-container type="pop-in">
-                <div v-if="showFilters" class="flex flex-col gap-3 pt-3 mt-1 border-t border-slate-100 dark:border-slate-800">
-                    
+                <div
+                    v-if="showFilters"
+                    class="flex flex-col gap-3 pt-3 mt-1 border-t border-slate-100 dark:border-slate-800">
                     <!-- Filters -->
                     <div class="flex flex-wrap items-center gap-3">
-                        <div v-if="showTypeFilter && typeOptions.length" class="flex items-center gap-2">
+                        <div
+                            v-if="showTypeFilter && typeOptions.length"
+                            class="flex items-center gap-2">
                             <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Type:</span>
                             <div class="relative">
-                                <select v-model="filterType"
+                                <select
+                                    v-model="filterType"
                                     class="text-xs pl-7 pr-7 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all appearance-none cursor-pointer">
                                     <option value="all">All Resources</option>
-                                    <option v-for="option in typeOptions" :key="option.key" :value="option.key">
+                                    <option
+                                        v-for="option in typeOptions"
+                                        :key="option.key"
+                                        :value="option.key">
                                         {{ option.label }}
                                     </option>
                                 </select>
@@ -494,13 +453,19 @@ export default {
                             </div>
                         </div>
 
-                        <div v-if="showStatusFilter" class="flex items-center gap-2">
+                        <div
+                            v-if="showStatusFilter"
+                            class="flex items-center gap-2">
                             <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Status:</span>
                             <div class="relative">
-                                <select v-model="filterStatus"
+                                <select
+                                    v-model="filterStatus"
                                     class="text-xs pl-7 pr-7 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all appearance-none cursor-pointer">
                                     <option value="all">All Statuses</option>
-                                    <option v-for="option in statusOptions" :key="option.key" :value="option.key">
+                                    <option
+                                        v-for="option in statusOptions"
+                                        :key="option.key"
+                                        :value="option.key">
                                         {{ option.label }}
                                     </option>
                                 </select>
@@ -508,24 +473,29 @@ export default {
                             </div>
                         </div>
 
-                        <button v-if="showToday" type="button" @click="goToToday"
+                        <button
+                            v-if="showToday"
+                            type="button"
+                            @click="goToToday"
                             class="ml-auto sm:ml-0 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition-all">
                             <lu-refresh-cw class="w-3.5 h-3.5" />
                             Today
                         </button>
                     </div>
-
                 </div>
             </transition-container>
         </div>
 
         <!-- Main Calendar Area -->
-        <main class="flex-1 min-w-0" data-guide='calendar-main-area'>
+        <main
+            class="flex-1 min-w-0"
+            data-guide="calendar-main-area">
             <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800">
                 <!-- Calendar Header -->
-                <div
-                    class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-t-2xl sticky top-0 z-10">
-                    <button type="button" @click="previousMonth"
+                <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-t-2xl sticky top-0 z-10">
+                    <button
+                        type="button"
+                        @click="previousMonth"
                         class="p-2 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm hover:shadow border border-transparent hover:border-slate-200 dark:hover:border-slate-600">
                         <lu-chevron-left-icon />
                     </button>
@@ -534,7 +504,9 @@ export default {
                         {{ monthYearLabel }}
                     </h3>
 
-                    <button type="button" @click="nextMonth"
+                    <button
+                        type="button"
+                        @click="nextMonth"
                         class="p-2 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm hover:shadow border border-transparent hover:border-slate-200 dark:hover:border-slate-600">
                         <lu-chevron-right />
                     </button>
@@ -545,11 +517,12 @@ export default {
                     <div class="min-w-[900px]">
                         <!-- Week Headers -->
                         <div class="grid grid-cols-7 border-b border-gray-100 dark:border-slate-800">
-                            <div v-for="(day, index) in weekDays" :key="day"
+                            <div
+                                v-for="(day, index) in weekDays"
+                                :key="day"
                                 class="px-3 py-2 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 bg-slate-50/50 dark:bg-slate-800/50"
                                 :class="{
-                                    'text-red-500 dark:text-red-400':
-                                        index === 0 || index === 6,
+                                    'text-red-500 dark:text-red-400': index === 0 || index === 6,
                                 }">
                                 {{ day }}
                             </div>
@@ -557,27 +530,33 @@ export default {
 
                         <!-- Calendar Weeks -->
                         <div class="calendar-weeks">
-                            <div v-for="(week, weekIndex) in calendarWeeks" :key="weekIndex"
+                            <div
+                                v-for="(week, weekIndex) in calendarWeeks"
+                                :key="weekIndex"
                                 class="calendar-week border-b border-gray-100 dark:border-slate-800">
                                 <!-- OPTIMIZED: Use CSS Grid instead of absolute positioning -->
-                                <div class="week-grid" :style="{
-                                    gridTemplateRows: `auto repeat(${Math.max(1, assignEventLanes(getEventsForWeek(week, weekIndex), week).lanes.length)}, minmax(28px, auto)) auto`
-                                }">
+                                <div
+                                    class="week-grid"
+                                    :style="{
+                                        gridTemplateRows: `auto repeat(${Math.max(1, assignEventLanes(getEventsForWeek(week, weekIndex), week).lanes.length)}, minmax(28px, auto)) auto`,
+                                    }">
                                     <!-- Day Numbers Row -->
-                                    <div v-for="(day, dayIndex) in week" :key="`day-${weekIndex}-${dayIndex}`"
+                                    <div
+                                        v-for="(day, dayIndex) in week"
+                                        :key="`day-${weekIndex}-${dayIndex}`"
                                         class="day-cell border-r border-gray-100 dark:border-slate-800 p-2 transition-all hover:bg-slate-50/80 dark:hover:bg-slate-700/30"
                                         :class="{
                                             'bg-slate-50/30 dark:bg-slate-800/20': !day,
                                             'border-r-0': dayIndex === 6,
                                         }">
-                                        <div v-if="day" class="flex flex-col">
+                                        <div
+                                            v-if="day"
+                                            class="flex flex-col">
                                             <span
                                                 class="text-sm font-semibold w-7 h-7 flex items-center justify-center rounded-full transition-colors"
                                                 :class="{
-                                                    'bg-indigo-500 text-white shadow-md shadow-primary-500/30':
-                                                        isToday(day),
-                                                    'text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600':
-                                                        !isToday(day),
+                                                    'bg-indigo-500 text-white shadow-md shadow-primary-500/30': isToday(day),
+                                                    'text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600': !isToday(day),
                                                 }">
                                                 {{ day }}
                                             </span>
@@ -586,37 +565,46 @@ export default {
 
                                     <!-- Event Lanes - Now part of the grid flow -->
                                     <template v-if="getEventsForWeek(week, weekIndex).length > 0">
-                                        <div v-for="(lane, laneIndex) in assignEventLanes(getEventsForWeek(week, weekIndex), week).lanes"
-                                            :key="`lane-${weekIndex}-${laneIndex}`" class="event-lane contents">
+                                        <div
+                                            v-for="(lane, laneIndex) in assignEventLanes(getEventsForWeek(week, weekIndex), week).lanes"
+                                            :key="`lane-${weekIndex}-${laneIndex}`"
+                                            class="event-lane contents">
                                             <!-- Empty cells for days without events in this lane -->
-                                            <div v-for="col in 7" :key="`lane-${laneIndex}-col-${col}`"
+                                            <div
+                                                v-for="col in 7"
+                                                :key="`lane-${laneIndex}-col-${col}`"
                                                 class="event-cell border-r border-gray-100 dark:border-slate-800"
                                                 :class="{ 'border-r-0': col === 7 }">
                                                 <!-- Find event for this column -->
-                                                <div v-for="event in lane.filter(e => {
-                                                    const layout = getEventWeekLayout(e, week);
-                                                    return layout.startCol === col - 1;
-                                                })" :key="`event-${event.id}-${weekIndex}`"
+                                                <div
+                                                    v-for="event in lane.filter((e) => {
+                                                        const layout = getEventWeekLayout(e, week);
+                                                        return layout.startCol === col - 1;
+                                                    })"
+                                                    :key="`event-${event.id}-${weekIndex}`"
                                                     class="event-bar rounded cursor-pointer pointer-events-auto hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] overflow-hidden mx-0.5 p-1.5"
                                                     :style="{
                                                         backgroundColor: getEventColor(event) + '20',
                                                         borderLeft: `3px solid ${getEventColor(event)}`,
                                                         width: `calc(${getEventWeekLayout(event, week).span * 100}% - 4px)`,
-                                                        zIndex: 10
+                                                        zIndex: 10,
                                                     }"
                                                     :title="event.subtitle ? event.label + ' - ' + event.subtitle : event.label"
                                                     @click="handleEventClick(event)">
                                                     <div class="flex h-full flex-col justify-center">
-                                                        <div
-                                                            class="font-medium text-xs text-slate-900 dark:text-slate-100 truncate">
+                                                        <div class="font-medium text-xs text-slate-900 dark:text-slate-100 truncate">
                                                             {{ event.label }}
                                                         </div>
-                                                        <div v-if="event.subtitle"
+                                                        <div
+                                                            v-if="event.subtitle"
                                                             class="text-[11px] text-slate-600 dark:text-slate-400 truncate">
                                                             {{ event.subtitle }}
                                                         </div>
-                                                        <div v-if="event.status"
-                                                            :style="{ color: statusColors[event.status] || '#6B7280' }"
+                                                        <div
+                                                            v-if="event.status"
+                                                            :style="{
+                                                                color: statusColors[event.status] || '#6B7280',
+                                                            }"
                                                             class="text-[11px] font-semibold capitalize truncate">
                                                             {{ event.status }}
                                                         </div>
@@ -627,41 +615,54 @@ export default {
                                     </template>
 
                                     <!-- Overflow Indicator Row -->
-                                    <div v-if="assignEventLanes(getEventsForWeek(week, weekIndex), week).overflowCount > 0"
+                                    <div
+                                        v-if="assignEventLanes(getEventsForWeek(week, weekIndex), week).overflowCount > 0"
                                         class="overflow-indicator contents">
-                                        <div v-for="col in 7" :key="`overflow-${weekIndex}-${col}`"
+                                        <div
+                                            v-for="col in 7"
+                                            :key="`overflow-${weekIndex}-${col}`"
                                             class="border-r border-gray-100 dark:border-slate-800 p-1"
                                             :class="{ 'border-r-0': col === 7 }">
                                             <!-- Show indicator only on first column -->
-                                            <Dropdown v-if="col === 1" align="left" width="auto" max-height="16rem">
+                                            <Dropdown
+                                                v-if="col === 1"
+                                                align="left"
+                                                width="auto"
+                                                max-height="16rem">
                                                 <template #trigger>
-                                                    <button type="button"
+                                                    <button
+                                                        type="button"
                                                         class="text-xs w-full text-left px-1.5 py-1 rounded border border-slate-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-                                                        +{{ assignEventLanes(getEventsForWeek(week, weekIndex),
-                                                        week).overflowCount }} more
+                                                        +{{ assignEventLanes(getEventsForWeek(week, weekIndex), week).overflowCount }}
+                                                        more
                                                     </button>
                                                 </template>
 
                                                 <template #content>
                                                     <div class="w-72 max-w-[85vw] p-2 space-y-1">
-                                                        <div v-for="event in assignEventLanes(getEventsForWeek(week, weekIndex), week).overflowEvents"
-                                                            :key="`overflow-${event.id}-${weekIndex}`" :style="{
+                                                        <div
+                                                            v-for="event in assignEventLanes(getEventsForWeek(week, weekIndex), week).overflowEvents"
+                                                            :key="`overflow-${event.id}-${weekIndex}`"
+                                                            :style="{
                                                                 backgroundColor: getEventColor(event) + '20',
                                                                 borderColor: getEventColor(event),
                                                             }"
                                                             class="text-xs p-1.5 rounded border-l-2 cursor-pointer hover:opacity-80 hover:shadow-md transition-opacity"
                                                             :title="event.subtitle ? event.label + ' - ' + event.subtitle : event.label"
                                                             @click="handleEventClick(event)">
-                                                            <div
-                                                                class="font-medium text-slate-900 dark:text-slate-100 truncate">
+                                                            <div class="font-medium text-slate-900 dark:text-slate-100 truncate">
                                                                 {{ event.label }}
                                                             </div>
-                                                            <div v-if="event.subtitle"
+                                                            <div
+                                                                v-if="event.subtitle"
                                                                 class="text-slate-600 dark:text-slate-400 truncate">
                                                                 {{ event.subtitle }}
                                                             </div>
-                                                            <div v-if="event.status"
-                                                                :style="{ color: statusColors[event.status] || '#6B7280' }"
+                                                            <div
+                                                                v-if="event.status"
+                                                                :style="{
+                                                                    color: statusColors[event.status] || '#6B7280',
+                                                                }"
                                                                 class="text-xs font-semibold capitalize truncate">
                                                                 {{ event.status }}
                                                             </div>
@@ -673,9 +674,12 @@ export default {
                                     </div>
 
                                     <!-- Empty state for weeks with no events -->
-                                    <div v-if="getEventsForWeek(week, weekIndex).length === 0"
+                                    <div
+                                        v-if="getEventsForWeek(week, weekIndex).length === 0"
                                         class="empty-row contents">
-                                        <div v-for="col in 7" :key="`empty-${weekIndex}-${col}`"
+                                        <div
+                                            v-for="col in 7"
+                                            :key="`empty-${weekIndex}-${col}`"
                                             class="border-r border-gray-100 dark:border-slate-800 min-h-[60px]"
                                             :class="{ 'border-r-0': col === 7 }"></div>
                                     </div>
@@ -687,17 +691,28 @@ export default {
             </div>
             <div class="flex items-center justify-between mt-3 px-4 w-full">
                 <!-- Stats in Footer -->
-                <div v-if="showStats" class="flex items-center gap-4 text-xs bg-slate-50 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                <div
+                    v-if="showStats"
+                    class="flex items-center gap-4 text-xs bg-slate-50 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
                     <span class="text-slate-500 dark:text-slate-400">
-                        Total: <span class="font-semibold text-slate-800 dark:text-slate-200">{{ stats.total }}</span>
+                        Total:
+                        <span class="font-semibold text-slate-800 dark:text-slate-200">
+                            {{ stats.total }}
+                        </span>
                     </span>
                     <span class="text-slate-500 dark:text-slate-400">
-                        Visible: <span class="font-semibold text-slate-800 dark:text-slate-200">{{ stats.visible }}</span>
+                        Visible:
+                        <span class="font-semibold text-slate-800 dark:text-slate-200">
+                            {{ stats.visible }}
+                        </span>
                     </span>
                 </div>
                 <div v-else></div>
-                
-                <a :href="route('google-calendar.rentals')" class="text-xs text-blue-500 hover:underline hover:text-blue-600 transition-colors" target="_blank"
+
+                <a
+                    :href="route('google-calendar.rentals')"
+                    class="text-xs text-blue-500 hover:underline hover:text-blue-600 transition-colors"
+                    target="_blank"
                     rel="noopener noreferrer">
                     Add to Google Calendar
                 </a>

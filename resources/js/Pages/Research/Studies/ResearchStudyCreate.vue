@@ -1,8 +1,8 @@
 <script>
-import ResearchStudyForm from '@/Pages/Research/components/ResearchStudyForm.vue'
+import ResearchStudyForm from "@/Pages/Research/components/ResearchStudyForm.vue";
 
 export default {
-    name: 'ResearchStudyCreate',
+    name: "ResearchStudyCreate",
     components: {
         ResearchStudyForm,
     },
@@ -22,10 +22,10 @@ export default {
     },
     computed: {
         projectRouteIdentifier() {
-            return this.project.route_identifier || this.project.funding_code || this.project.code || this.project.id
+            return this.project.route_identifier || this.project.funding_code || this.project.code || this.project.id;
         },
     },
-}
+};
 </script>
 
 <template>
@@ -34,9 +34,10 @@ export default {
             <ActionHeaderLayout
                 title="Create Study"
                 :subtitle="`Add a study under ${project.title} before launching experiments.`"
-                :route-link="route('research.projects.show', projectRouteIdentifier)"
-            >
-                <Link :href="route('research.projects.show', projectRouteIdentifier)" class="rounded-lg border border-white/25 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
+                :route-link="route('research.projects.show', projectRouteIdentifier)">
+                <Link
+                    :href="route('research.projects.show', projectRouteIdentifier)"
+                    class="rounded-lg border border-white/25 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
                     Back to Project
                 </Link>
             </ActionHeaderLayout>
@@ -52,16 +53,22 @@ export default {
                     </div>
                     <div>
                         <p class="text-xs uppercase tracking-wide text-gray-500">Commodity</p>
-                        <p class="mt-1 text-sm font-medium text-gray-900">{{ project.commodity || 'Not set' }}</p>
+                        <p class="mt-1 text-sm font-medium text-gray-900">
+                            {{ project.commodity || "Not set" }}
+                        </p>
                     </div>
                     <div>
                         <p class="text-xs uppercase tracking-wide text-gray-500">Funding</p>
-                        <p class="mt-1 text-sm font-medium text-gray-900">{{ project.funding_agency || 'Not set' }}</p>
+                        <p class="mt-1 text-sm font-medium text-gray-900">
+                            {{ project.funding_agency || "Not set" }}
+                        </p>
                     </div>
                 </div>
             </section>
 
-            <ResearchStudyForm :project="project" :research-users="researchUsers" />
+            <ResearchStudyForm
+                :project="project"
+                :research-users="researchUsers" />
         </div>
     </AppLayout>
 </template>

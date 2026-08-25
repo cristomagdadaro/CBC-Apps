@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { Trash2 } from 'lucide-vue-next'
+import { Trash2 } from "lucide-vue-next";
 
 withDefaults(
     defineProps<{
-        size?: number
-        strokeWidth?: number
+        size?: number;
+        strokeWidth?: number;
     }>(),
     {
         size: 20,
         strokeWidth: 2,
     },
-)
+);
 </script>
 
 <template>
-    <Trash2 :size="size" :stroke-width="strokeWidth" v-bind="$attrs" />
+    <Trash2
+        :size="size"
+        :stroke-width="strokeWidth"
+        v-bind="$attrs" />
 </template>

@@ -5,19 +5,23 @@
 export default {
     name: "DynamicFieldText",
     props: {
-        modelValue: { type: [String, Number], default: '' },
+        modelValue: { type: [String, Number], default: "" },
         field: { type: Object, required: true },
         error: { type: String, default: null },
         required: { type: Boolean, default: false },
     },
-    emits: ['update:modelValue'],
+    emits: ["update:modelValue"],
     computed: {
         inputValue: {
-            get() { return this.modelValue; },
-            set(val) { this.$emit('update:modelValue', val); }
+            get() {
+                return this.modelValue;
+            },
+            set(val) {
+                this.$emit("update:modelValue", val);
+            },
         },
         placeholder() {
-            const p = this.field.placeholder || this.field.label || '';
+            const p = this.field.placeholder || this.field.label || "";
             return this.required ? `${p}*` : p;
         },
         maxLength() {
@@ -36,6 +40,5 @@ export default {
         :required="required"
         :placeholder="placeholder"
         :maxlength="maxLength"
-        :autocomplete="field.field_key"
-    />
+        :autocomplete="field.field_key" />
 </template>

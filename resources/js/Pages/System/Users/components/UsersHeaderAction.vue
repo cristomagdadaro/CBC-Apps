@@ -32,17 +32,17 @@ export default {
 </script>
 
 <template>
-    <ActionHeaderLayout 
-        :title="headerTitle" 
-        :subtitle="headerSubtitle" 
-        :route-link="route('system.users.index')"
-    >
-        <transition-container type="pop-in" :duration="500">
-            <Link 
+    <ActionHeaderLayout
+        :title="headerTitle"
+        :subtitle="headerSubtitle"
+        :route-link="route('system.users.index')">
+        <transition-container
+            type="pop-in"
+            :duration="500">
+            <Link
                 v-if="route().current('system.users.index')"
                 :href="route('system.users.create')"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition-all active:scale-95 shrink-0"
-            >
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition-all active:scale-95 shrink-0">
                 <lu-plus class="w-4 h-4 text-indigo-500" />
                 <span>Create User</span>
             </Link>

@@ -1,7 +1,7 @@
 <script>
 export default {
     name: "ScanBtn",
-}
+};
 </script>
 
 <template>
@@ -10,6 +10,4 @@ export default {
     </base-btn>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

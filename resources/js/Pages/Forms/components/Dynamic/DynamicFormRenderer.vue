@@ -1,7 +1,7 @@
 <script>
 /**
  * DynamicFormRenderer.vue
- * 
+ *
  * Renders a form dynamically based on a field schema.
  * Replaces hardcoded form cards with a single, schema-driven renderer.
  */
@@ -102,17 +102,17 @@ export default {
          */
         title: {
             type: String,
-            default: '',
+            default: "",
         },
         /**
          * Form description/instructions
          */
         description: {
             type: String,
-            default: 'Kindly provide the required and correct details. Fields marked with * are required.',
+            default: "Kindly provide the required and correct details. Fields marked with * are required.",
         },
     },
-    emits: ['createdModel', 'updatedModel', 'submit', 'error'],
+    emits: ["createdModel", "updatedModel", "submit", "error"],
     data() {
         return {
             showSuccess: false,
@@ -136,18 +136,10 @@ export default {
             return !!this.responseData?.id;
         },
         participantIdHash() {
-            return this.model?.response?.participant_hash
-                ?? this.model?.response?.registration?.id
-                ?? this.model?.response?.data?.participant_hash
-                ?? this.model?.response?.data?.id
-                ?? this.model?.response?.id
-                ?? null;
+            return this.model?.response?.participant_hash ?? this.model?.response?.registration?.id ?? this.model?.response?.data?.participant_hash ?? this.model?.response?.data?.id ?? this.model?.response?.id ?? null;
         },
         successEventTitle() {
-            return this.config?.event_title
-                ?? this.config?.event?.title
-                ?? this.config?.title
-                ?? 'Event';
+            return this.config?.event_title ?? this.config?.event?.title ?? this.config?.title ?? "Event";
         },
         successEventId() {
             return this.config?.event_id ?? this.eventId;
@@ -169,7 +161,7 @@ export default {
             let currentSection = { header: null, fields: [], index: 0 };
 
             for (const field of this.sortedFields) {
-                if (field.field_type === 'section_header') {
+                if (field.field_type === "section_header") {
                     if (currentSection.fields.length > 0 || currentSection.header) {
                         sections.push(currentSection);
                     }
@@ -178,7 +170,7 @@ export default {
                     currentSection.fields.push(field);
                 }
             }
-            
+
             if (currentSection.fields.length > 0 || currentSection.header) {
                 currentSection.index = sections.length;
                 sections.push(currentSection);
@@ -194,7 +186,7 @@ export default {
             for (let i = 0; i < this.fieldSections.length; i++) {
                 if (this.skippedSections.has(i)) {
                     const section = this.fieldSections[i];
-                    section.fields.forEach(field => {
+                    section.fields.forEach((field) => {
                         keys.add(field.field_key);
                     });
                 }
@@ -205,13 +197,13 @@ export default {
          * Check if form has any skip logic configured
          */
         hasSkipLogic() {
-            return this.sortedFields.some(field => {
+            return this.sortedFields.some((field) => {
                 if (!field.options || !Array.isArray(field.options)) return false;
-                return field.options.some(opt => opt.skipTo);
+                return field.options.some((opt) => opt.skipTo);
             });
         },
         hasSectionHeaders() {
-            return this.sortedFields.some(field => field.field_type === 'section_header') && this.fieldSections.length > 1;
+            return this.sortedFields.some((field) => field.field_type === "section_header") && this.fieldSections.length > 1;
         },
         progressSteps() {
             if (!this.hasSectionHeaders) {
@@ -247,13 +239,13 @@ export default {
             return this.currentSectionIndex >= this.fieldSections.length - 1 || this.skipToSubmit;
         },
         regionFieldKey() {
-            return this.fieldSchema.find(f => f.field_type === 'location_region')?.field_key ?? null;
+            return this.fieldSchema.find((f) => f.field_type === "location_region")?.field_key ?? null;
         },
         provinceFieldKey() {
-            return this.fieldSchema.find(f => f.field_type === 'location_province')?.field_key ?? null;
+            return this.fieldSchema.find((f) => f.field_type === "location_province")?.field_key ?? null;
         },
         cityFieldKey() {
-            return this.fieldSchema.find(f => f.field_type === 'location_city')?.field_key ?? null;
+            return this.fieldSchema.find((f) => f.field_type === "location_city")?.field_key ?? null;
         },
         selectedRegionValue() {
             if (!this.form || !this.regionFieldKey) return null;
@@ -264,11 +256,11 @@ export default {
             return this.form.response_data?.[this.provinceFieldKey] ?? null;
         },
         resolvedSubformType() {
-            if (typeof this.subformType === 'string' && !this.subformType.includes('-')) {
+            if (typeof this.subformType === "string" && !this.subformType.includes("-")) {
                 return this.subformType;
             }
 
-            if (typeof this.config?.form_type === 'string' && this.config.form_type.trim() !== '') {
+            if (typeof this.config?.form_type === "string" && this.config.form_type.trim() !== "") {
                 return this.config.form_type;
             }
 
@@ -319,32 +311,32 @@ export default {
          */
         getFieldComponent(fieldType) {
             const componentMap = {
-                text: 'DynamicFieldText',
-                textarea: 'DynamicFieldTextarea',
-                number: 'DynamicFieldNumber',
-                email: 'DynamicFieldEmail',
-                phone: 'DynamicFieldPhone',
-                date: 'DynamicFieldDate',
-                time: 'DynamicFieldDate', // Reuse date with time mode
-                datetime: 'DynamicFieldDate', // Reuse date with datetime mode
-                select: 'DynamicFieldSelect',
-                radio: 'DynamicFieldRadio',
-                checkbox: 'DynamicFieldCheckbox',
-                checkbox_group: 'DynamicFieldCheckboxGroup',
-                checkbox_agreement: 'DynamicFieldAgreement',
-                checkbox_updates: 'DynamicFieldAgreeUpdates',
-                likert_scale: 'DynamicFieldLikertScale',
-                linear_scale: 'DynamicFieldLinearScale',
-                checkbox_grid: 'DynamicFieldCheckboxGroup', // Fallback for now
-                radio_grid: 'DynamicFieldRadio', // Fallback for now
-                file: 'DynamicFieldFile',
-                location_city: 'DynamicFieldLocation',
-                location_province: 'DynamicFieldLocation',
-                location_region: 'DynamicFieldLocation',
-                section_header: 'DynamicFieldSectionHeader',
-                paragraph: 'DynamicFieldParagraph',
+                text: "DynamicFieldText",
+                textarea: "DynamicFieldTextarea",
+                number: "DynamicFieldNumber",
+                email: "DynamicFieldEmail",
+                phone: "DynamicFieldPhone",
+                date: "DynamicFieldDate",
+                time: "DynamicFieldDate", // Reuse date with time mode
+                datetime: "DynamicFieldDate", // Reuse date with datetime mode
+                select: "DynamicFieldSelect",
+                radio: "DynamicFieldRadio",
+                checkbox: "DynamicFieldCheckbox",
+                checkbox_group: "DynamicFieldCheckboxGroup",
+                checkbox_agreement: "DynamicFieldAgreement",
+                checkbox_updates: "DynamicFieldAgreeUpdates",
+                likert_scale: "DynamicFieldLikertScale",
+                linear_scale: "DynamicFieldLinearScale",
+                checkbox_grid: "DynamicFieldCheckboxGroup", // Fallback for now
+                radio_grid: "DynamicFieldRadio", // Fallback for now
+                file: "DynamicFieldFile",
+                location_city: "DynamicFieldLocation",
+                location_province: "DynamicFieldLocation",
+                location_region: "DynamicFieldLocation",
+                section_header: "DynamicFieldSectionHeader",
+                paragraph: "DynamicFieldParagraph",
             };
-            return componentMap[fieldType] || 'DynamicFieldText';
+            return componentMap[fieldType] || "DynamicFieldText";
         },
         isFieldChangeable(field) {
             return field?.field_config?.changeable !== false;
@@ -359,7 +351,7 @@ export default {
             const updated = { ...formData };
 
             for (const field of this.fieldSchema) {
-                if (field.field_type === 'section_header' || field.field_type === 'paragraph') continue;
+                if (field.field_type === "section_header" || field.field_type === "paragraph") continue;
                 if (!this.isFieldLocked(field)) continue;
 
                 const defaultValue = this.getFieldDefaultValue(field);
@@ -376,7 +368,7 @@ export default {
          */
         isFieldRequired(field) {
             const rules = field.validation_rules || {};
-            return rules.required === true || rules.required === 'true';
+            return rules.required === true || rules.required === "true";
         },
 
         /**
@@ -419,10 +411,10 @@ export default {
             }
 
             this.clearFieldError(fieldKey);
-            
+
             // Check for skip logic on choice fields
             if (field && field.options && Array.isArray(field.options)) {
-                const selectedOption = field.options.find(opt => opt.value === value);
+                const selectedOption = field.options.find((opt) => opt.value === value);
                 if (selectedOption?.skipTo) {
                     this.handleSkipLogic(selectedOption.skipTo);
                 }
@@ -433,7 +425,7 @@ export default {
          * Execute skip logic based on target
          */
         handleSkipLogic(targetKey) {
-            if (targetKey === '__submit__') {
+            if (targetKey === "__submit__") {
                 // Skip to submit - mark all remaining sections as skipped
                 this.skipToSubmit = true;
                 // Mark all sections from currentSectionIndex to end as skipped
@@ -446,9 +438,7 @@ export default {
             }
 
             // Find the target section by field_key
-            const targetIndex = this.fieldSections.findIndex(
-                section => section.header?.field_key === targetKey
-            );
+            const targetIndex = this.fieldSections.findIndex((section) => section.header?.field_key === targetKey);
 
             if (targetIndex !== -1 && targetIndex > this.currentSectionIndex) {
                 // Mark sections between current and target as skipped
@@ -501,7 +491,7 @@ export default {
                 while (this.skippedSections.has(prevIndex) && prevIndex > this.minAccessibleSectionIndex) {
                     prevIndex--;
                 }
-                
+
                 // Only allow going back if we haven't reached the minimum accessible index
                 if (prevIndex >= this.minAccessibleSectionIndex) {
                     this.currentSectionIndex = prevIndex;
@@ -524,14 +514,14 @@ export default {
          * Check if a field supports skip logic
          */
         fieldSupportsSkipLogic(field) {
-            return ['select', 'radio'].includes(field.field_type);
+            return ["select", "radio"].includes(field.field_type);
         },
 
         /**
          * Check if a field is a location field type
          */
         isLocationField(field) {
-            return ['location_city', 'location_province', 'location_region'].includes(field.field_type);
+            return ["location_city", "location_province", "location_region"].includes(field.field_type);
         },
 
         /**
@@ -540,8 +530,8 @@ export default {
         initializeFormData() {
             const data = {};
             for (const field of this.fieldSchema) {
-                if (field.field_type === 'section_header' || field.field_type === 'paragraph') continue;
-                
+                if (field.field_type === "section_header" || field.field_type === "paragraph") continue;
+
                 // Set default value based on field type
                 const defaultValue = this.getDefaultValueForType(field);
                 data[field.field_key] = this.responseData?.response_data?.[field.field_key] ?? defaultValue;
@@ -557,15 +547,15 @@ export default {
             const config = field.field_config || {};
 
             switch (type) {
-                case 'checkbox':
-                case 'checkbox_agreement':
-                case 'checkbox_updates':
+                case "checkbox":
+                case "checkbox_agreement":
+                case "checkbox_updates":
                     return false;
-                case 'checkbox_group':
+                case "checkbox_group":
                     return [];
-                case 'number':
-                case 'likert_scale':
-                case 'linear_scale':
+                case "number":
+                case "likert_scale":
+                case "linear_scale":
                     return config.defaultValue ?? null;
                 default:
                     return config.defaultValue ?? null;
@@ -579,12 +569,12 @@ export default {
             if (this.isSubmitting) return;
 
             this.form.skipped_field_keys = Array.from(this.skippedFieldKeys);
-            
+
             // Remove validation errors for skipped fields before submission
-            this.skippedFieldKeys.forEach(fieldKey => {
+            this.skippedFieldKeys.forEach((fieldKey) => {
                 this.clearFieldError(fieldKey);
             });
-            
+
             this.isSubmitting = true;
             try {
                 if (this.isEditMode) {
@@ -603,19 +593,19 @@ export default {
                 this.model.response = response.data;
                 this.pendingCreatedModel = null;
                 this.showSuccess = true;
-                this.$emit('createdModel', response.data);
+                this.$emit("createdModel", response.data);
             } else if (response?.status >= 400) {
-                this.$emit('error', response);
+                this.$emit("error", response);
             }
         },
 
         async handleUpdate() {
-            const response = await this.submitUpdate(null, 'response_data');
+            const response = await this.submitUpdate(null, "response_data");
             if (response?.status === 200) {
                 this.showSuccess = true;
-                this.$emit('updatedModel', response.data);
+                this.$emit("updatedModel", response.data);
             } else if (response?.status >= 400) {
-                this.$emit('error', response);
+                this.$emit("error", response);
             }
         },
 
@@ -626,15 +616,15 @@ export default {
             this.showSuccess = false;
         },
         buildSuccessImageName() {
-            const eventPart = String(this.successEventId || 'event').trim();
-            const subformPart = String(this.successSubformTitle || 'subform').trim();
-            const hashPart = String(this.participantIdHash || 'reference').trim();
+            const eventPart = String(this.successEventId || "event").trim();
+            const subformPart = String(this.successSubformTitle || "subform").trim();
+            const hashPart = String(this.participantIdHash || "reference").trim();
             return [eventPart, subformPart, hashPart]
-                .join('-')
+                .join("-")
                 .toLowerCase()
-                .replace(/[^a-z0-9-]+/g, '-')
-                .replace(/-+/g, '-')
-                .replace(/^-|-$/g, '');
+                .replace(/[^a-z0-9-]+/g, "-")
+                .replace(/-+/g, "-")
+                .replace(/^-|-$/g, "");
         },
         async downloadSuccessAsPng() {
             if (this.isDownloadingImage) {
@@ -655,14 +645,14 @@ export default {
                     useCORS: true,
                 });
 
-                const link = document.createElement('a');
-                link.href = canvas.toDataURL('image/png');
-                link.download = `${this.buildSuccessImageName() || 'submission'}-success.png`;
+                const link = document.createElement("a");
+                link.href = canvas.toDataURL("image/png");
+                link.download = `${this.buildSuccessImageName() || "submission"}-success.png`;
                 document.body.appendChild(link);
                 link.click();
                 link.remove();
             } catch (error) {
-                this.$emit('error', error);
+                this.$emit("error", error);
             } finally {
                 this.isDownloadingImage = false;
             }
@@ -670,32 +660,30 @@ export default {
     },
     beforeMount() {
         this.model = new SubformResponse();
-        
+
         if (this.isEditMode) {
-            this.setFormAction('update');
+            this.setFormAction("update");
             this.form.id = this.responseData.id;
             this.form.response_data = this.applyLockedDefaults(Object.assign({}, this.responseData.response_data || {}));
             this.form.skipped_field_keys = [];
         } else {
-            this.setFormAction('create');
+            this.setFormAction("create");
             this.form.response_data = this.initializeFormData();
             this.form.form_parent_id = this.eventId;
             this.form.response_data.event_id = this.config?.event_id ?? this.eventId;
             this.form.skipped_field_keys = [];
         }
-        
+
         this.form.subform_type = this.resolvedSubformType;
-        
+
         if (this.participantId) {
             this.form.participant_id = this.participantId;
         }
     },
     mounted() {
         // Load location data if needed
-        const hasLocationFields = this.fieldSchema.some(f => 
-            ['location_city', 'location_province', 'location_region'].includes(f.field_type)
-        );
-        
+        const hasLocationFields = this.fieldSchema.some((f) => ["location_city", "location_province", "location_region"].includes(f.field_type));
+
         if (hasLocationFields) {
             this.loadRegions();
             if (this.selectedRegionValue) {
@@ -710,37 +698,45 @@ export default {
 </script>
 
 <template>
-    <form 
-        v-if="form" 
-        @submit.prevent="handleSubmit()" 
-        class="py-3 relative bg-white dark:bg-gray-800 px-3 transition-colors" 
-        :class="{'border border-red-600 dark:border-red-600 rounded-md': form.hasErrors}"
-    >
+    <form
+        v-if="form"
+        @submit.prevent="handleSubmit()"
+        class="py-3 relative bg-white dark:bg-gray-800 px-3 transition-colors"
+        :class="{ 'border border-red-600 dark:border-red-600 rounded-md': form.hasErrors }">
         <!-- Success Overlay -->
         <transition-container type="slide-top">
-            <div 
-                v-show="showSuccess" 
+            <div
+                v-show="showSuccess"
                 ref="successOverlay"
                 :id="`success-${successEventId}-${participantIdHash}`"
-                class="absolute flex top-0 left-0 bg-AB w-full h-full z-50 text-white text-xl font-medium justify-center items-center rounded-b-md shadow"
-            >
-                <button @click.prevent="dismissSuccess" class="absolute top-0 right-0 p-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+                class="absolute flex top-0 left-0 bg-AB w-full h-full z-50 text-white text-xl font-medium justify-center items-center rounded-b-md shadow">
+                <button
+                    @click.prevent="dismissSuccess"
+                    class="absolute top-0 right-0 p-2">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        viewBox="0 0 16 16">
+                        <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
                     </svg>
                 </button>
-                <div ref="successCapture" class="flex flex-col text-center w-full gap-0.5 px-3">
+                <div
+                    ref="successCapture"
+                    class="flex flex-col text-center w-full gap-0.5 px-3">
                     <div class="text-sm leading-tight opacity-95 mb-1">
                         <div>{{ successEventId }} - {{ successSubformTitle }}</div>
                     </div>
-                    <div v-if="participantIdHash" class="text-sm w-full flex flex-col gap-1 justify-center mb-1 py-2">
+                    <div
+                        v-if="participantIdHash"
+                        class="text-sm w-full flex flex-col gap-1 justify-center mb-1 py-2">
                         <qrcode-vue
                             :value="participantIdHash"
                             :size="300"
                             level="H"
                             render-as="canvas"
-                            class="mx-auto border-4 shadow"
-                        />
+                            class="mx-auto border-4 shadow" />
                         {{ participantIdHash }}
                     </div>
                     <span class="drop-shadow leading-none text-sm">DA-Crop Biotechnology Center</span>
@@ -750,9 +746,8 @@ export default {
                         data-html2canvas-ignore="true"
                         class="mx-auto mt-3 px-3 py-1 text-sm rounded-md border border-white/80 hover:bg-white/15 disabled:opacity-60"
                         :disabled="isDownloadingImage"
-                        @click.prevent="downloadSuccessAsPng"
-                    >
-                        {{ isDownloadingImage ? 'Preparing PNG...' : 'Save this QR for your next step' }}
+                        @click.prevent="downloadSuccessAsPng">
+                        {{ isDownloadingImage ? "Preparing PNG..." : "Save this QR for your next step" }}
                     </button>
                 </div>
             </div>
@@ -760,95 +755,120 @@ export default {
 
         <!-- Form Header -->
         <div class="py-1">
-            <label 
-                v-if="form.errors.suspended || form.errors.full || form.errors.expired || form.errors.limit" 
-                class="text-red-700 uppercase justify-center flex text-sm leading-tight"
-            >
+            <label
+                v-if="form.errors.suspended || form.errors.full || form.errors.expired || form.errors.limit"
+                class="text-red-700 uppercase justify-center flex text-sm leading-tight">
                 {{ form.errors.suspended || form.errors.full || form.errors.expired || form.errors.limit }}
             </label>
         </div>
         <!-- Section Progress -->
-        <div v-if="hasSectionHeaders" class="mb-4">
+        <div
+            v-if="hasSectionHeaders"
+            class="mb-4">
             <ProgressTabs
                 :steps="progressSteps"
                 :current="currentSectionIndex"
                 :clickable="true"
                 :showProgress="true"
-                @update:current="(index) => index >= minAccessibleSectionIndex && onSectionTabChange(index)"
-            />
+                @update:current="(index) => index >= minAccessibleSectionIndex && onSectionTabChange(index)" />
         </div>
 
         <!-- Dynamic Fields -->
-        <transition name="section-slide" mode="out-in">
-        <div class="flex flex-col gap-3 md:gap-5" :key="hasSectionHeaders ? `section-${currentSectionIndex}` : 'single-section'">
-            <template v-for="section in visibleSections" :key="section.header?.field_key || 'default'">
-                <!-- Section Header -->
-                <component 
-                    v-if="section.header && !hasSectionHeaders"
-                    :is="getFieldComponent(section.header.field_type)"
-                    :field="section.header"
-                />
+        <transition
+            name="section-slide"
+            mode="out-in">
+            <div
+                class="flex flex-col gap-3 md:gap-5"
+                :key="hasSectionHeaders ? `section-${currentSectionIndex}` : 'single-section'">
+                <template
+                    v-for="section in visibleSections"
+                    :key="section.header?.field_key || 'default'">
+                    <!-- Section Header -->
+                    <component
+                        v-if="section.header && !hasSectionHeaders"
+                        :is="getFieldComponent(section.header.field_type)"
+                        :field="section.header" />
 
-                <!-- Section Fields -->
-                <template v-for="field in section.fields" :key="field.field_key">
-                    <div :class="isFieldLocked(field) ? 'opacity-80 pointer-events-none cursor-not-allowed' : 'cursor-text'" :title="isFieldLocked(field) ? 'Default value is locked for this field.' : ''">
-                        <component
-                            :is="getFieldComponent(field.field_type)"
-                            v-model="form.response_data[field.field_key]"
-                            :field="field"
-                            :error="getFieldError(field.field_key)"
-                            :label="field.label"
-                            :placeholder="field.placeholder"
-                            :required="isFieldActuallyRequired(field)"
-                            :disabled="isFieldLocked(field)"
-                            v-bind="isLocationField(field) ? { regions: locationRegions, provinces: locationProvinces, cities: locationCities } : {}"
-                            @update:modelValue="handleFieldChange(field.field_key, $event, field)"
-                        />
-                    </div>
+                    <!-- Section Fields -->
+                    <template
+                        v-for="field in section.fields"
+                        :key="field.field_key">
+                        <div
+                            :class="isFieldLocked(field) ? 'opacity-80 pointer-events-none cursor-not-allowed' : 'cursor-text'"
+                            :title="isFieldLocked(field) ? 'Default value is locked for this field.' : ''">
+                            <component
+                                :is="getFieldComponent(field.field_type)"
+                                v-model="form.response_data[field.field_key]"
+                                :field="field"
+                                :error="getFieldError(field.field_key)"
+                                :label="field.label"
+                                :placeholder="field.placeholder"
+                                :required="isFieldActuallyRequired(field)"
+                                :disabled="isFieldLocked(field)"
+                                v-bind="
+                                    isLocationField(field)
+                                        ? {
+                                              regions: locationRegions,
+                                              provinces: locationProvinces,
+                                              cities: locationCities,
+                                          }
+                                        : {}
+                                "
+                                @update:modelValue="handleFieldChange(field.field_key, $event, field)" />
+                        </div>
+                    </template>
                 </template>
-            </template>
-        </div>
+            </div>
         </transition>
         <!-- Section Navigation -->
-        <div v-if="hasSectionHeaders" class="mt-4 flex items-center justify-between gap-2">
+        <div
+            v-if="hasSectionHeaders"
+            class="mt-4 flex items-center justify-between gap-2">
             <button
                 v-if="currentSectionIndex > minAccessibleSectionIndex"
                 type="button"
                 @click="goToPreviousSection"
-                class="px-4 py-2 text-sm border text-gray-900 dark:text-gray-200 border-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition"
-            >
+                class="px-4 py-2 text-sm border text-gray-900 dark:text-gray-200 border-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                 ← Previous
             </button>
             <div v-else></div>
-            
+
             <button
                 v-if="hasNextSection && !isLastSection"
                 type="button"
                 @click="goToNextSection"
-                class="px-4 py-2 text-sm bg-AB text-white rounded-md hover:bg-AB/90 transition"
-            >
+                class="px-4 py-2 text-sm bg-AB text-white rounded-md hover:bg-AB/90 transition">
                 Next →
             </button>
         </div>
 
         <!-- Submit Button -->
-        <div class="mt-4" v-if="!hasSectionHeaders || isLastSection">
-            <button 
+        <div
+            class="mt-4"
+            v-if="!hasSectionHeaders || isLastSection">
+            <button
                 :disabled="isSubmitting || form.processing"
                 type="submit"
-                class="w-full px-4 py-2 bg-AB text-white font-semibold rounded-md hover:bg-AB/90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-                <svg 
-                    v-if="isSubmitting || form.processing" 
-                    class="animate-spin h-4 w-4" 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    fill="none" 
-                    viewBox="0 0 24 24"
-                >
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                class="w-full px-4 py-2 bg-AB text-white font-semibold rounded-md hover:bg-AB/90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                <svg
+                    v-if="isSubmitting || form.processing"
+                    class="animate-spin h-4 w-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24">
+                    <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"></circle>
+                    <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                {{ isEditMode ? 'Update' : 'Submit' }}
+                {{ isEditMode ? "Update" : "Submit" }}
             </button>
         </div>
     </form>

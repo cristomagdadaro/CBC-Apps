@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { CalendarPlus } from 'lucide-vue-next'
+import { CalendarPlus } from "lucide-vue-next";
 
 withDefaults(
     defineProps<{
-        size?: number
-        strokeWidth?: number
+        size?: number;
+        strokeWidth?: number;
     }>(),
     {
         size: 20,
         strokeWidth: 2,
     },
-)
+);
 </script>
 
 <template>
-    <CalendarPlus :size="size" :stroke-width="strokeWidth" v-bind="$attrs" />
+    <CalendarPlus
+        :size="size"
+        :stroke-width="strokeWidth"
+        v-bind="$attrs" />
 </template>

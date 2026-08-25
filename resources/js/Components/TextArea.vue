@@ -1,12 +1,12 @@
 <script>
-import FieldMixin from '@/Components/Forms/FieldMixin';
+import FieldMixin from "@/Components/Forms/FieldMixin";
 
 export default {
-    name: 'TextArea',
+    name: "TextArea",
     mixins: [FieldMixin],
     props: {
-        autocomplete: { type: String, default: '' },
-        type: { type: String, default: '' },
+        autocomplete: { type: String, default: "" },
+        type: { type: String, default: "" },
         rows: { type: Number, default: 4 },
         maxLength: { type: Number, default: null },
         expandable: { type: Boolean, default: false },
@@ -14,7 +14,7 @@ export default {
     data() {
         return {
             isExpanded: false,
-        }
+        };
     },
     mounted() {
         this.$nextTick(() => this.adjustHeight());
@@ -22,18 +22,18 @@ export default {
     watch: {
         modelValue() {
             this.$nextTick(() => this.adjustHeight());
-        }
+        },
     },
     computed: {
         charCount() {
-            return String(this.modelValue || '').length;
+            return String(this.modelValue || "").length;
         },
         isNearLimit() {
             return this.maxLength && this.charCount > this.maxLength * 0.9 && this.charCount <= this.maxLength;
         },
         isOverLimit() {
             return this.maxLength && this.charCount > this.maxLength;
-        }
+        },
     },
     methods: {
         adjustHeight() {
@@ -41,29 +41,31 @@ export default {
             if (!textarea) return;
             const lineHeight = parseFloat(getComputedStyle(textarea).lineHeight) || 24;
             const minHeight = this.rows * lineHeight;
-            textarea.style.height = 'auto';
+            textarea.style.height = "auto";
             const newHeight = textarea.scrollHeight;
             textarea.style.height = `${Math.max(newHeight, minHeight)}px`;
         },
         onInput(e) {
-            this.$emit('update:modelValue', e.target.value);
+            this.$emit("update:modelValue", e.target.value);
             this.adjustHeight();
         },
         toggleExpand() {
             this.isExpanded = !this.isExpanded;
             this.$nextTick(() => this.adjustHeight());
         },
-    }
-}
+    },
+};
 </script>
 
 <template>
     <div
         class="w-full transition-all duration-300 ease-out"
-        :class="isExpanded ? 'fixed inset-4 sm:inset-10 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-5 sm:p-6 rounded-2xl shadow-2xl border border-slate-200/60 dark:border-slate-800 flex flex-col' : ''"
-    >
+        :class="isExpanded ? 'fixed inset-4 sm:inset-10 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-5 sm:p-6 rounded-2xl shadow-2xl border border-slate-200/60 dark:border-slate-800 flex flex-col' : ''">
         <Transition name="fade">
-            <div v-if="isExpanded" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm -z-10" @click="toggleExpand"></div>
+            <div
+                v-if="isExpanded"
+                class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm -z-10"
+                @click="toggleExpand"></div>
         </Transition>
 
         <Field
@@ -79,8 +81,7 @@ export default {
             :datalist-id="datalistId"
             :datalist-options="datalistOptions"
             :classes="[classes, isExpanded ? 'flex-1 h-full flex flex-col' : '']"
-            @clear="onClear"
-        >
+            @clear="onClear">
             <template #label-icon>
                 <LuAlignLeft class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
             </template>
@@ -93,20 +94,22 @@ export default {
                         'text-slate-400 dark:text-slate-500': !isNearLimit && !isOverLimit,
                         'text-amber-500': isNearLimit,
                         'text-rose-500': isOverLimit,
-                    }"
-                >
+                    }">
                     {{ charCount }} / {{ maxLength }}
                 </span>
-                
+
                 <button
                     v-if="expandable"
                     type="button"
                     @click="toggleExpand"
                     class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-400 transition-colors"
-                    :aria-label="isExpanded ? 'Collapse' : 'Expand'"
-                >
-                    <LuMinimize2 v-if="isExpanded" class="w-3.5 h-3.5" />
-                    <LuMaximize2 v-else class="w-3.5 h-3.5" />
+                    :aria-label="isExpanded ? 'Collapse' : 'Expand'">
+                    <LuMinimize2
+                        v-if="isExpanded"
+                        class="w-3.5 h-3.5" />
+                    <LuMaximize2
+                        v-else
+                        class="w-3.5 h-3.5" />
                 </button>
             </template>
 
@@ -115,18 +118,7 @@ export default {
                     :id="inputId"
                     ref="input"
                     :rows="rows"
-                    :class="[
-                        'w-full rounded-xl px-4 py-3 text-sm transition-all duration-200 ease-out border resize-none overflow-hidden',
-                        'placeholder:text-slate-400 dark:placeholder:text-slate-500',
-                        isInvalid
-                            ? 'border-rose-300 dark:border-rose-700 bg-rose-50/50 dark:bg-rose-900/10 text-rose-900 dark:text-rose-100 focus:border-rose-500 focus:ring-1 focus:ring-rose-500'
-                            : isValid
-                                ? 'border-emerald-300 dark:border-emerald-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500'
-                                : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500',
-                        disabled ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed text-slate-500 dark:text-slate-400' : '',
-                        isExpanded ? 'flex-1 h-full shadow-inner min-h-[200px]' : 'shadow-sm',
-                        (clearable || isValid || isInvalid) && !isExpanded ? 'pr-11' : '',
-                    ]"
+                    :class="['w-full rounded-xl px-4 py-3 text-sm transition-all duration-200 ease-out border resize-none overflow-hidden', 'placeholder:text-slate-400 dark:placeholder:text-slate-500', isInvalid ? 'border-rose-300 dark:border-rose-700 bg-rose-50/50 dark:bg-rose-900/10 text-rose-900 dark:text-rose-100 focus:border-rose-500 focus:ring-1 focus:ring-rose-500' : isValid ? 'border-emerald-300 dark:border-emerald-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500', disabled ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed text-slate-500 dark:text-slate-400' : '', isExpanded ? 'flex-1 h-full shadow-inner min-h-[200px]' : 'shadow-sm', (clearable || isValid || isInvalid) && !isExpanded ? 'pr-11' : '']"
                     :value="modelValue"
                     :placeholder="placeholder"
                     :disabled="disabled"
@@ -136,15 +128,15 @@ export default {
                     :aria-describedby="guideId"
                     @input="onInput"
                     @focus="onFocus"
-                    @blur="onBlur"
-                />
+                    @blur="onBlur" />
 
-                <div v-if="isExpanded" class="absolute bottom-4 right-4 flex justify-end">
+                <div
+                    v-if="isExpanded"
+                    class="absolute bottom-4 right-4 flex justify-end">
                     <button
                         type="button"
                         @click="toggleExpand"
-                        class="px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md shadow-indigo-600/20 transition-all active:scale-95"
-                    >
+                        class="px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md shadow-indigo-600/20 transition-all active:scale-95">
                         Done
                     </button>
                 </div>
@@ -184,6 +176,10 @@ textarea:-webkit-autofill:focus {
 }
 
 textarea {
-    transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    transition:
+        height 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
 }
 </style>

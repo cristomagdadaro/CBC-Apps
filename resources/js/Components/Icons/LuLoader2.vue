@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { Loader2 } from 'lucide-vue-next'
+import { Loader2 } from "lucide-vue-next";
 
 withDefaults(
     defineProps<{
-        size?: number
-        strokeWidth?: number
+        size?: number;
+        strokeWidth?: number;
     }>(),
     {
         size: 20,
         strokeWidth: 2,
     },
-)
+);
 </script>
 
 <template>
-    <Loader2 :size="size" :stroke-width="strokeWidth" v-bind="$attrs" />
+    <Loader2
+        :size="size"
+        :stroke-width="strokeWidth"
+        v-bind="$attrs" />
 </template>

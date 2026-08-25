@@ -16,13 +16,13 @@ export default {
         barcode: {
             type: String,
             required: false,
-        }
+        },
     },
     data() {
         return {
             delayReady: false,
             showSuccessModal: false,
-            successMessage: '',
+            successMessage: "",
         };
     },
     async mounted() {
@@ -36,7 +36,7 @@ export default {
             this.showModel = false;
             this.resetForm();
         },
-    }
+    },
 };
 </script>
 
@@ -46,22 +46,21 @@ export default {
         :show="showSuccessModal"
         title="Report Submitted"
         :message="successMessage"
-        @close="showSuccessModal = false"
-    />
-    
+        @close="showSuccessModal = false" />
+
     <GuestFormPage
         title="Supplies and Equipment Report Form"
         subtitle="Link a supplies or equipment incident to a transaction for faster auditing and compliance reviews."
         :delay-ready="delayReady"
         guide-key="incident-report-guest"
-        :max-width="'max-w-2xl'"
-    >
+        :max-width="'max-w-2xl'">
         <div data-guide="incident-report-form">
-            <supp-equip-report-form :report-templates="reportTemplates" :barcode="barcode" @saved="closeForm"/>
+            <supp-equip-report-form
+                :report-templates="reportTemplates"
+                :barcode="barcode"
+                @saved="closeForm" />
         </div>
     </GuestFormPage>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -10,11 +10,15 @@ export default {
         error: { type: String, default: null },
         required: { type: Boolean, default: false },
     },
-    emits: ['update:modelValue'],
+    emits: ["update:modelValue"],
     computed: {
         inputValue: {
-            get() { return this.modelValue; },
-            set(val) { this.$emit('update:modelValue', Number(val)); }
+            get() {
+                return this.modelValue;
+            },
+            set(val) {
+                this.$emit("update:modelValue", Number(val));
+            },
         },
         min() {
             return this.field.field_config?.min || 1;
@@ -23,7 +27,7 @@ export default {
             return this.field.field_config?.max || 5;
         },
         labels() {
-            return this.field.field_config?.labels || { 1: 'Poor', 5: 'Excellent' };
+            return this.field.field_config?.labels || { 1: "Poor", 5: "Excellent" };
         },
         scaleValues() {
             const values = [];
@@ -35,7 +39,7 @@ export default {
     },
     methods: {
         getLabel(value) {
-            return this.labels[value] || '';
+            return this.labels[value] || "";
         },
     },
 };
@@ -43,42 +47,62 @@ export default {
 
 <template>
     <div class="relative">
-        <label v-if="field.label" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-            {{ field.label }}<span v-if="required" class="text-red-600 dark:text-red-400">*</span>
+        <label
+            v-if="field.label"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            {{ field.label }}
+            <span
+                v-if="required"
+                class="text-red-600 dark:text-red-400">
+                *
+            </span>
         </label>
-        <div v-if="field.description" class="text-xs text-gray-600 dark:text-gray-400 mb-2">{{ field.description }}</div>
-        
-        <div class="flex items-center justify-between gap-1 p-2 bg-gray-50 dark:bg-gray-800 rounded-md transition-colors" :class="{'border border-red-500 dark:border-red-600': error, 'border border-gray-200 dark:border-gray-700': !error}">
-            <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-left">{{ getLabel(min) }}</span>
+        <div
+            v-if="field.description"
+            class="text-xs text-gray-600 dark:text-gray-400 mb-2">
+            {{ field.description }}
+        </div>
+
+        <div
+            class="flex items-center justify-between gap-1 p-2 bg-gray-50 dark:bg-gray-800 rounded-md transition-colors"
+            :class="{
+                'border border-red-500 dark:border-red-600': error,
+                'border border-gray-200 dark:border-gray-700': !error,
+            }">
+            <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-left">
+                {{ getLabel(min) }}
+            </span>
             <div class="flex items-center gap-1 flex-1 justify-evenly">
-                <label 
-                    v-for="value in scaleValues" 
+                <label
+                    v-for="value in scaleValues"
                     :key="value"
-                    class="flex flex-col items-center cursor-pointer group"
-                >
+                    class="flex flex-col items-center cursor-pointer group">
                     <input
                         type="radio"
                         :name="field.field_key"
                         :value="value"
                         v-model="inputValue"
-                        class="sr-only"
-                    />
-                    <span 
+                        class="sr-only" />
+                    <span
                         class="w-8 h-8 flex items-center justify-center rounded-full border-2 transition-all font-semibold text-sm"
                         :class="{
                             'bg-AB text-white border-AB': inputValue === value,
-                            'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 group-hover:border-AB dark:group-hover:border-blue-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20': inputValue !== value
-                        }"
-                    >
+                            'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 group-hover:border-AB dark:group-hover:border-blue-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20': inputValue !== value,
+                        }">
                         {{ value }}
                     </span>
                 </label>
             </div>
-            <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">{{ getLabel(max) }}</span>
+            <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">
+                {{ getLabel(max) }}
+            </span>
         </div>
-        
+
         <transition-container type="slide-bottom">
-            <InputError v-show="!!error" class="mt-1" :message="error" />
+            <InputError
+                v-show="!!error"
+                class="mt-1"
+                :message="error" />
         </transition-container>
     </div>
 </template>

@@ -10,14 +10,18 @@ export default {
         error: { type: String, default: null },
         required: { type: Boolean, default: false },
     },
-    emits: ['update:modelValue'],
+    emits: ["update:modelValue"],
     computed: {
         inputValue: {
-            get() { return this.modelValue; },
-            set(val) { this.$emit('update:modelValue', val ? Number(val) : null); }
+            get() {
+                return this.modelValue;
+            },
+            set(val) {
+                this.$emit("update:modelValue", val ? Number(val) : null);
+            },
         },
         placeholder() {
-            const p = this.field.placeholder || this.field.label || '';
+            const p = this.field.placeholder || this.field.label || "";
             return this.required ? `${p}*` : p;
         },
         min() {
@@ -44,6 +48,5 @@ export default {
         :min="min"
         :max="max"
         :step="step"
-        :autocomplete="field.field_key"
-    />
+        :autocomplete="field.field_key" />
 </template>

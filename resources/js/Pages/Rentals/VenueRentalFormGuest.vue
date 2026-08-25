@@ -1,27 +1,27 @@
 <script>
-import VenueRentalForm from '@/Pages/Rentals/components/VenueRentalForm.vue';
+import VenueRentalForm from "@/Pages/Rentals/components/VenueRentalForm.vue";
 
 export default {
-    name: 'VenueRentalFormGuest',
+    name: "VenueRentalFormGuest",
     components: { VenueRentalForm },
     props: {
         venueOptions: {
             type: Array,
-            default: () => []
-        }
+            default: () => [],
+        },
     },
     data() {
         return {
             delayReady: false,
-            title: 'Venue Rental Form',
-            subtitle: 'Please fill out the form below to rent a venue.',
-        }
+            title: "Venue Rental Form",
+            subtitle: "Please fill out the form below to rent a venue.",
+        };
     },
     mounted() {
         setTimeout(() => {
             this.delayReady = true;
         }, 200);
-    }
+    },
 };
 </script>
 
@@ -31,9 +31,11 @@ export default {
         :title="title"
         :subtitle="subtitle"
         guide-key="rental-venue-guest"
-        :delay-ready="delayReady"
-        >
-        <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
+        :delay-ready="delayReady">
+        <transition-container
+            v-show="delayReady"
+            :duration="1000"
+            type="slide-bottom">
             <div class="flex gap-5 flex-col w-full">
                 <venue-rental-form :venue-options="venueOptions" />
             </div>

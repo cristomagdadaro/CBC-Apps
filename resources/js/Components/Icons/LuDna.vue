@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { Dna } from 'lucide-vue-next'
+import { Dna } from "lucide-vue-next";
 
 withDefaults(
     defineProps<{
-        size?: number
-        strokeWidth?: number
+        size?: number;
+        strokeWidth?: number;
     }>(),
     {
         size: 20,
         strokeWidth: 2,
     },
-)
+);
 </script>
 
 <template>
-    <Dna :size="size" :stroke-width="strokeWidth" v-bind="$attrs" />
+    <Dna
+        :size="size"
+        :stroke-width="strokeWidth"
+        v-bind="$attrs" />
 </template>

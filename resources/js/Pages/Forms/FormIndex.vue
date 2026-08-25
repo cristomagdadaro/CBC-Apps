@@ -9,8 +9,8 @@ export default {
     components: { FormsHeaderActions, ListOfForms },
     computed: {
         Form() {
-            return Form
-        }
+            return Form;
+        },
     },
     mixins: [ApiMixin],
     data() {
@@ -22,14 +22,14 @@ export default {
                 cell4: null,
             },
             eventFormFromApi: null,
-        }
+        };
     },
     beforeMount() {
         this.model = new Form();
-        this.setFormAction('get');
+        this.setFormAction("get");
     },
     async mounted() {
-        this.eventFormFromApi =  await this.fetchData();
+        this.eventFormFromApi = await this.fetchData();
     },
     methods: {
         async searchEvent() {
@@ -41,37 +41,37 @@ export default {
             this.eventId.cell4 = null;
         },
         getLastDigit(value) {
-            return /^[0-9]$/.test(value) ? value : '';
+            return /^[0-9]$/.test(value) ? value : "";
         },
         handleInput(field, event) {
             const value = event.target.value.slice(-1);
             this.eventId[field] = this.getLastDigit(value);
 
-            const index = parseInt(field.replace('cell', ''), 10);
+            const index = parseInt(field.replace("cell", ""), 10);
 
             if (this.eventId[field] && this.$refs[`cell${index + 1}`]) {
                 this.$refs[`cell${index + 1}`].focus();
             }
 
-            this.form.search = Object.values(this.eventId).join('');
+            this.form.search = Object.values(this.eventId).join("");
         },
         handleBackspace(field, event) {
-            const index = parseInt(field.replace('cell', ''), 10);
+            const index = parseInt(field.replace("cell", ""), 10);
 
-            if (!this.eventId[field] && event.key === 'Backspace' && this.$refs[`cell${index - 1}`]) {
+            if (!this.eventId[field] && event.key === "Backspace" && this.$refs[`cell${index - 1}`]) {
                 this.$refs[`cell${index - 1}`].focus();
             }
-        }
+        },
     },
     watch: {
         eventId: {
             handler(newVal, oldVal) {
-                this.form.search = Object.values(newVal).join('');
+                this.form.search = Object.values(newVal).join("");
             },
             deep: true,
         },
     },
-}
+};
 </script>
 
 <template>
@@ -81,12 +81,25 @@ export default {
         </template>
 
         <div class="default-container pt-5">
-            <form v-if="!!form" class="flex gap-2 items-end"  @submit.prevent="searchEvent">
+            <form
+                v-if="!!form"
+                class="flex gap-2 items-end"
+                @submit.prevent="searchEvent">
                 <div class="grid grid-rows-2 w-full">
                     <div class="w-full flex gap-2 items-end lg:px-0 px-2">
-                        <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
-                        <text-input v-if="form.filter !== 'event_id'" placeholder="Search..." v-model="form.search" />
-                        <div v-else class="flex flex-col w-full">
+                        <search-by
+                            :value="form.filter"
+                            :is-exact="form.is_exact"
+                            :options="model.constructor.getFilterColumns()"
+                            @isExact="form.is_exact = $event"
+                            @searchBy="form.filter = $event" />
+                        <text-input
+                            v-if="form.filter !== 'event_id'"
+                            placeholder="Search..."
+                            v-model="form.search" />
+                        <div
+                            v-else
+                            class="flex flex-col w-full">
                             <div class="grid grid-cols-4 gap-0.5 items-center">
                                 <TextInput
                                     ref="cell1"
@@ -99,8 +112,7 @@ export default {
                                     @keydown.backspace="handleBackspace('cell1', $event)"
                                     maxlength="1"
                                     pattern="[0-9]"
-                                    autocomplete="event"
-                                />
+                                    autocomplete="event" />
                                 <TextInput
                                     ref="cell2"
                                     v-model="eventId.cell2"
@@ -111,8 +123,7 @@ export default {
                                     @keydown.backspace="handleBackspace('cell2', $event)"
                                     maxlength="1"
                                     pattern="[0-9]"
-                                    autocomplete="event"
-                                />
+                                    autocomplete="event" />
                                 <TextInput
                                     ref="cell3"
                                     v-model="eventId.cell3"
@@ -123,8 +134,7 @@ export default {
                                     @keydown.backspace="handleBackspace('cell3', $event)"
                                     maxlength="1"
                                     pattern="[0-9]"
-                                    autocomplete="event"
-                                />
+                                    autocomplete="event" />
                                 <TextInput
                                     ref="cell4"
                                     v-model="eventId.cell4"
@@ -135,25 +145,43 @@ export default {
                                     @keydown.backspace="handleBackspace('cell4', $event)"
                                     maxlength="1"
                                     pattern="[0-9]"
-                                    autocomplete="event"
-                                />
+                                    autocomplete="event" />
                             </div>
-                            <InputError class="mt-2" :message="form.errors.event" />
+                            <InputError
+                                class="mt-2"
+                                :message="form.errors.event" />
                         </div>
-                        <search-btn type="submit" :disabled="model?.processing" class="w-[10rem] text-center">
+                        <search-btn
+                            type="submit"
+                            :disabled="model?.processing"
+                            class="w-[10rem] text-center">
                             <span v-if="!model?.processing">Search</span>
                             <span v-else>Searching</span>
                         </search-btn>
                     </div>
-                    <div v-if="eventFormFromApi" class="flex w-full gap-2 items-center">
-                        <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
+                    <div
+                        v-if="eventFormFromApi"
+                        class="flex w-full gap-2 items-center">
+                        <div
+                            id="dtPaginatorContainer"
+                            class="flex gap-1 items-center w-full justify-center">
                             <!-- First Button -->
-                            <paginate-btn @click="form.page = 1; searchEvent();" :disabled="form.page === 1">
+                            <paginate-btn
+                                @click="
+                                    form.page = 1;
+                                    searchEvent();
+                                "
+                                :disabled="form.page === 1">
                                 First
                             </paginate-btn>
 
                             <!-- Previous Button -->
-                            <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchEvent();" :disabled="form.page === 1">
+                            <paginate-btn
+                                @click="
+                                    form.page = Math.max(1, form.page - 1);
+                                    searchEvent();
+                                "
+                                :disabled="form.page === 1">
                                 <template v-slot:icon>
                                     <arrow-left class="h-auto w-6" />
                                 </template>
@@ -162,16 +190,22 @@ export default {
 
                             <!-- Current Page Indicator -->
                             <div class="text-xs flex flex-col whitespace-nowrap text-center">
-                                    <span class="font-medium mx-1" title="current page and total pages">
-                                        <span>{{ eventFormFromApi?.current_page }}</span> / <span>{{ eventFormFromApi?.last_page }}</span>
-                                    </span>
+                                <span
+                                    class="font-medium mx-1"
+                                    title="current page and total pages">
+                                    <span>{{ eventFormFromApi?.current_page }}</span>
+                                    /
+                                    <span>{{ eventFormFromApi?.last_page }}</span>
+                                </span>
                             </div>
 
                             <!-- Next Button -->
                             <paginate-btn
-                                @click="form.page = Math.min(eventFormFromApi?.last_page, form.page + 1); searchEvent();"
-                                :disabled="form.page === eventFormFromApi?.last_page"
-                            >
+                                @click="
+                                    form.page = Math.min(eventFormFromApi?.last_page, form.page + 1);
+                                    searchEvent();
+                                "
+                                :disabled="form.page === eventFormFromApi?.last_page">
                                 Next
                                 <template v-slot:icon>
                                     <arrow-right class="h-auto w-6" />
@@ -180,9 +214,11 @@ export default {
 
                             <!-- Last Button -->
                             <paginate-btn
-                                @click="form.page = eventFormFromApi?.last_page; searchEvent();"
-                                :disabled="form.page === eventFormFromApi?.last_page"
-                            >
+                                @click="
+                                    form.page = eventFormFromApi?.last_page;
+                                    searchEvent();
+                                "
+                                :disabled="form.page === eventFormFromApi?.last_page">
                                 Last
                             </paginate-btn>
                         </div>
@@ -194,34 +230,53 @@ export default {
                 <list-of-forms
                     v-if="eventFormFromApi && eventFormFromApi.total > 0 && !model.api.processing"
                     :forms-data="eventFormFromApi.data"
-                    @removeModel="eventFormFromApi.data = eventFormFromApi.data.filter(form => form.id !== $event.id)"
-                />
+                    @removeModel="eventFormFromApi.data = eventFormFromApi.data.filter((form) => form.id !== $event.id)" />
 
                 <!-- Show "Searching" when processing -->
-                <div v-else-if="model.api.processing" class="text-center py-3 border border-AB rounded-lg">
+                <div
+                    v-else-if="model.api.processing"
+                    class="text-center py-3 border border-AB rounded-lg">
                     Searching...
                 </div>
 
                 <!-- Show "Form does not exist" when search was performed but no results -->
-                <div v-else-if="eventFormFromApi && eventFormFromApi.total === 0 && form.search" class="text-center py-3 border border-AB rounded-lg">
+                <div
+                    v-else-if="eventFormFromApi && eventFormFromApi.total === 0 && form.search"
+                    class="text-center py-3 border border-AB rounded-lg">
                     Form does not exist. Try using some filters.
                 </div>
 
                 <!-- Show "No forms available" when nothing was returned and no search was performed -->
-                <div v-else class="text-center py-3 border border-AB rounded-lg">
+                <div
+                    v-else
+                    class="text-center py-3 border border-AB rounded-lg">
                     No forms available.
                 </div>
             </div>
 
-            <div v-if="eventFormFromApi && eventFormFromApi.data?.length" class="flex w-full gap-2 items-center mt-3">
-                <div id="dtPaginatorContainer" class="flex gap-1 items-center w-full justify-center">
+            <div
+                v-if="eventFormFromApi && eventFormFromApi.data?.length"
+                class="flex w-full gap-2 items-center mt-3">
+                <div
+                    id="dtPaginatorContainer"
+                    class="flex gap-1 items-center w-full justify-center">
                     <!-- First Button -->
-                    <paginate-btn @click="form.page = 1; searchEvent();" :disabled="form.page === 1">
+                    <paginate-btn
+                        @click="
+                            form.page = 1;
+                            searchEvent();
+                        "
+                        :disabled="form.page === 1">
                         First
                     </paginate-btn>
 
                     <!-- Previous Button -->
-                    <paginate-btn @click="form.page = Math.max(1, form.page - 1); searchEvent();" :disabled="form.page === 1">
+                    <paginate-btn
+                        @click="
+                            form.page = Math.max(1, form.page - 1);
+                            searchEvent();
+                        "
+                        :disabled="form.page === 1">
                         <template v-slot:icon>
                             <arrow-left class="h-auto w-6" />
                         </template>
@@ -230,16 +285,22 @@ export default {
 
                     <!-- Current Page Indicator -->
                     <div class="text-xs flex flex-col whitespace-nowrap text-center">
-                        <span class="font-medium mx-1" title="current page and total pages">
-                            <span>{{ eventFormFromApi?.current_page }}</span> / <span>{{ eventFormFromApi?.last_page }}</span>
+                        <span
+                            class="font-medium mx-1"
+                            title="current page and total pages">
+                            <span>{{ eventFormFromApi?.current_page }}</span>
+                            /
+                            <span>{{ eventFormFromApi?.last_page }}</span>
                         </span>
                     </div>
 
                     <!-- Next Button -->
                     <paginate-btn
-                        @click="form.page = Math.min(eventFormFromApi?.last_page, form.page + 1); searchEvent();"
-                        :disabled="form.page === eventFormFromApi?.last_page"
-                    >
+                        @click="
+                            form.page = Math.min(eventFormFromApi?.last_page, form.page + 1);
+                            searchEvent();
+                        "
+                        :disabled="form.page === eventFormFromApi?.last_page">
                         Next
                         <template v-slot:icon>
                             <arrow-right class="h-auto w-6" />
@@ -248,9 +309,11 @@ export default {
 
                     <!-- Last Button -->
                     <paginate-btn
-                        @click="form.page = eventFormFromApi?.last_page; searchEvent();"
-                        :disabled="form.page === eventFormFromApi?.last_page"
-                    >
+                        @click="
+                            form.page = eventFormFromApi?.last_page;
+                            searchEvent();
+                        "
+                        :disabled="form.page === eventFormFromApi?.last_page">
                         Last
                     </paginate-btn>
                 </div>
@@ -258,4 +321,3 @@ export default {
         </div>
     </AppLayout>
 </template>
-

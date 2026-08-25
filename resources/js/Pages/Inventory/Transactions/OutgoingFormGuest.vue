@@ -27,8 +27,8 @@ export default {
     props: {
         stockLevel: {
             type: Array,
-            required: true
-        }
+            required: true,
+        },
     },
     data() {
         return {
@@ -41,14 +41,14 @@ export default {
             processing: false,
             showSuccessModal: false,
             showFilters: false,
-            successMessage: 'Your transaction has been recorded.',
+            successMessage: "Your transaction has been recorded.",
             realtimeCleanup: null,
             realtimeRefreshTimer: null,
-        }
+        };
     },
     beforeMount() {
         this.model = new Transaction();
-        this.setFormAction('get');
+        this.setFormAction("get");
         this.applyNameSort();
     },
     async mounted() {
@@ -68,17 +68,17 @@ export default {
     },
     computed: {
         DataTable() {
-            return DataTable
+            return DataTable;
         },
         Transaction() {
-            return Transaction
+            return Transaction;
         },
         personnels() {
-            return this.$page.props.personnels.map(personnel => {
+            return this.$page.props.personnels.map((personnel) => {
                 return {
                     name: personnel.id,
-                    label: (new Personnel(personnel)).fullName,
-                }
+                    label: new Personnel(personnel).fullName,
+                };
             });
         },
         activeFilterCount() {
@@ -90,7 +90,7 @@ export default {
         // Override mixin's isExpired to avoid conflicts with item-level expiration checking
         isExpired() {
             return null;
-        }
+        },
     },
     methods: {
         selectItem(item) {
@@ -100,17 +100,17 @@ export default {
             this.showModel = true;
         },
         async searchEvent() {
-            this.form.per_page = '*';
+            this.form.per_page = "*";
             this.processing = true;
-            await this.fetchGetApi('api.inventory.transactions.remaining-stocks', this.form.data()).then((response) => {
+            await this.fetchGetApi("api.inventory.transactions.remaining-stocks", this.form.data()).then((response) => {
                 this.outgoingFromApi = response;
-            })
+            });
             this.processing = false;
         },
         setFilter(filter, filter_by) {
             if (this.form.filter_by === filter_by) {
-                this.form.filter = '';
-                this.form.filter_by = '';
+                this.form.filter = "";
+                this.form.filter_by = "";
                 this.searchEvent();
                 return;
             }
@@ -143,13 +143,13 @@ export default {
         },
         async searchFromBarcode(barcode) {
             this.form.search = barcode;
-            this.form.filter = 'barcode';
+            this.form.filter = "barcode";
             this.form.is_exact = true;
             this.selectedItem = null;
             this.showModel = false;
             await this.searchEvent();
             if (this.outgoingFromApi && Array.isArray(this.outgoingFromApi.data)) {
-                const exactMatches = this.outgoingFromApi.data.filter(item => item.barcode === barcode);
+                const exactMatches = this.outgoingFromApi.data.filter((item) => item.barcode === barcode);
                 if (exactMatches.length === 1) {
                     this.selectItem(exactMatches[0]);
                 }
@@ -157,11 +157,11 @@ export default {
         },
         applyNameSort() {
             if (!this.form) return;
-            this.form.sort = 'name';
-            this.form.order = 'asc';
+            this.form.sort = "name";
+            this.form.order = "asc";
         },
         cleanupRealtime() {
-            if (typeof this.realtimeCleanup === 'function') {
+            if (typeof this.realtimeCleanup === "function") {
                 this.realtimeCleanup();
             }
 
@@ -181,16 +181,16 @@ export default {
 
             this.realtimeCleanup = subscribeToRealtimeChannels([
                 {
-                    type: 'public',
-                    channel: 'public.inventory.stock',
-                    event: 'inventory.transaction.changed',
-                    feature: 'inventory',
+                    type: "public",
+                    channel: "public.inventory.stock",
+                    event: "inventory.transaction.changed",
+                    feature: "inventory",
                     handler: () => this.scheduleRealtimeRefresh(),
                 },
             ]);
         },
-    }
-}
+    },
+};
 </script>
 
 <template>
@@ -199,24 +199,38 @@ export default {
         :show="showSuccessModal"
         title="Transaction Recorded"
         :message="successMessage"
-        @close="showSuccessModal = false"
-    />
+        @close="showSuccessModal = false" />
 
     <guest-form-page
         :title="'Supplies Checkout Form'"
         :subtitle="'Kindly fill out the form below to record your transaction'"
         guide-key="supplies-checkout-guest"
         :delay-ready="delayReady"
-        :max-width="'max-w-2xl'"
-    >
-        <transition-container v-show="delayReady" :duration="1000" type="slide-bottom">
+        :max-width="'max-w-2xl'">
+        <transition-container
+            v-show="delayReady"
+            :duration="1000"
+            type="slide-bottom">
             <div class="border border-slate-200 dark:border-slate-800 p-4 sm:p-5 rounded-2xl flex flex-col gap-4 bg-white dark:bg-slate-900 w-full max-w-7xl mx-auto shadow-xs text-slate-900 dark:text-slate-100">
                 <div class="flex flex-col justify-start gap-3 w-full">
                     <!-- Search Bar & Collapsible Filter Toggle -->
-                    <div data-guide="supplies-search" class="w-full flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+                    <div
+                        data-guide="supplies-search"
+                        class="w-full flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
                         <div class="flex-1 flex gap-2">
-                            <text-input placeholder="Search items, barcodes, descriptions..." v-model="form.search" @update:model-value="form.filter = null; form.is_exact = false;" @keydown.enter="searchEvent" class="w-full" />
-                            <search-btn @click="searchEvent" :disabled="model?.processing" class="text-center h-full px-5">
+                            <text-input
+                                placeholder="Search items, barcodes, descriptions..."
+                                v-model="form.search"
+                                @update:model-value="
+                                    form.filter = null;
+                                    form.is_exact = false;
+                                "
+                                @keydown.enter="searchEvent"
+                                class="w-full" />
+                            <search-btn
+                                @click="searchEvent"
+                                :disabled="model?.processing"
+                                class="text-center h-full px-5">
                                 <span v-if="!model?.processing">Search</span>
                                 <span v-else>Searching</span>
                             </search-btn>
@@ -227,76 +241,120 @@ export default {
                             type="button"
                             @click="showFilters = !showFilters"
                             class="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl border text-xs font-semibold transition-all shrink-0 active:scale-95"
-                            :class="showFilters || activeFilterCount > 0
-                                ? 'bg-lime-50 dark:bg-lime-950/40 border-lime-300 dark:border-lime-800 text-lime-700 dark:text-lime-300 shadow-xs'
-                                : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'"
-                        >
+                            :class="showFilters || activeFilterCount > 0 ? 'bg-lime-50 dark:bg-lime-950/40 border-lime-300 dark:border-lime-800 text-lime-700 dark:text-lime-300 shadow-xs' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'">
                             <Filter class="w-4 h-4 text-lime-600 dark:text-lime-400" />
                             <span>Filters</span>
-                            <span v-if="activeFilterCount > 0" class="px-1.5 py-0.5 rounded-full text-[0.65rem] font-bold bg-lime-600 text-white">
+                            <span
+                                v-if="activeFilterCount > 0"
+                                class="px-1.5 py-0.5 rounded-full text-[0.65rem] font-bold bg-lime-600 text-white">
                                 {{ activeFilterCount }}
                             </span>
-                            <component :is="showFilters ? 'ChevronUp' : 'ChevronDown'" class="w-4 h-4 text-slate-400" />
+                            <component
+                                :is="showFilters ? 'ChevronUp' : 'ChevronDown'"
+                                class="w-4 h-4 text-slate-400" />
                         </button>
                     </div>
 
                     <!-- Collapsible Dropdown Filter Drawer -->
                     <transition-container type="pop-in">
-                        <div v-if="showFilters" data-guide='supplies-filters' class="grid grid-cols-2 md:grid-cols-5 gap-2 items-center w-full justify-center pt-3 pb-1 border-t border-slate-100 dark:border-slate-800">
-                            <custom-dropdown :with-all-option="false" placeholder="Category" label="Filter by Category" @selectedChange="setFilter('category', $event)" :options="categories" />
-                            <custom-dropdown v-if="projectCodes" placeholder="Project Code" label="Filter by Project Code" :options="projectCodes" @selectedChange="setFilter('project_code', $event)" />
-                            <custom-dropdown :with-all-option="false" placeholder="Storage Room" label="Filter by Storage Room" @selectedChange="applyStorageRoomFilter($event)" :options="storage_locations" />
-                            <search-by :value="form.filter" :is-exact="form.is_exact" :options="model.constructor.getFilterColumns()" @isExact="form.is_exact = $event" @searchBy="form.filter = $event" />
-                            <custom-dropdown :with-all-option="false" placeholder="Stock Level" label="Filter by Stock" @selectedChange="setFilter('quantity', $event)" :options="stockLevel" />
+                        <div
+                            v-if="showFilters"
+                            data-guide="supplies-filters"
+                            class="grid grid-cols-2 md:grid-cols-5 gap-2 items-center w-full justify-center pt-3 pb-1 border-t border-slate-100 dark:border-slate-800">
+                            <custom-dropdown
+                                :with-all-option="false"
+                                placeholder="Category"
+                                label="Filter by Category"
+                                @selectedChange="setFilter('category', $event)"
+                                :options="categories" />
+                            <custom-dropdown
+                                v-if="projectCodes"
+                                placeholder="Project Code"
+                                label="Filter by Project Code"
+                                :options="projectCodes"
+                                @selectedChange="setFilter('project_code', $event)" />
+                            <custom-dropdown
+                                :with-all-option="false"
+                                placeholder="Storage Room"
+                                label="Filter by Storage Room"
+                                @selectedChange="applyStorageRoomFilter($event)"
+                                :options="storage_locations" />
+                            <search-by
+                                :value="form.filter"
+                                :is-exact="form.is_exact"
+                                :options="model.constructor.getFilterColumns()"
+                                @isExact="form.is_exact = $event"
+                                @searchBy="form.filter = $event" />
+                            <custom-dropdown
+                                :with-all-option="false"
+                                placeholder="Stock Level"
+                                label="Filter by Stock"
+                                @selectedChange="setFilter('quantity', $event)"
+                                :options="stockLevel" />
                         </div>
                     </transition-container>
 
                     <!-- Camera Barcode Scanner -->
-                    <camera-scanner data-guide='supplies-barcode-scanner' class="w-full" @decoded="searchFromBarcode" />
+                    <camera-scanner
+                        data-guide="supplies-barcode-scanner"
+                        class="w-full"
+                        @decoded="searchFromBarcode" />
 
                     <!-- Results List Header -->
-                    <div v-if="outgoingFromApi" class="flex flex-col w-full gap-3 items-center">
+                    <div
+                        v-if="outgoingFromApi"
+                        class="flex flex-col w-full gap-3 items-center">
                         <div class="flex justify-between items-center w-full px-1 pt-1">
-                            <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                                Stock Inventory Results
-                            </h3>
-                            <span class="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-extrabold text-lime-600 dark:text-lime-400">
-                                {{ outgoingFromApi?.data?.length || 0 }} Items Available
-                            </span>
+                            <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Stock Inventory Results</h3>
+                            <span class="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-extrabold text-lime-600 dark:text-lime-400">{{ outgoingFromApi?.data?.length || 0 }} Items Available</span>
                         </div>
-                        <div data-guide="supplies-results" class="w-full max-h-[60vh] overflow-y-auto overflow-x-hidden">
-                            <div v-show="processing" class="text-center py-6 border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50 dark:bg-slate-800/40 text-xs text-slate-500 font-semibold">
+                        <div
+                            data-guide="supplies-results"
+                            class="w-full max-h-[60vh] overflow-y-auto overflow-x-hidden">
+                            <div
+                                v-show="processing"
+                                class="text-center py-6 border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50 dark:bg-slate-800/40 text-xs text-slate-500 font-semibold">
                                 Loading stock items...
                             </div>
                             <outgoing-item-card
                                 v-if="outgoingFromApi && Array.isArray(outgoingFromApi.data) && outgoingFromApi.data.length > 0"
                                 :outgoing-from-api="outgoingFromApi"
-                                @select-item="selectItem"
-                            />
+                                @select-item="selectItem" />
                             <!-- Show "Searching" when processing -->
-                            <div v-else-if="model.api.processing" class="text-center py-6 border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50 dark:bg-slate-800/40 text-xs text-slate-500 font-semibold">
+                            <div
+                                v-else-if="model.api.processing"
+                                class="text-center py-6 border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50 dark:bg-slate-800/40 text-xs text-slate-500 font-semibold">
                                 Searching items...
                             </div>
 
                             <!-- Show fallback when search returned no results -->
-                            <div v-else-if="outgoingFromApi && outgoingFromApi.total === 0 && form.search" class="text-center py-6 border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50 dark:bg-slate-800/40 text-xs text-slate-500 font-semibold">
+                            <div
+                                v-else-if="outgoingFromApi && outgoingFromApi.total === 0 && form.search"
+                                class="text-center py-6 border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50 dark:bg-slate-800/40 text-xs text-slate-500 font-semibold">
                                 Item does not exist. Try using some filters.
                             </div>
 
                             <!-- Show empty state -->
-                            <div v-else class="text-center py-6 border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50 dark:bg-slate-800/40 text-xs text-slate-500 font-semibold">
+                            <div
+                                v-else
+                                class="text-center py-6 border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50 dark:bg-slate-800/40 text-xs text-slate-500 font-semibold">
                                 No items available for checkout.
                             </div>
                         </div>
                     </div>
                 </div>
-                <modal :show="!!selectedItem && showModel" @close="showModel = false">
-                    <outgoing-form :data="selectedItem" :personnels="personnels" :is-guest="true" @submitted="closeForm" @error="showModel = true"/>
+                <modal
+                    :show="!!selectedItem && showModel"
+                    @close="showModel = false">
+                    <outgoing-form
+                        :data="selectedItem"
+                        :personnels="personnels"
+                        :is-guest="true"
+                        @submitted="closeForm"
+                        @error="showModel = true" />
                 </modal>
             </div>
         </transition-container>
     </guest-form-page>
 </template>
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -1,6 +1,8 @@
 <template>
     <tr>
-        <td :colspan="props.colspan" class="text-center py-2">
+        <td
+            :colspan="props.colspan"
+            class="text-center py-2">
             <div class="flex items-center justify-center gap-1">
                 <exclamation-circle-icon class="w-5 h-auto" />
                 <span>No data found</span>

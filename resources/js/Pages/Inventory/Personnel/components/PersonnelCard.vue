@@ -3,8 +3,8 @@ export default {
     name: "PersonnelCard",
     props: {
         data: Object,
-    }
-}
+    },
+};
 </script>
 
 <template>
@@ -28,10 +28,8 @@ export default {
                 {{ data.address }}
             </span>
         </div>
-
     </div>
-</template>p
+</template>
+p
 
-<style scoped>
-
-</style>
+<style scoped></style>

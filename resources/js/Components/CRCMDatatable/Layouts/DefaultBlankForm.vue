@@ -1,11 +1,7 @@
 <template>
     <base-create-form :forceClose="forceClose">
-        <template v-slot:formTitle>
-            No Form Found
-        </template>
-        <template v-slot:formFields>
-            Can't find the form or none was assigned.
-        </template>
+        <template v-slot:formTitle>No Form Found</template>
+        <template v-slot:formFields>Can't find the form or none was assigned.</template>
     </base-create-form>
 </template>
 <script>
@@ -24,16 +20,16 @@ export default {
     props: {
         errors: {
             type: Object,
-            default: () => ({})
+            default: () => ({}),
         },
         forceClose: {
             type: Boolean,
-            default: false
+            default: false,
         },
         data: {
             type: Object,
-            default: null
-        }
+            default: null,
+        },
     },
     data() {
         return {
@@ -48,8 +44,8 @@ export default {
     },
     watch: {
         forceClose() {
-            this.$emit('close');
-        }
+            this.$emit("close");
+        },
     },
     mounted() {
         if (this.data) {
@@ -59,11 +55,11 @@ export default {
     },
     methods: {
         submitForm() {
-            this.$emit('submitForm', this.form);
+            this.$emit("submitForm", this.form);
         },
         close() {
-            this.$emit('close');
-        }
-    }
+            this.$emit("close");
+        },
+    },
 };
 </script>

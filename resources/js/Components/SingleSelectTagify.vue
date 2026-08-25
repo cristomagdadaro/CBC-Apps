@@ -1,7 +1,7 @@
 <script>
-import Tagify from '@yaireo/tagify';
-import '@yaireo/tagify/dist/tagify.css';
-import FieldMixin from '@/Components/Forms/FieldMixin';
+import Tagify from "@yaireo/tagify";
+import "@yaireo/tagify/dist/tagify.css";
+import FieldMixin from "@/Components/Forms/FieldMixin";
 
 export default {
     name: "SingleSelectTagify",
@@ -9,26 +9,26 @@ export default {
     props: {
         modelValue: {
             type: [String, Array],
-            default: ''
+            default: "",
         },
         whitelist: {
             type: Array,
-            default: () => []
+            default: () => [],
         },
         placeholder: {
             type: String,
-            default: 'Search or enter custom location...'
+            default: "Search or enter custom location...",
         },
         name: {
             type: String,
-            default: 'location'
-        }
+            default: "location",
+        },
     },
-    emits: ['update:modelValue', 'keydown'],
+    emits: ["update:modelValue", "keydown"],
     data() {
         return {
-            tagify: null
-        }
+            tagify: null,
+        };
     },
     watch: {
         whitelist: {
@@ -37,21 +37,21 @@ export default {
                 if (this.tagify) {
                     this.tagify.settings.whitelist = newWhitelist;
                 }
-            }
+            },
         },
         modelValue(newValue) {
             if (this.tagify) {
-                const currentVal = this.tagify.value.map(item => item.value).join(',');
+                const currentVal = this.tagify.value.map((item) => item.value).join(",");
                 if (newValue !== currentVal && newValue !== this.tagify.value[0]?.value) {
                     this.tagify.loadOriginalValues(newValue ? [newValue] : []);
                 }
             }
-        }
+        },
     },
     methods: {
         clearValue() {
-            this.$emit('update:modelValue', '');
-        }
+            this.$emit("update:modelValue", "");
+        },
     },
     mounted() {
         this.tagify = new Tagify(this.$refs.tagifyInput, {
@@ -63,37 +63,37 @@ export default {
                 enabled: 0,
                 closeOnSelect: true,
                 maxItems: 100,
-                searchKeys: ['value'],
-                appendTarget: document.body
-            }
+                searchKeys: ["value"],
+                appendTarget: document.body,
+            },
         });
 
         if (this.modelValue) {
             this.tagify.loadOriginalValues([this.modelValue]);
         }
 
-        this.tagify.on('change', (e) => {
+        this.tagify.on("change", (e) => {
             const value = e.detail.value;
             if (!value) {
-                this.$emit('update:modelValue', '');
+                this.$emit("update:modelValue", "");
                 return;
             }
             try {
                 const parsed = JSON.parse(value);
                 if (Array.isArray(parsed) && parsed.length > 0) {
-                    this.$emit('update:modelValue', parsed[0].value);
+                    this.$emit("update:modelValue", parsed[0].value);
                 } else {
-                    this.$emit('update:modelValue', '');
+                    this.$emit("update:modelValue", "");
                 }
             } catch (err) {
-                this.$emit('update:modelValue', value);
+                this.$emit("update:modelValue", value);
             }
         });
 
         // Forward the enter keydown event so the form can submit
-        this.$refs.tagifyInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                this.$emit('keydown', e);
+        this.$refs.tagifyInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                this.$emit("keydown", e);
             }
         });
     },
@@ -101,8 +101,8 @@ export default {
         if (this.tagify) {
             this.tagify.destroy();
         }
-    }
-}
+    },
+};
 </script>
 
 <template>
@@ -117,19 +117,17 @@ export default {
         :has-value="!!modelValue"
         :disabled="disabled"
         @clear="clearValue"
-        class="tagify-wrapper"
-    >
+        class="tagify-wrapper">
         <template #default="{ inputId, isInvalid, isValid, guideId }">
-            <input 
+            <input
                 :id="inputId"
-                ref="tagifyInput" 
-                :name="name" 
+                ref="tagifyInput"
+                :name="name"
                 :disabled="disabled"
                 :aria-invalid="isInvalid"
                 :aria-describedby="guideId"
-                class="w-full" 
-                :placeholder="placeholder" 
-            />
+                class="w-full"
+                :placeholder="placeholder" />
         </template>
     </Field>
 </template>
@@ -148,7 +146,9 @@ export default {
     z-index: 99999 !important; /* Ensure it stays above modals (z-50) */
     background-color: #ffffff !important;
     border: 1px solid #e5e7eb !important;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+    box-shadow:
+        0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
     border-radius: 0.375rem !important;
     padding: 0.25rem 0 !important;
 }

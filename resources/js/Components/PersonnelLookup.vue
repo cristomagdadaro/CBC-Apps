@@ -9,17 +9,17 @@ export default {
     props: {
         modelValue: {
             type: String,
-            default: ''
+            default: "",
         },
         required: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
-    emits: ['update:modelValue', 'found', 'error'],
+    emits: ["update:modelValue", "found", "error"],
     data() {
         return {
-            clientErrors: {}
+            clientErrors: {},
         };
     },
     computed: {
@@ -33,7 +33,7 @@ export default {
     methods: {
         onInput(value) {
             delete this.clientErrors.employee_id;
-            this.$emit('update:modelValue', value);
+            this.$emit("update:modelValue", value);
         },
 
         buildFoundPayload(record) {
@@ -58,89 +58,104 @@ export default {
             this.clientErrors = { ...this.clientErrors, employee_id: null };
 
             if (!this.modelValue) {
-                this.clientErrors.employee_id = 'PhilRice ID is required';
-                this.$emit('error', { field: 'employee_id', message: this.clientErrors.employee_id });
+                this.clientErrors.employee_id = "PhilRice ID is required";
+                this.$emit("error", {
+                    field: "employee_id",
+                    message: this.clientErrors.employee_id,
+                });
                 return;
             }
 
             try {
                 const response = await this.fetchGetApi(
-                    'api.inventory.personnels.index.guest',
+                    "api.inventory.personnels.index.guest",
                     {
-                        filter: 'employee_id',
+                        filter: "employee_id",
                         search: this.modelValue,
                         is_exact: true,
                     },
-                    Personnel
+                    Personnel,
                 );
-                
+
                 let payload = response?.data ?? response ?? [];
 
-                const record = Array.isArray(payload?.data ?? payload)
-                    ? (payload.data ?? payload)[0]
-                    : (payload.data ?? payload);
+                const record = Array.isArray(payload?.data ?? payload) ? (payload.data ?? payload)[0] : (payload.data ?? payload);
 
                 if (!record) {
-                    this.clientErrors.employee_id = 'No personnel found for this ID';
-                    this.$emit('error', { field: 'employee_id', message: this.clientErrors.employee_id });
+                    this.clientErrors.employee_id = "No personnel found for this ID";
+                    this.$emit("error", {
+                        field: "employee_id",
+                        message: this.clientErrors.employee_id,
+                    });
                     return null;
                 }
 
                 delete this.clientErrors.employee_id;
 
                 payload = this.buildFoundPayload(record);
-                this.$emit('found', payload);
+                this.$emit("found", payload);
                 return payload;
-
             } catch (error) {
                 console.error(error);
-                this.clientErrors.employee_id = error.response?.data?.message || 'Lookup failed. Please try again.';
-                this.$emit('error', { field: 'employee_id', message: this.clientErrors.employee_id });
+                this.clientErrors.employee_id = error.response?.data?.message || "Lookup failed. Please try again.";
+                this.$emit("error", {
+                    field: "employee_id",
+                    message: this.clientErrors.employee_id,
+                });
                 return null;
             }
-        }
+        },
     },
     mounted() {
         if (this.currentLaboratoryPersonnel) {
-            this.$emit('found', this.buildFoundPayload(this.currentLaboratoryPersonnel));
+            this.$emit("found", this.buildFoundPayload(this.currentLaboratoryPersonnel));
             if (this.currentLaboratoryPersonnel.employee_id && !this.modelValue) {
-                this.$emit('update:modelValue', this.currentLaboratoryPersonnel.employee_id);
+                this.$emit("update:modelValue", this.currentLaboratoryPersonnel.employee_id);
             }
         }
     },
     watch: {
         currentLaboratoryPersonnel(newVal) {
             if (newVal) {
-                this.$emit('found', this.buildFoundPayload(newVal));
+                this.$emit("found", this.buildFoundPayload(newVal));
                 if (newVal.employee_id && !this.modelValue) {
-                    this.$emit('update:modelValue', newVal.employee_id);
+                    this.$emit("update:modelValue", newVal.employee_id);
                 }
             }
-        }
-    }
+        },
+    },
 };
 </script>
 
 <template>
-    <div v-if="currentLaboratoryPersonnel" key="saved" class="flex items-center justify-between p-4 rounded-xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-gray-100 dark:border-slate-800 shadow-sm">
+    <div
+        v-if="currentLaboratoryPersonnel"
+        key="saved"
+        class="flex items-center justify-between p-4 rounded-xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-gray-100 dark:border-slate-800 shadow-sm">
         <div class="flex items-center gap-3">
             <div class="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/30">
                 <LuUser class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-                <p class="text-sm font-medium text-slate-900 dark:text-white">{{
-                    currentLaboratoryPersonnel.fullName || currentLaboratoryPersonnel.name }}</p>
-                <p class="text-xs text-slate-500 dark:text-slate-400">{{ currentLaboratoryPersonnel.employee_id }}
+                <p class="text-sm font-medium text-slate-900 dark:text-white">
+                    {{ currentLaboratoryPersonnel.fullName || currentLaboratoryPersonnel.name }}
+                </p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    {{ currentLaboratoryPersonnel.employee_id }}
                 </p>
             </div>
         </div>
-        <button type="button" @click="handlePersonnelSwitch"
+        <button
+            type="button"
+            @click="handlePersonnelSwitch"
             class="p-2 text-slate-500 dark:text-slate-400 transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
             :class="{ 'animate-spin': processing }">
             <LuRefreshCw class="w-4 h-4" />
         </button>
     </div>
-    <div v-else class="flex flex-col gap-2 w-full">
+    <div
+        v-else
+        class="flex flex-col gap-2 w-full">
         <div class="flex items-end gap-2">
             <TextInput
                 id="employee_id"
@@ -154,11 +169,19 @@ export default {
                 autocomplete="username"
                 @update:modelValue="onInput"
                 @keydown.enter.prevent="searchPersonnel"
-                @input="delete clientErrors.employee_id"
-            />
-            <button id="personnel-lookip-btn" type="button" class="px-3 py-[0.66rem] rounded bg-AB text-white text-sm hover:bg-AB-dark dark:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50 transition-colors" :disabled="processing" @click="searchPersonnel">
-                <search-icon v-if="!processing" class="w-5 h-5" />
-                <loader-icon v-else class="w-5 h-5 animate-spin" />
+                @input="delete clientErrors.employee_id" />
+            <button
+                id="personnel-lookip-btn"
+                type="button"
+                class="px-3 py-[0.66rem] rounded bg-AB text-white text-sm hover:bg-AB-dark dark:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                :disabled="processing"
+                @click="searchPersonnel">
+                <search-icon
+                    v-if="!processing"
+                    class="w-5 h-5" />
+                <loader-icon
+                    v-else
+                    class="w-5 h-5 animate-spin" />
             </button>
         </div>
     </div>

@@ -1,6 +1,9 @@
 <template>
     <transition-container>
-        <div v-show="visible" :style="{ top: `${y}px`, left: `${x}px` }" class="context-menu rounded p-1">
+        <div
+            v-show="visible"
+            :style="{ top: `${y}px`, left: `${x}px` }"
+            class="context-menu rounded p-1">
             <slot />
         </div>
     </transition-container>
@@ -10,12 +13,12 @@ import TransitionContainer from "@/Components/CustomDropdown/Components/Transiti
 
 export default {
     name: "ContextMenu",
-    components: {TransitionContainer},
+    components: { TransitionContainer },
     data() {
         return {
             visible: false,
             x: 0,
-            y: 0
+            y: 0,
         };
     },
     methods: {
@@ -33,22 +36,22 @@ export default {
         handleAction(action) {
             console.log(`Action: ${action}`);
             this.hideMenu();
-        }
+        },
     },
     mounted() {
-        document.addEventListener('contextmenu', this.showMenu);
-        document.addEventListener('click', this.hideMenu);
+        document.addEventListener("contextmenu", this.showMenu);
+        document.addEventListener("click", this.hideMenu);
     },
     beforeDestroy() {
-        document.removeEventListener('contextmenu', this.showMenu);
-        document.removeEventListener('click', this.hideMenu);
+        document.removeEventListener("contextmenu", this.showMenu);
+        document.removeEventListener("click", this.hideMenu);
     },
     computed: {
         isSidebarOpen() {
             //return this.$store.state.isSidebarOpen;
             return true; // Placeholder, replace with actual logic to determine if sidebar is open
-        }
-    }
+        },
+    },
 };
 </script>
 <style scoped>

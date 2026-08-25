@@ -27,7 +27,6 @@ export default {
             :data="data"
             :vehicle-options="vehicleOptions"
             @updated="$emit('updated', $event)"
-            @failedUpdate="$emit('failedUpdate', $event)"
-        />
+            @failedUpdate="$emit('failedUpdate', $event)" />
     </div>
 </template>

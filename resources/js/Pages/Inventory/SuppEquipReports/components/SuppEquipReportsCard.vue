@@ -1,5 +1,5 @@
 <script>
-import SuppEquipReport from '@/Modules/domain/SuppEquipReport';
+import SuppEquipReport from "@/Modules/domain/SuppEquipReport";
 
 export default {
     name: "SuppEquipReportsCard",
@@ -38,10 +38,6 @@ export default {
 };
 </script>
 
-<template>
-    
-</template>
+<template></template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -5,19 +5,18 @@ export default {
         selected: {
             type: Boolean,
             default: false,
-        }
+        },
     },
-}
+};
 </script>
 
 <template>
     <tr
         class="transition-colors duration-150 cursor-pointer"
-        :class="{ 
+        :class="{
             'bg-blue-50 dark:bg-blue-900/20': selected,
-            'hover:bg-gray-50 dark:hover:bg-gray-700/50': !selected 
-        }"
-    >
+            'hover:bg-gray-50 dark:hover:bg-gray-700/50': !selected,
+        }">
         <slot />
     </tr>
 </template>

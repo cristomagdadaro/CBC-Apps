@@ -1,6 +1,6 @@
 <script>
 import SuppEquipHeaderActions from "./components/SuppEquipHeaderActions.vue";
-import SuppEquipReport from '@/Modules/domain/SuppEquipReport';
+import SuppEquipReport from "@/Modules/domain/SuppEquipReport";
 
 export default {
     name: "SuppEquipReportsIndex",
@@ -11,8 +11,8 @@ export default {
         SuppEquipReport() {
             return SuppEquipReport;
         },
-    }
-}
+    },
+};
 </script>
 
 <template>
@@ -23,10 +23,13 @@ export default {
             <supp-equip-header-actions />
         </template>
 
-        <CRCMDatatable :base-model="SuppEquipReport" :can-view="true" :can-create="true" :can-update="true" :can-delete="true" />
+        <CRCMDatatable
+            :base-model="SuppEquipReport"
+            :can-view="true"
+            :can-create="true"
+            :can-update="true"
+            :can-delete="true" />
     </AppLayout>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

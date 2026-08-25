@@ -1,5 +1,5 @@
 <script setup>
-import { PartyPopper } from 'lucide-vue-next'
+import { PartyPopper } from "lucide-vue-next";
 </script>
 
 <template>

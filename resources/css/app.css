@@ -7,7 +7,7 @@
 }
 
 @layer components {
-  .default-container {
-    @apply md:max-w-[90vw] mx-auto py-1 px-4 sm:px-6 lg:px-8;
-  }
+    .default-container {
+        @apply md:max-w-[90vw] mx-auto py-1 px-4 sm:px-6 lg:px-8;
+    }
 }

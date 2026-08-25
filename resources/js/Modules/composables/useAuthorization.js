@@ -1,5 +1,5 @@
-import { computed } from 'vue';
-import { useAppContext } from '@/Modules/composables/useAppContext';
+import { computed } from "vue";
+import { useAppContext } from "@/Modules/composables/useAppContext";
 
 export function useAuthorization() {
     const { currentRoles, currentPermissions, isAdminUser } = useAppContext();
@@ -16,7 +16,7 @@ export function useAuthorization() {
 
     const hasPermission = (permission) => {
         if (!permission) return true;
-        return isAdminUser.value || permissions.value.includes('*') || permissions.value.includes(permission);
+        return isAdminUser.value || permissions.value.includes("*") || permissions.value.includes(permission);
     };
 
     return {

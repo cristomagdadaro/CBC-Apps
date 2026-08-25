@@ -10,20 +10,24 @@ export default {
         error: { type: String, default: null },
         required: { type: Boolean, default: false },
     },
-    emits: ['update:modelValue'],
+    emits: ["update:modelValue"],
     computed: {
         inputValue: {
-            get() { return this.modelValue || []; },
-            set(val) { this.$emit('update:modelValue', val); }
+            get() {
+                return this.modelValue || [];
+            },
+            set(val) {
+                this.$emit("update:modelValue", val);
+            },
         },
         options() {
             return this.field.options || [];
         },
         layout() {
-            return this.field.field_config?.layout || 'vertical';
+            return this.field.field_config?.layout || "vertical";
         },
         layoutClass() {
-            return this.layout === 'horizontal' ? 'flex flex-row flex-wrap gap-4' : 'flex flex-col gap-2';
+            return this.layout === "horizontal" ? "flex flex-row flex-wrap gap-4" : "flex flex-col gap-2";
         },
     },
     methods: {
@@ -46,29 +50,41 @@ export default {
 
 <template>
     <div class="relative">
-        <label v-if="field.label" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-            {{ field.label }}<span v-if="required" class="text-red-600 dark:text-red-400">*</span>
+        <label
+            v-if="field.label"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            {{ field.label }}
+            <span
+                v-if="required"
+                class="text-red-600 dark:text-red-400">
+                *
+            </span>
         </label>
         <div :class="layoutClass">
-            <label 
-                v-for="option in options" 
+            <label
+                v-for="option in options"
                 :key="option.value"
-                class="flex items-center gap-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded transition-colors"
-            >
+                class="flex items-center gap-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded transition-colors">
                 <input
                     type="checkbox"
                     :value="option.value"
                     :required="required"
                     :checked="isChecked(option.value)"
                     @change="toggleOption(option.value)"
-                    class="w-4 h-4 text-AB focus:ring-AB border-gray-800 dark:border-gray-600 dark:bg-gray-100 rounded"
-                />
+                    class="w-4 h-4 text-AB focus:ring-AB border-gray-800 dark:border-gray-600 dark:bg-gray-100 rounded" />
                 <span class="text-sm text-gray-700 dark:text-gray-200">{{ option.label }}</span>
             </label>
         </div>
-        <div v-if="field.description" class="text-xs text-gray-600 dark:text-gray-400 mt-1">{{ field.description }}</div>
+        <div
+            v-if="field.description"
+            class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+            {{ field.description }}
+        </div>
         <transition-container type="slide-bottom">
-            <InputError v-show="!!error" class="mt-1" :message="error" />
+            <InputError
+                v-show="!!error"
+                class="mt-1"
+                :message="error" />
         </transition-container>
     </div>
 </template>

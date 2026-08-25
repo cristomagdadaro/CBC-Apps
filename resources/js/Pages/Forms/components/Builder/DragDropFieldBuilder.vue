@@ -1,7 +1,7 @@
 <script>
 /**
  * DragDropFieldBuilder.vue
- * 
+ *
  * Visual form builder for creating and editing dynamic form templates.
  * Supports drag-and-drop field ordering, field configuration, and validation setup.
  */
@@ -26,7 +26,7 @@ export default {
          */
         templateData: {
             type: Object,
-            default: () => ({ name: '', description: '', icon: null, form_config: {} }),
+            default: () => ({ name: "", description: "", icon: null, form_config: {} }),
         },
         /**
          * Whether the template is a system template (read-only mode)
@@ -36,18 +36,15 @@ export default {
             default: false,
         },
     },
-    emits: ['save', 'cancel'],
+    emits: ["save", "cancel"],
     data() {
         return {
             template: {
-                name: this.templateData.name || '',
-                description: this.templateData.description || '',
+                name: this.templateData.name || "",
+                description: this.templateData.description || "",
                 icon: this.templateData.icon || null,
                 form_config: {
-                    require_participant_verification:
-                        typeof this.templateData?.form_config?.require_participant_verification === 'boolean'
-                            ? this.templateData.form_config.require_participant_verification
-                            : true,
+                    require_participant_verification: typeof this.templateData?.form_config?.require_participant_verification === "boolean" ? this.templateData.form_config.require_participant_verification : true,
                 },
             },
             fields: [...this.initialSchema],
@@ -58,8 +55,8 @@ export default {
             editingFieldIndex: null,
             fieldCategories: FIELD_CATEGORIES,
             fieldTypes: FIELD_TYPES,
-            expandedCategories: ['basic', 'choice'],
-            fieldSearch: '',
+            expandedCategories: ["basic", "choice"],
+            fieldSearch: "",
         };
     },
     computed: {
@@ -73,20 +70,17 @@ export default {
             if (!this.fieldSearch.trim()) {
                 return this.fieldsByCategory;
             }
-            
+
             const search = this.fieldSearch.toLowerCase().trim();
             const filtered = {};
-            
+
             for (const [categoryKey, fields] of Object.entries(this.fieldsByCategory)) {
-                const matchingFields = fields.filter(field => 
-                    field.label.toLowerCase().includes(search) ||
-                    field.key.toLowerCase().includes(search)
-                );
+                const matchingFields = fields.filter((field) => field.label.toLowerCase().includes(search) || field.key.toLowerCase().includes(search));
                 if (matchingFields.length > 0) {
                     filtered[categoryKey] = matchingFields;
                 }
             }
-            
+
             return filtered;
         },
         /**
@@ -103,7 +97,7 @@ export default {
             return Object.values(this.filteredFieldsByCategory).reduce((sum, fields) => sum + fields.length, 0);
         },
         isValid() {
-            return this.template.name.trim() !== '' && this.fields.length > 0;
+            return this.template.name.trim() !== "" && this.fields.length > 0;
         },
         canEdit() {
             return !this.isSystemTemplate;
@@ -113,8 +107,8 @@ export default {
          */
         sectionHeaders() {
             return this.fields
-                .filter(f => f.field_type === 'section_header')
-                .map(f => ({
+                .filter((f) => f.field_type === "section_header")
+                .map((f) => ({
                     field_key: f.field_key,
                     label: f.label,
                 }));
@@ -132,7 +126,7 @@ export default {
                 this.expandedCategories.splice(index, 1);
             }
         },
-        
+
         isCategoryExpanded(categoryKey) {
             // Auto-expand all categories when searching
             if (this.isSearching) {
@@ -146,8 +140,8 @@ export default {
         // ====================
         onFieldTypeDragStart(event, fieldTypeKey) {
             this.draggedFieldType = fieldTypeKey;
-            event.dataTransfer.effectAllowed = 'copy';
-            event.dataTransfer.setData('text/plain', fieldTypeKey);
+            event.dataTransfer.effectAllowed = "copy";
+            event.dataTransfer.setData("text/plain", fieldTypeKey);
         },
 
         onFieldTypeDragEnd() {
@@ -161,8 +155,8 @@ export default {
         onFieldDragStart(event, index) {
             if (!this.canEdit) return;
             this.draggedFieldIndex = index;
-            event.dataTransfer.effectAllowed = 'move';
-            event.dataTransfer.setData('text/plain', index.toString());
+            event.dataTransfer.effectAllowed = "move";
+            event.dataTransfer.setData("text/plain", index.toString());
         },
 
         onFieldDragEnd() {
@@ -201,20 +195,20 @@ export default {
         addFieldAtIndex(fieldTypeKey, index) {
             const fieldConfig = FIELD_TYPES[fieldTypeKey];
             const defaultLocationKeys = {
-                location_region: 'region_address',
-                location_province: 'province_address',
-                location_city: 'city_address',
+                location_region: "region_address",
+                location_province: "province_address",
+                location_city: "city_address",
             };
             const preferredKey = defaultLocationKeys[fieldTypeKey] || null;
-            const hasPreferredKey = preferredKey ? this.fields.some(field => field.field_key === preferredKey) : false;
+            const hasPreferredKey = preferredKey ? this.fields.some((field) => field.field_key === preferredKey) : false;
             const newField = {
-                field_key: (preferredKey && !hasPreferredKey) ? preferredKey : this.generateFieldKey(fieldTypeKey),
+                field_key: preferredKey && !hasPreferredKey ? preferredKey : this.generateFieldKey(fieldTypeKey),
                 field_type: fieldTypeKey,
                 label: fieldConfig.label,
-                placeholder: '',
-                description: '',
+                placeholder: "",
+                description: "",
                 validation_rules: {},
-                options: fieldConfig.hasOptions ? [{ value: 'option1', label: 'Option 1' }] : [],
+                options: fieldConfig.hasOptions ? [{ value: "option1", label: "Option 1" }] : [],
                 display_config: {},
                 field_config: { ...fieldConfig.defaultConfig, changeable: true },
                 sort_order: index,
@@ -222,7 +216,7 @@ export default {
 
             this.fields.splice(index, 0, newField);
             this.updateSortOrders();
-            
+
             // Open config modal for new field
             this.editingFieldIndex = index;
             this.showFieldConfig = true;
@@ -234,7 +228,7 @@ export default {
 
         moveField(fromIndex, toIndex) {
             if (fromIndex === toIndex) return;
-            
+
             const field = this.fields.splice(fromIndex, 1)[0];
             const adjustedIndex = toIndex > fromIndex ? toIndex - 1 : toIndex;
             this.fields.splice(adjustedIndex, 0, field);
@@ -278,7 +272,7 @@ export default {
         // Utilities
         // ====================
         generateFieldKey(fieldType) {
-            const base = fieldType.replace(/_/g, '');
+            const base = fieldType.replace(/_/g, "");
             const random = Math.random().toString(36).substring(2, 6);
             return `${base}_${random}`;
         },
@@ -290,7 +284,7 @@ export default {
         },
 
         getFieldTypeConfig(fieldType) {
-            return FIELD_TYPES[fieldType] || { label: fieldType, icon: 'document' };
+            return FIELD_TYPES[fieldType] || { label: fieldType, icon: "document" };
         },
 
         // ====================
@@ -298,15 +292,15 @@ export default {
         // ====================
         handleSave() {
             if (!this.isValid) return;
-            
-            this.$emit('save', {
+
+            this.$emit("save", {
                 template: this.template,
                 fields: this.fields,
             });
         },
 
         handleCancel() {
-            this.$emit('cancel');
+            this.$emit("cancel");
         },
     },
 };
@@ -320,7 +314,7 @@ export default {
                 <h3 class="font-semibold text-gray-800">Add Fields</h3>
                 <p class="text-xs text-gray-500 mt-1">Drag fields to the form area</p>
             </div>
-            
+
             <!-- Search Input -->
             <div class="p-2 border-b border-gray-200">
                 <div class="relative">
@@ -328,44 +322,68 @@ export default {
                         v-model="fieldSearch"
                         type="text"
                         placeholder="Search fields..."
-                        class="w-full pl-8 pr-8 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-AB focus:border-AB"
-                    />
-                    <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        class="w-full pl-8 pr-8 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-AB focus:border-AB" />
+                    <svg
+                        class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
-                    <button 
-                        v-if="fieldSearch" 
+                    <button
+                        v-if="fieldSearch"
                         @click="fieldSearch = ''"
-                        class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                        <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
-                <div v-if="isSearching" class="mt-1 text-xs text-gray-500">
-                    {{ searchResultsCount }} field{{ searchResultsCount !== 1 ? 's' : '' }} found
+                <div
+                    v-if="isSearching"
+                    class="mt-1 text-xs text-gray-500">
+                    {{ searchResultsCount }} field{{ searchResultsCount !== 1 ? "s" : "" }} found
                 </div>
             </div>
-            
+
             <div class="p-2">
-                <template v-for="(fields, categoryKey) in filteredFieldsByCategory" :key="categoryKey">
+                <template
+                    v-for="(fields, categoryKey) in filteredFieldsByCategory"
+                    :key="categoryKey">
                     <div class="mb-2">
-                        <button 
+                        <button
                             @click="toggleCategory(categoryKey)"
-                            class="w-full flex items-center justify-between p-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 rounded"
-                        >
+                            class="w-full flex items-center justify-between p-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 rounded">
                             <span>{{ fieldCategories[categoryKey]?.label || categoryKey }}</span>
-                            <svg 
+                            <svg
                                 class="w-4 h-4 transition-transform"
                                 :class="{ 'rotate-180': isCategoryExpanded(categoryKey) }"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            >
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        
-                        <div v-show="isCategoryExpanded(categoryKey)" class="mt-1 space-y-1">
+
+                        <div
+                            v-show="isCategoryExpanded(categoryKey)"
+                            class="mt-1 space-y-1">
                             <div
                                 v-for="fieldType in fields"
                                 :key="fieldType.key"
@@ -373,8 +391,7 @@ export default {
                                 @dragstart="onFieldTypeDragStart($event, fieldType.key)"
                                 @dragend="onFieldTypeDragEnd"
                                 @click="addFieldToEnd(fieldType.key)"
-                                class="flex items-center gap-2 p-2 text-sm bg-gray-50 hover:bg-gray-100 rounded cursor-grab active:cursor-grabbing"
-                            >
+                                class="flex items-center gap-2 p-2 text-sm bg-gray-50 hover:bg-gray-100 rounded cursor-grab active:cursor-grabbing">
                                 <span class="text-gray-500">✦</span>
                                 <span>{{ fieldType.title }}</span>
                             </div>
@@ -394,15 +411,13 @@ export default {
                         type="text"
                         placeholder="Form Template Name*"
                         class="w-full text-xl font-semibold border-0 border-b-2 border-gray-200 focus:border-AB focus:ring-0 px-0"
-                        :disabled="!canEdit"
-                    />
+                        :disabled="!canEdit" />
                     <textarea
                         v-model="template.description"
                         placeholder="Form description (optional)"
                         rows="2"
                         class="w-full text-sm text-gray-600 border-0 border-b border-gray-100 focus:border-AB focus:ring-0 px-0 resize-none"
-                        :disabled="!canEdit"
-                    ></textarea>
+                        :disabled="!canEdit"></textarea>
                     <div class="flex items-center justify-between py-2 border-b border-gray-100">
                         <div>
                             <p class="text-sm font-medium text-gray-700">Require participant verification</p>
@@ -413,8 +428,7 @@ export default {
                                 v-model="template.form_config.require_participant_verification"
                                 type="checkbox"
                                 class="h-4 w-4 rounded border-gray-300 text-AB focus:ring-AB"
-                                :disabled="!canEdit"
-                            />
+                                :disabled="!canEdit" />
                         </label>
                     </div>
                 </div>
@@ -424,31 +438,43 @@ export default {
             <div class="flex-1 overflow-y-auto p-4">
                 <div class="max-w-3xl mx-auto">
                     <!-- Empty State -->
-                    <div 
+                    <div
                         v-if="fields.length === 0"
                         class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center"
                         @dragover.prevent="dragOverIndex = 0"
                         @dragleave="dragOverIndex = null"
                         @drop="onDropZoneDrop($event, 0)"
-                        :class="{ 'border-AB bg-blue-50': dragOverIndex === 0 }"
-                    >
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        :class="{ 'border-AB bg-blue-50': dragOverIndex === 0 }">
+                        <svg
+                            class="mx-auto h-12 w-12 text-gray-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                         </svg>
                         <p class="mt-2 text-gray-600">Drag fields here or click on a field type</p>
                     </div>
 
                     <!-- Field List -->
-                    <div v-else class="space-y-2">
-                        <template v-for="(field, index) in fields" :key="field.field_key">
+                    <div
+                        v-else
+                        class="space-y-2">
+                        <template
+                            v-for="(field, index) in fields"
+                            :key="field.field_key">
                             <!-- Drop Zone Before Field -->
                             <div
                                 class="h-2 -my-1 transition-all"
-                                :class="{ 'h-12 bg-blue-100 border-2 border-dashed border-AB rounded': dragOverIndex === index }"
+                                :class="{
+                                    'h-12 bg-blue-100 border-2 border-dashed border-AB rounded': dragOverIndex === index,
+                                }"
                                 @dragover="onDropZoneDragOver($event, index)"
                                 @dragleave="onDropZoneDragLeave"
-                                @drop="onDropZoneDrop($event, index)"
-                            ></div>
+                                @drop="onDropZoneDrop($event, index)"></div>
 
                             <!-- Field Card -->
                             <div
@@ -456,15 +482,16 @@ export default {
                                 @dragstart="onFieldDragStart($event, index)"
                                 @dragend="onFieldDragEnd"
                                 class="bg-white border border-gray-200 rounded-lg shadow-sm group hover:shadow-md transition-shadow"
-                                :class="{ 'opacity-50': draggedFieldIndex === index }"
-                            >
+                                :class="{ 'opacity-50': draggedFieldIndex === index }">
                                 <div class="flex items-start gap-3 p-4">
                                     <!-- Drag Handle -->
-                                    <div 
+                                    <div
                                         v-if="canEdit"
-                                        class="flex-shrink-0 text-gray-400 cursor-grab active:cursor-grabbing pt-1"
-                                    >
-                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        class="flex-shrink-0 text-gray-400 cursor-grab active:cursor-grabbing pt-1">
+                                        <svg
+                                            class="w-5 h-5"
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20">
                                             <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z" />
                                         </svg>
                                     </div>
@@ -475,40 +502,71 @@ export default {
                                             <span class="text-xs px-2 py-0.5 bg-gray-100 rounded text-gray-600">
                                                 {{ getFieldTypeConfig(field.field_type).title }}
                                             </span>
-                                            <span v-if="field.validation_rules?.required" class="text-red-500 text-xs">Required</span>
+                                            <span
+                                                v-if="field.validation_rules?.required"
+                                                class="text-red-500 text-xs">
+                                                Required
+                                            </span>
                                         </div>
                                         <h4 class="font-medium text-gray-800">{{ field.label }}</h4>
-                                        <p v-if="field.description" class="text-sm text-gray-500 mt-1">{{ field.description }}</p>
+                                        <p
+                                            v-if="field.description"
+                                            class="text-sm text-gray-500 mt-1">
+                                            {{ field.description }}
+                                        </p>
                                         <p class="text-xs text-gray-400 mt-1">Key: {{ field.field_key }}</p>
                                     </div>
 
                                     <!-- Actions -->
-                                    <div v-if="canEdit" class="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button 
+                                    <div
+                                        v-if="canEdit"
+                                        class="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button
                                             @click="editField(index)"
                                             class="p-1.5 text-gray-500 hover:text-AB hover:bg-gray-100 rounded"
-                                            title="Edit field"
-                                        >
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            title="Edit field">
+                                            <svg
+                                                class="w-4 h-4"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
                                         </button>
-                                        <button 
+                                        <button
                                             @click="duplicateField(index)"
                                             class="p-1.5 text-gray-500 hover:text-AB hover:bg-gray-100 rounded"
-                                            title="Duplicate field"
-                                        >
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                            title="Duplicate field">
+                                            <svg
+                                                class="w-4 h-4"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                             </svg>
                                         </button>
-                                        <button 
+                                        <button
                                             @click="removeField(index)"
                                             class="p-1.5 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded"
-                                            title="Remove field"
-                                        >
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            title="Remove field">
+                                            <svg
+                                                class="w-4 h-4"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
                                         </button>
                                     </div>
@@ -519,11 +577,12 @@ export default {
                         <!-- Drop Zone After Last Field -->
                         <div
                             class="h-2 transition-all"
-                            :class="{ 'h-12 bg-blue-100 border-2 border-dashed border-AB rounded': dragOverIndex === fields.length }"
+                            :class="{
+                                'h-12 bg-blue-100 border-2 border-dashed border-AB rounded': dragOverIndex === fields.length,
+                            }"
                             @dragover="onDropZoneDragOver($event, fields.length)"
                             @dragleave="onDropZoneDragLeave"
-                            @drop="onDropZoneDrop($event, fields.length)"
-                        ></div>
+                            @drop="onDropZoneDrop($event, fields.length)"></div>
                     </div>
                 </div>
             </div>
@@ -531,21 +590,17 @@ export default {
             <!-- Footer Actions -->
             <div class="bg-white border-t border-gray-200 p-4">
                 <div class="max-w-3xl mx-auto flex justify-between items-center">
-                    <span class="text-sm text-gray-500">
-                        {{ fields.length }} field{{ fields.length !== 1 ? 's' : '' }}
-                    </span>
+                    <span class="text-sm text-gray-500">{{ fields.length }} field{{ fields.length !== 1 ? "s" : "" }}</span>
                     <div class="flex gap-3">
                         <button
                             @click="handleCancel"
-                            class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
-                        >
+                            class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
                             Cancel
                         </button>
                         <button
                             @click="handleSave"
                             :disabled="!isValid || !canEdit"
-                            class="px-4 py-2 bg-AB text-white rounded-md hover:bg-AB/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
+                            class="px-4 py-2 bg-AB text-white rounded-md hover:bg-AB/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                             Save Template
                         </button>
                     </div>
@@ -560,8 +615,7 @@ export default {
             :field-types="fieldTypes"
             :sections="sectionHeaders"
             @save="saveFieldConfig"
-            @cancel="cancelFieldConfig"
-        />
+            @cancel="cancelFieldConfig" />
     </div>
 </template>
 

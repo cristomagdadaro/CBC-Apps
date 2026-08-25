@@ -1,5 +1,7 @@
 <template>
-  <table id="dtTable" class="w-full">
-    <slot />
-  </table>
+    <table
+        id="dtTable"
+        class="w-full">
+        <slot />
+    </table>
 </template>

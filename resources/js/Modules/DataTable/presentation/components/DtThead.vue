@@ -1,7 +1,7 @@
 <script>
 export default {
-    name: "DtThead"
-}
+    name: "DtThead",
+};
 </script>
 
 <template>

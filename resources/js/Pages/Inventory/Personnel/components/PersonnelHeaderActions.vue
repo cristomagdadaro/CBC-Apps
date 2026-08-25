@@ -1,5 +1,5 @@
 <script>
-import {Link} from "@inertiajs/vue3";
+import { Link } from "@inertiajs/vue3";
 import CreatePersonnelLink from "@/Pages/Inventory/Transactions/components/presentation/CreatePersonnelLink.vue";
 import IncommingTransactionLink from "@/Pages/Inventory/Transactions/components/presentation/IncommingTransactionLink.vue";
 import OutgoingTransactionLink from "@/Pages/Inventory/Transactions/components/presentation/OutgoingTransactionLink.vue";
@@ -8,12 +8,22 @@ import PrintApprovedIdsLink from "@/Pages/Inventory/Transactions/components/pres
 
 export default {
     name: "PersonnelHeaderActions",
-    components: {Link, CreatePersonnelLink, IncommingTransactionLink, OutgoingTransactionLink, PersonnelRegistrationLink, PrintApprovedIdsLink}
-}
+    components: {
+        Link,
+        CreatePersonnelLink,
+        IncommingTransactionLink,
+        OutgoingTransactionLink,
+        PersonnelRegistrationLink,
+        PrintApprovedIdsLink,
+    },
+};
 </script>
 
 <template>
-    <ActionHeaderLayout title="Registered Personnel" subtitle="Manage personnel and track their transactions." :route-link="route('personnels.index')">
+    <ActionHeaderLayout
+        title="Registered Personnel"
+        subtitle="Manage personnel and track their transactions."
+        :route-link="route('personnels.index')">
         <PersonnelRegistrationLink />
         <CreatePersonnelLink />
         <PrintApprovedIdsLink />
@@ -22,6 +32,4 @@ export default {
     </ActionHeaderLayout>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

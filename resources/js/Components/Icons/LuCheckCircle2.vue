@@ -1,5 +1,5 @@
 <script setup>
-import { CheckCircle2 } from 'lucide-vue-next'
+import { CheckCircle2 } from "lucide-vue-next";
 </script>
 
 <template>

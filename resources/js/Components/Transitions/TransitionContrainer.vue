@@ -7,8 +7,7 @@
         :leave-from-class="transitionClasses.leaveFrom"
         :leave-to-class="transitionClasses.leaveTo"
         @before-enter="applyDuration"
-        @before-leave="applyDuration"
-    >
+        @before-leave="applyDuration">
         <slot />
     </transition>
 </template>

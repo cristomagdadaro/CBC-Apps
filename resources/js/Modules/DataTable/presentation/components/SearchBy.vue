@@ -1,30 +1,24 @@
 <template>
     <div class="space-y-1.5">
         <div class="flex items-center justify-between">
-            <label class="text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wide">
-                Filter By
-            </label>
+            <label class="text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wide">Filter By</label>
             <label class="inline-flex items-center gap-1.5 cursor-pointer group">
-                <input 
-                    type="checkbox" 
-                    v-model="is_exact" 
-                    @change="toggle()" 
-                    class="w-3.5 h-3.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                >
-                <span class="text-xs text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300">
-                    Exact match
-                </span>
+                <input
+                    type="checkbox"
+                    v-model="is_exact"
+                    @change="toggle()"
+                    class="w-3.5 h-3.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                <span class="text-xs text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300">Exact match</span>
             </label>
         </div>
-        
-        <custom-dropdown 
-            :value="value" 
-            placeholder="Select column..." 
-            :options="options" 
+
+        <custom-dropdown
+            :value="value"
+            placeholder="Select column..."
+            :options="options"
             @selectedChange="$emit('searchBy', $event)"
             class="w-full"
-            :show-valid-indicator="false"
-        >
+            :show-valid-indicator="false">
             <template #icon>
                 <LuFilter class="w-4 h-4 text-gray-400" />
             </template>
@@ -51,15 +45,15 @@ export default {
             default: null,
         },
     },
-    data(){
+    data() {
         return {
             is_exact: this.isExact,
-        }
+        };
     },
     methods: {
-        toggle(){
-            this.$emit('isExact', this.is_exact);
+        toggle() {
+            this.$emit("isExact", this.is_exact);
         },
     },
-}
+};
 </script>

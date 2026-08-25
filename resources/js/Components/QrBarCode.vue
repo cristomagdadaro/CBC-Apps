@@ -1,26 +1,52 @@
 <template>
-    <div :class="resolvedContainerClass" :style="cardStyle">
-        <div class="label-card-inner" :style="cardInnerStyle">
-            <div v-if="hasHeader" class="label-text" :style="{ fontSize: `${fontSize}px` }">
-                <div v-if="title" class="label-item">{{ title }}</div>
-                <div v-if="subtitle" class="label-brand">{{ subtitle }}</div>
-                <div v-if="description" class="label-brand">{{ description }}</div>
+    <div
+        :class="resolvedContainerClass"
+        :style="cardStyle">
+        <div
+            class="label-card-inner"
+            :style="cardInnerStyle">
+            <div
+                v-if="hasHeader"
+                class="label-text"
+                :style="{ fontSize: `${fontSize}px` }">
+                <div
+                    v-if="title"
+                    class="label-item">
+                    {{ title }}
+                </div>
+                <div
+                    v-if="subtitle"
+                    class="label-brand">
+                    {{ subtitle }}
+                </div>
+                <div
+                    v-if="description"
+                    class="label-brand">
+                    {{ description }}
+                </div>
             </div>
 
-            <svg v-if="hasBarcode" ref="barcodeSvg"></svg>
+            <svg
+                v-if="hasBarcode"
+                ref="barcodeSvg"></svg>
             <qrcode-vue
                 v-if="hasQr"
                 :value="safeQrValue"
                 :size="qrSize"
                 level="M"
                 render-as="canvas"
-                class="label-qr mx-auto"
-            />
+                class="label-qr mx-auto" />
 
-            <div v-if="hasBarcode" class="label-barcode mx-auto" :style="{ fontSize: `${fontSize}px` }">
+            <div
+                v-if="hasBarcode"
+                class="label-barcode mx-auto"
+                :style="{ fontSize: `${fontSize}px` }">
                 {{ barcodeValue }}
             </div>
-            <div v-else-if="qrCaption" class="label-qr-caption" :style="{ fontSize: `${fontSize * 0.9}px` }">
+            <div
+                v-else-if="qrCaption"
+                class="label-qr-caption"
+                :style="{ fontSize: `${fontSize * 0.9}px` }">
                 {{ qrCaption }}
             </div>
         </div>
@@ -118,10 +144,7 @@ const renderBarcode = () => {
 
 onMounted(renderBarcode);
 
-watch(
-    () => [props.mode, props.barcodeValue, props.barcodeHeight, props.barcodeModuleWidth],
-    renderBarcode,
-);
+watch(() => [props.mode, props.barcodeValue, props.barcodeHeight, props.barcodeModuleWidth], renderBarcode);
 </script>
 
 <style scoped>
@@ -175,4 +198,3 @@ watch(
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 </style>
-

@@ -29,8 +29,7 @@ export default {
     <ActionHeaderLayout
         title="Report Attachments"
         subtitle="Manage your report attachments and related actions."
-        :route-link="route('suppEquipReports.index')"
-    >
+        :route-link="route('suppEquipReports.index')">
         <AttachReportLink v-if="showAttachButton" />
         <IncommingTransactionLink />
         <OutgoingTransactionLink />

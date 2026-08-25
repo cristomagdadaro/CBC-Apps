@@ -44,25 +44,18 @@ export default {
         },
         filteredCards() {
             let result = this.cards;
-            
+
             if (this.registrationTypeFilter) {
-                result = result.filter(card => card.registration_type === this.registrationTypeFilter);
+                result = result.filter((card) => card.registration_type === this.registrationTypeFilter);
             }
-            
+
             const term = this.search?.toLowerCase()?.trim();
             if (!term) {
                 return result;
             }
 
             return result.filter((card) => {
-                return [
-                    card.full_name,
-                    card.employee_id,
-                    card.course_program,
-                    card.registration_type_label,
-                ]
-                    .filter(Boolean)
-                    .some((value) => String(value).toLowerCase().includes(term));
+                return [card.full_name, card.employee_id, card.course_program, card.registration_type_label].filter(Boolean).some((value) => String(value).toLowerCase().includes(term));
             });
         },
         selectedCount() {
@@ -72,8 +65,7 @@ export default {
             return this.labels.length;
         },
         allSelected() {
-            return this.filteredCards.length > 0
-                && this.filteredCards.every((card) => this.selected[this.cardKey(card)]);
+            return this.filteredCards.length > 0 && this.filteredCards.every((card) => this.selected[this.cardKey(card)]);
         },
         someSelected() {
             const selectedCount = this.filteredCards.filter((card) => this.selected[this.cardKey(card)]).length;
@@ -88,10 +80,10 @@ export default {
             return { widthCm: 21, heightCm: 29.7 };
         },
         sheetUsableWidthCm() {
-            return this.sheetDimensions.widthCm - (this.sheetMarginCm * 2);
+            return this.sheetDimensions.widthCm - this.sheetMarginCm * 2;
         },
         sheetUsableHeightCm() {
-            return this.sheetDimensions.heightCm - (this.sheetMarginCm * 2);
+            return this.sheetDimensions.heightCm - this.sheetMarginCm * 2;
         },
         labelsPerRow() {
             return Math.max(1, Math.floor(this.sheetUsableWidthCm / this.resolvedWidthCm));
@@ -195,20 +187,22 @@ export default {
             await this.$nextTick();
 
             const images = Array.from(document.querySelectorAll(".print-area img, .print-area-sheet img"));
-            await Promise.all(images.map((image) => {
-                if (image.complete && image.naturalWidth > 0) {
-                    return Promise.resolve();
-                }
+            await Promise.all(
+                images.map((image) => {
+                    if (image.complete && image.naturalWidth > 0) {
+                        return Promise.resolve();
+                    }
 
-                if (typeof image.decode === "function") {
-                    return image.decode().catch(() => {});
-                }
+                    if (typeof image.decode === "function") {
+                        return image.decode().catch(() => {});
+                    }
 
-                return new Promise((resolve) => {
-                    image.addEventListener("load", resolve, { once: true });
-                    image.addEventListener("error", resolve, { once: true });
-                });
-            }));
+                    return new Promise((resolve) => {
+                        image.addEventListener("load", resolve, { once: true });
+                        image.addEventListener("error", resolve, { once: true });
+                    });
+                }),
+            );
         },
         async printCards() {
             if (!this.previewReady) {
@@ -283,15 +277,15 @@ export default {
             <ActionHeaderLayout
                 title="Personnel ID Cards"
                 subtitle="Generate and print A7 ID cards for approved Student, OJT, and Thesis personnel."
-                :route-link="fromUrl || route('personnels.registrations.index')"
-            >
-                <transition-container type="pop-in" :duration="500">
+                :route-link="fromUrl || route('personnels.registrations.index')">
+                <transition-container
+                    type="pop-in"
+                    :duration="500">
                     <button
                         type="button"
                         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition-all active:scale-95 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
                         :disabled="!previewReady"
-                        @click="printCards"
-                    >
+                        @click="printCards">
                         <LuPrinter class="w-4 h-4 text-emerald-500" />
                         <span>Print IDs</span>
                     </button>
@@ -306,9 +300,7 @@ export default {
                         <LuInfo class="w-5 h-5 text-lime-600 dark:text-lime-400" />
                         <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-100">ID Workflow</h4>
                     </div>
-                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                        Select approved IDs, choose single-card or sheet layout, preview, then print. Each card is fixed at A7 size.
-                    </p>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Select approved IDs, choose single-card or sheet layout, preview, then print. Each card is fixed at A7 size.</p>
                 </div>
             </aside>
 
@@ -319,18 +311,20 @@ export default {
                             type="button"
                             class="px-4 py-3 text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center gap-2"
                             :class="activeTab === 'items' ? 'text-lime-700 dark:text-lime-300 border-b-2 border-lime-600 bg-lime-50/60 dark:bg-lime-950/40 font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
-                            @click="activeTab = 'items'"
-                        >
+                            @click="activeTab = 'items'">
                             Select IDs
-                            <span v-if="selectedCount > 0" class="ml-1 px-2 py-0.5 bg-lime-600 text-white text-[10px] sm:text-xs font-bold rounded-full">{{ selectedCount }}</span>
+                            <span
+                                v-if="selectedCount > 0"
+                                class="ml-1 px-2 py-0.5 bg-lime-600 text-white text-[10px] sm:text-xs font-bold rounded-full">
+                                {{ selectedCount }}
+                            </span>
                         </button>
                         <button
                             type="button"
                             class="px-4 py-3 text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center gap-2"
                             :class="activeTab === 'settings' ? 'text-lime-700 dark:text-lime-300 border-b-2 border-lime-600 bg-lime-50/60 dark:bg-lime-950/40 font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
                             :disabled="selectedCount === 0"
-                            @click="activeTab = 'settings'"
-                        >
+                            @click="activeTab = 'settings'">
                             Print Settings
                         </button>
                         <button
@@ -338,13 +332,14 @@ export default {
                             class="px-4 py-3 text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center gap-2"
                             :class="activeTab === 'preview' ? 'text-lime-700 dark:text-lime-300 border-b-2 border-lime-600 bg-lime-50/60 dark:bg-lime-950/40 font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
                             :disabled="!previewReady"
-                            @click="activeTab = 'preview'"
-                        >
+                            @click="activeTab = 'preview'">
                             Preview & Print
                         </button>
                     </div>
 
-                    <section v-if="activeTab === 'items'" class="p-4 sm:p-6 space-y-4">
+                    <section
+                        v-if="activeTab === 'items'"
+                        class="p-4 sm:p-6 space-y-4">
                         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                             <div>
                                 <h3 class="font-bold text-sm sm:text-base text-slate-900 dark:text-slate-100">Approved ID Cards</h3>
@@ -357,13 +352,11 @@ export default {
                                         v-model="search"
                                         type="search"
                                         class="w-full pl-9 pr-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm focus:ring-2 focus:ring-lime-500 focus:border-transparent"
-                                        placeholder="Search IDs..."
-                                    />
+                                        placeholder="Search IDs..." />
                                 </div>
                                 <select
                                     v-model="registrationTypeFilter"
-                                    class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-lime-500 focus:border-transparent hidden sm:block"
-                                >
+                                    class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-lime-500 focus:border-transparent hidden sm:block">
                                     <option value="">All Types</option>
                                     <option value="student">Student</option>
                                     <option value="ojt">OJT</option>
@@ -373,27 +366,31 @@ export default {
                                     type="button"
                                     class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                                     :disabled="filteredCards.length === 0"
-                                    @click="toggleAll"
-                                >
+                                    @click="toggleAll">
                                     {{ allSelected ? "Clear" : "Select All" }}
                                 </button>
                             </div>
                         </div>
 
-                        <div v-if="filteredCards.length" class="flex flex-wrap gap-4">
+                        <div
+                            v-if="filteredCards.length"
+                            class="flex flex-wrap gap-4">
                             <button
                                 v-for="card in filteredCards"
                                 :key="cardKey(card)"
                                 type="button"
                                 class="rounded-2xl border text-left transition-all duration-200 overflow-hidden shadow-xs"
                                 :class="selected[cardKey(card)] ? 'border-lime-500 dark:border-lime-500 bg-lime-50/40 dark:bg-lime-950/20 ring-2 ring-lime-500/20' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700'"
-                                @click="toggleCard(card)"
-                            >
-                                <PersonnelIdCard :card="card" :card-style="cardStyle"/>
+                                @click="toggleCard(card)">
+                                <PersonnelIdCard
+                                    :card="card"
+                                    :card-style="cardStyle" />
                             </button>
                         </div>
 
-                        <div v-else class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 text-center text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
+                        <div
+                            v-else
+                            class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 text-center text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
                             No approved Student, OJT, or Thesis IDs are ready for printing.
                         </div>
 
@@ -402,15 +399,16 @@ export default {
                                 type="button"
                                 class="rounded-xl bg-lime-600 hover:bg-lime-700 active:scale-95 px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-xs transition-all disabled:cursor-not-allowed disabled:opacity-50 flex items-center gap-2"
                                 :disabled="selectedCount === 0"
-                                @click="nextStep"
-                            >
+                                @click="nextStep">
                                 Continue to Settings
                                 <LuArrowRight class="w-4 h-4" />
                             </button>
                         </div>
                     </section>
 
-                    <section v-if="activeTab === 'settings'" class="p-4 sm:p-6 space-y-6">
+                    <section
+                        v-if="activeTab === 'settings'"
+                        class="p-4 sm:p-6 space-y-6">
                         <div>
                             <h3 class="font-bold text-sm sm:text-base text-slate-900 dark:text-slate-100">Print Settings</h3>
                             <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">A7 card size is fixed at 7.4cm x 10.5cm.</p>
@@ -421,71 +419,105 @@ export default {
                                 type="button"
                                 class="rounded-xl border-2 px-4 py-3 text-xs sm:text-sm font-semibold transition-all"
                                 :class="layoutMode === 'single' ? 'border-lime-600 bg-lime-50 dark:bg-lime-950/40 text-lime-700 dark:text-lime-300 font-bold' : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300'"
-                                @click="layoutMode = 'single'"
-                            >
+                                @click="layoutMode = 'single'">
                                 Single ID per Page
                             </button>
                             <button
                                 type="button"
                                 class="rounded-xl border-2 px-4 py-3 text-xs sm:text-sm font-semibold transition-all"
                                 :class="layoutMode === 'sheet' ? 'border-lime-600 bg-lime-50 dark:bg-lime-950/40 text-lime-700 dark:text-lime-300 font-bold' : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300'"
-                                @click="layoutMode = 'sheet'"
-                            >
+                                @click="layoutMode = 'sheet'">
                                 Sheet Layout
                             </button>
                         </div>
 
-                        <div v-if="layoutMode === 'sheet'" class="grid gap-3 md:grid-cols-2">
+                        <div
+                            v-if="layoutMode === 'sheet'"
+                            class="grid gap-3 md:grid-cols-2">
                             <div>
                                 <label class="mb-1 block text-xs font-semibold text-slate-700 dark:text-slate-300">Sheet Size</label>
-                                <select v-model="sheetSize" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm focus:ring-lime-500 py-2.5">
+                                <select
+                                    v-model="sheetSize"
+                                    class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm focus:ring-lime-500 py-2.5">
                                     <option value="a4">A4</option>
                                     <option value="folio">Folio</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="mb-1 block text-xs font-semibold text-slate-700 dark:text-slate-300">Sheet Margin (cm)</label>
-                                <input v-model.number="sheetMarginCm" type="number" min="0" step="0.1" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm focus:ring-lime-500 py-2.5" />
+                                <input
+                                    v-model.number="sheetMarginCm"
+                                    type="number"
+                                    min="0"
+                                    step="0.1"
+                                    class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm focus:ring-lime-500 py-2.5" />
                             </div>
                         </div>
 
                         <div class="rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 p-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium">
-                            Sheet layout fits {{ labelsPerRow }} card{{ labelsPerRow === 1 ? "" : "s" }} per row and {{ labelsPerColumn }} row{{ labelsPerColumn === 1 ? "" : "s" }} per page.
+                            Sheet layout fits {{ labelsPerRow }} card{{ labelsPerRow === 1 ? "" : "s" }} per row and {{ labelsPerColumn }} row{{ labelsPerColumn === 1 ? "" : "s" }}
+                            per page.
                         </div>
 
                         <div class="flex justify-between pt-2">
-                            <button type="button" class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" @click="prevStep">
+                            <button
+                                type="button"
+                                class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                                @click="prevStep">
                                 Back
                             </button>
-                            <button type="button" class="rounded-xl bg-lime-600 hover:bg-lime-700 active:scale-95 px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-xs transition-all flex items-center gap-2" @click="buildLabels">
+                            <button
+                                type="button"
+                                class="rounded-xl bg-lime-600 hover:bg-lime-700 active:scale-95 px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-xs transition-all flex items-center gap-2"
+                                @click="buildLabels">
                                 <LuSparkles class="w-4 h-4" />
                                 Generate Preview
                             </button>
                         </div>
                     </section>
 
-                    <section v-if="activeTab === 'preview'" class="p-4 sm:p-6 space-y-6">
+                    <section
+                        v-if="activeTab === 'preview'"
+                        class="p-4 sm:p-6 space-y-6">
                         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                             <div>
                                 <h3 class="font-bold text-sm sm:text-base text-slate-900 dark:text-slate-100">Preview</h3>
-                                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{ totalLabels }} ID card{{ totalLabels === 1 ? "" : "s" }} ready for printing.</p>
+                                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                                    {{ totalLabels }} ID card{{ totalLabels === 1 ? "" : "s" }}
+                                    ready for printing.
+                                </p>
                             </div>
                             <div class="flex gap-2">
-                                <button type="button" class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" @click="prevStep">
+                                <button
+                                    type="button"
+                                    class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                                    @click="prevStep">
                                     Back to Settings
                                 </button>
-                                <button type="button" class="rounded-xl bg-lime-600 hover:bg-lime-700 active:scale-95 px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-xs transition-all flex items-center gap-2" :disabled="!previewReady" @click="printCards">
+                                <button
+                                    type="button"
+                                    class="rounded-xl bg-lime-600 hover:bg-lime-700 active:scale-95 px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-xs transition-all flex items-center gap-2"
+                                    :disabled="!previewReady"
+                                    @click="printCards">
                                     <LuPrinter class="w-4 h-4" />
                                     Print {{ totalLabels }} IDs
                                 </button>
                             </div>
                         </div>
 
-                        <div v-if="previewReady" class="rounded-2xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-6">
+                        <div
+                            v-if="previewReady"
+                            class="rounded-2xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-6">
                             <div class="flex flex-wrap justify-center gap-4">
-                                <PersonnelIdCard v-for="label in labels.slice(0, 6)" :key="label.key" :card="label.card" :card-style="cardStyle"/>
+                                <PersonnelIdCard
+                                    v-for="label in labels.slice(0, 6)"
+                                    :key="label.key"
+                                    :card="label.card"
+                                    :card-style="cardStyle" />
                             </div>
-                            <div v-if="labels.length > 6" class="mt-4 text-center text-xs font-semibold text-slate-500 dark:text-slate-400">
+                            <div
+                                v-if="labels.length > 6"
+                                class="mt-4 text-center text-xs font-semibold text-slate-500 dark:text-slate-400">
                                 Showing 6 of {{ labels.length }} IDs
                             </div>
                         </div>
@@ -495,19 +527,39 @@ export default {
         </div>
 
         <Teleport to="body">
-            <div v-if="previewReady && layoutMode === 'single'" class="print-area id-print-area">
-                <PersonnelIdCard v-for="label in labels" :key="label.key" :card="label.card" :card-style="cardStyle"/>
+            <div
+                v-if="previewReady && layoutMode === 'single'"
+                class="print-area id-print-area">
+                <PersonnelIdCard
+                    v-for="label in labels"
+                    :key="label.key"
+                    :card="label.card"
+                    :card-style="cardStyle" />
             </div>
 
-            <div v-if="previewReady && layoutMode === 'sheet'" class="print-area-sheet">
+            <div
+                v-if="previewReady && layoutMode === 'sheet'"
+                class="print-area-sheet">
                 <div
                     v-for="(sheet, sheetIndex) in sheetedLabels"
                     :key="`id-sheet-${sheetIndex}`"
                     class="sheet-page"
-                    :style="{ width: `${sheetDimensions.widthCm}cm`, height: `${sheetDimensions.heightCm}cm`, padding: `${sheetMarginCm}cm` }"
-                >
-                    <div class="sheet-grid" :style="{ gridTemplateColumns: `repeat(${labelsPerRow}, ${resolvedWidthCm}cm)`, gap: '0.25cm' }">
-                        <PersonnelIdCard v-for="label in sheet" :key="label.key" :card="label.card" :card-style="cardStyle"/>
+                    :style="{
+                        width: `${sheetDimensions.widthCm}cm`,
+                        height: `${sheetDimensions.heightCm}cm`,
+                        padding: `${sheetMarginCm}cm`,
+                    }">
+                    <div
+                        class="sheet-grid"
+                        :style="{
+                            gridTemplateColumns: `repeat(${labelsPerRow}, ${resolvedWidthCm}cm)`,
+                            gap: '0.25cm',
+                        }">
+                        <PersonnelIdCard
+                            v-for="label in sheet"
+                            :key="label.key"
+                            :card="label.card"
+                            :card-style="cardStyle" />
                     </div>
                 </div>
             </div>
@@ -552,7 +604,6 @@ export default {
     transform-origin: top center;
     margin-bottom: -1.2cm;
 }
-
 
 .id-name {
     text-align: center;

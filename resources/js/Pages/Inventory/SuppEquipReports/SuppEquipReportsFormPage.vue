@@ -17,7 +17,7 @@ export default {
         },
         mode: {
             type: String,
-            default: 'create',
+            default: "create",
         },
         data: {
             type: Object,
@@ -32,16 +32,19 @@ export default {
 
     <AppLayout>
         <template #header>
-            <supp-equip-header-actions :show-attach-button="false" :show-back-button="true" />
+            <supp-equip-header-actions
+                :show-attach-button="false"
+                :show-back-button="true" />
         </template>
         <div class="py-10">
             <div class="max-w-4xl mx-auto space-y-6 px-4">
-                <supp-equip-report-form :report-templates="reportTemplates" :mode="mode" :data="data" />
+                <supp-equip-report-form
+                    :report-templates="reportTemplates"
+                    :mode="mode"
+                    :data="data" />
             </div>
         </div>
     </AppLayout>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

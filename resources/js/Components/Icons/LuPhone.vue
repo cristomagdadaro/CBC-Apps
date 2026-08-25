@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { Phone } from 'lucide-vue-next'
+import { Phone } from "lucide-vue-next";
 
 withDefaults(
     defineProps<{
-        size?: number
-        strokeWidth?: number
+        size?: number;
+        strokeWidth?: number;
     }>(),
     {
         size: 20,
         strokeWidth: 2,
     },
-)
+);
 </script>
 
 <template>
-    <Phone :size="size" :stroke-width="strokeWidth" v-bind="$attrs" />
+    <Phone
+        :size="size"
+        :stroke-width="strokeWidth"
+        v-bind="$attrs" />
 </template>

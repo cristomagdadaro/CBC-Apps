@@ -1,9 +1,9 @@
 <script>
-import UserForm from '@/Pages/System/Users/components/UserForm.vue';
-import UsersHeaderAction from '@/Pages/System/Users/components/UsersHeaderAction.vue';
+import UserForm from "@/Pages/System/Users/components/UserForm.vue";
+import UsersHeaderAction from "@/Pages/System/Users/components/UsersHeaderAction.vue";
 
 export default {
-    name: 'EditUser',
+    name: "EditUser",
     components: {
         UserForm,
         UsersHeaderAction,
@@ -29,7 +29,10 @@ export default {
         </template>
 
         <div class="default-container pt-5">
-            <UserForm :data="data" :role-options="roleOptions" :permission-options="permissionOptions" />
+            <UserForm
+                :data="data"
+                :role-options="roleOptions"
+                :permission-options="permissionOptions" />
         </div>
     </AppLayout>
 </template>

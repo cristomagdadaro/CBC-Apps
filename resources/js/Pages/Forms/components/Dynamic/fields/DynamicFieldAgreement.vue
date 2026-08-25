@@ -10,40 +10,59 @@ export default {
         error: { type: String, default: null },
         required: { type: Boolean, default: false },
     },
-    emits: ['update:modelValue'],
+    emits: ["update:modelValue"],
     computed: {
         inputValue: {
-            get() { return this.modelValue; },
-            set(val) { this.$emit('update:modelValue', val); }
+            get() {
+                return this.modelValue;
+            },
+            set(val) {
+                this.$emit("update:modelValue", val);
+            },
         },
         agreementText() {
-            return this.field.label || this.field.field_config?.agreementText || 'I agree to the terms and conditions';
+            return this.field.label || this.field.field_config?.agreementText || "I agree to the terms and conditions";
         },
     },
 };
 </script>
 
 <template>
-    <div 
+    <div
         class="w-full relative text-justify flex leading-tight items-start gap-3 bg-white dark:bg-gray-800 rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-        :class="{'border-red-500 dark:border-red-600': error, 'border-gray-600 dark:border-gray-700': !error}"
-        @click.prevent="inputValue = !inputValue"
-    >
-        <Checkbox 
-            :id="field.field_key" 
+        :class="{
+            'border-red-500 dark:border-red-600': error,
+            'border-gray-600 dark:border-gray-700': !error,
+        }"
+        @click.prevent="inputValue = !inputValue">
+        <Checkbox
+            :id="field.field_key"
             :required="required"
-            v-model="inputValue" 
+            v-model="inputValue"
             :checked="inputValue"
-            class="mt-0.5"
-        />
+            class="mt-0.5" />
         <div class="flex flex-col gap-1">
-            <label :for="field.field_key" class="text-sm cursor-pointer leading-tight text-gray-700 dark:text-gray-200">
-                {{ agreementText }}<span v-if="required" class="text-red-600 dark:text-red-400">*</span>
+            <label
+                :for="field.field_key"
+                class="text-sm cursor-pointer leading-tight text-gray-700 dark:text-gray-200">
+                {{ agreementText }}
+                <span
+                    v-if="required"
+                    class="text-red-600 dark:text-red-400">
+                    *
+                </span>
             </label>
-            <div v-if="field.description" class="text-xs text-gray-600 dark:text-gray-400">{{ field.description }}</div>
+            <div
+                v-if="field.description"
+                class="text-xs text-gray-600 dark:text-gray-400">
+                {{ field.description }}
+            </div>
         </div>
         <transition-container type="slide-bottom">
-            <InputError v-show="!!error" class="absolute -bottom-5 left-3" :message="error" />
+            <InputError
+                v-show="!!error"
+                class="absolute -bottom-5 left-3"
+                :message="error" />
         </transition-container>
     </div>
 </template>

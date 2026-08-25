@@ -12,8 +12,7 @@
         :barcode-module-width="barcodeModuleWidth"
         :card-style="cardStyle"
         :card-inner-style="cardInnerStyle"
-        container-class="label-card hover:scale-[2] transition-transform duration-300 hover:z-10"
-    />
+        container-class="label-card hover:scale-[2] transition-transform duration-300 hover:z-10" />
 </template>
 
 <script setup>

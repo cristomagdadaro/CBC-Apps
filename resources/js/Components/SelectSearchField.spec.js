@@ -35,22 +35,13 @@ describe("SelectSearchField", () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.formattedOptions.map((option) => option.label)).toEqual([
-            "Nueva Ecija",
-            "Bulacan",
-        ]);
+        expect(wrapper.vm.formattedOptions.map((option) => option.label)).toEqual(["Nueva Ecija", "Bulacan"]);
 
         await wrapper.setProps({
             options: ["Leyte", "Eastern Samar"],
         });
 
-        expect(wrapper.vm.formattedOptions.map((option) => option.label)).toEqual([
-            "Leyte",
-            "Eastern Samar",
-        ]);
-        expect(wrapper.vm.filteredOptions.map((option) => option.label)).toEqual([
-            "Leyte",
-            "Eastern Samar",
-        ]);
+        expect(wrapper.vm.formattedOptions.map((option) => option.label)).toEqual(["Leyte", "Eastern Samar"]);
+        expect(wrapper.vm.filteredOptions.map((option) => option.label)).toEqual(["Leyte", "Eastern Samar"]);
     });
 });

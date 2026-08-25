@@ -7,14 +7,12 @@ export default class NotificationService {
     }
 
     static addNotification(notification) {
-        const entry = notification instanceof NotificationService
-            ? notification
-            : new NotificationService(notification);
+        const entry = notification instanceof NotificationService ? notification : new NotificationService(notification);
 
         NotificationService.notifications.push(entry);
 
-        if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
-            window.dispatchEvent(new CustomEvent('app-notification', { detail: entry }));
+        if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") {
+            window.dispatchEvent(new CustomEvent("app-notification", { detail: entry }));
         }
     }
 

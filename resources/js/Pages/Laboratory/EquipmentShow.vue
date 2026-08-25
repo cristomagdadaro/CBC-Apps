@@ -28,14 +28,8 @@ export default {
     data() {
         return {
             delayReady: false,
-            title:
-                this.logger_type === "ict"
-                    ? "ICT Equipment Logger"
-                    : "Laboratory Equipment Logger",
-            subtitle:
-                this.logger_type === "ict"
-                    ? "Track and manage ICT equipment usage"
-                    : "Track and manage laboratory equipment usage",
+            title: this.logger_type === "ict" ? "ICT Equipment Logger" : "Laboratory Equipment Logger",
+            subtitle: this.logger_type === "ict" ? "Track and manage ICT equipment usage" : "Track and manage laboratory equipment usage",
             selectedEquipmentId: this.equipment_id,
             equipmentOptions: [],
             equipment: null,
@@ -125,11 +119,7 @@ export default {
             }
 
             const [scope, resource, ...rest] = segments;
-            if (
-                (scope !== "laboratory" && scope !== "ict") ||
-                resource !== "equipments" ||
-                rest.length === 0
-            ) {
+            if ((scope !== "laboratory" && scope !== "ict") || resource !== "equipments" || rest.length === 0) {
                 return null;
             }
 
@@ -146,9 +136,7 @@ export default {
             return `api.${this.loggerType}.equipments`;
         },
         apiGuestBasePath() {
-            return this.loggerType === "ict"
-                ? "/api/guest/ict/equipments"
-                : "/api/guest/lab/equipments";
+            return this.loggerType === "ict" ? "/api/guest/ict/equipments" : "/api/guest/lab/equipments";
         },
         showPageRoute() {
             return `${this.loggerType}.equipments.show`;
@@ -199,17 +187,10 @@ export default {
             return !this.currentLocation || this.currentLocation.label === "Unknown Location" || this.currentLocation.label === "Unknown" || this.currentLocation.label === "UNKNOWN LOCATION";
         },
         filteredActiveEquipments() {
-            if (
-                !this.filterActiveByPersonnel ||
-                !this.currentLaboratoryPersonnel?.employee_id
-            ) {
+            if (!this.filterActiveByPersonnel || !this.currentLaboratoryPersonnel?.employee_id) {
                 return this.activeEquipments;
             }
-            return this.activeEquipments.filter(
-                (item) =>
-                    item.personnel?.employee_id ===
-                    this.currentLaboratoryPersonnel.employee_id,
-            );
+            return this.activeEquipments.filter((item) => item.personnel?.employee_id === this.currentLaboratoryPersonnel.employee_id);
         },
         statusColor() {
             if (!this.activeLogs || this.activeLogs.length === 0) return "gray";
@@ -218,22 +199,18 @@ export default {
         },
         isOverdue() {
             if (!this.activeLogs || this.activeLogs.length === 0) return false;
-            return this.activeLogs.some(log => this.isActiveItemOverdue(log));
+            return this.activeLogs.some((log) => this.isActiveItemOverdue(log));
         },
     },
     methods: {
         equipmentApiPath(identifier = null, action = null) {
-            const encodedIdentifier = identifier
-                ? encodeURIComponent(String(identifier))
-                : null;
+            const encodedIdentifier = identifier ? encodeURIComponent(String(identifier)) : null;
 
             if (!encodedIdentifier) {
                 return this.apiGuestBasePath;
             }
 
-            return action
-                ? `${this.apiGuestBasePath}/${encodedIdentifier}/${action}`
-                : `${this.apiGuestBasePath}/${encodedIdentifier}`;
+            return action ? `${this.apiGuestBasePath}/${encodedIdentifier}/${action}` : `${this.apiGuestBasePath}/${encodedIdentifier}`;
         },
         async loadEquipmentOptions() {
             try {
@@ -244,9 +221,7 @@ export default {
                     response = await window.axios.get(this.equipmentApiPath());
                 }
                 const payload = response?.data ?? response;
-                const list = Array.isArray(payload)
-                    ? payload
-                    : (payload?.data ?? []);
+                const list = Array.isArray(payload) ? payload : (payload?.data ?? []);
 
                 this.equipmentOptions = list.map((item) => {
                     const name = item.name || "Equipment";
@@ -271,16 +246,12 @@ export default {
                 try {
                     let response;
                     try {
-                        response = await this.fetchGetApi(
-                            `${this.apiRoutePrefix}.active`,
-                        );
+                        response = await this.fetchGetApi(`${this.apiRoutePrefix}.active`);
                     } catch (error) {
                         response = await window.axios.get(`${this.apiGuestBasePath}/active`);
                     }
                     const payload = response?.data ?? response;
-                    this.activeEquipments = Array.isArray(payload)
-                        ? payload
-                        : (payload?.data ?? []);
+                    this.activeEquipments = Array.isArray(payload) ? payload : (payload?.data ?? []);
                 } catch (error) {
                     this.activeEquipments = [];
                 } finally {
@@ -300,10 +271,9 @@ export default {
             try {
                 let response;
                 try {
-                    response = await this.fetchGetApi(
-                        `${this.apiRoutePrefix}.show`,
-                        { routeParams: this.equipmentId },
-                    );
+                    response = await this.fetchGetApi(`${this.apiRoutePrefix}.show`, {
+                        routeParams: this.equipmentId,
+                    });
                 } catch (error) {
                     response = await window.axios.get(this.equipmentApiPath(this.equipmentId));
                 }
@@ -311,44 +281,33 @@ export default {
 
                 this.equipment = details?.equipment ?? null;
                 this.activeLogs = details?.active_logs ?? [];
-                
+
                 if (this.currentLaboratoryPersonnel?.employee_id) {
-                    this.activeLog = this.activeLogs.find(log => log.personnel?.employee_id === this.currentLaboratoryPersonnel.employee_id) || null;
+                    this.activeLog = this.activeLogs.find((log) => log.personnel?.employee_id === this.currentLaboratoryPersonnel.employee_id) || null;
                 } else {
                     this.activeLog = null;
                 }
-                
+
                 this.allowedActions = details?.allowed_actions ?? [];
                 this.purposeSuggestions = details?.purpose_suggestions ?? [];
                 this.currentLocation = details?.current_location ?? null;
-                this.storageLocationOptions =
-                    details?.storage_location_options ?? [];
+                this.storageLocationOptions = details?.storage_location_options ?? [];
                 this.maxEndUseHours = details?.max_end_use_hours ?? 24;
 
                 if (this.activeLog?.end_use_at) {
-                    this.updateEndUseForm.end_use_at =
-                        this.formatForDatetimeLocal(this.activeLog.end_use_at);
+                    this.updateEndUseForm.end_use_at = this.formatForDatetimeLocal(this.activeLog.end_use_at);
                 }
 
-                if (
-                    this.currentLaboratoryPersonnel?.employee_id &&
-                    !this.updateEndUseForm.employee_id
-                ) {
-                    this.updateEndUseForm.employee_id =
-                        this.currentLaboratoryPersonnel.employee_id;
+                if (this.currentLaboratoryPersonnel?.employee_id && !this.updateEndUseForm.employee_id) {
+                    this.updateEndUseForm.employee_id = this.currentLaboratoryPersonnel.employee_id;
                 }
 
                 if (!this.locationSurveyForm.location_label) {
-                    this.locationSurveyForm.location_label =
-                        this.currentLocation?.label || "";
+                    this.locationSurveyForm.location_label = this.currentLocation?.label || "";
                 }
 
-                if (
-                    this.currentLaboratoryPersonnel?.employee_id &&
-                    !this.locationSurveyForm.employee_id
-                ) {
-                    this.locationSurveyForm.employee_id =
-                        this.currentLaboratoryPersonnel.employee_id;
+                if (this.currentLaboratoryPersonnel?.employee_id && !this.locationSurveyForm.employee_id) {
+                    this.locationSurveyForm.employee_id = this.currentLaboratoryPersonnel.employee_id;
                 }
 
                 if (this.shouldShowLocationSurvey) {
@@ -363,13 +322,9 @@ export default {
                 this.currentLocation = null;
                 this.storageLocationOptions = [];
                 this.purposeSuggestions = [];
-                this.notFoundTitle = error?.response?.status === 404
-                    ? "Equipment Not Found"
-                    : "Equipment can't be used";
+                this.notFoundTitle = error?.response?.status === 404 ? "Equipment Not Found" : "Equipment can't be used";
                 this.messageType = "error";
-                this.message =
-                    error?.response?.data?.message ||
-                    "Equipment not found";
+                this.message = error?.response?.data?.message || "Equipment not found";
                 this.notFound = true;
             } finally {
                 this.loading = false;
@@ -457,12 +412,8 @@ export default {
         searchDifferentPersonnel() {
             this.checkOutErrors = {};
             this.showPhilRiceField = !this.showPhilRiceField;
-            if (
-                this.showPhilRiceField &&
-                this.currentLaboratoryPersonnel?.employee_id
-            ) {
-                this.checkOutForm.employee_id =
-                    this.currentLaboratoryPersonnel.employee_id;
+            if (this.showPhilRiceField && this.currentLaboratoryPersonnel?.employee_id) {
+                this.checkOutForm.employee_id = this.currentLaboratoryPersonnel.employee_id;
                 return;
             }
             this.checkOutForm.employee_id = "";
@@ -484,24 +435,19 @@ export default {
         resetUpdateEndUse() {
             this.updateEndUseErrors = {};
             if (this.activeLog?.end_use_at) {
-                this.updateEndUseForm.end_use_at = this.formatForDatetimeLocal(
-                    this.activeLog.end_use_at,
-                );
+                this.updateEndUseForm.end_use_at = this.formatForDatetimeLocal(this.activeLog.end_use_at);
             }
             if (this.currentLaboratoryPersonnel?.employee_id) {
-                this.updateEndUseForm.employee_id =
-                    this.currentLaboratoryPersonnel.employee_id;
+                this.updateEndUseForm.employee_id = this.currentLaboratoryPersonnel.employee_id;
             } else {
                 this.updateEndUseForm.employee_id = "";
             }
         },
         resetLocationSurvey() {
             this.locationSurveyErrors = {};
-            this.locationSurveyForm.location_label =
-                this.currentLocation?.label || "";
+            this.locationSurveyForm.location_label = this.currentLocation?.label || "";
             if (this.currentLaboratoryPersonnel?.employee_id) {
-                this.locationSurveyForm.employee_id =
-                    this.currentLaboratoryPersonnel.employee_id;
+                this.locationSurveyForm.employee_id = this.currentLaboratoryPersonnel.employee_id;
             } else {
                 this.locationSurveyForm.employee_id = "";
             }
@@ -511,20 +457,13 @@ export default {
                 return;
             }
 
-            this.checkInForm.employee_id =
-                this.checkInForm.employee_id || this.currentLaboratoryPersonnel.employee_id;
+            this.checkInForm.employee_id = this.checkInForm.employee_id || this.currentLaboratoryPersonnel.employee_id;
             this.showPhilRiceField = true;
-            this.checkOutForm.employee_id =
-                this.currentLaboratoryPersonnel.employee_id;
-            this.updateEndUseForm.employee_id =
-                this.currentLaboratoryPersonnel.employee_id;
-            this.locationSurveyForm.employee_id =
-                this.currentLaboratoryPersonnel.employee_id;
+            this.checkOutForm.employee_id = this.currentLaboratoryPersonnel.employee_id;
+            this.updateEndUseForm.employee_id = this.currentLaboratoryPersonnel.employee_id;
+            this.locationSurveyForm.employee_id = this.currentLaboratoryPersonnel.employee_id;
 
-            if (
-                !this.savedLaboratoryPersonnel?.employee_id &&
-                this.authenticatedPersonnel?.employee_id
-            ) {
+            if (!this.savedLaboratoryPersonnel?.employee_id && this.authenticatedPersonnel?.employee_id) {
                 this.saveLaboratoryPersonnel(this.authenticatedPersonnel);
             }
         },
@@ -540,17 +479,12 @@ export default {
         addMinutes(minutes) {
             if (minutes === 0) {
                 if (!this.activeLog?.end_use_at) return;
-                this.updateEndUseForm.end_use_at = this.formatForDatetimeLocal(
-                    this.activeLog.end_use_at,
-                );
+                this.updateEndUseForm.end_use_at = this.formatForDatetimeLocal(this.activeLog.end_use_at);
                 return;
             }
-            let baseTime = this.updateEndUseForm.end_use_at
-                ? new Date(this.updateEndUseForm.end_use_at)
-                : new Date();
+            let baseTime = this.updateEndUseForm.end_use_at ? new Date(this.updateEndUseForm.end_use_at) : new Date();
             baseTime.setMinutes(baseTime.getMinutes() + minutes);
-            this.updateEndUseForm.end_use_at =
-                this.formatForDatetimeLocal(baseTime);
+            this.updateEndUseForm.end_use_at = this.formatForDatetimeLocal(baseTime);
         },
         async finalizeLocation() {
             this.isLoading = true;
@@ -632,10 +566,7 @@ export default {
             this.message = null;
 
             try {
-                const response = await this.fetchPostApi(
-                    "api.inventory.personnels.initialize-profile.guest",
-                    this.personnelProfileForm.data(),
-                );
+                const response = await this.fetchPostApi("api.inventory.personnels.initialize-profile.guest", this.personnelProfileForm.data());
                 const payload = response?.data ?? response ?? {};
                 const record = payload?.data ?? {};
 
@@ -681,11 +612,7 @@ export default {
             this.message = null;
 
             try {
-                const response = await this.fetchPutApi(
-                    "api.inventory.personnels.email.guest",
-                    null,
-                    this.emailCaptureForm.data(),
-                );
+                const response = await this.fetchPutApi("api.inventory.personnels.email.guest", null, this.emailCaptureForm.data());
                 const payload = response?.data ?? response ?? {};
                 const record = payload?.data ?? {};
 
@@ -810,12 +737,7 @@ export default {
         },
         formatPersonnelName(personnel) {
             if (!personnel) return "—";
-            const parts = [
-                personnel.fname,
-                personnel.mname,
-                personnel.lname,
-                personnel.suffix,
-            ]
+            const parts = [personnel.fname, personnel.mname, personnel.lname, personnel.suffix]
                 .filter(Boolean)
                 .map((v) => String(v).trim())
                 .filter(Boolean);
@@ -837,11 +759,7 @@ export default {
         },
         getErrorMessage(error) {
             if (!error) return null;
-            return typeof error === "string"
-                ? error
-                : Array.isArray(error)
-                    ? error[0]
-                    : error;
+            return typeof error === "string" ? error : Array.isArray(error) ? error[0] : error;
         },
     },
     watch: {
@@ -867,14 +785,14 @@ export default {
         },
         "currentLaboratoryPersonnel.employee_id"(newVal) {
             if (this.activeLogs) {
-                this.activeLog = this.activeLogs.find(log => log.personnel?.employee_id === newVal) || null;
+                this.activeLog = this.activeLogs.find((log) => log.personnel?.employee_id === newVal) || null;
             }
-        }
+        },
     },
-        mounted() {
-            if (!this.selectedEquipmentId && this.equipmentIdFromUrl) {
-                this.selectedEquipmentId = this.equipmentIdFromUrl;
-            }
+    mounted() {
+        if (!this.selectedEquipmentId && this.equipmentIdFromUrl) {
+            this.selectedEquipmentId = this.equipmentIdFromUrl;
+        }
 
         this.loadLaboratoryPersonnel();
         this.syncCurrentPersonnelContext();
@@ -887,14 +805,8 @@ export default {
         }
         setTimeout(() => (this.delayReady = true), 200);
 
-        const unsubscribeStart = router.on(
-            "start",
-            () => (this.isNavigating = true),
-        );
-        const unsubscribeFinish = router.on(
-            "finish",
-            () => (this.isNavigating = false),
-        );
+        const unsubscribeStart = router.on("start", () => (this.isNavigating = true));
+        const unsubscribeFinish = router.on("finish", () => (this.isNavigating = false));
         this.unsubscribeRouterEvents = () => {
             unsubscribeStart();
             unsubscribeFinish();
@@ -909,14 +821,18 @@ export default {
 </script>
 
 <template>
-
     <Head :title="title" />
 
     <!-- Success Modal -->
-    <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0"
-        enter-to-class="transform scale-100 opacity-100" leave-active-class="transition duration-150 ease-in"
-        leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
-        <div v-if="showSuccessModal"
+    <Transition
+        enter-active-class="transition duration-200 ease-out"
+        enter-from-class="transform scale-95 opacity-0"
+        enter-to-class="transform scale-100 opacity-100"
+        leave-active-class="transition duration-150 ease-in"
+        leave-from-class="transform scale-100 opacity-100"
+        leave-to-class="transform scale-95 opacity-0">
+        <div
+            v-if="showSuccessModal"
             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
             <div class="w-full max-w-sm p-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg shadow-2xl rounded-2xl border border-gray-100 dark:border-slate-800">
                 <div class="flex flex-col items-center text-center">
@@ -925,7 +841,8 @@ export default {
                     </div>
                     <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">Success</h3>
                     <p class="mb-6 text-gray-600 dark:text-gray-400">{{ message }}</p>
-                    <button @click="showSuccessModal = false"
+                    <button
+                        @click="showSuccessModal = false"
                         class="w-full px-4 py-2.5 text-sm font-medium text-white transition-colors bg-emerald-600 rounded-xl hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
                         Continue
                     </button>
@@ -934,12 +851,22 @@ export default {
         </div>
     </Transition>
 
-    <GuestFormPage :title="title" :subtitle="subtitle" :delay-ready="delayReady" guide-key="equipment-logger-guest" max-width="max-w-7xl">
+    <GuestFormPage
+        :title="title"
+        :subtitle="subtitle"
+        :delay-ready="delayReady"
+        guide-key="equipment-logger-guest"
+        max-width="max-w-7xl">
         <!-- Loading Overlay -->
-        <Transition enter-active-class="transition-opacity duration-300" enter-from-class="opacity-0"
-            enter-to-class="opacity-100" leave-active-class="transition-opacity duration-200"
-            leave-from-class="opacity-100" leave-to-class="opacity-0">
-            <div v-if="processing"
+        <Transition
+            enter-active-class="transition-opacity duration-300"
+            enter-from-class="opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="transition-opacity duration-200"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0">
+            <div
+                v-if="processing"
                 class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
                 <div class="flex flex-col items-center gap-3 p-8 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg shadow-2xl rounded-2xl border border-gray-100 dark:border-slate-800">
                     <LuLoader2 class="w-10 h-10 animate-spin text-emerald-600 dark:text-emerald-400" />
@@ -948,17 +875,21 @@ export default {
             </div>
         </Transition>
 
-        <Transition enter-active-class="transition-all duration-500 ease-out" enter-from-class="opacity-0 translate-y-4"
+        <Transition
+            enter-active-class="transition-all duration-500 ease-out"
+            enter-from-class="opacity-0 translate-y-4"
             enter-to-class="opacity-100 translate-y-0">
-            <div v-show="delayReady" class="grid grid-cols-1 gap-0 md:gap-4 lg:gap-4 lg:grid-cols-12">
-
+            <div
+                v-show="delayReady"
+                class="grid grid-cols-1 gap-0 md:gap-4 lg:gap-4 lg:grid-cols-12">
                 <!-- Main Content Column -->
                 <div class="space-y-1 md:space-y-4 lg:space-y-6 lg:col-span-7">
-
                     <!-- Equipment Selection / Details Card -->
                     <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-gray-100 dark:border-slate-800 shadow-sm md:rounded-xl overflow-visible">
                         <!-- Empty State -->
-                        <div v-if="!hasEquipment" class="p-4 flex flex-col gap-2">
+                        <div
+                            v-if="!hasEquipment"
+                            class="p-4 flex flex-col gap-2">
                             <div class="flex items-center gap-3">
                                 <div class="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
                                     <LuScanLine class="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
@@ -968,7 +899,11 @@ export default {
                                     <p class="text-sm text-gray-500 dark:text-gray-400">Scan QR code or search manually</p>
                                 </div>
                             </div>
-                            <SelectSearchField id="equipment_selector" placeholder="Search by name, brand, or barcode..." :options="equipmentOptions" v-model="selectedEquipmentId" />
+                            <SelectSearchField
+                                id="equipment_selector"
+                                placeholder="Search by name, brand, or barcode..."
+                                :options="equipmentOptions"
+                                v-model="selectedEquipmentId" />
                             <p class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                                 <LuSearch class="w-3.5 h-3.5" />
                                 Type to search or scan barcode
@@ -976,27 +911,39 @@ export default {
                         </div>
 
                         <!-- Loading State -->
-                        <div v-else-if="loading" class="flex items-center justify-center p-12">
+                        <div
+                            v-else-if="loading"
+                            class="flex items-center justify-center p-12">
                             <LuLoader2 class="w-8 h-8 animate-spin text-emerald-600" />
                         </div>
 
                         <!-- Not Found State -->
-                        <div v-else-if="notFound" class="p-12 text-center">
+                        <div
+                            v-else-if="notFound"
+                            class="p-12 text-center">
                             <div class="inline-flex p-4 mb-4 rounded-full bg-red-100 dark:bg-red-900/30">
                                 <LuAlertCircle class="w-8 h-8 text-red-600 dark:text-red-400" />
                             </div>
-                            <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">{{ notFoundTitle }}</h3>
-                            <p class="max-w-xs mx-auto mb-6 text-sm text-gray-500 dark:text-gray-400">{{ message }}</p>
-                            <Link :href="route(showPageRoute)"
+                            <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                {{ notFoundTitle }}
+                            </h3>
+                            <p class="max-w-xs mx-auto mb-6 text-sm text-gray-500 dark:text-gray-400">
+                                {{ message }}
+                            </p>
+                            <Link
+                                :href="route(showPageRoute)"
                                 class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition-colors bg-emerald-600 rounded-lg hover:bg-emerald-700"
                                 :class="{ 'opacity-70 pointer-events-none': isNavigating }">
-                            <LuArrowLeft class="w-4 h-4" />
-                            Browse All Equipment
+                                <LuArrowLeft class="w-4 h-4" />
+                                Browse All Equipment
                             </Link>
                         </div>
 
                         <!-- Equipment Details -->
-                        <div v-else-if="equipment" data-guide="equipment-summary" class="divide-y divide-gray-100 dark:divide-slate-800">
+                        <div
+                            v-else-if="equipment"
+                            data-guide="equipment-summary"
+                            class="divide-y divide-gray-100 dark:divide-slate-800">
                             <!-- Header -->
                             <div class="flex items-start justify-between p-4 relative">
                                 <div class="flex items-center gap-4 w-full">
@@ -1004,38 +951,67 @@ export default {
                                         <LuMicroscope class="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
                                     </div>
                                     <div class="flex flex-col w-full">
-                                        <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ equipment.name }}</h1>
+                                        <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">
+                                            {{ equipment.name }}
+                                        </h1>
                                         <div class="text-sm text-gray-500 dark:text-gray-400 flex justify-between md:flex-row flex-col md:items-center">
-                                            <p class="font-semibold">{{ equipment?.brand || "—" }}</p>
-                                            <p class="flex items-center gap-1.5" title="PhilRice Property No."><LuBarcode class="w-3.5 h-3.5 text-gray-800 dark:text-gray-200" />{{ equipment?.barcode_prri || "—" }}</p>
-                                            <p class="flex items-center gap-1.5" title="DA-CBC Equipment No."><LuQrCode class="w-3.5 h-3.5 text-gray-800 dark:text-gray-200" />{{ equipment?.barcode || "—" }}</p>
+                                            <p class="font-semibold">
+                                                {{ equipment?.brand || "—" }}
+                                            </p>
+                                            <p
+                                                class="flex items-center gap-1.5"
+                                                title="PhilRice Property No.">
+                                                <LuBarcode class="w-3.5 h-3.5 text-gray-800 dark:text-gray-200" />
+                                                {{ equipment?.barcode_prri || "—" }}
+                                            </p>
+                                            <p
+                                                class="flex items-center gap-1.5"
+                                                title="DA-CBC Equipment No.">
+                                                <LuQrCode class="w-3.5 h-3.5 text-gray-800 dark:text-gray-200" />
+                                                {{ equipment?.barcode || "—" }}
+                                            </p>
                                             <div class="flex items-center gap-2">
                                                 <label class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                                                     <LuMapPin class="w-3.5 h-3.5 text-gray-800 dark:text-gray-200" />
-                                                    <p :class="{'!text-amber-700 dark:!text-amber-400 rounded-full' : currentLocation?.source === 'temporary'}">{{ currentLocation?.label || "Unknown" }}</p>
+                                                    <p
+                                                        :class="{
+                                                            '!text-amber-700 dark:!text-amber-400 rounded-full': currentLocation?.source === 'temporary',
+                                                        }">
+                                                        {{ currentLocation?.label || "Unknown" }}
+                                                    </p>
                                                 </label>
-                                                <button v-if="canReportLocation" type="button" @click="openLocationSurveyModal"
+                                                <button
+                                                    v-if="canReportLocation"
+                                                    type="button"
+                                                    @click="openLocationSurveyModal"
                                                     title="Edit Location"
                                                     class="text-xs font-medium text-amber-700 dark:text-amber-400 transition-colors hover:text-amber-800 dark:hover:text-amber-300">
-                                                    <LuEdit class="w-3.5 h-3.5"/> 
+                                                    <LuEdit class="w-3.5 h-3.5" />
                                                 </button>
-                                                <button v-if="isAdmin && currentLocation?.source === 'temporary'" type="button" @click="showFinalizeLocationModal = true"
+                                                <button
+                                                    v-if="isAdmin && currentLocation?.source === 'temporary'"
+                                                    type="button"
+                                                    @click="showFinalizeLocationModal = true"
                                                     title="Finalize Location"
                                                     class="text-xs font-medium text-emerald-700 dark:text-emerald-400 transition-colors hover:text-emerald-800 dark:hover:text-emerald-300 ml-1 underline">
                                                     Finalize
                                                 </button>
                                             </div>
                                         </div>
-                                        
                                     </div>
                                 </div>
-                                <button v-if="!equipment_id" @click="selectedEquipmentId = null"
+                                <button
+                                    v-if="!equipment_id"
+                                    @click="selectedEquipmentId = null"
                                     class="p-2 text-gray-400 transition-colors rounded-lg hover:bg-gray-100 hover:text-gray-600 absolute top-2 right-2">
                                     <LuX class="w-5 h-5" />
                                 </button>
                             </div>
 
-                            <DialogModal :show="showLocationSurveyModal" max-width="md" @close="closeLocationSurveyModal">
+                            <DialogModal
+                                :show="showLocationSurveyModal"
+                                max-width="md"
+                                @close="closeLocationSurveyModal">
                                 <template #title>
                                     <div class="flex items-center gap-2 mb-4 py-2">
                                         <LuMapPin class="w-4 h-4 text-amber-600 dark:text-amber-400" />
@@ -1045,23 +1021,33 @@ export default {
                                 <template #content>
                                     <!-- Location Survey -->
                                     <div>
-                                        <p class="mb-4 text-gray-600 dark:text-gray-400">Kindly provide the current location of the equipment.
-                                            location</p>
+                                        <p class="mb-4 text-gray-600 dark:text-gray-400">Kindly provide the current location of the equipment. location</p>
                                         <div class="space-y-3">
-                                            <TextInput v-if="!$page.props.auth.user" id="survey_location_employee_id" required
-                                                v-model="locationSurveyForm.employee_id" label="Your ID"
+                                            <TextInput
+                                                v-if="!$page.props.auth.user"
+                                                id="survey_location_employee_id"
+                                                required
+                                                v-model="locationSurveyForm.employee_id"
+                                                label="Your ID"
                                                 :error="getErrorMessage(locationSurveyErrors.employee_id)"
                                                 @keydown.enter.prevent="submitLocationSurvey" />
-                                            <div v-else class="text-sm font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 p-2 rounded">
-                                                ID: {{ $page.props.auth.user.employee_id || 'Authenticated User' }}
+                                            <div
+                                                v-else
+                                                class="text-sm font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 p-2 rounded">
+                                                ID:
+                                                {{ $page.props.auth.user.employee_id || "Authenticated User" }}
                                             </div>
-                                            <SingleSelectTagify id="survey_location_label" required
-                                                v-model="locationSurveyForm.location_label" label="Current Location"
+                                            <SingleSelectTagify
+                                                id="survey_location_label"
+                                                required
+                                                v-model="locationSurveyForm.location_label"
+                                                label="Current Location"
                                                 :whitelist="storageLocationOptions"
                                                 :error="getErrorMessage(locationSurveyErrors.location_label)"
                                                 @keydown.enter.prevent="submitLocationSurvey" />
                                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Input a custom room if not available in the options.</p>
-                                            <div v-if="getErrorMessage(locationSurveyErrors.base)"
+                                            <div
+                                                v-if="getErrorMessage(locationSurveyErrors.base)"
                                                 class="text-sm text-red-600">
                                                 {{ getErrorMessage(locationSurveyErrors.base) }}
                                             </div>
@@ -1069,14 +1055,19 @@ export default {
                                     </div>
                                 </template>
                                 <template #footer>
-                                    <button type="button" @click="submitLocationSurvey"
+                                    <button
+                                        type="button"
+                                        @click="submitLocationSurvey"
                                         class="w-full px-4 py-2.5 text-sm font-medium text-white transition-colors bg-amber-600 rounded-lg hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2">
                                         Update Location
                                     </button>
                                 </template>
                             </DialogModal>
 
-                            <DialogModal :show="showFinalizeLocationModal" max-width="md" @close="showFinalizeLocationModal = false">
+                            <DialogModal
+                                :show="showFinalizeLocationModal"
+                                max-width="md"
+                                @close="showFinalizeLocationModal = false">
                                 <template #title>
                                     <div class="flex items-center gap-2 mb-4 py-2">
                                         <LuMapPin class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
@@ -1090,10 +1081,17 @@ export default {
                                 </template>
                                 <template #footer>
                                     <div class="flex gap-2 justify-end w-full">
-                                        <button type="button" @click="showFinalizeLocationModal = false" class="px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors bg-gray-100 dark:bg-slate-800 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-700">
+                                        <button
+                                            type="button"
+                                            @click="showFinalizeLocationModal = false"
+                                            class="px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors bg-gray-100 dark:bg-slate-800 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-700">
                                             Cancel
                                         </button>
-                                        <button type="button" @click="finalizeLocation" :disabled="isLoading" class="px-4 py-2.5 text-sm font-medium text-white transition-colors bg-emerald-600 rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                                        <button
+                                            type="button"
+                                            @click="finalizeLocation"
+                                            :disabled="isLoading"
+                                            class="px-4 py-2.5 text-sm font-medium text-white transition-colors bg-emerald-600 rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
                                             Confirm Finalize
                                         </button>
                                     </div>
@@ -1103,35 +1101,51 @@ export default {
                     </div>
 
                     <!-- Status Card -->
-                    <div v-if="hasEquipment && !notFound && equipment && activeLogs && activeLogs.length > 0" data-guide="equipment-status"
+                    <div
+                        v-if="hasEquipment && !notFound && equipment && activeLogs && activeLogs.length > 0"
+                        data-guide="equipment-status"
                         class="overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-gray-100 dark:border-slate-800 shadow-sm md:rounded-xl">
                         <div class="flex items-center justify-between p-4 border-b border-gray-100 dark:border-slate-800">
                             <div class="flex items-center gap-3">
-                                <div class="p-2 rounded-lg" :class="isOverdue ? 'bg-red-100 dark:bg-red-900/30' : 'bg-emerald-100 dark:bg-emerald-900/30'">
-                                    <LuActivity class="w-5 h-5" :class="isOverdue ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'" />
+                                <div
+                                    class="p-2 rounded-lg"
+                                    :class="isOverdue ? 'bg-red-100 dark:bg-red-900/30' : 'bg-emerald-100 dark:bg-emerald-900/30'">
+                                    <LuActivity
+                                        class="w-5 h-5"
+                                        :class="isOverdue ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'" />
                                 </div>
                                 <div>
                                     <div class="flex items-center gap-2">
-                                        <span  class="inline-flex items-center gap-1.5 uppercase font-semibold rounded-full"
+                                        <span
+                                            class="inline-flex items-center gap-1.5 uppercase font-semibold rounded-full"
                                             :class="isOverdue ? 'text-red-700 dark:text-red-400' : 'text-emerald-700 dark:text-emerald-400'">
-                                            {{ isOverdue ? 'Overdue' : 'In Use' }}
+                                            {{ isOverdue ? "Overdue" : "In Use" }}
                                         </span>
                                     </div>
                                     <h2 class="text-xs text-gray-900 dark:text-gray-100 leading-none mt-1">Current Status</h2>
                                 </div>
                             </div>
                             <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
-                                <div v-if="(equipment?.simultaneous_users || 1) > 1" class="text-right">
+                                <div
+                                    v-if="(equipment?.simultaneous_users || 1) > 1"
+                                    class="text-right">
                                     <div class="flex items-end justify-end gap-2">
-                                        <span  class="inline-flex items-center gap-1.5 uppercase font-semibold rounded-full" :class="isOverdue ? 'text-red-700 dark:text-red-400' : 'text-emerald-700 dark:text-emerald-400'">
-                                            {{ equipment.simultaneous_users - activeLogs.length }} / {{ equipment.simultaneous_users }}
-                                            <LuUsers class="w-5 h-5" :class="isOverdue ? 'text-red-700 dark:text-red-400' : 'text-emerald-700 dark:text-emerald-400'" />
+                                        <span
+                                            class="inline-flex items-center gap-1.5 uppercase font-semibold rounded-full"
+                                            :class="isOverdue ? 'text-red-700 dark:text-red-400' : 'text-emerald-700 dark:text-emerald-400'">
+                                            {{ equipment.simultaneous_users - activeLogs.length }} /
+                                            {{ equipment.simultaneous_users }}
+                                            <LuUsers
+                                                class="w-5 h-5"
+                                                :class="isOverdue ? 'text-red-700 dark:text-red-400' : 'text-emerald-700 dark:text-emerald-400'" />
                                         </span>
                                     </div>
                                     <h2 class="text-xs text-gray-900 dark:text-gray-100 leading-none mt-1">Slots Remaining</h2>
                                 </div>
-                            
-                                <button v-if="canEditActiveLog" @click="showEstimatedEndUseModal = true"
+
+                                <button
+                                    v-if="canEditActiveLog"
+                                    @click="showEstimatedEndUseModal = true"
                                     class="flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 transition-colors bg-emerald-50 dark:bg-emerald-900/30 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/50 whitespace-nowrap">
                                     <LuEdit class="w-3.5 h-3.5" />
                                     Edit Time
@@ -1139,31 +1153,67 @@ export default {
                             </div>
                         </div>
 
-                        <div v-if="activeLogs && activeLogs.length > 0" class="divide-y divide-gray-100 dark:divide-slate-800">
-                            <div v-for="log in activeLogs" :key="log.id" class="p-4 flex flex-col md:flex-row md:items-center justify-between gap-3" :class="{'bg-emerald-50/30 dark:bg-emerald-900/10': log.personnel?.employee_id === currentLaboratoryPersonnel?.employee_id}">
+                        <div
+                            v-if="activeLogs && activeLogs.length > 0"
+                            class="divide-y divide-gray-100 dark:divide-slate-800">
+                            <div
+                                v-for="log in activeLogs"
+                                :key="log.id"
+                                class="p-4 flex flex-col md:flex-row md:items-center justify-between gap-3"
+                                :class="{
+                                    'bg-emerald-50/30 dark:bg-emerald-900/10': log.personnel?.employee_id === currentLaboratoryPersonnel?.employee_id,
+                                }">
                                 <div class="flex items-center gap-3">
                                     <div class="p-2.5 rounded-full bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400">
                                         <LuUser class="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
                                     </div>
                                     <div>
-                                        <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ formatPersonnelName(log.personnel) }}</div>
-                                        <div v-if="log.personnel?.position || log.personnel?.affiliation || log.personnel?.course_program" class="flex flex-wrap items-center gap-1.5 mt-0.5 text-[0.65rem] text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                            <span v-if="log.personnel?.position">{{ log.personnel.position }}</span>
-                                            <span v-if="log.personnel?.position && log.personnel?.affiliation" class="text-gray-300 dark:text-slate-600 text-[0.45rem]">●</span>
-                                            <span v-if="log.personnel?.affiliation">{{ log.personnel.affiliation }}</span>
-                                            <span v-if="(log.personnel?.position || log.personnel?.affiliation) && log.personnel?.course_program && ['student', 'ojt'].includes((log.personnel?.registration_type || '').toLowerCase())" class="text-gray-300 dark:text-slate-600 text-[0.45rem]">●</span>
-                                            <span v-if="log.personnel?.course_program && ['student', 'ojt'].includes((log.personnel?.registration_type || '').toLowerCase())">{{ log.personnel.course_program }}</span>
+                                        <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                            {{ formatPersonnelName(log.personnel) }}
+                                        </div>
+                                        <div
+                                            v-if="log.personnel?.position || log.personnel?.affiliation || log.personnel?.course_program"
+                                            class="flex flex-wrap items-center gap-1.5 mt-0.5 text-[0.65rem] text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                            <span v-if="log.personnel?.position">
+                                                {{ log.personnel.position }}
+                                            </span>
+                                            <span
+                                                v-if="log.personnel?.position && log.personnel?.affiliation"
+                                                class="text-gray-300 dark:text-slate-600 text-[0.45rem]">
+                                                ●
+                                            </span>
+                                            <span v-if="log.personnel?.affiliation">
+                                                {{ log.personnel.affiliation }}
+                                            </span>
+                                            <span
+                                                v-if="(log.personnel?.position || log.personnel?.affiliation) && log.personnel?.course_program && ['student', 'ojt'].includes((log.personnel?.registration_type || '').toLowerCase())"
+                                                class="text-gray-300 dark:text-slate-600 text-[0.45rem]">
+                                                ●
+                                            </span>
+                                            <span v-if="log.personnel?.course_program && ['student', 'ojt'].includes((log.personnel?.registration_type || '').toLowerCase())">
+                                                {{ log.personnel.course_program }}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="flex flex-col md:items-end gap-1 md:gap-1.5 ml-12 md:ml-0">
                                     <div class="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400">
-                                        Started: <span class="font-medium text-gray-900 dark:text-gray-100">{{ formatDateTime(log.started_at) }}</span>
+                                        Started:
+                                        <span class="font-medium text-gray-900 dark:text-gray-100">
+                                            {{ formatDateTime(log.started_at) }}
+                                        </span>
                                         <LuCalendar class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
                                     </div>
-                                    <div class="flex items-center gap-1.5 text-xs" :class="isActiveItemOverdue(log) ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-gray-100'">
-                                        Expected End: <span class="font-medium text-gray-900 dark:text-gray-100">{{ formatDateTime(log.end_use_at) }}</span>
-                                        <LuClock class="w-3.5 h-3.5" :class="isActiveItemOverdue(log) ? 'text-red-400' : 'text-gray-400 dark:text-gray-500'" />
+                                    <div
+                                        class="flex items-center gap-1.5 text-xs"
+                                        :class="isActiveItemOverdue(log) ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-gray-100'">
+                                        Expected End:
+                                        <span class="font-medium text-gray-900 dark:text-gray-100">
+                                            {{ formatDateTime(log.end_use_at) }}
+                                        </span>
+                                        <LuClock
+                                            class="w-3.5 h-3.5"
+                                            :class="isActiveItemOverdue(log) ? 'text-red-400' : 'text-gray-400 dark:text-gray-500'" />
                                     </div>
                                 </div>
                             </div>
@@ -1171,7 +1221,9 @@ export default {
                     </div>
 
                     <!-- Check-in Form -->
-                    <div v-if="hasEquipment && !notFound && canCheckIn" data-guide="equipment-actions"
+                    <div
+                        v-if="hasEquipment && !notFound && canCheckIn"
+                        data-guide="equipment-actions"
                         class="overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-gray-100 dark:border-slate-800 shadow-sm md:rounded-xl">
                         <div class="p-4 border-b border-gray-100 dark:border-slate-800 bg-emerald-50/30 dark:bg-emerald-900/10">
                             <div class="flex items-center gap-3">
@@ -1186,13 +1238,24 @@ export default {
                         </div>
 
                         <div class="px-4 pb-4 space-y-4">
-                            <PersonnelLookup v-if="!$page.props.auth.user" ref="personnelLookup" v-model="checkInForm.employee_id" @found="handlePersonnelFound" required
+                            <PersonnelLookup
+                                v-if="!$page.props.auth.user"
+                                ref="personnelLookup"
+                                v-model="checkInForm.employee_id"
+                                @found="handlePersonnelFound"
+                                required
                                 @error="handlePersonnelError" />
-                            <div v-else class="flex items-center gap-2 p-3 text-sm text-emerald-700 dark:text-emerald-400 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 mb-2">
+                            <div
+                                v-else
+                                class="flex items-center gap-2 p-3 text-sm text-emerald-700 dark:text-emerald-400 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 mb-2">
                                 <LuCheckCircle2 class="w-4 h-4" />
-                                <span class="font-medium">User ID: {{ $page.props.auth.user.employee_id || 'Linked Account' }}</span>
+                                <span class="font-medium">
+                                    User ID:
+                                    {{ $page.props.auth.user.employee_id || "Linked Account" }}
+                                </span>
                             </div>
-                            <div v-if="personnelPreview"
+                            <div
+                                v-if="personnelPreview"
                                 class="flex items-center gap-2 p-3 text-sm text-emerald-700 dark:text-emerald-400 rounded-lg bg-emerald-50 dark:bg-emerald-900/30">
                                 <LuCheckCircle2 class="w-4 h-4" />
                                 <span class="font-medium">{{ personnelPreview.fullName }}</span>
@@ -1200,62 +1263,99 @@ export default {
 
                             <div
                                 v-if="profileRequiresUpdate"
-                                class="space-y-3 rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/20 p-4"
-                            >
+                                class="space-y-3 rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/20 p-4">
                                 <div>
-                                    <p class="text-sm font-semibold text-amber-900 dark:text-amber-100">
-                                        Update your personnel information first
-                                    </p>
-                                    <p class="mt-1 text-sm text-amber-800 dark:text-amber-200/80">
-                                        This employee record is marked as a fresh profile. Please complete the contact details below before checking in equipment.
-                                    </p>
+                                    <p class="text-sm font-semibold text-amber-900 dark:text-amber-100">Update your personnel information first</p>
+                                    <p class="mt-1 text-sm text-amber-800 dark:text-amber-200/80">This employee record is marked as a fresh profile. Please complete the contact details below before checking in equipment.</p>
                                 </div>
                                 <div class="grid gap-3 md:grid-cols-2">
-                                    <TextInput v-model="personnelProfileForm.fname" label="First Name" required
+                                    <TextInput
+                                        v-model="personnelProfileForm.fname"
+                                        label="First Name"
+                                        required
                                         :error="getErrorMessage(personnelProfileErrors.fname)" />
-                                    <TextInput v-model="personnelProfileForm.mname" label="Middle Name"
+                                    <TextInput
+                                        v-model="personnelProfileForm.mname"
+                                        label="Middle Name"
                                         :error="getErrorMessage(personnelProfileErrors.mname)" />
-                                    <TextInput v-model="personnelProfileForm.lname" label="Last Name" required
+                                    <TextInput
+                                        v-model="personnelProfileForm.lname"
+                                        label="Last Name"
+                                        required
                                         :error="getErrorMessage(personnelProfileErrors.lname)" />
-                                    <TextInput v-model="personnelProfileForm.suffix" label="Suffix"
+                                    <TextInput
+                                        v-model="personnelProfileForm.suffix"
+                                        label="Suffix"
                                         :error="getErrorMessage(personnelProfileErrors.suffix)" />
-                                    <TextInput v-model="personnelProfileForm.position" label="Position" required
+                                    <TextInput
+                                        v-model="personnelProfileForm.position"
+                                        label="Position"
+                                        required
                                         :error="getErrorMessage(personnelProfileErrors.position)" />
-                                    <TextInput v-model="personnelProfileForm.phone" label="Phone" required
+                                    <TextInput
+                                        v-model="personnelProfileForm.phone"
+                                        label="Phone"
+                                        required
                                         :error="getErrorMessage(personnelProfileErrors.phone)" />
-                                    <TextInput v-model="personnelProfileForm.email" label="Email (optional)"
+                                    <TextInput
+                                        v-model="personnelProfileForm.email"
+                                        label="Email (optional)"
                                         :error="getErrorMessage(personnelProfileErrors.email)" />
-                                    <TextInput v-model="personnelProfileForm.address" label="Address" required
+                                    <TextInput
+                                        v-model="personnelProfileForm.address"
+                                        label="Address"
+                                        required
                                         :error="getErrorMessage(personnelProfileErrors.address)" />
                                 </div>
-                                <div v-if="getErrorMessage(personnelProfileErrors.base)" class="text-sm text-red-600">
+                                <div
+                                    v-if="getErrorMessage(personnelProfileErrors.base)"
+                                    class="text-sm text-red-600">
                                     {{ getErrorMessage(personnelProfileErrors.base) }}
                                 </div>
-                                <button type="button" @click="submitPersonnelProfileUpdate"
+                                <button
+                                    type="button"
+                                    @click="submitPersonnelProfileUpdate"
                                     class="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-amber-700">
                                     <LuSave class="w-4 h-4" />
                                     Save Personnel Information
                                 </button>
                             </div>
 
-                            <div v-if="getErrorMessage(checkInErrors.employee_id)" class="text-sm text-red-600">
+                            <div
+                                v-if="getErrorMessage(checkInErrors.employee_id)"
+                                class="text-sm text-red-600">
                                 {{ getErrorMessage(checkInErrors.employee_id) }}
                             </div>
 
-                            <TextInput id="end_use_at" v-model="checkInForm.end_use_at" label="Estimated End of Use" required
-                                type="datetime-local" :error="getErrorMessage(checkInErrors.end_use_at)"
+                            <TextInput
+                                id="end_use_at"
+                                v-model="checkInForm.end_use_at"
+                                label="Estimated End of Use"
+                                required
+                                type="datetime-local"
+                                :error="getErrorMessage(checkInErrors.end_use_at)"
                                 @keydown.enter.prevent="submitCheckIn" />
 
-                            <TextInput id="purpose" v-model="checkInForm.purpose" label="Purpose" required
-                                placeholder="What will you use this for?" :datalist-id="'purpose-suggestions'"
-                                :datalist-options="purposeSuggestions" :error="getErrorMessage(checkInErrors.purpose)"
+                            <TextInput
+                                id="purpose"
+                                v-model="checkInForm.purpose"
+                                label="Purpose"
+                                required
+                                placeholder="What will you use this for?"
+                                :datalist-id="'purpose-suggestions'"
+                                :datalist-options="purposeSuggestions"
+                                :error="getErrorMessage(checkInErrors.purpose)"
                                 @keydown.enter.prevent="submitCheckIn" />
 
-                            <div v-if="checkInErrors.base" class="p-3 text-sm text-red-600 rounded-lg bg-red-50">
+                            <div
+                                v-if="checkInErrors.base"
+                                class="p-3 text-sm text-red-600 rounded-lg bg-red-50">
                                 {{ checkInErrors.base }}
                             </div>
 
-                            <button type="button" @click="submitCheckIn"
+                            <button
+                                type="button"
+                                @click="submitCheckIn"
                                 class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white transition-all bg-emerald-600 rounded-xl hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
                                 <LuLogIn class="w-4 h-4" />
                                 Check In Equipment
@@ -1264,7 +1364,9 @@ export default {
                     </div>
 
                     <!-- Check-out Form -->
-                    <div v-if="hasEquipment && !notFound && canCheckOut" data-guide="equipment-actions"
+                    <div
+                        v-if="hasEquipment && !notFound && canCheckOut"
+                        data-guide="equipment-actions"
                         class="overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-gray-100 dark:border-slate-800 shadow-sm md:rounded-xl">
                         <div class="p-4 border-b border-gray-100 dark:border-slate-800 bg-amber-50/30 dark:bg-amber-900/10">
                             <div class="flex items-center justify-between">
@@ -1277,7 +1379,9 @@ export default {
                                         <p class="text-xs text-gray-500 dark:text-gray-400">End current usage session</p>
                                     </div>
                                 </div>
-                                <a :href="route('suppEquipReports.create.guest', equipment.barcode)" target="_blank"
+                                <a
+                                    :href="route('suppEquipReports.create.guest', equipment.barcode)"
+                                    target="_blank"
                                     class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 transition-colors bg-red-50 dark:bg-red-900/30 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50">
                                     <LuFlag class="w-3.5 h-3.5" />
                                     Report Issue
@@ -1286,37 +1390,59 @@ export default {
                         </div>
 
                         <div class="px-4 pb-4 space-y-4">
-                            <Transition mode="out-in" name="fade-slide">
-                                <div v-if="currentLaboratoryPersonnel && showPhilRiceField" key="saved"
+                            <Transition
+                                mode="out-in"
+                                name="fade-slide">
+                                <div
+                                    v-if="currentLaboratoryPersonnel && showPhilRiceField"
+                                    key="saved"
                                     class="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700">
                                     <div class="flex items-center gap-3">
                                         <div class="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
                                             <LuUser class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                                         </div>
                                         <div>
-                                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{
-                                                currentLaboratoryPersonnel.fullName }}</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ currentLaboratoryPersonnel.employee_id }}
+                                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                                {{ currentLaboratoryPersonnel.fullName }}
+                                            </p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                {{ currentLaboratoryPersonnel.employee_id }}
                                             </p>
                                         </div>
                                     </div>
-                                    <button type="button" @click="handlePersonnelSwitch"
+                                    <button
+                                        type="button"
+                                        @click="handlePersonnelSwitch"
                                         class="p-2 text-gray-500 dark:text-gray-400 transition-colors rounded-lg hover:bg-gray-200 dark:hover:bg-slate-700"
                                         :class="{ 'animate-spin': isRotating }">
                                         <LuRefreshCw class="w-4 h-4" />
                                     </button>
                                 </div>
 
-                                <div v-else key="manual" class="space-y-3">
+                                <div
+                                    v-else
+                                    key="manual"
+                                    class="space-y-3">
                                     <div class="flex gap-2">
-                                        <TextInput v-if="!$page.props.auth.user" id="checkout_employee_id" v-model="checkOutForm.employee_id" label="Enter Your ID" required
-                                            placeholder="PhilRice ID" class="flex-1"
+                                        <TextInput
+                                            v-if="!$page.props.auth.user"
+                                            id="checkout_employee_id"
+                                            v-model="checkOutForm.employee_id"
+                                            label="Enter Your ID"
+                                            required
+                                            placeholder="PhilRice ID"
+                                            class="flex-1"
                                             :error="getErrorMessage(checkOutErrors.employee_id)"
                                             @keydown.enter.prevent="submitCheckOut" />
-                                        <div v-else class="flex-1 text-sm font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 p-2 rounded">
-                                            ID: {{ $page.props.auth.user.employee_id || 'Authenticated User' }}
+                                        <div
+                                            v-else
+                                            class="flex-1 text-sm font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 p-2 rounded">
+                                            ID:
+                                            {{ $page.props.auth.user.employee_id || "Authenticated User" }}
                                         </div>
-                                        <button type="button" @click="handlePersonnelSwitch"
+                                        <button
+                                            type="button"
+                                            @click="handlePersonnelSwitch"
                                             class="px-3 py-2 text-gray-600 dark:text-gray-300 transition-colors bg-gray-100 dark:bg-slate-800 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-700"
                                             title="Use saved profile">
                                             <LuUser class="w-4 h-4" />
@@ -1325,18 +1451,30 @@ export default {
                                 </div>
                             </Transition>
 
-                            <div v-if="getErrorMessage(checkOutErrors.base)"
+                            <div
+                                v-if="getErrorMessage(checkOutErrors.base)"
                                 class="p-3 text-sm text-red-600 rounded-lg bg-red-50">
                                 {{ getErrorMessage(checkOutErrors.base) }}
                             </div>
 
-                            <div v-if="isAdmin" class="flex items-center gap-2 p-3 rounded-lg bg-gray-50 dark:bg-slate-800/50">
-                                <input id="admin_override" v-model="checkOutForm.admin_override" type="checkbox"
+                            <div
+                                v-if="isAdmin"
+                                class="flex items-center gap-2 p-3 rounded-lg bg-gray-50 dark:bg-slate-800/50">
+                                <input
+                                    id="admin_override"
+                                    v-model="checkOutForm.admin_override"
+                                    type="checkbox"
                                     class="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 dark:bg-slate-700 dark:border-slate-600" />
-                                <label for="admin_override" class="text-sm text-gray-700 dark:text-gray-300">Admin Override</label>
+                                <label
+                                    for="admin_override"
+                                    class="text-sm text-gray-700 dark:text-gray-300">
+                                    Admin Override
+                                </label>
                             </div>
 
-                            <button type="button" @click="submitCheckOut"
+                            <button
+                                type="button"
+                                @click="submitCheckOut"
                                 class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white transition-all bg-amber-600 rounded-xl hover:bg-amber-700 hover:shadow-lg hover:shadow-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2">
                                 <LuLogOut class="w-4 h-4" />
                                 Check Out Equipment
@@ -1347,7 +1485,9 @@ export default {
 
                 <!-- Sidebar: Active Equipment -->
                 <div class="lg:col-span-5 mt-1 sm:mt-0">
-                    <div data-guide="equipment-active" class="sticky overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-gray-100 dark:border-slate-800 shadow-sm top-4 md:rounded-xl">
+                    <div
+                        data-guide="equipment-active"
+                        class="sticky overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-gray-100 dark:border-slate-800 shadow-sm top-4 md:rounded-xl">
                         <div class="flex items-center justify-between p-4 border-b border-gray-100 dark:border-slate-800">
                             <div class="flex items-center gap-3">
                                 <div class="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
@@ -1360,7 +1500,9 @@ export default {
                             </div>
                         </div>
 
-                        <div v-if="currentLaboratoryPersonnel" class="space-y-3 p-4 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/50">
+                        <div
+                            v-if="currentLaboratoryPersonnel"
+                            class="space-y-3 p-4 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/50">
                             <div class="flex items-center justify-between rounded-xl border border-gray-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 px-4 py-3">
                                 <div class="flex items-center gap-3">
                                     <div class="rounded-lg bg-emerald-100 dark:bg-emerald-900/30 p-2">
@@ -1375,27 +1517,30 @@ export default {
                                         </p>
                                     </div>
                                 </div>
-                                <span class="rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
-                                    Current User
-                                </span>
+                                <span class="rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">Current User</span>
                             </div>
-                            <button @click="filterActiveByPersonnel = !filterActiveByPersonnel"
+                            <button
+                                @click="filterActiveByPersonnel = !filterActiveByPersonnel"
                                 class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium transition-colors rounded-lg"
                                 :class="filterActiveByPersonnel ? 'bg-blue-600 text-white' : 'bg-white/50 dark:bg-slate-800/50 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700'">
                                 <span class="flex items-center gap-2">
                                     <LuUser class="w-4 h-4" />
                                     {{ filterActiveByPersonnel ? "Showing My Equipment" : "Show My Equipment Only" }}
                                 </span>
-                                <LuChevronRight class="w-4 h-4 transition-transform"
+                                <LuChevronRight
+                                    class="w-4 h-4 transition-transform"
                                     :class="filterActiveByPersonnel ? 'rotate-90' : ''" />
                             </button>
                         </div>
 
-                        <div v-if="loadingActiveEquipments" class="flex items-center justify-center p-12">
+                        <div
+                            v-if="loadingActiveEquipments"
+                            class="flex items-center justify-center p-12">
                             <LuLoader2 class="w-6 h-6 animate-spin text-gray-400" />
                         </div>
 
-                        <div v-else-if="filteredActiveEquipments.length === 0"
+                        <div
+                            v-else-if="filteredActiveEquipments.length === 0"
                             class="flex flex-col items-center justify-center p-12 text-center">
                             <div class="p-3 mb-3 rounded-full bg-gray-100 dark:bg-slate-800">
                                 <LuPackage class="w-6 h-6 text-gray-400 dark:text-gray-500" />
@@ -1404,38 +1549,53 @@ export default {
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">All equipment is currently available</p>
                         </div>
 
-                        <div v-else class="divide-y divide-gray-100 dark:divide-slate-800 max-h-[calc(100vh-300px)] overflow-y-auto">
-                            <Link v-for="item in filteredActiveEquipments" :key="item.id"
+                        <div
+                            v-else
+                            class="divide-y divide-gray-100 dark:divide-slate-800 max-h-[calc(100vh-300px)] overflow-y-auto">
+                            <Link
+                                v-for="item in filteredActiveEquipments"
+                                :key="item.id"
                                 :href="route(showPageRoute, item.equipment_id)"
-                                class="flex items-start gap-3 p-4 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800/50" :class="{
+                                class="flex items-start gap-3 p-4 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800/50"
+                                :class="{
                                     'bg-blue-50/50 dark:bg-blue-900/10 border-l-4 border-blue-500': equipment?.id === item.equipment_id,
                                     'border-l-4 border-transparent': equipment?.id !== item.equipment_id,
                                 }">
-                            <div class="flex-shrink-0 w-2 h-2 mt-2 rounded-full"
-                                :class="isActiveItemOverdue(item) ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'" />
+                                <div
+                                    class="flex-shrink-0 w-2 h-2 mt-2 rounded-full"
+                                    :class="isActiveItemOverdue(item) ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'" />
 
-                            <div class="flex w-full">
-                                <div class="flex flex-col w-full gap-1">
-                                    <div class="flex items-start justify-between gap-2">
-                                        <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
-                                            {{ item.equipment?.name }}
-                                        </h3>
-                                        
+                                <div class="flex w-full">
+                                    <div class="flex flex-col w-full gap-1">
+                                        <div class="flex items-start justify-between gap-2">
+                                            <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                                                {{ item.equipment?.name }}
+                                            </h3>
+                                        </div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ item.equipment?.brand }}
+                                        </p>
                                     </div>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ item.equipment?.brand }}</p>
+                                    <div class="flex flex-col items-end text-xs gap-1 text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                                        <span
+                                            class="flex items-center gap-1"
+                                            :class="{
+                                                'flex-shrink-0 text-xs text-red-700 dark:text-red-400 rounded': isActiveItemOverdue(item),
+                                            }">
+                                            <span
+                                                v-if="isActiveItemOverdue(item)"
+                                                class="uppercase font-bold">
+                                                (Overdue)
+                                            </span>
+                                            {{ formatDateTime(item.end_use_at) }}
+                                            <LuClock class="w-3.5 h-3.5" />
+                                        </span>
+                                        <span class="flex items-center gap-1">
+                                            {{ formatPersonnelName(item.personnel) }}
+                                            <LuUser class="w-3.5 h-3.5" />
+                                        </span>
+                                    </div>
                                 </div>
-                                <div class="flex flex-col items-end text-xs gap-1 text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                                    <span class="flex items-center gap-1" :class="{'flex-shrink-0 text-xs text-red-700 dark:text-red-400 rounded':isActiveItemOverdue(item)}">
-                                        <span v-if="isActiveItemOverdue(item)" class="uppercase font-bold"> (Overdue) </span>
-                                        {{ formatDateTime(item.end_use_at) }}
-                                        <LuClock class="w-3.5 h-3.5" />
-                                    </span>
-                                    <span class="flex items-center gap-1">
-                                        {{ formatPersonnelName(item.personnel) }}
-                                        <LuUser class="w-3.5 h-3.5" />
-                                    </span>
-                                </div>
-                            </div>
                             </Link>
                         </div>
                     </div>
@@ -1443,35 +1603,47 @@ export default {
             </div>
         </Transition>
 
-        <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 scale-95"
-            enter-to-class="opacity-100 scale-100" leave-active-class="transition duration-150 ease-in"
-            leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
-            <div v-if="showEmailCaptureModal"
+        <Transition
+            enter-active-class="transition duration-200 ease-out"
+            enter-from-class="opacity-0 scale-95"
+            enter-to-class="opacity-100 scale-100"
+            leave-active-class="transition duration-150 ease-in"
+            leave-from-class="opacity-100 scale-100"
+            leave-to-class="opacity-0 scale-95">
+            <div
+                v-if="showEmailCaptureModal"
                 class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                 <div class="w-full max-w-md p-5 bg-white shadow-2xl rounded-2xl">
                     <div class="flex items-start justify-between gap-3 mb-5">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900">Email Required</h3>
-                            <p class="mt-1 text-sm text-gray-500">
-                                We need your email so the system can send overdue equipment reminders.
-                            </p>
+                            <p class="mt-1 text-sm text-gray-500">We need your email so the system can send overdue equipment reminders.</p>
                         </div>
-                        <button @click="showEmailCaptureModal = false"
+                        <button
+                            @click="showEmailCaptureModal = false"
                             class="p-2 text-gray-400 transition-colors rounded-lg hover:bg-gray-100">
                             <LuX class="w-5 h-5" />
                         </button>
                     </div>
 
                     <div class="space-y-4">
-                        <TextInput v-model="emailCaptureForm.email" label="Email Address" type="email" required
+                        <TextInput
+                            v-model="emailCaptureForm.email"
+                            label="Email Address"
+                            type="email"
+                            required
                             :error="getErrorMessage(emailCaptureErrors.email)"
                             @keydown.enter.prevent="submitEmailCapture" />
 
-                        <div v-if="getErrorMessage(emailCaptureErrors.base)" class="p-3 text-sm text-red-600 rounded-lg bg-red-50">
+                        <div
+                            v-if="getErrorMessage(emailCaptureErrors.base)"
+                            class="p-3 text-sm text-red-600 rounded-lg bg-red-50">
                             {{ getErrorMessage(emailCaptureErrors.base) }}
                         </div>
 
-                        <button type="button" @click="submitEmailCapture"
+                        <button
+                            type="button"
+                            @click="submitEmailCapture"
                             class="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-emerald-700">
                             <LuSave class="w-4 h-4" />
                             Save Email
@@ -1482,10 +1654,15 @@ export default {
         </Transition>
 
         <!-- Edit End Time Modal -->
-        <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 scale-95"
-            enter-to-class="opacity-100 scale-100" leave-active-class="transition duration-150 ease-in"
-            leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
-            <div v-if="showEstimatedEndUseModal && canEditActiveLog"
+        <Transition
+            enter-active-class="transition duration-200 ease-out"
+            enter-from-class="opacity-0 scale-95"
+            enter-to-class="opacity-100 scale-100"
+            leave-active-class="transition duration-150 ease-in"
+            leave-from-class="opacity-100 scale-100"
+            leave-to-class="opacity-0 scale-95">
+            <div
+                v-if="showEstimatedEndUseModal && canEditActiveLog"
                 class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                 <div class="w-full max-w-md p-4 bg-white shadow-2xl rounded-2xl">
                     <div class="flex items-center justify-between mb-6">
@@ -1495,43 +1672,67 @@ export default {
                             </div>
                             <h3 class="text-lg font-semibold text-gray-900">Extend Usage Time</h3>
                         </div>
-                        <button @click="showEstimatedEndUseModal = false; resetUpdateEndUse()"
+                        <button
+                            @click="
+                                showEstimatedEndUseModal = false;
+                                resetUpdateEndUse();
+                            "
                             class="p-2 text-gray-400 transition-colors rounded-lg hover:bg-gray-100">
                             <LuX class="w-5 h-5" />
                         </button>
                     </div>
 
                     <div class="space-y-4">
-                        <TextInput v-if="!$page.props.auth.user" id="update_end_use_employee_id" v-model="updateEndUseForm.employee_id"
-                            label="Your ID" :error="getErrorMessage(updateEndUseErrors.employee_id)"
-                            required @keydown.enter.prevent="submitUpdateEndUse" />
-                        <div v-else class="text-sm font-medium text-emerald-700 bg-emerald-50 p-2 rounded">
-                            ID: {{ $page.props.auth.user.employee_id || 'Authenticated User' }}
+                        <TextInput
+                            v-if="!$page.props.auth.user"
+                            id="update_end_use_employee_id"
+                            v-model="updateEndUseForm.employee_id"
+                            label="Your ID"
+                            :error="getErrorMessage(updateEndUseErrors.employee_id)"
+                            required
+                            @keydown.enter.prevent="submitUpdateEndUse" />
+                        <div
+                            v-else
+                            class="text-sm font-medium text-emerald-700 bg-emerald-50 p-2 rounded">
+                            ID: {{ $page.props.auth.user.employee_id || "Authenticated User" }}
                         </div>
 
-                        <TextInput id="update_end_use_at" v-model="updateEndUseForm.end_use_at" label="New End Time"
-                            type="datetime-local" :error="getErrorMessage(updateEndUseErrors.end_use_at)"
+                        <TextInput
+                            id="update_end_use_at"
+                            v-model="updateEndUseForm.end_use_at"
+                            label="New End Time"
+                            type="datetime-local"
+                            :error="getErrorMessage(updateEndUseErrors.end_use_at)"
                             @keydown.enter.prevent="submitUpdateEndUse" />
 
-                        <div v-if="getErrorMessage(updateEndUseErrors.base)"
+                        <div
+                            v-if="getErrorMessage(updateEndUseErrors.base)"
                             class="p-3 text-sm text-red-600 rounded-lg bg-red-50">
                             {{ getErrorMessage(updateEndUseErrors.base) }}
                         </div>
 
                         <div class="flex flex-wrap gap-2">
-                            <button v-for="min in [15, 30, 60, 120]" :key="min" type="button" @click="addMinutes(min)"
+                            <button
+                                v-for="min in [15, 30, 60, 120]"
+                                :key="min"
+                                type="button"
+                                @click="addMinutes(min)"
                                 class="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-emerald-700 transition-colors bg-emerald-50 rounded-lg hover:bg-emerald-100">
                                 <LuPlus class="w-3 h-3" />
                                 {{ min }}m
                             </button>
-                            <button type="button" @click="addMinutes(0)"
+                            <button
+                                type="button"
+                                @click="addMinutes(0)"
                                 class="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200">
                                 <LuRefreshCw class="w-3 h-3" />
                                 Reset
                             </button>
                         </div>
 
-                        <button type="button" @click="submitUpdateEndUse"
+                        <button
+                            type="button"
+                            @click="submitUpdateEndUse"
                             class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white transition-colors bg-emerald-600 rounded-xl hover:bg-emerald-700">
                             <LuCheckCircle2 class="w-4 h-4" />
                             Update Time

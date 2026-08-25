@@ -8,12 +8,22 @@ import RecountingTransactionLink from "@/Pages/Inventory/Transactions/components
 
 export default {
     name: "TransactionHeaderAction",
-    components: {IncommingTransactionLink, OutgoingTransactionLink, InventoryDashboardLink, AttachReportLink, CreatePersonnelLink, RecountingTransactionLink},
-}
+    components: {
+        IncommingTransactionLink,
+        OutgoingTransactionLink,
+        InventoryDashboardLink,
+        AttachReportLink,
+        CreatePersonnelLink,
+        RecountingTransactionLink,
+    },
+};
 </script>
 
 <template>
-    <ActionHeaderLayout title="Transaction History" subtitle="Track inventory movements and generate reports." :route-link="route('transactions.index')">
+    <ActionHeaderLayout
+        title="Transaction History"
+        subtitle="Track inventory movements and generate reports."
+        :route-link="route('transactions.index')">
         <InventoryDashboardLink />
         <IncommingTransactionLink />
         <OutgoingTransactionLink />
@@ -21,6 +31,4 @@ export default {
     </ActionHeaderLayout>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { Upload } from 'lucide-vue-next'
+import { Upload } from "lucide-vue-next";
 
 withDefaults(
     defineProps<{
-        size?: number
-        strokeWidth?: number
+        size?: number;
+        strokeWidth?: number;
     }>(),
     {
         size: 20,
         strokeWidth: 2,
     },
-)
+);
 </script>
 
 <template>
-    <Upload :size="size" :stroke-width="strokeWidth" v-bind="$attrs" />
+    <Upload
+        :size="size"
+        :stroke-width="strokeWidth"
+        v-bind="$attrs" />
 </template>

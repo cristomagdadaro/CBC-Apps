@@ -1,6 +1,6 @@
 <script setup>
-import Modal from '@/Components/Modal.vue';
-const emit = defineEmits(['close']);
+import Modal from "@/Components/Modal.vue";
+const emit = defineEmits(["close"]);
 
 defineProps({
     show: {
@@ -9,7 +9,7 @@ defineProps({
     },
     maxWidth: {
         type: String,
-        default: '4xl',
+        default: "4xl",
     },
     closeable: {
         type: Boolean,
@@ -18,11 +18,11 @@ defineProps({
 });
 
 const close = () => {
-    emit('close');
+    emit("close");
 };
 
 const submit = () => {
-    emit('submit');
+    emit("submit");
 };
 </script>
 
@@ -31,8 +31,7 @@ const submit = () => {
         :show="show"
         :max-width="maxWidth"
         :closeable="closeable"
-        @close="close"
-    >
+        @close="close">
         <slot />
     </Modal>
 </template>

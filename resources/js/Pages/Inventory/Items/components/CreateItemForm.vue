@@ -1,12 +1,12 @@
 <script>
-import {defineComponent} from "vue";
+import { defineComponent } from "vue";
 import ItemsHeaderActions from "@/Pages/Inventory/Items/components/ItemsHeaderActions.vue";
 import ItemForm from "./ItemForm.vue";
 
 export default defineComponent({
     name: "CreateItemForm",
     components: { ItemsHeaderActions, ItemForm },
-})
+});
 </script>
 
 <template>
@@ -18,6 +18,4 @@ export default defineComponent({
     </AppLayout>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

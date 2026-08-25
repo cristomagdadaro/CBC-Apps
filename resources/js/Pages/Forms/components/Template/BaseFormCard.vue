@@ -50,24 +50,24 @@ export default {
             if (response?.status === 201) {
                 this.model.response = response.data;
                 this.showSuccess = true;
-                this.$emit('createdModel', response.data);
+                this.$emit("createdModel", response.data);
             }
         },
         async handleUpdate() {
-            const response = await this.submitUpdate(null, 'response_data');
+            const response = await this.submitUpdate(null, "response_data");
             if (response instanceof DtoResponse) {
                 this.showSuccess = true;
-                this.$emit('updatedModel', response.data);
+                this.$emit("updatedModel", response.data);
             }
         },
         initializeForm(subformType, excludeFields = []) {
             this.model = new SubformResponse();
             if (this.isEditMode) {
-                this.setFormAction('update');
+                this.setFormAction("update");
                 this.form.id = this.responseData.id;
                 this.form.response_data = Object.assign({}, this.responseData.response_data || {});
             } else {
-                this.setFormAction('create').response_data = SubformResponse.getSubformFields(subformType);
+                this.setFormAction("create").response_data = SubformResponse.getSubformFields(subformType);
                 this.form.form_parent_id = this.eventId;
                 this.form.response_data.event_id = this.config?.event_id ?? this.eventId;
             }
@@ -81,12 +81,26 @@ export default {
 </script>
 
 <template>
-    <form v-if="form" @submit.prevent="handleSubmit()" class="py-3 relative bg-white px-3" :class="{'border border-red-600 rounded-md': form.hasErrors}">
+    <form
+        v-if="form"
+        @submit.prevent="handleSubmit()"
+        class="py-3 relative bg-white px-3"
+        :class="{ 'border border-red-600 rounded-md': form.hasErrors }">
         <transition-container type="slide-top">
-            <div v-show="showSuccess" class="absolute flex top-0 left-0 bg-AB w-full h-full z-50 text-white text-xl font-medium justify-center items-center rounded-b-md shadow">
-                <button @click.prevent="showSuccess = false" class="absolute top-0 right-0 p-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
-                        <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+            <div
+                v-show="showSuccess"
+                class="absolute flex top-0 left-0 bg-AB w-full h-full z-50 text-white text-xl font-medium justify-center items-center rounded-b-md shadow">
+                <button
+                    @click.prevent="showSuccess = false"
+                    class="absolute top-0 right-0 p-2">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        class="bi bi-x-lg"
+                        viewBox="0 0 16 16">
+                        <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
                     </svg>
                 </button>
                 <div class="flex flex-col text-center w-full gap-0.5">
@@ -97,8 +111,7 @@ export default {
                             :value="registrationIDHashed"
                             size="200"
                             level="H"
-                            class="flex justify-center mx-auto"
-                        />
+                            class="flex justify-center mx-auto" />
                     </div>
                     <span class="text-sm">Your registration has been submitted successfully</span>
                     <span class="leading-tight text-xs">You may share this code to verify your submission</span>
@@ -111,5 +124,4 @@ export default {
     </form>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

@@ -1,5 +1,5 @@
 function realtimeConfig() {
-    if (typeof window === 'undefined') {
+    if (typeof window === "undefined") {
         return {};
     }
 
@@ -21,7 +21,7 @@ export function isRealtimeFeatureEnabled(feature) {
 }
 
 export function isRealtimeAvailable() {
-    return typeof window !== 'undefined' && isRealtimeFeatureEnabled() && !!window.Echo;
+    return typeof window !== "undefined" && isRealtimeFeatureEnabled() && !!window.Echo;
 }
 
 export function subscribeToRealtimeChannels(subscriptions = []) {
@@ -30,19 +30,17 @@ export function subscribeToRealtimeChannels(subscriptions = []) {
     }
 
     const cleanups = subscriptions.map((subscription) => {
-        const type = subscription.type || 'private';
+        const type = subscription.type || "private";
         const channelName = subscription.channel;
         const eventName = subscription.event;
         const handler = subscription.handler;
         const feature = subscription.feature;
 
-        if (!channelName || !eventName || typeof handler !== 'function' || !isRealtimeFeatureEnabled(feature)) {
+        if (!channelName || !eventName || typeof handler !== "function" || !isRealtimeFeatureEnabled(feature)) {
             return () => {};
         }
 
-        const channel = type === 'public'
-            ? window.Echo.channel(channelName)
-            : window.Echo.private(channelName);
+        const channel = type === "public" ? window.Echo.channel(channelName) : window.Echo.private(channelName);
 
         channel.listen(`.${eventName}`, handler);
 
@@ -59,71 +57,71 @@ export function subscribeToRealtimeChannels(subscriptions = []) {
 
 export function resolveDatatableRealtimeSubscriptions(indexApi) {
     const map = {
-        'api.inventory.transactions.index': [
+        "api.inventory.transactions.index": [
             {
-                type: 'private',
-                channel: 'inventory.transactions',
-                event: 'inventory.transaction.changed',
-                feature: 'inventory',
+                type: "private",
+                channel: "inventory.transactions",
+                event: "inventory.transaction.changed",
+                feature: "inventory",
             },
         ],
-        'api.inventory.transactions.index.public': [
+        "api.inventory.transactions.index.public": [
             {
-                type: 'public',
-                channel: 'public.inventory.stock',
-                event: 'inventory.transaction.changed',
-                feature: 'inventory',
+                type: "public",
+                channel: "public.inventory.stock",
+                event: "inventory.transaction.changed",
+                feature: "inventory",
             },
         ],
-        'api.inventory.items.index': [
+        "api.inventory.items.index": [
             {
-                type: 'private',
-                channel: 'inventory.items',
-                event: 'reference-data.changed',
-                feature: 'inventory',
-                shouldRefresh: (payload) => payload?.domain === 'items',
+                type: "private",
+                channel: "inventory.items",
+                event: "reference-data.changed",
+                feature: "inventory",
+                shouldRefresh: (payload) => payload?.domain === "items",
             },
         ],
-        'api.inventory.personnels.index': [
+        "api.inventory.personnels.index": [
             {
-                type: 'private',
-                channel: 'inventory.personnels',
-                event: 'reference-data.changed',
-                feature: 'inventory',
-                shouldRefresh: (payload) => payload?.domain === 'personnels',
+                type: "private",
+                channel: "inventory.personnels",
+                event: "reference-data.changed",
+                feature: "inventory",
+                shouldRefresh: (payload) => payload?.domain === "personnels",
             },
         ],
-        'api.inventory.suppliers.index': [
+        "api.inventory.suppliers.index": [
             {
-                type: 'private',
-                channel: 'inventory.suppliers',
-                event: 'reference-data.changed',
-                feature: 'inventory',
-                shouldRefresh: (payload) => payload?.domain === 'suppliers',
+                type: "private",
+                channel: "inventory.suppliers",
+                event: "reference-data.changed",
+                feature: "inventory",
+                shouldRefresh: (payload) => payload?.domain === "suppliers",
             },
         ],
-        'api.laboratory.logs.index': [
+        "api.laboratory.logs.index": [
             {
-                type: 'private',
-                channel: 'laboratory.logs',
-                event: 'equipment.log.changed',
-                feature: 'laboratory',
+                type: "private",
+                channel: "laboratory.logs",
+                event: "equipment.log.changed",
+                feature: "laboratory",
             },
         ],
-        'api.equipment-logger.equipments.index': [
+        "api.equipment-logger.equipments.index": [
             {
-                type: 'private',
-                channel: 'laboratory.logs',
-                event: 'equipment.log.changed',
-                feature: 'laboratory',
+                type: "private",
+                channel: "laboratory.logs",
+                event: "equipment.log.changed",
+                feature: "laboratory",
             },
         ],
-        'api.research.samples.inventory.index': [
+        "api.research.samples.inventory.index": [
             {
-                type: 'private',
-                channel: 'research.samples',
-                event: 'research.sample.inventory.changed',
-                feature: 'research',
+                type: "private",
+                channel: "research.samples",
+                event: "research.sample.inventory.changed",
+                feature: "research",
             },
         ],
     };

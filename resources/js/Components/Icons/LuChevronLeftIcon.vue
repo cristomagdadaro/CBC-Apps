@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { ChevronLeftIcon } from 'lucide-vue-next'
+import { ChevronLeftIcon } from "lucide-vue-next";
 
 withDefaults(
     defineProps<{
-        size?: number
-        strokeWidth?: number
+        size?: number;
+        strokeWidth?: number;
     }>(),
     {
         size: 20,
         strokeWidth: 2,
     },
-)
+);
 </script>
 
 <template>
-    <ChevronLeftIcon :size="size" :stroke-width="strokeWidth" v-bind="$attrs" />
+    <ChevronLeftIcon
+        :size="size"
+        :stroke-width="strokeWidth"
+        v-bind="$attrs" />
 </template>

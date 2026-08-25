@@ -1,5 +1,5 @@
 <template>
-  <thead id="dtHeader">
-   <slot />
-  </thead>
+    <thead id="dtHeader">
+        <slot />
+    </thead>
 </template>

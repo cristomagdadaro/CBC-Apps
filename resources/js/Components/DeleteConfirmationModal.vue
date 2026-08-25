@@ -24,7 +24,7 @@ export default {
         },
         confirmButtonLabel: {
             type: String,
-            default: 'Confirm Delete',
+            default: "Confirm Delete",
         },
         permanentDeleteEnabled: {
             type: Boolean,
@@ -32,7 +32,7 @@ export default {
         },
         permanentDeleteLabel: {
             type: String,
-            default: 'Permanent Delete',
+            default: "Permanent Delete",
         },
         permanentDeletePrompt: {
             type: String,
@@ -40,17 +40,17 @@ export default {
         },
         permanentDeleteTarget: {
             type: String,
-            default: '',
+            default: "",
         },
         confirmationError: {
             type: String,
             default: null,
         },
     },
-    emits: ['confirm', 'confirm-permanent', 'close'],
+    emits: ["confirm", "confirm-permanent", "close"],
     data() {
         return {
-            permanentDeleteInput: '',
+            permanentDeleteInput: "",
         };
     },
     computed: {
@@ -65,27 +65,29 @@ export default {
     watch: {
         show(value) {
             if (!value) {
-                this.permanentDeleteInput = '';
+                this.permanentDeleteInput = "";
             }
         },
     },
     methods: {
         handleConfirm() {
-            this.$emit('confirm');
+            this.$emit("confirm");
         },
         handlePermanentConfirm() {
-            this.$emit('confirm-permanent', this.permanentDeleteInput.trim());
+            this.$emit("confirm-permanent", this.permanentDeleteInput.trim());
         },
         handleClose() {
-            this.permanentDeleteInput = '';
-            this.$emit('close');
+            this.permanentDeleteInput = "";
+            this.$emit("close");
         },
     },
 };
 </script>
 
 <template>
-    <confirmation-modal :show="show" @close="handleClose">
+    <confirmation-modal
+        :show="show"
+        @close="handleClose">
         <template #title>
             {{ title }}
         </template>
@@ -93,10 +95,14 @@ export default {
         <template #content>
             <div class="flex flex-col gap-2">
                 <p>{{ message }}</p>
-                <p v-if="itemName" class="font-semibold text-gray-700">
+                <p
+                    v-if="itemName"
+                    class="font-semibold text-gray-700">
                     {{ itemName }}
                 </p>
-                <div v-if="permanentDeleteEnabled" class="mt-3 rounded border border-red-200 bg-red-50 p-3">
+                <div
+                    v-if="permanentDeleteEnabled"
+                    class="mt-3 rounded border border-red-200 bg-red-50 p-3">
                     <p class="text-sm text-red-700">
                         {{ permanentDeletePrompt }}
                     </p>
@@ -105,9 +111,10 @@ export default {
                         label="CBC Barcode Confirmation"
                         :model-value="permanentDeleteInput"
                         @update:model-value="permanentDeleteInput = $event"
-                        :placeholder="permanentDeleteTarget"
-                    />
-                    <p v-if="confirmationError" class="text-sm text-red-600">
+                        :placeholder="permanentDeleteTarget" />
+                    <p
+                        v-if="confirmationError"
+                        class="text-sm text-red-600">
                         {{ confirmationError }}
                     </p>
                 </div>
@@ -117,11 +124,10 @@ export default {
         <template #footer>
             <div class="flex justify-between w-full">
                 <div class="flex gap-2">
-                    <delete-btn 
-                        @click="handleConfirm" 
+                    <delete-btn
+                        @click="handleConfirm"
                         :disabled="isProcessing"
-                        :class="{'animate-pulse': isProcessing}"
-                    >
+                        :class="{ 'animate-pulse': isProcessing }">
                         <div class="flex gap-1 items-center">
                             <loader-icon v-if="isProcessing" />
                             <span v-if="!isProcessing">{{ confirmButtonLabel }}</span>
@@ -132,12 +138,13 @@ export default {
                         v-if="permanentDeleteEnabled"
                         @click="handlePermanentConfirm"
                         :disabled="isProcessing || !canConfirmPermanent"
-                        class="bg-red-700 text-white hover:bg-red-800 disabled:opacity-50"
-                    >
+                        class="bg-red-700 text-white hover:bg-red-800 disabled:opacity-50">
                         {{ permanentDeleteLabel }}
                     </delete-btn>
                 </div>
-                <cancel-btn @click="handleClose" :disabled="isProcessing">
+                <cancel-btn
+                    @click="handleClose"
+                    :disabled="isProcessing">
                     Cancel
                 </cancel-btn>
             </div>
@@ -145,5 +152,4 @@ export default {
     </confirmation-modal>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

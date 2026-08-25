@@ -5,20 +5,8 @@ import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 import { subscribeToRealtimeChannels } from "@/Modules/realtime/subscriptions";
 import SuccessModal from "@/Components/SuccessModal.vue";
 import CalendarModule from "@/Components/CalendarModule.vue";
-import {
-    rentalVehicleTripOptions,
-    getTripTypeMeta,
-} from "@/Pages/Rentals/constants/tripWorkflows";
-import {
-    Car,
-    CalendarDays,
-    Loader2,
-    AlertTriangle,
-    Info,
-    X,
-    ChevronDown,
-    CheckCircle2,
-} from "lucide-vue-next";
+import { rentalVehicleTripOptions, getTripTypeMeta } from "@/Pages/Rentals/constants/tripWorkflows";
+import { Car, CalendarDays, Loader2, AlertTriangle, Info, X, ChevronDown, CheckCircle2 } from "lucide-vue-next";
 
 export default {
     name: "VehicleRentalForm",
@@ -142,9 +130,7 @@ export default {
             this.realtimeCleanup = subscribeToRealtimeChannels([
                 {
                     type: this.isGuestContext ? "public" : "private",
-                    channel: this.isGuestContext
-                        ? "public.rentals.calendar"
-                        : "rentals.calendar",
+                    channel: this.isGuestContext ? "public.rentals.calendar" : "rentals.calendar",
                     event: "rentals.calendar.changed",
                     handler: () => this.scheduleRealtimeRefresh(),
                 },
@@ -162,9 +148,7 @@ export default {
         routeNameFor(type) {
             const routeMap = {
                 index: "api.guest.rental.vehicles.index",
-                create: this.isGuestContext
-                    ? "api.guest.rental.vehicles.store"
-                    : "api.rental.vehicles.store",
+                create: this.isGuestContext ? "api.guest.rental.vehicles.store" : "api.rental.vehicles.store",
             };
 
             return routeMap[type];
@@ -208,9 +192,7 @@ export default {
         syncMembersOfPartyPayload() {
             if (!this.form) return;
 
-            this.form.members_of_party = this.membersOfPartyRows
-                .map((row) => String(row?.name ?? "").trim())
-                .filter((name) => !!name);
+            this.form.members_of_party = this.membersOfPartyRows.map((row) => String(row?.name ?? "").trim()).filter((name) => !!name);
         },
         addMemberOfPartyRow() {
             this.membersOfPartyRows.push(this.createEmptyMemberRow());
@@ -231,9 +213,7 @@ export default {
             return rows.map((rental) => ({
                 id: rental.id,
                 label: `${rental.vehicle_type || "Vehicle"} booking`,
-                subtitle: [rental.trip_type, rental.status]
-                    .filter(Boolean)
-                    .join(" - "),
+                subtitle: [rental.trip_type, rental.status].filter(Boolean).join(" - "),
                 type: rental.vehicle_type || rental.trip_type || "vehicle",
                 status: rental.status || "pending",
                 date_from: rental.date_from,
@@ -247,19 +227,11 @@ export default {
             this.calendarLoading = true;
 
             try {
-                const response = await this.fetchGetApi(
-                    this.routeNameFor("index"),
-                    {
-                        statuses:
-                            "pending,approved,in_progress,rejected,cancelled,completed",
-                    },
-                );
+                const response = await this.fetchGetApi(this.routeNameFor("index"), {
+                    statuses: "pending,approved,in_progress,rejected,cancelled,completed",
+                });
 
-                const rows = Array.isArray(response?.data)
-                    ? response.data
-                    : Array.isArray(response)
-                      ? response
-                      : [];
+                const rows = Array.isArray(response?.data) ? response.data : Array.isArray(response) ? response : [];
 
                 this.calendarEvents = this.normalizeCalendarEvents(rows);
             } catch (error) {
@@ -272,38 +244,23 @@ export default {
             this.syncDestinationStops();
             this.syncMembersOfPartyPayload();
 
-            const data = this.isGuestContext
-                ? await this.fetchPostApi(
-                      this.routeNameFor("create"),
-                      this.form.data(),
-                  )
-                : await this.submitCreate();
+            const data = this.isGuestContext ? await this.fetchPostApi(this.routeNameFor("create"), this.form.data()) : await this.submitCreate();
 
-            if (
-                (data && data.error) ||
-                data.status === 422 ||
-                data.status === 500
-            ) {
-                this.form.errors.general =
-                    data.message || "Failed to submit rental request";
+            if ((data && data.error) || data.status === 422 || data.status === 500) {
+                this.form.errors.general = data.message || "Failed to submit rental request";
                 return;
             }
 
             await this.loadCalendarEvents();
 
-            this.successMessage =
-                data && data.message
-                    ? data.message
-                    : "Rental request submitted successfully";
+            this.successMessage = data && data.message ? data.message : "Rental request submitted successfully";
             this.showSuccessModal = true;
             this.$emit("submitted", data.data ?? data);
         },
     },
     mounted() {
         this.hydrateMembersOfPartyRows();
-        this.destinationStopInput = Array.isArray(this.form?.destination_stops)
-            ? this.form.destination_stops.join("\n")
-            : "";
+        this.destinationStopInput = Array.isArray(this.form?.destination_stops) ? this.form.destination_stops.join("\n") : "";
         this.loadCalendarEvents();
         this.configureRealtime();
     },
@@ -322,81 +279,45 @@ export default {
         :show="showSuccessModal"
         title="Success!"
         :message="successMessage"
-        @close="showSuccessModal = false"
-    />
+        @close="showSuccessModal = false" />
 
     <div class="grid lg:grid-cols-4 gap-6 mt-3 md:mt-0">
         <!-- Left Column: Form -->
         <div
             data-guide="rental-form-shell"
             v-if="form"
-            class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 p-6 rounded-2xl shadow-sm h-fit w-full lg:col-span-1"
-        >
-            <div
-                class="flex items-center gap-3 pb-5 mb-5 border-b border-slate-100 dark:border-slate-800/60"
-            >
-                <div
-                    class="p-2.5 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-xl shadow-sm shrink-0"
-                >
+            class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 p-6 rounded-2xl shadow-sm h-fit w-full lg:col-span-1">
+            <div class="flex items-center gap-3 pb-5 mb-5 border-b border-slate-100 dark:border-slate-800/60">
+                <div class="p-2.5 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-xl shadow-sm shrink-0">
                     <Car class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
-                    <p
-                        class="text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-0.5"
-                    >
-                        Booking
-                    </p>
-                    <h2
-                        class="text-lg font-bold text-slate-900 dark:text-white tracking-tight"
-                    >
-                        Vehicle Request
-                    </h2>
+                    <p class="text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-0.5">Booking</p>
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white tracking-tight">Vehicle Request</h2>
                 </div>
             </div>
 
             <!-- Informational Alerts -->
             <div class="space-y-3 mb-6">
-                <div
-                    class="bg-amber-50/80 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 p-4 rounded-xl shadow-xs"
-                >
+                <div class="bg-amber-50/80 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 p-4 rounded-xl shadow-xs">
                     <div class="flex items-start gap-3">
-                        <AlertTriangle
-                            class="w-5 h-5 text-amber-600 dark:text-amber-500 mt-0.5 shrink-0"
-                        />
+                        <AlertTriangle class="w-5 h-5 text-amber-600 dark:text-amber-500 mt-0.5 shrink-0" />
                         <div>
-                            <p
-                                class="text-amber-800 dark:text-amber-400 font-medium text-xs leading-relaxed"
-                            >
-                                <span
-                                    class="font-bold uppercase tracking-wider block mb-1"
-                                    >Internal Use Only:</span
-                                >
-                                This form is exclusively for CBC internal use.
-                                Please note that submission does not replace the
-                                official PhilRice Travel Filing Protocols, which
-                                must still be followed.
+                            <p class="text-amber-800 dark:text-amber-400 font-medium text-xs leading-relaxed">
+                                <span class="font-bold uppercase tracking-wider block mb-1">Internal Use Only:</span>
+                                This form is exclusively for CBC internal use. Please note that submission does not replace the official PhilRice Travel Filing Protocols, which must still be followed.
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <div
-                    class="bg-indigo-50/80 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 rounded-xl p-4 shadow-xs"
-                >
-                    <h2
-                        class="text-xs font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 flex items-center gap-2 mb-2"
-                    >
-                        <Info
-                            class="w-4 h-4 text-indigo-600 dark:text-indigo-400"
-                        />
+                <div class="bg-indigo-50/80 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 rounded-xl p-4 shadow-xs">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 flex items-center gap-2 mb-2">
+                        <Info class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                         Important Reminders
                     </h2>
-                    <ul
-                        class="text-[0.7rem] font-medium text-indigo-800 dark:text-indigo-400 space-y-1.5 ml-6 list-disc"
-                    >
-                        <li>
-                            Ensure all required fields are completed accurately.
-                        </li>
+                    <ul class="text-[0.7rem] font-medium text-indigo-800 dark:text-indigo-400 space-y-1.5 ml-6 list-disc">
+                        <li>Ensure all required fields are completed accurately.</li>
                         <li>Refer to the filled Travel Order (TO).</li>
                     </ul>
                 </div>
@@ -404,13 +325,11 @@ export default {
 
             <form
                 @submit.prevent="submitProxyCreate"
-                class="space-y-5 w-full h-fit"
-            >
+                class="space-y-5 w-full h-fit">
                 <!-- General Error -->
                 <div
                     v-if="form.errors.general"
-                    class="p-4 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-xl text-rose-700 dark:text-rose-400 text-xs font-bold shadow-sm"
-                >
+                    class="p-4 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-xl text-rose-700 dark:text-rose-400 text-xs font-bold shadow-sm">
                     {{ form.errors.general }}
                 </div>
 
@@ -425,32 +344,20 @@ export default {
                         :with-all-option="false"
                         :options="tripTypeOptions"
                         :error="form.errors.trip_type"
-                        class="w-full"
-                    >
+                        class="w-full">
                         <template #icon>
-                            <ChevronDown
-                                class="h-4 w-4 text-slate-400 dark:text-slate-500"
-                            />
+                            <ChevronDown class="h-4 w-4 text-slate-400 dark:text-slate-500" />
                         </template>
                     </custom-dropdown>
 
                     <div
                         v-if="selectedTripTypeMeta"
-                        class="rounded-xl border border-slate-200/60 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-800/30 p-4 shadow-xs"
-                    >
-                        <p
-                            class="text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400"
-                        >
-                            Selected Workflow
-                        </p>
-                        <p
-                            class="mt-1 text-sm font-bold text-slate-900 dark:text-white"
-                        >
+                        class="rounded-xl border border-slate-200/60 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-800/30 p-4 shadow-xs">
+                        <p class="text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Selected Workflow</p>
+                        <p class="mt-1 text-sm font-bold text-slate-900 dark:text-white">
                             {{ selectedTripTypeMeta.label }}
                         </p>
-                        <p
-                            class="mt-1 text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed"
-                        >
+                        <p class="mt-1 text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed">
                             {{ selectedTripTypeMeta.description }}
                         </p>
                     </div>
@@ -465,8 +372,7 @@ export default {
                         v-model="form.date_from"
                         :min="minDate"
                         :error="form.errors.date_from"
-                        class="block w-full"
-                    />
+                        class="block w-full" />
                     <DateInput
                         id="date_to"
                         label="End Date"
@@ -475,8 +381,7 @@ export default {
                         type="date"
                         :min="form.date_from || minDate"
                         :error="form.errors.date_to"
-                        class="block w-full"
-                    />
+                        class="block w-full" />
                 </div>
 
                 <!-- Time Range -->
@@ -487,16 +392,14 @@ export default {
                         required
                         v-model="form.time_from"
                         :error="form.errors.time_from"
-                        class="block w-full"
-                    />
+                        class="block w-full" />
                     <TimeInput
                         id="time_to"
                         label="End Time"
                         required
                         v-model="form.time_to"
                         :error="form.errors.time_to"
-                        class="block w-full"
-                    />
+                        class="block w-full" />
                 </div>
 
                 <!-- Purpose -->
@@ -507,39 +410,31 @@ export default {
                     required
                     placeholder="Describe the purpose of your vehicle rental"
                     :error="form.errors.purpose"
-                    class="block w-full"
-                ></TextArea>
+                    class="block w-full"></TextArea>
 
                 <!-- Destination Location -->
                 <div>
-                    <label
-                        class="block text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2"
-                    >
-                        Destination Location
-                    </label>
+                    <label class="block text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Destination Location</label>
                     <div class="grid grid-cols-1 gap-4">
                         <SelectRegion
                             v-model="form.destination_region"
                             :error="form.errors.destination_region"
                             @update:modelValue="handleDestinationRegionChange"
-                            class="block w-full"
-                        />
+                            class="block w-full" />
                         <SelectProvince
                             v-model="form.destination_province"
                             :region="form.destination_region"
                             :disabled="!form.destination_region"
                             :error="form.errors.destination_province"
                             @update:modelValue="handleDestinationProvinceChange"
-                            class="block w-full"
-                        />
+                            class="block w-full" />
                         <SelectCity
                             v-model="form.destination_city"
                             :region="form.destination_region"
                             :province="form.destination_province"
                             :disabled="!form.destination_province"
                             :error="form.errors.destination_city"
-                            class="block w-full"
-                        />
+                            class="block w-full" />
                     </div>
                 </div>
 
@@ -551,8 +446,7 @@ export default {
                     type="text"
                     placeholder="Specific destination / address"
                     :error="form.errors.destination_location"
-                    class="block w-full"
-                />
+                    class="block w-full" />
 
                 <TextArea
                     id="destination_stops"
@@ -561,24 +455,15 @@ export default {
                     placeholder="One stop per line for shuttle or multi-stop trips"
                     @input="syncDestinationStops"
                     :error="form.errors.destination_stops"
-                    class="block w-full"
-                ></TextArea>
+                    class="block w-full"></TextArea>
 
                 <!-- Shared Ride Checkbox -->
-                <div
-                    class="rounded-xl border border-slate-200/60 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-800/30 p-4 shadow-xs"
-                >
+                <div class="rounded-xl border border-slate-200/60 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-800/30 p-4 shadow-xs">
                     <Checkbox
                         v-model:checked="form.is_shared_ride"
                         name="is_shared_ride"
-                        label="Shared/Hitch Ride"
-                    />
-                    <span
-                        class="block text-xs font-medium text-slate-500 dark:text-slate-400 mt-1.5 pl-6 leading-relaxed"
-                    >
-                        Enable this if the trip can be grouped with another
-                        approved request.
-                    </span>
+                        label="Shared/Hitch Ride" />
+                    <span class="block text-xs font-medium text-slate-500 dark:text-slate-400 mt-1.5 pl-6 leading-relaxed">Enable this if the trip can be grouped with another approved request.</span>
                 </div>
 
                 <TextInput
@@ -589,15 +474,13 @@ export default {
                     type="text"
                     placeholder="Full name of the person you're sharing with"
                     :error="form.errors.shared_ride_reference"
-                    class="block w-full"
-                />
+                    class="block w-full" />
 
                 <!-- Requestor Details -->
                 <div class="space-y-5">
                     <PersonnelLookup
                         v-model="employee_id"
-                        @found="handlePersonnelFound"
-                    />
+                        @found="handlePersonnelFound" />
                     <TextInput
                         id="requested_by"
                         label="Your Name"
@@ -606,8 +489,7 @@ export default {
                         type="text"
                         placeholder="Full name"
                         :error="form.errors.requested_by"
-                        class="block w-full"
-                    />
+                        class="block w-full" />
                 </div>
 
                 <TextInput
@@ -618,48 +500,34 @@ export default {
                     type="text"
                     placeholder="e.g. Crop Biotechnology Center"
                     :error="form.errors.organization"
-                    class="block w-full"
-                />
+                    class="block w-full" />
 
-                <div
-                    class="rounded-xl border border-slate-200/60 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-800/30 p-5 shadow-xs space-y-4"
-                >
+                <div class="rounded-xl border border-slate-200/60 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-800/30 p-5 shadow-xs space-y-4">
                     <div class="flex items-center justify-between">
-                        <label
-                            class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400"
-                            >Members of the Party (MOP)</label
-                        >
+                        <label class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Members of the Party (MOP)</label>
                         <button
                             type="button"
                             class="inline-flex items-center gap-1 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-wider border border-dashed border-indigo-300 dark:border-indigo-500/50 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors"
-                            @click="addMemberOfPartyRow"
-                        >
+                            @click="addMemberOfPartyRow">
                             + Add Member
                         </button>
                     </div>
 
-                    <p
-                        class="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed"
-                    >
-                        Add companions for this trip. Leave empty if none.
-                    </p>
+                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">Add companions for this trip. Leave empty if none.</p>
 
                     <div
                         v-if="form.errors.members_of_party"
-                        class="text-xs font-semibold text-rose-600 dark:text-rose-400"
-                    >
+                        class="text-xs font-semibold text-rose-600 dark:text-rose-400">
                         {{ form.errors.members_of_party }}
                     </div>
 
                     <div
                         v-if="membersOfPartyRows.length"
-                        class="flex flex-col gap-3"
-                    >
+                        class="flex flex-col gap-3">
                         <div
                             v-for="(member, index) in membersOfPartyRows"
                             :key="`mop-${index}`"
-                            class="flex gap-3 items-start"
-                        >
+                            class="flex gap-3 items-start">
                             <div class="flex-1">
                                 <TextInput
                                     :id="`members_of_party_${index}`"
@@ -668,12 +536,10 @@ export default {
                                     type="text"
                                     placeholder="Enter member full name"
                                     @input="syncMembersOfPartyPayload"
-                                    class="block w-full"
-                                />
+                                    class="block w-full" />
                                 <p
                                     v-if="memberRowError(index)"
-                                    class="text-xs font-semibold text-rose-600 dark:text-rose-400 mt-1"
-                                >
+                                    class="text-xs font-semibold text-rose-600 dark:text-rose-400 mt-1">
                                     {{ memberRowError(index) }}
                                 </p>
                             </div>
@@ -683,8 +549,7 @@ export default {
                                     type="button"
                                     class="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-colors border border-transparent hover:border-rose-200 dark:hover:border-rose-500/30"
                                     @click="removeMemberOfPartyRow(index)"
-                                    title="Remove member"
-                                >
+                                    title="Remove member">
                                     <X class="h-4 w-4" />
                                 </button>
                             </div>
@@ -700,73 +565,45 @@ export default {
                     type="tel"
                     placeholder="09XX-XXX-XXXX"
                     :error="form.errors.contact_number"
-                    class="block w-full"
-                />
+                    class="block w-full" />
 
                 <TextArea
                     id="notes"
                     label="Additional Notes"
                     v-model="form.notes"
                     placeholder="Any additional information..."
-                    class="block w-full"
-                ></TextArea>
+                    class="block w-full" />
 
                 <!-- Submit Button -->
-                <div
-                    class="pt-5 border-t border-slate-100 dark:border-slate-800/60 mt-6"
-                >
+                <div class="pt-5 border-t border-slate-100 dark:border-slate-800/60 mt-6">
                     <button
                         type="submit"
                         :disabled="processing"
-                        class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3.5 text-sm shadow-sm transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
-                    >
+                        class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3.5 text-sm shadow-sm transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none">
                         <Loader2
                             v-if="processing"
-                            class="animate-spin w-4 h-4"
-                        />
-                        <span>{{
-                            processing
-                                ? "Submitting..."
-                                : "Submit Vehicle Request"
-                        }}</span>
+                            class="animate-spin w-4 h-4" />
+                        <span>{{ processing ? "Submitting..." : "Submit Vehicle Request" }}</span>
                     </button>
                 </div>
             </form>
         </div>
 
         <!-- Right Column: Calendar -->
-        <div
-            class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 p-6 rounded-2xl shadow-sm lg:col-span-3 h-fit flex flex-col gap-4"
-        >
-            <div
-                class="border-b border-slate-100 dark:border-slate-800/60 pb-4 flex items-center gap-3"
-            >
-                <div
-                    class="p-2 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-xl shadow-sm shrink-0"
-                >
-                    <CalendarDays
-                        class="w-5 h-5 text-indigo-600 dark:text-indigo-400"
-                    />
+        <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 p-6 rounded-2xl shadow-sm lg:col-span-3 h-fit flex flex-col gap-4">
+            <div class="border-b border-slate-100 dark:border-slate-800/60 pb-4 flex items-center gap-3">
+                <div class="p-2 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-xl shadow-sm shrink-0">
+                    <CalendarDays class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
-                    <h3
-                        class="text-base font-bold text-slate-900 dark:text-white tracking-tight"
-                    >
-                        Vehicle Availability Calendar
-                    </h3>
-                    <p
-                        class="text-xs font-medium text-slate-500 dark:text-slate-400"
-                    >
-                        Review current request schedules and workflow states
-                        before submitting.
-                    </p>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white tracking-tight">Vehicle Availability Calendar</h3>
+                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Review current request schedules and workflow states before submitting.</p>
                 </div>
             </div>
 
             <div
                 v-if="calendarLoading"
-                class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 flex items-center gap-2 justify-center py-16"
-            >
+                class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 flex items-center gap-2 justify-center py-16">
                 <Loader2 class="w-5 h-5 text-indigo-500 animate-spin" />
                 Loading booking calendars...
             </div>
@@ -782,8 +619,7 @@ export default {
                 :show-type-filter="true"
                 :show-status-filter="true"
                 :show-stats="false"
-                class="!bg-transparent !shadow-none !border-0"
-            />
+                class="!bg-transparent !shadow-none !border-0" />
         </div>
     </div>
 </template>

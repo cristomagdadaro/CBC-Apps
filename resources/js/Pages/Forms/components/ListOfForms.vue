@@ -21,7 +21,6 @@ export default {
             v-for="data in formsData"
             :key="data.id"
             :data="data"
-            @deletedModel="handleDelete"
-        />
+            @deletedModel="handleDelete" />
     </div>
 </template>

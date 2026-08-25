@@ -1,5 +1,5 @@
 <script setup>
-import { Clock3 } from 'lucide-vue-next'
+import { Clock3 } from "lucide-vue-next";
 </script>
 
 <template>

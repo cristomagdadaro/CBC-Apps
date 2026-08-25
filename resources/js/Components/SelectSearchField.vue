@@ -104,28 +104,18 @@ export default {
                     ...(search ? { search } : {}),
                 };
 
-                this.fetchedResponse = await this.api.getApi(
-                    this.apiLink,
-                    params,
-                );
+                this.fetchedResponse = await this.api.getApi(this.apiLink, params);
 
                 // Normalize possible payload shapes
                 let items = [];
-                if (Array.isArray(this.fetchedResponse?.data?.data))
-                    items = this.fetchedResponse.data.data;
-                else if (Array.isArray(this.fetchedResponse?.data))
-                    items = this.fetchedResponse.data;
-                else if (Array.isArray(this.fetchedResponse))
-                    items = this.fetchedResponse;
+                if (Array.isArray(this.fetchedResponse?.data?.data)) items = this.fetchedResponse.data.data;
+                else if (Array.isArray(this.fetchedResponse?.data)) items = this.fetchedResponse.data;
+                else if (Array.isArray(this.fetchedResponse)) items = this.fetchedResponse;
 
                 if (items.length) {
-                    const newOptions = items
-                        .map((item) => this.formatOption(item))
-                        .filter(Boolean);
+                    const newOptions = items.map((item) => this.formatOption(item)).filter(Boolean);
 
-                    this.formattedOptions = append
-                        ? [...this.formattedOptions, ...newOptions]
-                        : newOptions;
+                    this.formattedOptions = append ? [...this.formattedOptions, ...newOptions] : newOptions;
 
                     this.filteredOptions = this.formattedOptions;
                     this.hasMoreData = newOptions.length === this.perPage;
@@ -146,11 +136,7 @@ export default {
             if (!this.hasMoreData || this.isLoadingMore || !this.api) return;
 
             this.currentPage++;
-            await this.getOptionsFromApi(
-                this.currentSearch,
-                this.currentPage,
-                true,
-            );
+            await this.getOptionsFromApi(this.currentSearch, this.currentPage, true);
         },
 
         selectOption(option) {
@@ -181,10 +167,7 @@ export default {
         debounceApiCall(eventOrValue) {
             clearTimeout(this.debounceTimeout);
             this.debounceTimeout = setTimeout(() => {
-                const value =
-                    typeof eventOrValue === "string"
-                        ? eventOrValue
-                        : (eventOrValue?.target?.value ?? "");
+                const value = typeof eventOrValue === "string" ? eventOrValue : (eventOrValue?.target?.value ?? "");
                 this.handleSearch(value);
             }, 300);
         },
@@ -221,9 +204,7 @@ export default {
                 this.filteredOptions = [...this.formattedOptions];
             } else {
                 const normalizedSearch = this.normalizeForSearch(searchValue);
-                const searchTerms = normalizedSearch
-                    .split(/\s+/)
-                    .filter((t) => t.length > 0); // Split into individual terms, filter empty
+                const searchTerms = normalizedSearch.split(/\s+/).filter((t) => t.length > 0); // Split into individual terms, filter empty
 
                 // Score and filter options
                 const scored = this.formattedOptions
@@ -248,33 +229,19 @@ export default {
                             score += 500;
                         }
                         // All search terms appear in label (word match)
-                        else if (
-                            searchTerms.length > 0 &&
-                            searchTerms.every((term) => label.includes(term))
-                        ) {
+                        else if (searchTerms.length > 0 && searchTerms.every((term) => label.includes(term))) {
                             score += 400;
                         }
                         // Any single term appears in label
-                        else if (
-                            searchTerms.length > 0 &&
-                            searchTerms.some((term) => label.includes(term))
-                        ) {
+                        else if (searchTerms.length > 0 && searchTerms.some((term) => label.includes(term))) {
                             score += 250;
                         }
                         // All search terms appear in combined text
-                        else if (
-                            searchTerms.length > 0 &&
-                            searchTerms.every((term) =>
-                                combinedText.includes(term),
-                            )
-                        ) {
+                        else if (searchTerms.length > 0 && searchTerms.every((term) => combinedText.includes(term))) {
                             score += 300;
                         }
                         // Any single term appears in combined text
-                        else if (
-                            searchTerms.length > 0 &&
-                            searchTerms.some((term) => combinedText.includes(term))
-                        ) {
+                        else if (searchTerms.length > 0 && searchTerms.some((term) => combinedText.includes(term))) {
                             score += 150;
                         }
                         // Search term appears anywhere in label
@@ -314,24 +281,15 @@ export default {
             const availableHeight = this.openDropdownUpwards ? spaceAbove : spaceBelow;
             //this.dropdownMaxHeight = Math.max(140, Math.floor(availableHeight));
 
-            const labels = (this.filteredOptions?.length
-                ? this.filteredOptions
-                : this.formattedOptions
-            ).map((option) => String(option?.label ?? ""));
+            const labels = (this.filteredOptions?.length ? this.filteredOptions : this.formattedOptions).map((option) => String(option?.label ?? ""));
 
-            const longestLabelLength = labels.reduce(
-                (max, label) => Math.max(max, label.length),
-                0,
-            );
+            const longestLabelLength = labels.reduce((max, label) => Math.max(max, label.length), 0);
 
             // Approximate width from character count and keep it inside viewport.
             const contentWidth = Math.max(220, Math.floor(longestLabelLength * 8.2 + 56));
             const triggerWidth = Math.floor(hostRect.width || 220);
             const maxViewportWidth = Math.max(220, viewportWidth - safetyMargin * 2);
-            this.dropdownWidth = Math.min(
-                Math.max(triggerWidth, contentWidth),
-                maxViewportWidth,
-            );
+            this.dropdownWidth = Math.min(Math.max(triggerWidth, contentWidth), maxViewportWidth);
         },
 
         handleWindowResize() {
@@ -361,9 +319,7 @@ export default {
             this.$emit("update:modelValue", null);
         },
         syncLocalOptions(options = this.options) {
-            const mapped = (options || [])
-                .map(this.formatOption)
-                .filter(Boolean);
+            const mapped = (options || []).map(this.formatOption).filter(Boolean);
 
             this.formattedOptions = mapped;
             this.filteredOptions = [...mapped];
@@ -375,10 +331,7 @@ export default {
                 this.$nextTick(() => this.updateDropdownSizing());
             }
 
-            const hasValue =
-                this.modelValue !== null &&
-                this.modelValue !== undefined &&
-                this.modelValue !== "";
+            const hasValue = this.modelValue !== null && this.modelValue !== undefined && this.modelValue !== "";
 
             if (!hasValue) {
                 if (this.selectedOption) {
@@ -388,9 +341,7 @@ export default {
                 return;
             }
 
-            const matchedOption = mapped.find(
-                (option) => String(option.value) === String(this.modelValue),
-            );
+            const matchedOption = mapped.find((option) => String(option.value) === String(this.modelValue));
 
             if (matchedOption) {
                 this.selectedOption = matchedOption;
@@ -402,10 +353,7 @@ export default {
 
         // Load selected option data on mount if modelValue exists
         async loadSelectedOption() {
-            const hasValue =
-                this.modelValue !== null &&
-                this.modelValue !== undefined &&
-                this.modelValue !== "";
+            const hasValue = this.modelValue !== null && this.modelValue !== undefined && this.modelValue !== "";
             if (!hasValue) return;
 
             if (this.api) {
@@ -416,13 +364,7 @@ export default {
                         per_page: 1,
                     });
 
-                    const payload = Array.isArray(response?.data?.data)
-                        ? response.data.data
-                        : Array.isArray(response?.data)
-                          ? response.data
-                          : Array.isArray(response)
-                            ? response
-                            : [];
+                    const payload = Array.isArray(response?.data?.data) ? response.data.data : Array.isArray(response?.data) ? response.data : Array.isArray(response) ? response : [];
 
                     if (payload.length) {
                         const opt = this.formatOption(payload[0]);
@@ -437,9 +379,7 @@ export default {
             } else {
                 // Fallback to options provided in props
                 if (!this.formattedOptions.length) this.initLocalOptions();
-                const found = this.formattedOptions.find(
-                    (o) => String(o.value) === String(this.modelValue),
-                );
+                const found = this.formattedOptions.find((o) => String(o.value) === String(this.modelValue));
                 if (found) {
                     this.selectedOption = found;
                     this.displayedInput = found.label;
@@ -447,10 +387,7 @@ export default {
             }
 
             // If nothing matched, show the raw modelValue as initial input
-            if (
-                !this.selectedOption &&
-                (this.displayedInput == null || this.displayedInput === "")
-            ) {
+            if (!this.selectedOption && (this.displayedInput == null || this.displayedInput === "")) {
                 this.displayedInput = String(this.modelValue);
             }
         },
@@ -461,20 +398,10 @@ export default {
             if (typeof option === "string" || typeof option === "number") {
                 return { value: option, label: String(option) };
             }
-            const fullName = option.full_name
-                ? option.full_name
-                : option.first_name || option.last_name
-                  ? `${option.first_name || ""} ${option.last_name || ""}`.trim()
-                  : null;
+            const fullName = option.full_name ? option.full_name : option.first_name || option.last_name ? `${option.first_name || ""} ${option.last_name || ""}`.trim() : null;
             return {
                 value: option.id || option.value,
-                label:
-                    option.name ||
-                    option.title ||
-                    option.label ||
-                    option.value ||
-                    fullName ||
-                    String(option.id ?? option.value ?? ""),
+                label: option.name || option.title || option.label || option.value || fullName || String(option.id ?? option.value ?? ""),
             };
         },
         initLocalOptions() {
@@ -508,10 +435,7 @@ export default {
             if (newVal !== oldVal) {
                 if (newVal !== null && newVal !== undefined && newVal !== "") {
                     // If selection already matches, skip reloading to avoid flicker/reverts
-                    if (
-                        this.selectedOption &&
-                        String(this.selectedOption.value) === String(newVal)
-                    ) {
+                    if (this.selectedOption && String(this.selectedOption.value) === String(newVal)) {
                         return;
                     }
                     await this.loadSelectedOption();
@@ -620,34 +544,31 @@ export default {
                     @focusin="toggleDropdown()"
                     @click="toggleDropdown()"
                     @input="debounceApiCall($event)"
-                    @clear="clearSelection"
-                    ><button v-if="!disabled" class="p-2 m-1 text-white rounded-md bg-AB">
-                        <search-icon
-                            class="w-5 h-5 pointer-events-none"
-                        /></button
-                ></text-input>
+                    @clear="clearSelection">
+                    <button
+                        v-if="!disabled"
+                        class="p-2 m-1 text-white rounded-md bg-AB">
+                        <search-icon class="w-5 h-5 pointer-events-none" />
+                    </button>
+                </text-input>
             </div>
 
             <transition-container>
                 <div
                     v-show="showDropdown"
                     class="absolute left-0 border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-lg bg-white z-[999] min-w-full"
-                    :style="dropdownStyle"
-                >
+                    :style="dropdownStyle">
                     <!-- Dropdown Header -->
                     <div
                         v-if="!processing || hasOptions"
-                        class="px-3 py-2 text-xs text-gray-500 border-b border-gray-100 bg-gray-50 rounded-t-md"
-                    >
+                        class="px-3 py-2 text-xs text-gray-500 border-b border-gray-100 bg-gray-50 rounded-t-md">
                         <p v-if="hasOptions">
-                            {{ filteredOptions.length }} option{{
-                                filteredOptions.length !== 1 ? "s" : ""
-                            }}
+                            {{ filteredOptions.length }} option{{ filteredOptions.length !== 1 ? "s" : "" }}
                             <span
                                 v-if="hasMoreData && !options.length"
-                                class="text-gray-400"
-                                >(scroll for more)</span
-                            >
+                                class="text-gray-400">
+                                (scroll for more)
+                            </span>
                         </p>
                         <p v-else>{{ emptyStateMessage }}</p>
                     </div>
@@ -657,24 +578,19 @@ export default {
                         v-if="hasOptions"
                         class="overflow-y-auto"
                         :style="{ maxHeight: `${dropdownMaxHeight}px` }"
-                        @scroll="handleDropdownScroll"
-                    >
+                        @scroll="handleDropdownScroll">
                         <div
                             v-for="option in filteredOptions"
                             :key="option.value"
                             @click="selectOption(option)"
                             class="px-3 py-2 transition-colors duration-150 border-b cursor-pointer hover:bg-indigo-50 border-gray-50 last:border-b-0"
                             :class="{
-                                'bg-indigo-100 text-indigo-900':
-                                    selectedOption?.value === option.value,
-                                'text-gray-900':
-                                    selectedOption?.value !== option.value,
-                            }"
-                        >
+                                'bg-indigo-100 text-indigo-900': selectedOption?.value === option.value,
+                                'text-gray-900': selectedOption?.value !== option.value,
+                            }">
                             <div
                                 class="overflow-hidden text-ellipsis whitespace-nowrap"
-                                :title="option.label"
-                            >
+                                :title="option.label">
                                 {{ option.label }}
                             </div>
                         </div>
@@ -682,8 +598,7 @@ export default {
                         <!-- Loading More Indicator -->
                         <div
                             v-if="showLoadingMore"
-                            class="px-3 py-2 text-sm text-center text-gray-500 border-t border-gray-100"
-                        >
+                            class="px-3 py-2 text-sm text-center text-gray-500 border-t border-gray-100">
                             Loading more options...
                         </div>
                     </div>
@@ -691,20 +606,16 @@ export default {
                     <!-- Empty State -->
                     <div
                         v-else-if="!processing"
-                        class="px-3 py-4 text-sm text-center text-gray-500"
-                    >
+                        class="px-3 py-4 text-sm text-center text-gray-500">
                         {{ emptyStateMessage }}
                     </div>
 
                     <!-- Initial Loading State -->
                     <div
                         v-else
-                        class="px-3 py-4 text-sm text-center text-gray-500"
-                    >
+                        class="px-3 py-4 text-sm text-center text-gray-500">
                         <div class="flex items-center justify-center space-x-2">
-                            <div
-                                class="w-4 h-4 border-b-2 border-indigo-500 rounded-full animate-spin"
-                            ></div>
+                            <div class="w-4 h-4 border-b-2 border-indigo-500 rounded-full animate-spin"></div>
                             <span>Loading options...</span>
                         </div>
                     </div>

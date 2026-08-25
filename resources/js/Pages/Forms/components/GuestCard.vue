@@ -9,27 +9,46 @@ import FeedbackCard from "@/Pages/Forms/components/FeedbackCard.vue";
 import { mergeFormStyleTokens } from "@/Modules/shared/formStyleTokens";
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
-import {
-    MapPin, Clock, Calendar, Users, Hash, Timer,
-    CircleCheck, CircleX, ChevronRight, Menu, X,
-    Shield, UserCheck, UserPlus, Mail, Search,
-    Loader2, AlertTriangle, AlertCircle, CheckCircle,
-    XCircle, Lock, Ban, LogOut, ArrowRight, Sparkles,
-    CalendarDays, Hourglass, Radio
-} from 'lucide-vue-next';
+import { MapPin, Clock, Calendar, Users, Hash, Timer, CircleCheck, CircleX, ChevronRight, Menu, X, Shield, UserCheck, UserPlus, Mail, Search, Loader2, AlertTriangle, AlertCircle, CheckCircle, XCircle, Lock, Ban, LogOut, ArrowRight, Sparkles, CalendarDays, Hourglass, Radio } from "lucide-vue-next";
 
 export default {
     name: "GuestCard",
     components: {
-        FeedbackCard, RegistrationCard, PreregistrationCard,
-        PreregistrationQuizBeeCard, PreregistrationQuizbeeTeamCard,
+        FeedbackCard,
+        RegistrationCard,
+        PreregistrationCard,
+        PreregistrationQuizBeeCard,
+        PreregistrationQuizbeeTeamCard,
         DynamicFormRenderer,
-        MapPin, Clock, Calendar, Users, Hash, Timer,
-        CircleCheck, CircleX, ChevronRight, Menu, X,
-        Shield, UserCheck, UserPlus, Mail, Search,
-        Loader2, AlertTriangle, AlertCircle, CheckCircle,
-        XCircle, Lock, Ban, LogOut, ArrowRight, Sparkles,
-        CalendarDays, Hourglass, Radio
+        MapPin,
+        Clock,
+        Calendar,
+        Users,
+        Hash,
+        Timer,
+        CircleCheck,
+        CircleX,
+        ChevronRight,
+        Menu,
+        X,
+        Shield,
+        UserCheck,
+        UserPlus,
+        Mail,
+        Search,
+        Loader2,
+        AlertTriangle,
+        AlertCircle,
+        CheckCircle,
+        XCircle,
+        Lock,
+        Ban,
+        LogOut,
+        ArrowRight,
+        Sparkles,
+        CalendarDays,
+        Hourglass,
+        Radio,
     },
     mixins: [ApiMixin, FormLocalMixin, DataFormatterMixin],
     props: {
@@ -49,7 +68,7 @@ export default {
             workflowError: null,
             selectedParticipantHash: null,
             participantFlowChoice: null,
-            participantLookupEmail: '',
+            participantLookupEmail: "",
             participantLookupLoading: false,
             participantLookupError: null,
             participantLookupSuccess: null,
@@ -62,11 +81,13 @@ export default {
             return mergeFormStyleTokens(this.data?.style_tokens);
         },
         workflowFeatureToggles() {
-            return this.workflowState?.feature_toggles || {
-                event_workflow_enabled: true,
-                participant_workflow_enabled: true,
-                participant_verification_enabled: true,
-            };
+            return (
+                this.workflowState?.feature_toggles || {
+                    event_workflow_enabled: true,
+                    participant_workflow_enabled: true,
+                    participant_verification_enabled: true,
+                }
+            );
         },
         participantWorkflowEnabled() {
             return this.workflowFeatureToggles.participant_workflow_enabled !== false;
@@ -79,11 +100,11 @@ export default {
         },
         workflowTabs() {
             return this.workflowSteps
-                .filter((step) => step.status !== 'hidden')
+                .filter((step) => step.status !== "hidden")
                 .map((step, index) => ({
                     key: step.id,
                     label: step.name || `Step ${index + 1}`,
-                    disabled: step.status !== 'available',
+                    disabled: step.status !== "available",
                     status: step.status,
                 }));
         },
@@ -113,11 +134,11 @@ export default {
             return Math.round(((this.currentMaxSlots - (this.slotsAvailable ?? 0)) / this.currentMaxSlots) * 100);
         },
         slotStatusClass() {
-            if (this.slotsAvailable === 0) return 'bg-red-500';
+            if (this.slotsAvailable === 0) return "bg-red-500";
             const ratio = (this.slotsAvailable ?? 0) / (this.currentMaxSlots ?? 1);
-            if (ratio <= 0.25) return 'bg-orange-500';
-            if (ratio <= 0.5) return 'bg-amber-500';
-            return 'bg-emerald-500';
+            if (ratio <= 0.25) return "bg-orange-500";
+            if (ratio <= 0.5) return "bg-amber-500";
+            return "bg-emerald-500";
         },
         eventStartAt() {
             const startDate = this.data?.date_from;
@@ -132,10 +153,7 @@ export default {
             return this.parseDateTimeValue(`${endDate} ${endTime}`);
         },
         latestSubformCloseAt() {
-            const candidates = [
-                ...(Array.isArray(this.workflowSteps) ? this.workflowSteps : []),
-                ...(Array.isArray(this.data?.requirements) ? this.data.requirements : []),
-            ];
+            const candidates = [...(Array.isArray(this.workflowSteps) ? this.workflowSteps : []), ...(Array.isArray(this.data?.requirements) ? this.data.requirements : [])];
             const timestamps = candidates
                 .map((step) => this.parseDateTimeValue(step?.open_to ?? step?.config?.open_to))
                 .filter((value) => value instanceof Date && !Number.isNaN(value.getTime()))
@@ -155,39 +173,39 @@ export default {
             const now = this.formCountdownNow;
             const start = this.eventStartAt?.getTime?.() ?? null;
             const end = this.effectiveEventEndAt?.getTime?.() ?? null;
-            if (start && now < start) return 'upcoming';
-            if (end && now <= end) return 'ongoing';
-            if (start && !end && now >= start) return 'ongoing';
-            if (end && now > end) return 'expired';
-            return 'upcoming';
+            if (start && now < start) return "upcoming";
+            if (end && now <= end) return "ongoing";
+            if (start && !end && now >= start) return "ongoing";
+            if (end && now > end) return "expired";
+            return "upcoming";
         },
         eventCountdownTargetAt() {
-            if (this.eventState === 'upcoming') return this.eventStartAt;
-            if (this.eventState === 'ongoing') return this.effectiveEventEndAt;
+            if (this.eventState === "upcoming") return this.eventStartAt;
+            if (this.eventState === "ongoing") return this.effectiveEventEndAt;
             return null;
         },
         countdownParts() {
             const target = this.eventCountdownTargetAt;
-            if (!target) return { d: '00', h: '00', m: '00', s: '00' };
+            if (!target) return { d: "00", h: "00", m: "00", s: "00" };
             const remaining = target.getTime() - this.formCountdownNow;
-            if (remaining <= 0) return { d: '00', h: '00', m: '00', s: '00' };
+            if (remaining <= 0) return { d: "00", h: "00", m: "00", s: "00" };
             const totalSeconds = Math.floor(remaining / 1000);
             const d = Math.floor(totalSeconds / 86400);
             const h = Math.floor((totalSeconds % 86400) / 3600);
             const m = Math.floor((totalSeconds % 3600) / 60);
             const s = totalSeconds % 60;
             return {
-                d: String(d).padStart(2, '0'),
-                h: String(h).padStart(2, '0'),
-                m: String(m).padStart(2, '0'),
-                s: String(s).padStart(2, '0'),
+                d: String(d).padStart(2, "0"),
+                h: String(h).padStart(2, "0"),
+                m: String(m).padStart(2, "0"),
+                s: String(s).padStart(2, "0"),
             };
         },
         isExpired() {
-            return this.eventState === 'expired';
+            return this.eventState === "expired";
         },
         isMobile() {
-            if (typeof window === 'undefined') return false;
+            if (typeof window === "undefined") return false;
             return window.innerWidth < 768;
         },
     },
@@ -219,31 +237,29 @@ export default {
     },
     methods: {
         normalizeParticipantHash(value) {
-            if (!value || typeof value !== 'string') return null;
+            if (!value || typeof value !== "string") return null;
             const normalized = value.trim();
-            return normalized !== '' ? normalized : null;
+            return normalized !== "" ? normalized : null;
         },
         getParticipantHashFromUrl() {
-            if (typeof window === 'undefined') return null;
+            if (typeof window === "undefined") return null;
             const params = new URLSearchParams(window.location.search);
-            return this.normalizeParticipantHash(
-                params.get('participant') || params.get('participant_id') || params.get('participant_hash')
-            );
+            return this.normalizeParticipantHash(params.get("participant") || params.get("participant_id") || params.get("participant_hash"));
         },
         getParticipantHashFromSession() {
-            if (!this.data?.event_id || typeof sessionStorage === 'undefined') return null;
+            if (!this.data?.event_id || typeof sessionStorage === "undefined") return null;
             return this.normalizeParticipantHash(sessionStorage.getItem(`event_participant_hash_${this.data.event_id}`));
         },
         persistParticipantContext(hash) {
-            if (!this.data?.event_id || typeof window === 'undefined') return;
+            if (!this.data?.event_id || typeof window === "undefined") return;
             const normalizedHash = this.normalizeParticipantHash(hash);
-            if (typeof sessionStorage !== 'undefined') {
+            if (typeof sessionStorage !== "undefined") {
                 const sessionKey = `event_participant_hash_${this.data.event_id}`;
                 normalizedHash ? sessionStorage.setItem(sessionKey, normalizedHash) : sessionStorage.removeItem(sessionKey);
             }
             const url = new URL(window.location.href);
-            normalizedHash ? url.searchParams.set('participant', normalizedHash) : url.searchParams.delete('participant');
-            window.history.replaceState({}, '', url.toString());
+            normalizedHash ? url.searchParams.set("participant", normalizedHash) : url.searchParams.delete("participant");
+            window.history.replaceState({}, "", url.toString());
         },
         initializeParticipantContext() {
             const urlHash = this.getParticipantHashFromUrl();
@@ -252,20 +268,22 @@ export default {
         },
         startFormCountdownTicker() {
             this.formCountdownNow = Date.now();
-            this.formCountdownIntervalId = setInterval(() => { this.formCountdownNow = Date.now(); }, 1000);
+            this.formCountdownIntervalId = setInterval(() => {
+                this.formCountdownNow = Date.now();
+            }, 1000);
         },
         parseDateTimeValue(value) {
             if (!value) return null;
             const parsed = new Date(value);
             if (!Number.isNaN(parsed.getTime())) return parsed;
-            if (typeof value === 'string') {
-                const fallback = new Date(value.replace(' ', 'T'));
+            if (typeof value === "string") {
+                const fallback = new Date(value.replace(" ", "T"));
                 if (!Number.isNaN(fallback.getTime())) return fallback;
             }
             return null;
         },
         formatCountdownDuration(milliseconds) {
-            if (!milliseconds || milliseconds <= 0) return '0d 0h 0m 0s';
+            if (!milliseconds || milliseconds <= 0) return "0d 0h 0m 0s";
             const totalSeconds = Math.floor(milliseconds / 1000);
             const days = Math.floor(totalSeconds / 86400);
             const hours = Math.floor((totalSeconds % 86400) / 3600);
@@ -278,13 +296,13 @@ export default {
             const now = this.formCountdownNow;
             const openFrom = this.parseDateTimeValue(step.open_from ?? step.config?.open_from);
             const openTo = this.parseDateTimeValue(step.open_to ?? step.config?.open_to);
-            if (step.status === 'not_yet_open' && openFrom) {
+            if (step.status === "not_yet_open" && openFrom) {
                 const remaining = openFrom.getTime() - now;
-                if (remaining > 0) return { label: 'Opens in', value: this.formatCountdownDuration(remaining) };
+                if (remaining > 0) return { label: "Opens in", value: this.formatCountdownDuration(remaining) };
             }
-            if (step.status === 'available' && openTo) {
+            if (step.status === "available" && openTo) {
                 const remaining = openTo.getTime() - now;
-                if (remaining > 0) return { label: 'Closes in', value: this.formatCountdownDuration(remaining) };
+                if (remaining > 0) return { label: "Closes in", value: this.formatCountdownDuration(remaining) };
             }
             return null;
         },
@@ -310,8 +328,8 @@ export default {
             const step = formType ? this.getStep(formType) : this.activeStep;
             if (step?.requires_participant_context === true) return true;
             const explicitToggle = step?.form_config?.require_participant_verification;
-            if (typeof explicitToggle === 'boolean') return explicitToggle;
-            const exempt = ['preregistration', 'preregistration_biotech', 'preregistration_quizbee'];
+            if (typeof explicitToggle === "boolean") return explicitToggle;
+            const exempt = ["preregistration", "preregistration_biotech", "preregistration_quizbee"];
             return !exempt.includes(formType);
         },
         canRenderForm(formType) {
@@ -324,7 +342,7 @@ export default {
             return this.requiresParticipant(stepIdentifier) ? this.selectedParticipantHash : null;
         },
         getAvailablePreregistrationStep() {
-            const preregTypes = ['preregistration', 'preregistration_biotech', 'preregistration_quizbee'];
+            const preregTypes = ["preregistration", "preregistration_biotech", "preregistration_quizbee"];
             return this.workflowSteps.find((step) => preregTypes.includes(step.form_type)) || null;
         },
         goToPreregistrationStep() {
@@ -333,21 +351,21 @@ export default {
             const step = this.getAvailablePreregistrationStep();
             if (step) {
                 this.activeTab = step.id;
-                if (step.status !== 'available') {
-                    this.participantLookupError = `Preregistration is currently ${step.status?.replace('_', ' ') || 'unavailable'}. ${this.getStepMessage(step)}`;
+                if (step.status !== "available") {
+                    this.participantLookupError = `Preregistration is currently ${step.status?.replace("_", " ") || "unavailable"}. ${this.getStepMessage(step)}`;
                 }
                 return;
             }
-            this.participantLookupError = 'No preregistration step is configured for this event. Please contact the event organizer.';
+            this.participantLookupError = "No preregistration step is configured for this event. Please contact the event organizer.";
         },
         setParticipantFlowChoice(choice) {
             this.participantFlowChoice = choice;
             this.participantLookupError = null;
             this.participantLookupSuccess = null;
-            if (choice === 'yes') this.hydrateParticipantLookupEmail();
+            if (choice === "yes") this.hydrateParticipantLookupEmail();
         },
         normalizeEmail(value) {
-            if (!value || typeof value !== 'string') return null;
+            if (!value || typeof value !== "string") return null;
             const normalized = value.trim().toLowerCase();
             const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized);
             return isValid ? normalized : null;
@@ -360,10 +378,10 @@ export default {
             const normalized = this.normalizeEmail(email);
             if (!normalized) return;
             this.participantLookupEmail = normalized;
-            localStorage.setItem('participant_lookup_email', normalized);
+            localStorage.setItem("participant_lookup_email", normalized);
         },
         getRememberedParticipantLookupEmail() {
-            return this.normalizeEmail(localStorage.getItem('participant_lookup_email'));
+            return this.normalizeEmail(localStorage.getItem("participant_lookup_email"));
         },
         hydrateParticipantLookupEmail() {
             const selectedEmail = this.normalizeEmail(this.getStoredParticipantByHash(this.selectedParticipantHash)?.participant?.email);
@@ -377,13 +395,13 @@ export default {
             const responseData = payload?.data?.response_data ?? payload?.response_data ?? {};
             const entries = Object.entries(responseData);
             for (const [key, rawValue] of entries) {
-                if (typeof rawValue !== 'string') continue;
+                if (typeof rawValue !== "string") continue;
                 const maybeEmail = this.normalizeEmail(rawValue);
                 if (!maybeEmail) continue;
-                if (key.toLowerCase().includes('email')) return maybeEmail;
+                if (key.toLowerCase().includes("email")) return maybeEmail;
             }
             for (const [, rawValue] of entries) {
-                if (typeof rawValue !== 'string') continue;
+                if (typeof rawValue !== "string") continue;
                 const maybeEmail = this.normalizeEmail(rawValue);
                 if (maybeEmail) return maybeEmail;
             }
@@ -400,28 +418,31 @@ export default {
             this.participantLookupSuccess = null;
             const normalizedEmail = this.normalizeEmail(this.participantLookupEmail);
             if (!normalizedEmail) {
-                this.participantLookupError = 'Please enter your registered email address.';
+                this.participantLookupError = "Please enter your registered email address.";
                 return;
             }
             this.rememberParticipantLookupEmail(normalizedEmail);
             this.participantLookupLoading = true;
             try {
-                const response = await this.fetchGetApi('api.event.participant.lookup.guest', {
+                const response = await this.fetchGetApi("api.event.participant.lookup.guest", {
                     routeParams: this.data.event_id,
                     email: normalizedEmail,
                 });
                 const data = response?.data ?? {};
                 if (!data?.found || !data?.participant_hash) {
-                    this.participantLookupError = data?.message || 'No registration found. Please complete preregistration first.';
+                    this.participantLookupError = data?.message || "No registration found. Please complete preregistration first.";
                     return;
                 }
                 this.selectedParticipantHash = data.participant_hash;
-                this.participantLookupSuccess = 'Registration found! Continuing with your saved profile.';
+                this.participantLookupSuccess = "Registration found! Continuing with your saved profile.";
                 this.rememberParticipantLookupEmail(data?.participant?.email || normalizedEmail);
-                this.saveLocalHashedIds({ participant_hash: data.participant_hash, participant: data.participant });
+                this.saveLocalHashedIds({
+                    participant_hash: data.participant_hash,
+                    participant: data.participant,
+                });
                 await this.loadWorkflow();
             } catch (error) {
-                this.participantLookupError = 'Unable to validate your registration. Please try again.';
+                this.participantLookupError = "Unable to validate your registration. Please try again.";
             } finally {
                 this.participantLookupLoading = false;
             }
@@ -431,14 +452,14 @@ export default {
             this.workflowLoading = true;
             this.workflowError = null;
             try {
-                const response = await this.fetchGetApi('api.event.workflow.state.guest', {
+                const response = await this.fetchGetApi("api.event.workflow.state.guest", {
                     routeParams: this.data.event_id,
                     participant_id: this.selectedParticipantHash,
                 });
                 this.workflowState = response?.data ?? null;
                 this.setActiveTabFromWorkflow();
             } catch (error) {
-                this.workflowError = 'Unable to load workflow state.';
+                this.workflowError = "Unable to load workflow state.";
             } finally {
                 this.workflowLoading = false;
             }
@@ -453,20 +474,18 @@ export default {
                 this.saveLocalHashedIds({
                     participant_hash: participantHash,
                     participant: participant || {
-                        name: payload?.data?.response_data?.name || payload?.response_data?.name || 'Participant',
+                        name: payload?.data?.response_data?.name || payload?.response_data?.name || "Participant",
                         email: inferredEmail || null,
                     },
                 });
             }
-            this.$emit('createdModel', payload);
+            this.$emit("createdModel", payload);
             await this.loadWorkflow();
         },
         setActiveTabFromWorkflow() {
             if (!this.workflowSteps?.length) return;
-            const preferred = this.workflowState?.current_step_id
-                ? this.workflowSteps.find((step) => step.id === this.workflowState.current_step_id)
-                : null;
-            const available = this.workflowSteps.find((step) => step.status === 'available');
+            const preferred = this.workflowState?.current_step_id ? this.workflowSteps.find((step) => step.id === this.workflowState.current_step_id) : null;
+            const available = this.workflowSteps.find((step) => step.status === "available");
             this.activeTab = preferred?.id ?? available?.id ?? this.workflowSteps[0]?.id ?? null;
         },
         whatForm(formType) {
@@ -483,15 +502,15 @@ export default {
         styleFor(key) {
             const token = this.resolvedStyleTokens?.[key];
             const textColorToken = this.resolvedStyleTokens?.[`${key}-text-color`];
-            const textShadowToken = this.resolvedStyleTokens?.['form-text-shadow'];
+            const textShadowToken = this.resolvedStyleTokens?.["form-text-shadow"];
             const styles = {};
             if (token && token.value) {
-                if (token.mode === 'image') {
+                if (token.mode === "image") {
                     styles.backgroundImage = `url(${token.value})`;
-                    styles.backgroundSize = 'cover';
-                    styles.backgroundPosition = 'center';
-                    styles.backgroundRepeat = 'no-repeat';
-                } else if (token.mode === 'color') {
+                    styles.backgroundSize = "cover";
+                    styles.backgroundPosition = "center";
+                    styles.backgroundRepeat = "no-repeat";
+                } else if (token.mode === "color") {
                     styles.backgroundColor = token.value;
                 }
             }
@@ -500,25 +519,39 @@ export default {
             return styles;
         },
         getStepMessage(step) {
-            if (!step) return 'This step is not available';
+            if (!step) return "This step is not available";
             switch (step.status) {
-                case 'locked': return 'Complete the previous step to continue';
-                case 'not_yet_open': return step.open_from ? `Available on ${this.formatDateTime(step.open_from)}` : 'Not yet available';
-                case 'expired': return 'Closed on ' + (step.open_to ? this.formatDateTime(step.open_to) : 'an earlier date');
-                case 'full': return 'No slots available';
-                case 'disabled': return 'Currently disabled';
-                case 'hidden': return 'Not available';
-                case 'completed': return 'Already completed';
-                default: return 'Not available';
+                case "locked":
+                    return "Complete the previous step to continue";
+                case "not_yet_open":
+                    return step.open_from ? `Available on ${this.formatDateTime(step.open_from)}` : "Not yet available";
+                case "expired":
+                    return "Closed on " + (step.open_to ? this.formatDateTime(step.open_to) : "an earlier date");
+                case "full":
+                    return "No slots available";
+                case "disabled":
+                    return "Currently disabled";
+                case "hidden":
+                    return "Not available";
+                case "completed":
+                    return "Already completed";
+                default:
+                    return "Not available";
             }
         },
         formatDateTime(dateString) {
             try {
-                return new Date(dateString).toLocaleString('en-US', {
-                    month: 'short', day: 'numeric', year: 'numeric',
-                    hour: '2-digit', minute: '2-digit', hour12: true
+                return new Date(dateString).toLocaleString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
                 });
-            } catch { return dateString; }
+            } catch {
+                return dateString;
+            }
         },
         hasDynamicSchema(step) {
             return step?.field_schema && Array.isArray(step.field_schema) && step.field_schema.length > 0;
@@ -529,48 +562,60 @@ export default {
         },
         getStepTitle(identifier) {
             const step = this.getStep(identifier);
-            if (!step) return '';
+            if (!step) return "";
             const titles = {
-                'preregistration': 'Pre-register Now!',
-                'registration': 'Registration',
-                'feedback': 'Feedback Form',
-                'pretest': 'Pre-Test',
-                'posttest': 'Post-Test',
+                preregistration: "Pre-register Now!",
+                registration: "Registration",
+                feedback: "Feedback Form",
+                pretest: "Pre-Test",
+                posttest: "Post-Test",
             };
-            return titles[step.form_type] || step.name || step.form_type.replace(/_/g, ' ');
+            return titles[step.form_type] || step.name || step.form_type.replace(/_/g, " ");
         },
         getDescription(identifier) {
             const step = this.getStep(identifier);
-            return step?.description || '';
+            return step?.description || "";
         },
         getStepIcon(status) {
             const map = {
-                locked: 'Lock',
-                not_yet_open: 'Clock',
-                expired: 'XCircle',
-                full: 'Users',
-                completed: 'CheckCircle',
-                disabled: 'Ban',
+                locked: "Lock",
+                not_yet_open: "Clock",
+                expired: "XCircle",
+                full: "Users",
+                completed: "CheckCircle",
+                disabled: "Ban",
             };
-            return map[status] || 'Lock';
-        }
-    }
-}
+            return map[status] || "Lock";
+        },
+    },
+};
 </script>
 
 <template>
-    <div v-if="!!data" class="max-w-3xl mx-auto space-y-5 pb-24 md:pb-8 w-full">
-
+    <div
+        v-if="!!data"
+        class="max-w-3xl mx-auto space-y-5 pb-24 md:pb-8 w-full">
         <!-- Mobile Header (Hidden on Desktop) -->
-        <div v-if="workflowTabs.length > 1" class="md:hidden sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 shadow-sm px-4 py-3 flex items-center justify-between">
+        <div
+            v-if="workflowTabs.length > 1"
+            class="md:hidden sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 shadow-sm px-4 py-3 flex items-center justify-between">
             <div class="flex items-center gap-2 min-w-0">
                 <span class="inline-flex items-center gap-1 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 text-xs font-medium font-mono px-2 py-0.5 rounded-full tracking-wide shrink-0">
-                    <Hash :size="12" :stroke-width="2" /> {{ data.event_id }}
+                    <Hash
+                        :size="12"
+                        :stroke-width="2" />
+                    {{ data.event_id }}
                 </span>
-                <span class="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">{{ data.title }}</span>
+                <span class="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">
+                    {{ data.title }}
+                </span>
             </div>
-            <button @click="showMobileMenu = !showMobileMenu" class="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0">
-                <Menu :size="18" :stroke-width="2" />
+            <button
+                @click="showMobileMenu = !showMobileMenu"
+                class="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0">
+                <Menu
+                    :size="18"
+                    :stroke-width="2" />
             </button>
         </div>
 
@@ -581,25 +626,40 @@ export default {
             enter-to-class="opacity-100"
             leave-active-class="transition duration-200 ease-in"
             leave-from-class="opacity-100"
-            leave-to-class="opacity-0"
-        >
-            <div v-if="showMobileMenu && workflowTabs.length > 1" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm md:hidden" @click="showMobileMenu = false">
-                <div class="absolute right-0 top-0 h-full w-64 bg-white dark:bg-slate-900 shadow-2xl p-5 flex flex-col gap-4 transform transition-transform" @click.stop>
+            leave-to-class="opacity-0">
+            <div
+                v-if="showMobileMenu && workflowTabs.length > 1"
+                class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm md:hidden"
+                @click="showMobileMenu = false">
+                <div
+                    class="absolute right-0 top-0 h-full w-64 bg-white dark:bg-slate-900 shadow-2xl p-5 flex flex-col gap-4 transform transition-transform"
+                    @click.stop>
                     <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 mb-2">
                         <span class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Form Steps</span>
-                        <button @click="showMobileMenu = false" class="p-1 rounded-md text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
-                            <X :size="16" :stroke-width="2" />
+                        <button
+                            @click="showMobileMenu = false"
+                            class="p-1 rounded-md text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <X
+                                :size="16"
+                                :stroke-width="2" />
                         </button>
                     </div>
                     <div class="flex flex-col gap-1.5">
                         <button
-                            v-for="(tab, i) in workflowTabs" :key="tab.key"
-                            @click="activeTab = tab.key; showMobileMenu = false"
+                            v-for="(tab, i) in workflowTabs"
+                            :key="tab.key"
+                            @click="
+                                activeTab = tab.key;
+                                showMobileMenu = false;
+                            "
                             class="flex items-center gap-3 w-full text-left px-3 py-2.5 rounded-xl transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                             :class="activeTab === tab.key ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50'"
-                            :disabled="tab.disabled"
-                        >
-                            <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium shrink-0" :class="activeTab === tab.key ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'">{{ i + 1 }}</span>
+                            :disabled="tab.disabled">
+                            <span
+                                class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium shrink-0"
+                                :class="activeTab === tab.key ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'">
+                                {{ i + 1 }}
+                            </span>
                             <span class="flex-1 truncate">{{ tab.label }}</span>
                         </button>
                     </div>
@@ -608,17 +668,35 @@ export default {
         </Transition>
 
         <!-- EVENT HEADER CARD -->
-        <div class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden" :style="styleFor('form-background')">
-            
-            <div class="p-6 sm:p-8 border-b border-white/10 dark:border-slate-800/50 relative" :style="{ ...styleFor('form-header-box') }">
+        <div
+            class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden"
+            :style="styleFor('form-background')">
+            <div
+                class="p-6 sm:p-8 border-b border-white/10 dark:border-slate-800/50 relative"
+                :style="{ ...styleFor('form-header-box') }">
                 <div class="relative z-10 flex flex-col gap-2.5">
-                    <div class="inline-flex items-center gap-1.5 bg-black/5 dark:bg-white/5 backdrop-blur-md text-xs font-medium font-mono px-2.5 py-1 rounded-full uppercase tracking-wide w-fit" :style="{ color: resolvedStyleTokens?.['form-header-box-text-color']?.value }">
-                        <Hash :size="12" :stroke-width="2" /> {{ data.event_id }}
+                    <div
+                        class="inline-flex items-center gap-1.5 bg-black/5 dark:bg-white/5 backdrop-blur-md text-xs font-medium font-mono px-2.5 py-1 rounded-full uppercase tracking-wide w-fit"
+                        :style="{
+                            color: resolvedStyleTokens?.['form-header-box-text-color']?.value,
+                        }">
+                        <Hash
+                            :size="12"
+                            :stroke-width="2" />
+                        {{ data.event_id }}
                     </div>
-                    <h2 class="text-xl sm:text-2xl font-semibold tracking-tight leading-tight" :style="{ color: resolvedStyleTokens?.['form-header-box-text-color']?.value }">
+                    <h2
+                        class="text-xl sm:text-2xl font-semibold tracking-tight leading-tight"
+                        :style="{
+                            color: resolvedStyleTokens?.['form-header-box-text-color']?.value,
+                        }">
                         {{ data.title }}
                     </h2>
-                    <p class="text-sm font-normal opacity-90 leading-relaxed max-w-2xl" :style="{ color: resolvedStyleTokens?.['form-header-box-text-color']?.value }">
+                    <p
+                        class="text-sm font-normal opacity-90 leading-relaxed max-w-2xl"
+                        :style="{
+                            color: resolvedStyleTokens?.['form-header-box-text-color']?.value,
+                        }">
                         {{ data.description }}
                     </p>
                 </div>
@@ -627,82 +705,176 @@ export default {
             <!-- Status Ribbon -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between px-5 sm:px-6 py-3.5 bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 gap-3">
                 <div class="flex items-center">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium uppercase tracking-wide rounded-full"
+                    <span
+                        class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium uppercase tracking-wide rounded-full"
                         :class="eventState === 'ongoing' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : eventState === 'upcoming' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' : 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'">
-                        <span v-if="eventState === 'ongoing'" class="relative flex h-1.5 w-1.5">
+                        <span
+                            v-if="eventState === 'ongoing'"
+                            class="relative flex h-1.5 w-1.5">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                         </span>
-                        <span v-else class="w-1.5 h-1.5 rounded-full" :class="eventState === 'upcoming' ? 'bg-amber-500' : 'bg-red-500'"></span>
-                        {{ eventState === 'ongoing' ? 'Live' : eventState === 'upcoming' ? 'Upcoming' : 'Ended' }}
+                        <span
+                            v-else
+                            class="w-1.5 h-1.5 rounded-full"
+                            :class="eventState === 'upcoming' ? 'bg-amber-500' : 'bg-red-500'"></span>
+                        {{ eventState === "ongoing" ? "Live" : eventState === "upcoming" ? "Upcoming" : "Ended" }}
                     </span>
                 </div>
-                
+
                 <!-- Countdown Ticker -->
                 <div class="flex items-center gap-1.5">
                     <template v-if="eventCountdownTargetAt">
-                        <div class="flex items-baseline gap-0.5"><span class="font-mono text-sm font-medium text-slate-800 dark:text-slate-200">{{ countdownParts.d }}</span><span class="text-xs font-medium text-slate-500 dark:text-slate-400">d</span></div>
+                        <div class="flex items-baseline gap-0.5">
+                            <span class="font-mono text-sm font-medium text-slate-800 dark:text-slate-200">
+                                {{ countdownParts.d }}
+                            </span>
+                            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">d</span>
+                        </div>
                         <span class="text-slate-300 dark:text-slate-600 font-mono">:</span>
-                        <div class="flex items-baseline gap-0.5"><span class="font-mono text-sm font-medium text-slate-800 dark:text-slate-200">{{ countdownParts.h }}</span><span class="text-xs font-medium text-slate-500 dark:text-slate-400">h</span></div>
+                        <div class="flex items-baseline gap-0.5">
+                            <span class="font-mono text-sm font-medium text-slate-800 dark:text-slate-200">
+                                {{ countdownParts.h }}
+                            </span>
+                            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">h</span>
+                        </div>
                         <span class="text-slate-300 dark:text-slate-600 font-mono">:</span>
-                        <div class="flex items-baseline gap-0.5"><span class="font-mono text-sm font-medium text-slate-800 dark:text-slate-200">{{ countdownParts.m }}</span><span class="text-xs font-medium text-slate-500 dark:text-slate-400">m</span></div>
+                        <div class="flex items-baseline gap-0.5">
+                            <span class="font-mono text-sm font-medium text-slate-800 dark:text-slate-200">
+                                {{ countdownParts.m }}
+                            </span>
+                            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">m</span>
+                        </div>
                         <span class="text-slate-300 dark:text-slate-600 font-mono">:</span>
-                        <div class="flex items-baseline gap-0.5"><span class="font-mono text-sm font-medium text-slate-800 dark:text-slate-200">{{ countdownParts.s }}</span><span class="text-xs font-medium text-slate-500 dark:text-slate-400">s</span></div>
+                        <div class="flex items-baseline gap-0.5">
+                            <span class="font-mono text-sm font-medium text-slate-800 dark:text-slate-200">
+                                {{ countdownParts.s }}
+                            </span>
+                            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">s</span>
+                        </div>
                     </template>
-                    <span v-else class="text-sm font-medium text-slate-400">—</span>
+                    <span
+                        v-else
+                        class="text-sm font-medium text-slate-400">
+                        —
+                    </span>
                 </div>
             </div>
 
             <!-- Dates Grid -->
             <div class="grid grid-cols-2 divide-x divide-slate-100 dark:divide-slate-800 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
-                <div class="p-4 sm:p-5 text-center" :style="styleFor('form-time-from')">
+                <div
+                    class="p-4 sm:p-5 text-center"
+                    :style="styleFor('form-time-from')">
                     <div class="flex items-center justify-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-1.5">
-                        <CalendarDays :size="14" :stroke-width="1.5" class="text-indigo-500 dark:text-indigo-400" /> Starts
+                        <CalendarDays
+                            :size="14"
+                            :stroke-width="1.5"
+                            class="text-indigo-500 dark:text-indigo-400" />
+                        Starts
                     </div>
-                    <p class="text-sm font-medium text-slate-900 dark:text-white" :style="{ color: resolvedStyleTokens?.['form-time-from-text-color']?.value }">{{ formatDate(data.date_from) }}</p>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5" :style="{ color: resolvedStyleTokens?.['form-time-from-text-color']?.value }">{{ formatTime(data.time_from) }}</p>
+                    <p
+                        class="text-sm font-medium text-slate-900 dark:text-white"
+                        :style="{
+                            color: resolvedStyleTokens?.['form-time-from-text-color']?.value,
+                        }">
+                        {{ formatDate(data.date_from) }}
+                    </p>
+                    <p
+                        class="text-xs text-slate-500 dark:text-slate-400 mt-0.5"
+                        :style="{
+                            color: resolvedStyleTokens?.['form-time-from-text-color']?.value,
+                        }">
+                        {{ formatTime(data.time_from) }}
+                    </p>
                 </div>
-                <div class="p-4 sm:p-5 text-center" :style="styleFor('form-time-to')">
+                <div
+                    class="p-4 sm:p-5 text-center"
+                    :style="styleFor('form-time-to')">
                     <div class="flex items-center justify-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-1.5">
-                        <CalendarDays :size="14" :stroke-width="1.5" class="text-indigo-500 dark:text-indigo-400" /> Ends
+                        <CalendarDays
+                            :size="14"
+                            :stroke-width="1.5"
+                            class="text-indigo-500 dark:text-indigo-400" />
+                        Ends
                     </div>
-                    <p class="text-sm font-medium text-slate-900 dark:text-white" :style="{ color: resolvedStyleTokens?.['form-time-to-text-color']?.value }">{{ formatDate(data.date_to) }}</p>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5" :style="{ color: resolvedStyleTokens?.['form-time-to-text-color']?.value }">{{ formatTime(data.time_to) }}</p>
+                    <p
+                        class="text-sm font-medium text-slate-900 dark:text-white"
+                        :style="{ color: resolvedStyleTokens?.['form-time-to-text-color']?.value }">
+                        {{ formatDate(data.date_to) }}
+                    </p>
+                    <p
+                        class="text-xs text-slate-500 dark:text-slate-400 mt-0.5"
+                        :style="{ color: resolvedStyleTokens?.['form-time-to-text-color']?.value }">
+                        {{ formatTime(data.time_to) }}
+                    </p>
                 </div>
             </div>
 
             <!-- Venue & Slots -->
-            <div v-if="data.venue" class="flex items-start gap-3 p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
-                <MapPin :size="16" :stroke-width="1.5" class="text-indigo-500 dark:text-indigo-400 mt-0.5 shrink-0" />
+            <div
+                v-if="data.venue"
+                class="flex items-start gap-3 p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+                <MapPin
+                    :size="16"
+                    :stroke-width="1.5"
+                    class="text-indigo-500 dark:text-indigo-400 mt-0.5 shrink-0" />
                 <div class="flex flex-col gap-0.5">
-                    <p class="text-sm font-medium text-slate-800 dark:text-slate-200">{{ data.venue }}</p>
-                    <p v-if="data.details" class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{{ data.details }}</p>
+                    <p class="text-sm font-medium text-slate-800 dark:text-slate-200">
+                        {{ data.venue }}
+                    </p>
+                    <p
+                        v-if="data.details"
+                        class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        {{ data.details }}
+                    </p>
                 </div>
             </div>
 
-            <div v-if="currentMaxSlots && currentMaxSlots > 0" class="flex items-center justify-between gap-4 p-4 sm:p-5 bg-slate-50/80 dark:bg-slate-800/40">
+            <div
+                v-if="currentMaxSlots && currentMaxSlots > 0"
+                class="flex items-center justify-between gap-4 p-4 sm:p-5 bg-slate-50/80 dark:bg-slate-800/40">
                 <div class="flex items-center gap-2">
-                    <Users :size="14" :stroke-width="1.5" class="text-indigo-500 dark:text-indigo-400" />
+                    <Users
+                        :size="14"
+                        :stroke-width="1.5"
+                        class="text-indigo-500 dark:text-indigo-400" />
                     <span class="text-xs text-slate-500 dark:text-slate-400">
-                        <span class="font-medium text-slate-800 dark:text-slate-200">{{ slotsAvailable }}</span> of {{ currentMaxSlots }} slots available
+                        <span class="font-medium text-slate-800 dark:text-slate-200">
+                            {{ slotsAvailable }}
+                        </span>
+                        of {{ currentMaxSlots }} slots available
                     </span>
                 </div>
                 <div class="w-24 h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden shrink-0">
-                    <div class="h-full rounded-full transition-all duration-500" :class="slotStatusClass" :style="{ width: `${slotFillPercent}%` }"></div>
+                    <div
+                        class="h-full rounded-full transition-all duration-500"
+                        :class="slotStatusClass"
+                        :style="{ width: `${slotFillPercent}%` }"></div>
                 </div>
             </div>
         </div>
 
         <!-- STATUS ALERTS -->
-        <div v-if="data.is_suspended" class="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-2xl shadow-sm">
-            <AlertTriangle :size="18" :stroke-width="1.5" class="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+        <div
+            v-if="data.is_suspended"
+            class="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-2xl shadow-sm">
+            <AlertTriangle
+                :size="18"
+                :stroke-width="1.5"
+                class="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
             <div>
                 <p class="text-sm font-medium text-amber-900 dark:text-amber-200">Event Temporarily Unavailable</p>
                 <p class="text-xs text-amber-700 dark:text-amber-400/80 mt-1">This event is currently suspended and not accepting responses.</p>
             </div>
         </div>
-        <div v-else-if="isExpired" class="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-2xl shadow-sm">
-            <XCircle :size="18" :stroke-width="1.5" class="text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+        <div
+            v-else-if="isExpired"
+            class="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-2xl shadow-sm">
+            <XCircle
+                :size="18"
+                :stroke-width="1.5"
+                class="text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
             <div>
                 <p class="text-sm font-medium text-red-900 dark:text-red-200">Event Has Ended</p>
                 <p class="text-xs text-red-700 dark:text-red-400/80 mt-1">This event is no longer accepting responses.</p>
@@ -710,7 +882,9 @@ export default {
         </div>
 
         <!-- PARTICIPANT SELECTOR -->
-        <div v-if="participantHashes?.length && !data.is_suspended && !isExpired" class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm p-5 flex flex-col gap-3">
+        <div
+            v-if="participantHashes?.length && !data.is_suspended && !isExpired"
+            class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm p-5 flex flex-col gap-3">
             <label class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Continue as</label>
             <div class="flex items-center gap-3">
                 <custom-dropdown
@@ -718,119 +892,199 @@ export default {
                     :value="selectedParticipantHash"
                     :options="[
                         { name: null, label: 'New participant' },
-                        ...storedLocalHashedIds.map(item => ({ name: item.participant_hash, label: item.participant.name }))
+                        ...storedLocalHashedIds.map((item) => ({
+                            name: item.participant_hash,
+                            label: item.participant.name,
+                        })),
                     ]"
                     :withAllOption="false"
-                    class="flex-1 text-sm font-medium"
-                />
-                <button v-if="selectedParticipantHash" @click="clearParticipant" class="p-2 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors border border-transparent hover:border-red-200 dark:hover:border-red-500/30" title="Sign out">
-                    <LogOut :size="16" :stroke-width="1.5" />
+                    class="flex-1 text-sm font-medium" />
+                <button
+                    v-if="selectedParticipantHash"
+                    @click="clearParticipant"
+                    class="p-2 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors border border-transparent hover:border-red-200 dark:hover:border-red-500/30"
+                    title="Sign out">
+                    <LogOut
+                        :size="16"
+                        :stroke-width="1.5" />
                 </button>
             </div>
         </div>
 
         <!-- PARTICIPANT VERIFICATION -->
-        <div v-if="activeStep?.status === 'available' && participantWorkflowEnabled && participantVerificationEnabled && requiresParticipant(activeTab) && !selectedParticipantHash && !data.is_suspended && !isExpired" class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm p-6 flex flex-col gap-5">
+        <div
+            v-if="activeStep?.status === 'available' && participantWorkflowEnabled && participantVerificationEnabled && requiresParticipant(activeTab) && !selectedParticipantHash && !data.is_suspended && !isExpired"
+            class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm p-6 flex flex-col gap-5">
             <div class="flex items-center gap-2.5 text-indigo-600 dark:text-indigo-400">
-                <Shield :size="18" :stroke-width="1.5" />
+                <Shield
+                    :size="18"
+                    :stroke-width="1.5" />
                 <span class="text-sm font-medium uppercase tracking-wide text-slate-900 dark:text-white">Verify Registration</span>
             </div>
             <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">This step requires a registered profile. Have you used this form before?</p>
 
-            <div v-if="!participantFlowChoice" class="grid grid-cols-2 gap-4">
-                <button @click="setParticipantFlowChoice('yes')" class="flex flex-col items-center gap-2 p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:border-indigo-500/50 dark:hover:bg-indigo-500/10 rounded-xl transition-all duration-200 group text-center">
-                    <UserCheck :size="24" :stroke-width="1.5" class="text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400" />
+            <div
+                v-if="!participantFlowChoice"
+                class="grid grid-cols-2 gap-4">
+                <button
+                    @click="setParticipantFlowChoice('yes')"
+                    class="flex flex-col items-center gap-2 p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:border-indigo-500/50 dark:hover:bg-indigo-500/10 rounded-xl transition-all duration-200 group text-center">
+                    <UserCheck
+                        :size="24"
+                        :stroke-width="1.5"
+                        class="text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400" />
                     <span class="text-sm font-medium text-slate-900 dark:text-white">Yes, I have</span>
                     <span class="text-xs text-slate-500 dark:text-slate-400">Continue with profile</span>
                 </button>
-                <button @click="setParticipantFlowChoice('no')" class="flex flex-col items-center gap-2 p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:border-indigo-500/50 dark:hover:bg-indigo-500/10 rounded-xl transition-all duration-200 group text-center">
-                    <UserPlus :size="24" :stroke-width="1.5" class="text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400" />
+                <button
+                    @click="setParticipantFlowChoice('no')"
+                    class="flex flex-col items-center gap-2 p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:border-indigo-500/50 dark:hover:bg-indigo-500/10 rounded-xl transition-all duration-200 group text-center">
+                    <UserPlus
+                        :size="24"
+                        :stroke-width="1.5"
+                        class="text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400" />
                     <span class="text-sm font-medium text-slate-900 dark:text-white">No, I'm new</span>
                     <span class="text-xs text-slate-500 dark:text-slate-400">Start preregistration</span>
                 </button>
             </div>
 
-            <div v-if="participantFlowChoice === 'yes'" class="flex flex-col gap-3">
+            <div
+                v-if="participantFlowChoice === 'yes'"
+                class="flex flex-col gap-3">
                 <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Enter your registered email:</p>
                 <div class="flex gap-2.5">
                     <div class="relative flex-1">
-                        <Mail :size="14" :stroke-width="1.5" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <Mail
+                            :size="14"
+                            :stroke-width="1.5"
+                            class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                         <input
                             v-model="participantLookupEmail"
                             type="email"
                             placeholder="your@email.com"
                             class="w-full pl-9 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all shadow-sm"
-                            @keyup.enter="lookupRegisteredParticipant"
-                        />
+                            @keyup.enter="lookupRegisteredParticipant" />
                     </div>
-                    <button @click="lookupRegisteredParticipant" :disabled="participantLookupLoading" class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl shadow-sm transition-all disabled:opacity-50 shrink-0">
-                        <Loader2 v-if="participantLookupLoading" :size="14" :stroke-width="1.5" class="animate-spin" />
-                        <Search v-else :size="14" :stroke-width="1.5" />
+                    <button
+                        @click="lookupRegisteredParticipant"
+                        :disabled="participantLookupLoading"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl shadow-sm transition-all disabled:opacity-50 shrink-0">
+                        <Loader2
+                            v-if="participantLookupLoading"
+                            :size="14"
+                            :stroke-width="1.5"
+                            class="animate-spin" />
+                        <Search
+                            v-else
+                            :size="14"
+                            :stroke-width="1.5" />
                         Find
                     </button>
                 </div>
             </div>
 
-            <div v-if="participantFlowChoice === 'no'" class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl">
+            <div
+                v-if="participantFlowChoice === 'no'"
+                class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl">
                 <p class="text-sm text-slate-600 dark:text-slate-300">Complete preregistration first to get started.</p>
-                <button @click="goToPreregistrationStep" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl shadow-sm transition-all w-full sm:w-auto justify-center">
-                    Go to Preregistration <ArrowRight :size="14" :stroke-width="1.5" />
+                <button
+                    @click="goToPreregistrationStep"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl shadow-sm transition-all w-full sm:w-auto justify-center">
+                    Go to Preregistration
+                    <ArrowRight
+                        :size="14"
+                        :stroke-width="1.5" />
                 </button>
             </div>
 
             <!-- Lookup Alerts -->
-            <div v-if="participantLookupSuccess" class="inline-flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-medium rounded-xl shadow-sm">
-                <CheckCircle :size="14" :stroke-width="1.5" /> {{ participantLookupSuccess }}
+            <div
+                v-if="participantLookupSuccess"
+                class="inline-flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-medium rounded-xl shadow-sm">
+                <CheckCircle
+                    :size="14"
+                    :stroke-width="1.5" />
+                {{ participantLookupSuccess }}
             </div>
-            <div v-if="participantLookupError" class="inline-flex items-center gap-2 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400 text-xs font-medium rounded-xl shadow-sm">
-                <AlertCircle :size="14" :stroke-width="1.5" /> {{ participantLookupError }}
+            <div
+                v-if="participantLookupError"
+                class="inline-flex items-center gap-2 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400 text-xs font-medium rounded-xl shadow-sm">
+                <AlertCircle
+                    :size="14"
+                    :stroke-width="1.5" />
+                {{ participantLookupError }}
             </div>
         </div>
 
         <!-- LOADING STATE -->
-        <div v-if="workflowLoading" class="flex flex-col items-center justify-center py-12 gap-3 text-indigo-600 dark:text-indigo-400">
-            <Loader2 :size="24" :stroke-width="1.5" class="animate-spin" />
+        <div
+            v-if="workflowLoading"
+            class="flex flex-col items-center justify-center py-12 gap-3 text-indigo-600 dark:text-indigo-400">
+            <Loader2
+                :size="24"
+                :stroke-width="1.5"
+                class="animate-spin" />
             <span class="text-sm font-medium uppercase tracking-wide opacity-80">Loading forms...</span>
         </div>
 
         <!-- ERROR STATE -->
-        <div v-if="workflowError" class="flex flex-col items-center justify-center p-8 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-2xl text-center">
-            <AlertCircle :size="28" :stroke-width="1.5" class="text-red-500 mb-2" />
+        <div
+            v-if="workflowError"
+            class="flex flex-col items-center justify-center p-8 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-2xl text-center">
+            <AlertCircle
+                :size="28"
+                :stroke-width="1.5"
+                class="text-red-500 mb-2" />
             <p class="text-sm font-medium text-red-900 dark:text-red-200">Failed to load</p>
             <p class="text-xs text-red-700 dark:text-red-400 mt-1">{{ workflowError }}</p>
         </div>
 
         <!-- TABS (Desktop) -->
-        <div v-if="workflowTabs.length > 1 && !workflowLoading" class="hidden md:flex gap-1.5 p-1.5 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 rounded-xl overflow-x-auto no-scrollbar shadow-inner">
+        <div
+            v-if="workflowTabs.length > 1 && !workflowLoading"
+            class="hidden md:flex gap-1.5 p-1.5 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 rounded-xl overflow-x-auto no-scrollbar shadow-inner">
             <button
-                v-for="(tab, i) in workflowTabs" :key="tab.key"
+                v-for="(tab, i) in workflowTabs"
+                :key="tab.key"
                 @click="activeTab = tab.key"
                 class="flex items-center gap-2.5 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap min-w-0"
                 :class="activeTab === tab.key ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400 ring-1 ring-slate-200 dark:ring-slate-600' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 disabled:opacity-50 disabled:cursor-not-allowed'"
-                :disabled="tab.disabled"
-            >
-                <span class="w-4 h-4 rounded-full flex items-center justify-center text-[0.65rem] shrink-0" :class="activeTab === tab.key ? 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'">{{ i + 1 }}</span>
+                :disabled="tab.disabled">
+                <span
+                    class="w-4 h-4 rounded-full flex items-center justify-center text-[0.65rem] shrink-0"
+                    :class="activeTab === tab.key ? 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'">
+                    {{ i + 1 }}
+                </span>
                 <span class="truncate">{{ tab.label }}</span>
                 <!-- Status Dot -->
-                <span class="w-1.5 h-1.5 rounded-full shrink-0" :class="{
-                    'bg-emerald-500': tab.status === 'available',
-                    'bg-blue-500': tab.status === 'completed',
-                    'bg-slate-400': ['locked', 'not_yet_open', 'disabled', 'hidden'].includes(tab.status),
-                    'bg-red-500': ['expired', 'full'].includes(tab.status)
-                }"></span>
+                <span
+                    class="w-1.5 h-1.5 rounded-full shrink-0"
+                    :class="{
+                        'bg-emerald-500': tab.status === 'available',
+                        'bg-blue-500': tab.status === 'completed',
+                        'bg-slate-400': ['locked', 'not_yet_open', 'disabled', 'hidden'].includes(tab.status),
+                        'bg-red-500': ['expired', 'full'].includes(tab.status),
+                    }"></span>
             </button>
         </div>
 
         <!-- MAIN FORM AREA -->
-        <div v-if="activeTab && !workflowLoading" class="flex flex-col gap-4">
-            
+        <div
+            v-if="activeTab && !workflowLoading"
+            class="flex flex-col gap-4">
             <!-- Step Countdown Banner -->
-            <div v-if="getStepCountdownMeta(getStep(activeTab))" class="flex items-center justify-between p-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm">
+            <div
+                v-if="getStepCountdownMeta(getStep(activeTab))"
+                class="flex items-center justify-between p-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm">
                 <div class="flex items-center gap-2.5 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                    <Hourglass :size="14" :stroke-width="1.5" />
+                    <Hourglass
+                        :size="14"
+                        :stroke-width="1.5" />
                     <span>{{ getStepCountdownMeta(getStep(activeTab)).label }}</span>
                 </div>
-                <span class="font-mono text-sm font-semibold" :class="getStepCountdownMeta(getStep(activeTab)).label === 'Closes in' ? 'text-amber-600 dark:text-amber-400' : 'text-blue-600 dark:text-blue-400'">
+                <span
+                    class="font-mono text-sm font-semibold"
+                    :class="getStepCountdownMeta(getStep(activeTab)).label === 'Closes in' ? 'text-amber-600 dark:text-amber-400' : 'text-blue-600 dark:text-blue-400'">
                     {{ getStepCountdownMeta(getStep(activeTab)).value }}
                 </span>
             </div>
@@ -838,8 +1092,14 @@ export default {
             <!-- Form Shell -->
             <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden flex flex-col mt-2">
                 <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
-                    <h3 class="text-base font-semibold text-slate-900 dark:text-white tracking-tight">{{ getStepTitle(activeTab) }}</h3>
-                    <p v-if="getDescription(activeTab)" class="text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">{{ getDescription(activeTab) }}</p>
+                    <h3 class="text-base font-semibold text-slate-900 dark:text-white tracking-tight">
+                        {{ getStepTitle(activeTab) }}
+                    </h3>
+                    <p
+                        v-if="getDescription(activeTab)"
+                        class="text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                        {{ getDescription(activeTab) }}
+                    </p>
                 </div>
 
                 <div class="p-6">
@@ -853,54 +1113,61 @@ export default {
                             :config="getStep(activeTab)"
                             :title="getStepTitle(activeTab)"
                             :description="getDescription(activeTab)"
-                            @createdModel="handleCreatedModel"
-                        />
+                            @createdModel="handleCreatedModel" />
                         <preregistration-card
                             v-else-if="getStep(activeTab)?.form_type === 'preregistration'"
                             :event-id="getRequirementFormId(activeTab)"
                             :config="getStep(activeTab)"
-                            @createdModel="handleCreatedModel"
-                        />
+                            @createdModel="handleCreatedModel" />
                         <preregistration-quiz-bee-card
                             v-else-if="getStep(activeTab)?.form_type === 'preregistration_biotech'"
                             :event-id="getRequirementFormId(activeTab)"
                             :config="getStep(activeTab)"
-                            @createdModel="handleCreatedModel"
-                        />
+                            @createdModel="handleCreatedModel" />
                         <preregistration-quizbee-team-card
                             v-else-if="getStep(activeTab)?.form_type === 'preregistration_quizbee'"
                             :event-id="getRequirementFormId(activeTab)"
                             :config="getStep(activeTab)"
-                            @createdModel="handleCreatedModel"
-                        />
+                            @createdModel="handleCreatedModel" />
                         <registration-card
                             v-else-if="getStep(activeTab)?.form_type === 'registration'"
                             :event-id="getRequirementFormId(activeTab)"
                             :participant-id="getParticipantIdForStep(activeTab)"
                             :config="getStep(activeTab)"
-                            @createdModel="handleCreatedModel"
-                        />
+                            @createdModel="handleCreatedModel" />
                         <feedback-card
                             v-else-if="getStep(activeTab)?.form_type === 'feedback'"
                             :event-id="getRequirementFormId(activeTab)"
                             :participant-id="getParticipantIdForStep(activeTab)"
                             :config="getStep(activeTab)"
-                            @createdModel="handleCreatedModel"
-                        />
+                            @createdModel="handleCreatedModel" />
                     </template>
 
                     <!-- Unavailable state inside shell -->
-                    <div v-else class="flex flex-col items-center justify-center py-16 px-4 text-center">
-                        <div class="w-14 h-14 rounded-full flex items-center justify-center mb-4" :class="{
-                            'bg-slate-100 dark:bg-slate-800 text-slate-400': ['locked', 'disabled'].includes(activeStep?.status),
-                            'bg-amber-50 dark:bg-amber-500/10 text-amber-500': activeStep?.status === 'not_yet_open',
-                            'bg-red-50 dark:bg-red-500/10 text-red-500': ['expired', 'full'].includes(activeStep?.status),
-                            'bg-blue-50 dark:bg-blue-500/10 text-blue-500': activeStep?.status === 'completed'
-                        }">
-                            <component :is="getStepIcon(activeStep?.status)" :size="28" :stroke-width="1.5" />
+                    <div
+                        v-else
+                        class="flex flex-col items-center justify-center py-16 px-4 text-center">
+                        <div
+                            class="w-14 h-14 rounded-full flex items-center justify-center mb-4"
+                            :class="{
+                                'bg-slate-100 dark:bg-slate-800 text-slate-400': ['locked', 'disabled'].includes(activeStep?.status),
+                                'bg-amber-50 dark:bg-amber-500/10 text-amber-500': activeStep?.status === 'not_yet_open',
+                                'bg-red-50 dark:bg-red-500/10 text-red-500': ['expired', 'full'].includes(activeStep?.status),
+                                'bg-blue-50 dark:bg-blue-500/10 text-blue-500': activeStep?.status === 'completed',
+                            }">
+                            <component
+                                :is="getStepIcon(activeStep?.status)"
+                                :size="28"
+                                :stroke-width="1.5" />
                         </div>
-                        <h3 class="text-base font-semibold text-slate-900 dark:text-white tracking-wide">{{ getStepMessage(getStep(activeTab)) }}</h3>
-                        <p v-if="activeStep?.status === 'locked'" class="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">Complete previous steps in the workflow to unlock this form.</p>
+                        <h3 class="text-base font-semibold text-slate-900 dark:text-white tracking-wide">
+                            {{ getStepMessage(getStep(activeTab)) }}
+                        </h3>
+                        <p
+                            v-if="activeStep?.status === 'locked'"
+                            class="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
+                            Complete previous steps in the workflow to unlock this form.
+                        </p>
                     </div>
                 </div>
             </div>

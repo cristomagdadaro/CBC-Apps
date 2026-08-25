@@ -1,31 +1,21 @@
 <script>
-import {
-    Chart,
-    PieController,
-    BarController,
-    BarElement,
-    ArcElement,
-    CategoryScale,
-    LinearScale,
-    Tooltip,
-    Legend,
-} from 'chart.js';
-import DataFormatterMixin from '@/Modules/mixins/DataFormatterMixin';
-import Modal from '@/Components/Modal.vue';
-import TabNavigation from '@/Components/TabNavigation.vue';
-import DataTable from '@/Modules/DataTable/presentation/DataTable.vue';
-import PreregistrationCard from '@/Pages/Forms/components/PreregistrationCard.vue';
-import PreregistrationQuizBeeCard from '@/Pages/Forms/components/PreregistrationQuizBeeCard.vue';
-import PreregistrationQuizbeeTeamCard from '@/Pages/Forms/components/PreregistrationQuizbeeTeamCard.vue';
-import RegistrationCard from '@/Pages/Forms/components/RegistrationCard.vue';
-import FeedbackCard from '@/Pages/Forms/components/FeedbackCard.vue';
-import { router } from '@inertiajs/vue3';
-import { subscribeToRealtimeChannels } from '@/Modules/realtime/subscriptions';
+import { Chart, PieController, BarController, BarElement, ArcElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
+import DataFormatterMixin from "@/Modules/mixins/DataFormatterMixin";
+import Modal from "@/Components/Modal.vue";
+import TabNavigation from "@/Components/TabNavigation.vue";
+import DataTable from "@/Modules/DataTable/presentation/DataTable.vue";
+import PreregistrationCard from "@/Pages/Forms/components/PreregistrationCard.vue";
+import PreregistrationQuizBeeCard from "@/Pages/Forms/components/PreregistrationQuizBeeCard.vue";
+import PreregistrationQuizbeeTeamCard from "@/Pages/Forms/components/PreregistrationQuizbeeTeamCard.vue";
+import RegistrationCard from "@/Pages/Forms/components/RegistrationCard.vue";
+import FeedbackCard from "@/Pages/Forms/components/FeedbackCard.vue";
+import { router } from "@inertiajs/vue3";
+import { subscribeToRealtimeChannels } from "@/Modules/realtime/subscriptions";
 
 Chart.register(BarController, PieController, BarElement, ArcElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 export default {
-    name: 'FormUpdateDashboard',
+    name: "FormUpdateDashboard",
     components: {
         Modal,
         TabNavigation,
@@ -63,18 +53,18 @@ export default {
             selectedFormType: null,
             activeFormType: null,
             labelMap: {
-                pre_registration: 'Pre-registration',
-                pre_registration_biotech: 'Pre-registration + Quiz Bee',
-                pre_registration_quizbee: 'Pre-registration Quiz Bee',
-                preregistration_quizbee: 'Pre-registration Quiz Bee',
-                registration: 'Registration',
-                pre_test: 'Pre-test',
-                post_test: 'Post-test',
-                feedback: 'Feedback',
+                pre_registration: "Pre-registration",
+                pre_registration_biotech: "Pre-registration + Quiz Bee",
+                pre_registration_quizbee: "Pre-registration Quiz Bee",
+                preregistration_quizbee: "Pre-registration Quiz Bee",
+                registration: "Registration",
+                pre_test: "Pre-test",
+                post_test: "Post-test",
+                feedback: "Feedback",
             },
             // Adjusted color palettes for the slate/indigo theme
-            responseColors: ['#4f46e5', '#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'],
-            totalsColors: ['#3b82f6', '#f97316', '#10b981'],
+            responseColors: ["#4f46e5", "#0ea5e9", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"],
+            totalsColors: ["#3b82f6", "#f97316", "#10b981"],
             responseChartInstance: null,
             totalsChartInstance: null,
             regionPieInstance: null,
@@ -103,9 +93,9 @@ export default {
             return Object.entries(groups).map(([key, items]) => {
                 const itemsArray = Array.isArray(items) ? items : [];
                 const uniqueKeys = new Set();
-                itemsArray.forEach(item => {
-                    if (item.response_data && typeof item.response_data === 'object') {
-                        Object.keys(item.response_data).forEach(k => uniqueKeys.add(k));
+                itemsArray.forEach((item) => {
+                    if (item.response_data && typeof item.response_data === "object") {
+                        Object.keys(item.response_data).forEach((k) => uniqueKeys.add(k));
                     }
                 });
 
@@ -168,7 +158,7 @@ export default {
         },
         filteredProvinceCounts() {
             if (!this.selectedRegion) {
-                return this.aggregateCounts('province_address', (v) => this.normalizeText(v));
+                return this.aggregateCounts("province_address", (v) => this.normalizeText(v));
             }
             const counts = {};
             this.allResponses.forEach((item) => {
@@ -182,7 +172,7 @@ export default {
         },
         filteredCityCounts() {
             if (!this.selectedProvince && !this.selectedRegion) {
-                return this.aggregateCounts('city_address', (v) => this.normalizeText(v));
+                return this.aggregateCounts("city_address", (v) => this.normalizeText(v));
             }
             const counts = {};
             this.allResponses.forEach((item) => {
@@ -219,21 +209,20 @@ export default {
         activeGroupColumns() {
             if (!this.activeGroup) return [];
 
-            if (this.activeGroup.dataColumnLabels['agreed_tc'])
-                this.activeGroup.dataColumnLabels['agreed_tc'] = 'Agreed to T&C';
+            if (this.activeGroup.dataColumnLabels["agreed_tc"]) this.activeGroup.dataColumnLabels["agreed_tc"] = "Agreed to T&C";
 
             return [
-                    { 
-                        key: 'created_at', 
-                        title: 'Submitted On', 
-                        sortable: true 
-                    },
-                    ...this.activeGroup.dataColumns.map(col => ({
-                        key: `response_data.${col}`,
-                        title: this.activeGroup.dataColumnLabels?.[col] || this.humanizeColumn(col),
-                        sortable: true
-                    }))
-                ];
+                {
+                    key: "created_at",
+                    title: "Submitted On",
+                    sortable: true,
+                },
+                ...this.activeGroup.dataColumns.map((col) => ({
+                    key: `response_data.${col}`,
+                    title: this.activeGroup.dataColumnLabels?.[col] || this.humanizeColumn(col),
+                    sortable: true,
+                })),
+            ];
         },
     },
     methods: {
@@ -241,8 +230,8 @@ export default {
             const requirements = this.config?.requirements;
             if (!Array.isArray(requirements)) return null;
 
-            const formTypeKey = String(formType || '');
-            const [baseType, templateId] = formTypeKey.split(':');
+            const formTypeKey = String(formType || "");
+            const [baseType, templateId] = formTypeKey.split(":");
 
             const directMatch = requirements.find((item) => {
                 if (!item) return false;
@@ -253,7 +242,7 @@ export default {
             });
 
             if (directMatch) return directMatch;
-            if (baseType === 'custom') return requirements.find((item) => item?.form_type === 'custom') || null;
+            if (baseType === "custom") return requirements.find((item) => item?.form_type === "custom") || null;
             return null;
         },
         getFormTypeDisplayLabel(formType) {
@@ -263,7 +252,10 @@ export default {
             return this.labelMap[formType] || this.humanizeColumn(formType);
         },
         humanizeColumn(column) {
-            return String(column || '').replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
+            return String(column || "")
+                .replace(/_/g, " ")
+                .replace(/\s+/g, " ")
+                .trim();
         },
         getFieldLabelMapForFormType(formType) {
             const requirements = this.config?.requirements;
@@ -295,56 +287,56 @@ export default {
         normalizeText(value) {
             if (value === null || value === undefined) return null;
             const str = String(value).trim();
-            return str === '' ? null : str;
+            return str === "" ? null : str;
         },
         normalizeBooleanValue(value) {
-            if (value === null || value === undefined || value === '') return null;
-            if (typeof value === 'boolean') return value;
-            if (typeof value === 'string') {
+            if (value === null || value === undefined || value === "") return null;
+            if (typeof value === "boolean") return value;
+            if (typeof value === "string") {
                 const lower = value.toLowerCase().trim();
-                if (lower === 'true' || lower === '1' || lower === 'yes') return true;
-                if (lower === 'false' || lower === '0' || lower === 'no') return false;
+                if (lower === "true" || lower === "1" || lower === "yes") return true;
+                if (lower === "false" || lower === "0" || lower === "no") return false;
                 return null;
             }
-            if (typeof value === 'number') return value !== 0;
+            if (typeof value === "number") return value !== 0;
             return null;
         },
         isHttpUrl(value) {
-            if (!value || typeof value !== 'string') return false;
+            if (!value || typeof value !== "string") return false;
             return /^https?:\/\//i.test(value.trim());
         },
         isStorageFilePath(value) {
-            if (!value || typeof value !== 'string') return false;
+            if (!value || typeof value !== "string") return false;
             const v = value.trim();
-            if (v.startsWith('quizbee/')) return true;
+            if (v.startsWith("quizbee/")) return true;
             return /\/.+\.[a-z0-9]+$/i.test(v);
         },
         getFileDownloadUrl(path) {
-            if (!path) return '#';
+            if (!path) return "#";
             if (this.isHttpUrl(path)) return path;
-            let normalized = String(path).trim().replace(/^\/+/, '');
-            if (normalized.startsWith('storage/')) return `/${normalized}`;
+            let normalized = String(path).trim().replace(/^\/+/, "");
+            if (normalized.startsWith("storage/")) return `/${normalized}`;
             return `/storage/${normalized}`;
         },
         getFileName(path) {
-            if (!path) return 'Download file';
-            const name = String(path).split('/').pop();
-            return name || 'Download file';
+            if (!path) return "Download file";
+            const name = String(path).split("/").pop();
+            return name || "Download file";
         },
         getFormCardComponent(formType) {
             const components = {
-                'preregistration': 'PreregistrationCard',
-                'preregistration_biotech': 'PreregistrationQuizBeeCard',
-                'preregistration_quizbee': 'PreregistrationQuizbeeTeamCard',
-                'registration': 'RegistrationCard',
-                'feedback': 'FeedbackCard',
+                preregistration: "PreregistrationCard",
+                preregistration_biotech: "PreregistrationQuizBeeCard",
+                preregistration_quizbee: "PreregistrationQuizbeeTeamCard",
+                registration: "RegistrationCard",
+                feedback: "FeedbackCard",
             };
             return components[formType] || null;
         },
         normalizeBoolean(value) {
-            if (value === null || value === undefined || value === '') return null;
-            if (value === true || value === 1 || value === '1' || value === 'Yes' || value === 'yes') return 'Yes';
-            if (value === false || value === 0 || value === '0' || value === 'No' || value === 'no') return 'No';
+            if (value === null || value === undefined || value === "") return null;
+            if (value === true || value === 1 || value === "1" || value === "Yes" || value === "yes") return "Yes";
+            if (value === false || value === 0 || value === "0" || value === "No" || value === "no") return "No";
             return this.normalizeText(value);
         },
         getColumnsForFormType(formType) {
@@ -363,31 +355,31 @@ export default {
         isBooleanLike(value) {
             if (value === true || value === false) return true;
             if (value === 1 || value === 0) return true;
-            if (typeof value === 'string') {
+            if (typeof value === "string") {
                 const lower = value.toLowerCase().trim();
-                return ['true', 'false', 'yes', 'no', '1', '0'].includes(lower);
+                return ["true", "false", "yes", "no", "1", "0"].includes(lower);
             }
             return false;
         },
         isNumericLike(value) {
-            if (value === null || value === undefined || value === '') return false;
-            if (typeof value === 'number') return Number.isFinite(value);
-            if (typeof value === 'string') {
-                const normalized = value.replace(/,/g, '').trim();
-                return normalized !== '' && !Number.isNaN(Number(normalized));
+            if (value === null || value === undefined || value === "") return false;
+            if (typeof value === "number") return Number.isFinite(value);
+            if (typeof value === "string") {
+                const normalized = value.replace(/,/g, "").trim();
+                return normalized !== "" && !Number.isNaN(Number(normalized));
             }
             return false;
         },
         isDateLike(value) {
-            if (!value || typeof value !== 'string') return false;
+            if (!value || typeof value !== "string") return false;
             const trimmed = value.trim();
             if (trimmed.length < 6) return false;
             const timestamp = Date.parse(trimmed);
             return !Number.isNaN(timestamp);
         },
         inferDataType(values) {
-            const samples = values.filter((v) => v !== null && v !== undefined && v !== '').slice(0, 50);
-            if (!samples.length) return 'string';
+            const samples = values.filter((v) => v !== null && v !== undefined && v !== "").slice(0, 50);
+            if (!samples.length) return "string";
 
             let boolCount = 0;
             let numberCount = 0;
@@ -400,23 +392,23 @@ export default {
             });
 
             const total = samples.length;
-            if (boolCount / total >= 0.8) return 'boolean';
-            if (dateCount / total >= 0.7) return 'date';
-            if (numberCount / total >= 0.7) return 'number';
-            return 'string';
+            if (boolCount / total >= 0.8) return "boolean";
+            if (dateCount / total >= 0.7) return "date";
+            if (numberCount / total >= 0.7) return "number";
+            return "string";
         },
         getChartTypeOptions(dataType) {
-            if (dataType === 'date') return ['bar'];
-            return ['bar', 'pie', 'doughnut'];
+            if (dataType === "date") return ["bar"];
+            return ["bar", "pie", "doughnut"];
         },
         normalizeChartValue(value, dataType) {
-            if (value === null || value === undefined || value === '') return null;
-            if (dataType === 'boolean') return this.normalizeBoolean(value);
-            if (dataType === 'number') {
-                const parsed = Number(String(value).replace(/,/g, '').trim());
+            if (value === null || value === undefined || value === "") return null;
+            if (dataType === "boolean") return this.normalizeBoolean(value);
+            if (dataType === "number") {
+                const parsed = Number(String(value).replace(/,/g, "").trim());
                 return Number.isNaN(parsed) ? null : parsed;
             }
-            if (dataType === 'date') {
+            if (dataType === "date") {
                 const timestamp = Date.parse(String(value));
                 return Number.isNaN(timestamp) ? null : new Date(timestamp);
             }
@@ -426,7 +418,7 @@ export default {
             const counts = {};
             values.forEach((value) => {
                 const normalized = this.normalizeChartValue(value, dataType);
-                if (normalized === null || normalized === undefined || normalized === '') return;
+                if (normalized === null || normalized === undefined || normalized === "") return;
                 const key = String(normalized);
                 counts[key] = (counts[key] || 0) + 1;
             });
@@ -437,13 +429,11 @@ export default {
             const top = entries.slice(0, maxItems);
             const remainder = entries.slice(maxItems);
             const otherCount = remainder.reduce((sum, [, value]) => sum + value, 0);
-            if (otherCount > 0) top.push(['Other', otherCount]);
+            if (otherCount > 0) top.push(["Other", otherCount]);
             return top;
         },
         buildNumericSeries(values) {
-            const numericValues = values
-                .map((value) => this.normalizeChartValue(value, 'number'))
-                .filter((value) => typeof value === 'number');
+            const numericValues = values.map((value) => this.normalizeChartValue(value, "number")).filter((value) => typeof value === "number");
             if (!numericValues.length) return { labels: [], data: [] };
 
             const uniqueValues = Array.from(new Set(numericValues)).sort((a, b) => a - b);
@@ -475,14 +465,12 @@ export default {
             return { labels, data };
         },
         buildDateSeries(values) {
-            const dates = values
-                .map((value) => this.normalizeChartValue(value, 'date'))
-                .filter((value) => value instanceof Date);
+            const dates = values.map((value) => this.normalizeChartValue(value, "date")).filter((value) => value instanceof Date);
             if (!dates.length) return { labels: [], data: [] };
 
             const buckets = {};
             dates.forEach((date) => {
-                const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
                 buckets[key] = (buckets[key] || 0) + 1;
             });
 
@@ -494,8 +482,8 @@ export default {
             const values = this.getColumnValues(config.formType, config.column);
             const dataType = config.dataType || this.inferDataType(values);
 
-            if (dataType === 'number') return this.buildNumericSeries(values);
-            if (dataType === 'date') return this.buildDateSeries(values);
+            if (dataType === "number") return this.buildNumericSeries(values);
+            if (dataType === "date") return this.buildDateSeries(values);
 
             const entries = this.buildCategoricalCounts(values, dataType);
             const labels = entries.map(([label]) => label);
@@ -509,7 +497,7 @@ export default {
         addDynamicChart() {
             if (!this.selectedChartFormType || !this.selectedChartColumn || !this.selectedChartType) return;
             const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-            const dataType = this.selectedColumnDataType || 'string';
+            const dataType = this.selectedColumnDataType || "string";
             this.dynamicChartConfigs.push({
                 id,
                 formType: this.selectedChartFormType,
@@ -540,7 +528,7 @@ export default {
             this.buildCharts();
         },
         cleanupRealtime() {
-            if (typeof this.realtimeCleanup === 'function') {
+            if (typeof this.realtimeCleanup === "function") {
                 this.realtimeCleanup();
             }
             this.realtimeCleanup = null;
@@ -551,7 +539,7 @@ export default {
 
             this.realtimeRefreshTimer = setTimeout(() => {
                 router.reload({
-                    only: ['eventStats', 'eventResponsesByType'],
+                    only: ["eventStats", "eventResponsesByType"],
                     preserveScroll: true,
                     preserveState: true,
                 });
@@ -563,12 +551,12 @@ export default {
 
             this.realtimeCleanup = subscribeToRealtimeChannels([
                 {
-                    type: 'private',
+                    type: "private",
                     channel: `forms.event.${this.eventId}`,
-                    event: 'forms.response.changed',
-                    feature: 'forms',
+                    event: "forms.response.changed",
+                    feature: "forms",
                     handler: (payload) => {
-                        if (String(payload?.event_id || '') !== String(this.eventId)) return;
+                        if (String(payload?.event_id || "") !== String(this.eventId)) return;
                         this.scheduleRealtimeRefresh();
                     },
                 },
@@ -579,7 +567,7 @@ export default {
             this.allResponses.forEach((item) => {
                 const raw = item.response_data?.[field];
                 const normalized = normalizer ? normalizer(raw) : raw;
-                if (normalized === null || normalized === undefined || normalized === '') return;
+                if (normalized === null || normalized === undefined || normalized === "") return;
                 counts[normalized] = (counts[normalized] || 0) + 1;
             });
             return counts;
@@ -587,17 +575,17 @@ export default {
         createDonutChart(refName, labels, data, colors, onSliceClick = null) {
             const canvas = this.$refs[refName];
             if (!canvas || !labels.length) return null;
-            
+
             const doughnutLabelPlugin = {
-                id: 'doughnutLabelPlugin',
+                id: "doughnutLabelPlugin",
                 afterDatasetsDraw(chart) {
-                    const MAX_LABELS = 5; 
+                    const MAX_LABELS = 5;
                     const ctx = chart.ctx;
                     const dataset = chart.data.datasets[0];
                     const meta = chart.getDatasetMeta(0);
                     const total = dataset.data.reduce((s, v) => s + (Number(v) || 0), 0);
                     if (!meta || !meta.data) return;
-                    if (chart.data.labels.length > MAX_LABELS) return; 
+                    if (chart.data.labels.length > MAX_LABELS) return;
 
                     meta.data.forEach((arc, i) => {
                         const value = Number(dataset.data[i]) || 0;
@@ -613,13 +601,13 @@ export default {
 
                         ctx.save();
                         // Adjust fill style based on light/dark mode later, but white/slate is safe here
-                        ctx.fillStyle = '#fff';
-                        ctx.font = 'bold 11px Inter, sans-serif';
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-                        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                        ctx.fillStyle = "#fff";
+                        ctx.font = "bold 11px Inter, sans-serif";
+                        ctx.textAlign = "center";
+                        ctx.textBaseline = "middle";
+                        ctx.shadowColor = "rgba(0,0,0,0.5)";
                         ctx.shadowBlur = 4;
-                        const labelText = String(chart.data.labels[i] || '');
+                        const labelText = String(chart.data.labels[i] || "");
                         ctx.fillText(labelText, x, y);
                         ctx.restore();
                     });
@@ -627,31 +615,41 @@ export default {
             };
 
             return new Chart(canvas, {
-                type: 'doughnut',
+                type: "doughnut",
                 data: {
                     labels,
-                    datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: 'transparent', hoverOffset: 4 }],
+                    datasets: [
+                        {
+                            data,
+                            backgroundColor: colors,
+                            borderWidth: 2,
+                            borderColor: "transparent",
+                            hoverOffset: 4,
+                        },
+                    ],
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '65%',
-                    onClick: onSliceClick ? (event, elements) => {
-                        if (elements.length > 0) {
-                            const index = elements[0].index;
-                            onSliceClick(labels[index]);
-                        }
-                    } : undefined,
+                    cutout: "65%",
+                    onClick: onSliceClick
+                        ? (event, elements) => {
+                              if (elements.length > 0) {
+                                  const index = elements[0].index;
+                                  onSliceClick(labels[index]);
+                              }
+                          }
+                        : undefined,
                     plugins: {
-                        legend: { position: 'bottom', display: false },
-                        tooltip: { 
+                        legend: { position: "bottom", display: false },
+                        tooltip: {
                             enabled: true,
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                            titleFont: { size: 13, family: 'Inter' },
-                            bodyFont: { size: 12, family: 'Inter' },
+                            backgroundColor: "rgba(15, 23, 42, 0.9)",
+                            titleFont: { size: 13, family: "Inter" },
+                            bodyFont: { size: 12, family: "Inter" },
                             padding: 10,
                             cornerRadius: 8,
-                            displayColors: true
+                            displayColors: true,
                         },
                     },
                 },
@@ -664,17 +662,17 @@ export default {
             this.$nextTick(() => {
                 if (this.$refs.responseChartCanvas) {
                     this.responseChartInstance = new Chart(this.$refs.responseChartCanvas, {
-                        type: 'pie',
+                        type: "pie",
                         data: {
                             labels: this.responseLabels,
                             datasets: [
                                 {
-                                    label: 'Responses by Form Type',
+                                    label: "Responses by Form Type",
                                     data: this.responseValues,
                                     backgroundColor: this.responseColors,
                                     borderWidth: 2,
-                                    borderColor: 'transparent',
-                                    hoverOffset: 4
+                                    borderColor: "transparent",
+                                    hoverOffset: 4,
                                 },
                             ],
                         },
@@ -685,8 +683,8 @@ export default {
                                 legend: {
                                     display: false,
                                 },
-                                tooltip: { 
-                                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                                tooltip: {
+                                    backgroundColor: "rgba(15, 23, 42, 0.9)",
                                     padding: 10,
                                     cornerRadius: 8,
                                 },
@@ -697,17 +695,13 @@ export default {
 
                 if (this.$refs.totalsChartCanvas) {
                     this.totalsChartInstance = new Chart(this.$refs.totalsChartCanvas, {
-                        type: 'bar',
+                        type: "bar",
                         data: {
-                            labels: ['Registrations', 'Participants', 'Responses'],
+                            labels: ["Registrations", "Participants", "Responses"],
                             datasets: [
                                 {
-                                    label: 'Totals',
-                                    data: [
-                                        this.stats?.registrations_total || 0,
-                                        this.stats?.participants_total || 0,
-                                        this.stats?.responses_total || 0,
-                                    ],
+                                    label: "Totals",
+                                    data: [this.stats?.registrations_total || 0, this.stats?.participants_total || 0, this.stats?.responses_total || 0],
                                     backgroundColor: this.totalsColors,
                                     borderRadius: 6,
                                     borderSkipped: false,
@@ -719,8 +713,8 @@ export default {
                             maintainAspectRatio: false,
                             plugins: {
                                 legend: { display: false },
-                                tooltip: { 
-                                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                                tooltip: {
+                                    backgroundColor: "rgba(15, 23, 42, 0.9)",
                                     padding: 10,
                                     cornerRadius: 8,
                                 },
@@ -729,13 +723,13 @@ export default {
                                 x: {
                                     grid: { display: false, drawBorder: false },
                                     ticks: {
-                                        color: '#94a3b8',
-                                        font: { family: 'Inter', weight: '600' }
+                                        color: "#94a3b8",
+                                        font: { family: "Inter", weight: "600" },
                                     },
                                     border: { display: false },
                                 },
                                 y: {
-                                    grid: { color: 'rgba(148, 163, 184, 0.1)', drawBorder: false },
+                                    grid: { color: "rgba(148, 163, 184, 0.1)", drawBorder: false },
                                     ticks: { display: false },
                                     border: { display: false },
                                 },
@@ -747,24 +741,24 @@ export default {
                 const regionEntries = this.geoRegionSummary || [];
                 const regionLabels = regionEntries.map((entry) => entry.region);
 
-                const regionCounts = regionEntries.map((entry) => this.allResponses.filter(r => this.normalizeText(r.response_data?.region_address) === entry.region).length);
+                const regionCounts = regionEntries.map((entry) => this.allResponses.filter((r) => this.normalizeText(r.response_data?.region_address) === entry.region).length);
                 const provinceCountsMap = this.filteredProvinceCounts;
                 const provinceLabels = Object.keys(provinceCountsMap);
-                const provinceCounts = provinceLabels.map(l => provinceCountsMap[l]);
+                const provinceCounts = provinceLabels.map((l) => provinceCountsMap[l]);
                 const cityCountsMap = this.filteredCityCounts;
                 const cityLabels = Object.keys(cityCountsMap);
-                const cityCounts = cityLabels.map(l => cityCountsMap[l]);
+                const cityCounts = cityLabels.map((l) => cityCountsMap[l]);
 
                 const palette = this.responseColors.concat(this.totalsColors);
                 const regionColors = regionLabels.map((_, i) => palette[i % palette.length]);
                 const provinceColors = provinceLabels.map((_, i) => palette[(i + regionLabels.length) % palette.length]);
                 const cityColors = cityLabels.map((_, i) => palette[(i + regionLabels.length + provinceLabels.length) % palette.length]);
 
-                this.regionPieInstance = this.createDonutChart('regionPieCanvas', regionLabels, regionCounts, regionColors, (label) => this.onRegionClick(label));
-                this.provincePieInstance = this.createDonutChart('provincePieCanvas', provinceLabels, provinceCounts, provinceColors, (label) => this.onProvinceClick(label));
-                this.cityPieInstance = this.createDonutChart('cityPieCanvas', cityLabels, cityCounts, cityColors);
+                this.regionPieInstance = this.createDonutChart("regionPieCanvas", regionLabels, regionCounts, regionColors, (label) => this.onRegionClick(label));
+                this.provincePieInstance = this.createDonutChart("provincePieCanvas", provinceLabels, provinceCounts, provinceColors, (label) => this.onProvinceClick(label));
+                this.cityPieInstance = this.createDonutChart("cityPieCanvas", cityLabels, cityCounts, cityColors);
 
-                const canvases = Array.isArray(this.$refs.dynamicChartCanvas) ? this.$refs.dynamicChartCanvas : (this.$refs.dynamicChartCanvas ? [this.$refs.dynamicChartCanvas] : []);
+                const canvases = Array.isArray(this.$refs.dynamicChartCanvas) ? this.$refs.dynamicChartCanvas : this.$refs.dynamicChartCanvas ? [this.$refs.dynamicChartCanvas] : [];
 
                 this.dynamicChartConfigs.forEach((config, index) => {
                     const canvas = canvases[index];
@@ -783,10 +777,10 @@ export default {
                                 {
                                     data,
                                     backgroundColor: colors,
-                                    borderWidth: config.chartType === 'bar' ? 0 : 2,
-                                    borderColor: 'transparent',
-                                    borderRadius: config.chartType === 'bar' ? 6 : 0,
-                                    hoverOffset: 4
+                                    borderWidth: config.chartType === "bar" ? 0 : 2,
+                                    borderColor: "transparent",
+                                    borderRadius: config.chartType === "bar" ? 6 : 0,
+                                    hoverOffset: 4,
                                 },
                             ],
                         },
@@ -795,40 +789,64 @@ export default {
                             maintainAspectRatio: false,
                             plugins: {
                                 legend: {
-                                    display: config.chartType !== 'bar',
-                                    position: 'bottom',
-                                    labels: { color: '#94a3b8', usePointStyle: true, boxWidth: 8 }
+                                    display: config.chartType !== "bar",
+                                    position: "bottom",
+                                    labels: { color: "#94a3b8", usePointStyle: true, boxWidth: 8 },
                                 },
-                                tooltip: { 
+                                tooltip: {
                                     enabled: true,
-                                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                                    backgroundColor: "rgba(15, 23, 42, 0.9)",
                                     padding: 10,
                                     cornerRadius: 8,
                                 },
                             },
-                            scales: config.chartType === 'bar' ? {
-                                x: {
-                                    grid: { display: false, drawBorder: false },
-                                    ticks: { color: '#94a3b8', font: { family: 'Inter' } },
-                                    border: { display: false },
-                                },
-                                y: {
-                                    grid: { color: 'rgba(148, 163, 184, 0.1)', drawBorder: false },
-                                    ticks: { precision: 0, color: '#94a3b8' },
-                                    border: { display: false },
-                                },
-                            } : undefined,
+                            scales:
+                                config.chartType === "bar"
+                                    ? {
+                                          x: {
+                                              grid: { display: false, drawBorder: false },
+                                              ticks: {
+                                                  color: "#94a3b8",
+                                                  font: { family: "Inter" },
+                                              },
+                                              border: { display: false },
+                                          },
+                                          y: {
+                                              grid: {
+                                                  color: "rgba(148, 163, 184, 0.1)",
+                                                  drawBorder: false,
+                                              },
+                                              ticks: { precision: 0, color: "#94a3b8" },
+                                              border: { display: false },
+                                          },
+                                      }
+                                    : undefined,
                         },
                     });
                 });
             });
         },
         destroyCharts() {
-            if (this.responseChartInstance) { this.responseChartInstance.destroy(); this.responseChartInstance = null; }
-            if (this.totalsChartInstance) { this.totalsChartInstance.destroy(); this.totalsChartInstance = null; }
-            if (this.regionPieInstance) { this.regionPieInstance.destroy(); this.regionPieInstance = null; }
-            if (this.provincePieInstance) { this.provincePieInstance.destroy(); this.provincePieInstance = null; }
-            if (this.cityPieInstance) { this.cityPieInstance.destroy(); this.cityPieInstance = null; }
+            if (this.responseChartInstance) {
+                this.responseChartInstance.destroy();
+                this.responseChartInstance = null;
+            }
+            if (this.totalsChartInstance) {
+                this.totalsChartInstance.destroy();
+                this.totalsChartInstance = null;
+            }
+            if (this.regionPieInstance) {
+                this.regionPieInstance.destroy();
+                this.regionPieInstance = null;
+            }
+            if (this.provincePieInstance) {
+                this.provincePieInstance.destroy();
+                this.provincePieInstance = null;
+            }
+            if (this.cityPieInstance) {
+                this.cityPieInstance.destroy();
+                this.cityPieInstance = null;
+            }
             Object.values(this.dynamicChartInstances).forEach((chart) => chart.destroy());
             this.dynamicChartInstances = {};
         },
@@ -866,60 +884,75 @@ export default {
             this.selectedFormType = null;
         },
         formatValue(value) {
-            if (value === null || value === undefined || value === '') return '-';
+            if (value === null || value === undefined || value === "") return "-";
             const normalizedBool = this.normalizeBooleanValue(value);
             if (normalizedBool !== null) return normalizedBool;
-            if (Array.isArray(value)) return value.join(', ');
+            if (Array.isArray(value)) return value.join(", ");
             return String(value);
         },
         escapeCSV(value) {
-            if (value === null || value === undefined) return '';
-            const str = Array.isArray(value) ? value.join(', ') : String(value);
-            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+            if (value === null || value === undefined) return "";
+            const str = Array.isArray(value) ? value.join(", ") : String(value);
+            if (str.includes(",") || str.includes('"') || str.includes("\n")) {
                 return `"${str.replace(/"/g, '""')}"`;
             }
             return str;
         },
     },
     watch: {
-        stats: { handler() { this.buildCharts(); }, deep: true },
-        responsesByType: { handler() { this.buildCharts(); }, deep: true },
+        stats: {
+            handler() {
+                this.buildCharts();
+            },
+            deep: true,
+        },
+        responsesByType: {
+            handler() {
+                this.buildCharts();
+            },
+            deep: true,
+        },
         responseDataGroups: {
             handler(groups) {
                 if (!this.activeFormType && groups.length) {
                     this.activeFormType = groups[0].form_type;
-                } else if (this.activeFormType && !groups.find(group => group.form_type === this.activeFormType)) {
+                } else if (this.activeFormType && !groups.find((group) => group.form_type === this.activeFormType)) {
                     this.activeFormType = groups[0]?.form_type ?? null;
                 }
 
                 if (!this.selectedChartFormType && groups.length) {
                     this.selectedChartFormType = groups[0].form_type;
                 }
-                if (this.selectedChartFormType && (!this.selectedFormColumns.length)) {
+                if (this.selectedChartFormType && !this.selectedFormColumns.length) {
                     this.selectedChartFormType = groups[0]?.form_type ?? null;
                 }
                 if (this.selectedChartFormType && !this.selectedChartColumn) {
                     this.selectedChartColumn = this.selectedFormColumns[0] || null;
                 }
                 if (!this.selectedChartType) {
-                    const options = this.getChartTypeOptions(this.selectedColumnDataType || 'string');
-                    this.selectedChartType = options[0] || 'bar';
+                    const options = this.getChartTypeOptions(this.selectedColumnDataType || "string");
+                    this.selectedChartType = options[0] || "bar";
                 }
             },
             immediate: true,
         },
         selectedChartFormType() {
             this.selectedChartColumn = this.selectedFormColumns[0] || null;
-            const options = this.getChartTypeOptions(this.selectedColumnDataType || 'string');
-            this.selectedChartType = options[0] || 'bar';
+            const options = this.getChartTypeOptions(this.selectedColumnDataType || "string");
+            this.selectedChartType = options[0] || "bar";
         },
         selectedChartColumn() {
-            const options = this.getChartTypeOptions(this.selectedColumnDataType || 'string');
+            const options = this.getChartTypeOptions(this.selectedColumnDataType || "string");
             if (!options.includes(this.selectedChartType)) {
-                this.selectedChartType = options[0] || 'bar';
+                this.selectedChartType = options[0] || "bar";
             }
         },
-        dynamicChartConfigs: { handler() { this.buildCharts(); }, deep: true },
+        dynamicChartConfigs: {
+            handler() {
+                this.buildCharts();
+            },
+            deep: true,
+        },
     },
     mounted() {
         this.buildCharts();
@@ -935,11 +968,14 @@ export default {
 
 <template>
     <div class="space-y-6">
-        
         <!-- Responses Data Table Section -->
-        <TabNavigation v-model="activeFormType" :tabs="responseTabs">
+        <TabNavigation
+            v-model="activeFormType"
+            :tabs="responseTabs">
             <template #default>
-                <div class="mt-5" v-if="activeGroup">
+                <div
+                    class="mt-5"
+                    v-if="activeGroup">
                     <div class="rounded-xl">
                         <DataTable
                             :mode="'offline'"
@@ -949,26 +985,45 @@ export default {
                             :enableSearch="true"
                             :enableFilters="true"
                             :enableExport="true"
-                            emptyMessage="No responses available."
-                        >
+                            emptyMessage="No responses available.">
                             <template #cell-created_at="{ value }">
-                                <span class="text-slate-600 dark:text-slate-300 font-medium">{{ formatDateTime(value) }}</span>
+                                <span class="text-slate-600 dark:text-slate-300 font-medium">
+                                    {{ formatDateTime(value) }}
+                                </span>
                             </template>
 
-                            <template v-for="col in activeGroup.dataColumns" :key="col" #[`cell-response_data.${col}`]="{ value }">
+                            <template
+                                v-for="col in activeGroup.dataColumns"
+                                :key="col"
+                                #[`cell-response_data.${col}`]="{ value }">
                                 <template v-if="col === 'proof_of_enrollment' && value">
-                                    <a :href="getFileDownloadUrl(value)" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-bold hover:underline">
-                                        <LuFileText class="w-3.5 h-3.5" /> File
+                                    <a
+                                        :href="getFileDownloadUrl(value)"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-bold hover:underline">
+                                        <LuFileText class="w-3.5 h-3.5" />
+                                        File
                                     </a>
                                 </template>
                                 <template v-else-if="isHttpUrl(value)">
-                                    <a :href="value" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-bold hover:underline">
-                                        <LuLink class="w-3.5 h-3.5" /> Link
+                                    <a
+                                        :href="value"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-bold hover:underline">
+                                        <LuLink class="w-3.5 h-3.5" />
+                                        Link
                                     </a>
                                 </template>
                                 <template v-else-if="isStorageFilePath(value)">
-                                    <a :href="getFileDownloadUrl(value)" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-bold hover:underline">
-                                        <LuDownload class="w-3.5 h-3.5" /> File
+                                    <a
+                                        :href="getFileDownloadUrl(value)"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-bold hover:underline">
+                                        <LuDownload class="w-3.5 h-3.5" />
+                                        File
                                     </a>
                                 </template>
                                 <template v-else>
@@ -977,33 +1032,41 @@ export default {
                             </template>
 
                             <template #actions="{ row }">
-                                <button @click="openResponseModal(row, activeGroup.form_type)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-500/20 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-colors shadow-sm">
-                                    <LuFileEdit class="w-3.5 h-3.5" /> Edit
+                                <button
+                                    @click="openResponseModal(row, activeGroup.form_type)"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-500/20 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-colors shadow-sm">
+                                    <LuFileEdit class="w-3.5 h-3.5" />
+                                    Edit
                                 </button>
                             </template>
                         </DataTable>
                     </div>
                 </div>
-                <div v-else class="py-12 text-center text-slate-400 dark:text-slate-500 font-medium">
+                <div
+                    v-else
+                    class="py-12 text-center text-slate-400 dark:text-slate-500 font-medium">
                     <LuInbox class="w-10 h-10 mx-auto mb-3 opacity-50" />
                     No responses available yet.
                 </div>
             </template>
             <template #icon="{ tab }">
-                <span class="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 text-[0.65rem] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-md">{{ tab.count }}</span>
+                <span class="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 text-[0.65rem] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-md">
+                    {{ tab.count }}
+                </span>
             </template>
         </TabNavigation>
 
         <!-- High Level Stats Row -->
         <div class="grid gap-5 md:grid-cols-3">
-            
             <!-- Total Count Card -->
             <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm ring-1 ring-slate-900/5 dark:ring-white/5 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[16rem]">
                 <div class="p-3 bg-indigo-50 dark:bg-indigo-500/10 rounded-2xl mb-4">
                     <LuUsers class="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <h3 class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">Total Responses</h3>
-                <p class="text-6xl font-black text-slate-900 dark:text-white tracking-tighter">{{ stats.responses_total }}</p>
+                <p class="text-6xl font-black text-slate-900 dark:text-white tracking-tighter">
+                    {{ stats.responses_total }}
+                </p>
                 <p class="text-xs font-semibold text-slate-400 dark:text-slate-500 mt-2">Across all form types</p>
             </div>
 
@@ -1044,8 +1107,15 @@ export default {
                 <div>
                     <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5">Source Form</label>
                     <div class="relative">
-                        <select v-model="selectedChartFormType" class="block w-full pl-3 pr-10 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 shadow-sm appearance-none">
-                            <option v-for="option in chartFormOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
+                        <select
+                            v-model="selectedChartFormType"
+                            class="block w-full pl-3 pr-10 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 shadow-sm appearance-none">
+                            <option
+                                v-for="option in chartFormOptions"
+                                :key="option.value"
+                                :value="option.value">
+                                {{ option.label }}
+                            </option>
                         </select>
                         <LuChevronDown class="absolute right-3 top-3 w-4 h-4 text-slate-400 pointer-events-none" />
                     </div>
@@ -1053,8 +1123,15 @@ export default {
                 <div>
                     <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5">Data Column</label>
                     <div class="relative">
-                        <select v-model="selectedChartColumn" class="block w-full pl-3 pr-10 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 shadow-sm appearance-none">
-                            <option v-for="column in selectedFormColumns" :key="column" :value="column">{{ getColumnLabel(selectedChartFormType, column) }}</option>
+                        <select
+                            v-model="selectedChartColumn"
+                            class="block w-full pl-3 pr-10 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 shadow-sm appearance-none">
+                            <option
+                                v-for="column in selectedFormColumns"
+                                :key="column"
+                                :value="column">
+                                {{ getColumnLabel(selectedChartFormType, column) }}
+                            </option>
                         </select>
                         <LuChevronDown class="absolute right-3 top-3 w-4 h-4 text-slate-400 pointer-events-none" />
                     </div>
@@ -1062,8 +1139,13 @@ export default {
                 <div>
                     <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5">Visualization</label>
                     <div class="relative">
-                        <select v-model="selectedChartType" class="block w-full pl-3 pr-10 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 shadow-sm appearance-none">
-                            <option v-for="chartType in getChartTypeOptions(selectedColumnDataType || 'string')" :key="chartType" :value="chartType">
+                        <select
+                            v-model="selectedChartType"
+                            class="block w-full pl-3 pr-10 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 shadow-sm appearance-none">
+                            <option
+                                v-for="chartType in getChartTypeOptions(selectedColumnDataType || 'string')"
+                                :key="chartType"
+                                :value="chartType">
                                 {{ chartType.charAt(0).toUpperCase() + chartType.slice(1) }} Chart
                             </option>
                         </select>
@@ -1071,40 +1153,64 @@ export default {
                     </div>
                 </div>
                 <div>
-                    <button @click="addDynamicChart" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-lg shadow-md shadow-indigo-600/20 transition-all active:scale-95">
-                        <LuPlus class="w-4 h-4" /> Add Chart
+                    <button
+                        @click="addDynamicChart"
+                        class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-lg shadow-md shadow-indigo-600/20 transition-all active:scale-95">
+                        <LuPlus class="w-4 h-4" />
+                        Add Chart
                     </button>
                 </div>
             </div>
-            
-            <p v-if="selectedColumnDataType" class="mt-3 ml-2 text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                <LuInfo class="w-3.5 h-3.5" /> Detected data format: <span class="text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">{{ selectedColumnDataType }}</span>
+
+            <p
+                v-if="selectedColumnDataType"
+                class="mt-3 ml-2 text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                <LuInfo class="w-3.5 h-3.5" />
+                Detected data format:
+                <span class="text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
+                    {{ selectedColumnDataType }}
+                </span>
             </p>
 
             <!-- Rendered Dynamic Charts -->
-            <div v-if="dynamicChartConfigs.length" class="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                <div v-for="chart in dynamicChartConfigs" :key="chart.id" class="bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-5 relative group transition-all hover:border-slate-300 dark:hover:border-slate-600">
-                    
-                    <button @click="removeDynamicChart(chart.id)" class="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100" title="Remove Chart">
+            <div
+                v-if="dynamicChartConfigs.length"
+                class="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                <div
+                    v-for="chart in dynamicChartConfigs"
+                    :key="chart.id"
+                    class="bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-5 relative group transition-all hover:border-slate-300 dark:hover:border-slate-600">
+                    <button
+                        @click="removeDynamicChart(chart.id)"
+                        class="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100"
+                        title="Remove Chart">
                         <LuTrash2 class="w-4 h-4" />
                     </button>
 
                     <div class="pr-8 mb-5 border-b border-slate-200 dark:border-slate-700/50 pb-4">
-                        <h4 class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ getChartTitle(chart) }}</h4>
+                        <h4 class="text-sm font-bold text-slate-900 dark:text-white truncate">
+                            {{ getChartTitle(chart) }}
+                        </h4>
                         <div class="flex items-center gap-2 mt-1">
-                            <span class="inline-flex px-1.5 py-0.5 rounded text-[0.6rem] font-bold uppercase tracking-widest bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300">{{ chart.chartType }}</span>
-                            <span class="inline-flex px-1.5 py-0.5 rounded text-[0.6rem] font-bold uppercase tracking-widest bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">{{ chart.dataType }}</span>
+                            <span class="inline-flex px-1.5 py-0.5 rounded text-[0.6rem] font-bold uppercase tracking-widest bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300">
+                                {{ chart.chartType }}
+                            </span>
+                            <span class="inline-flex px-1.5 py-0.5 rounded text-[0.6rem] font-bold uppercase tracking-widest bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+                                {{ chart.dataType }}
+                            </span>
                         </div>
                     </div>
-                    
+
                     <div class="h-48 relative">
                         <canvas ref="dynamicChartCanvas"></canvas>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Empty State -->
-            <div v-else class="mt-6 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-8 text-center">
+            <div
+                v-else
+                class="mt-6 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-8 text-center">
                 <LuLayoutDashboard class="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
                 <p class="text-sm font-bold text-slate-500 dark:text-slate-400">No custom charts added yet.</p>
             </div>
@@ -1116,7 +1222,7 @@ export default {
                 <LuMap class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                 <h3 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide">Geographic Coverage</h3>
             </div>
-            
+
             <transition
                 enter-active-class="transition duration-300 ease-out"
                 enter-from-class="opacity-0 -translate-y-2"
@@ -1124,28 +1230,61 @@ export default {
                 leave-active-class="transition duration-200 ease-in"
                 leave-from-class="opacity-100 translate-y-0"
                 leave-to-class="opacity-0 -translate-y-2">
-                <div v-if="selectedRegion || selectedProvince" class="mb-6 p-3 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-xl flex items-center justify-between shadow-sm">
+                <div
+                    v-if="selectedRegion || selectedProvince"
+                    class="mb-6 p-3 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-xl flex items-center justify-between shadow-sm">
                     <div class="flex items-center gap-4 text-sm font-semibold">
-                        <span v-if="selectedRegion" class="text-indigo-900 dark:text-indigo-200 flex items-center gap-1.5"><LuMapPin class="w-4 h-4 text-indigo-400" /> Region: <span class="font-black">{{ selectedRegion }}</span></span>
-                        <span v-if="selectedProvince" class="text-indigo-900 dark:text-indigo-200 flex items-center gap-1.5"><LuMapPin class="w-4 h-4 text-indigo-400" /> Province: <span class="font-black">{{ selectedProvince }}</span></span>
+                        <span
+                            v-if="selectedRegion"
+                            class="text-indigo-900 dark:text-indigo-200 flex items-center gap-1.5">
+                            <LuMapPin class="w-4 h-4 text-indigo-400" />
+                            Region:
+                            <span class="font-black">{{ selectedRegion }}</span>
+                        </span>
+                        <span
+                            v-if="selectedProvince"
+                            class="text-indigo-900 dark:text-indigo-200 flex items-center gap-1.5">
+                            <LuMapPin class="w-4 h-4 text-indigo-400" />
+                            Province:
+                            <span class="font-black">{{ selectedProvince }}</span>
+                        </span>
                     </div>
-                    <button @click="() => { selectedRegion = null; selectedProvince = null; buildCharts(); }" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-500/20 hover:bg-red-200 dark:hover:bg-red-500/30 rounded-lg transition-colors">
-                        <LuX class="w-3.5 h-3.5" /> Clear Filters
+                    <button
+                        @click="
+                            () => {
+                                selectedRegion = null;
+                                selectedProvince = null;
+                                buildCharts();
+                            }
+                        "
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-500/20 hover:bg-red-200 dark:hover:bg-red-500/30 rounded-lg transition-colors">
+                        <LuX class="w-3.5 h-3.5" />
+                        Clear Filters
                     </button>
                 </div>
             </transition>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 rounded-xl p-4">
-                    <h4 class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-4 text-center">Regions <span class="text-indigo-500 font-medium ml-1 text-[0.6rem]">(Click to filter)</span></h4>
+                    <h4 class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-4 text-center">
+                        Regions
+                        <span class="text-indigo-500 font-medium ml-1 text-[0.6rem]">(Click to filter)</span>
+                    </h4>
                     <div class="h-44 relative">
-                        <canvas ref="regionPieCanvas" class="cursor-pointer"></canvas>
+                        <canvas
+                            ref="regionPieCanvas"
+                            class="cursor-pointer"></canvas>
                     </div>
                 </div>
                 <div class="bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 rounded-xl p-4">
-                    <h4 class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-4 text-center">Provinces <span class="text-indigo-500 font-medium ml-1 text-[0.6rem]">(Click to filter)</span></h4>
+                    <h4 class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-4 text-center">
+                        Provinces
+                        <span class="text-indigo-500 font-medium ml-1 text-[0.6rem]">(Click to filter)</span>
+                    </h4>
                     <div class="h-44 relative">
-                        <canvas ref="provincePieCanvas" class="cursor-pointer"></canvas>
+                        <canvas
+                            ref="provincePieCanvas"
+                            class="cursor-pointer"></canvas>
                     </div>
                 </div>
                 <div class="bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 rounded-xl p-4">
@@ -1156,19 +1295,21 @@ export default {
                 </div>
             </div>
         </div>
-        
+
         <!-- Response Edit Modal (Unchanged Layout Logic, handled inside child components) -->
-        <modal :show="showResponseModal" @close="closeResponseModal" max-width="3xl">
-            <div class="p-6 max-h-[85vh] overflow-y-auto bg-slate-50 dark:bg-slate-900">                
-                <component 
+        <modal
+            :show="showResponseModal"
+            @close="closeResponseModal"
+            max-width="3xl">
+            <div class="p-6 max-h-[85vh] overflow-y-auto bg-slate-50 dark:bg-slate-900">
+                <component
                     v-if="selectedResponseType && getFormCardComponent(selectedResponseType)"
                     :is="getFormCardComponent(selectedResponseType)"
                     :responseData="selectedResponse"
                     :eventId="eventId"
                     :config="config"
                     @updatedModel="onResponseUpdated"
-                    @createdModel="onResponseUpdated"
-                />
+                    @createdModel="onResponseUpdated" />
             </div>
         </modal>
     </div>

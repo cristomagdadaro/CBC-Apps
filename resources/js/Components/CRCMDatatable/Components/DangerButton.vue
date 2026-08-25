@@ -1,8 +1,7 @@
 <template>
     <base-button
         type="button"
-        class="p-2 bg-red-300 hover:bg-red-600 active:bg-red-700 text-white"
-    >
+        class="p-2 bg-red-300 hover:bg-red-600 active:bg-red-700 text-white">
         <slot />
     </base-button>
 </template>

@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { Cpu } from 'lucide-vue-next'
+import { Cpu } from "lucide-vue-next";
 
 withDefaults(
     defineProps<{
-        size?: number
-        strokeWidth?: number
+        size?: number;
+        strokeWidth?: number;
     }>(),
     {
         size: 20,
         strokeWidth: 2,
     },
-)
+);
 </script>
 
 <template>
-    <Cpu :size="size" :stroke-width="strokeWidth" v-bind="$attrs" />
+    <Cpu
+        :size="size"
+        :stroke-width="strokeWidth"
+        v-bind="$attrs" />
 </template>

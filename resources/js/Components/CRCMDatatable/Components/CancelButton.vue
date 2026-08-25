@@ -1,8 +1,7 @@
 <template>
     <base-button
         type="reset"
-        class="py-2 bg-gray-500 hover:bg-gray-600 active:bg-gray-700 text-white"
-    >
+        class="py-2 bg-gray-500 hover:bg-gray-600 active:bg-gray-700 text-white">
         <slot />
     </base-button>
 </template>
