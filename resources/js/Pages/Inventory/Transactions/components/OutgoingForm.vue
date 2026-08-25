@@ -205,8 +205,8 @@ export default {
 </script>
 
 <template>
-    <div class="grid grid-cols-1 gap-4 p-3 text-slate-900 sm:grid-cols-3 sm:p-5 dark:text-slate-100">
-        <div class="shadow-xs col-span-1 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:col-span-2 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
+    <div class="grid grid-cols-1 gap-1 bg-transparent sm:grid-cols-3 md:gap-4 dark:text-slate-100">
+        <div class="shadow-xs col-span-1 flex flex-col gap-4 rounded-t-2xl border-slate-200 bg-white p-4 sm:col-span-2 sm:p-5 dark:border dark:border-slate-800 dark:bg-slate-900">
             <div
                 v-if="displayData"
                 class="flex flex-col gap-3">
@@ -272,7 +272,7 @@ export default {
                     class="mb-3 w-full"
                     :reports="reportsList" />
                 <h1 class="text-sm font-bold uppercase tracking-wider text-slate-800 sm:text-base dark:text-slate-200">
-                    {{ isUpdate ? "Update Outgoing Transaction" : "Checkout" }}
+                    {{ isUpdate ? "Update Outgoing Transaction" : "Checkout Form" }}
                 </h1>
                 <form
                     @submit.prevent="proxySubmit"
@@ -346,9 +346,19 @@ export default {
                     </div>
 
                     <div class="flex justify-between gap-2 pt-2">
-                        <cancel-btn @click="resetOutgoingForm">
-                            {{ isUpdate ? "Cancel" : "Reset" }}
-                        </cancel-btn>
+                        <div class="flex items-center gap-3">
+                            <cancel-btn
+                                type="button"
+                                @click.prevent="$emit('close')">
+                                Cancel
+                            </cancel-btn>
+                            <button
+                                type="button"
+                                @click="resetOutgoingForm"
+                                class="text-xs font-semibold text-slate-400 transition-colors hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300">
+                                Reset
+                            </button>
+                        </div>
                         <submit-btn :disabled="model.api.processing">
                             <span v-if="model.api.processing">
                                 {{ isUpdate ? "Updating..." : "Saving..." }}
@@ -365,7 +375,7 @@ export default {
             </div>
         </div>
         <!-- Recent Activities Feed -->
-        <div class="shadow-xs h-fit rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
+        <div class="shadow-xs h-fit rounded-b-2xl border-slate-200 bg-white p-4 sm:p-5 dark:border dark:border-slate-800 dark:bg-slate-900">
             <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">Recent Transactions</h3>
             <div class="flex w-full flex-col gap-2 text-xs">
                 <div

@@ -95,7 +95,7 @@ const maxWidthClass = computed(() => {
                     leave-to-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
                     <div
                         v-show="show"
-                        class="mb-6 transform rounded-lg bg-white shadow-xl transition-all sm:mx-auto sm:w-full dark:bg-gray-800"
+                        class="mb-6 transform rounded-xl bg-white shadow-xl transition-all sm:mx-auto sm:w-full dark:bg-gray-800"
                         :class="maxWidthClass">
                         <div class="px-6 py-4">
                             <div class="text-lg font-medium text-gray-900 dark:text-gray-100">

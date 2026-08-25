@@ -345,12 +345,13 @@ export default {
                 </div>
                 <modal
                     :show="!!selectedItem && showModel"
-                    @close="showModel = false">
+                    @close="showModel = false; selectedItem = null">
                     <outgoing-form
                         :data="selectedItem"
                         :personnels="personnels"
                         :is-guest="true"
                         @submitted="closeForm"
+                        @close="showModel = false; selectedItem = null"
                         @error="showModel = true" />
                 </modal>
             </div>
