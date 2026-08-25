@@ -48,5 +48,6 @@ export default {
         :min="min"
         :max="max"
         :step="step"
-        :autocomplete="field.field_key" />
+        :autocomplete="field.field_key"
+        :guide="field.description" />
 </template>

@@ -208,9 +208,6 @@ export default {
         },
         activeGroupColumns() {
             if (!this.activeGroup) return [];
-
-            if (this.activeGroup.dataColumnLabels["agreed_tc"]) this.activeGroup.dataColumnLabels["agreed_tc"] = "Agreed to T&C";
-
             return [
                 {
                     key: "created_at",

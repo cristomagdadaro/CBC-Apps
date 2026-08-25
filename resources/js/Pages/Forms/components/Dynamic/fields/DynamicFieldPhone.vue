@@ -36,5 +36,6 @@ export default {
         type="tel"
         :error="error"
         :placeholder="placeholder"
-        autocomplete="tel" />
+        autocomplete="tel"
+        :guide="field.description" />
 </template>

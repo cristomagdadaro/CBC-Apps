@@ -44,18 +44,18 @@ export default {
         <div class="flex flex-col gap-1">
             <label
                 :for="field.field_key"
-                class="cursor-pointer text-sm leading-tight text-gray-700 dark:text-gray-200">
+                class="hidden cursor-pointer text-sm leading-tight text-gray-700 dark:text-gray-200">
                 {{ agreementText }}
-                <span
-                    v-if="required"
-                    class="text-red-600 dark:text-red-400">
-                    *
-                </span>
             </label>
             <div
                 v-if="field.description"
                 class="text-xs text-gray-600 dark:text-gray-400">
                 {{ field.description }}
+                <span
+                    v-if="required"
+                    class="text-red-600 dark:text-red-400">
+                    *
+                </span>
             </div>
         </div>
         <transition-container type="slide-bottom">

@@ -492,7 +492,7 @@ export default {
 
 <template>
     <div
-        class="camera-scanner flex flex-col gap-2"
+        class="camera-scanner gap-2rere flex flex-col"
         :class="[`variant-${variant}`]">
         <div class="flex w-full flex-col gap-2">
             <!-- Toggle Button -->

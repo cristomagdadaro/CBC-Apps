@@ -36,5 +36,6 @@ export default {
         type="email"
         :error="error"
         :placeholder="placeholder"
-        autocomplete="email" />
+        autocomplete="email"
+        :guide="field.description" />
 </template>

@@ -79,7 +79,7 @@ class DeploymentAccessService
                 'allows_deactivation' => true,
             ],
             self::MODULE_FORMS => [
-                'label' => 'Forms',
+                'label' => 'Dynamic Forms',
                 'description' => 'Controls public and authenticated event form pages together with the forms API module.',
                 'default_access' => self::ACCESS_BOTH,
                 'default_mode' => self::MODE_ACTIVE,

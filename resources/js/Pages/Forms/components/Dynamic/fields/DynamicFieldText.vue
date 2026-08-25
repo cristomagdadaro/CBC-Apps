@@ -40,5 +40,6 @@ export default {
         :required="required"
         :placeholder="placeholder"
         :maxlength="maxLength"
-        :autocomplete="field.field_key" />
+        :autocomplete="field.field_key"
+        :guide="field.description" />
 </template>

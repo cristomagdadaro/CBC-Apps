@@ -149,7 +149,7 @@ export default {
                     permission: "rental.vehicle.manage",
                 },
                 {
-                    label: "Form Builder",
+                    label: "Dynamic Forms",
                     href: null,
                     icon: "LuWrench",
                     children: [
@@ -159,6 +159,20 @@ export default {
                             permission: "event.forms.manage",
                             moduleKey: "forms",
                             icon: "LuCalendar",
+                        },
+                        {
+                            label: "Form Scanner",
+                            href: "forms.scan",
+                            permission: "event.forms.manage",
+                            moduleKey: "forms",
+                            icon: "LuScanLine",
+                        },
+                        {
+                            label: "Form Builder",
+                            href: "forms.builder",
+                            permission: "event.forms.manage",
+                            moduleKey: "forms",
+                            icon: "LuFileType",
                         },
                         {
                             label: "Certificate Generator",
@@ -668,7 +682,7 @@ export default {
                 leave-from-class="opacity-100"
                 leave-to-class="opacity-0">
                 <div
-                    v-if="isSidebarModeResponsive && sidebarOpen"
+                    v-if="isSidebarMode && sidebarOpen"
                     class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm xl:hidden"
                     @click="closeSidebar"></div>
             </Transition>
@@ -682,11 +696,11 @@ export default {
                 leave-from-class="translate-x-0"
                 leave-to-class="-translate-x-full">
                 <aside
-                    v-if="isSidebarModeResponsive && sidebarOpen"
+                    v-if="isSidebarMode && sidebarOpen"
                     class="fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-slate-200/50 bg-white/80 shadow-2xl backdrop-blur-2xl xl:hidden dark:border-slate-800/50 dark:bg-slate-900/80">
                     <!-- Mobile Header -->
                     <div class="flex h-16 items-center justify-between border-b border-slate-200/50 bg-transparent px-4 dark:border-slate-800/50">
-                        <span class="font-bold text-slate-900 dark:text-white">FES System</span>
+                        <span class="font-bold text-slate-900 dark:text-white">{{ $appName }}</span>
                         <button
                             @click="closeSidebar"
                             class="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-200/50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white">
