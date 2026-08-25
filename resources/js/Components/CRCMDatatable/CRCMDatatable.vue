@@ -1,8 +1,8 @@
 <template>
     <div
         v-if="!resolvedIndexEndpoint"
-        class="p-4 text-center text-red-600 bg-red-50 rounded-lg border border-red-200">
-        <alert-circle-icon class="w-12 h-12 mx-auto mb-2 opacity-50" />
+        class="rounded-lg border border-red-200 bg-red-50 p-4 text-center text-red-600">
+        <alert-circle-icon class="mx-auto mb-2 h-12 w-12 opacity-50" />
         <p class="font-medium">Configuration Error</p>
         <p class="text-sm">Unable to retrieve data. Please check model endpoints.</p>
     </div>
@@ -10,7 +10,7 @@
     <div
         v-else-if="!canView"
         class="p-8 text-center text-gray-500">
-        <shield-icon class="w-16 h-16 mx-auto mb-3 opacity-30" />
+        <shield-icon class="mx-auto mb-3 h-16 w-16 opacity-30" />
         <p class="text-lg font-medium">Access Denied</p>
         <p class="text-sm">You don't have permission to view this data.</p>
     </div>
@@ -18,15 +18,15 @@
     <div
         v-else-if="dt instanceof CRCMDatatable"
         id="dtContainer"
-        :class="['flex flex-col gap-3 p-2 sm:p-4 overflow-visible transition-colors duration-300', presetClasses.container]">
+        :class="['flex flex-col gap-3 overflow-visible p-2 transition-colors duration-300 sm:p-4', presetClasses.container]">
         <!-- Top Bar: Filters & Actions -->
-        <div class="relative z-30 flex flex-col lg:flex-row gap-3 justify-between items-start lg:items-center bg-white dark:bg-slate-900 rounded-2xl p-3 sm:p-4 border border-gray-200 dark:border-slate-800 shadow-sm">
+        <div class="relative z-30 flex flex-col items-start justify-between gap-3 rounded-2xl border border-gray-200 bg-white p-3 shadow-sm sm:p-4 lg:flex-row lg:items-center dark:border-slate-800 dark:bg-slate-900">
             <!-- Left: Filters Section -->
-            <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto items-start sm:items-center flex-wrap">
+            <div class="flex w-full flex-col flex-wrap items-start gap-2 sm:flex-row sm:items-center lg:w-auto">
                 <!-- Default Filters -->
-                <div class="flex flex-col sm:flex-row gap-2 w-full items-stretch sm:items-end">
+                <div class="flex w-full flex-col items-stretch gap-2 sm:flex-row sm:items-end">
                     <!-- PerPage & SearchBy paired side-by-side on mobile -->
-                    <div class="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto">
+                    <div class="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
                         <per-page
                             :value="dt.request.getPerPage"
                             @changePerPage="dt.perPageFunc({ per_page: $event })"
@@ -58,7 +58,7 @@
                 </div>
 
                 <!-- Custom Filters Slot -->
-                <div class="flex flex-wrap gap-2 items-center">
+                <div class="flex flex-wrap items-center gap-2">
                     <slot
                         name="custom-filters"
                         :datatable="dt"
@@ -68,15 +68,15 @@
             </div>
 
             <!-- Right: Actions Section -->
-            <action-container class="w-full lg:w-auto flex-wrap sm:flex-nowrap gap-1.5">
+            <action-container class="w-full flex-wrap gap-1.5 sm:flex-nowrap lg:w-auto">
                 <!-- Theme Selector -->
-                <div class="relative group">
+                <div class="group relative">
                     <top-action-btn
                         @click="showThemeMenu = !showThemeMenu"
                         :class="presetClasses.secondaryBtn"
                         title="Change Theme">
                         <template #icon>
-                            <palette-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+                            <palette-icon class="w-4.5 h-4.5 sm:h-5 sm:w-5" />
                         </template>
                     </top-action-btn>
 
@@ -87,17 +87,17 @@
                         enter-to-class="opacity-100 scale-100">
                         <div
                             v-if="showThemeMenu"
-                            class="absolute right-0 mt-2 w-40 z-[80] bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-200 dark:border-slate-800 overflow-hidden">
+                            class="absolute right-0 z-[80] mt-2 w-40 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
                             <button
                                 v-for="(preset, key) in colorPresets"
                                 :key="key"
                                 @click="setColorPreset(key)"
-                                class="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
+                                class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800"
                                 :class="{
                                     'bg-slate-50 dark:bg-slate-800/60': colorPreset === key,
                                 }">
                                 <div
-                                    class="w-3 h-3 rounded-full"
+                                    class="h-3 w-3 rounded-full"
                                     :class="preset.indicator"></div>
                                 <span class="capitalize">{{ key }}</span>
                             </button>
@@ -119,18 +119,18 @@
                     :class="presetClasses.primaryBtn"
                     title="Add new record">
                     <template #icon>
-                        <plus-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+                        <plus-icon class="w-4.5 h-4.5 sm:h-5 sm:w-5" />
                     </template>
                 </top-action-btn>
 
                 <top-action-btn
                     @click="dt.refresh()"
-                    :class="dt.processing ? 'opacity-75 cursor-not-allowed' : presetClasses.secondaryBtn"
+                    :class="dt.processing ? 'cursor-not-allowed opacity-75' : presetClasses.secondaryBtn"
                     :disabled="dt.processing"
                     title="Refresh data">
                     <template #icon>
                         <refresh-cw-icon
-                            class="w-4.5 h-4.5 sm:w-5 sm:h-5"
+                            class="w-4.5 h-4.5 sm:h-5 sm:w-5"
                             :class="{ 'animate-spin': dt.processing }" />
                     </template>
                 </top-action-btn>
@@ -138,10 +138,10 @@
                 <top-action-btn
                     v-if="canDelete && dataDb.length && dt.selected.length && showActionBtns"
                     @click="showDeleteSelectedDialogFunc()"
-                    class="bg-red-600 hover:bg-red-700 text-white shadow-red-200"
+                    class="bg-red-600 text-white shadow-red-200 hover:bg-red-700"
                     :title="`Delete selected (${dt.selected.length})`">
                     <template #icon>
-                        <trash-2-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+                        <trash-2-icon class="w-4.5 h-4.5 sm:h-5 sm:w-5" />
                     </template>
                 </top-action-btn>
 
@@ -152,17 +152,17 @@
                     :top-text="dt.selected.length || null"
                     title="Select all visible">
                     <template #icon>
-                        <check-square-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+                        <check-square-icon class="w-4.5 h-4.5 sm:h-5 sm:w-5" />
                     </template>
                 </top-action-btn>
 
                 <top-action-btn
                     v-if="selected.length && dataDb.length && showActionBtns"
-                    class="hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-600 dark:text-slate-300 transition-colors"
+                    class="text-slate-600 transition-colors hover:bg-red-50 dark:text-slate-300 dark:hover:bg-red-950/40"
                     @click="dt.deselectAll()"
                     title="Clear selection">
                     <template #icon>
-                        <square-x-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5 text-red-500 dark:text-red-400" />
+                        <square-x-icon class="w-4.5 h-4.5 text-red-500 sm:h-5 sm:w-5 dark:text-red-400" />
                     </template>
                 </top-action-btn>
 
@@ -172,7 +172,7 @@
                     @click="dt.exportCSV()"
                     title="Export CSV">
                     <template #icon>
-                        <file-down-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+                        <file-down-icon class="w-4.5 h-4.5 sm:h-5 sm:w-5" />
                     </template>
                 </top-action-btn>
 
@@ -182,7 +182,7 @@
                     @click="showImportModal = true"
                     title="Import CSV">
                     <template #icon>
-                        <upload-icon class="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+                        <upload-icon class="w-4.5 h-4.5 sm:h-5 sm:w-5" />
                     </template>
                 </top-action-btn>
             </action-container>
@@ -191,7 +191,7 @@
         <!-- Table Container -->
         <div
             id="dtTableContainer"
-            class="relative z-10 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
+            class="relative z-10 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div
                 v-if="actionWarnings.length"
                 class="border-b border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
@@ -215,18 +215,18 @@
                 leave-to-class="opacity-0">
                 <div
                     v-if="dt.processing"
-                    class="absolute inset-0 bg-white/90 dark:bg-slate-900/90 z-40 flex flex-col items-center justify-center gap-3">
+                    class="absolute inset-0 z-40 flex flex-col items-center justify-center gap-3 bg-white/90 dark:bg-slate-900/90">
                     <loader-2-icon
-                        class="w-10 h-10 animate-spin"
+                        class="h-10 w-10 animate-spin"
                         :class="presetClasses.textPrimary" />
                     <span class="text-sm font-medium text-slate-600 dark:text-slate-400">Loading data...</span>
                 </div>
             </transition>
 
-            <div class="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-slate-700 z-10">
+            <div class="scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-slate-700 z-10 overflow-x-auto">
                 <table
                     id="dtTable"
-                    class="w-full text-sm text-left">
+                    class="w-full text-left text-sm">
                     <crcm-thead :class="presetClasses.headerBg">
                         <thead-row>
                             <th class="w-10 p-3 text-center">
@@ -235,7 +235,7 @@
                             <th
                                 v-for="column in dt.model.getColumns()"
                                 :key="column.key + column.title"
-                                class="p-3 font-semibold text-xs uppercase tracking-wider whitespace-nowrap cursor-pointer select-none transition-colors"
+                                class="cursor-pointer select-none whitespace-nowrap p-3 text-xs font-semibold uppercase tracking-wider transition-colors"
                                 :class="[column.sortable ? 'hover:bg-black/5 dark:hover:bg-white/5' : '', column.visible !== false ? '' : 'hidden', getSortClasses(column)]"
                                 @click="onColumnSort(column)">
                                 <div
@@ -247,13 +247,13 @@
                                         class="text-[10px] opacity-50">
                                         <arrow-up-icon
                                             v-if="dt.request.getSort === column.key && dt.request.getParam('order') === 'asc'"
-                                            class="w-3 h-3" />
+                                            class="h-3 w-3" />
                                         <arrow-down-icon
                                             v-else-if="dt.request.getSort === column.key && dt.request.getParam('order') === 'desc'"
-                                            class="w-3 h-3" />
+                                            class="h-3 w-3" />
                                         <more-horizontal-icon
                                             v-else
-                                            class="w-3 h-3 opacity-0 group-hover:opacity-50" />
+                                            class="h-3 w-3 opacity-0 group-hover:opacity-50" />
                                     </span>
                                 </div>
                             </th>
@@ -272,7 +272,7 @@
                                     :colspan="dt.model.getColumns().length + 2"
                                     class="p-8 text-center text-slate-500">
                                     <div class="flex flex-col items-center gap-2">
-                                        <search-x-icon class="w-12 h-12 opacity-20" />
+                                        <search-x-icon class="h-12 w-12 opacity-20" />
                                         <p class="font-medium">No records found</p>
                                         <p class="text-xs">Try adjusting your filters or search terms</p>
                                     </div>
@@ -282,13 +282,13 @@
                             <tr
                                 v-for="row in dataDb"
                                 :key="row.id"
-                                class="group transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 border-b border-gray-100 dark:border-slate-800 last:border-0"
+                                class="group border-b border-gray-100 transition-colors last:border-0 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50"
                                 :class="[dt.isSelected(row.id) ? presetClasses.selectedRow : '']"
                                 @contextmenu.prevent="showContextMenu($event, row)">
                                 <!-- Selection Cell -->
                                 <td class="p-3 text-center">
                                     <div class="flex items-center justify-center gap-2">
-                                        <span class="text-xs text-slate-400 font-mono w-6 text-right">
+                                        <span class="w-6 text-right font-mono text-xs text-slate-400">
                                             {{ meta_from + dataDb.indexOf(row) }}
                                         </span>
                                         <input
@@ -296,7 +296,7 @@
                                             :checked="dt.isSelected(row.id)"
                                             :disabled="!isRowDeletable(row)"
                                             @click.stop="dt.addSelected(row.id)"
-                                            class="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-current focus:ring-offset-0 focus:ring-2 transition-all disabled:opacity-50"
+                                            class="h-4 w-4 rounded border-slate-300 text-current transition-all focus:ring-2 focus:ring-offset-0 disabled:opacity-50 dark:border-slate-700"
                                             :class="presetClasses.checkbox" />
                                     </div>
                                 </td>
@@ -305,7 +305,7 @@
                                 <td
                                     v-for="column in visibleColumns"
                                     :key="column.key"
-                                    class="p-3 text-slate-700 dark:text-slate-300 max-w-xs truncate"
+                                    class="max-w-xs truncate p-3 text-slate-700 dark:text-slate-300"
                                     :class="[column.align || 'text-left', column.visible === false ? 'hidden' : '']"
                                     @dblclick="dt.addSelected(row.id)"
                                     @click.ctrl="dt.addSelected(row.id)">
@@ -321,7 +321,7 @@
                                 <td
                                     v-if="showActionBtns"
                                     class="p-3 text-right">
-                                    <div class="flex items-center justify-end gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                    <div class="flex items-center justify-end gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
                                         <slot
                                             name="rowActions"
                                             :row="row" />
@@ -329,25 +329,25 @@
                                         <button
                                             v-if="canView && resolveRowShowEndpoint(row)"
                                             @click="visitRowEndpoint(row, 'show')"
-                                            class="p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400 transition-colors"
+                                            class="rounded-lg p-1.5 text-blue-600 transition-colors hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/30"
                                             title="View">
-                                            <eye-icon class="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                                            <eye-icon class="sm:w-4.5 sm:h-4.5 h-4 w-4" />
                                         </button>
 
                                         <button
                                             v-if="canUpdate && isRowUpdatable(row) && resolveRowUpdateEndpoint(row)"
                                             @click="visitRowEndpoint(row, 'update')"
-                                            class="p-1.5 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30 text-amber-600 dark:text-amber-400 transition-colors"
+                                            class="rounded-lg p-1.5 text-amber-600 transition-colors hover:bg-amber-100 dark:text-amber-400 dark:hover:bg-amber-900/30"
                                             title="Edit">
-                                            <file-edit-icon class="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                                            <file-edit-icon class="sm:w-4.5 sm:h-4.5 h-4 w-4" />
                                         </button>
 
                                         <button
                                             v-if="canDelete && isRowDeletable(row)"
                                             @click="showDeleteDialogFunc(row.id)"
-                                            class="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors"
+                                            class="rounded-lg p-1.5 text-red-600 transition-colors hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-900/30"
                                             title="Delete">
-                                            <trash-2-icon class="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                                            <trash-2-icon class="sm:w-4.5 sm:h-4.5 h-4 w-4" />
                                         </button>
                                     </div>
                                 </td>
@@ -358,7 +358,7 @@
             </div>
 
             <!-- Footer Info -->
-            <div class="flex flex-col sm:flex-row justify-between items-center p-3 sm:p-4 border-t border-gray-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-xs text-slate-600 dark:text-slate-400 gap-2">
+            <div class="flex flex-col items-center justify-between gap-2 border-t border-gray-200 bg-slate-50/50 p-3 text-xs text-slate-600 sm:flex-row sm:p-4 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-400">
                 <div class="flex items-center gap-2">
                     <span>
                         Showing
@@ -368,7 +368,7 @@
                     </span>
                     <span
                         v-if="dt.selected.length"
-                        class="px-2 py-0.5 rounded-full text-white text-[10px] font-medium"
+                        class="rounded-full px-2 py-0.5 text-[10px] font-medium text-white"
                         :class="presetClasses.badge">
                         {{ dt.selected.length }} selected
                     </span>
@@ -379,35 +379,35 @@
                     <button
                         @click="dt.prevPage()"
                         :disabled="!prev_page"
-                        class="p-2 rounded-lg disabled:opacity-50"
+                        class="rounded-lg p-2 disabled:opacity-50"
                         :class="presetClasses.ghostBtn">
-                        <chevron-left-icon class="w-5 h-5" />
+                        <chevron-left-icon class="h-5 w-5" />
                     </button>
                     <span class="px-3 py-1 text-sm font-medium">{{ current_page }} / {{ total_pages }}</span>
                     <button
                         @click="dt.nextPage()"
                         :disabled="current_page === last_page"
-                        class="p-2 rounded-lg disabled:opacity-50"
+                        class="rounded-lg p-2 disabled:opacity-50"
                         :class="presetClasses.ghostBtn">
-                        <chevron-right-icon class="w-5 h-5" />
+                        <chevron-right-icon class="h-5 w-5" />
                     </button>
                 </div>
 
                 <!-- Desktop Pagination -->
-                <div class="hidden sm:flex items-center gap-1">
+                <div class="hidden items-center gap-1 sm:flex">
                     <button
                         @click="dt.firstPage()"
                         :disabled="current_page === first_page"
-                        class="px-3 py-1.5 rounded-lg text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        class="rounded-lg px-3 py-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                         :class="presetClasses.secondaryBtn">
                         First
                     </button>
                     <button
                         @click="dt.prevPage()"
                         :disabled="!prev_page"
-                        class="px-3 py-1.5 rounded-lg text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+                        class="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                         :class="presetClasses.secondaryBtn">
-                        <chevron-left-icon class="w-3 h-3" />
+                        <chevron-left-icon class="h-3 w-3" />
                         Prev
                     </button>
 
@@ -419,7 +419,7 @@
                             min="1"
                             :max="total_pages"
                             @keydown.enter="handlePageInput"
-                            class="w-12 px-2 py-1 text-center text-xs border rounded-md focus:ring-2 focus:border-transparent bg-transparent"
+                            class="w-12 rounded-md border bg-transparent px-2 py-1 text-center text-xs focus:border-transparent focus:ring-2"
                             :class="presetClasses.input" />
                         <span class="text-slate-400">/</span>
                         <span class="text-xs font-medium">{{ total_pages }}</span>
@@ -428,15 +428,15 @@
                     <button
                         @click="dt.nextPage()"
                         :disabled="current_page === last_page"
-                        class="px-3 py-1.5 rounded-lg text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+                        class="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                         :class="presetClasses.secondaryBtn">
                         Next
-                        <chevron-right-icon class="w-3 h-3" />
+                        <chevron-right-icon class="h-3 w-3" />
                     </button>
                     <button
                         @click="dt.lastPage()"
                         :disabled="current_page === last_page"
-                        class="px-3 py-1.5 rounded-lg text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        class="rounded-lg px-3 py-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                         :class="presetClasses.secondaryBtn">
                         Last
                     </button>
@@ -454,18 +454,18 @@
             leave-to-class="opacity-0 translate-y-8">
             <div
                 v-if="dt.selected.length && showActionBtns"
-                class="fixed bottom-4 left-4 right-4 sm:hidden z-40 bg-slate-900/95 text-white border border-slate-800 shadow-2xl rounded-2xl p-2.5 flex items-center justify-between gap-2">
-                <span class="text-xs font-semibold px-2">{{ dt.selected.length }} selected</span>
+                class="fixed bottom-4 left-4 right-4 z-40 flex items-center justify-between gap-2 rounded-2xl border border-slate-800 bg-slate-900/95 p-2.5 text-white shadow-2xl sm:hidden">
+                <span class="px-2 text-xs font-semibold">{{ dt.selected.length }} selected</span>
                 <div class="flex items-center gap-1.5">
                     <button
                         v-if="canDelete"
                         @click="showDeleteSelectedDialogFunc()"
-                        class="px-3 py-1.5 bg-red-600 text-white rounded-xl text-xs font-semibold hover:bg-red-700 transition-colors">
+                        class="rounded-xl bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-red-700">
                         Delete
                     </button>
                     <button
                         @click="dt.deselectAll()"
-                        class="px-2.5 py-1.5 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold hover:bg-slate-700 transition-colors">
+                        class="rounded-xl bg-slate-800 px-2.5 py-1.5 text-xs font-semibold text-slate-300 transition-colors hover:bg-slate-700">
                         Clear
                     </button>
                 </div>
@@ -477,8 +477,8 @@
             ref="contextMenu"
             v-if="rowContextMenu"
             @close="rowContextMenu = null">
-            <div class="min-w-[160px] py-1 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-200 dark:border-slate-800">
-                <div class="px-3 py-2 text-xs font-semibold text-slate-500 border-b border-gray-100 dark:border-slate-800 mb-1">Actions</div>
+            <div class="min-w-[160px] rounded-xl border border-gray-200 bg-white py-1 shadow-xl dark:border-slate-800 dark:bg-slate-900">
+                <div class="mb-1 border-b border-gray-100 px-3 py-2 text-xs font-semibold text-slate-500 dark:border-slate-800">Actions</div>
                 <slot
                     name="rowActionsMenu"
                     :row="rowContextMenu" />
@@ -486,29 +486,29 @@
                 <button
                     v-if="canView && resolveRowShowEndpoint(rowContextMenu)"
                     @click="visitRowEndpoint(rowContextMenu, 'show')"
-                    class="w-full px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-300">
-                    <eye-icon class="w-4 h-4 text-blue-500" />
+                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+                    <eye-icon class="h-4 w-4 text-blue-500" />
                     View Details
                 </button>
 
                 <button
                     v-if="canUpdate && isRowUpdatable(rowContextMenu) && resolveRowUpdateEndpoint(rowContextMenu)"
                     @click="visitRowEndpoint(rowContextMenu, 'update')"
-                    class="w-full px-3 py-2 text-left text-sm hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-300">
-                    <file-edit-icon class="w-4 h-4 text-amber-500" />
+                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+                    <file-edit-icon class="h-4 w-4 text-amber-500" />
                     Edit Record
                 </button>
 
                 <div
                     v-if="canDelete && isRowDeletable(rowContextMenu)"
-                    class="border-t border-gray-100 dark:border-slate-800 mt-1 pt-1">
+                    class="mt-1 border-t border-gray-100 pt-1 dark:border-slate-800">
                     <button
                         @click="
                             showDeleteDialogFunc(rowContextMenu.id);
                             rowContextMenu = null;
                         "
-                        class="w-full px-3 py-2 text-left text-sm hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 text-red-600">
-                        <trash-2-icon class="w-4 h-4" />
+                        class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                        <trash-2-icon class="h-4 w-4" />
                         Delete
                     </button>
                 </div>
@@ -550,15 +550,15 @@
             @close="closeDialog">
             <template #title>
                 <div class="flex items-center gap-2 text-red-600">
-                    <alert-triangle-icon class="w-5 h-5" />
+                    <alert-triangle-icon class="h-5 w-5" />
                     Confirm Deletion
                 </div>
             </template>
             <template #content>
-                <div class="text-sm text-gray-600 dark:text-gray-400 space-y-2">
+                <div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                     <p>Are you sure you want to delete this record?</p>
                     <div
-                        class="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg font-mono text-xs"
+                        class="rounded-lg bg-gray-100 p-3 font-mono text-xs dark:bg-gray-800"
                         v-if="toDeleteId">
                         ID: {{ toDeleteId }}
                     </div>
@@ -566,22 +566,22 @@
                 </div>
             </template>
             <template #footer>
-                <div class="flex justify-between w-full">
+                <div class="flex w-full justify-between">
                     <button
                         @click="confirmSingleDelete"
                         :disabled="dt.processing"
-                        class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center gap-2">
+                        class="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50">
                         <trash-2-icon
                             v-if="!dt.processing"
-                            class="w-4 h-4" />
+                            class="h-4 w-4" />
                         <loader-2-icon
                             v-else
-                            class="w-4 h-4 animate-spin" />
+                            class="h-4 w-4 animate-spin" />
                         Delete
                     </button>
                     <button
                         @click="closeDialog"
-                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
+                        class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
                         Cancel
                     </button>
                 </div>
@@ -594,18 +594,18 @@
             @close="closeDialog">
             <template #title>
                 <div class="flex items-center gap-2 text-red-600">
-                    <alert-triangle-icon class="w-5 h-5" />
+                    <alert-triangle-icon class="h-5 w-5" />
                     Delete Multiple Records
                 </div>
             </template>
             <template #content>
-                <div class="text-sm text-gray-600 dark:text-gray-400 space-y-3">
+                <div class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
                     <p>
                         You are about to delete
                         <strong>{{ dt.selected.length }}</strong>
                         records:
                     </p>
-                    <div class="max-h-32 overflow-y-auto p-2 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono space-y-1">
+                    <div class="max-h-32 space-y-1 overflow-y-auto rounded bg-gray-100 p-2 font-mono text-xs dark:bg-gray-800">
                         <div
                             v-for="id in dt.selected.slice(0, 10)"
                             :key="id"
@@ -614,7 +614,7 @@
                         </div>
                         <div
                             v-if="dt.selected.length > 10"
-                            class="text-gray-400 italic">
+                            class="italic text-gray-400">
                             ... and {{ dt.selected.length - 10 }} more
                         </div>
                     </div>
@@ -624,19 +624,19 @@
             <template #footer>
                 <button
                     @click="closeDialog"
-                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
+                    class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
                     Cancel
                 </button>
                 <button
                     @click="confirmBulkDelete"
                     :disabled="dt.processing"
-                    class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center gap-2">
+                    class="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50">
                     <trash-2-icon
                         v-if="!dt.processing"
-                        class="w-4 h-4" />
+                        class="h-4 w-4" />
                     <loader-2-icon
                         v-else
-                        class="w-4 h-4 animate-spin" />
+                        class="h-4 w-4 animate-spin" />
                     Delete All
                 </button>
             </template>

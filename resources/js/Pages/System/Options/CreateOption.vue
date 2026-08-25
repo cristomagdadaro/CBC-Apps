@@ -10,11 +10,11 @@ export default {
 <template>
     <app-layout title="Create New Option">
         <template #header>
-            <div class="flex justify-between items-center">
+            <div class="flex items-center justify-between">
                 <div>
                     <Link
                         :href="route('system.options.index')"
-                        class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                        class="text-xl font-bold leading-tight text-gray-800 dark:text-gray-200">
                         Create New Option
                     </Link>
                     <p class="text-sm text-gray-600">Add a new system option or configuration</p>

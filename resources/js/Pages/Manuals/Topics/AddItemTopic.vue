@@ -22,16 +22,16 @@ export default {
         icon="LuPackage">
         <!-- For Non-Programmers -->
         <div class="space-y-4">
-            <h3 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-1">For Non-Programmers (Staff & Managers)</h3>
+            <h3 class="ml-1 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">For Non-Programmers (Staff & Managers)</h3>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <!-- Steps to Add -->
-                <div class="bg-emerald-50/50 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/20 rounded-xl p-5 shadow-sm">
-                    <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-3 flex items-center gap-1.5">
-                        <LuListPlus class="w-3.5 h-3.5" />
+                <div class="rounded-xl border border-emerald-100 bg-emerald-50/50 p-5 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/5">
+                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                        <LuListPlus class="h-3.5 w-3.5" />
                         Steps to Add a New Item
                     </h4>
-                    <ol class="space-y-2.5 text-xs font-medium text-slate-600 dark:text-slate-300 list-decimal list-inside ml-1">
+                    <ol class="ml-1 list-inside list-decimal space-y-2.5 text-xs font-medium text-slate-600 dark:text-slate-300">
                         <li>
                             Go to
                             <span class="font-semibold text-slate-800 dark:text-slate-200">Inventory Management &rarr; Items</span>
@@ -44,7 +44,7 @@ export default {
                         </li>
                         <li>
                             Fill in the item information:[cite: 7]
-                            <ul class="list-none space-y-1.5 ml-5 mt-2">
+                            <ul class="ml-5 mt-2 list-none space-y-1.5">
                                 <li>
                                     <span class="font-semibold text-slate-700 dark:text-slate-300">Name:</span>
                                     Item name (required)[cite: 7]
@@ -81,30 +81,30 @@ export default {
                 </div>
 
                 <!-- Important Notes -->
-                <div class="bg-amber-50/50 dark:bg-amber-500/5 border border-amber-100 dark:border-amber-500/20 rounded-xl p-5 shadow-sm">
-                    <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400 mb-3 flex items-center gap-1.5">
-                        <LuAlertTriangle class="w-3.5 h-3.5" />
+                <div class="rounded-xl border border-amber-100 bg-amber-50/50 p-5 shadow-sm dark:border-amber-500/20 dark:bg-amber-500/5">
+                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                        <LuAlertTriangle class="h-3.5 w-3.5" />
                         Important Notes
                     </h4>
-                    <ul class="space-y-3 text-xs font-medium text-slate-600 dark:text-slate-300 ml-1">
+                    <ul class="ml-1 space-y-3 text-xs font-medium text-slate-600 dark:text-slate-300">
                         <li class="flex items-start gap-2.5">
-                            <LuCheckCircle2 class="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                            <LuCheckCircle2 class="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
                             <span class="leading-relaxed">Item names and brands must be unique (no duplicates)[cite: 7].</span>
                         </li>
                         <li class="flex items-start gap-2.5">
-                            <LuCheckCircle2 class="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                            <LuCheckCircle2 class="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
                             <span class="leading-relaxed">If category doesn't exist, create it first[cite: 7].</span>
                         </li>
                         <li class="flex items-start gap-2.5">
-                            <LuCheckCircle2 class="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                            <LuCheckCircle2 class="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
                             <span class="leading-relaxed">If supplier doesn't exist, create it first[cite: 7].</span>
                         </li>
                         <li class="flex items-start gap-2.5">
-                            <LuCheckCircle2 class="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                            <LuCheckCircle2 class="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
                             <span class="leading-relaxed">Equipment Logger availability is no longer set on the item form; configure it on each incoming transaction so different stock/project records can have different sharing rules[cite: 7].</span>
                         </li>
                         <li class="flex items-start gap-2.5">
-                            <LuCheckCircle2 class="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                            <LuCheckCircle2 class="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
                             <span class="leading-relaxed">You can edit item details after creation[cite: 7].</span>
                         </li>
                     </ul>
@@ -115,46 +115,46 @@ export default {
         <!-- For Programmers -->
         <div
             v-if="showDeveloperSections"
-            class="space-y-4 pt-6 border-t border-slate-100 dark:border-slate-800/60">
-            <h3 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-1">For Programmers (Implementation)</h3>
+            class="space-y-4 border-t border-slate-100 pt-6 dark:border-slate-800/60">
+            <h3 class="ml-1 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">For Programmers (Implementation)</h3>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <!-- Fields & Validation -->
-                <div class="bg-slate-50/50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-5 shadow-sm">
-                    <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-600 dark:text-slate-300 mb-3 flex items-center gap-1.5">
-                        <LuDatabase class="w-3.5 h-3.5" />
+                <div class="rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
+                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-600 dark:text-slate-300">
+                        <LuDatabase class="h-3.5 w-3.5" />
                         Item Fields & Validation
                     </h4>
                     <ul class="space-y-2.5 text-xs font-medium text-slate-600 dark:text-slate-400">
                         <li class="flex items-center">
-                            <code class="px-1.5 py-0.5 mr-2 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-indigo-500">name</code>
+                            <code class="mr-2 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-indigo-500 shadow-sm dark:border-slate-700 dark:bg-slate-800">name</code>
                             String, required[cite: 7]
                         </li>
                         <li class="flex items-center">
-                            <code class="px-1.5 py-0.5 mr-2 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-indigo-500">brand</code>
+                            <code class="mr-2 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-indigo-500 shadow-sm dark:border-slate-700 dark:bg-slate-800">brand</code>
                             String, required[cite: 7]
                         </li>
                         <li class="flex items-center">
-                            <code class="px-1.5 py-0.5 mr-2 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-indigo-500">category_id</code>
+                            <code class="mr-2 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-indigo-500 shadow-sm dark:border-slate-700 dark:bg-slate-800">category_id</code>
                             FK to categories, required[cite: 7]
                         </li>
                         <li class="flex items-center">
-                            <code class="px-1.5 py-0.5 mr-2 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-indigo-500">supplier_id</code>
+                            <code class="mr-2 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-indigo-500 shadow-sm dark:border-slate-700 dark:bg-slate-800">supplier_id</code>
                             FK to suppliers, required[cite: 7]
                         </li>
                         <li class="flex items-center">
-                            <code class="px-1.5 py-0.5 mr-2 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-indigo-500">description</code>
+                            <code class="mr-2 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-indigo-500 shadow-sm dark:border-slate-700 dark:bg-slate-800">description</code>
                             Text, optional[cite: 7]
                         </li>
                         <li class="flex items-center">
-                            <code class="px-1.5 py-0.5 mr-2 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-indigo-500">image</code>
+                            <code class="mr-2 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-indigo-500 shadow-sm dark:border-slate-700 dark:bg-slate-800">image</code>
                             Long text (base64), optional[cite: 7]
                         </li>
                     </ul>
-                    <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-700/60 flex items-start gap-2">
-                        <LuAlertTriangle class="w-3.5 h-3.5 text-rose-500 shrink-0 mt-0.5" />
+                    <div class="mt-4 flex items-start gap-2 border-t border-slate-200/60 pt-3 dark:border-slate-700/60">
+                        <LuAlertTriangle class="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-500" />
                         <p class="text-xs font-medium text-slate-600 dark:text-slate-400">
-                            <span class="font-semibold text-rose-600 dark:text-rose-400 uppercase tracking-widest text-[0.6rem]">Unique constraint:</span>
+                            <span class="text-[0.6rem] font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400">Unique constraint:</span>
                             <br />
                             (name, brand) must be unique[cite: 7].
                         </p>
@@ -162,39 +162,39 @@ export default {
                 </div>
 
                 <!-- API Endpoints -->
-                <div class="bg-slate-50/50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-5 shadow-sm">
-                    <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-600 dark:text-slate-300 mb-3 flex items-center gap-1.5">
-                        <LuNetwork class="w-3.5 h-3.5" />
+                <div class="rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
+                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-600 dark:text-slate-300">
+                        <LuNetwork class="h-3.5 w-3.5" />
                         API Endpoints
                     </h4>
                     <ul class="space-y-3.5 text-xs font-medium text-slate-600 dark:text-slate-400">
                         <li>
-                            <div class="flex items-center mb-1">
-                                <code class="px-1.5 py-0.5 mr-2 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-sky-500">GET</code>
+                            <div class="mb-1 flex items-center">
+                                <code class="mr-2 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-sky-500 shadow-sm dark:border-slate-700 dark:bg-slate-800">GET</code>
                                 <code class="font-mono text-[0.7rem] text-slate-800 dark:text-slate-200">/api/inventory/items</code>
                             </div>
-                            <span class="text-[0.65rem] text-slate-500 ml-10">List all items[cite: 7]</span>
+                            <span class="ml-10 text-[0.65rem] text-slate-500">List all items[cite: 7]</span>
                         </li>
                         <li>
-                            <div class="flex items-center mb-1">
-                                <code class="px-1.5 py-0.5 mr-2 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-emerald-500">POST</code>
+                            <div class="mb-1 flex items-center">
+                                <code class="mr-2 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-emerald-500 shadow-sm dark:border-slate-700 dark:bg-slate-800">POST</code>
                                 <code class="font-mono text-[0.7rem] text-slate-800 dark:text-slate-200">/api/inventory/items</code>
                             </div>
-                            <span class="text-[0.65rem] text-slate-500 ml-10">Create item[cite: 7]</span>
+                            <span class="ml-10 text-[0.65rem] text-slate-500">Create item[cite: 7]</span>
                         </li>
                         <li>
-                            <div class="flex items-center mb-1">
-                                <code class="px-1.5 py-0.5 mr-2 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-amber-500">PUT</code>
+                            <div class="mb-1 flex items-center">
+                                <code class="mr-2 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-amber-500 shadow-sm dark:border-slate-700 dark:bg-slate-800">PUT</code>
                                 <code class="font-mono text-[0.7rem] text-slate-800 dark:text-slate-200">/api/inventory/items/{id}</code>
                             </div>
-                            <span class="text-[0.65rem] text-slate-500 ml-10">Update item[cite: 7]</span>
+                            <span class="ml-10 text-[0.65rem] text-slate-500">Update item[cite: 7]</span>
                         </li>
                         <li>
-                            <div class="flex items-center mb-1">
-                                <code class="px-1.5 py-0.5 mr-2 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-rose-500">DEL</code>
+                            <div class="mb-1 flex items-center">
+                                <code class="mr-2 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-rose-500 shadow-sm dark:border-slate-700 dark:bg-slate-800">DEL</code>
                                 <code class="font-mono text-[0.7rem] text-slate-800 dark:text-slate-200">/api/inventory/items/{id}</code>
                             </div>
-                            <span class="text-[0.65rem] text-slate-500 ml-10">Delete item[cite: 7]</span>
+                            <span class="ml-10 text-[0.65rem] text-slate-500">Delete item[cite: 7]</span>
                         </li>
                     </ul>
                 </div>

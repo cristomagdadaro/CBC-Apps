@@ -408,14 +408,14 @@ export default {
                 class="flex flex-col gap-2">
                 <div
                     v-if="error"
-                    class="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl text-red-700 dark:text-red-400 text-sm font-semibold shadow-sm">
-                    <LuAlertCircle class="w-4 h-4 shrink-0" />
+                    class="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700 shadow-sm dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400">
+                    <LuAlertCircle class="h-4 w-4 shrink-0" />
                     {{ error }}
                 </div>
                 <div
                     v-if="localErrors.requirements"
-                    class="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl text-red-700 dark:text-red-400 text-sm font-semibold shadow-sm">
-                    <LuAlertCircle class="w-4 h-4 shrink-0" />
+                    class="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700 shadow-sm dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400">
+                    <LuAlertCircle class="h-4 w-4 shrink-0" />
                     {{ localErrors.requirements }}
                 </div>
             </div>
@@ -426,13 +426,13 @@ export default {
             <div
                 v-for="(req, index) in sortedRequirements"
                 :key="req.id || index"
-                class="group relative flex flex-col gap-3 border rounded-2xl p-4 sm:p-5 transition-all duration-300"
-                :class="[localErrors[`req_${index}`] ? 'border-red-400 dark:border-red-500/50 bg-red-50/30 dark:bg-red-900/10' : 'border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/40 hover:border-indigo-300 dark:hover:border-indigo-500/40 hover:shadow-md']">
+                class="group relative flex flex-col gap-3 rounded-2xl border p-4 transition-all duration-300 sm:p-5"
+                :class="[localErrors[`req_${index}`] ? 'border-red-400 bg-red-50/30 dark:border-red-500/50 dark:bg-red-900/10' : 'border-slate-200 bg-slate-50/50 hover:border-indigo-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-800/40 dark:hover:border-indigo-500/40']">
                 <!-- Step Header -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/60 dark:border-slate-700/60 pb-3">
-                    <div class="flex items-center gap-2.5 ml-1">
+                <div class="flex flex-col justify-between gap-3 border-b border-slate-200/60 pb-3 sm:flex-row sm:items-center dark:border-slate-700/60">
+                    <div class="ml-1 flex items-center gap-2.5">
                         <span
-                            class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold shrink-0"
+                            class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold"
                             :class="req.is_enabled !== false ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400' : 'bg-slate-200 text-slate-500 dark:bg-slate-700'">
                             {{ req.step_order ?? index + 1 }}
                         </span>
@@ -441,12 +441,12 @@ export default {
 
                     <div class="flex flex-wrap items-center gap-2">
                         <!-- Toggles -->
-                        <label class="flex items-center gap-2 px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer transition-colors shadow-sm">
+                        <label class="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 shadow-sm transition-colors dark:border-slate-700 dark:bg-slate-900">
                             <input
                                 type="checkbox"
                                 :checked="req.is_enabled !== false"
                                 @change="toggleEnabled(index)"
-                                class="w-3.5 h-3.5 text-indigo-600 rounded border-slate-300 dark:border-slate-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-800" />
+                                class="h-3.5 w-3.5 rounded border-slate-300 bg-slate-100 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800" />
                             <span
                                 class="text-[0.65rem] font-bold uppercase tracking-widest"
                                 :class="req.is_enabled !== false ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-500'">
@@ -455,14 +455,14 @@ export default {
                         </label>
 
                         <label
-                            class="flex items-center gap-2 px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer transition-colors shadow-sm"
-                            :class="{ 'opacity-50 cursor-not-allowed': req.is_enabled === false }">
+                            class="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 shadow-sm transition-colors dark:border-slate-700 dark:bg-slate-900"
+                            :class="{ 'cursor-not-allowed opacity-50': req.is_enabled === false }">
                             <input
                                 type="checkbox"
                                 :checked="req.is_required"
                                 @change="toggleRequired(index)"
                                 :disabled="!req?.is_enabled"
-                                class="w-3.5 h-3.5 text-indigo-600 rounded border-slate-300 dark:border-slate-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-800" />
+                                class="h-3.5 w-3.5 rounded border-slate-300 bg-slate-100 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800" />
                             <span
                                 class="text-[0.65rem] font-bold uppercase tracking-widest"
                                 :class="req.is_required ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-500'">
@@ -470,7 +470,7 @@ export default {
                             </span>
                         </label>
 
-                        <div class="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-1 hidden sm:block"></div>
+                        <div class="mx-1 hidden h-4 w-px bg-slate-300 sm:block dark:bg-slate-700"></div>
 
                         <!-- Action Buttons -->
                         <div
@@ -480,33 +480,33 @@ export default {
                                 type="button"
                                 @click="moveRequirement(index, -1)"
                                 :disabled="index === 0 || !req.is_enabled"
-                                class="p-1.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 transition-colors disabled:opacity-50"
+                                class="rounded-lg border border-slate-200 bg-white p-1.5 text-slate-500 transition-colors hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800"
                                 title="Move up">
-                                <LuChevronDown class="w-4 h-4 rotate-180" />
+                                <LuChevronDown class="h-4 w-4 rotate-180" />
                             </button>
                             <button
                                 type="button"
                                 @click="moveRequirement(index, 1)"
                                 :disabled="index === sortedRequirements.length - 1 || !req.is_enabled"
-                                class="p-1.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 transition-colors disabled:opacity-50"
+                                class="rounded-lg border border-slate-200 bg-white p-1.5 text-slate-500 transition-colors hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800"
                                 title="Move down">
-                                <LuChevronDown class="w-4 h-4" />
+                                <LuChevronDown class="h-4 w-4" />
                             </button>
                             <button
                                 type="button"
                                 :disabled="!req?.is_enabled"
                                 @click="addLimit(index)"
-                                class="p-1.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-200 dark:hover:border-indigo-500/30 rounded-lg text-slate-500 transition-colors disabled:opacity-50"
+                                class="rounded-lg border border-slate-200 bg-white p-1.5 text-slate-500 transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-indigo-500/30 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-400"
                                 title="Add Limit">
-                                <LuSettings2 class="w-4 h-4" />
+                                <LuSettings2 class="h-4 w-4" />
                             </button>
                             <button
                                 type="button"
                                 @click="removeRequirement(index)"
                                 :disabled="!req?.is_enabled"
-                                class="p-1.5 ml-1 border border-transparent hover:border-red-200 dark:hover:border-red-500/30 bg-transparent hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg text-red-400 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+                                class="ml-1 rounded-lg border border-transparent bg-transparent p-1.5 text-red-400 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:hover:border-red-500/30 dark:hover:bg-red-500/10 dark:hover:text-red-400"
                                 title="Remove this form">
-                                <LuTrash2 class="w-4 h-4" />
+                                <LuTrash2 class="h-4 w-4" />
                             </button>
                         </div>
                     </div>
@@ -522,15 +522,15 @@ export default {
 
                 <!-- Form Fields Grid -->
                 <div
-                    class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start mt-2"
+                    class="mt-2 grid grid-cols-1 items-start gap-5 md:grid-cols-12"
                     :class="{
-                        'opacity-60 grayscale-[0.2] pointer-events-none': req.is_enabled === false,
+                        'pointer-events-none opacity-60 grayscale-[0.2]': req.is_enabled === false,
                     }">
                     <!-- Form Type (Full width on mobile, spans 4 cols on desktop) -->
                     <div class="md:col-span-5">
-                        <label class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5 block">Form Type *</label>
+                        <label class="mb-1.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Form Type *</label>
                         <select
-                            class="w-full border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl shadow-sm text-sm py-2.5 px-3 transition-colors focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-medium text-slate-800 dark:text-slate-200"
+                            class="w-full rounded-xl border-slate-300 bg-white px-3 py-2.5 text-sm font-medium text-slate-800 shadow-sm transition-colors focus:border-transparent focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                             :class="{
                                 'border-red-500 ring-1 ring-red-500': localErrors[`req_${index}_type`],
                             }"
@@ -563,26 +563,26 @@ export default {
                         </select>
                         <div
                             v-if="getTemplateInfo(req)"
-                            class="text-[0.65rem] font-bold uppercase tracking-widest mt-1.5 flex items-center gap-1 text-indigo-600 dark:text-indigo-400">
-                            <LuFileCode2 class="w-3.5 h-3.5" />
+                            class="mt-1.5 flex items-center gap-1 text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
+                            <LuFileCode2 class="h-3.5 w-3.5" />
                             Custom: {{ getTemplateInfo(req)?.name }}
                         </div>
                         <transition name="slide-down">
                             <InputError
                                 v-if="localErrors[`req_${index}_type`]"
                                 :message="localErrors[`req_${index}_type`]"
-                                class="text-xs mt-1" />
+                                class="mt-1 text-xs" />
                         </transition>
                     </div>
 
                     <!-- Timings & Limits Grid -->
-                    <div class="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:col-span-7">
                         <!-- Open Time -->
                         <div>
-                            <label class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5 block">Opens At</label>
+                            <label class="mb-1.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Opens At</label>
                             <input
                                 type="datetime-local"
-                                class="w-full border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl shadow-sm text-xs py-2.5 px-3 transition-colors focus:ring-2 focus:ring-indigo-500 font-medium text-slate-800 dark:text-slate-200"
+                                class="w-full rounded-xl border-slate-300 bg-white px-3 py-2.5 text-xs font-medium text-slate-800 shadow-sm transition-colors focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                                 :class="{
                                     'border-red-500 ring-1 ring-red-500': localErrors[`req_${index}_from`],
                                 }"
@@ -593,16 +593,16 @@ export default {
                                 <InputError
                                     v-if="localErrors[`req_${index}_from`]"
                                     :message="localErrors[`req_${index}_from`]"
-                                    class="text-xs mt-1" />
+                                    class="mt-1 text-xs" />
                             </transition>
                         </div>
 
                         <!-- Close Time -->
                         <div>
-                            <label class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5 block">Closes At</label>
+                            <label class="mb-1.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Closes At</label>
                             <input
                                 type="datetime-local"
-                                class="w-full border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl shadow-sm text-xs py-2.5 px-3 transition-colors focus:ring-2 focus:ring-indigo-500 font-medium text-slate-800 dark:text-slate-200"
+                                class="w-full rounded-xl border-slate-300 bg-white px-3 py-2.5 text-xs font-medium text-slate-800 shadow-sm transition-colors focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                                 :class="{
                                     'border-red-500 ring-1 ring-red-500': localErrors[`req_${index}_to`],
                                 }"
@@ -613,15 +613,15 @@ export default {
                                 <InputError
                                     v-if="localErrors[`req_${index}_to`]"
                                     :message="localErrors[`req_${index}_to`]"
-                                    class="text-xs mt-1" />
+                                    class="mt-1 text-xs" />
                             </transition>
                         </div>
 
                         <!-- Max Slots -->
                         <div class="col-span-2 sm:col-span-1">
-                            <label class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5 block">
+                            <label class="mb-1.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
                                 Max Slots
-                                <span class="opacity-70 normal-case tracking-normal font-medium">(opt)</span>
+                                <span class="font-medium normal-case tracking-normal opacity-70">(opt)</span>
                             </label>
                             <input
                                 type="number"
@@ -630,7 +630,7 @@ export default {
                                 :value="req.max_slots || ''"
                                 :disabled="!req?.is_enabled"
                                 @change="updateMaxSlots(index, $event.target.value)"
-                                class="w-full border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl shadow-sm text-sm py-2.5 px-3 transition-colors focus:ring-2 focus:ring-indigo-500 font-medium text-slate-800 dark:text-slate-200"
+                                class="w-full rounded-xl border-slate-300 bg-white px-3 py-2.5 text-sm font-medium text-slate-800 shadow-sm transition-colors focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                                 :class="{
                                     'border-red-500 ring-1 ring-red-500': localErrors[`req_${index}_slots`],
                                 }" />
@@ -638,7 +638,7 @@ export default {
                                 <InputError
                                     v-if="localErrors[`req_${index}_slots`]"
                                     :message="localErrors[`req_${index}_slots`]"
-                                    class="text-xs mt-1" />
+                                    class="mt-1 text-xs" />
                             </transition>
                         </div>
                     </div>
@@ -647,50 +647,50 @@ export default {
                 <!-- Conditional Limits Section -->
                 <div
                     v-if="req?.config?.limits?.length"
-                    class="mt-4 pt-4 border-t border-dashed border-slate-300 dark:border-slate-700"
+                    class="mt-4 border-t border-dashed border-slate-300 pt-4 dark:border-slate-700"
                     :class="{
-                        'opacity-60 grayscale-[0.2] pointer-events-none': req.is_enabled === false,
+                        'pointer-events-none opacity-60 grayscale-[0.2]': req.is_enabled === false,
                     }">
-                    <div class="flex items-center gap-2 mb-3">
-                        <LuListFilter class="w-4 h-4 text-indigo-500" />
+                    <div class="mb-3 flex items-center gap-2">
+                        <LuListFilter class="h-4 w-4 text-indigo-500" />
                         <h4 class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300">Conditional Limits</h4>
-                        <span class="text-xs font-medium text-slate-400 dark:text-slate-500 ml-1">Limit submissions based on specific field values.</span>
+                        <span class="ml-1 text-xs font-medium text-slate-400 dark:text-slate-500">Limit submissions based on specific field values.</span>
                     </div>
 
                     <div class="flex flex-col gap-2.5">
                         <div
                             v-for="(limit, limitIndex) in req.config.limits"
                             :key="`${index}-limit-${limitIndex}`"
-                            class="flex flex-col sm:flex-row sm:items-end gap-3 p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm">
+                            class="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:flex-row sm:items-end dark:border-slate-800 dark:bg-slate-900">
                             <div class="flex-1">
-                                <label class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5 block">Target Field</label>
+                                <label class="mb-1.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Target Field</label>
                                 <input
                                     list="limit-field-options"
                                     type="text"
-                                    class="w-full border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 rounded-lg text-xs py-2 px-3 font-medium focus:ring-1 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                                    class="w-full rounded-lg border-slate-300 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-800 focus:ring-1 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-200"
                                     :value="limit.field"
                                     :disabled="!req?.is_enabled"
                                     @change="updateLimitField(index, limitIndex, $event.target.value)"
                                     placeholder="e.g. province_address" />
                             </div>
                             <div class="w-full sm:w-32">
-                                <label class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1.5 block">Max per value</label>
+                                <label class="mb-1.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Max per value</label>
                                 <input
                                     type="number"
                                     min="1"
-                                    class="w-full border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 rounded-lg text-xs py-2 px-3 font-medium focus:ring-1 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                                    class="w-full rounded-lg border-slate-300 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-800 focus:ring-1 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-200"
                                     :value="limit.max"
                                     :disabled="!req?.is_enabled"
                                     @change="updateLimitMax(index, limitIndex, $event.target.value)"
                                     placeholder="Max limit" />
                             </div>
-                            <div class="flex items-center justify-end sm:justify-start w-full sm:w-auto shrink-0 pt-2 sm:pt-0 pb-1 sm:pb-0">
+                            <div class="flex w-full shrink-0 items-center justify-end pb-1 pt-2 sm:w-auto sm:justify-start sm:pb-0 sm:pt-0">
                                 <button
                                     type="button"
-                                    class="inline-flex items-center gap-1.5 px-3 py-2 sm:p-2 text-xs font-bold text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                                    class="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold text-red-500 transition-colors hover:bg-red-50 hover:text-red-600 sm:p-2 dark:hover:bg-red-500/10"
                                     :disabled="!req?.is_enabled"
                                     @click="removeLimit(index, limitIndex)">
-                                    <LuTrash2 class="w-4 h-4" />
+                                    <LuTrash2 class="h-4 w-4" />
                                     <span class="sm:hidden">Remove Limit</span>
                                 </button>
                             </div>
@@ -711,10 +711,10 @@ export default {
             <!-- Empty State -->
             <div
                 v-if="!requirements.length"
-                class="py-10 px-4 text-center border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/20 rounded-2xl">
-                <LuFilePlus2 class="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+                class="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 px-4 py-10 text-center dark:border-slate-700 dark:bg-slate-800/20">
+                <LuFilePlus2 class="mx-auto mb-3 h-10 w-10 text-slate-300 dark:text-slate-600" />
                 <p class="text-sm font-bold text-slate-500 dark:text-slate-400">No forms attached yet.</p>
-                <p class="text-xs font-medium text-slate-400 dark:text-slate-500 mt-1">Click the button below to add your first workflow step.</p>
+                <p class="mt-1 text-xs font-medium text-slate-400 dark:text-slate-500">Click the button below to add your first workflow step.</p>
             </div>
         </div>
 
@@ -723,15 +723,15 @@ export default {
             <button
                 v-if="availableFormTypeOptions().length"
                 type="button"
-                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 rounded-xl transition-colors active:scale-95 shadow-sm"
+                class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-5 py-3 text-sm font-bold text-indigo-600 shadow-sm transition-colors hover:bg-indigo-100 active:scale-95 sm:w-auto dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-400 dark:hover:bg-indigo-500/20"
                 @click="addRequirement">
-                <LuPlus class="w-4 h-4" />
+                <LuPlus class="h-4 w-4" />
                 Add Workflow Step
             </button>
             <div
                 v-else
-                class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 text-center py-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700">
-                <LuCheckCircle2 class="w-4 h-4 inline-block mr-1.5 -mt-0.5 text-emerald-500" />
+                class="rounded-xl border border-slate-200 bg-slate-50 py-4 text-center text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 dark:border-slate-700 dark:bg-slate-800/40 dark:text-slate-500">
+                <LuCheckCircle2 class="-mt-0.5 mr-1.5 inline-block h-4 w-4 text-emerald-500" />
                 All available form types have been attached.
             </div>
         </div>

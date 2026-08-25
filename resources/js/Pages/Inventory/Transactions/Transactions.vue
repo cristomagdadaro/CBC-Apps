@@ -37,14 +37,14 @@ const transactionTypeOptions = [
                         }
                     ">
                     <template #icon>
-                        <lu-filter class="w-4 h-4 text-gray-400" />
+                        <lu-filter class="h-4 w-4 text-gray-400" />
                     </template>
                 </custom-dropdown>
             </template>
             <!-- Custom Cell Rendering -->
             <template #cell-transac_type="{ value }">
                 <span
-                    class="px-4 py-1.5 rounded-full text-xs font-medium leading-none uppercase"
+                    class="rounded-full px-4 py-1.5 text-xs font-medium uppercase leading-none"
                     :class="{
                         'bg-green-300 text-green-700': value === 'incoming',
                         'bg-red-300 text-red-700': value === 'outgoing',
@@ -53,7 +53,7 @@ const transactionTypeOptions = [
                 </span>
             </template>
             <template #cell-itemWithPrriCode="{ value }">
-                <div class="py-1.5 leading-tight whitespace-normal w-full">
+                <div class="w-full whitespace-normal py-1.5 leading-tight">
                     <div class="font-medium">
                         <Link
                             :href="route('items.transactions', value.id)"
@@ -62,7 +62,7 @@ const transactionTypeOptions = [
                         </Link>
                         <span
                             v-if="value.description"
-                            class="text-gray-500 block text-xs">
+                            class="block text-xs text-gray-500">
                             Model: {{ value.description }}
                         </span>
                     </div>
@@ -79,12 +79,12 @@ const transactionTypeOptions = [
                 </div>
             </template>
             <template #cell-remarks="{ value }">
-                <div class="py-1.5 leading-tight whitespace-normal w-full">
+                <div class="w-full whitespace-normal py-1.5 leading-tight">
                     {{ value }}
                 </div>
             </template>
             <template #cell-actorWithRemarks="{ value }">
-                <div class="py-1.5 leading-tight whitespace-normal w-full">
+                <div class="w-full whitespace-normal py-1.5 leading-tight">
                     <div
                         v-if="value.actor_display_name"
                         class="font-medium uppercase">

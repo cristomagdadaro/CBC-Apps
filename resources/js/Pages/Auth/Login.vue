@@ -60,22 +60,22 @@ export default {
 <template>
     <Head title="Log in" />
     <main-bg />
-    <div class="absolute top-0 left-0 w-full pointer-events-none">
+    <div class="pointer-events-none absolute left-0 top-0 w-full">
         <AuthenticationCard>
             <template #logo>
                 <AuthenticationCardLogo />
             </template>
-            <div class="text-center text-gray-700 dark:text-gray-300 p-2">
-                <div class="relative w-fit mx-auto">
-                    <h1 class="lg:text-3xl md:text-2xl text-xl font-bold leading-none text-AB dark:text-green-400 font-[Montserrat] drop-shadow-md whitespace-nowrap">
+            <div class="p-2 text-center text-gray-700 dark:text-gray-300">
+                <div class="relative mx-auto w-fit">
+                    <h1 class="whitespace-nowrap font-[Montserrat] text-xl font-bold leading-none text-AB drop-shadow-md md:text-2xl lg:text-3xl dark:text-green-400">
                         {{ $appName }}
                     </h1>
-                    <blockquote class="font-semibold text-AB leading-none text-xs opacity-50">by DA-Crop Biotechnology Center</blockquote>
+                    <blockquote class="text-xs font-semibold leading-none text-AB opacity-50">by DA-Crop Biotechnology Center</blockquote>
                 </div>
             </div>
             <div
                 v-if="status"
-                class="mb-4 font-medium text-sm text-green-600 dark:text-green-400">
+                class="mb-4 text-sm font-medium text-green-600 dark:text-green-400">
                 {{ status }}
             </div>
 
@@ -115,7 +115,7 @@ export default {
 
                 <div
                     v-if="!isNativeApp"
-                    class="block mt-4">
+                    class="mt-4 block">
                     <label class="flex items-center">
                         <Checkbox
                             v-model:checked="form.remember"
@@ -124,11 +124,11 @@ export default {
                     </label>
                 </div>
 
-                <div class="flex items-center justify-end mt-4">
+                <div class="mt-4 flex items-center justify-end">
                     <Link
                         v-if="canResetPassword"
                         :href="route('password.request')"
-                        class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                        class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800">
                         Forgot your password?
                     </Link>
 

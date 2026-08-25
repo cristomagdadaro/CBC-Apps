@@ -83,7 +83,7 @@ export default {
     <div class="relative">
         <div
             v-if="field.label"
-            class="text-xs text-gray-700 dark:text-gray-200 flex items-center justify-between">
+            class="flex items-center justify-between text-xs text-gray-700 dark:text-gray-200">
             <span class="flex gap-0.5 whitespace-nowrap">
                 {{ field.label }}
                 <b
@@ -108,7 +108,7 @@ export default {
             :placeholder="placeholder" />
         <div
             v-if="field.description"
-            class="text-xs text-gray-500 mt-1">
+            class="mt-1 text-xs text-gray-500">
             {{ field.description }}
         </div>
     </div>

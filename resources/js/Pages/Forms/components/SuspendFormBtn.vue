@@ -81,7 +81,7 @@ export default {
             @click.prevent="showConfirm = true"
             :disabled="model.api.processing"
             :title="buttonTooltip"
-            class="group relative inline-flex items-center justify-center w-10 h-10 rounded-xl shadow-sm transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md hover:scale-105 active:scale-95"
+            class="group relative inline-flex h-10 w-10 items-center justify-center rounded-xl shadow-sm transition-all duration-200 ease-out hover:scale-105 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
             :class="[buttonConfig.bg, buttonConfig.ring]">
             <!-- Icon -->
             <Transition
@@ -96,18 +96,18 @@ export default {
                     :is="buttonConfig.icon"
                     v-if="!model.api.processing"
                     :key="isSuspended"
-                    class="w-5 h-5 text-white" />
+                    class="h-5 w-5 text-white" />
                 <LuLoader2
                     v-else
-                    class="w-5 h-5 text-white animate-spin" />
+                    class="h-5 w-5 animate-spin text-white" />
             </Transition>
 
             <!-- Status Indicator Dot -->
             <span
-                class="absolute -top-1 -right-1 flex h-3 w-3"
+                class="absolute -right-1 -top-1 flex h-3 w-3"
                 :class="isSuspended ? '' : 'hidden'">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                <span class="relative inline-flex h-3 w-3 rounded-full bg-emerald-500"></span>
             </span>
         </button>
 
@@ -122,7 +122,7 @@ export default {
                 leave-to-class="opacity-0">
                 <div
                     v-if="showConfirm"
-                    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+                    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
                     @click.self="showConfirm = false">
                     <Transition
                         enter-active-class="transition ease-out duration-200"
@@ -133,15 +133,15 @@ export default {
                         leave-to-class="opacity-0 scale-95 translate-y-4">
                         <div
                             v-if="showConfirm"
-                            class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden ring-1 ring-black/5">
+                            class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/5 dark:bg-gray-800">
                             <!-- Header -->
-                            <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center gap-3">
+                            <div class="flex items-center gap-3 border-b border-gray-100 px-6 py-4 dark:border-gray-700">
                                 <div
-                                    class="p-2 rounded-xl"
-                                    :class="isSuspended ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'">
+                                    class="rounded-xl p-2"
+                                    :class="isSuspended ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'">
                                     <component
                                         :is="buttonConfig.icon"
-                                        class="w-5 h-5" />
+                                        class="h-5 w-5" />
                                 </div>
                                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
                                     {{ buttonConfig.confirmTitle }}
@@ -150,7 +150,7 @@ export default {
 
                             <!-- Content -->
                             <div class="px-6 py-4">
-                                <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
+                                <p class="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
                                     {{ buttonConfig.confirmText }}
                                 </p>
 
@@ -158,10 +158,10 @@ export default {
                                 <div class="mt-4 flex items-center gap-2 text-xs">
                                     <span class="text-gray-500 dark:text-gray-400">Current status:</span>
                                     <span
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-medium"
-                                        :class="isSuspended ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'">
+                                        class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-medium"
+                                        :class="isSuspended ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'">
                                         <span
-                                            class="w-1.5 h-1.5 rounded-full"
+                                            class="h-1.5 w-1.5 rounded-full"
                                             :class="isSuspended ? 'bg-emerald-500' : 'bg-green-500'"></span>
                                         {{ isSuspended ? "Closed" : "Open" }}
                                     </span>
@@ -169,21 +169,21 @@ export default {
                             </div>
 
                             <!-- Footer -->
-                            <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/30 flex gap-3 justify-end">
+                            <div class="flex justify-end gap-3 bg-gray-50 px-6 py-4 dark:bg-gray-700/30">
                                 <button
                                     @click="showConfirm = false"
-                                    class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 transition-colors">
+                                    class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:focus:ring-gray-600">
                                     Cancel
                                 </button>
                                 <button
                                     @click="handleUpdateSuspended"
                                     :disabled="model.api.processing"
-                                    class="px-4 py-2 text-sm font-medium rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-md active:scale-95"
+                                    class="rounded-lg px-4 py-2 text-sm font-medium shadow-sm transition-all hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                                     :class="[buttonConfig.confirmBtn, buttonConfig.ring]">
                                     <span
                                         v-if="model.api.processing"
                                         class="flex items-center gap-2">
-                                        <LuLoader2 class="w-4 h-4 animate-spin" />
+                                        <LuLoader2 class="h-4 w-4 animate-spin" />
                                         Processing...
                                     </span>
                                     <span v-else>{{ buttonConfig.label }}</span>

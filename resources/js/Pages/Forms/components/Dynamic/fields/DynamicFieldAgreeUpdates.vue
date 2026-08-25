@@ -29,7 +29,7 @@ export default {
 
 <template>
     <div
-        class="w-full relative text-justify flex leading-tight items-start gap-3 bg-white dark:bg-gray-800 rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+        class="relative flex w-full cursor-pointer items-start gap-3 rounded-md bg-white text-justify leading-tight transition-colors hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700"
         :class="{
             'border-red-500 dark:border-red-600': error,
             'border-gray-600 dark:border-gray-700': !error,
@@ -43,7 +43,7 @@ export default {
         <div class="flex flex-col gap-1">
             <label
                 :for="field.field_key"
-                class="text-sm cursor-pointer leading-tight text-gray-700 dark:text-gray-200">
+                class="cursor-pointer text-sm leading-tight text-gray-700 dark:text-gray-200">
                 {{ agreementText }}
                 <span
                     v-if="required"

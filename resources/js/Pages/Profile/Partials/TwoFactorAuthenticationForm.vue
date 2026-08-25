@@ -134,7 +134,7 @@ const disableTwoFactorAuthentication = () => {
                     </div>
 
                     <div
-                        class="mt-4 p-2 inline-block bg-white"
+                        class="mt-4 inline-block bg-white p-2"
                         v-html="qrCode" />
 
                     <div
@@ -158,7 +158,7 @@ const disableTwoFactorAuthentication = () => {
                             v-model="confirmationForm.code"
                             type="text"
                             name="code"
-                            class="block mt-1 w-1/2"
+                            class="mt-1 block w-1/2"
                             inputmode="numeric"
                             autofocus
                             autocomplete="one-time-code"
@@ -175,7 +175,7 @@ const disableTwoFactorAuthentication = () => {
                         <p class="font-semibold">Store these recovery codes in a secure password manager. They can be used to recover access to your account if your two factor authentication device is lost.</p>
                     </div>
 
-                    <div class="grid gap-1 max-w-xl mt-4 px-4 py-4 font-mono text-sm bg-gray-100 dark:bg-gray-900 dark:text-gray-100 rounded-lg">
+                    <div class="mt-4 grid max-w-xl gap-1 rounded-lg bg-gray-100 px-4 py-4 font-mono text-sm dark:bg-gray-900 dark:text-gray-100">
                         <div
                             v-for="code in recoveryCodes"
                             :key="code">

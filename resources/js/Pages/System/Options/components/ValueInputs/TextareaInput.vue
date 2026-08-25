@@ -7,17 +7,17 @@
             @blur="hideOptions"
             rows="5"
             placeholder="Enter text value"
-            class="block w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white dark:bg-slate-900"></textarea>
+            class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-slate-900"></textarea>
 
         <!-- Custom Dropdown Menu -->
         <ul
             v-if="showOptions && filteredOptions.length"
-            class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+            class="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-lg">
             <li
                 v-for="option in filteredOptions"
                 :key="option.value"
                 @mousedown.prevent="selectOption(option.value)"
-                class="px-4 py-2 cursor-pointer hover:bg-blue-500 hover:text-white">
+                class="cursor-pointer px-4 py-2 hover:bg-blue-500 hover:text-white">
                 {{ option.label }}
             </li>
         </ul>

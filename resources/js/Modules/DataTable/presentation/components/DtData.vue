@@ -12,7 +12,7 @@ export default {
 
 <template>
     <td class="whitespace-nowrap">
-        <div :class="truncate ? 'truncate max-w-xs' : ''">
+        <div :class="truncate ? 'max-w-xs truncate' : ''">
             <slot />
         </div>
     </td>

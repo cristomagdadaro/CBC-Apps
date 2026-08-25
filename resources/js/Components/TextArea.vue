@@ -60,11 +60,11 @@ export default {
 <template>
     <div
         class="w-full transition-all duration-300 ease-out"
-        :class="isExpanded ? 'fixed inset-4 sm:inset-10 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-5 sm:p-6 rounded-2xl shadow-2xl border border-slate-200/60 dark:border-slate-800 flex flex-col' : ''">
+        :class="isExpanded ? 'fixed inset-4 z-50 flex flex-col rounded-2xl border border-slate-200/60 bg-white/95 p-5 shadow-2xl backdrop-blur-xl sm:inset-10 sm:p-6 dark:border-slate-800 dark:bg-slate-900/95' : ''">
         <Transition name="fade">
             <div
                 v-if="isExpanded"
-                class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm -z-10"
+                class="fixed inset-0 -z-10 bg-slate-900/60 backdrop-blur-sm"
                 @click="toggleExpand"></div>
         </Transition>
 
@@ -83,7 +83,7 @@ export default {
             :classes="[classes, isExpanded ? 'flex-1 h-full flex flex-col' : '']"
             @clear="onClear">
             <template #label-icon>
-                <LuAlignLeft class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
+                <LuAlignLeft class="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
             </template>
 
             <template #header-actions>
@@ -102,14 +102,14 @@ export default {
                     v-if="expandable"
                     type="button"
                     @click="toggleExpand"
-                    class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-400 transition-colors"
+                    class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-400"
                     :aria-label="isExpanded ? 'Collapse' : 'Expand'">
                     <LuMinimize2
                         v-if="isExpanded"
-                        class="w-3.5 h-3.5" />
+                        class="h-3.5 w-3.5" />
                     <LuMaximize2
                         v-else
-                        class="w-3.5 h-3.5" />
+                        class="h-3.5 w-3.5" />
                 </button>
             </template>
 
@@ -118,7 +118,7 @@ export default {
                     :id="inputId"
                     ref="input"
                     :rows="rows"
-                    :class="['w-full rounded-xl px-4 py-3 text-sm transition-all duration-200 ease-out border resize-none overflow-hidden', 'placeholder:text-slate-400 dark:placeholder:text-slate-500', isInvalid ? 'border-rose-300 dark:border-rose-700 bg-rose-50/50 dark:bg-rose-900/10 text-rose-900 dark:text-rose-100 focus:border-rose-500 focus:ring-1 focus:ring-rose-500' : isValid ? 'border-emerald-300 dark:border-emerald-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500', disabled ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed text-slate-500 dark:text-slate-400' : '', isExpanded ? 'flex-1 h-full shadow-inner min-h-[200px]' : 'shadow-sm', (clearable || isValid || isInvalid) && !isExpanded ? 'pr-11' : '']"
+                    :class="['w-full resize-none overflow-hidden rounded-xl border px-4 py-3 text-sm transition-all duration-200 ease-out', 'placeholder:text-slate-400 dark:placeholder:text-slate-500', isInvalid ? 'border-rose-300 bg-rose-50/50 text-rose-900 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 dark:border-rose-700 dark:bg-rose-900/10 dark:text-rose-100' : isValid ? 'border-emerald-300 bg-white text-slate-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-emerald-700 dark:bg-slate-900 dark:text-slate-100' : 'border-slate-200 bg-slate-50 text-slate-900 focus:border-indigo-500 focus:bg-white focus:ring-1 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-100 dark:focus:bg-slate-900', disabled ? 'cursor-not-allowed bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400' : '', isExpanded ? 'h-full min-h-[200px] flex-1 shadow-inner' : 'shadow-sm', (clearable || isValid || isInvalid) && !isExpanded ? 'pr-11' : '']"
                     :value="modelValue"
                     :placeholder="placeholder"
                     :disabled="disabled"
@@ -136,7 +136,7 @@ export default {
                     <button
                         type="button"
                         @click="toggleExpand"
-                        class="px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md shadow-indigo-600/20 transition-all active:scale-95">
+                        class="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-600/20 transition-all hover:bg-indigo-700 active:scale-95">
                         Done
                     </button>
                 </div>

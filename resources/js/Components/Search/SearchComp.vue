@@ -223,15 +223,15 @@ onMounted(() => {
 <template>
     <div class="search-container space-y-4">
         <!-- Search Toolbar -->
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4">
-            <div class="flex flex-col lg:flex-row gap-4 items-end">
+        <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <div class="flex flex-col items-end gap-4 lg:flex-row">
                 <!-- Per Page -->
                 <div class="flex flex-col gap-1">
                     <label class="text-xs font-medium text-slate-600 dark:text-slate-400">Per Page</label>
                     <select
                         v-model="searchForm.per_page"
                         @change="handlePerPageChange(searchForm.per_page)"
-                        class="block w-24 pl-3 pr-8 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500">
+                        class="focus:ring-primary-500 block w-24 rounded-lg border border-slate-300 bg-white py-2 pl-3 pr-8 text-sm focus:ring-2 dark:border-slate-600 dark:bg-slate-800">
                         <option
                             v-for="opt in perPageOptions"
                             :key="opt.name"
@@ -242,12 +242,12 @@ onMounted(() => {
                 </div>
 
                 <!-- Search By Column -->
-                <div class="flex flex-col gap-1 flex-1 max-w-xs">
+                <div class="flex max-w-xs flex-1 flex-col gap-1">
                     <label class="text-xs font-medium text-slate-600 dark:text-slate-400">Search By</label>
                     <div class="flex gap-2">
                         <select
                             v-model="searchForm.filter"
-                            class="block w-full pl-3 pr-8 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500">
+                            class="focus:ring-primary-500 block w-full rounded-lg border border-slate-300 bg-white py-2 pl-3 pr-8 text-sm focus:ring-2 dark:border-slate-600 dark:bg-slate-800">
                             <option :value="null">All</option>
                             <option
                                 v-for="col in columns"
@@ -256,11 +256,11 @@ onMounted(() => {
                                 {{ col.label }}
                             </option>
                         </select>
-                        <label class="flex items-center gap-2 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 cursor-pointer">
+                        <label class="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 dark:border-slate-600 dark:bg-slate-800">
                             <input
                                 v-model="searchForm.is_exact"
                                 type="checkbox"
-                                class="rounded text-primary-600 focus:ring-primary-500" />
+                                class="text-primary-600 focus:ring-primary-500 rounded" />
                             <span class="text-sm text-slate-600 dark:text-slate-400">Exact</span>
                         </label>
                     </div>
@@ -275,7 +275,7 @@ onMounted(() => {
                     </label>
                     <select
                         v-model="quickFilterValue"
-                        class="block w-40 pl-3 pr-8 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500">
+                        class="focus:ring-primary-500 block w-40 rounded-lg border border-slate-300 bg-white py-2 pl-3 pr-8 text-sm focus:ring-2 dark:border-slate-600 dark:bg-slate-800">
                         <option :value="null">All</option>
                         <option
                             v-for="opt in quickFilterOptions"
@@ -287,7 +287,7 @@ onMounted(() => {
                 </div>
 
                 <!-- Search Input -->
-                <div class="flex flex-col gap-1 flex-1">
+                <div class="flex flex-1 flex-col gap-1">
                     <label class="text-xs font-medium text-slate-600 dark:text-slate-400">&nbsp;</label>
                     <div class="flex gap-2">
                         <div class="relative flex-1">
@@ -296,7 +296,7 @@ onMounted(() => {
                                 @input="handleSearchInput(($event.target as HTMLInputElement).value)"
                                 type="text"
                                 placeholder="Search..."
-                                class="block w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500" />
+                                class="focus:ring-primary-500 block w-full rounded-lg border border-slate-300 bg-white py-2 pl-10 pr-4 focus:ring-2 dark:border-slate-600 dark:bg-slate-800" />
                             <svg
                                 class="absolute left-3 top-2.5 h-5 w-5 text-slate-400"
                                 fill="none"
@@ -312,13 +312,13 @@ onMounted(() => {
                         <button
                             @click="executeSearch(true)"
                             :disabled="processing"
-                            class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium">
+                            class="bg-primary-600 hover:bg-primary-700 rounded-lg px-6 py-2 font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50">
                             <span v-if="!processing">Search</span>
                             <span
                                 v-else
                                 class="flex items-center gap-2">
                                 <svg
-                                    class="animate-spin h-4 w-4"
+                                    class="h-4 w-4 animate-spin"
                                     fill="none"
                                     viewBox="0 0 24 24">
                                     <circle
@@ -344,7 +344,7 @@ onMounted(() => {
         <!-- Pagination Info -->
         <div
             v-if="apiResponse"
-            class="flex justify-between items-center text-sm text-slate-600 dark:text-slate-400">
+            class="flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
             <span>
                 Showing
                 <span class="font-medium">{{ apiResponse.from || 1 }}</span>
@@ -360,9 +360,9 @@ onMounted(() => {
                 <button
                     @click="handlePageChange(1)"
                     :disabled="apiResponse.current_page === 1 || processing"
-                    class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed">
+                    class="rounded-lg p-2 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-slate-800">
                     <svg
-                        class="w-5 h-5"
+                        class="h-5 w-5"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -376,9 +376,9 @@ onMounted(() => {
                 <button
                     @click="handlePageChange(apiResponse.current_page - 1)"
                     :disabled="apiResponse.current_page === 1 || processing"
-                    class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed">
+                    class="rounded-lg p-2 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-slate-800">
                     <svg
-                        class="w-5 h-5"
+                        class="h-5 w-5"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -390,7 +390,7 @@ onMounted(() => {
                     </svg>
                 </button>
 
-                <span class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg font-medium min-w-[3rem] text-center">
+                <span class="min-w-[3rem] rounded-lg border border-slate-300 bg-white px-4 py-2 text-center font-medium dark:border-slate-600 dark:bg-slate-800">
                     {{ apiResponse.current_page }}
                 </span>
                 <span class="text-slate-500">of {{ apiResponse.last_page }}</span>
@@ -398,9 +398,9 @@ onMounted(() => {
                 <button
                     @click="handlePageChange(apiResponse.current_page + 1)"
                     :disabled="apiResponse.current_page === apiResponse.last_page || processing"
-                    class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed">
+                    class="rounded-lg p-2 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-slate-800">
                     <svg
-                        class="w-5 h-5"
+                        class="h-5 w-5"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -414,9 +414,9 @@ onMounted(() => {
                 <button
                     @click="handlePageChange(apiResponse.last_page)"
                     :disabled="apiResponse.current_page === apiResponse.last_page || processing"
-                    class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed">
+                    class="rounded-lg p-2 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-slate-800">
                     <svg
-                        class="w-5 h-5"
+                        class="h-5 w-5"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -458,7 +458,7 @@ onMounted(() => {
             <!-- Fallback -->
             <div
                 v-else
-                class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 text-yellow-800 dark:text-yellow-200">
+                class="rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-yellow-800 dark:border-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-200">
                 Please provide either a cardSlot (DataTable) or listSlot (custom layout) component.
             </div>
         </div>
@@ -469,27 +469,27 @@ onMounted(() => {
                 v-if="showDeleteModal"
                 class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
                 @click.self="showDeleteModal = false">
-                <div class="bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-6 max-w-md w-full mx-4">
-                    <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Confirm Delete</h3>
-                    <p class="text-slate-600 dark:text-slate-400 mb-4">Are you sure you want to delete this record? This action cannot be undone.</p>
+                <div class="mx-4 w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-700 dark:bg-slate-900">
+                    <h3 class="mb-2 text-lg font-semibold text-slate-900 dark:text-white">Confirm Delete</h3>
+                    <p class="mb-4 text-slate-600 dark:text-slate-400">Are you sure you want to delete this record? This action cannot be undone.</p>
                     <p
                         v-if="itemToDelete?.fullName"
-                        class="text-sm font-medium text-slate-900 dark:text-white mb-4">
+                        class="mb-4 text-sm font-medium text-slate-900 dark:text-white">
                         {{ itemToDelete.fullName }} (ID: {{ itemToDelete.id }})
                     </p>
                     <div class="flex justify-end gap-3">
                         <button
                             @click="showDeleteModal = false"
-                            class="px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                            class="rounded-lg px-4 py-2 text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
                             Cancel
                         </button>
                         <button
                             @click="confirmDelete"
                             :disabled="processing"
-                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors flex items-center gap-2">
+                            class="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700 disabled:opacity-50">
                             <span
                                 v-if="processing"
-                                class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+                                class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
                             Delete
                         </button>
                     </div>

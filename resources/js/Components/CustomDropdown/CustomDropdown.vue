@@ -11,7 +11,7 @@
         :disabled="disabled">
         <template #label-icon>
             <slot name="label-icon">
-                <LuList class="w-3.5 h-3.5 text-slate-400" />
+                <LuList class="h-3.5 w-3.5 text-slate-400" />
             </slot>
         </template>
 
@@ -26,14 +26,14 @@
             <div class="relative w-full rounded-xl border">
                 <div
                     :id="inputId"
-                    :class="['w-full flex gap-2 justify-between items-center rounded-xl px-3 py-2.5 transition-all duration-200', 'bg-white dark:bg-slate-900 dark:text-slate-100', disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer', isInvalid ? '' : 'focus-within:ring-0']"
+                    :class="['flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2.5 transition-all duration-200', 'bg-white dark:bg-slate-900 dark:text-slate-100', disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer', isInvalid ? '' : 'focus-within:ring-0']"
                     :aria-invalid="isInvalid"
                     :aria-describedby="guideId"
                     @click.prevent="toggle">
                     <!-- Non-searchable Display -->
                     <div
                         v-if="!searchable"
-                        :class="['text-xs sm:text-sm whitespace-nowrap overflow-hidden text-ellipsis flex-1', selected ? 'text-slate-900 dark:text-slate-100 font-medium' : 'text-slate-400 dark:text-slate-500', { 'text-slate-400 dark:text-slate-500': disabled }]">
+                        :class="['flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs sm:text-sm', selected ? 'font-medium text-slate-900 dark:text-slate-100' : 'text-slate-400 dark:text-slate-500', { 'text-slate-400 dark:text-slate-500': disabled }]">
                         {{ selected ? selected.label : value ? value : placeholder }}
                     </div>
 
@@ -45,24 +45,24 @@
                         v-model="search"
                         @keydown.esc="search = null"
                         @input="filterOptions"
-                        class="w-full text-xs sm:text-sm text-slate-900 dark:text-slate-100 bg-transparent border-none focus:outline-none focus:ring-0 p-0 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                        class="w-full border-none bg-transparent p-0 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 sm:text-sm dark:text-slate-100 dark:placeholder:text-slate-500"
                         :placeholder="selected ? selected.label : placeholder" />
 
                     <!-- Actions -->
-                    <div class="flex gap-1.5 items-center flex-shrink-0">
+                    <div class="flex flex-shrink-0 items-center gap-1.5">
                         <button
                             v-if="selected && showClear && !disabled"
                             type="button"
                             @click.stop.prevent="select(null)"
-                            class="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            class="rounded-md p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800"
                             aria-label="Clear selection">
-                            <LuX class="w-4 h-4" />
+                            <LuX class="h-4 w-4" />
                         </button>
 
                         <!-- Chevron -->
                         <LuChevronDown
                             v-if="!disabled"
-                            :class="['w-4 h-4 text-slate-400 transition-transform duration-300', open ? 'rotate-180' : '']" />
+                            :class="['h-4 w-4 text-slate-400 transition-transform duration-300', open ? 'rotate-180' : '']" />
                     </div>
                 </div>
 
@@ -76,14 +76,14 @@
                 <transition-container type="fade">
                     <div
                         v-show="open"
-                        class="z-50 absolute mt-1.5 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg max-h-[30vh] overflow-hidden flex flex-col">
+                        class="absolute z-50 mt-1.5 flex max-h-[30vh] w-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900">
                         <!-- Options List -->
-                        <div class="overflow-y-auto flex-1 py-1">
+                        <div class="flex-1 overflow-y-auto py-1">
                             <!-- No Options -->
                             <div
                                 v-if="!filteredOptions.length"
                                 class="flex flex-col items-center justify-center gap-2 px-4 py-6 text-slate-500 dark:text-slate-400">
-                                <LuInbox class="w-6 h-6 text-slate-300 dark:text-slate-600" />
+                                <LuInbox class="h-6 w-6 text-slate-300 dark:text-slate-600" />
                                 <span class="text-xs sm:text-sm">No options available</span>
                             </div>
 
@@ -93,8 +93,8 @@
                                     v-if="withAllOption"
                                     @click.prevent="select({ name: null, label: 'All' })"
                                     :selected="selected && selected.name === defaultOption.name">
-                                    <div class="flex items-center gap-2 text-xs sm:text-sm font-semibold">
-                                        <LuLayoutGrid class="w-3.5 h-3.5 text-lime-600 dark:text-lime-400" />
+                                    <div class="flex items-center gap-2 text-xs font-semibold sm:text-sm">
+                                        <LuLayoutGrid class="h-3.5 w-3.5 text-lime-600 dark:text-lime-400" />
                                         All
                                     </div>
                                 </dropdown-option>

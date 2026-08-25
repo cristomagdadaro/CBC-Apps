@@ -16,11 +16,11 @@ export default {
 <template>
     <app-layout title="Edit Option">
         <template #header>
-            <div class="flex justify-between items-center">
+            <div class="flex items-center justify-between">
                 <div>
                     <Link
                         :href="route('system.options.index')"
-                        class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                        class="text-xl font-bold leading-tight text-gray-800 dark:text-gray-200">
                         Edit Option
                     </Link>
                     <p class="text-sm text-gray-600">Modify an existing system option or configuration</p>

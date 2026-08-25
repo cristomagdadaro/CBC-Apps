@@ -41,7 +41,7 @@ export default {
 
 <template>
     <div class="flex flex-col">
-        <div class="py-3 flex gap-2 items-start">
+        <div class="flex items-start gap-2 py-3">
             <Checkbox
                 id="agreed_tc"
                 v-model="agreedTcModel"
@@ -50,7 +50,7 @@ export default {
 
             <label
                 for="agreed_tc"
-                class="text-xs leading-snug cursor-pointer">
+                class="cursor-pointer text-xs leading-snug">
                 I hereby certify that the information provided is true, correct, and complete. I authorize the
                 <a
                     href="https://dacbc.philrice.gov.ph/"
@@ -67,7 +67,7 @@ export default {
             </label>
         </div>
 
-        <div class="py-3 flex gap-2 items-start">
+        <div class="flex items-start gap-2 py-3">
             <Checkbox
                 id="agreed_updates"
                 v-model="agreedUpdatesModel"
@@ -76,7 +76,7 @@ export default {
 
             <label
                 for="agreed_updates"
-                class="text-xs leading-snug cursor-pointer">
+                class="cursor-pointer text-xs leading-snug">
                 I consent to receive official updates, announcements, and program-related communications from the DA–Crop Biotechnology Center through my registered email address, mobile number, and/or messaging applications.
 
                 <transition-container type="slide-bottom">

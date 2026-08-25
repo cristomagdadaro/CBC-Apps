@@ -491,71 +491,71 @@ export default {
                 <OutgoingTransactionLink />
             </ActionHeaderLayout>
         </template>
-        <div class="md:grid md:grid-cols-12 gap-5 p-5">
+        <div class="gap-5 p-5 md:grid md:grid-cols-12">
             <!-- Help Section -->
-            <div class="grid grid-cols-1 grid-rows-3 gap-4 col-span-12 md:col-span-2 h-fit md:sticky md:top-5 md:self-start">
-                <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-xs">
-                    <div class="flex items-center gap-2 mb-2">
-                        <LuInfo class="w-5 h-5 text-lime-600 dark:text-lime-400" />
-                        <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-100">Printer Setup</h4>
+            <div class="col-span-12 grid h-fit grid-cols-1 grid-rows-3 gap-4 md:sticky md:top-5 md:col-span-2 md:self-start">
+                <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+                    <div class="mb-2 flex items-center gap-2">
+                        <LuInfo class="h-5 w-5 text-lime-600 dark:text-lime-400" />
+                        <h4 class="text-xs font-bold text-slate-900 sm:text-sm dark:text-slate-100">Printer Setup</h4>
                     </div>
-                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                    <p class="text-xs text-slate-500 sm:text-sm dark:text-slate-400">
                         Always recalibrate your Intermec PD43 after powering on or changing label rolls. Go to
                         <strong>Wizards → Calibrate → Media</strong>
                         .
                     </p>
                 </div>
 
-                <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-xs">
-                    <div class="flex items-center gap-2 mb-2">
-                        <LuQrCode class="w-5 h-5 text-lime-600 dark:text-lime-400" />
-                        <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-100">QR Code Usage</h4>
+                <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+                    <div class="mb-2 flex items-center gap-2">
+                        <LuQrCode class="h-5 w-5 text-lime-600 dark:text-lime-400" />
+                        <h4 class="text-xs font-bold text-slate-900 sm:text-sm dark:text-slate-100">QR Code Usage</h4>
                     </div>
-                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Scan QR codes with any mobile device to quickly access equipment logging pages. Supports Laboratory and ICT equipment.</p>
+                    <p class="text-xs text-slate-500 sm:text-sm dark:text-slate-400">Scan QR codes with any mobile device to quickly access equipment logging pages. Supports Laboratory and ICT equipment.</p>
                 </div>
 
-                <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-xs">
-                    <div class="flex items-center gap-2 mb-2">
-                        <LuLayers class="w-5 h-5 text-lime-600 dark:text-lime-400" />
-                        <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-100">Label Sizes</h4>
+                <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+                    <div class="mb-2 flex items-center gap-2">
+                        <LuLayers class="h-5 w-5 text-lime-600 dark:text-lime-400" />
+                        <h4 class="text-xs font-bold text-slate-900 sm:text-sm dark:text-slate-100">Label Sizes</h4>
                     </div>
-                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Choose from preset sizes or create custom dimensions. Ensure your selected size matches the loaded label stock for best print quality.</p>
+                    <p class="text-xs text-slate-500 sm:text-sm dark:text-slate-400">Choose from preset sizes or create custom dimensions. Ensure your selected size matches the loaded label stock for best print quality.</p>
                 </div>
             </div>
-            <div class="w-full cols-span-12 md:col-span-10">
+            <div class="cols-span-12 w-full md:col-span-10">
                 <!-- Mobile Tab Navigation -->
-                <div class="md:hidden bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200 dark:border-slate-800 overflow-hidden">
+                <div class="shadow-xs overflow-hidden rounded-2xl border border-slate-200 bg-white md:hidden dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex border-b border-slate-200 dark:border-slate-800">
                         <button
-                            :class="activeTab === 'items' ? 'text-lime-700 dark:text-lime-300 border-b-2 border-lime-600 bg-lime-50/60 dark:bg-lime-950/40' : 'text-slate-600 dark:text-slate-400'"
+                            :class="activeTab === 'items' ? 'border-b-2 border-lime-600 bg-lime-50/60 text-lime-700 dark:bg-lime-950/40 dark:text-lime-300' : 'text-slate-600 dark:text-slate-400'"
                             class="flex-1 px-3 py-3 text-xs font-semibold transition-colors"
                             @click="activeTab = 'items'">
                             <div class="flex flex-col items-center gap-1">
-                                <LuPackage class="w-4 h-4" />
+                                <LuPackage class="h-4 w-4" />
                                 <span>Select</span>
                                 <span
                                     v-if="selectedCount > 0"
-                                    class="text-[10px] bg-lime-600 text-white px-1.5 py-0.5 rounded-full font-bold">
+                                    class="rounded-full bg-lime-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
                                     {{ selectedCount }}
                                 </span>
                             </div>
                         </button>
                         <button
-                            :class="activeTab === 'settings' ? 'text-lime-700 dark:text-lime-300 border-b-2 border-lime-600 bg-lime-50/60 dark:bg-lime-950/40' : 'text-slate-600 dark:text-slate-400'"
+                            :class="activeTab === 'settings' ? 'border-b-2 border-lime-600 bg-lime-50/60 text-lime-700 dark:bg-lime-950/40 dark:text-lime-300' : 'text-slate-600 dark:text-slate-400'"
                             class="flex-1 px-3 py-3 text-xs font-semibold transition-colors"
                             @click="activeTab = 'settings'">
                             <div class="flex flex-col items-center gap-1">
-                                <LuSettings2 class="w-4 h-4" />
+                                <LuSettings2 class="h-4 w-4" />
                                 <span>Settings</span>
                             </div>
                         </button>
                         <button
-                            :class="activeTab === 'preview' ? 'text-lime-700 dark:text-lime-300 border-b-2 border-lime-600 bg-lime-50/60 dark:bg-lime-950/40' : 'text-slate-600 dark:text-slate-400'"
+                            :class="activeTab === 'preview' ? 'border-b-2 border-lime-600 bg-lime-50/60 text-lime-700 dark:bg-lime-950/40 dark:text-lime-300' : 'text-slate-600 dark:text-slate-400'"
                             :disabled="!previewReady"
                             class="flex-1 px-3 py-3 text-xs font-semibold transition-colors disabled:opacity-50"
                             @click="activeTab = 'preview'">
                             <div class="flex flex-col items-center gap-1">
-                                <LuPrinter class="w-4 h-4" />
+                                <LuPrinter class="h-4 w-4" />
                                 <span>Print</span>
                             </div>
                         </button>
@@ -563,33 +563,33 @@ export default {
                 </div>
 
                 <!-- Desktop Tab Navigation -->
-                <div class="hidden md:block bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200 dark:border-slate-800 overflow-visible">
+                <div class="shadow-xs hidden overflow-visible rounded-2xl border border-slate-200 bg-white md:block dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex border-b border-slate-200 dark:border-slate-800">
                         <button
-                            :class="activeTab === 'items' ? 'text-lime-700 dark:text-lime-300 border-b-2 border-lime-600 bg-lime-50/60 dark:bg-lime-950/40' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
-                            class="flex-1 px-4 py-3 text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+                            :class="activeTab === 'items' ? 'border-b-2 border-lime-600 bg-lime-50/60 text-lime-700 dark:bg-lime-950/40 dark:text-lime-300' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'"
+                            class="flex flex-1 items-center justify-center gap-2 px-4 py-3 text-sm font-semibold transition-colors"
                             @click="activeTab = 'items'">
-                            <LuPackage class="w-4 h-4" />
+                            <LuPackage class="h-4 w-4" />
                             Select Items
                             <span
                                 v-if="selectedCount > 0"
-                                class="ml-1 px-2 py-0.5 bg-lime-600 text-white text-xs font-bold rounded-full">
+                                class="ml-1 rounded-full bg-lime-600 px-2 py-0.5 text-xs font-bold text-white">
                                 {{ selectedCount }}
                             </span>
                         </button>
                         <button
-                            :class="activeTab === 'settings' ? 'text-lime-700 dark:text-lime-300 border-b-2 border-lime-600 bg-lime-50/60 dark:bg-lime-950/40' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
-                            class="flex-1 px-4 py-3 text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+                            :class="activeTab === 'settings' ? 'border-b-2 border-lime-600 bg-lime-50/60 text-lime-700 dark:bg-lime-950/40 dark:text-lime-300' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'"
+                            class="flex flex-1 items-center justify-center gap-2 px-4 py-3 text-sm font-semibold transition-colors"
                             @click="activeTab = 'settings'">
-                            <LuSettings2 class="w-4 h-4" />
+                            <LuSettings2 class="h-4 w-4" />
                             Label Settings
                         </button>
                         <button
-                            :class="activeTab === 'preview' ? 'text-lime-700 dark:text-lime-300 border-b-2 border-lime-600 bg-lime-50/60 dark:bg-lime-950/40' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
+                            :class="activeTab === 'preview' ? 'border-b-2 border-lime-600 bg-lime-50/60 text-lime-700 dark:bg-lime-950/40 dark:text-lime-300' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'"
                             :disabled="!previewReady"
-                            class="flex-1 px-4 py-3 text-sm font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            class="flex flex-1 items-center justify-center gap-2 px-4 py-3 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                             @click="activeTab = 'preview'">
-                            <LuEye class="w-4 h-4" />
+                            <LuEye class="h-4 w-4" />
                             Preview & Print
                         </button>
                     </div>
@@ -597,15 +597,15 @@ export default {
                     <!-- Items Tab -->
                     <div
                         v-show="activeTab === 'items'"
-                        class="p-4 sm:p-6 space-y-4">
+                        class="space-y-4 p-4 sm:p-6">
                         <!-- Filters -->
-                        <div class="flex flex-col sm:flex-row gap-3">
-                            <div class="flex-1 relative">
-                                <LuSearch class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <div class="flex flex-col gap-3 sm:flex-row">
+                            <div class="relative flex-1">
+                                <LuSearch class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                                 <input
                                     v-model="search"
                                     @input="onSearchChange"
-                                    class="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-lime-500 focus:border-transparent bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm"
+                                    class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-xs text-slate-900 focus:border-transparent focus:ring-2 focus:ring-lime-500 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                                     placeholder="Search items, brands, or barcodes..."
                                     type="text" />
                             </div>
@@ -628,47 +628,47 @@ export default {
                         </div>
 
                         <!-- Bulk Actions -->
-                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-800">
+                        <div class="flex items-center justify-between rounded-xl border border-slate-200/80 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/60">
                             <div class="flex items-center gap-3">
                                 <input
                                     :checked="allSelected"
                                     :indeterminate="someSelected"
-                                    class="w-4 h-4 text-lime-600 rounded border-slate-300 focus:ring-lime-500"
+                                    class="h-4 w-4 rounded border-slate-300 text-lime-600 focus:ring-lime-500"
                                     type="checkbox"
                                     @change="toggleAll" />
-                                <span class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                <span class="text-xs font-semibold text-slate-700 sm:text-sm dark:text-slate-300">
                                     {{ allSelected ? "Deselect All" : "Select All" }}
                                 </span>
                             </div>
-                            <span class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">{{ selectedCount }} of {{ filteredItems.filter((i) => i.barcode).length }} selected</span>
+                            <span class="text-xs font-medium text-slate-500 sm:text-sm dark:text-slate-400">{{ selectedCount }} of {{ filteredItems.filter((i) => i.barcode).length }} selected</span>
                         </div>
 
                         <!-- Items Table -->
                         <div
                             v-if="loading"
                             class="flex items-center justify-center py-12">
-                            <LuLoader2 class="w-8 h-8 text-lime-600 dark:text-lime-400 animate-spin" />
+                            <LuLoader2 class="h-8 w-8 animate-spin text-lime-600 dark:text-lime-400" />
                         </div>
 
                         <div
                             v-else-if="filteredItems.length === 0"
-                            class="text-center py-12">
-                            <LuPackageX class="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-                            <p class="text-slate-500 dark:text-slate-400 text-sm">No items found</p>
+                            class="py-12 text-center">
+                            <LuPackageX class="mx-auto mb-3 h-12 w-12 text-slate-300 dark:text-slate-600" />
+                            <p class="text-sm text-slate-500 dark:text-slate-400">No items found</p>
                         </div>
 
                         <div
                             v-else
-                            class="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs">
+                            class="shadow-xs overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-xs sm:text-sm">
-                                    <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                                    <thead class="border-b border-slate-200 bg-slate-50 text-xs font-bold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-400">
                                         <tr>
-                                            <th class="px-4 py-3 w-10"></th>
+                                            <th class="w-10 px-4 py-3"></th>
                                             <th class="px-4 py-3 text-left">Item</th>
                                             <th class="px-4 py-3 text-left">Barcode</th>
                                             <th class="px-4 py-3 text-left">Property No.</th>
-                                            <th class="px-4 py-3 text-right w-24">Qty</th>
+                                            <th class="w-24 px-4 py-3 text-right">Qty</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
@@ -678,48 +678,48 @@ export default {
                                             :class="{
                                                 'bg-lime-50/50 dark:bg-lime-950/20': selected[itemKey(item)],
                                             }"
-                                            class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
+                                            class="cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/40"
                                             @dblclick="toggleItem(item)">
                                             <td class="px-4 py-3">
                                                 <input
                                                     :checked="!!selected[itemKey(item)]"
                                                     :disabled="!item.barcode"
-                                                    class="w-4 h-4 text-lime-600 rounded border-slate-300 focus:ring-lime-500 disabled:opacity-50"
+                                                    class="h-4 w-4 rounded border-slate-300 text-lime-600 focus:ring-lime-500 disabled:opacity-50"
                                                     type="checkbox"
                                                     @change="toggleItem(item)" />
                                             </td>
                                             <td class="px-4 py-3">
-                                                <div class="text-slate-900 dark:text-slate-100 font-semibold">
+                                                <div class="font-semibold text-slate-900 dark:text-slate-100">
                                                     {{ item.name }}
                                                     <span
                                                         v-if="item.brand"
-                                                        class="text-slate-500 font-normal">
+                                                        class="font-normal text-slate-500">
                                                         ({{ item.brand }})
                                                     </span>
                                                 </div>
                                                 <div
                                                     v-if="item.description"
-                                                    class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                                    class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                                                     {{ item.description }}
                                                 </div>
                                             </td>
                                             <td class="px-4 py-3">
                                                 <span
                                                     v-if="item.barcode"
-                                                    class="font-mono text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-1 rounded-lg text-slate-800 dark:text-slate-200 font-semibold">
+                                                    class="rounded-lg border border-slate-200 bg-slate-100 px-2 py-1 font-mono text-xs font-semibold text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
                                                     {{ item.barcode }}
                                                 </span>
                                                 <span
                                                     v-else
-                                                    class="text-xs text-rose-500 font-semibold flex items-center gap-1">
-                                                    <LuAlertCircle class="w-3.5 h-3.5" />
+                                                    class="flex items-center gap-1 text-xs font-semibold text-rose-500">
+                                                    <LuAlertCircle class="h-3.5 w-3.5" />
                                                     No barcode
                                                 </span>
                                             </td>
                                             <td class="px-4 py-3">
                                                 <span
                                                     v-if="item.barcode_prri"
-                                                    class="font-mono text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-1 rounded-lg text-slate-800 dark:text-slate-200 font-semibold">
+                                                    class="rounded-lg border border-slate-200 bg-slate-100 px-2 py-1 font-mono text-xs font-semibold text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
                                                     {{ item.barcode_prri }}
                                                 </span>
                                                 <span
@@ -732,7 +732,7 @@ export default {
                                                 <input
                                                     v-if="selected[itemKey(item)]"
                                                     :value="selected[itemKey(item)]?.qty ?? 1"
-                                                    class="w-16 px-2 py-1 text-right border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-lime-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm font-semibold"
+                                                    class="w-16 rounded-lg border border-slate-200 bg-white px-2 py-1 text-right text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-lime-500 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                                                     min="1"
                                                     type="number"
                                                     @input="updateQty(itemKey(item), $event.target.value)" />
@@ -752,10 +752,10 @@ export default {
                         <div class="flex justify-end pt-4">
                             <button
                                 :disabled="selectedCount === 0"
-                                class="px-6 py-2.5 bg-lime-600 hover:bg-lime-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-sm rounded-xl transition-all flex items-center gap-2"
+                                class="flex items-center gap-2 rounded-xl bg-lime-600 px-6 py-2.5 text-xs font-bold text-white transition-all hover:bg-lime-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
                                 @click="nextStep">
                                 Continue to Settings
-                                <LuArrowRight class="w-4 h-4" />
+                                <LuArrowRight class="h-4 w-4" />
                             </button>
                         </div>
                     </div>
@@ -763,21 +763,21 @@ export default {
                     <!-- Settings Tab -->
                     <div
                         v-show="activeTab === 'settings'"
-                        class="p-4 sm:p-6 space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        class="space-y-6 p-4 sm:p-6">
+                        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <!-- Print Mode -->
                             <div class="space-y-3">
-                                <label class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">Print Mode</label>
+                                <label class="text-xs font-semibold text-slate-700 sm:text-sm dark:text-slate-300">Print Mode</label>
                                 <div class="grid grid-cols-3 gap-2">
                                     <button
                                         v-for="mode in printModeOptions"
                                         :key="mode.name"
-                                        :class="printMode === mode.name ? 'border-lime-600 bg-lime-50 dark:bg-lime-950/40 text-lime-700 dark:text-lime-300' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300'"
-                                        class="flex flex-col items-center gap-2 p-3 border-2 rounded-xl transition-all"
+                                        :class="printMode === mode.name ? 'border-lime-600 bg-lime-50 text-lime-700 dark:bg-lime-950/40 dark:text-lime-300' : 'border-slate-200 text-slate-700 hover:border-slate-300 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-600'"
+                                        class="flex flex-col items-center gap-2 rounded-xl border-2 p-3 transition-all"
                                         @click="printMode = mode.name">
                                         <component
                                             :is="mode.icon"
-                                            class="w-6 h-6" />
+                                            class="h-6 w-6" />
                                         <span class="text-xs font-semibold">{{ mode.label }}</span>
                                     </button>
                                 </div>
@@ -785,7 +785,7 @@ export default {
 
                             <!-- Size Template -->
                             <div class="space-y-3">
-                                <label class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">Label Size</label>
+                                <label class="text-xs font-semibold text-slate-700 sm:text-sm dark:text-slate-300">Label Size</label>
                                 <custom-dropdown
                                     :options="sizeTemplates"
                                     :value="sizeTemplate"
@@ -796,19 +796,19 @@ export default {
                                     v-if="isCustomSize"
                                     class="flex gap-2">
                                     <div class="flex-1">
-                                        <label class="text-xs text-slate-500 font-medium">Height (cm)</label>
+                                        <label class="text-xs font-medium text-slate-500">Height (cm)</label>
                                         <input
                                             v-model.number="customHeightCm"
-                                            class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm"
+                                            class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                                             min="0.5"
                                             step="0.1"
                                             type="number" />
                                     </div>
                                     <div class="flex-1">
-                                        <label class="text-xs text-slate-500 font-medium">Width (cm)</label>
+                                        <label class="text-xs font-medium text-slate-500">Width (cm)</label>
                                         <input
                                             v-model.number="customWidthCm"
-                                            class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm"
+                                            class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                                             min="0.5"
                                             step="0.1"
                                             type="number" />
@@ -818,17 +818,17 @@ export default {
 
                             <!-- Layout Mode -->
                             <div class="space-y-3">
-                                <label class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">Layout</label>
+                                <label class="text-xs font-semibold text-slate-700 sm:text-sm dark:text-slate-300">Layout</label>
                                 <div class="flex gap-2">
                                     <button
-                                        :class="layoutMode === 'single' ? 'border-lime-600 bg-lime-50 dark:bg-lime-950/40 text-lime-700 dark:text-lime-300' : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'"
-                                        class="flex-1 px-4 py-2 border-2 rounded-xl text-xs sm:text-sm font-semibold transition-colors"
+                                        :class="layoutMode === 'single' ? 'border-lime-600 bg-lime-50 text-lime-700 dark:bg-lime-950/40 dark:text-lime-300' : 'border-slate-200 text-slate-700 dark:border-slate-700 dark:text-slate-300'"
+                                        class="flex-1 rounded-xl border-2 px-4 py-2 text-xs font-semibold transition-colors sm:text-sm"
                                         @click="layoutMode = 'single'">
                                         Single Label
                                     </button>
                                     <button
-                                        :class="layoutMode === 'sheet' ? 'border-lime-600 bg-lime-50 dark:bg-lime-950/40 text-lime-700 dark:text-lime-300' : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'"
-                                        class="flex-1 px-4 py-2 border-2 rounded-xl text-xs sm:text-sm font-semibold transition-colors"
+                                        :class="layoutMode === 'sheet' ? 'border-lime-600 bg-lime-50 text-lime-700 dark:bg-lime-950/40 dark:text-lime-300' : 'border-slate-200 text-slate-700 dark:border-slate-700 dark:text-slate-300'"
+                                        class="flex-1 rounded-xl border-2 px-4 py-2 text-xs font-semibold transition-colors sm:text-sm"
                                         @click="layoutMode = 'sheet'">
                                         Sheet Layout
                                     </button>
@@ -837,20 +837,20 @@ export default {
 
                             <!-- Orientation -->
                             <div class="space-y-3">
-                                <label class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">Orientation</label>
+                                <label class="text-xs font-semibold text-slate-700 sm:text-sm dark:text-slate-300">Orientation</label>
                                 <div class="flex gap-2">
                                     <button
-                                        :class="orientation === 'portrait' ? 'border-lime-600 bg-lime-50 dark:bg-lime-950/40 text-lime-700 dark:text-lime-300' : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'"
-                                        class="flex-1 px-4 py-2 border-2 rounded-xl text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+                                        :class="orientation === 'portrait' ? 'border-lime-600 bg-lime-50 text-lime-700 dark:bg-lime-950/40 dark:text-lime-300' : 'border-slate-200 text-slate-700 dark:border-slate-700 dark:text-slate-300'"
+                                        class="flex flex-1 items-center justify-center gap-2 rounded-xl border-2 px-4 py-2 text-xs font-semibold transition-colors sm:text-sm"
                                         @click="orientation = 'portrait'">
-                                        <LuSmartphone class="w-4 h-4" />
+                                        <LuSmartphone class="h-4 w-4" />
                                         Portrait
                                     </button>
                                     <button
-                                        :class="orientation === 'landscape' ? 'border-lime-600 bg-lime-50 dark:bg-lime-950/40 text-lime-700 dark:text-lime-300' : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'"
-                                        class="flex-1 px-4 py-2 border-2 rounded-xl text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+                                        :class="orientation === 'landscape' ? 'border-lime-600 bg-lime-50 text-lime-700 dark:bg-lime-950/40 dark:text-lime-300' : 'border-slate-200 text-slate-700 dark:border-slate-700 dark:text-slate-300'"
+                                        class="flex flex-1 items-center justify-center gap-2 rounded-xl border-2 px-4 py-2 text-xs font-semibold transition-colors sm:text-sm"
                                         @click="orientation = 'landscape'">
-                                        <LuSmartphone class="w-4 h-4 rotate-90" />
+                                        <LuSmartphone class="h-4 w-4 rotate-90" />
                                         Landscape
                                     </button>
                                 </div>
@@ -858,41 +858,41 @@ export default {
                         </div>
 
                         <!-- Advanced Settings -->
-                        <div class="border-t border-slate-200 dark:border-slate-800 pt-6">
-                            <h4 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100 mb-4 flex items-center gap-2">
-                                <LuSlidersHorizontal class="w-4 h-4 text-slate-400" />
+                        <div class="border-t border-slate-200 pt-6 dark:border-slate-800">
+                            <h4 class="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-900 sm:text-sm dark:text-slate-100">
+                                <LuSlidersHorizontal class="h-4 w-4 text-slate-400" />
                                 Advanced Settings
                             </h4>
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
                                 <div>
-                                    <label class="text-xs text-slate-500 dark:text-slate-400 block mb-1 font-medium">Font Size</label>
+                                    <label class="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">Font Size</label>
                                     <input
                                         v-model.number="customFontSize"
-                                        class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm"
+                                        class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                                         max="20"
                                         min="6"
                                         type="number" />
                                 </div>
                                 <div v-if="hasBarcodeMode">
-                                    <label class="text-xs text-slate-500 dark:text-slate-400 block mb-1 font-medium">Barcode Height</label>
+                                    <label class="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">Barcode Height</label>
                                     <input
                                         v-model.number="customBarcodeHeight"
                                         :max="maxBarcodeHeightPx"
-                                        class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm"
+                                        class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                                         min="12"
                                         type="number" />
                                 </div>
                                 <div v-if="hasQrMode">
-                                    <label class="text-xs text-slate-500 dark:text-slate-400 block mb-1 font-medium">QR Size</label>
+                                    <label class="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">QR Size</label>
                                     <input
                                         v-model.number="customQRSize"
                                         :max="maxQrSizePx"
-                                        class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm"
+                                        class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                                         min="20"
                                         type="number" />
                                 </div>
                                 <div>
-                                    <label class="text-xs text-slate-500 dark:text-slate-400 block mb-1 font-medium">Rotation</label>
+                                    <label class="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">Rotation</label>
                                     <custom-dropdown
                                         :options="[
                                             { name: 0, label: '0°' },
@@ -908,16 +908,16 @@ export default {
                         </div>
 
                         <!-- Generate Button -->
-                        <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+                        <div class="flex justify-end gap-3 border-t border-slate-200 pt-4 dark:border-slate-800">
                             <button
-                                class="px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-semibold text-xs sm:text-sm"
+                                class="rounded-xl px-4 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-100 sm:text-sm dark:text-slate-300 dark:hover:bg-slate-800"
                                 @click="prevStep">
                                 Back
                             </button>
                             <button
-                                class="px-6 py-2.5 bg-lime-600 hover:bg-lime-700 active:scale-95 text-white font-bold rounded-xl transition-all flex items-center gap-2 text-xs sm:text-sm"
+                                class="flex items-center gap-2 rounded-xl bg-lime-600 px-6 py-2.5 text-xs font-bold text-white transition-all hover:bg-lime-700 active:scale-95 sm:text-sm"
                                 @click="buildLabels">
-                                <LuSparkles class="w-4 h-4" />
+                                <LuSparkles class="h-4 w-4" />
                                 Generate Preview
                             </button>
                         </div>
@@ -926,22 +926,22 @@ export default {
                     <!-- Preview Tab -->
                     <div
                         v-show="activeTab === 'preview'"
-                        class="p-4 sm:p-6 space-y-6 overflow-visible">
+                        class="space-y-6 overflow-visible p-4 sm:p-6">
                         <div
                             v-if="!previewReady"
-                            class="text-center py-12">
-                            <LuEyeOff class="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-                            <p class="text-slate-500 dark:text-slate-400 text-sm">Generate a preview first</p>
+                            class="py-12 text-center">
+                            <LuEyeOff class="mx-auto mb-3 h-12 w-12 text-slate-300 dark:text-slate-600" />
+                            <p class="text-sm text-slate-500 dark:text-slate-400">Generate a preview first</p>
                         </div>
 
                         <template v-else>
                             <!-- Label Preview Grid -->
-                            <div class="bg-slate-100 dark:bg-slate-950 rounded-2xl p-4 sm:p-8 overflow-visible border border-slate-200 dark:border-slate-800">
+                            <div class="overflow-visible rounded-2xl border border-slate-200 bg-slate-100 p-4 sm:p-8 dark:border-slate-800 dark:bg-slate-950">
                                 <div class="flex flex-wrap justify-center gap-4">
                                     <div
                                         v-for="label in labels"
                                         :key="label.key"
-                                        :class="['transition-all duration-300', hoveredKey && hoveredKey !== label.key ? 'blur-sm scale-95 opacity-60' : 'blur-0 scale-100 opacity-100 hover:z-10']"
+                                        :class="['transition-all duration-300', hoveredKey && hoveredKey !== label.key ? 'scale-95 opacity-60 blur-sm' : 'scale-100 opacity-100 blur-0 hover:z-10']"
                                         @mouseenter="hoveredKey = label.key"
                                         @mouseleave="hoveredKey = null">
                                         <LabelCard
@@ -958,34 +958,34 @@ export default {
 
                                 <div
                                     v-if="labels.length > 12"
-                                    class="text-center mt-4 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                    class="mt-4 text-center text-xs font-semibold text-slate-500 dark:text-slate-400">
                                     Showing 12 of {{ labels.length }} labels
                                 </div>
                             </div>
 
                             <!-- Action Buttons -->
-                            <div class="flex flex-col sm:flex-row justify-end gap-3">
+                            <div class="flex flex-col justify-end gap-3 sm:flex-row">
                                 <button
-                                    class="px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-semibold text-xs sm:text-sm"
+                                    class="rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-100 sm:text-sm dark:text-slate-300 dark:hover:bg-slate-800"
                                     @click="prevStep">
                                     Back to Settings
                                 </button>
                                 <button
                                     :disabled="exporting"
-                                    class="px-4 py-2.5 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50 font-semibold text-xs sm:text-sm"
+                                    class="flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50 sm:text-sm dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                                     @click="exportPdf">
                                     <LuFileDown
                                         v-if="!exporting"
-                                        class="w-4 h-4" />
+                                        class="h-4 w-4" />
                                     <LuLoader2
                                         v-else
-                                        class="w-4 h-4 animate-spin" />
+                                        class="h-4 w-4 animate-spin" />
                                     {{ exporting ? "Exporting..." : "Export PDF" }}
                                 </button>
                                 <button
-                                    class="px-6 py-2.5 bg-lime-600 hover:bg-lime-700 active:scale-95 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-xs sm:text-sm"
+                                    class="flex items-center justify-center gap-2 rounded-xl bg-lime-600 px-6 py-2.5 text-xs font-bold text-white transition-all hover:bg-lime-700 active:scale-95 sm:text-sm"
                                     @click="printLabels">
-                                    <LuPrinter class="w-4 h-4" />
+                                    <LuPrinter class="h-4 w-4" />
                                     Print Labels
                                 </button>
                             </div>
@@ -994,17 +994,17 @@ export default {
                 </div>
 
                 <!-- Mobile Content Areas -->
-                <div class="md:hidden space-y-4">
+                <div class="space-y-4 md:hidden">
                     <!-- Mobile Items View -->
                     <div
                         v-if="activeTab === 'items'"
-                        class="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200 dark:border-slate-800 p-4 space-y-4">
+                        class="shadow-xs space-y-4 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
                         <div class="relative">
-                            <LuSearch class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <LuSearch class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                             <input
                                 v-model="search"
                                 @input="onSearchChange"
-                                class="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm"
+                                class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-xs text-slate-900 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                                 placeholder="Search items..."
                                 type="text" />
                         </div>
@@ -1018,30 +1018,30 @@ export default {
                             placeholder="All Categories"
                             @selectedChange="onCategoryChange($event)" />
 
-                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-800">
+                        <div class="flex items-center justify-between rounded-xl border border-slate-200/80 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/60">
                             <div class="flex items-center gap-3">
                                 <input
                                     :checked="allSelected"
                                     :indeterminate="someSelected"
-                                    class="w-4 h-4 text-lime-600 rounded border-slate-300 focus:ring-lime-500"
+                                    class="h-4 w-4 rounded border-slate-300 text-lime-600 focus:ring-lime-500"
                                     type="checkbox"
                                     @change="toggleAll" />
-                                <span class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                <span class="text-xs font-semibold text-slate-700 sm:text-sm dark:text-slate-300">
                                     {{ allSelected ? "Deselect All" : "Select All" }}
                                 </span>
                             </div>
-                            <span class="text-xs sm:text-sm text-slate-500 font-medium">{{ selectedCount }} selected</span>
+                            <span class="text-xs font-medium text-slate-500 sm:text-sm">{{ selectedCount }} selected</span>
                         </div>
 
                         <div
                             v-if="loading"
                             class="flex justify-center py-8">
-                            <LuLoader2 class="w-6 h-6 text-lime-600 dark:text-lime-400 animate-spin" />
+                            <LuLoader2 class="h-6 w-6 animate-spin text-lime-600 dark:text-lime-400" />
                         </div>
 
                         <div
                             v-else-if="filteredItems.length === 0"
-                            class="text-center py-8 text-slate-500 text-sm">
+                            class="py-8 text-center text-sm text-slate-500">
                             No items found
                         </div>
 
@@ -1052,18 +1052,18 @@ export default {
                                 v-for="item in filteredItems"
                                 :key="itemKey(item)"
                                 :class="{
-                                    'bg-lime-50/50 dark:bg-lime-950/20 border-lime-300 dark:border-lime-800': selected[itemKey(item)],
+                                    'border-lime-300 bg-lime-50/50 dark:border-lime-800 dark:bg-lime-950/20': selected[itemKey(item)],
                                 }"
-                                class="p-3 border border-slate-200 dark:border-slate-800 rounded-xl">
+                                class="rounded-xl border border-slate-200 p-3 dark:border-slate-800">
                                 <div class="flex items-start gap-3">
                                     <input
                                         :checked="!!selected[itemKey(item)]"
                                         :disabled="!item.barcode"
-                                        class="w-4 h-4 text-lime-600 rounded border-slate-300 focus:ring-lime-500 mt-1 disabled:opacity-50"
+                                        class="mt-1 h-4 w-4 rounded border-slate-300 text-lime-600 focus:ring-lime-500 disabled:opacity-50"
                                         type="checkbox"
                                         @change="toggleItem(item)" />
-                                    <div class="flex-1 min-w-0">
-                                        <div class="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+                                    <div class="min-w-0 flex-1">
+                                        <div class="text-sm font-semibold text-slate-900 dark:text-slate-100">
                                             {{ item.name }}
                                         </div>
                                         <div class="text-xs text-slate-500 dark:text-slate-400">
@@ -1071,23 +1071,23 @@ export default {
                                         </div>
                                         <div
                                             v-if="item.barcode"
-                                            class="mt-1 font-mono text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 inline-block font-semibold">
+                                            class="mt-1 inline-block rounded-md border border-slate-200 bg-slate-100 px-2 py-0.5 font-mono text-xs font-semibold text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
                                             {{ item.barcode }}
                                         </div>
                                         <div
                                             v-else
-                                            class="mt-1 text-xs text-rose-500 font-semibold flex items-center gap-1">
-                                            <LuAlertCircle class="w-3.5 h-3.5" />
+                                            class="mt-1 flex items-center gap-1 text-xs font-semibold text-rose-500">
+                                            <LuAlertCircle class="h-3.5 w-3.5" />
                                             No barcode
                                         </div>
 
                                         <div
                                             v-if="selected[itemKey(item)]"
                                             class="mt-2 flex items-center gap-2">
-                                            <label class="text-xs text-slate-500 font-medium">Qty:</label>
+                                            <label class="text-xs font-medium text-slate-500">Qty:</label>
                                             <input
                                                 :value="selected[itemKey(item)]?.qty ?? 1"
-                                                class="w-16 px-2 py-1 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold"
+                                                class="w-16 rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                                                 min="1"
                                                 type="number"
                                                 @input="updateQty(itemKey(item), $event.target.value)" />
@@ -1099,36 +1099,36 @@ export default {
 
                         <button
                             :disabled="selectedCount === 0"
-                            class="w-full py-3 bg-lime-600 hover:bg-lime-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-sm rounded-xl transition-all flex items-center justify-center gap-2"
+                            class="flex w-full items-center justify-center gap-2 rounded-xl bg-lime-600 py-3 text-xs font-bold text-white transition-all hover:bg-lime-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
                             @click="nextStep">
                             Continue
-                            <LuArrowRight class="w-4 h-4" />
+                            <LuArrowRight class="h-4 w-4" />
                         </button>
                     </div>
 
                     <!-- Mobile Settings View -->
                     <div
                         v-if="activeTab === 'settings'"
-                        class="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200 dark:border-slate-800 p-4 space-y-4">
+                        class="shadow-xs space-y-4 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
                         <div class="space-y-3">
-                            <label class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">Print Mode</label>
+                            <label class="text-xs font-semibold text-slate-700 sm:text-sm dark:text-slate-300">Print Mode</label>
                             <div class="grid grid-cols-3 gap-2">
                                 <button
                                     v-for="mode in printModeOptions"
                                     :key="mode.name"
-                                    :class="printMode === mode.name ? 'border-lime-600 bg-lime-50 dark:bg-lime-950/40 text-lime-700 dark:text-lime-300' : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'"
-                                    class="flex flex-col items-center gap-1 p-2 border-2 rounded-xl transition-all text-xs"
+                                    :class="printMode === mode.name ? 'border-lime-600 bg-lime-50 text-lime-700 dark:bg-lime-950/40 dark:text-lime-300' : 'border-slate-200 text-slate-700 dark:border-slate-700 dark:text-slate-300'"
+                                    class="flex flex-col items-center gap-1 rounded-xl border-2 p-2 text-xs transition-all"
                                     @click="printMode = mode.name">
                                     <component
                                         :is="mode.icon"
-                                        class="w-5 h-5" />
+                                        class="h-5 w-5" />
                                     <span class="font-semibold">{{ mode.label }}</span>
                                 </button>
                             </div>
                         </div>
 
                         <div class="space-y-3">
-                            <label class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">Label Size</label>
+                            <label class="text-xs font-semibold text-slate-700 sm:text-sm dark:text-slate-300">Label Size</label>
                             <custom-dropdown
                                 :options="sizeTemplates"
                                 :value="sizeTemplate"
@@ -1139,19 +1139,19 @@ export default {
                                 v-if="isCustomSize"
                                 class="grid grid-cols-2 gap-2">
                                 <div>
-                                    <label class="text-xs text-slate-500 font-medium">Height (cm)</label>
+                                    <label class="text-xs font-medium text-slate-500">Height (cm)</label>
                                     <input
                                         v-model.number="customHeightCm"
-                                        class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm"
+                                        class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                                         min="0.5"
                                         step="0.1"
                                         type="number" />
                                 </div>
                                 <div>
-                                    <label class="text-xs text-slate-500 font-medium">Width (cm)</label>
+                                    <label class="text-xs font-medium text-slate-500">Width (cm)</label>
                                     <input
                                         v-model.number="customWidthCm"
-                                        class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm"
+                                        class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                                         min="0.5"
                                         step="0.1"
                                         type="number" />
@@ -1161,14 +1161,14 @@ export default {
 
                         <div class="grid grid-cols-2 gap-3">
                             <button
-                                :class="layoutMode === 'single' ? 'border-lime-600 bg-lime-50 dark:bg-lime-950/40 text-lime-700 dark:text-lime-300' : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'"
-                                class="px-4 py-2 border-2 rounded-xl text-xs sm:text-sm font-semibold transition-colors"
+                                :class="layoutMode === 'single' ? 'border-lime-600 bg-lime-50 text-lime-700 dark:bg-lime-950/40 dark:text-lime-300' : 'border-slate-200 text-slate-700 dark:border-slate-700 dark:text-slate-300'"
+                                class="rounded-xl border-2 px-4 py-2 text-xs font-semibold transition-colors sm:text-sm"
                                 @click="layoutMode = 'single'">
                                 Single Label
                             </button>
                             <button
-                                :class="layoutMode === 'sheet' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'"
-                                class="px-4 py-2 border-2 rounded-lg text-sm font-medium transition-colors"
+                                :class="layoutMode === 'sheet' ? 'border-blue-600 bg-blue-50 text-blue-700 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-600'"
+                                class="rounded-lg border-2 px-4 py-2 text-sm font-medium transition-colors"
                                 @click="layoutMode = 'sheet'">
                                 Sheet Layout
                             </button>
@@ -1176,41 +1176,41 @@ export default {
 
                         <div class="grid grid-cols-2 gap-3">
                             <button
-                                :class="orientation === 'portrait' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'"
-                                class="px-4 py-2 border-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                                :class="orientation === 'portrait' ? 'border-blue-600 bg-blue-50 text-blue-700 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-600'"
+                                class="flex items-center justify-center gap-2 rounded-lg border-2 px-4 py-2 text-sm font-medium transition-colors"
                                 @click="orientation = 'portrait'">
-                                <LuSmartphone class="w-4 h-4" />
+                                <LuSmartphone class="h-4 w-4" />
                                 Portrait
                             </button>
                             <button
-                                :class="orientation === 'landscape' ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700' : 'border-gray-200 dark:border-gray-600'"
-                                class="px-4 py-2 border-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                                :class="orientation === 'landscape' ? 'border-blue-600 bg-blue-50 text-blue-700 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-600'"
+                                class="flex items-center justify-center gap-2 rounded-lg border-2 px-4 py-2 text-sm font-medium transition-colors"
                                 @click="orientation = 'landscape'">
-                                <LuSmartphone class="w-4 h-4 rotate-90" />
+                                <LuSmartphone class="h-4 w-4 rotate-90" />
                                 Landscape
                             </button>
                         </div>
 
-                        <div class="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-3">
-                            <h4 class="text-sm font-medium text-gray-900 dark:text-white flex items-center gap-2">
-                                <LuSlidersHorizontal class="w-4 h-4" />
+                        <div class="space-y-3 border-t border-gray-200 pt-4 dark:border-gray-700">
+                            <h4 class="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white">
+                                <LuSlidersHorizontal class="h-4 w-4" />
                                 Advanced
                             </h4>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Font Size</label>
+                                    <label class="mb-1 block text-xs text-gray-500 dark:text-gray-400">Font Size</label>
                                     <input
                                         v-model.number="customFontSize"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm"
+                                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                                         max="20"
                                         min="6"
                                         type="number" />
                                 </div>
                                 <div v-if="hasBarcodeMode">
-                                    <label class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Barcode Height</label>
+                                    <label class="mb-1 block text-xs text-gray-500 dark:text-gray-400">Barcode Height</label>
                                     <input
                                         v-model.number="customBarcodeHeight"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm"
+                                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                                         min="12"
                                         type="number" />
                                 </div>
@@ -1219,14 +1219,14 @@ export default {
 
                         <div class="flex gap-3 pt-4">
                             <button
-                                class="flex-1 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                                class="flex-1 rounded-lg px-4 py-3 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
                                 @click="prevStep">
                                 Back
                             </button>
                             <button
-                                class="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                                class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 font-medium text-white transition-colors hover:bg-blue-700"
                                 @click="buildLabels">
-                                <LuSparkles class="w-4 h-4" />
+                                <LuSparkles class="h-4 w-4" />
                                 Preview
                             </button>
                         </div>
@@ -1235,16 +1235,16 @@ export default {
                     <!-- Mobile Preview View -->
                     <div
                         v-if="activeTab === 'preview'"
-                        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 space-y-4">
+                        class="space-y-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                         <div
                             v-if="!previewReady"
-                            class="text-center py-8">
-                            <LuEyeOff class="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                            class="py-8 text-center">
+                            <LuEyeOff class="mx-auto mb-3 h-12 w-12 text-gray-300 dark:text-gray-600" />
                             <p class="text-gray-500 dark:text-gray-400">Generate a preview first</p>
                         </div>
 
                         <template v-else>
-                            <div class="bg-gray-100 dark:bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                            <div class="overflow-x-auto rounded-lg bg-gray-100 p-4 dark:bg-gray-900">
                                 <div class="flex flex-wrap justify-center gap-3">
                                     <QrBarCode
                                         v-for="label in labels.slice(0, 6)"
@@ -1270,34 +1270,34 @@ export default {
                                 </div>
                                 <div
                                     v-if="labels.length > 6"
-                                    class="text-center mt-3 text-xs text-gray-500">
+                                    class="mt-3 text-center text-xs text-gray-500">
                                     Showing 6 of {{ labels.length }} labels
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-2 gap-3">
                                 <button
-                                    class="px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-sm"
+                                    class="rounded-lg px-4 py-3 text-sm text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
                                     @click="prevStep">
                                     Back
                                 </button>
                                 <button
                                     :disabled="exporting"
-                                    class="px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 text-sm"
+                                    class="flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                                     @click="exportPdf">
                                     <LuFileDown
                                         v-if="!exporting"
-                                        class="w-4 h-4" />
+                                        class="h-4 w-4" />
                                     <LuLoader2
                                         v-else
-                                        class="w-4 h-4 animate-spin" />
+                                        class="h-4 w-4 animate-spin" />
                                     PDF
                                 </button>
                             </div>
                             <button
-                                class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                                class="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-3 font-medium text-white transition-colors hover:bg-blue-700"
                                 @click="printLabels">
-                                <LuPrinter class="w-4 h-4" />
+                                <LuPrinter class="h-4 w-4" />
                                 Print {{ totalLabels }} Labels
                             </button>
                         </template>
@@ -1367,7 +1367,7 @@ export default {
             <template #content>
                 <div
                     v-if="selectedLabelForModal"
-                    class="flex justify-center items-center py-8">
+                    class="flex items-center justify-center py-8">
                     <QrBarCode
                         :mode="printMode"
                         :title="selectedLabelForModal.item?.name || ''"
@@ -1391,7 +1391,7 @@ export default {
             </template>
             <template #footer>
                 <button
-                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                    class="rounded bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"
                     @click="closeLabelModal">
                     Close
                 </button>

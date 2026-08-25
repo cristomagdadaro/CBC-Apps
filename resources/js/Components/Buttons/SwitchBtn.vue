@@ -33,10 +33,10 @@ export default {
 <template>
     <button
         type="button"
-        class="switch-button inline-flex items-center px-2 py-1 border-2 border-gray-300 dark:border-gray-600 text-sm leading-4 font-medium rounded-full transition ease-in-out duration-5000"
+        class="switch-button duration-5000 inline-flex items-center rounded-full border-2 border-gray-300 px-2 py-1 text-sm font-medium leading-4 transition ease-in-out dark:border-gray-600"
         :class="{
-            'bg-blue-100 dark:bg-blue-900 border-blue-400 dark:border-blue-600 text-blue-600 dark:text-blue-300': modelValue,
-            'bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400': !modelValue,
+            'border-blue-400 bg-blue-100 text-blue-600 dark:border-blue-600 dark:bg-blue-900 dark:text-blue-300': modelValue,
+            'border-gray-300 bg-gray-100 text-gray-600 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400': !modelValue,
         }"
         @click="handleToggle"
         :title="label || (modelValue ? 'Enabled' : 'Disabled')">

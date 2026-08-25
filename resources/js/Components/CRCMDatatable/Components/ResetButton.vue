@@ -6,7 +6,7 @@ export default {
 
 <template>
     <button
-        class="bg-red-200 text-white px-4 py-2 rounded-md hover:bg-red-500 active:bg-red-600 duration-200"
+        class="rounded-md bg-red-200 px-4 py-2 text-white duration-200 hover:bg-red-500 active:bg-red-600"
         type="button">
         Reset
     </button>

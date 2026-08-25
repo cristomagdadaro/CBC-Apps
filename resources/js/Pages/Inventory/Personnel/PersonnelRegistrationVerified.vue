@@ -18,8 +18,8 @@ export default {
         subtitle="Your personnel registration is now ready for administrator review."
         guide-key="personnel-registration-guest"
         max-width="max-w-2xl">
-        <div class="md:rounded-lg border border-slate-100 bg-white p-6 w-full">
-            <div class="flex flex-col items-center text-center w-full">
+        <div class="w-full border border-slate-100 bg-white p-6 md:rounded-lg">
+            <div class="flex w-full flex-col items-center text-center">
                 <span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/10">Verification Complete</span>
 
                 <h1 class="mt-4 text-xl font-bold tracking-tight text-slate-900">Welcome, {{ registration.full_name }}</h1>
@@ -35,10 +35,10 @@ export default {
                 </p>
             </div>
 
-            <div class="mt-6 border-t border-slate-100 pt-4 flex justify-center">
+            <div class="mt-6 flex justify-center border-t border-slate-100 pt-4">
                 <Link
                     href="/"
-                    class="w-full sm:w-auto text-center rounded-xl bg-AB px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-AB/90 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-AB">
+                    class="w-full rounded-xl bg-AB px-5 py-2.5 text-center text-sm font-semibold text-white shadow-sm transition-colors hover:bg-AB/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-AB sm:w-auto">
                     Return to Home
                 </Link>
             </div>

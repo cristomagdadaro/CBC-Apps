@@ -1,17 +1,17 @@
 <template>
     <div
         v-if="topText"
-        class="relative shadow-xs active:scale-95 transition-all duration-200 rounded-xl uppercase text-xs font-semibold flex items-center justify-center"
+        class="shadow-xs relative flex items-center justify-center rounded-xl text-xs font-semibold uppercase transition-all duration-200 active:scale-95"
         :class="classes">
-        <span class="absolute -top-1.5 -right-1 px-1.5 py-0.5 shadow-md bg-lime-600 text-white text-[0.6rem] font-bold rounded-full z-10">
+        <span class="absolute -right-1 -top-1.5 z-10 rounded-full bg-lime-600 px-1.5 py-0.5 text-[0.6rem] font-bold text-white shadow-md">
             {{ topText }}
         </span>
-        <button class="w-full h-full flex items-center justify-center"><slot /></button>
+        <button class="flex h-full w-full items-center justify-center"><slot /></button>
     </div>
     <button
         v-else
         :class="classes"
-        class="shadow-xs active:scale-95 transition-all duration-200 rounded-xl uppercase text-xs font-semibold flex items-center justify-center">
+        class="shadow-xs flex items-center justify-center rounded-xl text-xs font-semibold uppercase transition-all duration-200 active:scale-95">
         <slot />
     </button>
 </template>

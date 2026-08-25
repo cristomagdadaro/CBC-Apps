@@ -131,10 +131,10 @@ export default {
     <div
         v-if="currentLaboratoryPersonnel"
         key="saved"
-        class="flex items-center justify-between p-4 rounded-xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-gray-100 dark:border-slate-800 shadow-sm">
+        class="flex items-center justify-between rounded-xl border border-gray-100 bg-white/80 p-4 shadow-sm backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/80">
         <div class="flex items-center gap-3">
-            <div class="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/30">
-                <LuUser class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <div class="rounded-lg bg-emerald-50 p-2 dark:bg-emerald-900/30">
+                <LuUser class="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
                 <p class="text-sm font-medium text-slate-900 dark:text-white">
@@ -148,14 +148,14 @@ export default {
         <button
             type="button"
             @click="handlePersonnelSwitch"
-            class="p-2 text-slate-500 dark:text-slate-400 transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+            class="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
             :class="{ 'animate-spin': processing }">
-            <LuRefreshCw class="w-4 h-4" />
+            <LuRefreshCw class="h-4 w-4" />
         </button>
     </div>
     <div
         v-else
-        class="flex flex-col gap-2 w-full">
+        class="flex w-full flex-col gap-2">
         <div class="flex items-end gap-2">
             <TextInput
                 id="employee_id"
@@ -173,15 +173,15 @@ export default {
             <button
                 id="personnel-lookip-btn"
                 type="button"
-                class="px-3 py-[0.66rem] rounded bg-AB text-white text-sm hover:bg-AB-dark dark:bg-blue-600 dark:hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                class="hover:bg-AB-dark rounded bg-AB px-3 py-[0.66rem] text-sm text-white transition-colors disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-700"
                 :disabled="processing"
                 @click="searchPersonnel">
                 <search-icon
                     v-if="!processing"
-                    class="w-5 h-5" />
+                    class="h-5 w-5" />
                 <loader-icon
                     v-else
-                    class="w-5 h-5 animate-spin" />
+                    class="h-5 w-5 animate-spin" />
             </button>
         </div>
     </div>

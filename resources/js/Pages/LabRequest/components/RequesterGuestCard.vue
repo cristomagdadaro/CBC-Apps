@@ -216,14 +216,14 @@ export default {
 </script>
 
 <template>
-    <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 overflow-hidden mx-auto w-full max-w-4xl">
+    <div class="mx-auto w-full max-w-4xl overflow-hidden rounded-2xl border border-gray-100 bg-white/80 shadow-xl backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/80">
         <SuccessModal
             :show="showSuccessModal"
             title="Request submitted"
             :message="successMessage"
             @close="showSuccessModal = false" />
-        <div class="bg-slate-50/50 dark:bg-slate-800/50 border-b border-gray-100 dark:border-slate-800 p-6">
-            <div class="max-w-2xl mx-auto overflow-x-auto">
+        <div class="border-b border-gray-100 bg-slate-50/50 p-6 dark:border-slate-800 dark:bg-slate-800/50">
+            <div class="mx-auto max-w-2xl overflow-x-auto">
                 <ProgressTabs
                     :steps="stepLabels"
                     :current="currentStep"
@@ -234,18 +234,18 @@ export default {
         <form
             v-if="form"
             @submit.prevent="handleCreate()"
-            class="flex flex-col relative overflow-hidden min-h-[400px]">
+            class="relative flex min-h-[400px] flex-col overflow-hidden">
             <!-- Step 0: Request Type -->
             <transition
                 name="slide-fade"
                 mode="out-in">
                 <div
                     v-show="currentStepKey === 'request_type'"
-                    class="p-6 sm:p-10 flex flex-col min-h-[400px]">
-                    <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Request Type</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Select the type(s) of resources or facilities you need. You can choose multiple options.</p>
-                    <div class="w-full relative max-w-2xl">
-                        <h2 class="flex justify-between items-center mb-2">
+                    class="flex min-h-[400px] flex-col p-6 sm:p-10">
+                    <h3 class="mb-2 text-xl font-bold text-gray-900 sm:text-2xl dark:text-gray-100">Request Type</h3>
+                    <p class="mb-8 text-sm text-gray-500 dark:text-gray-400">Select the type(s) of resources or facilities you need. You can choose multiple options.</p>
+                    <div class="relative w-full max-w-2xl">
+                        <h2 class="mb-2 flex items-center justify-between">
                             <span class="font-semibold text-gray-700 dark:text-gray-300">
                                 Select Categories
                                 <b class="text-red-500">*</b>
@@ -273,9 +273,9 @@ export default {
                 mode="out-in">
                 <div
                     v-show="currentStepKey === 'requestor'"
-                    class="p-6 sm:p-10 flex flex-col min-h-[400px]">
-                    <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Requestor Information</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Provide your contact and affiliation details. You can search for your PhilRice ID to auto-fill some fields.</p>
+                    class="flex min-h-[400px] flex-col p-6 sm:p-10">
+                    <h3 class="mb-2 text-xl font-bold text-gray-900 sm:text-2xl dark:text-gray-100">Requestor Information</h3>
+                    <p class="mb-8 text-sm text-gray-500 dark:text-gray-400">Provide your contact and affiliation details. You can search for your PhilRice ID to auto-fill some fields.</p>
 
                     <div class="max-w-2xl">
                         <PersonnelLookup
@@ -286,8 +286,8 @@ export default {
 
                         <div
                             v-if="isAuthenticated"
-                            class="text-sm font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 p-3 rounded-lg mb-2 flex items-center gap-2">
-                            <LuCheckCircle2 class="w-4 h-4" />
+                            class="mb-2 flex items-center gap-2 rounded-lg bg-emerald-50 p-3 text-sm font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                            <LuCheckCircle2 class="h-4 w-4" />
                             <span>
                                 Using authenticated ID:
                                 {{ $page.props.auth.user.employee_id || "Linked Account" }}
@@ -295,15 +295,15 @@ export default {
                         </div>
                         <label
                             v-if="form.name && !isNonPhilRiceEmployee && !isAuthenticated"
-                            class="text-AC text-semibold text-sm leading-none">
+                            class="text-semibold text-sm leading-none text-AC">
                             Hi! {{ form.name }}
                         </label>
                         <label
                             v-else-if="clientErrors['employee_id'] && !isAuthenticated"
-                            class="text-AC text-semibold text-sm leading-none">
+                            class="text-semibold text-sm leading-none text-AC">
                             {{ clientErrors["employee_id"] }}
                         </label>
-                        <div class="flex items-center gap-2 pt-4 pb-4">
+                        <div class="flex items-center gap-2 pb-4 pt-4">
                             <input
                                 type="checkbox"
                                 id="isNonPhilRice"
@@ -311,15 +311,15 @@ export default {
                                 class="rounded border-gray-300 text-AB shadow-sm focus:border-AB focus:ring focus:ring-AB focus:ring-opacity-50" />
                             <label
                                 for="isNonPhilRice"
-                                class="text-gray-700 dark:text-gray-300 cursor-pointer font-medium">
+                                class="cursor-pointer font-medium text-gray-700 dark:text-gray-300">
                                 I am a non-PhilRice employee/personnel
                             </label>
                         </div>
                         <div
                             v-show="isNonPhilRiceEmployee || employeeFound"
-                            class="flex flex-col gap-5 pt-6 border-t border-gray-100 dark:border-slate-800">
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Manually enter your information</p>
-                            <div class="grid md:grid-cols-2 gap-5">
+                            class="flex flex-col gap-5 border-t border-gray-100 pt-6 dark:border-slate-800">
+                            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">Manually enter your information</p>
+                            <div class="grid gap-5 md:grid-cols-2">
                                 <TextInput
                                     v-if="isNonPhilRiceEmployee"
                                     id="requester_philrice_id"
@@ -391,10 +391,10 @@ export default {
                 mode="out-in">
                 <div
                     v-show="currentStepKey === 'details'"
-                    class="p-6 sm:p-10 flex flex-col min-h-[400px]">
-                    <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Request Details</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Tell us the purpose of your request and when you plan to use the resources.</p>
-                    <div class="max-w-2xl flex flex-col gap-5">
+                    class="flex min-h-[400px] flex-col p-6 sm:p-10">
+                    <h3 class="mb-2 text-xl font-bold text-gray-900 sm:text-2xl dark:text-gray-100">Request Details</h3>
+                    <p class="mb-8 text-sm text-gray-500 dark:text-gray-400">Tell us the purpose of your request and when you plan to use the resources.</p>
+                    <div class="flex max-w-2xl flex-col gap-5">
                         <TextInput
                             id="request_purpose"
                             v-model="form.request_purpose"
@@ -482,56 +482,56 @@ export default {
                 mode="out-in">
                 <div
                     v-show="currentStepKey === 'terms'"
-                    class="p-6 sm:p-10 flex flex-col min-h-[400px]">
-                    <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Terms & Conditions</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Please read and agree to all terms and conditions below to complete your request.</p>
-                    <div class="flex flex-col gap-6 max-w-2xl bg-slate-50/50 dark:bg-slate-800/50 p-6 rounded-xl border border-gray-100 dark:border-slate-800">
+                    class="flex min-h-[400px] flex-col p-6 sm:p-10">
+                    <h3 class="mb-2 text-xl font-bold text-gray-900 sm:text-2xl dark:text-gray-100">Terms & Conditions</h3>
+                    <p class="mb-8 text-sm text-gray-500 dark:text-gray-400">Please read and agree to all terms and conditions below to complete your request.</p>
+                    <div class="flex max-w-2xl flex-col gap-6 rounded-xl border border-gray-100 bg-slate-50/50 p-6 dark:border-slate-800 dark:bg-slate-800/50">
                         <label
-                            class="flex items-start text-left gap-3 cursor-pointer select-none group"
+                            class="group flex cursor-pointer select-none items-start gap-3 text-left"
                             title="Acknowledge lab usage risk">
                             <input
                                 type="checkbox"
                                 v-model="form.agreed_clause_1"
                                 class="mt-1 rounded border-gray-300 text-AB shadow-sm focus:border-AB focus:ring focus:ring-AB focus:ring-opacity-50" />
-                            <span class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
+                            <span class="text-sm leading-relaxed text-gray-700 transition-colors group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-gray-100">
                                 I hereby acknowledge that I will utilize the supply/equipment/laboratory at my own risk; and agree to use it responsibly and in accordance with any provided instructions or safety guidelines.
                                 <span
                                     v-if="hasErr('agreed_clause_1')"
-                                    class="block text-sm text-red-500 mt-1 font-medium">
+                                    class="mt-1 block text-sm font-medium text-red-500">
                                     {{ errMsg("agreed_clause_1") }}
                                 </span>
                             </span>
                         </label>
 
                         <label
-                            class="flex items-start text-left gap-3 cursor-pointer select-none group"
+                            class="group flex cursor-pointer select-none items-start gap-3 text-left"
                             title="Assume damage responsibility">
                             <input
                                 type="checkbox"
                                 v-model="form.agreed_clause_2"
                                 class="mt-1 rounded border-gray-300 text-AB shadow-sm focus:border-AB focus:ring focus:ring-AB focus:ring-opacity-50" />
-                            <span class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
+                            <span class="text-sm leading-relaxed text-gray-700 transition-colors group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-gray-100">
                                 I agree to assume full responsibility for any damage or loss of the equipment while it is in my possession.
                                 <span
                                     v-if="hasErr('agreed_clause_2')"
-                                    class="block text-sm text-red-500 mt-1 font-medium">
+                                    class="mt-1 block text-sm font-medium text-red-500">
                                     {{ errMsg("agreed_clause_2") }}
                                 </span>
                             </span>
                         </label>
 
                         <label
-                            class="flex items-start text-left gap-3 cursor-pointer select-none group"
+                            class="group flex cursor-pointer select-none items-start gap-3 text-left"
                             title="Liability disclaimer">
                             <input
                                 type="checkbox"
                                 v-model="form.agreed_clause_3"
                                 class="mt-1 rounded border-gray-300 text-AB shadow-sm focus:border-AB focus:ring focus:ring-AB focus:ring-opacity-50" />
-                            <span class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors">
+                            <span class="text-sm leading-relaxed text-gray-700 transition-colors group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-gray-100">
                                 I agree that the Center shall not be held liable for the quality, accuracy, reliability, or completeness of any data generated by the Requestor using the lab's facilities, equipment, or resources. The Requestor assumes full responsibility for the design, execution, and interpretation of the experiments and the data derived therefrom. The Center makes no warranties, express or implied, regarding the outcomes of the Requestor's research activities.
                                 <span
                                     v-if="hasErr('agreed_clause_3')"
-                                    class="block text-sm text-red-500 mt-1 font-medium">
+                                    class="mt-1 block text-sm font-medium text-red-500">
                                     {{ errMsg("agreed_clause_3") }}
                                 </span>
                             </span>
@@ -541,10 +541,10 @@ export default {
             </transition>
 
             <!-- Navigation Controls -->
-            <div class="bg-gray-50/50 dark:bg-slate-800/50 px-6 py-4 border-t border-gray-100 dark:border-slate-800 flex items-center justify-between">
+            <div class="flex items-center justify-between border-t border-gray-100 bg-gray-50/50 px-6 py-4 dark:border-slate-800 dark:bg-slate-800/50">
                 <button
                     type="button"
-                    class="px-6 py-2.5 rounded-xl border border-gray-200 dark:border-slate-600 text-gray-700 dark:text-gray-300 bg-white/50 dark:bg-slate-700/50 hover:bg-gray-50/50 dark:hover:bg-slate-700 hover:shadow-sm font-medium transition-all duration-300 disabled:opacity-50"
+                    class="rounded-xl border border-gray-200 bg-white/50 px-6 py-2.5 font-medium text-gray-700 transition-all duration-300 hover:bg-gray-50/50 hover:shadow-sm disabled:opacity-50 dark:border-slate-600 dark:bg-slate-700/50 dark:text-gray-300 dark:hover:bg-slate-700"
                     :disabled="currentStep === 0"
                     @click="prevStep">
                     Back
@@ -553,7 +553,7 @@ export default {
                     <button
                         v-if="currentStep < filteredSteps.length - 1"
                         type="button"
-                        class="px-8 py-2.5 rounded-xl bg-AB text-white font-bold shadow-md hover:bg-AB/90 transition-all hover:-translate-y-0.5 duration-300"
+                        class="rounded-xl bg-AB px-8 py-2.5 font-bold text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:bg-AB/90"
                         @click="nextStep">
                         Next Step
                     </button>
@@ -561,7 +561,7 @@ export default {
                         v-else
                         :disabled="model.api.processing"
                         :processing="model.api.processing"
-                        class="px-8 py-2.5 rounded-xl bg-AB text-white font-bold shadow-md hover:bg-AB/90 transition-all hover:-translate-y-0.5 duration-300">
+                        class="rounded-xl bg-AB px-8 py-2.5 font-bold text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:bg-AB/90">
                         <span v-if="!model.api.processing">Submit Request</span>
                         <span v-else>Submitting...</span>
                     </submit-btn>

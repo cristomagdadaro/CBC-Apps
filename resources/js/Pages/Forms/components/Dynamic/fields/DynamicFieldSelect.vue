@@ -34,7 +34,7 @@ export default {
     <div class="relative">
         <label
             v-if="field.label"
-            class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
             {{ field.label }}
             <span
                 v-if="required"
@@ -46,25 +46,25 @@ export default {
             :id="field.field_key"
             v-model="inputValue"
             :required="required"
-            class="w-full px-3 py-2 border border-gray-600 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-AB focus:border-transparent dark:focus:border-gray-600 transition-colors"
+            class="w-full rounded-md border border-gray-600 bg-white px-3 py-2 text-gray-900 transition-colors focus:border-transparent focus:outline-none focus:ring-2 focus:ring-AB dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-gray-600"
             :class="{ 'border-red-500 dark:border-red-600': error }">
             <option
                 value=""
                 disabled
-                class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+                class="bg-white text-gray-900 dark:bg-gray-800 dark:text-gray-100">
                 {{ placeholder }}
             </option>
             <option
                 v-for="option in options"
                 :key="option.value"
                 :value="option.value"
-                class="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+                class="bg-white text-gray-900 dark:bg-gray-800 dark:text-gray-100">
                 {{ option.label }}
             </option>
         </select>
         <div
             v-if="field.description"
-            class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+            class="mt-1 text-xs text-gray-600 dark:text-gray-400">
             {{ field.description }}
         </div>
         <transition-container type="slide-bottom">

@@ -82,12 +82,12 @@ const alignmentClasses = computed(() => {
             leave-to-class="transform opacity-0 scale-95">
             <div
                 v-show="open"
-                class="absolute z-50 mt-2 rounded-md shadow-lg max-w-[90vw]"
+                class="absolute z-50 mt-2 max-w-[90vw] rounded-md shadow-lg"
                 :class="[widthClass, alignmentClasses]"
                 style="display: none"
                 @click="open = false">
                 <div
-                    class="rounded-md ring-1 ring-black ring-opacity-5 overflow-x-hidden overflow-y-auto"
+                    class="overflow-y-auto overflow-x-hidden rounded-md ring-1 ring-black ring-opacity-5"
                     :class="contentClasses"
                     :style="contentStyle">
                     <slot name="content" />

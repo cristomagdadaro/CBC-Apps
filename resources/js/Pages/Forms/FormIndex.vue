@@ -83,10 +83,10 @@ export default {
         <div class="default-container pt-5">
             <form
                 v-if="!!form"
-                class="flex gap-2 items-end"
+                class="flex items-end gap-2"
                 @submit.prevent="searchEvent">
-                <div class="grid grid-rows-2 w-full">
-                    <div class="w-full flex gap-2 items-end lg:px-0 px-2">
+                <div class="grid w-full grid-rows-2">
+                    <div class="flex w-full items-end gap-2 px-2 lg:px-0">
                         <search-by
                             :value="form.filter"
                             :is-exact="form.is_exact"
@@ -99,8 +99,8 @@ export default {
                             v-model="form.search" />
                         <div
                             v-else
-                            class="flex flex-col w-full">
-                            <div class="grid grid-cols-4 gap-0.5 items-center">
+                            class="flex w-full flex-col">
+                            <div class="grid grid-cols-4 items-center gap-0.5">
                                 <TextInput
                                     ref="cell1"
                                     v-model="eventId.cell1"
@@ -161,10 +161,10 @@ export default {
                     </div>
                     <div
                         v-if="eventFormFromApi"
-                        class="flex w-full gap-2 items-center">
+                        class="flex w-full items-center gap-2">
                         <div
                             id="dtPaginatorContainer"
-                            class="flex gap-1 items-center w-full justify-center">
+                            class="flex w-full items-center justify-center gap-1">
                             <!-- First Button -->
                             <paginate-btn
                                 @click="
@@ -189,9 +189,9 @@ export default {
                             </paginate-btn>
 
                             <!-- Current Page Indicator -->
-                            <div class="text-xs flex flex-col whitespace-nowrap text-center">
+                            <div class="flex flex-col whitespace-nowrap text-center text-xs">
                                 <span
-                                    class="font-medium mx-1"
+                                    class="mx-1 font-medium"
                                     title="current page and total pages">
                                     <span>{{ eventFormFromApi?.current_page }}</span>
                                     /
@@ -225,7 +225,7 @@ export default {
                     </div>
                 </div>
             </form>
-            <div class="bg-white dark:bg-gray-800 overflow-hidden border border-gray-300 sm:rounded-lg justify-center">
+            <div class="justify-center overflow-hidden border border-gray-300 bg-white sm:rounded-lg dark:bg-gray-800">
                 <!-- Show forms when available -->
                 <list-of-forms
                     v-if="eventFormFromApi && eventFormFromApi.total > 0 && !model.api.processing"
@@ -235,31 +235,31 @@ export default {
                 <!-- Show "Searching" when processing -->
                 <div
                     v-else-if="model.api.processing"
-                    class="text-center py-3 border border-AB rounded-lg">
+                    class="rounded-lg border border-AB py-3 text-center">
                     Searching...
                 </div>
 
                 <!-- Show "Form does not exist" when search was performed but no results -->
                 <div
                     v-else-if="eventFormFromApi && eventFormFromApi.total === 0 && form.search"
-                    class="text-center py-3 border border-AB rounded-lg">
+                    class="rounded-lg border border-AB py-3 text-center">
                     Form does not exist. Try using some filters.
                 </div>
 
                 <!-- Show "No forms available" when nothing was returned and no search was performed -->
                 <div
                     v-else
-                    class="text-center py-3 border border-AB rounded-lg">
+                    class="rounded-lg border border-AB py-3 text-center">
                     No forms available.
                 </div>
             </div>
 
             <div
                 v-if="eventFormFromApi && eventFormFromApi.data?.length"
-                class="flex w-full gap-2 items-center mt-3">
+                class="mt-3 flex w-full items-center gap-2">
                 <div
                     id="dtPaginatorContainer"
-                    class="flex gap-1 items-center w-full justify-center">
+                    class="flex w-full items-center justify-center gap-1">
                     <!-- First Button -->
                     <paginate-btn
                         @click="
@@ -284,9 +284,9 @@ export default {
                     </paginate-btn>
 
                     <!-- Current Page Indicator -->
-                    <div class="text-xs flex flex-col whitespace-nowrap text-center">
+                    <div class="flex flex-col whitespace-nowrap text-center text-xs">
                         <span
-                            class="font-medium mx-1"
+                            class="mx-1 font-medium"
                             title="current page and total pages">
                             <span>{{ eventFormFromApi?.current_page }}</span>
                             /

@@ -76,7 +76,7 @@ export default {
 </script>
 
 <template>
-    <div class="bg-white dark:bg-gray-700 border border-gray-400 rounded-xl dark:border-gray-700 transition-colors p-3">
+    <div class="rounded-xl border border-gray-400 bg-white p-3 transition-colors dark:border-gray-700 dark:bg-gray-700">
         <nav
             class="flex space-x-4"
             aria-label="Tabs">
@@ -85,14 +85,14 @@ export default {
                 :key="tab.key"
                 type="button"
                 @click="onTabClick(tab)"
-                :class="[baseClasses, 'rounded-t-md inline-flex items-center gap-1 border-b-2 font-medium focus:outline-none transition-colors', tab.disabled ? 'text-gray-400 dark:text-gray-500 cursor-not-allowed border-transparent' : activeKey === tab.key ? 'text-blue-600 dark:text-blue-400 border-blue-500 bg-blue-50/60 dark:bg-blue-950/40' : 'text-gray-600 dark:text-gray-300 border-transparent hover:text-gray-700 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50']">
+                :class="[baseClasses, 'inline-flex items-center gap-1 rounded-t-md border-b-2 font-medium transition-colors focus:outline-none', tab.disabled ? 'cursor-not-allowed border-transparent text-gray-400 dark:text-gray-500' : activeKey === tab.key ? 'border-blue-500 bg-blue-50/60 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-gray-800/50 dark:hover:text-gray-100']">
                 <slot
                     name="icon"
                     :tab="tab"
                     v-if="tab.icon">
                     <component
                         :is="tab.icon"
-                        class="w-4 h-4" />
+                        class="h-4 w-4" />
                 </slot>
                 <span>{{ tab.label }}</span>
             </button>

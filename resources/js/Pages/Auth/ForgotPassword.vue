@@ -31,7 +31,7 @@ export default {
 <template>
     <Head title="Forgot Password" />
     <main-bg />
-    <div class="absolute top-0 left-0 w-full pointer-events-none">
+    <div class="pointer-events-none absolute left-0 top-0 w-full">
         <AuthenticationCard>
             <template #logo>
                 <AuthenticationCardLogo />
@@ -41,7 +41,7 @@ export default {
 
             <div
                 v-if="status"
-                class="mb-4 font-medium text-sm text-green-600 dark:text-green-400">
+                class="mb-4 text-sm font-medium text-green-600 dark:text-green-400">
                 {{ status }}
             </div>
 
@@ -63,7 +63,7 @@ export default {
                         :message="form.errors.email" />
                 </div>
 
-                <div class="flex items-center justify-end mt-4">
+                <div class="mt-4 flex items-center justify-end">
                     <PrimaryButton
                         :class="{ 'opacity-25': form.processing }"
                         :disabled="form.processing">

@@ -252,7 +252,7 @@ export default {
 
 <template>
     <div class="space-y-6">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
+        <div class="rounded-lg bg-white p-4 shadow sm:p-6 dark:bg-gray-800">
             <div class="flex flex-col gap-2">
                 <div>
                     <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
@@ -265,30 +265,30 @@ export default {
                     </p>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <div class="flex items-center justify-between sm:col-span-2 lg:col-span-1">
                         <button
                             type="button"
                             @click="previousMonth"
-                            class="px-3 py-2 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300">
+                            class="rounded-md bg-gray-100 px-3 py-2 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
                             ← Previous
                         </button>
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap mx-2">
+                        <h3 class="mx-2 whitespace-nowrap text-lg font-semibold text-gray-900 dark:text-gray-100">
                             {{ monthYearLabel }}
                         </h3>
                         <button
                             type="button"
                             @click="nextMonth"
-                            class="px-3 py-2 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300">
+                            class="rounded-md bg-gray-100 px-3 py-2 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
                             Next →
                         </button>
                     </div>
 
                     <div v-if="showTypeFilter && typeOptions.length">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Resource Type</label>
+                        <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Resource Type</label>
                         <select
                             v-model="filterType"
-                            class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
                             <option value="all">All Resources</option>
                             <option
                                 v-for="option in typeOptions"
@@ -300,10 +300,10 @@ export default {
                     </div>
 
                     <div v-if="showStatusFilter">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                        <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
                         <select
                             v-model="filterStatus"
-                            class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
                             <option value="all">All Statuses</option>
                             <option
                                 v-for="option in statusOptions"
@@ -320,7 +320,7 @@ export default {
                         <button
                             type="button"
                             @click="goToToday"
-                            class="w-full px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium">
+                            class="w-full rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700">
                             Today
                         </button>
                     </div>
@@ -328,7 +328,7 @@ export default {
             </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+        <div class="overflow-hidden rounded-lg bg-white shadow dark:bg-gray-800">
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead class="bg-gray-100 dark:bg-gray-700">
@@ -349,12 +349,12 @@ export default {
                             <td
                                 v-for="dayIndex in 7"
                                 :key="dayIndex"
-                                class="border-r border-gray-200 dark:border-gray-700 last:border-r-0 h-32 sm:h-40 p-2 bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                                <div class="h-full flex flex-col">
-                                    <div class="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                                class="h-32 border-r border-gray-200 bg-gray-50 p-2 transition-colors last:border-r-0 hover:bg-gray-100 sm:h-40 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-gray-800">
+                                <div class="flex h-full flex-col">
+                                    <div class="mb-1 font-semibold text-gray-900 dark:text-gray-100">
                                         {{ calendarDays[weekIndex * 7 + dayIndex - 1] || "" }}
                                     </div>
-                                    <div class="flex-1 space-y-1 overflow-visible relative">
+                                    <div class="relative flex-1 space-y-1 overflow-visible">
                                         <div
                                             v-for="booking in getVisibleBookingsForDate(calendarDays[weekIndex * 7 + dayIndex - 1])"
                                             :key="booking.id"
@@ -362,15 +362,15 @@ export default {
                                                 backgroundColor: getEventColor(booking) + '20',
                                                 borderColor: getEventColor(booking),
                                             }"
-                                            class="text-xs p-1.5 rounded border-l-2 cursor-pointer hover:opacity-80 hover:shadow-md transition-opacity transform hover:scale-105"
+                                            class="transform cursor-pointer rounded border-l-2 p-1.5 text-xs transition-opacity hover:scale-105 hover:opacity-80 hover:shadow-md"
                                             :title="booking.subtitle ? booking.label + ' - ' + booking.subtitle : booking.label"
                                             @click="handleEventClick(booking)">
-                                            <div class="font-medium text-gray-900 dark:text-gray-100 truncate">
+                                            <div class="truncate font-medium text-gray-900 dark:text-gray-100">
                                                 {{ booking.label }}
                                             </div>
                                             <div
                                                 v-if="booking.subtitle"
-                                                class="text-gray-600 dark:text-gray-400 truncate">
+                                                class="truncate text-gray-600 dark:text-gray-400">
                                                 {{ booking.subtitle }}
                                             </div>
                                             <div
@@ -391,14 +391,14 @@ export default {
                                             <template #trigger>
                                                 <button
                                                     type="button"
-                                                    class="text-xs w-full text-left px-1.5 py-1 rounded border border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                    class="w-full rounded border border-gray-300 px-1.5 py-1 text-left text-xs text-blue-600 hover:bg-gray-100 dark:border-gray-600 dark:text-blue-400 dark:hover:bg-gray-700">
                                                     +{{ getRemainingBookingsForDate(calendarDays[weekIndex * 7 + dayIndex - 1]).length }}
                                                     more
                                                 </button>
                                             </template>
 
                                             <template #content>
-                                                <div class="w-72 max-w-[85vw] p-2 space-y-1">
+                                                <div class="w-72 max-w-[85vw] space-y-1 p-2">
                                                     <div
                                                         v-for="booking in getRemainingBookingsForDate(calendarDays[weekIndex * 7 + dayIndex - 1])"
                                                         :key="`remaining-${booking.id}`"
@@ -406,15 +406,15 @@ export default {
                                                             backgroundColor: getEventColor(booking) + '20',
                                                             borderColor: getEventColor(booking),
                                                         }"
-                                                        class="text-xs p-1.5 rounded border-l-2 cursor-pointer hover:opacity-80 hover:shadow-md transition-opacity transform hover:scale-105"
+                                                        class="transform cursor-pointer rounded border-l-2 p-1.5 text-xs transition-opacity hover:scale-105 hover:opacity-80 hover:shadow-md"
                                                         :title="booking.subtitle ? booking.label + ' - ' + booking.subtitle : booking.label"
                                                         @click="handleEventClick(booking)">
-                                                        <div class="font-medium text-gray-900 dark:text-gray-100 truncate">
+                                                        <div class="truncate font-medium text-gray-900 dark:text-gray-100">
                                                             {{ booking.label }}
                                                         </div>
                                                         <div
                                                             v-if="booking.subtitle"
-                                                            class="text-gray-600 dark:text-gray-400 truncate">
+                                                            class="truncate text-gray-600 dark:text-gray-400">
                                                             {{ booking.subtitle }}
                                                         </div>
                                                         <div
@@ -440,23 +440,23 @@ export default {
 
         <div
             v-if="showLegend"
-            class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Legend</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            class="rounded-lg bg-white p-4 shadow sm:p-6 dark:bg-gray-800">
+            <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Legend</h3>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <div
                     v-for="group in legendData"
                     :key="group.title">
-                    <h4 class="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                    <h4 class="mb-2 font-semibold text-gray-900 dark:text-gray-100">
                         {{ group.title }}
                     </h4>
                     <div class="space-y-2">
                         <div
                             v-for="item in group.items"
                             :key="item.label"
-                            class="flex items-center gap-2 cursor-pointer"
+                            class="flex cursor-pointer items-center gap-2"
                             @click="handleLegendClick(item)">
                             <div
-                                class="w-4 h-4 rounded"
+                                class="h-4 w-4 rounded"
                                 :style="{ backgroundColor: item.color }"></div>
                             <span class="text-sm text-gray-700 dark:text-gray-300">
                                 {{ item.label }}
@@ -466,7 +466,7 @@ export default {
                 </div>
 
                 <div v-if="showStats">
-                    <h4 class="font-semibold text-gray-900 dark:text-gray-100 mb-2">Statistics</h4>
+                    <h4 class="mb-2 font-semibold text-gray-900 dark:text-gray-100">Statistics</h4>
                     <div class="space-y-1 text-sm text-gray-700 dark:text-gray-300">
                         <div>
                             <span class="font-medium">Total Events:</span>

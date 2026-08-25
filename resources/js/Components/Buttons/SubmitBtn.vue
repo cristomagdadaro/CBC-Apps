@@ -12,7 +12,7 @@ export default {
         :disabled="disabled"
         :processing="!disabled"
         type="submit"
-        class="text-sm text-white bg-AB dark:text-gray-800 dark:bg-gray-200 disabled:opacity-50">
+        class="bg-AB text-sm text-white disabled:opacity-50 dark:bg-gray-200 dark:text-gray-800">
         <slot />
     </base-btn>
 </template>

@@ -82,51 +82,51 @@ const handleToggleAuto = () => {
         leave-to-class="opacity-0">
         <div
             v-if="open"
-            class="fixed inset-0 bg-black/40 z-[999] md:hidden"
+            class="fixed inset-0 z-[999] bg-black/40 md:hidden"
             @click="close" />
     </transition>
 
     <!-- Main Container -->
     <div
         data-guide="guide-controls"
-        class="fixed bottom-3.5 left-3.5 sm:bottom-6 sm:left-6 z-[1000] flex flex-col items-start gap-2 sm:gap-3">
+        class="fixed bottom-3.5 left-3.5 z-[1000] flex flex-col items-start gap-2 sm:bottom-6 sm:left-6 sm:gap-3">
         <!-- Desktop: Floating Pill -->
         <div
-            class="hidden md:flex items-center gap-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-full px-2 py-1.5 shadow-xl transition-all duration-300 hover:scale-[1.02]"
-            :class="compact ? 'scale-90 origin-bottom-left' : ''"
+            class="hidden items-center gap-1 rounded-full border border-gray-200 bg-white px-2 py-1.5 shadow-xl transition-all duration-300 hover:scale-[1.02] md:flex dark:border-slate-800 dark:bg-slate-900"
+            :class="compact ? 'origin-bottom-left scale-90' : ''"
             @mouseenter="isHovered = true"
             @mouseleave="isHovered = false">
             <!-- Guide Icon -->
             <button
-                class="p-2.5 rounded-full text-AB dark:text-emerald-400"
+                class="rounded-full p-2.5 text-AB dark:text-emerald-400"
                 @click="startGuide()">
-                <LuHelpCircle class="w-5 h-5" />
+                <LuHelpCircle class="h-5 w-5" />
             </button>
 
-            <div class="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+            <div class="mx-1 h-6 w-px bg-gray-300 dark:bg-gray-600" />
 
             <!-- Start Guide -->
             <button
                 type="button"
                 @click="startGuide()"
-                class="group relative p-2.5 flex items-center gap-2 rounded-full hover:bg-AB/10 dark:hover:bg-AB/20 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-emerald-400">
-                <LuPlay class="w-5 h-5" />
+                class="group relative flex items-center gap-2 rounded-full p-2.5 text-gray-600 transition-all duration-200 hover:bg-AB/10 hover:text-AB dark:text-gray-300 dark:hover:bg-AB/20 dark:hover:text-emerald-400">
+                <LuPlay class="h-5 w-5" />
                 <span
                     v-if="!compact"
-                    class="text-sm font-medium pr-1">
+                    class="pr-1 text-sm font-medium">
                     {{ guideLabel }}
                 </span>
-                <span class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">Start {{ guideLabel }}</span>
+                <span class="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 dark:bg-white dark:text-gray-900">Start {{ guideLabel }}</span>
             </button>
 
             <!-- Auto Toggle -->
             <button
                 type="button"
                 @click="toggleAutoGuides()"
-                class="group relative p-2.5 rounded-full transition-all duration-200"
-                :class="autoEnabled ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-AB dark:hover:text-emerald-400'">
-                <LuSettings2 class="w-5 h-5" />
-                <span class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                class="group relative rounded-full p-2.5 transition-all duration-200"
+                :class="autoEnabled ? 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50' : 'text-gray-600 hover:bg-gray-100 hover:text-AB dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-emerald-400'">
+                <LuSettings2 class="h-5 w-5" />
+                <span class="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 dark:bg-white dark:text-gray-900">
                     {{ autoEnabled ? "Disable Auto Guides" : "Enable Auto Guides" }}
                 </span>
             </button>
@@ -134,8 +134,8 @@ const handleToggleAuto = () => {
 
         <!-- Mobile: FAB with Expandable Menu -->
         <div
-            class="md:hidden flex flex-col items-start gap-2 transition-all duration-500 ease-in-out"
-            :class="isMobileVisible || open ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0 pointer-events-none'">
+            class="flex flex-col items-start gap-2 transition-all duration-500 ease-in-out md:hidden"
+            :class="isMobileVisible || open ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-12 opacity-0'">
             <!-- Menu Panel -->
             <transition
                 enter-active-class="transition-all duration-300 ease-out"
@@ -146,29 +146,29 @@ const handleToggleAuto = () => {
                 leave-to-class="opacity-0 translate-y-8 scale-95">
                 <div
                     v-if="open"
-                    class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-200 dark:border-slate-800 overflow-hidden max-w-[calc(100vw-2rem)] min-w-[260px] mb-1.5">
+                    class="mb-1.5 min-w-[260px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
                     <!-- Header -->
-                    <div class="bg-gradient-to-r from-lime-600 to-emerald-600 px-3.5 py-2.5 flex items-center justify-between">
-                        <span class="text-white font-semibold text-xs flex items-center gap-2">
-                            <LuHelpCircle class="w-4 h-4" />
+                    <div class="flex items-center justify-between bg-gradient-to-r from-lime-600 to-emerald-600 px-3.5 py-2.5">
+                        <span class="flex items-center gap-2 text-xs font-semibold text-white">
+                            <LuHelpCircle class="h-4 w-4" />
                             Guided Tour
                         </span>
                         <button
                             @click="close"
-                            class="text-white/80 hover:text-white transition-colors p-1 rounded-full hover:bg-white/20">
-                            <LuX class="w-4 h-4" />
+                            class="rounded-full p-1 text-white/80 transition-colors hover:bg-white/20 hover:text-white">
+                            <LuX class="h-4 w-4" />
                         </button>
                     </div>
 
                     <!-- Menu Items -->
-                    <div class="p-2 space-y-1">
+                    <div class="space-y-1 p-2">
                         <!-- Start Guide -->
                         <button
                             type="button"
                             @click="handleStartGuide"
-                            class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-lime-500/10 dark:hover:bg-lime-400/20 transition-all duration-200 group">
-                            <div class="w-7 h-7 rounded-lg bg-lime-500/10 dark:bg-lime-400/20 flex items-center justify-center text-lime-600 dark:text-lime-400 group-hover:bg-lime-500 group-hover:text-white transition-all">
-                                <LuPlay class="w-3.5 h-3.5" />
+                            class="group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-slate-700 transition-all duration-200 hover:bg-lime-500/10 dark:text-slate-200 dark:hover:bg-lime-400/20">
+                            <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-lime-500/10 text-lime-600 transition-all group-hover:bg-lime-500 group-hover:text-white dark:bg-lime-400/20 dark:text-lime-400">
+                                <LuPlay class="h-3.5 w-3.5" />
                             </div>
                             <div class="flex-1 text-left">
                                 <span class="text-xs font-semibold">Start {{ guideLabel }}</span>
@@ -180,12 +180,12 @@ const handleToggleAuto = () => {
                         <button
                             type="button"
                             @click="handleToggleAuto"
-                            class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-all duration-200 group"
-                            :class="autoEnabled ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'">
+                            class="group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 transition-all duration-200"
+                            :class="autoEnabled ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/30' : 'text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800'">
                             <div
-                                class="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
-                                :class="autoEnabled ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 group-hover:bg-slate-700 group-hover:text-white'">
-                                <LuSettings2 class="w-3.5 h-3.5" />
+                                class="flex h-7 w-7 items-center justify-center rounded-lg transition-all"
+                                :class="autoEnabled ? 'bg-emerald-100 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white dark:bg-emerald-900/30' : 'bg-slate-100 text-slate-600 group-hover:bg-slate-700 group-hover:text-white dark:bg-slate-800'">
+                                <LuSettings2 class="h-3.5 w-3.5" />
                             </div>
                             <div class="flex-1 text-left">
                                 <span class="text-xs font-semibold">
@@ -204,15 +204,15 @@ const handleToggleAuto = () => {
             <button
                 type="button"
                 @click="toggle"
-                class="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-slate-900 dark:bg-slate-800 text-white border border-slate-700 dark:border-slate-700 shadow-md sm:shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none opacity-85 hover:opacity-100"
-                :class="{ 'rotate-90 opacity-100 bg-lime-600 text-white': open }"
+                class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-white opacity-85 shadow-md transition-all duration-300 hover:scale-105 hover:opacity-100 focus:outline-none active:scale-95 sm:h-14 sm:w-14 sm:shadow-lg dark:border-slate-700 dark:bg-slate-800"
+                :class="{ 'rotate-90 bg-lime-600 text-white opacity-100': open }"
                 aria-label="Toggle guide menu">
                 <LuHelpCircle
                     v-if="!open"
-                    class="w-5 h-5 sm:w-6 sm:h-6 text-lime-400" />
+                    class="h-5 w-5 text-lime-400 sm:h-6 sm:w-6" />
                 <LuX
                     v-else
-                    class="w-5 h-5 sm:w-6 sm:h-6" />
+                    class="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
         </div>
     </div>

@@ -28,7 +28,7 @@
                 <button
                     type="button"
                     @click="removeOption(index)"
-                    class="text-red-600 hover:text-red-900 self-center">
+                    class="self-center text-red-600 hover:text-red-900">
                     ✕
                 </button>
             </div>

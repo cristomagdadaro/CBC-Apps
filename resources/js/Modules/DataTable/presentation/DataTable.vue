@@ -709,11 +709,11 @@ export default {
 </script>
 
 <template>
-    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+    <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <div
             v-if="showToolbar"
-            class="p-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 space-y-3">
-            <div class="flex flex-col xl:flex-row xl:items-end gap-3">
+            class="space-y-3 border-b border-slate-200 bg-slate-50/50 p-3 dark:border-slate-700 dark:bg-slate-800/50">
+            <div class="flex flex-col gap-3 xl:flex-row xl:items-end">
                 <div
                     v-if="enablePagination"
                     class="flex flex-col gap-1">
@@ -721,7 +721,7 @@ export default {
                     <select
                         v-model.number="tableState.per_page"
                         @change="handlePerPageChange"
-                        class="block w-24 pl-3 pr-8 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500">
+                        class="focus:ring-primary-500 block w-24 rounded-lg border border-slate-300 bg-white py-2 pl-3 pr-8 text-sm focus:ring-2 dark:border-slate-600 dark:bg-slate-800">
                         <option :value="10">10</option>
                         <option :value="25">25</option>
                         <option :value="50">50</option>
@@ -731,13 +731,13 @@ export default {
 
                 <div
                     v-if="enableFilters"
-                    class="flex flex-col gap-1 flex-1 max-w-xs">
+                    class="flex max-w-xs flex-1 flex-col gap-1">
                     <label class="text-xs font-medium text-slate-600 dark:text-slate-400">Search By</label>
                     <div class="flex gap-2">
                         <select
                             v-model="tableState.filter"
                             @change="handleFilterChange"
-                            class="block w-full pl-3 pr-8 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500">
+                            class="focus:ring-primary-500 block w-full rounded-lg border border-slate-300 bg-white py-2 pl-3 pr-8 text-sm focus:ring-2 dark:border-slate-600 dark:bg-slate-800">
                             <option :value="null">All</option>
                             <option
                                 v-for="column in filterOptions"
@@ -746,12 +746,12 @@ export default {
                                 {{ column.title }}
                             </option>
                         </select>
-                        <label class="flex items-center gap-2 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 cursor-pointer">
+                        <label class="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 dark:border-slate-600 dark:bg-slate-800">
                             <input
                                 v-model="tableState.is_exact"
                                 @change="handleFilterChange"
                                 type="checkbox"
-                                class="rounded text-primary-600 focus:ring-primary-500" />
+                                class="text-primary-600 focus:ring-primary-500 rounded" />
                             <span class="text-sm text-slate-600 dark:text-slate-400">Exact</span>
                         </label>
                     </div>
@@ -759,7 +759,7 @@ export default {
 
                 <div
                     v-if="enableSearch"
-                    class="flex flex-col gap-1 flex-1">
+                    class="flex flex-1 flex-col gap-1">
                     <label class="text-xs font-medium text-slate-600 dark:text-slate-400">&nbsp;</label>
                     <div class="relative flex-1">
                         <input
@@ -767,7 +767,7 @@ export default {
                             @input="handleSearchInput"
                             type="text"
                             placeholder="Search..."
-                            class="block w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary-500" />
+                            class="focus:ring-primary-500 block w-full rounded-lg border border-slate-300 bg-white py-2 pl-10 pr-4 focus:ring-2 dark:border-slate-600 dark:bg-slate-800" />
                         <svg
                             class="absolute left-3 top-2.5 h-5 w-5 text-slate-400"
                             fill="none"
@@ -786,7 +786,7 @@ export default {
                     <button
                         v-if="enableColumnToggle"
                         @click="showColumnPanel = !showColumnPanel"
-                        class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 transition-all">
+                        class="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition-all hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
                         <svg
                             class="h-4 w-4"
                             fill="none"
@@ -804,7 +804,7 @@ export default {
                     <button
                         v-if="enableExport"
                         @click="exportData"
-                        class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 transition-all">
+                        class="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition-all hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
                         <svg
                             class="h-4 w-4"
                             fill="none"
@@ -831,18 +831,18 @@ export default {
             leave-to-class="transform opacity-0 -translate-y-1">
             <div
                 v-if="showColumnPanel && enableColumnToggle"
-                class="px-4 py-3 bg-slate-100 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700">
-                <div class="flex items-center gap-2 flex-wrap">
-                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mr-2">Visible:</span>
+                class="border-b border-slate-200 bg-slate-100 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/80">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="mr-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Visible:</span>
                     <label
                         v-for="column in allColumns"
                         :key="column.key"
-                        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors select-none">
+                        class="inline-flex cursor-pointer select-none items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-1.5 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-700 dark:hover:bg-slate-600">
                         <input
                             type="checkbox"
                             :checked="column.visible !== false"
                             @change="toggleColumnVisibility(column)"
-                            class="rounded text-primary-600 focus:ring-primary-500 h-4 w-4 border-slate-300 dark:border-slate-600 dark:bg-slate-800" />
+                            class="text-primary-600 focus:ring-primary-500 h-4 w-4 rounded border-slate-300 dark:border-slate-600 dark:bg-slate-800" />
                         <span class="text-sm text-slate-700 dark:text-slate-300">
                             {{ column.title }}
                         </span>
@@ -851,7 +851,7 @@ export default {
             </div>
         </transition>
 
-        <div class="overflow-x-auto relative">
+        <div class="relative overflow-x-auto">
             <transition
                 enter-active-class="transition-opacity duration-200"
                 enter-from-class="opacity-0"
@@ -861,22 +861,22 @@ export default {
                 leave-to-class="opacity-0">
                 <div
                     v-if="currentProcessing"
-                    class="absolute inset-0 z-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm flex items-center justify-center">
+                    class="absolute inset-0 z-20 flex items-center justify-center bg-white/80 backdrop-blur-sm dark:bg-slate-900/80">
                     <div class="flex flex-col items-center gap-3">
-                        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div>
+                        <div class="border-primary-600 h-10 w-10 animate-spin rounded-full border-b-2"></div>
                     </div>
                 </div>
             </transition>
 
-            <DtTable :class="['w-full text-left border-collapse', compact ? 'text-sm' : 'text-sm']">
+            <DtTable :class="['w-full border-collapse text-left', compact ? 'text-sm' : 'text-sm']">
                 <DtThead>
-                    <DtRowHead :class="['bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 font-semibold uppercase tracking-wider text-xs', stickyHeader ? 'sticky top-0 z-10 shadow-sm' : '']">
-                        <DtHead class="w-12 px-4 py-3 text-center border-b border-slate-200 dark:border-slate-700">#</DtHead>
+                    <DtRowHead :class="['bg-slate-100 text-xs font-semibold uppercase tracking-wider text-slate-700 dark:bg-slate-800/90 dark:text-slate-300', stickyHeader ? 'sticky top-0 z-10 shadow-sm' : '']">
+                        <DtHead class="w-12 border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">#</DtHead>
 
                         <DtHead
                             v-for="column in visibleColumns"
                             :key="column.key"
-                            :class="['px-4 py-3 border-b border-slate-200 dark:border-slate-700 whitespace-nowrap', column.sortable && enableSorting ? 'cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors select-none' : '', sortColumn === (isOnlineMode ? column.db_key || column.key : column.key) ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20' : '']"
+                            :class="['whitespace-nowrap border-b border-slate-200 px-4 py-3 dark:border-slate-700', column.sortable && enableSorting ? 'cursor-pointer select-none transition-colors hover:bg-slate-200 dark:hover:bg-slate-700' : '', sortColumn === (isOnlineMode ? column.db_key || column.key : column.key) ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20' : '']"
                             :style="column.width ? { width: column.width } : {}"
                             @click="toggleSort(column)">
                             <div class="flex items-center gap-1">
@@ -886,7 +886,7 @@ export default {
                                     class="sort-indicator">
                                     <svg
                                         v-if="sortColumn !== (isOnlineMode ? column.db_key || column.key : column.key)"
-                                        class="w-4 h-4 text-slate-400"
+                                        class="h-4 w-4 text-slate-400"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor">
@@ -898,7 +898,7 @@ export default {
                                     </svg>
                                     <svg
                                         v-else-if="sortDirection === 'asc'"
-                                        class="w-4 h-4 text-primary-600"
+                                        class="text-primary-600 h-4 w-4"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor">
@@ -910,7 +910,7 @@ export default {
                                     </svg>
                                     <svg
                                         v-else
-                                        class="w-4 h-4 text-primary-600"
+                                        class="text-primary-600 h-4 w-4"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor">
@@ -926,7 +926,7 @@ export default {
 
                         <DtHead
                             v-if="hasActions"
-                            class="w-24 px-4 py-3 text-center border-b border-slate-200 dark:border-slate-700">
+                            class="w-24 border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">
                             Actions
                         </DtHead>
                     </DtRowHead>
@@ -940,14 +940,14 @@ export default {
                             :class="['transition-colors duration-150', striped && index % 2 === 1 ? 'bg-slate-50/50 dark:bg-slate-800/30' : 'bg-white dark:bg-slate-900', hoverable ? 'hover:bg-slate-100 dark:hover:bg-slate-800/60' : '']"
                             @click="handleRowClick(row)"
                             @dblclick="handleRowDblclick(row)">
-                            <DtData class="px-4 py-3 text-center text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700/50 font-medium tabular-nums">
+                            <DtData class="border-b border-slate-200 px-4 py-3 text-center font-medium tabular-nums text-slate-500 dark:border-slate-700/50 dark:text-slate-400">
                                 {{ fromRow + index }}
                             </DtData>
 
                             <DtData
                                 v-for="column in visibleColumns"
                                 :key="column.key"
-                                :class="['px-4 py-3 border-b border-slate-200 dark:border-slate-700/50', getCellClass(row, column), column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : 'text-left']">
+                                :class="['border-b border-slate-200 px-4 py-3 dark:border-slate-700/50', getCellClass(row, column), column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : 'text-left']">
                                 <slot
                                     :name="`cell-${column.key}`"
                                     :row="row"
@@ -961,7 +961,7 @@ export default {
 
                             <DtData
                                 v-if="hasActions"
-                                class="px-4 py-3 border-b border-slate-200 dark:border-slate-700/50">
+                                class="border-b border-slate-200 px-4 py-3 dark:border-slate-700/50">
                                 <div class="flex items-center justify-center gap-2">
                                     <slot
                                         name="actions"
@@ -970,10 +970,10 @@ export default {
                                             v-if="row?.showPage"
                                             :href="route(row.showPage, getRowId(row))"
                                             :target="row?.showPageTarget || '_self'"
-                                            class="p-1.5 rounded-lg text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/30 transition-colors"
+                                            class="rounded-lg p-1.5 text-amber-600 transition-colors hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/30"
                                             title="Edit">
                                             <svg
-                                                class="w-4 h-4"
+                                                class="h-4 w-4"
                                                 fill="none"
                                                 viewBox="0 0 24 24"
                                                 stroke="currentColor">
@@ -987,10 +987,10 @@ export default {
                                         <button
                                             v-if="row?.api?._apiDelete || row?._apiDelete"
                                             @click.stop="openDelete(row)"
-                                            class="p-1.5 rounded-lg text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors"
+                                            class="rounded-lg p-1.5 text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30"
                                             title="Delete">
                                             <svg
-                                                class="w-4 h-4"
+                                                class="h-4 w-4"
                                                 fill="none"
                                                 viewBox="0 0 24 24"
                                                 stroke="currentColor">
@@ -1013,7 +1013,7 @@ export default {
                             class="px-4 py-12 text-center">
                             <div class="flex flex-col items-center gap-3 text-slate-500 dark:text-slate-400">
                                 <svg
-                                    class="w-12 h-12 text-slate-300 dark:text-slate-600"
+                                    class="h-12 w-12 text-slate-300 dark:text-slate-600"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor">
@@ -1033,7 +1033,7 @@ export default {
 
         <div
             v-if="enablePagination"
-            class="flex justify-between items-center text-sm text-slate-600 dark:text-slate-400 px-4 py-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50/40 dark:bg-slate-800/30">
+            class="flex items-center justify-between border-t border-slate-200 bg-slate-50/40 px-4 py-3 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-800/30 dark:text-slate-400">
             <span>
                 Showing
                 <span class="font-medium">{{ pagination.from || 0 }}</span>
@@ -1048,9 +1048,9 @@ export default {
                 <button
                     @click="handlePageChange(1)"
                     :disabled="pagination.current_page === 1 || currentProcessing"
-                    class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed">
+                    class="rounded-lg p-2 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-slate-800">
                     <svg
-                        class="w-5 h-5"
+                        class="h-5 w-5"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -1064,9 +1064,9 @@ export default {
                 <button
                     @click="handlePageChange(pagination.current_page - 1)"
                     :disabled="pagination.current_page === 1 || currentProcessing"
-                    class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed">
+                    class="rounded-lg p-2 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-slate-800">
                     <svg
-                        class="w-5 h-5"
+                        class="h-5 w-5"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -1078,7 +1078,7 @@ export default {
                     </svg>
                 </button>
 
-                <span class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg font-medium min-w-[3rem] text-center">
+                <span class="min-w-[3rem] rounded-lg border border-slate-300 bg-white px-4 py-2 text-center font-medium dark:border-slate-600 dark:bg-slate-800">
                     {{ pagination.current_page }}
                 </span>
                 <span class="text-slate-500">of {{ pagination.last_page }}</span>
@@ -1086,9 +1086,9 @@ export default {
                 <button
                     @click="handlePageChange(pagination.current_page + 1)"
                     :disabled="pagination.current_page === pagination.last_page || currentProcessing"
-                    class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed">
+                    class="rounded-lg p-2 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-slate-800">
                     <svg
-                        class="w-5 h-5"
+                        class="h-5 w-5"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -1102,9 +1102,9 @@ export default {
                 <button
                     @click="handlePageChange(pagination.last_page)"
                     :disabled="pagination.current_page === pagination.last_page || currentProcessing"
-                    class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed">
+                    class="rounded-lg p-2 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-slate-800">
                     <svg
-                        class="w-5 h-5"
+                        class="h-5 w-5"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor">

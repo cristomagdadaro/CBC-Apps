@@ -8,6 +8,6 @@ import ApplicationLogo from "@/Components/ApplicationLogo.vue";
         <img
             src="/imgs/logo.png"
             alt="logo"
-            class="w-auto h-20" />
+            class="h-20 w-auto" />
     </Link>
 </template>

@@ -19,8 +19,8 @@ export default {
             <Link
                 v-show="!route().current('forms.create')"
                 :href="route('forms.create')"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition-all active:scale-95 shrink-0">
-                <lu-plus-circle class="w-4 h-4 text-indigo-500" />
+                class="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">
+                <lu-plus-circle class="h-4 w-4 text-indigo-500" />
                 <span>Create Event</span>
             </Link>
         </transition-container>
@@ -32,8 +32,8 @@ export default {
             <Link
                 v-show="!route().current('forms.builder')"
                 :href="route('forms.builder')"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition-all active:scale-95 shrink-0">
-                <lu-layout-dashboard class="w-4 h-4 text-blue-500" />
+                class="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">
+                <lu-layout-dashboard class="h-4 w-4 text-blue-500" />
                 <span>Form Builder</span>
             </Link>
         </transition-container>
@@ -45,8 +45,8 @@ export default {
             <Link
                 v-show="!route().current('forms.scan')"
                 :href="route('forms.scan')"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition-all active:scale-95 shrink-0">
-                <lu-qr-code class="w-4 h-4 text-emerald-500" />
+                class="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">
+                <lu-qr-code class="h-4 w-4 text-emerald-500" />
                 <span>Scan QR</span>
             </Link>
         </transition-container>

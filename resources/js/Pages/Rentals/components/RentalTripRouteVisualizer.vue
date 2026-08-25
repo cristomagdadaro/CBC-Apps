@@ -48,11 +48,11 @@ const getStepClass = (kind) => STEP_STYLES[kind] || STEP_STYLES.transfer;
 
 <template>
     <!-- Optimized Glassmorphic Container -->
-    <div class="rounded-2xl border border-gray-200/70 dark:border-slate-700/60 bg-white/80 dark:bg-slate-800/80 p-5 shadow-sm backdrop-blur-xl">
+    <div class="rounded-2xl border border-gray-200/70 bg-white/80 p-5 shadow-sm backdrop-blur-xl dark:border-slate-700/60 dark:bg-slate-800/80">
         <!-- Header Section -->
         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-                <div class="flex items-center gap-2.5 text-sm font-bold text-gray-900 dark:text-slate-100 uppercase tracking-wide">
+                <div class="flex items-center gap-2.5 text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-slate-100">
                     <LuShield class="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     <span>{{ tripMeta.label }}</span>
                 </div>
@@ -60,13 +60,13 @@ const getStepClass = (kind) => STEP_STYLES[kind] || STEP_STYLES.transfer;
 
             <div
                 v-if="isSharedRide"
-                class="inline-flex items-center gap-2 rounded-full border border-violet-200 dark:border-violet-500/30 bg-violet-50 dark:bg-violet-500/10 px-3 py-1 text-xs font-bold text-violet-700 dark:text-violet-400 shadow-sm self-start">
+                class="inline-flex items-center gap-2 self-start rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700 shadow-sm dark:border-violet-500/30 dark:bg-violet-500/10 dark:text-violet-400">
                 <LuUsers class="h-3.5 w-3.5" />
                 <span>
                     Shared Ride
                     <span
                         v-if="sharedRideReference"
-                        class="opacity-70 font-semibold ml-1">
+                        class="ml-1 font-semibold opacity-70">
                         · {{ sharedRideReference }}
                     </span>
                 </span>
@@ -95,14 +95,14 @@ const getStepClass = (kind) => STEP_STYLES[kind] || STEP_STYLES.transfer;
                 <!-- Separator Arrow -->
                 <LuArrowRight
                     v-if="index < routeSteps.length - 1"
-                    class="h-4 w-4 text-gray-400 dark:text-slate-500 shrink-0" />
+                    class="h-4 w-4 shrink-0 text-gray-400 dark:text-slate-500" />
             </template>
         </div>
 
         <!-- Meta Information -->
         <div
             v-if="destinationLabels.length > 1"
-            class="mt-5 rounded-xl border border-dashed border-gray-200 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-900/30 px-4 py-3 text-xs font-medium text-gray-500 dark:text-slate-400">
+            class="mt-5 rounded-xl border border-dashed border-gray-200 bg-gray-50/50 px-4 py-3 text-xs font-medium text-gray-500 dark:border-slate-700 dark:bg-slate-900/30 dark:text-slate-400">
             <span class="font-bold text-gray-700 dark:text-slate-300">
                 {{ destinationLabels.length }}
             </span>

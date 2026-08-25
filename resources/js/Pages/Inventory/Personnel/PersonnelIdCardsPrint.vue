@@ -283,54 +283,54 @@ export default {
                     :duration="500">
                     <button
                         type="button"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition-all active:scale-95 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
                         :disabled="!previewReady"
                         @click="printCards">
-                        <LuPrinter class="w-4 h-4 text-emerald-500" />
+                        <LuPrinter class="h-4 w-4 text-emerald-500" />
                         <span>Print IDs</span>
                     </button>
                 </transition-container>
             </ActionHeaderLayout>
         </template>
 
-        <div class="md:grid md:grid-cols-12 gap-5 p-5">
-            <aside class="col-span-12 md:col-span-2 h-fit md:sticky md:top-5 md:self-start">
-                <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-xs text-slate-900 dark:text-slate-100">
-                    <div class="flex items-center gap-2 mb-2">
-                        <LuInfo class="w-5 h-5 text-lime-600 dark:text-lime-400" />
-                        <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-100">ID Workflow</h4>
+        <div class="gap-5 p-5 md:grid md:grid-cols-12">
+            <aside class="col-span-12 h-fit md:sticky md:top-5 md:col-span-2 md:self-start">
+                <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+                    <div class="mb-2 flex items-center gap-2">
+                        <LuInfo class="h-5 w-5 text-lime-600 dark:text-lime-400" />
+                        <h4 class="text-xs font-bold text-slate-900 sm:text-sm dark:text-slate-100">ID Workflow</h4>
                     </div>
-                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Select approved IDs, choose single-card or sheet layout, preview, then print. Each card is fixed at A7 size.</p>
+                    <p class="text-xs text-slate-500 sm:text-sm dark:text-slate-400">Select approved IDs, choose single-card or sheet layout, preview, then print. Each card is fixed at A7 size.</p>
                 </div>
             </aside>
 
-            <main class="col-span-12 md:col-span-10 space-y-4">
-                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+            <main class="col-span-12 space-y-4 md:col-span-10">
+                <div class="shadow-xs overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
                     <div class="grid grid-cols-3 border-b border-slate-200 dark:border-slate-800">
                         <button
                             type="button"
-                            class="px-4 py-3 text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center gap-2"
-                            :class="activeTab === 'items' ? 'text-lime-700 dark:text-lime-300 border-b-2 border-lime-600 bg-lime-50/60 dark:bg-lime-950/40 font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
+                            class="flex items-center justify-center gap-2 px-4 py-3 text-xs font-semibold transition-colors sm:text-sm"
+                            :class="activeTab === 'items' ? 'border-b-2 border-lime-600 bg-lime-50/60 font-bold text-lime-700 dark:bg-lime-950/40 dark:text-lime-300' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'"
                             @click="activeTab = 'items'">
                             Select IDs
                             <span
                                 v-if="selectedCount > 0"
-                                class="ml-1 px-2 py-0.5 bg-lime-600 text-white text-[10px] sm:text-xs font-bold rounded-full">
+                                class="ml-1 rounded-full bg-lime-600 px-2 py-0.5 text-[10px] font-bold text-white sm:text-xs">
                                 {{ selectedCount }}
                             </span>
                         </button>
                         <button
                             type="button"
-                            class="px-4 py-3 text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center gap-2"
-                            :class="activeTab === 'settings' ? 'text-lime-700 dark:text-lime-300 border-b-2 border-lime-600 bg-lime-50/60 dark:bg-lime-950/40 font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
+                            class="flex items-center justify-center gap-2 px-4 py-3 text-xs font-semibold transition-colors sm:text-sm"
+                            :class="activeTab === 'settings' ? 'border-b-2 border-lime-600 bg-lime-50/60 font-bold text-lime-700 dark:bg-lime-950/40 dark:text-lime-300' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'"
                             :disabled="selectedCount === 0"
                             @click="activeTab = 'settings'">
                             Print Settings
                         </button>
                         <button
                             type="button"
-                            class="px-4 py-3 text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center gap-2"
-                            :class="activeTab === 'preview' ? 'text-lime-700 dark:text-lime-300 border-b-2 border-lime-600 bg-lime-50/60 dark:bg-lime-950/40 font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
+                            class="flex items-center justify-center gap-2 px-4 py-3 text-xs font-semibold transition-colors sm:text-sm"
+                            :class="activeTab === 'preview' ? 'border-b-2 border-lime-600 bg-lime-50/60 font-bold text-lime-700 dark:bg-lime-950/40 dark:text-lime-300' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'"
                             :disabled="!previewReady"
                             @click="activeTab = 'preview'">
                             Preview & Print
@@ -339,24 +339,24 @@ export default {
 
                     <section
                         v-if="activeTab === 'items'"
-                        class="p-4 sm:p-6 space-y-4">
+                        class="space-y-4 p-4 sm:p-6">
                         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                             <div>
-                                <h3 class="font-bold text-sm sm:text-base text-slate-900 dark:text-slate-100">Approved ID Cards</h3>
-                                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{ selectedCount }} selected from {{ cards.length }} approved IDs.</p>
+                                <h3 class="text-sm font-bold text-slate-900 sm:text-base dark:text-slate-100">Approved ID Cards</h3>
+                                <p class="text-xs text-slate-500 sm:text-sm dark:text-slate-400">{{ selectedCount }} selected from {{ cards.length }} approved IDs.</p>
                             </div>
                             <div class="flex gap-2">
                                 <div class="relative flex-1 md:w-64">
-                                    <LuSearch class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <LuSearch class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                                     <input
                                         v-model="search"
                                         type="search"
-                                        class="w-full pl-9 pr-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm focus:ring-2 focus:ring-lime-500 focus:border-transparent"
+                                        class="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-xs text-slate-900 focus:border-transparent focus:ring-2 focus:ring-lime-500 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                                         placeholder="Search IDs..." />
                                 </div>
                                 <select
                                     v-model="registrationTypeFilter"
-                                    class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-lime-500 focus:border-transparent hidden sm:block">
+                                    class="hidden rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 focus:border-transparent focus:ring-2 focus:ring-lime-500 sm:block sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
                                     <option value="">All Types</option>
                                     <option value="student">Student</option>
                                     <option value="ojt">OJT</option>
@@ -364,7 +364,7 @@ export default {
                                 </select>
                                 <button
                                     type="button"
-                                    class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                    class="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                                     :disabled="filteredCards.length === 0"
                                     @click="toggleAll">
                                     {{ allSelected ? "Clear" : "Select All" }}
@@ -379,8 +379,8 @@ export default {
                                 v-for="card in filteredCards"
                                 :key="cardKey(card)"
                                 type="button"
-                                class="rounded-2xl border text-left transition-all duration-200 overflow-hidden shadow-xs"
-                                :class="selected[cardKey(card)] ? 'border-lime-500 dark:border-lime-500 bg-lime-50/40 dark:bg-lime-950/20 ring-2 ring-lime-500/20' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700'"
+                                class="shadow-xs overflow-hidden rounded-2xl border text-left transition-all duration-200"
+                                :class="selected[cardKey(card)] ? 'border-lime-500 bg-lime-50/40 ring-2 ring-lime-500/20 dark:border-lime-500 dark:bg-lime-950/20' : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700'"
                                 @click="toggleCard(card)">
                                 <PersonnelIdCard
                                     :card="card"
@@ -390,42 +390,42 @@ export default {
 
                         <div
                             v-else
-                            class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 text-center text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
+                            class="rounded-2xl border border-slate-200 bg-white p-8 text-center text-xs text-slate-500 sm:text-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
                             No approved Student, OJT, or Thesis IDs are ready for printing.
                         </div>
 
                         <div class="flex justify-end pt-2">
                             <button
                                 type="button"
-                                class="rounded-xl bg-lime-600 hover:bg-lime-700 active:scale-95 px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-xs transition-all disabled:cursor-not-allowed disabled:opacity-50 flex items-center gap-2"
+                                class="shadow-xs flex items-center gap-2 rounded-xl bg-lime-600 px-6 py-2.5 text-xs font-bold text-white transition-all hover:bg-lime-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
                                 :disabled="selectedCount === 0"
                                 @click="nextStep">
                                 Continue to Settings
-                                <LuArrowRight class="w-4 h-4" />
+                                <LuArrowRight class="h-4 w-4" />
                             </button>
                         </div>
                     </section>
 
                     <section
                         v-if="activeTab === 'settings'"
-                        class="p-4 sm:p-6 space-y-6">
+                        class="space-y-6 p-4 sm:p-6">
                         <div>
-                            <h3 class="font-bold text-sm sm:text-base text-slate-900 dark:text-slate-100">Print Settings</h3>
-                            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">A7 card size is fixed at 7.4cm x 10.5cm.</p>
+                            <h3 class="text-sm font-bold text-slate-900 sm:text-base dark:text-slate-100">Print Settings</h3>
+                            <p class="text-xs text-slate-500 sm:text-sm dark:text-slate-400">A7 card size is fixed at 7.4cm x 10.5cm.</p>
                         </div>
 
                         <div class="grid gap-3 md:grid-cols-2">
                             <button
                                 type="button"
-                                class="rounded-xl border-2 px-4 py-3 text-xs sm:text-sm font-semibold transition-all"
-                                :class="layoutMode === 'single' ? 'border-lime-600 bg-lime-50 dark:bg-lime-950/40 text-lime-700 dark:text-lime-300 font-bold' : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300'"
+                                class="rounded-xl border-2 px-4 py-3 text-xs font-semibold transition-all sm:text-sm"
+                                :class="layoutMode === 'single' ? 'border-lime-600 bg-lime-50 font-bold text-lime-700 dark:bg-lime-950/40 dark:text-lime-300' : 'border-slate-200 text-slate-700 hover:border-slate-300 dark:border-slate-700 dark:text-slate-300'"
                                 @click="layoutMode = 'single'">
                                 Single ID per Page
                             </button>
                             <button
                                 type="button"
-                                class="rounded-xl border-2 px-4 py-3 text-xs sm:text-sm font-semibold transition-all"
-                                :class="layoutMode === 'sheet' ? 'border-lime-600 bg-lime-50 dark:bg-lime-950/40 text-lime-700 dark:text-lime-300 font-bold' : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300'"
+                                class="rounded-xl border-2 px-4 py-3 text-xs font-semibold transition-all sm:text-sm"
+                                :class="layoutMode === 'sheet' ? 'border-lime-600 bg-lime-50 font-bold text-lime-700 dark:bg-lime-950/40 dark:text-lime-300' : 'border-slate-200 text-slate-700 hover:border-slate-300 dark:border-slate-700 dark:text-slate-300'"
                                 @click="layoutMode = 'sheet'">
                                 Sheet Layout
                             </button>
@@ -438,7 +438,7 @@ export default {
                                 <label class="mb-1 block text-xs font-semibold text-slate-700 dark:text-slate-300">Sheet Size</label>
                                 <select
                                     v-model="sheetSize"
-                                    class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm focus:ring-lime-500 py-2.5">
+                                    class="w-full rounded-xl border border-slate-200 bg-white py-2.5 text-xs text-slate-900 focus:ring-lime-500 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
                                     <option value="a4">A4</option>
                                     <option value="folio">Folio</option>
                                 </select>
@@ -450,11 +450,11 @@ export default {
                                     type="number"
                                     min="0"
                                     step="0.1"
-                                    class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm focus:ring-lime-500 py-2.5" />
+                                    class="w-full rounded-xl border border-slate-200 bg-white py-2.5 text-xs text-slate-900 focus:ring-lime-500 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" />
                             </div>
                         </div>
 
-                        <div class="rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 p-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium">
+                        <div class="rounded-xl border border-slate-200/80 bg-slate-50 p-4 text-xs font-medium text-slate-700 sm:text-sm dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-300">
                             Sheet layout fits {{ labelsPerRow }} card{{ labelsPerRow === 1 ? "" : "s" }} per row and {{ labelsPerColumn }} row{{ labelsPerColumn === 1 ? "" : "s" }}
                             per page.
                         </div>
@@ -462,15 +462,15 @@ export default {
                         <div class="flex justify-between pt-2">
                             <button
                                 type="button"
-                                class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                                class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-100 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                                 @click="prevStep">
                                 Back
                             </button>
                             <button
                                 type="button"
-                                class="rounded-xl bg-lime-600 hover:bg-lime-700 active:scale-95 px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-xs transition-all flex items-center gap-2"
+                                class="shadow-xs flex items-center gap-2 rounded-xl bg-lime-600 px-6 py-2.5 text-xs font-bold text-white transition-all hover:bg-lime-700 active:scale-95 sm:text-sm"
                                 @click="buildLabels">
-                                <LuSparkles class="w-4 h-4" />
+                                <LuSparkles class="h-4 w-4" />
                                 Generate Preview
                             </button>
                         </div>
@@ -478,11 +478,11 @@ export default {
 
                     <section
                         v-if="activeTab === 'preview'"
-                        class="p-4 sm:p-6 space-y-6">
+                        class="space-y-6 p-4 sm:p-6">
                         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                             <div>
-                                <h3 class="font-bold text-sm sm:text-base text-slate-900 dark:text-slate-100">Preview</h3>
-                                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                                <h3 class="text-sm font-bold text-slate-900 sm:text-base dark:text-slate-100">Preview</h3>
+                                <p class="text-xs text-slate-500 sm:text-sm dark:text-slate-400">
                                     {{ totalLabels }} ID card{{ totalLabels === 1 ? "" : "s" }}
                                     ready for printing.
                                 </p>
@@ -490,16 +490,16 @@ export default {
                             <div class="flex gap-2">
                                 <button
                                     type="button"
-                                    class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                                    class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-100 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                                     @click="prevStep">
                                     Back to Settings
                                 </button>
                                 <button
                                     type="button"
-                                    class="rounded-xl bg-lime-600 hover:bg-lime-700 active:scale-95 px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-xs transition-all flex items-center gap-2"
+                                    class="shadow-xs flex items-center gap-2 rounded-xl bg-lime-600 px-6 py-2.5 text-xs font-bold text-white transition-all hover:bg-lime-700 active:scale-95 sm:text-sm"
                                     :disabled="!previewReady"
                                     @click="printCards">
-                                    <LuPrinter class="w-4 h-4" />
+                                    <LuPrinter class="h-4 w-4" />
                                     Print {{ totalLabels }} IDs
                                 </button>
                             </div>
@@ -507,7 +507,7 @@ export default {
 
                         <div
                             v-if="previewReady"
-                            class="rounded-2xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-6">
+                            class="rounded-2xl border border-slate-200 bg-slate-100 p-6 dark:border-slate-800 dark:bg-slate-950">
                             <div class="flex flex-wrap justify-center gap-4">
                                 <PersonnelIdCard
                                     v-for="label in labels.slice(0, 6)"

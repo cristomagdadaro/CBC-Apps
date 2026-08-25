@@ -22,7 +22,7 @@ export default {
     <button
         :type="type"
         :disabled="disabled"
-        class="inline-flex gap-1 items-center justify-center disabled:opacity-25 px-4 py-2 border border-transparent rounded-md transition ease-in-out duration-150 active:scale-90"
+        class="inline-flex items-center justify-center gap-1 rounded-md border border-transparent px-4 py-2 transition duration-150 ease-in-out active:scale-90 disabled:opacity-25"
         :class="{ 'cursor-progress': processing }">
         <slot name="icon" />
         <span>

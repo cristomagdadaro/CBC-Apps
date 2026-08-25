@@ -24,10 +24,10 @@ export default defineComponent({
         <form
             v-if="!!form"
             @submit.prevent="submitUpdate"
-            class="max-w-xl mx-auto">
-            <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+            class="mx-auto max-w-xl">
+            <div class="mx-auto flex w-full flex-col gap-2 overflow-hidden bg-white shadow-xl sm:rounded-lg sm:p-2 lg:p-4 dark:bg-gray-800">
                 <div class="flex flex-col">
-                    <h2 class="font-bold uppercase leading-none py-2 mb-1 border-b">Update Item Form</h2>
+                    <h2 class="mb-1 border-b py-2 font-bold uppercase leading-none">Update Item Form</h2>
                     <p>Use this form to modify item information.</p>
                 </div>
                 <text-input
@@ -58,7 +58,7 @@ export default defineComponent({
                     <div class="flex items-end border-gray-700">
                         <Link
                             :href="route('suppliers.create')"
-                            class="h-fit w-full border py-3 border-gray-700 flex items-center justify-center bg-white text-gray-600 rounded gap-1 text-sm px-2">
+                            class="flex h-fit w-full items-center justify-center gap-1 rounded border border-gray-700 bg-white px-2 py-3 text-sm text-gray-600">
                             <add-icon class="h-5 w-5" />
                             <span class="whitespace-nowrap">New Supplier</span>
                         </Link>
@@ -98,15 +98,15 @@ export default defineComponent({
                     :error="form.errors.image" />
                 <div
                     v-if="form.image"
-                    class="w-full shadow bg-white focus:border-indigo-500 focus:ring-indigo-500 rounded-md border p-2 justify-center flex">
+                    class="flex w-full justify-center rounded-md border bg-white p-2 shadow focus:border-indigo-500 focus:ring-indigo-500">
                     <img
                         :src="form.image"
                         @click.right.prevent="null"
                         draggable="false"
-                        class="max-w-80 w-1/2 bg-transparent"
+                        class="w-1/2 max-w-80 bg-transparent"
                         alt="image" />
                 </div>
-                <div class="flex gap-1 justify-between">
+                <div class="flex justify-between gap-1">
                     <reset-btn @click="resetField($page.props.data)">Reset</reset-btn>
                     <submit-btn :disabled="model.api.processing">
                         <span v-if="model.api.processing">Updating</span>

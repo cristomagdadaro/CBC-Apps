@@ -76,12 +76,12 @@ export default {
                 type="checkbox"
                 :value="value"
                 :disabled="disabled"
-                :class="['rounded leading-none border-slate-300 text-indigo-600 focus:ring-indigo-600 dark:border-slate-700 dark:bg-slate-900 cursor-pointer', error ? 'border-red-500 dark:border-red-500 focus:ring-red-500' : '']"
+                :class="['cursor-pointer rounded border-slate-300 leading-none text-indigo-600 focus:ring-indigo-600 dark:border-slate-700 dark:bg-slate-900', error ? 'border-red-500 focus:ring-red-500 dark:border-red-500' : '']"
                 v-bind="filteredAttrs" />
             <label
                 v-if="label"
                 :for="id"
-                class="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer select-none">
+                class="cursor-pointer select-none text-sm font-medium text-slate-700 dark:text-slate-300">
                 {{ label }}
             </label>
         </div>

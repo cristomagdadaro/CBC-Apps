@@ -70,12 +70,12 @@ export default {
         <div class="default-container pt-5">
             <form
                 v-if="!!form"
-                class="flex gap-2 items-end"
+                class="flex items-end gap-2"
                 @submit.prevent="searchEvent">
-                <div class="grid grid-rows-2 w-full">
-                    <div class="w-full flex gap-2 items-end lg:px-0 px-2">
+                <div class="grid w-full grid-rows-2">
+                    <div class="flex w-full items-end gap-2 px-2 lg:px-0">
                         <div class="flex flex-col gap-0.5">
-                            <div class="text-xs text-gray-500 flex items-center justify-between">
+                            <div class="flex items-center justify-between text-xs text-gray-500">
                                 <span class="flex gap-0.5 whitespace-nowrap">Filter by Status</span>
                             </div>
                             <custom-dropdown
@@ -110,7 +110,7 @@ export default {
                     </div>
                     <div
                         v-if="eventFormFromApi"
-                        class="flex w-full gap-2 items-center">
+                        class="flex w-full items-center gap-2">
                         <pagination-controls
                             :current-page="eventFormFromApi?.current_page"
                             :last-page="eventFormFromApi?.last_page"
@@ -118,7 +118,7 @@ export default {
                     </div>
                 </div>
             </form>
-            <div class="bg-white dark:bg-gray-800 overflow-hidden sm:rounded-lg">
+            <div class="overflow-hidden bg-white sm:rounded-lg dark:bg-gray-800">
                 <list-of-use-requests
                     v-if="eventFormFromApi && eventFormFromApi.total > 0 && !model.api.processing"
                     :forms-data="eventFormFromApi.data"
@@ -128,27 +128,27 @@ export default {
                 <!-- Show "Searching" when processing -->
                 <div
                     v-else-if="model.api.processing"
-                    class="text-center py-3 border border-AB rounded-lg">
+                    class="rounded-lg border border-AB py-3 text-center">
                     Searching...
                 </div>
 
                 <!-- Show "Form does not exist" when search was performed but no results -->
                 <div
                     v-else-if="eventFormFromApi && eventFormFromApi.total === 0 && form.search"
-                    class="text-center py-3 border border-AB rounded-lg">
+                    class="rounded-lg border border-AB py-3 text-center">
                     Form does not exist. Try using some filters.
                 </div>
 
                 <!-- Show "No forms available" when nothing was returned and no search was performed -->
                 <div
                     v-else
-                    class="text-center py-3 border border-AB rounded-lg">
+                    class="rounded-lg border border-AB py-3 text-center">
                     No forms available.
                 </div>
             </div>
             <div
                 v-if="eventFormFromApi && eventFormFromApi.data?.length"
-                class="flex w-full gap-2 py-5 items-center">
+                class="flex w-full items-center gap-2 py-5">
                 <pagination-controls
                     :current-page="eventFormFromApi?.current_page"
                     :last-page="eventFormFromApi?.last_page"

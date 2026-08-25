@@ -15,7 +15,7 @@ export default {
         <Link
             :href="route('forms.create')"
             title="Create Event">
-            <lu-plus-circle class="h-auto w-5 text-white dark:text-gray-800 dark:bg-gray-200 mx-1" />
+            <lu-plus-circle class="mx-1 h-auto w-5 text-white dark:bg-gray-200 dark:text-gray-800" />
         </Link>
         <Link
             :href="route('forms.builder')"

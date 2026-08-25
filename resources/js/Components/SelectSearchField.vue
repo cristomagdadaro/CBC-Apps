@@ -525,8 +525,8 @@ export default {
 </script>
 
 <template>
-    <div class="relative flex flex-col w-full p-0 bg-transparent border-0">
-        <div class="flex flex-col w-full">
+    <div class="relative flex w-full flex-col border-0 bg-transparent p-0">
+        <div class="flex w-full flex-col">
             <div class="flex items-center gap-1">
                 <text-input
                     :id="id"
@@ -547,8 +547,8 @@ export default {
                     @clear="clearSelection">
                     <button
                         v-if="!disabled"
-                        class="p-2 m-1 text-white rounded-md bg-AB">
-                        <search-icon class="w-5 h-5 pointer-events-none" />
+                        class="m-1 rounded-md bg-AB p-2 text-white">
+                        <search-icon class="pointer-events-none h-5 w-5" />
                     </button>
                 </text-input>
             </div>
@@ -556,12 +556,12 @@ export default {
             <transition-container>
                 <div
                     v-show="showDropdown"
-                    class="absolute left-0 border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-lg bg-white z-[999] min-w-full"
+                    class="absolute left-0 z-[999] min-w-full rounded-md border border-gray-300 bg-white shadow-lg focus:border-indigo-500 focus:ring-indigo-500"
                     :style="dropdownStyle">
                     <!-- Dropdown Header -->
                     <div
                         v-if="!processing || hasOptions"
-                        class="px-3 py-2 text-xs text-gray-500 border-b border-gray-100 bg-gray-50 rounded-t-md">
+                        class="rounded-t-md border-b border-gray-100 bg-gray-50 px-3 py-2 text-xs text-gray-500">
                         <p v-if="hasOptions">
                             {{ filteredOptions.length }} option{{ filteredOptions.length !== 1 ? "s" : "" }}
                             <span
@@ -583,7 +583,7 @@ export default {
                             v-for="option in filteredOptions"
                             :key="option.value"
                             @click="selectOption(option)"
-                            class="px-3 py-2 transition-colors duration-150 border-b cursor-pointer hover:bg-indigo-50 border-gray-50 last:border-b-0"
+                            class="cursor-pointer border-b border-gray-50 px-3 py-2 transition-colors duration-150 last:border-b-0 hover:bg-indigo-50"
                             :class="{
                                 'bg-indigo-100 text-indigo-900': selectedOption?.value === option.value,
                                 'text-gray-900': selectedOption?.value !== option.value,
@@ -598,7 +598,7 @@ export default {
                         <!-- Loading More Indicator -->
                         <div
                             v-if="showLoadingMore"
-                            class="px-3 py-2 text-sm text-center text-gray-500 border-t border-gray-100">
+                            class="border-t border-gray-100 px-3 py-2 text-center text-sm text-gray-500">
                             Loading more options...
                         </div>
                     </div>
@@ -606,16 +606,16 @@ export default {
                     <!-- Empty State -->
                     <div
                         v-else-if="!processing"
-                        class="px-3 py-4 text-sm text-center text-gray-500">
+                        class="px-3 py-4 text-center text-sm text-gray-500">
                         {{ emptyStateMessage }}
                     </div>
 
                     <!-- Initial Loading State -->
                     <div
                         v-else
-                        class="px-3 py-4 text-sm text-center text-gray-500">
+                        class="px-3 py-4 text-center text-sm text-gray-500">
                         <div class="flex items-center justify-center space-x-2">
-                            <div class="w-4 h-4 border-b-2 border-indigo-500 rounded-full animate-spin"></div>
+                            <div class="h-4 w-4 animate-spin rounded-full border-b-2 border-indigo-500"></div>
                             <span>Loading options...</span>
                         </div>
                     </div>

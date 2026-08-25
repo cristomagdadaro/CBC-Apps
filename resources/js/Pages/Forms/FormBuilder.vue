@@ -178,11 +178,11 @@ export default {
             <!-- Error Alert -->
             <div
                 v-if="error"
-                class="mb-4 p-4 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg flex justify-between items-center">
+                class="mb-4 flex items-center justify-between rounded-lg border border-red-400 bg-red-100 p-4 text-red-700 dark:border-red-700 dark:bg-red-900/30 dark:text-red-300">
                 <span>{{ error }}</span>
                 <button
                     @click="error = null"
-                    class="text-red-700 dark:text-red-300 hover:text-red-900">
+                    class="text-red-700 hover:text-red-900 dark:text-red-300">
                     ×
                 </button>
             </div>
@@ -202,13 +202,13 @@ export default {
                     <div
                         v-if="activeKey === 'templates'"
                         class="mt-6">
-                        <div class="flex justify-between items-center mb-6">
+                        <div class="mb-6 flex items-center justify-between">
                             <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Form Templates</h2>
                             <button
                                 @click="startNewTemplate"
-                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                                class="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700">
                                 <svg
-                                    class="w-5 h-5"
+                                    class="h-5 w-5"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24">
@@ -225,7 +225,7 @@ export default {
                         <!-- Loading State -->
                         <div
                             v-if="loadingTemplates"
-                            class="text-center py-12 text-gray-500 dark:text-gray-400">
+                            class="py-12 text-center text-gray-500 dark:text-gray-400">
                             Loading templates...
                         </div>
 
@@ -235,20 +235,20 @@ export default {
                             <div
                                 v-if="systemTemplates.length"
                                 class="mb-8">
-                                <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-4">System Templates</h3>
+                                <h3 class="mb-4 text-lg font-medium text-gray-700 dark:text-gray-300">System Templates</h3>
                                 <p class="my-3 text-sm text-gray-600">Note: Kindly duplicate system templates to attach them to your event form.</p>
-                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                                     <div
                                         v-for="template in systemTemplates"
                                         :key="template.id"
-                                        class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                        class="rounded-lg border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
                                         <div class="flex items-start justify-between">
                                             <div class="flex-1">
                                                 <div class="flex items-center gap-2">
                                                     <h4 class="font-semibold text-gray-800 dark:text-gray-200">
                                                         {{ template.name }}
                                                     </h4>
-                                                    <span class="px-2 py-0.5 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded">System</span>
+                                                    <span class="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">System</span>
                                                 </div>
                                                 <span class="text-xs opacity-50">ID: {{ template.id }}</span>
                                                 <p
@@ -265,12 +265,12 @@ export default {
                                         <div class="mt-4 flex gap-2">
                                             <button
                                                 @click="selectTemplate(template)"
-                                                class="px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600">
+                                                class="rounded bg-gray-100 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
                                                 Edit
                                             </button>
                                             <button
                                                 @click="duplicateTemplate(template)"
-                                                class="px-3 py-1.5 text-sm bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded hover:bg-green-200 dark:hover:bg-green-800/30">
+                                                class="rounded bg-green-100 px-3 py-1.5 text-sm text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-800/30">
                                                 Duplicate
                                             </button>
                                         </div>
@@ -280,14 +280,14 @@ export default {
 
                             <!-- Custom Templates -->
                             <div>
-                                <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-4">Custom Templates</h3>
+                                <h3 class="mb-4 text-lg font-medium text-gray-700 dark:text-gray-300">Custom Templates</h3>
                                 <div
                                     v-if="customTemplates.length"
-                                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                                     <div
                                         v-for="template in customTemplates"
                                         :key="template.id"
-                                        class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                        class="rounded-lg border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
                                         <div class="flex items-start justify-between">
                                             <div class="flex-1">
                                                 <div class="flex items-center gap-2">
@@ -310,17 +310,17 @@ export default {
                                         <div class="mt-4 flex gap-2">
                                             <button
                                                 @click="selectTemplate(template)"
-                                                class="px-3 py-1.5 text-sm bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-800/30">
+                                                class="rounded bg-blue-100 px-3 py-1.5 text-sm text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/30">
                                                 Edit
                                             </button>
                                             <button
                                                 @click="duplicateTemplate(template)"
-                                                class="px-3 py-1.5 text-sm bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded hover:bg-green-200 dark:hover:bg-green-800/30">
+                                                class="rounded bg-green-100 px-3 py-1.5 text-sm text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-800/30">
                                                 Duplicate
                                             </button>
                                             <button
                                                 @click="deleteTemplate(template)"
-                                                class="px-3 py-1.5 text-sm bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded hover:bg-red-200 dark:hover:bg-red-800/30">
+                                                class="rounded bg-red-100 px-3 py-1.5 text-sm text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-800/30">
                                                 Delete
                                             </button>
                                         </div>
@@ -328,11 +328,11 @@ export default {
                                 </div>
                                 <div
                                     v-else
-                                    class="text-center py-8 text-gray-500 dark:text-gray-400 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+                                    class="rounded-lg border-2 border-dashed border-gray-300 py-8 text-center text-gray-500 dark:border-gray-600 dark:text-gray-400">
                                     <p class="mb-2">No custom templates yet</p>
                                     <button
                                         @click="startNewTemplate"
-                                        class="text-blue-600 dark:text-blue-400 hover:underline">
+                                        class="text-blue-600 hover:underline dark:text-blue-400">
                                         Create your first template
                                     </button>
                                 </div>
@@ -358,8 +358,8 @@ export default {
 
                         <div
                             v-if="saving"
-                            class="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-                            <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl">
+                            class="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+                            <div class="rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
                                 <p class="text-gray-700 dark:text-gray-300">Saving template...</p>
                             </div>
                         </div>

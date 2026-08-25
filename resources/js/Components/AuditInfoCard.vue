@@ -82,14 +82,14 @@ export default defineComponent({
 </script>
 
 <template>
-    <div class="flex flex-col w-full text-xs text-gray-400 border-t border-gray-500 pt-3 gap-2">
+    <div class="flex w-full flex-col gap-2 border-t border-gray-500 pt-3 text-xs text-gray-400">
         <!-- Created Info -->
         <div class="flex flex-col gap-0.5">
             <span class="font-semibold text-gray-500">Created</span>
             <span class="text-gray-400">
                 {{ formatDate(createdByInfo.timestamp) }}
             </span>
-            <span class="text-gray-500 italic">by {{ createdByInfo.user }}</span>
+            <span class="italic text-gray-500">by {{ createdByInfo.user }}</span>
         </div>
 
         <!-- Last Modified Info (only if modified) -->
@@ -100,13 +100,13 @@ export default defineComponent({
             <span class="text-gray-400">
                 {{ formatDate(lastModifiedByInfo.timestamp) }}
             </span>
-            <span class="text-gray-500 italic">by {{ lastModifiedByInfo.user }}</span>
+            <span class="italic text-gray-500">by {{ lastModifiedByInfo.user }}</span>
         </div>
 
         <!-- Not Modified Notice -->
         <div
             v-else
-            class="text-gray-500 italic">
+            class="italic text-gray-500">
             No modifications since creation
         </div>
     </div>

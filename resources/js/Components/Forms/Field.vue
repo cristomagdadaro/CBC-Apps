@@ -30,15 +30,15 @@ const isValid = computed(() => props.hasValue && !props.error);
 
 <template>
     <div
-        class="w-full relative"
+        class="relative w-full"
         :class="[classes, { 'opacity-60': disabled }]">
         <!-- HEADER ROW: Label, Hint, Error -->
         <div
             v-if="label"
-            class="flex items-end justify-between mb-1.5">
+            class="mb-1.5 flex items-end justify-between">
             <label
                 :for="inputId"
-                class="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1 cursor-pointer">
+                class="flex cursor-pointer items-center gap-1 text-xs font-semibold text-slate-700 dark:text-slate-300">
                 <!-- Slot for prefix icon (e.g., AlignLeft, Clock) -->
                 <slot name="label-icon"></slot>
 
@@ -46,7 +46,7 @@ const isValid = computed(() => props.hasValue && !props.error);
                     {{ label }}
                     <span
                         v-if="required"
-                        class="text-rose-500 ml-0.5"
+                        class="ml-0.5 text-rose-500"
                         aria-label="required">
                         *
                     </span>
@@ -55,7 +55,7 @@ const isValid = computed(() => props.hasValue && !props.error);
                 <LuHelpCircle
                     v-if="hint"
                     :title="hint"
-                    class="w-3.5 h-3.5 text-slate-400 hover:text-indigo-500 transition-colors cursor-help ml-1" />
+                    class="ml-1 h-3.5 w-3.5 cursor-help text-slate-400 transition-colors hover:text-indigo-500" />
             </label>
 
             <!-- Slot for character counters or top-right actions -->
@@ -66,7 +66,7 @@ const isValid = computed(() => props.hasValue && !props.error);
                     <div
                         v-if="error"
                         class="flex items-center gap-1 text-[0.65rem] font-semibold uppercase tracking-wider text-rose-500">
-                        <LuAlertCircle class="w-3.5 h-3.5" />
+                        <LuAlertCircle class="h-3.5 w-3.5" />
                         <span class="max-w-[150px] truncate">{{ error }}</span>
                     </div>
                 </transition>
@@ -75,7 +75,7 @@ const isValid = computed(() => props.hasValue && !props.error);
 
         <!-- INPUT WRAPPER -->
         <div
-            class="relative flex items-center group"
+            class="group relative flex items-center"
             :class="{ 'cursor-not-allowed': disabled }">
             <!-- 
                 SCOPED DEFAULT SLOT: 
@@ -96,20 +96,20 @@ const isValid = computed(() => props.hasValue && !props.error);
                     v-if="clearable && hasValue && !disabled"
                     type="button"
                     @click="emit('clear')"
-                    class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 bg-white/80 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors backdrop-blur-sm">
-                    <LuX class="w-4 h-4" />
+                    class="rounded-lg bg-white/80 p-1.5 text-slate-400 backdrop-blur-sm transition-colors hover:bg-slate-100 hover:text-slate-600 dark:bg-slate-800/80 dark:hover:bg-slate-700">
+                    <LuX class="h-4 w-4" />
                 </button>
 
                 <div
                     v-else-if="isValid && showValidIndicator"
                     class="p-1.5">
-                    <LuCheckCircle2 class="w-4 h-4 text-emerald-500" />
+                    <LuCheckCircle2 class="h-4 w-4 text-emerald-500" />
                 </div>
 
                 <div
                     v-else-if="isInvalid"
                     class="p-1.5">
-                    <LuXCircle class="w-4 h-4 text-rose-500" />
+                    <LuXCircle class="h-4 w-4 text-rose-500" />
                 </div>
             </div>
 
@@ -128,8 +128,8 @@ const isValid = computed(() => props.hasValue && !props.error);
         <p
             v-if="guide"
             :id="`${inputId}-guide`"
-            class="mt-2 text-xs font-medium text-slate-500 dark:text-slate-400 flex items-start gap-1.5">
-            <LuHelpCircle class="w-3.5 h-3.5 mt-0.5 shrink-0 text-indigo-400 dark:text-indigo-500" />
+            class="mt-2 flex items-start gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+            <LuHelpCircle class="mt-0.5 h-3.5 w-3.5 shrink-0 text-indigo-400 dark:text-indigo-500" />
             <span class="leading-relaxed">{{ guide }}</span>
         </p>
     </div>

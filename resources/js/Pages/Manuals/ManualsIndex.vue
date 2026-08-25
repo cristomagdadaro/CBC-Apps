@@ -207,43 +207,43 @@ export default {
                 :subtitle="showDeveloperSections ? 'Comprehensive guides to help you navigate and utilize the system effectively.' : 'Step-by-step user guides for public visitors and operational staff.'" />
         </template>
 
-        <div class="py-6 px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+        <div class="px-4 py-6 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-4">
                 <!-- Navigation Sidebar -->
                 <div class="lg:col-span-1">
-                    <nav class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm p-3 sticky top-6 flex flex-col gap-1">
-                        <h3 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 px-3 py-2 mb-1">Topics</h3>
+                    <nav class="sticky top-6 flex flex-col gap-1 rounded-2xl border border-slate-200/60 bg-white/80 p-3 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/80">
+                        <h3 class="mb-1 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Topics</h3>
                         <button
                             v-for="item in visibleMenuItems"
                             :key="item.id"
                             @click="activeSection = item.id"
-                            :class="['w-full flex items-center justify-between text-left px-3 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium', activeSection === item.id ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400 shadow-sm ring-1 ring-indigo-100 dark:ring-indigo-500/20' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200']">
+                            :class="['flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-all duration-200', activeSection === item.id ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:ring-indigo-500/20' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-slate-200']">
                             <div class="flex items-center gap-3 truncate">
                                 <component
                                     :is="item.icon"
-                                    :class="['w-4 h-4 shrink-0', activeSection === item.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500']" />
+                                    :class="['h-4 w-4 shrink-0', activeSection === item.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500']" />
                                 <span class="truncate">{{ item.label }}</span>
                             </div>
                             <LuChevronRight
                                 v-if="activeSection === item.id"
-                                class="w-4 h-4 shrink-0 text-indigo-400 opacity-70" />
+                                class="h-4 w-4 shrink-0 text-indigo-400 opacity-70" />
                         </button>
                     </nav>
                 </div>
 
                 <!-- Content Area -->
                 <div class="lg:col-span-3">
-                    <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+                    <div class="overflow-hidden rounded-2xl border border-slate-200/60 bg-white/80 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/80">
                         <!-- Content Header -->
-                        <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-800/20">
+                        <div class="border-b border-slate-100 bg-slate-50/50 px-6 py-5 dark:border-slate-800/60 dark:bg-slate-800/20">
                             <div class="flex items-center gap-3.5">
-                                <div class="p-2.5 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-xl shadow-sm shrink-0">
+                                <div class="shrink-0 rounded-xl border border-indigo-100 bg-indigo-50 p-2.5 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/10">
                                     <component
                                         :is="visibleSections[activeSection]?.icon"
-                                        class="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                                        class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                                 </div>
                                 <div>
-                                    <h1 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                                    <h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
                                         {{ visibleSections[activeSection]?.title }}
                                     </h1>
                                 </div>

@@ -73,21 +73,21 @@ export default {
         icon="LuShapes"
         maxWidth="max-w-5xl">
         <!-- Search & Filters -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div class="relative w-full sm:max-w-md group">
-                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                    <LuSearch class="w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+        <div class="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+            <div class="group relative w-full sm:max-w-md">
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                    <LuSearch class="h-4 w-4 text-slate-400 transition-colors group-focus-within:text-indigo-500" />
                 </div>
                 <input
                     v-model="search"
                     type="text"
                     placeholder="Search icons by name..."
-                    class="w-full rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium transition-all duration-200 ease-out border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 shadow-sm" />
+                    class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm font-medium text-slate-900 shadow-sm transition-all duration-200 ease-out placeholder:text-slate-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500" />
             </div>
-            <div class="px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 shrink-0 w-fit">
+            <div class="w-fit shrink-0 rounded-lg border border-slate-100 bg-slate-50 px-3 py-1.5 dark:border-slate-700 dark:bg-slate-800/50">
                 <p class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
                     Showing
-                    <span class="text-indigo-600 dark:text-indigo-400 font-bold">
+                    <span class="font-bold text-indigo-600 dark:text-indigo-400">
                         {{ filteredIcons.length }}
                     </span>
                     of {{ icons.length }}
@@ -98,33 +98,33 @@ export default {
         <!-- Icon Grid -->
         <div
             v-if="filteredIcons.length > 0"
-            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
             <div
                 v-for="icon in filteredIcons"
                 :key="icon.name"
-                class="bg-slate-50/50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-4 shadow-sm flex flex-col items-center justify-between gap-3 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors group">
-                <div class="p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 group-hover:scale-110 transition-transform duration-300">
+                class="group flex flex-col items-center justify-between gap-3 rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 shadow-sm transition-colors hover:border-indigo-300 dark:border-slate-700/60 dark:bg-slate-800/30 dark:hover:border-indigo-600">
+                <div class="rounded-xl border border-slate-100 bg-white p-3 shadow-sm transition-transform duration-300 group-hover:scale-110 dark:border-slate-700 dark:bg-slate-800">
                     <component
                         :is="icon.component"
                         :size="24"
-                        class="text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
+                        class="text-slate-700 transition-colors group-hover:text-indigo-600 dark:text-slate-300 dark:group-hover:text-indigo-400" />
                 </div>
 
-                <p class="text-[0.65rem] font-mono font-semibold text-slate-600 dark:text-slate-400 text-center break-all line-clamp-2 w-full">
+                <p class="line-clamp-2 w-full break-all text-center font-mono text-[0.65rem] font-semibold text-slate-600 dark:text-slate-400">
                     {{ icon.name }}
                 </p>
 
                 <button
                     type="button"
                     @click="copyIconTag(icon.name)"
-                    class="w-full flex items-center justify-center gap-1.5 text-[0.6rem] font-bold uppercase tracking-widest px-2 py-1.5 rounded-lg border transition-all active:scale-95"
-                    :class="copiedName === icon.name ? 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/30' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-indigo-400'">
+                    class="flex w-full items-center justify-center gap-1.5 rounded-lg border px-2 py-1.5 text-[0.6rem] font-bold uppercase tracking-widest transition-all active:scale-95"
+                    :class="copiedName === icon.name ? 'border-emerald-200 bg-emerald-50 text-emerald-600 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400' : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-indigo-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-indigo-400'">
                     <template v-if="copiedName === icon.name">
-                        <LuCheckCircle2 class="w-3 h-3" />
+                        <LuCheckCircle2 class="h-3 w-3" />
                         <span>Copied</span>
                     </template>
                     <template v-else>
-                        <LuCopy class="w-3 h-3" />
+                        <LuCopy class="h-3 w-3" />
                         <span>Copy Tag</span>
                     </template>
                 </button>
@@ -134,10 +134,10 @@ export default {
         <!-- Empty State -->
         <div
             v-else
-            class="flex flex-col items-center justify-center py-16 px-4 text-center bg-slate-50/50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/60 rounded-xl border-dashed">
-            <LuShapes class="w-10 h-10 text-slate-300 dark:text-slate-600 mb-3" />
+            class="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200/60 bg-slate-50/50 px-4 py-16 text-center dark:border-slate-700/60 dark:bg-slate-800/30">
+            <LuShapes class="mb-3 h-10 w-10 text-slate-300 dark:text-slate-600" />
             <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">No icons found</p>
-            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">Try adjusting your search query.</p>
+            <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">Try adjusting your search query.</p>
         </div>
     </TopicLayout>
 </template>

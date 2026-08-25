@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-col gap-0.5">
-        <div class="text-[0.68rem] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center justify-between">
+        <div class="flex items-center justify-between text-[0.68rem] font-semibold text-slate-500 sm:text-xs dark:text-slate-400">
             <span class="flex gap-0.5 whitespace-nowrap">Per Page</span>
         </div>
         <custom-dropdown

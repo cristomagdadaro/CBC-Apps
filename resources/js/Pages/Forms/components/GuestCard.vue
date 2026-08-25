@@ -594,25 +594,25 @@ export default {
 <template>
     <div
         v-if="!!data"
-        class="max-w-3xl mx-auto space-y-5 pb-24 md:pb-8 w-full">
+        class="mx-auto w-full max-w-3xl space-y-5 pb-24 md:pb-8">
         <!-- Mobile Header (Hidden on Desktop) -->
         <div
             v-if="workflowTabs.length > 1"
-            class="md:hidden sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 shadow-sm px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-2 min-w-0">
-                <span class="inline-flex items-center gap-1 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 text-xs font-medium font-mono px-2 py-0.5 rounded-full tracking-wide shrink-0">
+            class="sticky top-0 z-40 flex items-center justify-between border-b border-slate-200/80 bg-white/90 px-4 py-3 shadow-sm backdrop-blur-md md:hidden dark:border-slate-800 dark:bg-slate-900/90">
+            <div class="flex min-w-0 items-center gap-2">
+                <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-indigo-50 px-2 py-0.5 font-mono text-xs font-medium tracking-wide text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400">
                     <Hash
                         :size="12"
                         :stroke-width="2" />
                     {{ data.event_id }}
                 </span>
-                <span class="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">
+                <span class="truncate text-sm font-semibold text-slate-800 dark:text-slate-200">
                     {{ data.title }}
                 </span>
             </div>
             <button
                 @click="showMobileMenu = !showMobileMenu"
-                class="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0">
+                class="shrink-0 rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
                 <Menu
                     :size="18"
                     :stroke-width="2" />
@@ -632,13 +632,13 @@ export default {
                 class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm md:hidden"
                 @click="showMobileMenu = false">
                 <div
-                    class="absolute right-0 top-0 h-full w-64 bg-white dark:bg-slate-900 shadow-2xl p-5 flex flex-col gap-4 transform transition-transform"
+                    class="absolute right-0 top-0 flex h-full w-64 transform flex-col gap-4 bg-white p-5 shadow-2xl transition-transform dark:bg-slate-900"
                     @click.stop>
-                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 mb-2">
+                    <div class="mb-2 flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
                         <span class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Form Steps</span>
                         <button
                             @click="showMobileMenu = false"
-                            class="p-1 rounded-md text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                            class="rounded-md p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
                             <X
                                 :size="16"
                                 :stroke-width="2" />
@@ -652,12 +652,12 @@ export default {
                                 activeTab = tab.key;
                                 showMobileMenu = false;
                             "
-                            class="flex items-center gap-3 w-full text-left px-3 py-2.5 rounded-xl transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                            :class="activeTab === tab.key ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50'"
+                            class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                            :class="activeTab === tab.key ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800/50'"
                             :disabled="tab.disabled">
                             <span
-                                class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium shrink-0"
-                                :class="activeTab === tab.key ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'">
+                                class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-medium"
+                                :class="activeTab === tab.key ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500 dark:bg-slate-800'">
                                 {{ i + 1 }}
                             </span>
                             <span class="flex-1 truncate">{{ tab.label }}</span>
@@ -669,14 +669,14 @@ export default {
 
         <!-- EVENT HEADER CARD -->
         <div
-            class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden"
+            class="overflow-hidden rounded-2xl border border-slate-200/60 bg-white/90 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/90"
             :style="styleFor('form-background')">
             <div
-                class="p-6 sm:p-8 border-b border-white/10 dark:border-slate-800/50 relative"
+                class="relative border-b border-white/10 p-6 sm:p-8 dark:border-slate-800/50"
                 :style="{ ...styleFor('form-header-box') }">
                 <div class="relative z-10 flex flex-col gap-2.5">
                     <div
-                        class="inline-flex items-center gap-1.5 bg-black/5 dark:bg-white/5 backdrop-blur-md text-xs font-medium font-mono px-2.5 py-1 rounded-full uppercase tracking-wide w-fit"
+                        class="inline-flex w-fit items-center gap-1.5 rounded-full bg-black/5 px-2.5 py-1 font-mono text-xs font-medium uppercase tracking-wide backdrop-blur-md dark:bg-white/5"
                         :style="{
                             color: resolvedStyleTokens?.['form-header-box-text-color']?.value,
                         }">
@@ -686,14 +686,14 @@ export default {
                         {{ data.event_id }}
                     </div>
                     <h2
-                        class="text-xl sm:text-2xl font-semibold tracking-tight leading-tight"
+                        class="text-xl font-semibold leading-tight tracking-tight sm:text-2xl"
                         :style="{
                             color: resolvedStyleTokens?.['form-header-box-text-color']?.value,
                         }">
                         {{ data.title }}
                     </h2>
                     <p
-                        class="text-sm font-normal opacity-90 leading-relaxed max-w-2xl"
+                        class="max-w-2xl text-sm font-normal leading-relaxed opacity-90"
                         :style="{
                             color: resolvedStyleTokens?.['form-header-box-text-color']?.value,
                         }">
@@ -703,20 +703,20 @@ export default {
             </div>
 
             <!-- Status Ribbon -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between px-5 sm:px-6 py-3.5 bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 gap-3">
+            <div class="flex flex-col justify-between gap-3 border-b border-slate-100 bg-slate-50/80 px-5 py-3.5 sm:flex-row sm:items-center sm:px-6 dark:border-slate-800 dark:bg-slate-800/40">
                 <div class="flex items-center">
                     <span
-                        class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium uppercase tracking-wide rounded-full"
+                        class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wide"
                         :class="eventState === 'ongoing' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : eventState === 'upcoming' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' : 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'">
                         <span
                             v-if="eventState === 'ongoing'"
                             class="relative flex h-1.5 w-1.5">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                         </span>
                         <span
                             v-else
-                            class="w-1.5 h-1.5 rounded-full"
+                            class="h-1.5 w-1.5 rounded-full"
                             :class="eventState === 'upcoming' ? 'bg-amber-500' : 'bg-red-500'"></span>
                         {{ eventState === "ongoing" ? "Live" : eventState === "upcoming" ? "Upcoming" : "Ended" }}
                     </span>
@@ -731,21 +731,21 @@ export default {
                             </span>
                             <span class="text-xs font-medium text-slate-500 dark:text-slate-400">d</span>
                         </div>
-                        <span class="text-slate-300 dark:text-slate-600 font-mono">:</span>
+                        <span class="font-mono text-slate-300 dark:text-slate-600">:</span>
                         <div class="flex items-baseline gap-0.5">
                             <span class="font-mono text-sm font-medium text-slate-800 dark:text-slate-200">
                                 {{ countdownParts.h }}
                             </span>
                             <span class="text-xs font-medium text-slate-500 dark:text-slate-400">h</span>
                         </div>
-                        <span class="text-slate-300 dark:text-slate-600 font-mono">:</span>
+                        <span class="font-mono text-slate-300 dark:text-slate-600">:</span>
                         <div class="flex items-baseline gap-0.5">
                             <span class="font-mono text-sm font-medium text-slate-800 dark:text-slate-200">
                                 {{ countdownParts.m }}
                             </span>
                             <span class="text-xs font-medium text-slate-500 dark:text-slate-400">m</span>
                         </div>
-                        <span class="text-slate-300 dark:text-slate-600 font-mono">:</span>
+                        <span class="font-mono text-slate-300 dark:text-slate-600">:</span>
                         <div class="flex items-baseline gap-0.5">
                             <span class="font-mono text-sm font-medium text-slate-800 dark:text-slate-200">
                                 {{ countdownParts.s }}
@@ -762,11 +762,11 @@ export default {
             </div>
 
             <!-- Dates Grid -->
-            <div class="grid grid-cols-2 divide-x divide-slate-100 dark:divide-slate-800 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+            <div class="grid grid-cols-2 divide-x divide-slate-100 border-b border-slate-100 bg-white/50 backdrop-blur-sm dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-900/50">
                 <div
-                    class="p-4 sm:p-5 text-center"
+                    class="p-4 text-center sm:p-5"
                     :style="styleFor('form-time-from')">
-                    <div class="flex items-center justify-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-1.5">
+                    <div class="mb-1.5 flex items-center justify-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                         <CalendarDays
                             :size="14"
                             :stroke-width="1.5"
@@ -781,7 +781,7 @@ export default {
                         {{ formatDate(data.date_from) }}
                     </p>
                     <p
-                        class="text-xs text-slate-500 dark:text-slate-400 mt-0.5"
+                        class="mt-0.5 text-xs text-slate-500 dark:text-slate-400"
                         :style="{
                             color: resolvedStyleTokens?.['form-time-from-text-color']?.value,
                         }">
@@ -789,9 +789,9 @@ export default {
                     </p>
                 </div>
                 <div
-                    class="p-4 sm:p-5 text-center"
+                    class="p-4 text-center sm:p-5"
                     :style="styleFor('form-time-to')">
-                    <div class="flex items-center justify-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-1.5">
+                    <div class="mb-1.5 flex items-center justify-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                         <CalendarDays
                             :size="14"
                             :stroke-width="1.5"
@@ -804,7 +804,7 @@ export default {
                         {{ formatDate(data.date_to) }}
                     </p>
                     <p
-                        class="text-xs text-slate-500 dark:text-slate-400 mt-0.5"
+                        class="mt-0.5 text-xs text-slate-500 dark:text-slate-400"
                         :style="{ color: resolvedStyleTokens?.['form-time-to-text-color']?.value }">
                         {{ formatTime(data.time_to) }}
                     </p>
@@ -814,18 +814,18 @@ export default {
             <!-- Venue & Slots -->
             <div
                 v-if="data.venue"
-                class="flex items-start gap-3 p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+                class="flex items-start gap-3 border-b border-slate-100 bg-white/50 p-4 backdrop-blur-sm sm:p-5 dark:border-slate-800 dark:bg-slate-900/50">
                 <MapPin
                     :size="16"
                     :stroke-width="1.5"
-                    class="text-indigo-500 dark:text-indigo-400 mt-0.5 shrink-0" />
+                    class="mt-0.5 shrink-0 text-indigo-500 dark:text-indigo-400" />
                 <div class="flex flex-col gap-0.5">
                     <p class="text-sm font-medium text-slate-800 dark:text-slate-200">
                         {{ data.venue }}
                     </p>
                     <p
                         v-if="data.details"
-                        class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        class="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
                         {{ data.details }}
                     </p>
                 </div>
@@ -833,7 +833,7 @@ export default {
 
             <div
                 v-if="currentMaxSlots && currentMaxSlots > 0"
-                class="flex items-center justify-between gap-4 p-4 sm:p-5 bg-slate-50/80 dark:bg-slate-800/40">
+                class="flex items-center justify-between gap-4 bg-slate-50/80 p-4 sm:p-5 dark:bg-slate-800/40">
                 <div class="flex items-center gap-2">
                     <Users
                         :size="14"
@@ -846,7 +846,7 @@ export default {
                         of {{ currentMaxSlots }} slots available
                     </span>
                 </div>
-                <div class="w-24 h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden shrink-0">
+                <div class="h-1 w-24 shrink-0 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
                     <div
                         class="h-full rounded-full transition-all duration-500"
                         :class="slotStatusClass"
@@ -858,33 +858,33 @@ export default {
         <!-- STATUS ALERTS -->
         <div
             v-if="data.is_suspended"
-            class="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-2xl shadow-sm">
+            class="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm dark:border-amber-500/30 dark:bg-amber-500/10">
             <AlertTriangle
                 :size="18"
                 :stroke-width="1.5"
-                class="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                class="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
             <div>
                 <p class="text-sm font-medium text-amber-900 dark:text-amber-200">Event Temporarily Unavailable</p>
-                <p class="text-xs text-amber-700 dark:text-amber-400/80 mt-1">This event is currently suspended and not accepting responses.</p>
+                <p class="mt-1 text-xs text-amber-700 dark:text-amber-400/80">This event is currently suspended and not accepting responses.</p>
             </div>
         </div>
         <div
             v-else-if="isExpired"
-            class="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-2xl shadow-sm">
+            class="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 shadow-sm dark:border-red-500/30 dark:bg-red-500/10">
             <XCircle
                 :size="18"
                 :stroke-width="1.5"
-                class="text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+                class="mt-0.5 shrink-0 text-red-600 dark:text-red-400" />
             <div>
                 <p class="text-sm font-medium text-red-900 dark:text-red-200">Event Has Ended</p>
-                <p class="text-xs text-red-700 dark:text-red-400/80 mt-1">This event is no longer accepting responses.</p>
+                <p class="mt-1 text-xs text-red-700 dark:text-red-400/80">This event is no longer accepting responses.</p>
             </div>
         </div>
 
         <!-- PARTICIPANT SELECTOR -->
         <div
             v-if="participantHashes?.length && !data.is_suspended && !isExpired"
-            class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm p-5 flex flex-col gap-3">
+            class="flex flex-col gap-3 rounded-2xl border border-slate-200/60 bg-white/80 p-5 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/80">
             <label class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Continue as</label>
             <div class="flex items-center gap-3">
                 <custom-dropdown
@@ -902,7 +902,7 @@ export default {
                 <button
                     v-if="selectedParticipantHash"
                     @click="clearParticipant"
-                    class="p-2 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors border border-transparent hover:border-red-200 dark:hover:border-red-500/30"
+                    class="rounded-xl border border-transparent p-2 text-red-500 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600 dark:hover:border-red-500/30 dark:hover:bg-red-500/10"
                     title="Sign out">
                     <LogOut
                         :size="16"
@@ -914,21 +914,21 @@ export default {
         <!-- PARTICIPANT VERIFICATION -->
         <div
             v-if="activeStep?.status === 'available' && participantWorkflowEnabled && participantVerificationEnabled && requiresParticipant(activeTab) && !selectedParticipantHash && !data.is_suspended && !isExpired"
-            class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm p-6 flex flex-col gap-5">
+            class="flex flex-col gap-5 rounded-2xl border border-slate-200/60 bg-white/80 p-6 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/80">
             <div class="flex items-center gap-2.5 text-indigo-600 dark:text-indigo-400">
                 <Shield
                     :size="18"
                     :stroke-width="1.5" />
                 <span class="text-sm font-medium uppercase tracking-wide text-slate-900 dark:text-white">Verify Registration</span>
             </div>
-            <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">This step requires a registered profile. Have you used this form before?</p>
+            <p class="text-sm leading-relaxed text-slate-500 dark:text-slate-400">This step requires a registered profile. Have you used this form before?</p>
 
             <div
                 v-if="!participantFlowChoice"
                 class="grid grid-cols-2 gap-4">
                 <button
                     @click="setParticipantFlowChoice('yes')"
-                    class="flex flex-col items-center gap-2 p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:border-indigo-500/50 dark:hover:bg-indigo-500/10 rounded-xl transition-all duration-200 group text-center">
+                    class="group flex flex-col items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-4 text-center transition-all duration-200 hover:border-indigo-500 hover:bg-indigo-50 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-indigo-500/50 dark:hover:bg-indigo-500/10">
                     <UserCheck
                         :size="24"
                         :stroke-width="1.5"
@@ -938,7 +938,7 @@ export default {
                 </button>
                 <button
                     @click="setParticipantFlowChoice('no')"
-                    class="flex flex-col items-center gap-2 p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:border-indigo-500/50 dark:hover:bg-indigo-500/10 rounded-xl transition-all duration-200 group text-center">
+                    class="group flex flex-col items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-4 text-center transition-all duration-200 hover:border-indigo-500 hover:bg-indigo-50 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-indigo-500/50 dark:hover:bg-indigo-500/10">
                     <UserPlus
                         :size="24"
                         :stroke-width="1.5"
@@ -962,13 +962,13 @@ export default {
                             v-model="participantLookupEmail"
                             type="email"
                             placeholder="your@email.com"
-                            class="w-full pl-9 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all shadow-sm"
+                            class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-4 text-sm text-slate-900 shadow-sm transition-all focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                             @keyup.enter="lookupRegisteredParticipant" />
                     </div>
                     <button
                         @click="lookupRegisteredParticipant"
                         :disabled="participantLookupLoading"
-                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl shadow-sm transition-all disabled:opacity-50 shrink-0">
+                        class="inline-flex shrink-0 items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-indigo-700 disabled:opacity-50">
                         <Loader2
                             v-if="participantLookupLoading"
                             :size="14"
@@ -985,11 +985,11 @@ export default {
 
             <div
                 v-if="participantFlowChoice === 'no'"
-                class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl">
+                class="flex flex-col items-center justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:flex-row dark:border-slate-700 dark:bg-slate-800/50">
                 <p class="text-sm text-slate-600 dark:text-slate-300">Complete preregistration first to get started.</p>
                 <button
                     @click="goToPreregistrationStep"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl shadow-sm transition-all w-full sm:w-auto justify-center">
+                    class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-indigo-700 sm:w-auto">
                     Go to Preregistration
                     <ArrowRight
                         :size="14"
@@ -1000,7 +1000,7 @@ export default {
             <!-- Lookup Alerts -->
             <div
                 v-if="participantLookupSuccess"
-                class="inline-flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-medium rounded-xl shadow-sm">
+                class="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-medium text-emerald-700 shadow-sm dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400">
                 <CheckCircle
                     :size="14"
                     :stroke-width="1.5" />
@@ -1008,7 +1008,7 @@ export default {
             </div>
             <div
                 v-if="participantLookupError"
-                class="inline-flex items-center gap-2 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400 text-xs font-medium rounded-xl shadow-sm">
+                class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-medium text-red-700 shadow-sm dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400">
                 <AlertCircle
                     :size="14"
                     :stroke-width="1.5" />
@@ -1019,7 +1019,7 @@ export default {
         <!-- LOADING STATE -->
         <div
             v-if="workflowLoading"
-            class="flex flex-col items-center justify-center py-12 gap-3 text-indigo-600 dark:text-indigo-400">
+            class="flex flex-col items-center justify-center gap-3 py-12 text-indigo-600 dark:text-indigo-400">
             <Loader2
                 :size="24"
                 :stroke-width="1.5"
@@ -1030,35 +1030,35 @@ export default {
         <!-- ERROR STATE -->
         <div
             v-if="workflowError"
-            class="flex flex-col items-center justify-center p-8 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-2xl text-center">
+            class="flex flex-col items-center justify-center rounded-2xl border border-red-200 bg-red-50 p-8 text-center dark:border-red-500/30 dark:bg-red-500/10">
             <AlertCircle
                 :size="28"
                 :stroke-width="1.5"
-                class="text-red-500 mb-2" />
+                class="mb-2 text-red-500" />
             <p class="text-sm font-medium text-red-900 dark:text-red-200">Failed to load</p>
-            <p class="text-xs text-red-700 dark:text-red-400 mt-1">{{ workflowError }}</p>
+            <p class="mt-1 text-xs text-red-700 dark:text-red-400">{{ workflowError }}</p>
         </div>
 
         <!-- TABS (Desktop) -->
         <div
             v-if="workflowTabs.length > 1 && !workflowLoading"
-            class="hidden md:flex gap-1.5 p-1.5 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 rounded-xl overflow-x-auto no-scrollbar shadow-inner">
+            class="no-scrollbar hidden gap-1.5 overflow-x-auto rounded-xl border border-slate-200 bg-slate-100 p-1.5 shadow-inner md:flex dark:border-slate-700/50 dark:bg-slate-800/60">
             <button
                 v-for="(tab, i) in workflowTabs"
                 :key="tab.key"
                 @click="activeTab = tab.key"
-                class="flex items-center gap-2.5 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap min-w-0"
-                :class="activeTab === tab.key ? 'bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400 ring-1 ring-slate-200 dark:ring-slate-600' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 disabled:opacity-50 disabled:cursor-not-allowed'"
+                class="flex min-w-0 items-center gap-2.5 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-all"
+                :class="activeTab === tab.key ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-slate-200 dark:bg-slate-700 dark:text-indigo-400 dark:ring-slate-600' : 'text-slate-500 hover:bg-slate-200/50 hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-slate-200'"
                 :disabled="tab.disabled">
                 <span
-                    class="w-4 h-4 rounded-full flex items-center justify-center text-[0.65rem] shrink-0"
-                    :class="activeTab === tab.key ? 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'">
+                    class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[0.65rem]"
+                    :class="activeTab === tab.key ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400' : 'bg-slate-200 text-slate-500 dark:bg-slate-800'">
                     {{ i + 1 }}
                 </span>
                 <span class="truncate">{{ tab.label }}</span>
                 <!-- Status Dot -->
                 <span
-                    class="w-1.5 h-1.5 rounded-full shrink-0"
+                    class="h-1.5 w-1.5 shrink-0 rounded-full"
                     :class="{
                         'bg-emerald-500': tab.status === 'available',
                         'bg-blue-500': tab.status === 'completed',
@@ -1075,7 +1075,7 @@ export default {
             <!-- Step Countdown Banner -->
             <div
                 v-if="getStepCountdownMeta(getStep(activeTab))"
-                class="flex items-center justify-between p-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm">
+                class="flex items-center justify-between rounded-2xl border border-slate-200/60 bg-white/80 p-4 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/80">
                 <div class="flex items-center gap-2.5 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     <Hourglass
                         :size="14"
@@ -1090,14 +1090,14 @@ export default {
             </div>
 
             <!-- Form Shell -->
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden flex flex-col mt-2">
-                <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
-                    <h3 class="text-base font-semibold text-slate-900 dark:text-white tracking-tight">
+            <div class="mt-2 flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <div class="border-b border-slate-100 bg-slate-50/50 px-6 py-4 dark:border-slate-800 dark:bg-slate-800/20">
+                    <h3 class="text-base font-semibold tracking-tight text-slate-900 dark:text-white">
                         {{ getStepTitle(activeTab) }}
                     </h3>
                     <p
                         v-if="getDescription(activeTab)"
-                        class="text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                        class="mt-1 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
                         {{ getDescription(activeTab) }}
                     </p>
                 </div>
@@ -1146,26 +1146,26 @@ export default {
                     <!-- Unavailable state inside shell -->
                     <div
                         v-else
-                        class="flex flex-col items-center justify-center py-16 px-4 text-center">
+                        class="flex flex-col items-center justify-center px-4 py-16 text-center">
                         <div
-                            class="w-14 h-14 rounded-full flex items-center justify-center mb-4"
+                            class="mb-4 flex h-14 w-14 items-center justify-center rounded-full"
                             :class="{
-                                'bg-slate-100 dark:bg-slate-800 text-slate-400': ['locked', 'disabled'].includes(activeStep?.status),
-                                'bg-amber-50 dark:bg-amber-500/10 text-amber-500': activeStep?.status === 'not_yet_open',
-                                'bg-red-50 dark:bg-red-500/10 text-red-500': ['expired', 'full'].includes(activeStep?.status),
-                                'bg-blue-50 dark:bg-blue-500/10 text-blue-500': activeStep?.status === 'completed',
+                                'bg-slate-100 text-slate-400 dark:bg-slate-800': ['locked', 'disabled'].includes(activeStep?.status),
+                                'bg-amber-50 text-amber-500 dark:bg-amber-500/10': activeStep?.status === 'not_yet_open',
+                                'bg-red-50 text-red-500 dark:bg-red-500/10': ['expired', 'full'].includes(activeStep?.status),
+                                'bg-blue-50 text-blue-500 dark:bg-blue-500/10': activeStep?.status === 'completed',
                             }">
                             <component
                                 :is="getStepIcon(activeStep?.status)"
                                 :size="28"
                                 :stroke-width="1.5" />
                         </div>
-                        <h3 class="text-base font-semibold text-slate-900 dark:text-white tracking-wide">
+                        <h3 class="text-base font-semibold tracking-wide text-slate-900 dark:text-white">
                             {{ getStepMessage(getStep(activeTab)) }}
                         </h3>
                         <p
                             v-if="activeStep?.status === 'locked'"
-                            class="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
+                            class="mt-1 max-w-sm text-sm text-slate-500 dark:text-slate-400">
                             Complete previous steps in the workflow to unlock this form.
                         </p>
                     </div>

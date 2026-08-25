@@ -492,9 +492,9 @@ export default {
 
 <template>
     <div
-        class="camera-scanner gap-2 flex flex-col"
+        class="camera-scanner flex flex-col gap-2"
         :class="[`variant-${variant}`]">
-        <div class="flex flex-col gap-2 w-full">
+        <div class="flex w-full flex-col gap-2">
             <!-- Toggle Button -->
             <div
                 v-if="showToggle"
@@ -503,31 +503,31 @@ export default {
                     type="button"
                     @click="toggleScanner"
                     :disabled="!enabled"
-                    class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border transition-all duration-200"
-                    :class="[isOpen ? 'bg-lime-50 dark:bg-lime-950/40 border-lime-300 dark:border-lime-800 text-lime-800 dark:text-lime-200 shadow-xs' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800', !enabled && 'opacity-50 cursor-not-allowed']">
-                    <span class="flex items-center gap-2.5 min-w-0">
+                    class="flex w-full items-center justify-between rounded-xl border px-3.5 py-2.5 transition-all duration-200"
+                    :class="[isOpen ? 'shadow-xs border-lime-300 bg-lime-50 text-lime-800 dark:border-lime-800 dark:bg-lime-950/40 dark:text-lime-200' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800', !enabled && 'cursor-not-allowed opacity-50']">
+                    <span class="flex min-w-0 items-center gap-2.5">
                         <span
-                            class="p-2 rounded-lg transition-colors shrink-0"
+                            class="shrink-0 rounded-lg p-2 transition-colors"
                             :class="isOpen ? 'bg-lime-100 dark:bg-lime-900/60' : 'bg-slate-100 dark:bg-slate-800'">
                             <ScanLine
-                                class="w-4 h-4 transition-transform duration-300"
-                                :class="isOpen ? 'text-lime-600 dark:text-lime-400 scale-110' : 'text-slate-500 dark:text-slate-400'" />
+                                class="h-4 w-4 transition-transform duration-300"
+                                :class="isOpen ? 'scale-110 text-lime-600 dark:text-lime-400' : 'text-slate-500 dark:text-slate-400'" />
                         </span>
-                        <span class="text-left min-w-0">
-                            <span class="block text-xs sm:text-sm font-bold truncate">
+                        <span class="min-w-0 text-left">
+                            <span class="block truncate text-xs font-bold sm:text-sm">
                                 {{ displayLabel }}
                             </span>
-                            <span class="block text-[0.68rem] text-slate-500 dark:text-slate-400 truncate">
+                            <span class="block truncate text-[0.68rem] text-slate-500 dark:text-slate-400">
                                 {{ isOpen ? "Camera Scanner Active" : "Click to enable camera scan" }}
                             </span>
                         </span>
                     </span>
 
                     <span
-                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 shrink-0 ml-2"
+                        class="relative ml-2 inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-300"
                         :class="isOpen ? 'bg-lime-600 dark:bg-lime-500' : 'bg-slate-200 dark:bg-slate-700'">
                         <span
-                            class="inline-block h-4 w-4 transform rounded-full bg-white shadow-xs transition-transform duration-300"
+                            class="shadow-xs inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300"
                             :class="isOpen ? 'translate-x-6' : 'translate-x-1'" />
                     </span>
                 </button>
@@ -538,9 +538,9 @@ export default {
                 <div
                     v-show="showDeviceSelect && isOpen && devices.length"
                     class="device-select w-full">
-                    <div class="relative flex items-center gap-2 px-3 py-1.5 h-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl">
-                        <Camera class="w-4 h-4 text-slate-400 shrink-0" />
-                        <div class="flex-1 min-w-0">
+                    <div class="relative flex h-full items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-slate-800 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-200">
+                        <Camera class="h-4 w-4 shrink-0 text-slate-400" />
+                        <div class="min-w-0 flex-1">
                             <CustomDropdown
                                 required
                                 :value="selectedDeviceId"
@@ -553,9 +553,9 @@ export default {
                         <button
                             v-if="hasMultipleDevices"
                             @click="switchCamera"
-                            class="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 shrink-0"
+                            class="shrink-0 rounded-lg bg-slate-200 p-2 text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
                             title="Switch camera">
-                            <SwitchCamera class="w-4 h-4 transition-transform duration-300 active:rotate-180" />
+                            <SwitchCamera class="h-4 w-4 transition-transform duration-300 active:rotate-180" />
                         </button>
                     </div>
                 </div>
@@ -566,7 +566,7 @@ export default {
         <transition name="scanner-slide">
             <div
                 v-show="isOpen"
-                class="scanner-viewport relative overflow-hidden rounded-2xl border transition-all duration-300 bg-slate-950 shadow-xs"
+                class="scanner-viewport shadow-xs relative overflow-hidden rounded-2xl border bg-slate-950 transition-all duration-300"
                 :class="[borderColorClass, showSuccessBorder ? 'border-emerald-500 ring-2 ring-emerald-500/30' : '']"
                 :style="{ height: scannerHeight }">
                 <!-- Active Scanner -->
@@ -575,31 +575,31 @@ export default {
                     class="absolute inset-0">
                     <video
                         ref="scannerVideo"
-                        class="w-full h-full object-cover"
+                        class="h-full w-full object-cover"
                         autoplay
                         muted
                         playsinline
                         @loadedmetadata="resizeScannerCanvas"></video>
                     <canvas
                         ref="scannerOverlay"
-                        class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+                        class="pointer-events-none absolute inset-0 h-full w-full"></canvas>
 
                     <!-- Laser Sweep Animation Beam -->
-                    <div class="laser-beam absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-lime-400 to-transparent shadow-[0_0_8px_#84cc16] pointer-events-none"></div>
+                    <div class="laser-beam pointer-events-none absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-lime-400 to-transparent shadow-[0_0_8px_#84cc16]"></div>
 
                     <!-- Loading State -->
                     <div
                         v-if="!isReady"
                         class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/90 text-slate-200">
-                        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-lime-500 mb-2"></div>
+                        <div class="mb-2 h-10 w-10 animate-spin rounded-full border-b-2 border-lime-500"></div>
                         <p class="text-xs font-semibold text-slate-400">Initializing camera...</p>
                     </div>
 
                     <!-- Empty State -->
                     <div
                         v-else-if="!mediaStream"
-                        class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/90 text-center p-4 text-slate-400">
-                        <Camera class="w-10 h-10 mb-2 opacity-50" />
+                        class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/90 p-4 text-center text-slate-400">
+                        <Camera class="mb-2 h-10 w-10 opacity-50" />
                         <p class="text-xs font-medium">No camera device detected</p>
                     </div>
                 </div>
@@ -608,25 +608,25 @@ export default {
                 <transition name="fade">
                     <div
                         v-if="showSuccessBorder"
-                        class="absolute inset-0 pointer-events-none flex items-center justify-center bg-emerald-500/20 backdrop-blur-xs">
-                        <div class="bg-slate-900/90 border border-emerald-500 rounded-2xl p-4 shadow-xl animate-bounce">
-                            <CheckCircle2 class="w-8 h-8 text-emerald-400" />
+                        class="backdrop-blur-xs pointer-events-none absolute inset-0 flex items-center justify-center bg-emerald-500/20">
+                        <div class="animate-bounce rounded-2xl border border-emerald-500 bg-slate-900/90 p-4 shadow-xl">
+                            <CheckCircle2 class="h-8 w-8 text-emerald-400" />
                         </div>
                     </div>
                 </transition>
 
                 <!-- Corner Reticles -->
-                <div class="absolute inset-4 pointer-events-none">
-                    <div class="absolute top-0 left-0 w-6 h-6 border-l-2 border-t-2 border-lime-400 rounded-tl-md"></div>
-                    <div class="absolute top-0 right-0 w-6 h-6 border-r-2 border-t-2 border-lime-400 rounded-tr-md"></div>
-                    <div class="absolute bottom-0 left-0 w-6 h-6 border-l-2 border-b-2 border-lime-400 rounded-bl-md"></div>
-                    <div class="absolute bottom-0 right-0 w-6 h-6 border-r-2 border-b-2 border-lime-400 rounded-br-md"></div>
+                <div class="pointer-events-none absolute inset-4">
+                    <div class="absolute left-0 top-0 h-6 w-6 rounded-tl-md border-l-2 border-t-2 border-lime-400"></div>
+                    <div class="absolute right-0 top-0 h-6 w-6 rounded-tr-md border-r-2 border-t-2 border-lime-400"></div>
+                    <div class="absolute bottom-0 left-0 h-6 w-6 rounded-bl-md border-b-2 border-l-2 border-lime-400"></div>
+                    <div class="absolute bottom-0 right-0 h-6 w-6 rounded-br-md border-b-2 border-r-2 border-lime-400"></div>
                 </div>
 
                 <!-- Last Scanned Badge -->
                 <div
                     v-if="lastDecoded"
-                    class="absolute bottom-3 left-3 right-3 bg-slate-900/90 border border-slate-700 text-lime-400 text-center py-1.5 px-3 rounded-xl text-xs font-mono font-bold tracking-wider">
+                    class="absolute bottom-3 left-3 right-3 rounded-xl border border-slate-700 bg-slate-900/90 px-3 py-1.5 text-center font-mono text-xs font-bold tracking-wider text-lime-400">
                     Scanned: {{ lastDecoded }}
                 </div>
             </div>
@@ -636,12 +636,12 @@ export default {
         <transition name="fade">
             <div
                 v-if="error"
-                class="mt-2 flex items-center gap-2 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 text-xs">
-                <AlertCircle class="w-4 h-4 flex-shrink-0" />
+                class="mt-2 flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300">
+                <AlertCircle class="h-4 w-4 flex-shrink-0" />
                 <span class="font-semibold">{{ error }}</span>
                 <button
                     @click="error = null"
-                    class="ml-auto text-xs underline font-bold hover:no-underline">
+                    class="ml-auto text-xs font-bold underline hover:no-underline">
                     Dismiss
                 </button>
             </div>

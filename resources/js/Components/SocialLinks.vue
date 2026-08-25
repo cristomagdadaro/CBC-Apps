@@ -248,17 +248,17 @@ export default {
         leave-to-class="opacity-0">
         <div
             v-if="open"
-            class="fixed inset-0 bg-black/40 z-[999] md:hidden"
+            class="fixed inset-0 z-[999] bg-black/40 md:hidden"
             @click="close" />
     </transition>
 
     <!-- Main Container -->
     <div
         data-guide="social-links"
-        class="fixed bottom-3.5 right-3.5 sm:bottom-6 sm:right-24 z-[1000] flex flex-col items-end gap-2 sm:gap-3">
+        class="fixed bottom-3.5 right-3.5 z-[1000] flex flex-col items-end gap-2 sm:bottom-6 sm:right-24 sm:gap-3">
         <!-- Desktop View: Floating Pill -->
         <div
-            class="hidden md:flex items-center gap-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-full px-2 py-1.5 shadow-xl transition-all duration-300 hover:scale-[1.02]"
+            class="hidden items-center gap-1 rounded-full border border-gray-200 bg-white px-2 py-1.5 shadow-xl transition-all duration-300 hover:scale-[1.02] md:flex dark:border-slate-800 dark:bg-slate-900"
             @mouseenter="isHovered = true"
             @mouseleave="isHovered = false">
             <!-- Auth Links -->
@@ -266,20 +266,20 @@ export default {
                 <Link
                     data-guide="social-links-dashboard"
                     :href="route('dashboard')"
-                    class="group relative p-2.5 flex items-center gap-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white"
+                    class="group relative flex items-center gap-2 rounded-full p-2.5 text-gray-600 transition-all duration-200 hover:bg-gray-100 hover:text-AB dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                     title="Dashboard">
-                    <LuLayoutGrid class="w-5 h-5" />
+                    <LuLayoutGrid class="h-5 w-5" />
                     Dashboard
-                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">Dashboard</span>
+                    <span class="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 dark:bg-white dark:text-gray-900">Dashboard</span>
                 </Link>
                 <Link
                     :href="route('logout')"
                     method="post"
                     as="button"
-                    class="group relative p-2.5 flex items-center gap-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white"
+                    class="group relative flex items-center gap-2 rounded-full p-2.5 text-gray-600 transition-all duration-200 hover:bg-gray-100 hover:text-AB dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                     title="Logout">
                     <svg
-                        class="w-5 h-5"
+                        class="h-5 w-5"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24">
@@ -290,28 +290,28 @@ export default {
                             d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                     </svg>
                     Logout
-                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">Logout</span>
+                    <span class="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 dark:bg-white dark:text-gray-900">Logout</span>
                 </Link>
             </template>
             <template v-else>
                 <Link
                     :href="route('login')"
                     data-guide="social-links-login"
-                    class="group relative p-2.5 flex items-center gap-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white"
+                    class="group relative flex items-center gap-2 rounded-full p-2.5 text-gray-600 transition-all duration-200 hover:bg-gray-100 hover:text-AB dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                     title="Login">
-                    <LuUser class="w-5 h-5" />
+                    <LuUser class="h-5 w-5" />
                     Login
-                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">Login</span>
+                    <span class="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 dark:bg-white dark:text-gray-900">Login</span>
                 </Link>
                 <Link
                     v-if="canRegister"
                     :href="route('register')"
                     data-guide="social-links-register"
-                    class="group relative p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white"
+                    class="group relative rounded-full p-2.5 text-gray-600 transition-all duration-200 hover:bg-gray-100 hover:text-AB dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                     title="Register">
-                    <div class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">Register</div>
+                    <div class="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 dark:bg-white dark:text-gray-900">Register</div>
                     <svg
-                        class="w-5 h-5"
+                        class="h-5 w-5"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24">
@@ -324,78 +324,78 @@ export default {
                 </Link>
             </template>
 
-            <div class="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+            <div class="mx-1 h-6 w-px bg-gray-300 dark:bg-gray-600" />
 
             <!-- External Links -->
             <a
                 href="https://dacbc.philrice.gov.ph/"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="group relative p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white">
+                class="group relative rounded-full p-2.5 text-gray-600 transition-all duration-200 hover:bg-gray-100 hover:text-AB dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white">
                 <LuGlobe
                     data-guide="social-links-corporate-website"
-                    class="w-5 h-5" />
-                <span class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">Corporate Website</span>
+                    class="h-5 w-5" />
+                <span class="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 rounded-md bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 dark:bg-white dark:text-gray-900">Corporate Website</span>
             </a>
 
             <a
                 href="https://cbc360tour.philrice.gov.ph/"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="group relative p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white">
+                class="group relative rounded-full p-2.5 text-gray-600 transition-all duration-200 hover:bg-gray-100 hover:text-AB dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white">
                 <LuStar
                     data-guide="social-links-360tour"
-                    class="w-5 h-5" />
-                <span class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">Virtual Tour</span>
+                    class="h-5 w-5" />
+                <span class="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 rounded-md bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 dark:bg-white dark:text-gray-900">Virtual Tour</span>
             </a>
 
             <a
                 href="https://pin.philrice.gov.ph/"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="group relative p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-AB dark:hover:text-white">
+                class="group relative rounded-full p-2.5 text-gray-600 transition-all duration-200 hover:bg-gray-100 hover:text-AB dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white">
                 <LuMapPin
                     data-guide="social-links-pin"
-                    class="w-5 h-5" />
-                <span class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">PIN System</span>
+                    class="h-5 w-5" />
+                <span class="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 rounded-md bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 dark:bg-white dark:text-gray-900">PIN System</span>
             </a>
 
             <a
                 href="https://www.facebook.com/DACropBiotechCenter"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="group relative p-2.5 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/30 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-blue-600 dark:hover:text-blue-400">
+                class="group relative rounded-full p-2.5 text-gray-600 transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 dark:text-gray-300 dark:hover:bg-blue-900/30 dark:hover:text-blue-400">
                 <LuFacebook
                     data-guide="social-links-facebook"
-                    class="w-5 h-5" />
-                <span class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">Facebook</span>
+                    class="h-5 w-5" />
+                <span class="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 rounded-md bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 dark:bg-white dark:text-gray-900">Facebook</span>
             </a>
 
             <a
                 href="mailto:cropbiotechcenter@gmail.com"
-                class="group relative p-2.5 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-red-500 dark:hover:text-red-400">
+                class="group relative rounded-full p-2.5 text-gray-600 transition-all duration-200 hover:bg-red-50 hover:text-red-500 dark:text-gray-300 dark:hover:bg-red-900/30 dark:hover:text-red-400">
                 <LuMail
                     data-guide="social-links-email"
-                    class="w-5 h-5" />
-                <span class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">Email Us</span>
+                    class="h-5 w-5" />
+                <span class="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 rounded-md bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 dark:bg-white dark:text-gray-900">Email Us</span>
             </a>
 
             <button
                 type="button"
                 @click="openPrivacyNotice"
-                class="group relative p-2.5 rounded-full hover:bg-emerald-50 dark:hover:bg-emerald-900/30 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:text-emerald-600 dark:hover:text-emerald-400"
+                class="group relative rounded-full p-2.5 text-gray-600 transition-all duration-200 hover:bg-emerald-50 hover:text-emerald-600 dark:text-gray-300 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400"
                 title="Data Privacy Notice">
                 <LuShield
                     data-guide="privacy-notice"
-                    class="w-5 h-5" />
-                <span class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">Data Privacy Notice</span>
+                    class="h-5 w-5" />
+                <span class="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 dark:bg-white dark:text-gray-900">Data Privacy Notice</span>
             </button>
         </div>
 
         <!-- Mobile View: Floating Action Button -->
         <div
-            class="md:hidden flex flex-col items-end gap-2 transition-all duration-500 ease-in-out"
-            :class="isMobileVisible || open ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0 pointer-events-none'">
+            class="flex flex-col items-end gap-2 transition-all duration-500 ease-in-out md:hidden"
+            :class="isMobileVisible || open ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-12 opacity-0'">
             <!-- Menu Panel -->
             <transition
                 enter-active-class="transition-all duration-300 ease-out"
@@ -406,29 +406,29 @@ export default {
                 leave-to-class="opacity-0 translate-y-8 scale-95">
                 <div
                     v-if="open"
-                    class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-200 dark:border-slate-800 overflow-hidden max-w-[calc(100vw-2rem)] min-w-[260px] mb-1.5">
+                    class="mb-1.5 min-w-[260px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
                     <!-- Header -->
-                    <div class="bg-gradient-to-r from-lime-600 to-emerald-600 px-3.5 py-2.5 flex items-center justify-between">
-                        <span class="text-white font-semibold text-xs flex items-center gap-2">
-                            <LuGlobe class="w-4 h-4" />
+                    <div class="flex items-center justify-between bg-gradient-to-r from-lime-600 to-emerald-600 px-3.5 py-2.5">
+                        <span class="flex items-center gap-2 text-xs font-semibold text-white">
+                            <LuGlobe class="h-4 w-4" />
                             Quick Links
                         </span>
                         <button
                             @click="close"
-                            class="text-white/80 hover:text-white transition-colors p-1 rounded-full hover:bg-white/20">
-                            <LuX class="w-4 h-4" />
+                            class="rounded-full p-1 text-white/80 transition-colors hover:bg-white/20 hover:text-white">
+                            <LuX class="h-4 w-4" />
                         </button>
                     </div>
 
                     <!-- Auth Section -->
-                    <div class="p-2 space-y-1">
+                    <div class="space-y-1 p-2">
                         <template v-if="$page.props.auth.user">
                             <Link
                                 :href="route('dashboard')"
                                 data-guide="social-links-dashboard"
-                                class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 group">
-                                <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-lime-500/20 group-hover:text-lime-600 transition-colors">
-                                    <LuLayoutGrid class="w-3.5 h-3.5" />
+                                class="group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-slate-700 transition-all duration-200 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">
+                                <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 transition-colors group-hover:bg-lime-500/20 group-hover:text-lime-600 dark:bg-slate-800">
+                                    <LuLayoutGrid class="h-3.5 w-3.5" />
                                 </div>
                                 <div class="flex-1">
                                     <span class="text-xs font-semibold">Dashboard</span>
@@ -439,10 +439,10 @@ export default {
                                 :href="route('logout')"
                                 method="post"
                                 as="button"
-                                class="w-full text-left flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 group">
-                                <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-red-500/20 group-hover:text-red-600 transition-colors">
+                                class="group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-slate-700 transition-all duration-200 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">
+                                <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 transition-colors group-hover:bg-red-500/20 group-hover:text-red-600 dark:bg-slate-800">
                                     <svg
-                                        class="w-3.5 h-3.5"
+                                        class="h-3.5 w-3.5"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -463,9 +463,9 @@ export default {
                             <Link
                                 :href="route('login')"
                                 data-guide="social-links-login"
-                                class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 group">
-                                <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-lime-500/20 group-hover:text-lime-600 transition-colors">
-                                    <LuUser class="w-3.5 h-3.5" />
+                                class="group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-slate-700 transition-all duration-200 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">
+                                <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 transition-colors group-hover:bg-lime-500/20 group-hover:text-lime-600 dark:bg-slate-800">
+                                    <LuUser class="h-3.5 w-3.5" />
                                 </div>
                                 <div class="flex-1">
                                     <span class="text-xs font-semibold">Login</span>
@@ -476,10 +476,10 @@ export default {
                                 v-if="canRegister"
                                 :href="route('register')"
                                 data-guide="social-links-register"
-                                class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 group">
-                                <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-lime-500/20 group-hover:text-lime-600 transition-colors">
+                                class="group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-slate-700 transition-all duration-200 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">
+                                <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 transition-colors group-hover:bg-lime-500/20 group-hover:text-lime-600 dark:bg-slate-800">
                                     <svg
-                                        class="w-3.5 h-3.5"
+                                        class="h-3.5 w-3.5"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -498,35 +498,35 @@ export default {
                         </template>
                     </div>
 
-                    <div class="h-px bg-slate-200 dark:bg-slate-800 mx-2" />
+                    <div class="mx-2 h-px bg-slate-200 dark:bg-slate-800" />
 
                     <!-- External Links -->
-                    <div class="p-2 space-y-1">
+                    <div class="space-y-1 p-2">
                         <a
                             data-guide="social-links-facebook"
                             href="https://www.facebook.com/DACropBiotechCenter"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 group">
-                            <div class="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                                <LuFacebook class="w-3.5 h-3.5" />
+                            class="group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-slate-700 transition-all duration-200 hover:bg-blue-50 dark:text-slate-200 dark:hover:bg-blue-900/20">
+                            <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-100 text-blue-600 transition-all group-hover:bg-blue-600 group-hover:text-white dark:bg-blue-900/30">
+                                <LuFacebook class="h-3.5 w-3.5" />
                             </div>
                             <div class="flex-1">
                                 <span class="text-xs font-semibold">Facebook</span>
-                                <LuExternalLink class="w-3 h-3 text-slate-400 inline-block ml-1" />
+                                <LuExternalLink class="ml-1 inline-block h-3 w-3 text-slate-400" />
                             </div>
                         </a>
 
                         <a
                             data-guide="social-links-email"
                             href="mailto:cropbiotechcenter@gmail.com"
-                            class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all duration-200 group">
-                            <div class="w-7 h-7 rounded-lg bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-600 group-hover:bg-rose-500 group-hover:text-white transition-all">
-                                <LuMail class="w-3.5 h-3.5" />
+                            class="group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-slate-700 transition-all duration-200 hover:bg-rose-50 dark:text-slate-200 dark:hover:bg-rose-900/20">
+                            <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-100 text-rose-600 transition-all group-hover:bg-rose-500 group-hover:text-white dark:bg-rose-900/30">
+                                <LuMail class="h-3.5 w-3.5" />
                             </div>
                             <div class="flex-1">
                                 <span class="text-xs font-semibold">Email</span>
-                                <span class="text-[0.68rem] text-slate-500 dark:text-slate-400 block">cropbiotechcenter@gmail.com</span>
+                                <span class="block text-[0.68rem] text-slate-500 dark:text-slate-400">cropbiotechcenter@gmail.com</span>
                             </div>
                         </a>
 
@@ -535,13 +535,13 @@ export default {
                             href="https://dacbc.philrice.gov.ph/"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 group">
-                            <div class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-lime-500/20 group-hover:text-lime-600 transition-colors">
-                                <LuGlobe class="w-3.5 h-3.5" />
+                            class="group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-slate-700 transition-all duration-200 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">
+                            <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 transition-colors group-hover:bg-lime-500/20 group-hover:text-lime-600 dark:bg-slate-800">
+                                <LuGlobe class="h-3.5 w-3.5" />
                             </div>
                             <div class="flex-1">
                                 <span class="text-xs font-semibold">Corporate Website</span>
-                                <LuExternalLink class="w-3 h-3 text-slate-400 inline-block ml-1" />
+                                <LuExternalLink class="ml-1 inline-block h-3 w-3 text-slate-400" />
                             </div>
                         </a>
 
@@ -550,13 +550,13 @@ export default {
                             href="https://cbc360tour.philrice.gov.ph/"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all duration-200 group">
-                            <div class="w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-all">
-                                <LuStar class="w-3.5 h-3.5" />
+                            class="group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-slate-700 transition-all duration-200 hover:bg-amber-50 dark:text-slate-200 dark:hover:bg-amber-900/20">
+                            <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-100 text-amber-600 transition-all group-hover:bg-amber-500 group-hover:text-white dark:bg-amber-900/30">
+                                <LuStar class="h-3.5 w-3.5" />
                             </div>
                             <div class="flex-1">
                                 <span class="text-xs font-semibold">Virtual Tour</span>
-                                <LuExternalLink class="w-3 h-3 text-slate-400 inline-block ml-1" />
+                                <LuExternalLink class="ml-1 inline-block h-3 w-3 text-slate-400" />
                             </div>
                         </a>
 
@@ -565,9 +565,9 @@ export default {
                             href="https://pin.philrice.gov.ph/"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-200 group">
-                            <div class="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-all">
-                                <LuMapPin class="w-3.5 h-3.5" />
+                            class="group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-slate-700 transition-all duration-200 hover:bg-emerald-50 dark:text-slate-200 dark:hover:bg-emerald-900/20">
+                            <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 transition-all group-hover:bg-emerald-500 group-hover:text-white dark:bg-emerald-900/30">
+                                <LuMapPin class="h-3.5 w-3.5" />
                             </div>
                             <div class="flex-1">
                                 <span class="text-xs font-semibold">PIN System</span>
@@ -579,11 +579,11 @@ export default {
                             type="button"
                             @click="openPrivacyNotice"
                             data-guide="social-links-privacy-notice"
-                            class="flex w-full items-center gap-2.5 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-200 group">
+                            class="group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-slate-700 transition-all duration-200 hover:bg-emerald-50 dark:text-slate-200 dark:hover:bg-emerald-900/20">
                             <div
                                 data-guide="privacy-notice"
-                                class="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-all">
-                                <LuShield class="w-3.5 h-3.5" />
+                                class="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 transition-all group-hover:bg-emerald-500 group-hover:text-white dark:bg-emerald-900/30">
+                                <LuShield class="h-3.5 w-3.5" />
                             </div>
                             <div class="flex-1 text-left">
                                 <span class="text-xs font-semibold">Terms & Privacy Policy</span>
@@ -599,15 +599,15 @@ export default {
                 type="button"
                 @click="toggle"
                 data-guide="social-links"
-                class="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-slate-900 dark:bg-slate-800 text-white border border-slate-700 dark:border-slate-700 shadow-md sm:shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none opacity-85 hover:opacity-100"
-                :class="{ 'rotate-90 opacity-100 bg-lime-600 text-white': open }"
+                class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-white opacity-85 shadow-md transition-all duration-300 hover:scale-105 hover:opacity-100 focus:outline-none active:scale-95 sm:h-14 sm:w-14 sm:shadow-lg dark:border-slate-700 dark:bg-slate-800"
+                :class="{ 'rotate-90 bg-lime-600 text-white opacity-100': open }"
                 aria-label="Toggle quick links menu">
                 <LuMenu
                     v-if="!open"
-                    class="w-5 h-5 sm:w-6 sm:h-6 text-lime-400" />
+                    class="h-5 w-5 text-lime-400 sm:h-6 sm:w-6" />
                 <LuX
                     v-else
-                    class="w-5 h-5 sm:w-6 sm:h-6" />
+                    class="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
         </div>
     </div>
@@ -659,13 +659,13 @@ export default {
                     <button
                         type="button"
                         @click="handleDisagree"
-                        class="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 transition-colors select-none hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">
+                        class="select-none rounded-lg px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">
                         Disagree
                     </button>
                     <button
                         type="button"
                         @click="closePrivacyNotice(true)"
-                        class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors select-none hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400">
+                        class="select-none rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400">
                         I Agree & Continue
                     </button>
                 </div>

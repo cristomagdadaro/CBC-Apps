@@ -103,7 +103,7 @@ export default {
         <div class="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
             <!-- Project Summary Card -->
             <div class="rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
-                <div class="border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
                     <div>
                         <h2 class="text-lg font-semibold text-slate-900">Project Overview</h2>
                         <p class="text-sm text-slate-500">Details and timeline</p>
@@ -120,25 +120,25 @@ export default {
                 <div class="p-6">
                     <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                         <div>
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Commodity</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Commodity</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ project.commodity || "Not specified" }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Budget</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Budget</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ formatCurrency(project.overall_budget) }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Duration</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Duration</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ formatDateRange() }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Project Leader</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Project Leader</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ project.project_leader?.name || "Unassigned" }}
                                 <span
@@ -149,20 +149,20 @@ export default {
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Funding Agency</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Funding Agency</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ project.funding_agency || "—" }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Grant Code</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Grant Code</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ project.funding_code || "—" }}
                             </dd>
                         </div>
                         <div class="md:col-span-2">
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Objective</dt>
-                            <dd class="mt-1 text-sm text-slate-700 leading-relaxed">
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Objective</dt>
+                            <dd class="mt-1 text-sm leading-relaxed text-slate-700">
                                 {{ project.objective || "No objective recorded." }}
                             </dd>
                         </div>
@@ -183,7 +183,7 @@ export default {
 
             <!-- Studies Section -->
             <div class="mt-6 rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
-                <div class="border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
                     <div>
                         <h2 class="text-lg font-semibold text-slate-900">Studies</h2>
                         <p class="text-sm text-slate-500">{{ project.studies_count || 0 }} active studies</p>

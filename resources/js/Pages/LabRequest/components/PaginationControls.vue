@@ -27,7 +27,7 @@ export default {
 <template>
     <div
         id="dtPaginatorContainer"
-        class="flex gap-1 items-center w-full justify-center">
+        class="flex w-full items-center justify-center gap-1">
         <paginate-btn
             @click="emitChange(1)"
             :disabled="currentPage === 1">
@@ -40,9 +40,9 @@ export default {
             Prev
         </paginate-btn>
 
-        <div class="text-xs flex flex-col whitespace-nowrap text-center">
+        <div class="flex flex-col whitespace-nowrap text-center text-xs">
             <span
-                class="font-medium mx-1"
+                class="mx-1 font-medium"
                 title="current page and total pages">
                 <span>{{ currentPage }}</span>
                 /

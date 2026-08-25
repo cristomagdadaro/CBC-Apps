@@ -75,12 +75,12 @@ export default {
         <div class="default-container pt-5">
             <form
                 v-if="!!form"
-                class="flex gap-2 items-end"
+                class="flex items-end gap-2"
                 @submit.prevent="searchRentals">
-                <div class="grid grid-rows-2 w-full">
-                    <div class="w-full flex gap-2 items-end lg:px-0 px-2">
+                <div class="grid w-full grid-rows-2">
+                    <div class="flex w-full items-end gap-2 px-2 lg:px-0">
                         <div class="flex flex-col gap-0.5">
-                            <div class="text-xs text-gray-500 flex items-center justify-between">
+                            <div class="flex items-center justify-between text-xs text-gray-500">
                                 <span class="flex gap-0.5 whitespace-nowrap">Filter by Status</span>
                             </div>
                             <custom-dropdown
@@ -114,8 +114,8 @@ export default {
                     </div>
                     <div
                         v-if="rentalsFromApi"
-                        class="flex w-full gap-2 items-center">
-                        <div class="flex gap-1 items-center w-full justify-center">
+                        class="flex w-full items-center gap-2">
+                        <div class="flex w-full items-center justify-center gap-1">
                             <paginate-btn
                                 @click="
                                     form.page = 1;
@@ -135,9 +135,9 @@ export default {
                                 </template>
                                 Prev
                             </paginate-btn>
-                            <div class="text-xs flex flex-col whitespace-nowrap text-center">
+                            <div class="flex flex-col whitespace-nowrap text-center text-xs">
                                 <span
-                                    class="font-medium mx-1"
+                                    class="mx-1 font-medium"
                                     title="current page and total pages">
                                     <span>{{ rentalsFromApi?.current_page }}</span>
                                     /
@@ -168,7 +168,7 @@ export default {
                 </div>
             </form>
 
-            <div class="bg-white dark:bg-gray-800 overflow-hidden sm:rounded-lg mt-3">
+            <div class="mt-3 overflow-hidden bg-white sm:rounded-lg dark:bg-gray-800">
                 <list-of-rental-vehicle-requests
                     v-if="rentalsFromApi && rentalsFromApi.total > 0 && !processing"
                     :rentals-data="rentalsFromApi.data"
@@ -177,27 +177,27 @@ export default {
 
                 <div
                     v-else-if="processing"
-                    class="text-center py-3 border border-AB rounded-lg">
+                    class="rounded-lg border border-AB py-3 text-center">
                     Searching...
                 </div>
 
                 <div
                     v-else-if="rentalsFromApi && rentalsFromApi.total === 0 && form.search"
-                    class="text-center py-3 border border-AB rounded-lg">
+                    class="rounded-lg border border-AB py-3 text-center">
                     Request does not exist. Try using other filters.
                 </div>
 
                 <div
                     v-else
-                    class="text-center py-3 border border-AB rounded-lg">
+                    class="rounded-lg border border-AB py-3 text-center">
                     No rental requests available.
                 </div>
             </div>
 
             <div
                 v-if="rentalsFromApi && rentalsFromApi.data?.length"
-                class="flex w-full gap-2 py-5 items-center">
-                <div class="flex gap-1 items-center w-full justify-center">
+                class="flex w-full items-center gap-2 py-5">
+                <div class="flex w-full items-center justify-center gap-1">
                     <paginate-btn
                         @click="
                             form.page = 1;
@@ -217,9 +217,9 @@ export default {
                         </template>
                         Prev
                     </paginate-btn>
-                    <div class="text-xs flex flex-col whitespace-nowrap text-center">
+                    <div class="flex flex-col whitespace-nowrap text-center text-xs">
                         <span
-                            class="font-medium mx-1"
+                            class="mx-1 font-medium"
                             title="current page and total pages">
                             <span>{{ rentalsFromApi?.current_page }}</span>
                             /

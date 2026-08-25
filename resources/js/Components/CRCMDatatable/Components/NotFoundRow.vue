@@ -2,9 +2,9 @@
     <tr>
         <td
             :colspan="props.colspan"
-            class="text-center py-2">
+            class="py-2 text-center">
             <div class="flex items-center justify-center gap-1">
-                <exclamation-circle-icon class="w-5 h-auto" />
+                <exclamation-circle-icon class="h-auto w-5" />
                 <span>No data found</span>
             </div>
         </td>

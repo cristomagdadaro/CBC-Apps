@@ -36,7 +36,7 @@ export default {
             v-show="delayReady"
             :duration="1000"
             type="slide-bottom">
-            <div class="flex gap-5 flex-col w-full">
+            <div class="flex w-full flex-col gap-5">
                 <venue-rental-form :venue-options="venueOptions" />
             </div>
         </transition-container>

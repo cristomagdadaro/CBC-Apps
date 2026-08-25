@@ -280,16 +280,16 @@ export default {
 </script>
 
 <template>
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+        <div class="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-lg bg-white shadow-xl">
             <!-- Header -->
-            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
                 <h3 class="text-lg font-semibold text-gray-800">Configure Field</h3>
                 <button
                     @click="handleCancel"
                     class="text-gray-400 hover:text-gray-600">
                     <svg
-                        class="w-5 h-5"
+                        class="h-5 w-5"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24">
@@ -303,59 +303,59 @@ export default {
             </div>
 
             <!-- Content -->
-            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+            <div class="flex-1 space-y-6 overflow-y-auto p-6">
                 <!-- Basic Info -->
                 <div class="space-y-4">
-                    <h4 class="font-medium text-gray-700 border-b pb-2">Basic Information</h4>
+                    <h4 class="border-b pb-2 font-medium text-gray-700">Basic Information</h4>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Field Key</label>
+                            <label class="mb-1 block text-sm font-medium text-gray-600">Field Key</label>
                             <input
                                 v-model="editedField.field_key"
                                 type="text"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-AB focus:border-AB text-sm"
+                                class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-AB focus:ring-AB"
                                 placeholder="field_key" />
-                            <p class="text-xs text-gray-400 mt-1">Unique identifier (no spaces)</p>
+                            <p class="mt-1 text-xs text-gray-400">Unique identifier (no spaces)</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Field Type</label>
-                            <div class="px-3 py-2 bg-gray-100 rounded-md text-sm text-gray-700">
+                            <label class="mb-1 block text-sm font-medium text-gray-600">Field Type</label>
+                            <div class="rounded-md bg-gray-100 px-3 py-2 text-sm text-gray-700">
                                 {{ editedField.field_type }}
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">Label*</label>
+                        <label class="mb-1 block text-sm font-medium text-gray-600">Label*</label>
                         <input
                             v-model="editedField.label"
                             type="text"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-AB focus:border-AB"
+                            class="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-AB focus:ring-AB"
                             placeholder="Enter field label" />
                     </div>
 
                     <div v-if="!isDecorative">
-                        <label class="block text-sm font-medium text-gray-600 mb-1">Placeholder</label>
+                        <label class="mb-1 block text-sm font-medium text-gray-600">Placeholder</label>
                         <input
                             v-model="editedField.placeholder"
                             type="text"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-AB focus:border-AB"
+                            class="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-AB focus:ring-AB"
                             placeholder="Placeholder text" />
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">Description/Help Text</label>
+                        <label class="mb-1 block text-sm font-medium text-gray-600">Description/Help Text</label>
                         <textarea
                             v-model="editedField.description"
                             rows="2"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-AB focus:border-AB resize-none"
+                            class="w-full resize-none rounded-md border border-gray-300 px-3 py-2 focus:border-AB focus:ring-AB"
                             placeholder="Optional help text shown below the field"></textarea>
                     </div>
 
                     <div
                         v-if="canConfigureDefaultValue"
-                        class="space-y-3 border border-gray-200 rounded-md p-3 bg-gray-50">
+                        class="space-y-3 rounded-md border border-gray-200 bg-gray-50 p-3">
                         <div class="flex items-center justify-between">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Default Value</label>
@@ -367,7 +367,7 @@ export default {
                             <select
                                 :value="getDefaultValue() ?? ''"
                                 @change="setDefaultValue($event.target.value || null)"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-AB focus:border-AB">
+                                class="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-AB focus:ring-AB">
                                 <option value="">No default</option>
                                 <option
                                     v-for="option in usesLocationDefault
@@ -393,7 +393,7 @@ export default {
                                     type="checkbox"
                                     :checked="!!getDefaultValue()"
                                     @change="setDefaultValue($event.target.checked)"
-                                    class="w-4 h-4 text-AB focus:ring-AB border-gray-300 rounded" />
+                                    class="h-4 w-4 rounded border-gray-300 text-AB focus:ring-AB" />
                                 Checked by default
                             </label>
                         </div>
@@ -410,7 +410,7 @@ export default {
                                     type="checkbox"
                                     :checked="(getDefaultValue() || []).includes(option.value)"
                                     @change="toggleArrayDefaultOption(option.value, $event.target.checked)"
-                                    class="w-4 h-4 text-AB focus:ring-AB border-gray-300 rounded" />
+                                    class="h-4 w-4 rounded border-gray-300 text-AB focus:ring-AB" />
                                 {{ option.label }}
                             </label>
                         </div>
@@ -420,7 +420,7 @@ export default {
                                 :value="getDefaultValue() ?? ''"
                                 @input="setDefaultValue($event.target.value === '' ? null : $event.target.value)"
                                 :type="defaultValueInputType"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-AB focus:border-AB"
+                                class="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-AB focus:ring-AB"
                                 placeholder="Set default value" />
                         </div>
 
@@ -429,7 +429,7 @@ export default {
                                 type="checkbox"
                                 :checked="isFieldChangeable()"
                                 @change="setFieldChangeable($event.target.checked)"
-                                class="w-4 h-4 text-AB focus:ring-AB border-gray-300 rounded" />
+                                class="h-4 w-4 rounded border-gray-300 text-AB focus:ring-AB" />
                             Allow respondents to change this value
                         </label>
                     </div>
@@ -439,12 +439,12 @@ export default {
                 <div
                     v-if="hasOptions"
                     class="space-y-4">
-                    <h4 class="font-medium text-gray-700 border-b pb-2">Options</h4>
+                    <h4 class="border-b pb-2 font-medium text-gray-700">Options</h4>
 
                     <!-- Skip Logic Info -->
                     <div
                         v-if="supportsSkipLogic && sections.length > 0"
-                        class="text-xs text-gray-500 bg-blue-50 p-2 rounded">
+                        class="rounded bg-blue-50 p-2 text-xs text-gray-500">
                         <strong>Skip Logic:</strong>
                         You can configure each option to jump to a specific section when selected.
                     </div>
@@ -453,13 +453,13 @@ export default {
                         <div
                             v-for="(option, index) in editedField.options"
                             :key="index"
-                            class="flex flex-col gap-1 p-2 bg-gray-50 rounded-md">
+                            class="flex flex-col gap-1 rounded-md bg-gray-50 p-2">
                             <div class="flex items-center gap-2">
                                 <input
                                     :value="option.label"
                                     @input="updateOptionLabel(index, $event.target.value)"
                                     type="text"
-                                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-AB focus:border-AB text-sm"
+                                    class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-AB focus:ring-AB"
                                     placeholder="Option label" />
                                 <button
                                     @click="moveOptionUp(index)"
@@ -467,7 +467,7 @@ export default {
                                     class="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-30"
                                     title="Move up">
                                     <svg
-                                        class="w-4 h-4"
+                                        class="h-4 w-4"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -484,7 +484,7 @@ export default {
                                     class="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-30"
                                     title="Move down">
                                     <svg
-                                        class="w-4 h-4"
+                                        class="h-4 w-4"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -500,7 +500,7 @@ export default {
                                     class="p-1.5 text-red-400 hover:text-red-600"
                                     title="Remove option">
                                     <svg
-                                        class="w-4 h-4"
+                                        class="h-4 w-4"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -515,12 +515,12 @@ export default {
                             <!-- Skip Logic Dropdown -->
                             <div
                                 v-if="supportsSkipLogic && sections.length > 0"
-                                class="flex items-center gap-2 ml-2">
-                                <label class="text-xs text-gray-500 whitespace-nowrap">Go to:</label>
+                                class="ml-2 flex items-center gap-2">
+                                <label class="whitespace-nowrap text-xs text-gray-500">Go to:</label>
                                 <select
                                     :value="getOptionSkipTo(index)"
                                     @change="updateOptionSkipTo(index, $event.target.value)"
-                                    class="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:ring-AB focus:border-AB">
+                                    class="flex-1 rounded border border-gray-300 px-2 py-1 text-xs focus:border-AB focus:ring-AB">
                                     <option
                                         v-for="target in skipLogicTargets"
                                         :key="target.value"
@@ -536,12 +536,12 @@ export default {
                         <input
                             v-model="newOption"
                             type="text"
-                            class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-AB focus:border-AB text-sm"
+                            class="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-AB focus:ring-AB"
                             placeholder="Add new option"
                             @keyup.enter="addOption" />
                         <button
                             @click="addOption"
-                            class="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-sm">
+                            class="rounded-md bg-gray-100 px-3 py-2 text-sm hover:bg-gray-200">
                             Add
                         </button>
                     </div>
@@ -551,26 +551,26 @@ export default {
                 <div
                     v-if="isLikertOrLinear"
                     class="space-y-4">
-                    <h4 class="font-medium text-gray-700 border-b pb-2">Scale Configuration</h4>
+                    <h4 class="border-b pb-2 font-medium text-gray-700">Scale Configuration</h4>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Minimum Value</label>
+                            <label class="mb-1 block text-sm font-medium text-gray-600">Minimum Value</label>
                             <input
                                 :value="editedField.field_config?.min || 1"
                                 @input="updateScaleConfig('min', Number($event.target.value))"
                                 type="number"
                                 min="0"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-AB focus:border-AB" />
+                                class="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-AB focus:ring-AB" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Maximum Value</label>
+                            <label class="mb-1 block text-sm font-medium text-gray-600">Maximum Value</label>
                             <input
                                 :value="editedField.field_config?.max || 5"
                                 @input="updateScaleConfig('max', Number($event.target.value))"
                                 type="number"
                                 min="1"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-AB focus:border-AB" />
+                                class="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-AB focus:ring-AB" />
                         </div>
                     </div>
 
@@ -578,21 +578,21 @@ export default {
                         v-if="editedField.field_type === 'linear_scale'"
                         class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Min Label</label>
+                            <label class="mb-1 block text-sm font-medium text-gray-600">Min Label</label>
                             <input
                                 :value="editedField.field_config?.minLabel || ''"
                                 @input="updateScaleConfig('minLabel', $event.target.value)"
                                 type="text"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-AB focus:border-AB"
+                                class="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-AB focus:ring-AB"
                                 placeholder="e.g., Not at all" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Max Label</label>
+                            <label class="mb-1 block text-sm font-medium text-gray-600">Max Label</label>
                             <input
                                 :value="editedField.field_config?.maxLabel || ''"
                                 @input="updateScaleConfig('maxLabel', $event.target.value)"
                                 type="text"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-AB focus:border-AB"
+                                class="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-AB focus:ring-AB"
                                 placeholder="e.g., Very much" />
                         </div>
                     </div>
@@ -602,19 +602,19 @@ export default {
                 <div
                     v-if="!isDecorative && supportedValidations.length > 0"
                     class="space-y-4">
-                    <h4 class="font-medium text-gray-700 border-b pb-2">Validation Rules</h4>
+                    <h4 class="border-b pb-2 font-medium text-gray-700">Validation Rules</h4>
 
                     <div class="space-y-3">
                         <div
                             v-for="validationType in supportedValidations"
                             :key="validationType"
                             class="flex items-center gap-3">
-                            <label class="flex items-center gap-2 cursor-pointer">
+                            <label class="flex cursor-pointer items-center gap-2">
                                 <input
                                     type="checkbox"
                                     :checked="isValidationEnabled(validationType)"
                                     @change="toggleValidation(validationType)"
-                                    class="w-4 h-4 text-AB focus:ring-AB border-gray-300 rounded" />
+                                    class="h-4 w-4 rounded border-gray-300 text-AB focus:ring-AB" />
                                 <span class="text-sm">
                                     {{ validationTypes[validationType]?.label || validationType }}
                                 </span>
@@ -625,7 +625,7 @@ export default {
                                 :type="validationTypes[validationType]?.valueType || 'text'"
                                 :value="getValidationValue(validationType)"
                                 @input="setValidationValue(validationType, $event.target.value)"
-                                class="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
+                                class="flex-1 rounded border border-gray-300 px-2 py-1 text-sm"
                                 placeholder="Value" />
                         </div>
                     </div>
@@ -633,15 +633,15 @@ export default {
             </div>
 
             <!-- Footer -->
-            <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+            <div class="flex justify-end gap-3 border-t border-gray-200 px-6 py-4">
                 <button
                     @click="handleCancel"
-                    class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
+                    class="rounded-md bg-gray-100 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-200">
                     Cancel
                 </button>
                 <button
                     @click="handleSave"
-                    class="px-4 py-2 bg-AB text-white rounded-md hover:bg-AB/90 transition-colors">
+                    class="rounded-md bg-AB px-4 py-2 text-white transition-colors hover:bg-AB/90">
                     Save Changes
                 </button>
             </div>

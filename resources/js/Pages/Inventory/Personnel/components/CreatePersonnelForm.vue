@@ -33,13 +33,13 @@ export default {
         <form
             v-if="!!form"
             @submit.prevent="submitCreate"
-            class="py-6 sm:py-10 max-w-3xl mx-auto px-4">
-            <div class="flex flex-col gap-4 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs rounded-2xl p-4 sm:p-6 text-slate-900 dark:text-slate-100">
-                <div class="flex flex-col pb-3 border-b border-slate-200 dark:border-slate-800">
-                    <h2 class="font-bold text-xs sm:text-sm uppercase tracking-wider text-slate-900 dark:text-slate-100">Personnel Registration Form</h2>
-                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Use this form to register new personnel into the system.</p>
+            class="mx-auto max-w-3xl px-4 py-6 sm:py-10">
+            <div class="shadow-xs flex w-full flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 sm:p-6 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+                <div class="flex flex-col border-b border-slate-200 pb-3 dark:border-slate-800">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-900 sm:text-sm dark:text-slate-100">Personnel Registration Form</h2>
+                    <p class="mt-0.5 text-xs text-slate-500 sm:text-sm dark:text-slate-400">Use this form to register new personnel into the system.</p>
                 </div>
-                <div class="flex sm:flex-row flex-col gap-2">
+                <div class="flex flex-col gap-2 sm:flex-row">
                     <text-input
                         required
                         label="First Name"
@@ -61,10 +61,10 @@ export default {
                 </div>
                 <div class="flex flex-col gap-3">
                     <div class="space-y-1">
-                        <label class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">Personnel Type</label>
+                        <label class="text-xs font-semibold text-slate-700 sm:text-sm dark:text-slate-300">Personnel Type</label>
                         <select
                             v-model="form.is_philrice_employee"
-                            class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm shadow-xs focus:border-lime-500 focus:ring-lime-500">
+                            class="shadow-xs w-full rounded-xl border border-slate-200 bg-white text-xs text-slate-900 focus:border-lime-500 focus:ring-lime-500 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
                             <option :value="true">PhilRice Employee</option>
                             <option :value="false">OJT / Thesis / Outsider</option>
                         </select>
@@ -100,9 +100,9 @@ export default {
                 <div
                     v-else
                     class="space-y-3">
-                    <div class="rounded-xl border border-lime-200 dark:border-lime-900/60 bg-lime-50/70 dark:bg-lime-950/40 p-4 text-xs sm:text-sm text-lime-900 dark:text-lime-200">
+                    <div class="rounded-xl border border-lime-200 bg-lime-50/70 p-4 text-xs text-lime-900 sm:text-sm dark:border-lime-900/60 dark:bg-lime-950/40 dark:text-lime-200">
                         <p class="font-bold">Auto-generated CBC ID</p>
-                        <p class="mt-1 text-slate-600 dark:text-slate-300 text-xs">The next outsider/OJT/thesis identifier will be assigned automatically on save.</p>
+                        <p class="mt-1 text-xs text-slate-600 dark:text-slate-300">The next outsider/OJT/thesis identifier will be assigned automatically on save.</p>
                         <p class="mt-2 font-mono text-sm font-bold text-lime-700 dark:text-lime-300">
                             {{ externalEmployeeIdPreview }}
                         </p>
@@ -121,7 +121,7 @@ export default {
                         :error="form.errors.expires_at" />
                     <p class="text-xs text-slate-500 dark:text-slate-400">Set an expiry date for temporary personnel (OJT, Student, Thesis). Status will auto-set to Suspended after this date.</p>
                 </div>
-                <div class="flex gap-2 justify-end pt-2">
+                <div class="flex justify-end gap-2 pt-2">
                     <submit-btn :disabled="model.api.processing">
                         <span v-if="model.api.processing">Saving</span>
                         <span v-else>Save</span>

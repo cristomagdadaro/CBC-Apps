@@ -9,7 +9,7 @@ import GuideTourControls from "@/Components/GuideTourControls.vue";
         compact />
     <div
         data-guide="google-calendar-embed"
-        class="h-screen w-full bg-gray-700 overflow-hidden">
+        class="h-screen w-full overflow-hidden bg-gray-700">
         <iframe
             src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=Asia%2FManila&showPrint=0&title=OneCBC%20Portal&mode=MONTH&showCalendars=0&showTabs=0&showNav=0&src=YzFkZTdiZmI4MTY3YTBkMDIwZDI4MjZiNzE1NjE3ZDA2YjdkMTJjNTYxZGQ0MmI0YmIzNTllNTdmMjA2ODc2ZkBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&color=%23ad1457"
             style="border: 0"

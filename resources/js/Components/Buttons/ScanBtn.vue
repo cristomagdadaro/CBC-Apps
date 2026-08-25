@@ -5,8 +5,8 @@ export default {
 </script>
 
 <template>
-    <base-btn class="text-sm text-AB dark:text-white motion-safe:hover:scale-[1.03] duration-200">
-        <scan-icon class="w-5 h-5" />
+    <base-btn class="text-sm text-AB duration-200 motion-safe:hover:scale-[1.03] dark:text-white">
+        <scan-icon class="h-5 w-5" />
     </base-btn>
 </template>
 

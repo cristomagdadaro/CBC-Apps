@@ -25,10 +25,10 @@ export default {
         <form
             v-if="!!form"
             @submit.prevent="submitUpdate"
-            class="max-w-xl mx-auto">
-            <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+            class="mx-auto max-w-xl">
+            <div class="mx-auto flex w-full flex-col gap-2 overflow-hidden bg-white shadow-xl sm:rounded-lg sm:p-2 lg:p-4 dark:bg-gray-800">
                 <div class="flex flex-col">
-                    <h2 class="font-bold uppercase leading-none py-2 mb-1 border-b">Supplier Update Form</h2>
+                    <h2 class="mb-1 border-b py-2 font-bold uppercase leading-none">Supplier Update Form</h2>
                     <p>Use this form to update supplier details.</p>
                 </div>
                 <text-input
@@ -52,7 +52,7 @@ export default {
                     label="Description"
                     v-model="form.description"
                     :error="form.errors.description" />
-                <div class="flex gap-1 justify-between">
+                <div class="flex justify-between gap-1">
                     <reset-btn @click="resetField($page.props.data)">Reset</reset-btn>
                     <submit-btn :disabled="model.api.processing">
                         <span v-if="model.api.processing">Updating</span>

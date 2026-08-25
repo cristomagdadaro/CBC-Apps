@@ -214,7 +214,7 @@ export default {
         <div
             v-if="isUpdateView"
             class="py-4 sm:py-6">
-            <div class="max-w-5xl mx-auto px-3 sm:px-6">
+            <div class="mx-auto max-w-5xl px-3 sm:px-6">
                 <outgoing-form
                     :data="data"
                     :summary="summary"
@@ -225,12 +225,12 @@ export default {
         </div>
         <div
             v-else
-            class="default-container py-4 sm:py-6 text-slate-900 dark:text-slate-100">
+            class="default-container py-4 text-slate-900 sm:py-6 dark:text-slate-100">
             <div class="flex flex-col justify-between gap-4 sm:gap-6">
                 <!-- Search Bar & Controls Container -->
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 sm:p-5 rounded-2xl shadow-xs space-y-3">
-                    <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
-                        <div class="flex-1 flex gap-2">
+                <div class="shadow-xs space-y-3 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+                        <div class="flex flex-1 gap-2">
                             <text-input
                                 placeholder="Search items, barcodes, descriptions..."
                                 v-model="form.search"
@@ -243,7 +243,7 @@ export default {
                             <search-btn
                                 @click="searchEvent"
                                 :disabled="model?.processing"
-                                class="w-28 text-center shrink-0">
+                                class="w-28 shrink-0 text-center">
                                 <span v-if="!model?.processing">Search</span>
                                 <span v-else>Searching</span>
                             </search-btn>
@@ -253,18 +253,18 @@ export default {
                         <button
                             type="button"
                             @click="showFilters = !showFilters"
-                            class="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl border text-xs font-semibold transition-all shrink-0 active:scale-95"
-                            :class="showFilters || activeFilterCount > 0 ? 'bg-lime-50 dark:bg-lime-950/40 border-lime-300 dark:border-lime-800 text-lime-700 dark:text-lime-300 shadow-xs' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'">
-                            <Filter class="w-4 h-4 text-lime-600 dark:text-lime-400" />
+                            class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border px-3.5 py-2.5 text-xs font-semibold transition-all active:scale-95"
+                            :class="showFilters || activeFilterCount > 0 ? 'shadow-xs border-lime-300 bg-lime-50 text-lime-700 dark:border-lime-800 dark:bg-lime-950/40 dark:text-lime-300' : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'">
+                            <Filter class="h-4 w-4 text-lime-600 dark:text-lime-400" />
                             <span>Filters</span>
                             <span
                                 v-if="activeFilterCount > 0"
-                                class="px-1.5 py-0.5 rounded-full text-[0.65rem] font-bold bg-lime-600 text-white">
+                                class="rounded-full bg-lime-600 px-1.5 py-0.5 text-[0.65rem] font-bold text-white">
                                 {{ activeFilterCount }}
                             </span>
                             <component
                                 :is="showFilters ? 'ChevronUp' : 'ChevronDown'"
-                                class="w-4 h-4 text-slate-400" />
+                                class="h-4 w-4 text-slate-400" />
                         </button>
                     </div>
 
@@ -272,8 +272,8 @@ export default {
                     <transition-container type="pop-in">
                         <div
                             v-if="showFilters"
-                            class="flex flex-col gap-3 pt-3 pb-1 border-t border-slate-100 dark:border-slate-800">
-                            <div class="grid grid-cols-2 md:grid-cols-5 gap-2 items-center w-full justify-center">
+                            class="flex flex-col gap-3 border-t border-slate-100 pb-1 pt-3 dark:border-slate-800">
+                            <div class="grid w-full grid-cols-2 items-center justify-center gap-2 md:grid-cols-5">
                                 <custom-dropdown
                                     :show-valid-indicator="false"
                                     :with-all-option="false"
@@ -310,7 +310,7 @@ export default {
                                     :options="stockLevel" />
                             </div>
                             <div class="w-full">
-                                <label class="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 block">Categories for Remaining Stocks (IDs)</label>
+                                <label class="mb-1 block text-xs font-semibold text-slate-700 dark:text-slate-300">Categories for Remaining Stocks (IDs)</label>
                                 <TagifyInput
                                     v-model="form.category_ids"
                                     name="category_ids"
@@ -329,15 +329,15 @@ export default {
                 </div>
 
                 <!-- Total Count Badge & Header -->
-                <div class="flex justify-between items-center px-1">
-                    <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Registered Stock Items</h3>
-                    <span class="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-extrabold text-lime-600 dark:text-lime-400">{{ outgoingFromApi?.data?.length || 0 }} Items Available</span>
+                <div class="flex items-center justify-between px-1">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 sm:text-sm dark:text-slate-300">Registered Stock Items</h3>
+                    <span class="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-extrabold text-lime-600 dark:border-slate-700 dark:bg-slate-800 dark:text-lime-400">{{ outgoingFromApi?.data?.length || 0 }} Items Available</span>
                 </div>
 
                 <!-- Items Grid & Empty States -->
                 <div
                     v-if="outgoingFromApi"
-                    class="flex flex-col w-full gap-3 items-center">
+                    class="flex w-full flex-col items-center gap-3">
                     <div class="w-full">
                         <outgoing-item-card
                             v-if="outgoingFromApi && Array.isArray(outgoingFromApi.data) && outgoingFromApi.data.length > 0"
@@ -347,21 +347,21 @@ export default {
                         <!-- Show "Searching" when processing -->
                         <div
                             v-else-if="model.api.processing"
-                            class="text-center py-10 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 text-xs text-slate-500 font-semibold">
+                            class="rounded-2xl border border-slate-200 bg-white py-10 text-center text-xs font-semibold text-slate-500 dark:border-slate-800 dark:bg-slate-900">
                             Searching items...
                         </div>
 
                         <!-- Show fallback when search returned no results -->
                         <div
                             v-else-if="outgoingFromApi && outgoingFromApi.total === 0 && form.search"
-                            class="text-center py-10 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 text-xs text-slate-500 font-semibold">
+                            class="rounded-2xl border border-slate-200 bg-white py-10 text-center text-xs font-semibold text-slate-500 dark:border-slate-800 dark:bg-slate-900">
                             No matching items found for "{{ form.search }}". Try adjusting your search filters.
                         </div>
 
                         <!-- Show empty state -->
                         <div
                             v-else
-                            class="text-center py-10 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 text-xs text-slate-500 font-semibold">
+                            class="rounded-2xl border border-slate-200 bg-white py-10 text-center text-xs font-semibold text-slate-500 dark:border-slate-800 dark:bg-slate-900">
                             No items available for checkout.
                         </div>
                     </div>

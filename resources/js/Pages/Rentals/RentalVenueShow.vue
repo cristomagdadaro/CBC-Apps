@@ -131,12 +131,12 @@ export default {
         <!-- Loading State -->
         <div
             v-if="loading"
-            class="rounded-2xl border border-gray-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg p-8 shadow-sm">
+            class="rounded-2xl border border-gray-100 bg-white/80 p-8 shadow-sm backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/80">
             <div class="flex flex-col items-center justify-center space-y-4 py-12">
                 <LuLoader2 class="h-10 w-10 animate-spin text-indigo-600 dark:text-indigo-400" />
                 <div class="text-center">
                     <p class="text-sm font-medium text-slate-900 dark:text-white">Loading venue details...</p>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Please wait a moment</p>
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Please wait a moment</p>
                 </div>
             </div>
         </div>
@@ -144,9 +144,9 @@ export default {
         <!-- Error State -->
         <div
             v-else-if="error"
-            class="rounded-2xl border border-red-200 dark:border-red-900/50 bg-red-50/50 dark:bg-red-900/20 backdrop-blur-lg p-8">
+            class="rounded-2xl border border-red-200 bg-red-50/50 p-8 backdrop-blur-lg dark:border-red-900/50 dark:bg-red-900/20">
             <div class="flex flex-col items-center justify-center space-y-4 py-8 text-center">
-                <div class="rounded-full bg-red-100 dark:bg-red-900/50 p-4 ring-4 ring-red-50 dark:ring-red-900/20">
+                <div class="rounded-full bg-red-100 p-4 ring-4 ring-red-50 dark:bg-red-900/50 dark:ring-red-900/20">
                     <LuAlertCircle class="h-8 w-8 text-red-600 dark:text-red-400" />
                 </div>
                 <div>
@@ -155,7 +155,7 @@ export default {
                 </div>
                 <button
                     @click="loadRental"
-                    class="mt-2 inline-flex items-center gap-2 rounded-lg bg-red-600 dark:bg-red-700 px-5 py-2.5 text-sm font-medium text-white transition-all hover:bg-red-700 dark:hover:bg-red-600 hover:shadow-lg hover:shadow-red-600/20 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 active:scale-95">
+                    class="mt-2 inline-flex items-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-medium text-white transition-all hover:bg-red-700 hover:shadow-lg hover:shadow-red-600/20 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 active:scale-95 dark:bg-red-700 dark:hover:bg-red-600">
                     Try Again
                 </button>
             </div>
@@ -164,9 +164,9 @@ export default {
         <!-- Empty State -->
         <div
             v-else-if="!rental"
-            class="rounded-2xl border border-gray-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg p-8 shadow-sm">
+            class="rounded-2xl border border-gray-100 bg-white/80 p-8 shadow-sm backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/80">
             <div class="flex flex-col items-center justify-center space-y-4 py-12 text-center">
-                <div class="rounded-full bg-slate-100 dark:bg-slate-800 p-4">
+                <div class="rounded-full bg-slate-100 p-4 dark:bg-slate-800">
                     <LuBuilding2 class="h-8 w-8 text-slate-400 dark:text-slate-500" />
                 </div>
                 <div>
@@ -182,18 +182,18 @@ export default {
             data-guide="rental-details"
             class="space-y-6">
             <!-- Status Banner -->
-            <div :class="['rounded-2xl border-2 p-4 sm:p-6 backdrop-blur-lg', statusConfig.color]">
+            <div :class="['rounded-2xl border-2 p-4 backdrop-blur-lg sm:p-6', statusConfig.color]">
                 <div class="flex items-center justify-between gap-3 sm:gap-5">
                     <!-- Event Header -->
                     <div class="flex items-center space-x-3 sm:space-x-4">
-                        <div class="rounded-xl bg-blue-600 dark:bg-blue-500 p-2 sm:p-3 text-white shadow-lg shadow-blue-600/20 shrink-0">
+                        <div class="shrink-0 rounded-xl bg-blue-600 p-2 text-white shadow-lg shadow-blue-600/20 sm:p-3 dark:bg-blue-500">
                             <LuBuilding2 class="h-5 w-5 sm:h-6 sm:w-6" />
                         </div>
                         <div class="leading-tight">
-                            <h2 class="text-sm sm:text-lg font-bold">
+                            <h2 class="text-sm font-bold sm:text-lg">
                                 {{ rental.event_name || "Venue booking" }}
                             </h2>
-                            <p class="text-xs sm:text-sm opacity-80 uppercase tracking-wider mt-0.5">
+                            <p class="mt-0.5 text-xs uppercase tracking-wider opacity-80 sm:text-sm">
                                 {{ rental.venue_type_label || rental.venue_type || "Venue" }}
                                 <span
                                     v-if="formatDuration"
@@ -203,12 +203,12 @@ export default {
                             </p>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+                    <div class="flex shrink-0 items-center space-x-2 sm:space-x-3">
                         <component
                             :is="statusConfig.icon"
                             class="h-5 w-5 sm:h-6 sm:w-6" />
-                        <div class="leading-tight hidden sm:block">
-                            <p class="text-base sm:text-lg font-bold">{{ statusConfig.label }}</p>
+                        <div class="hidden leading-tight sm:block">
+                            <p class="text-base font-bold sm:text-lg">{{ statusConfig.label }}</p>
                             <p class="text-xs font-semibold uppercase tracking-wider opacity-80">Booking Status</p>
                         </div>
                     </div>
@@ -216,7 +216,7 @@ export default {
             </div>
 
             <!-- Event Card -->
-            <div class="overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-gray-100 dark:border-slate-800 shadow-sm">
+            <div class="overflow-hidden rounded-2xl border border-gray-100 bg-white/80 shadow-sm backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/80">
                 <div class="p-6">
                     <!-- Date & Time Section -->
                     <div class="mb-8">
@@ -225,8 +225,8 @@ export default {
                             Event Schedule
                         </h3>
                         <div class="grid gap-4 sm:grid-cols-2">
-                            <div class="group relative overflow-hidden rounded-xl border border-gray-100 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-800/50 p-5 transition-all hover:border-indigo-300 dark:hover:border-indigo-500/50 hover:shadow-md">
-                                <div class="absolute -right-4 -top-4 rounded-full bg-indigo-100 dark:bg-indigo-900/50 p-3 opacity-0 transition-opacity group-hover:opacity-100">
+                            <div class="group relative overflow-hidden rounded-xl border border-gray-100 bg-slate-50 p-5 transition-all hover:border-indigo-300 hover:shadow-md dark:border-slate-800/50 dark:bg-slate-800/50 dark:hover:border-indigo-500/50">
+                                <div class="absolute -right-4 -top-4 rounded-full bg-indigo-100 p-3 opacity-0 transition-opacity group-hover:opacity-100 dark:bg-indigo-900/50">
                                     <LuCalendar class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                                 </div>
                                 <div class="relative">
@@ -237,8 +237,8 @@ export default {
                                 </div>
                             </div>
 
-                            <div class="group relative overflow-hidden rounded-xl border border-gray-100 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-800/50 p-5 transition-all hover:border-indigo-300 dark:hover:border-indigo-500/50 hover:shadow-md">
-                                <div class="absolute -right-4 -top-4 rounded-full bg-indigo-100 dark:bg-indigo-900/50 p-3 opacity-0 transition-opacity group-hover:opacity-100">
+                            <div class="group relative overflow-hidden rounded-xl border border-gray-100 bg-slate-50 p-5 transition-all hover:border-indigo-300 hover:shadow-md dark:border-slate-800/50 dark:bg-slate-800/50 dark:hover:border-indigo-500/50">
+                                <div class="absolute -right-4 -top-4 rounded-full bg-indigo-100 p-3 opacity-0 transition-opacity group-hover:opacity-100 dark:bg-indigo-900/50">
                                     <LuClock class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                                 </div>
                                 <div class="relative">
@@ -258,16 +258,16 @@ export default {
                                 <LuUsers class="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                                 Booking Snapshot
                             </h3>
-                            <div class="rounded-xl bg-indigo-50/50 dark:bg-indigo-900/20 border border-indigo-100/50 dark:border-indigo-900/30 p-4">
+                            <div class="rounded-xl border border-indigo-100/50 bg-indigo-50/50 p-4 dark:border-indigo-900/30 dark:bg-indigo-900/20">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-xs font-medium text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Booking Reference</p>
-                                        <p class="mt-1 text-sm sm:text-base font-bold text-indigo-900 dark:text-indigo-200 font-mono tracking-widest">
+                                        <p class="text-xs font-medium uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Booking Reference</p>
+                                        <p class="mt-1 font-mono text-sm font-bold tracking-widest text-indigo-900 sm:text-base dark:text-indigo-200">
                                             {{ rental.booking_id || "NULL" }}
                                         </p>
                                     </div>
-                                    <div class="rounded-full bg-indigo-100 dark:bg-indigo-900/50 p-2 sm:p-3">
-                                        <LuUsers class="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600 dark:text-indigo-400" />
+                                    <div class="rounded-full bg-indigo-100 p-2 sm:p-3 dark:bg-indigo-900/50">
+                                        <LuUsers class="h-5 w-5 text-indigo-600 sm:h-6 sm:w-6 dark:text-indigo-400" />
                                     </div>
                                 </div>
                             </div>
@@ -279,7 +279,7 @@ export default {
                                 Public Details
                             </h3>
                             <div class="space-y-3">
-                                <div class="flex items-center gap-3 rounded-lg border border-gray-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-3">
+                                <div class="flex items-center gap-3 rounded-lg border border-gray-100 bg-slate-50/50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
                                     <LuBuilding2 class="mt-0.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
                                     <div>
                                         <p class="text-xs text-slate-500 dark:text-slate-400">Venue Type</p>
@@ -288,7 +288,7 @@ export default {
                                         </p>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-3 rounded-lg border border-gray-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-3">
+                                <div class="flex items-center gap-3 rounded-lg border border-gray-100 bg-slate-50/50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
                                     <LuUsers class="mt-0.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
                                     <div>
                                         <p class="text-xs text-slate-500 dark:text-slate-400">Division / Organization</p>
@@ -297,7 +297,7 @@ export default {
                                         </p>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-3 rounded-lg border border-gray-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-3">
+                                <div class="flex items-center gap-3 rounded-lg border border-gray-100 bg-slate-50/50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
                                     <LuClock3 class="mt-0.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
                                     <div>
                                         <p class="text-xs text-slate-500 dark:text-slate-400">Current Status</p>
@@ -310,7 +310,7 @@ export default {
                         </div>
                     </div>
 
-                    <div class="mt-8 rounded-xl border border-indigo-100 dark:border-indigo-900/30 bg-indigo-50/50 dark:bg-indigo-900/10 p-5">
+                    <div class="mt-8 rounded-xl border border-indigo-100 bg-indigo-50/50 p-5 dark:border-indigo-900/30 dark:bg-indigo-900/10">
                         <div class="flex items-start gap-3">
                             <LuAlertCircle class="mt-0.5 h-5 w-5 shrink-0 text-indigo-600 dark:text-indigo-400" />
                             <div>

@@ -7,7 +7,7 @@ export default {
 <template>
     <base-btn
         type="submit"
-        class="text-sm text-white bg-red-400 dark:text-gray-800 dark:bg-gray-200">
+        class="bg-red-400 text-sm text-white dark:bg-gray-200 dark:text-gray-800">
         <slot />
     </base-btn>
 </template>

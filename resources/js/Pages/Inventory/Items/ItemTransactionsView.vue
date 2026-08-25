@@ -21,21 +21,21 @@ const item = props.data;
                 subtitle="View and track inventory movements specific to this item."
                 :route-link="route('items.index')" />
         </template>
-        <div class="space-y-6 px-3 sm:px-5 py-4 sm:py-6 max-w-7xl mx-auto">
-            <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 shadow-sm">
+        <div class="mx-auto max-w-7xl space-y-6 px-3 py-4 sm:px-5 sm:py-6">
+            <section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900">
                 <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-                    <div class="space-y-4 flex-1">
+                    <div class="flex-1 space-y-4">
                         <div>
-                            <p class="text-[0.65rem] sm:text-xs font-semibold uppercase tracking-[0.2em] text-blue-700 dark:text-blue-400">Item Overview</p>
-                            <h1 class="mt-2 text-xl sm:text-2xl font-semibold text-slate-900 dark:text-slate-100">
+                            <p class="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-blue-700 sm:text-xs dark:text-blue-400">Item Overview</p>
+                            <h1 class="mt-2 text-xl font-semibold text-slate-900 sm:text-2xl dark:text-slate-100">
                                 {{ item.name }}
                             </h1>
-                            <p class="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                            <p class="mt-1 text-xs text-slate-600 sm:text-sm dark:text-slate-400">
                                 {{ item.category?.name || "Uncategorized" }}
                             </p>
                         </div>
 
-                        <div class="grid gap-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 md:grid-cols-2">
+                        <div class="grid gap-3 text-xs text-slate-600 sm:text-sm md:grid-cols-2 dark:text-slate-300">
                             <div>
                                 <span class="font-medium text-slate-900 dark:text-slate-100">Brand:</span>
                                 {{ item.brand || "N/A" }}
@@ -53,8 +53,8 @@ const item = props.data;
                                 </span>
                             </div>
                             <div class="md:col-span-2">
-                                <span class="font-medium text-slate-900 dark:text-slate-100 block mb-1">Specifications:</span>
-                                <span class="whitespace-pre-wrap block p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <span class="mb-1 block font-medium text-slate-900 dark:text-slate-100">Specifications:</span>
+                                <span class="block whitespace-pre-wrap rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
                                     {{ item.specifications || "N/A" }}
                                 </span>
                             </div>
@@ -63,16 +63,16 @@ const item = props.data;
 
                     <div
                         v-if="item.image"
-                        class="w-full sm:w-[24rem] shrink-0">
+                        class="w-full shrink-0 sm:w-[24rem]">
                         <img
                             :src="item.image"
                             alt="Item Image"
-                            class="rounded-xl object-cover w-full max-h-64 border border-slate-200 dark:border-slate-700 shadow-sm" />
+                            class="max-h-64 w-full rounded-xl border border-slate-200 object-cover shadow-sm dark:border-slate-700" />
                     </div>
                 </div>
             </section>
 
-            <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm">
+            <section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <div class="mb-4">
                     <h2 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Transactions History</h2>
                     <p class="text-xs text-slate-500 dark:text-slate-400">All incoming and outgoing transactions related to this item.</p>
@@ -92,8 +92,8 @@ const item = props.data;
                         </span>
                     </template>
                     <template #cell-itemWithPrriCode="{ row }">
-                        <div class="flex flex-col leading-tight gap-0.5">
-                            <span class="font-semibold text-sm text-slate-800 dark:text-slate-100">
+                        <div class="flex flex-col gap-0.5 leading-tight">
+                            <span class="text-sm font-semibold text-slate-800 dark:text-slate-100">
                                 {{ row.item?.name || "Unknown Item" }}
                             </span>
                             <span
@@ -110,12 +110,12 @@ const item = props.data;
                     </template>
                     <template #cell-actorWithRemarks="{ row }">
                         <div class="flex flex-col">
-                            <span class="font-semibold text-xs text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+                            <span class="text-xs font-semibold uppercase tracking-wide text-slate-700 dark:text-slate-300">
                                 {{ row.actor_display_name || "Unknown Actor" }}
                             </span>
                             <span
                                 v-if="row.remarks"
-                                class="text-xs text-slate-500 mt-0.5">
+                                class="mt-0.5 text-xs text-slate-500">
                                 {{ row.remarks }}
                             </span>
                         </div>

@@ -124,11 +124,11 @@ export default {
         <!-- Loading State -->
         <div
             v-if="loading"
-            class="rounded-2xl border border-gray-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg p-8">
+            class="rounded-2xl border border-gray-100 bg-white/80 p-8 backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/80">
             <div class="flex flex-col items-center justify-center space-y-4 py-12">
                 <div class="relative">
                     <div class="h-12 w-12 rounded-full border-4 border-gray-200 dark:border-slate-700"></div>
-                    <div class="absolute inset-0 h-12 w-12 animate-spin rounded-full border-4 border-blue-600 dark:border-blue-500 border-t-transparent dark:border-t-transparent"></div>
+                    <div class="absolute inset-0 h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent dark:border-blue-500 dark:border-t-transparent"></div>
                 </div>
                 <p class="text-sm font-medium text-gray-600 dark:text-slate-400">Loading rental details...</p>
             </div>
@@ -137,16 +137,16 @@ export default {
         <!-- Error State -->
         <div
             v-else-if="error"
-            class="rounded-2xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 backdrop-blur-lg p-8">
+            class="rounded-2xl border border-red-200 bg-red-50 p-8 backdrop-blur-lg dark:border-red-900/50 dark:bg-red-900/20">
             <div class="flex flex-col items-center justify-center space-y-3 py-8 text-center">
-                <div class="rounded-full bg-red-100 dark:bg-red-900/50 p-3">
+                <div class="rounded-full bg-red-100 p-3 dark:bg-red-900/50">
                     <LuAlertCircle class="h-6 w-6 text-red-600 dark:text-red-400" />
                 </div>
                 <h3 class="text-lg font-semibold text-red-900 dark:text-red-200">Failed to Load</h3>
                 <p class="max-w-sm text-sm text-red-700 dark:text-red-300">{{ error }}</p>
                 <button
                     @click="loadRental"
-                    class="mt-2 rounded-lg bg-red-600 dark:bg-red-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 dark:hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                    class="mt-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:bg-red-700 dark:hover:bg-red-600">
                     Try Again
                 </button>
             </div>
@@ -155,9 +155,9 @@ export default {
         <!-- Empty State -->
         <div
             v-else-if="!rental"
-            class="rounded-2xl border border-gray-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg p-8">
+            class="rounded-2xl border border-gray-100 bg-white/80 p-8 backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/80">
             <div class="flex flex-col items-center justify-center space-y-3 py-12 text-center">
-                <div class="rounded-full bg-gray-100 dark:bg-slate-800 p-4">
+                <div class="rounded-full bg-gray-100 p-4 dark:bg-slate-800">
                     <LuCar class="h-8 w-8 text-gray-400 dark:text-slate-500" />
                 </div>
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Rental Not Found</h3>
@@ -171,28 +171,28 @@ export default {
             data-guide="rental-details"
             class="space-y-6">
             <!-- Status Banner -->
-            <div :class="['rounded-2xl border-2 p-4 sm:p-6 backdrop-blur-lg', statusConfig.color]">
+            <div :class="['rounded-2xl border-2 p-4 backdrop-blur-lg sm:p-6', statusConfig.color]">
                 <div class="flex items-center justify-between gap-3 sm:gap-5">
                     <!-- Vehicle Header -->
                     <div class="flex items-center space-x-3 sm:space-x-4">
-                        <div class="rounded-xl bg-blue-600 dark:bg-blue-500 p-2 sm:p-3 text-white shadow-lg shadow-blue-600/20 shrink-0">
+                        <div class="shrink-0 rounded-xl bg-blue-600 p-2 text-white shadow-lg shadow-blue-600/20 sm:p-3 dark:bg-blue-500">
                             <LuCar class="h-5 w-5 sm:h-6 sm:w-6" />
                         </div>
                         <div class="leading-tight">
-                            <h2 class="text-sm sm:text-lg font-bold">
+                            <h2 class="text-sm font-bold sm:text-lg">
                                 {{ rental.vehicle_type_label || rental.vehicle_type || "Vehicle Not Assigned Yet" }}
                             </h2>
-                            <p class="text-xs sm:text-sm opacity-80 mt-0.5">
+                            <p class="mt-0.5 text-xs opacity-80 sm:text-sm">
                                 {{ tripTypeMeta.label }}
                             </p>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+                    <div class="flex shrink-0 items-center space-x-2 sm:space-x-3">
                         <component
                             :is="statusConfig.icon"
                             class="h-5 w-5 sm:h-6 sm:w-6" />
-                        <div class="leading-tight hidden sm:block">
-                            <p class="text-base sm:text-lg font-bold">{{ statusConfig.label }}</p>
+                        <div class="hidden leading-tight sm:block">
+                            <p class="text-base font-bold sm:text-lg">{{ statusConfig.label }}</p>
                             <p class="text-xs font-semibold uppercase tracking-wider opacity-80">Current Status</p>
                         </div>
                     </div>
@@ -200,11 +200,11 @@ export default {
             </div>
 
             <!-- Main Details Card -->
-            <div class="overflow-hidden rounded-2xl border border-gray-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg shadow-sm">
+            <div class="overflow-hidden rounded-2xl border border-gray-100 bg-white/80 shadow-sm backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/80">
                 <div class="p-6">
                     <!-- Date Range -->
                     <div class="mb-8 grid gap-4 md:grid-cols-2">
-                        <div class="rounded-xl bg-slate-50 dark:bg-slate-800/50 p-4 border border-slate-100 dark:border-slate-800/50">
+                        <div class="rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800/50 dark:bg-slate-800/50">
                             <div class="mb-2 flex items-center space-x-2 text-slate-500 dark:text-slate-400">
                                 <LuCalendar class="h-4 w-4" />
                                 <span class="text-xs font-semibold uppercase tracking-wider">Pickup</span>
@@ -213,7 +213,7 @@ export default {
                                 {{ formatDateTime(rental.date_from, rental.time_from) }}
                             </p>
                         </div>
-                        <div class="rounded-xl bg-slate-50 dark:bg-slate-800/50 p-4 border border-slate-100 dark:border-slate-800/50">
+                        <div class="rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800/50 dark:bg-slate-800/50">
                             <div class="mb-2 flex items-center space-x-2 text-slate-500 dark:text-slate-400">
                                 <LuClock class="h-4 w-4" />
                                 <span class="text-xs font-semibold uppercase tracking-wider">Return</span>
@@ -236,7 +236,7 @@ export default {
                                     <div class="mt-0.5 h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400"></div>
                                     <div>
                                         <p class="text-xs text-slate-500 dark:text-slate-400">Booking Reference</p>
-                                        <p class="text-sm sm:text-base font-bold text-blue-700 dark:text-blue-300 tracking-widest font-mono">
+                                        <p class="font-mono text-sm font-bold tracking-widest text-blue-700 sm:text-base dark:text-blue-300">
                                             {{ rental.booking_id || "NULL" }}
                                         </p>
                                     </div>
@@ -290,7 +290,7 @@ export default {
                         </div>
                     </div>
 
-                    <div class="mt-6 rounded-xl border border-blue-100 dark:border-blue-900/30 bg-blue-50/80 dark:bg-blue-900/10 p-4">
+                    <div class="mt-6 rounded-xl border border-blue-100 bg-blue-50/80 p-4 dark:border-blue-900/30 dark:bg-blue-900/10">
                         <div class="flex items-start space-x-3">
                             <LuAlertCircle class="mt-0.5 h-5 w-5 text-blue-600 dark:text-blue-400" />
                             <div>

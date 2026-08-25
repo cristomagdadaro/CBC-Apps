@@ -77,18 +77,18 @@ export default {
 </script>
 
 <template>
-    <section class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs text-slate-900 dark:text-slate-100">
-        <header class="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80">
+    <section class="shadow-xs overflow-hidden rounded-2xl border border-slate-200 bg-white text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+        <header class="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-800/80">
             <div class="flex items-center gap-2">
-                <FileText class="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                <span class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                <FileText class="h-4 w-4 text-slate-500 dark:text-slate-400" />
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">
                     {{ title }}
                 </span>
             </div>
             <div class="flex items-center gap-2">
                 <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ reports.length }} linked</span>
                 <button
-                    class="inline-flex items-center justify-center h-7 w-7 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                    class="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                     type="button"
                     @click="togglePanel(openIndex === null ? 0 : null)"
                     :title="hasReports ? 'Toggle first report' : 'No reports'">
@@ -101,19 +101,19 @@ export default {
 
         <div
             v-if="!hasReports"
-            class="p-4 text-xs text-slate-500 dark:text-slate-400 text-center">
+            class="p-4 text-center text-xs text-slate-500 dark:text-slate-400">
             No reports linked to this transaction yet.
         </div>
         <div
             v-else
-            class="p-3 space-y-2">
+            class="space-y-2 p-3">
             <div
                 v-for="(report, index) in reports"
                 :key="report.id || index"
-                class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-slate-800/40">
+                class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/40">
                 <button
                     type="button"
-                    class="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 text-left text-xs hover:bg-slate-100/60 dark:hover:bg-slate-800/60 transition-colors"
+                    class="flex w-full items-center justify-between gap-2 px-3.5 py-2.5 text-left text-xs transition-colors hover:bg-slate-100/60 dark:hover:bg-slate-800/60"
                     @click="togglePanel(index)">
                     <div class="flex flex-col">
                         <span class="font-bold text-slate-900 dark:text-slate-100">
@@ -131,16 +131,16 @@ export default {
                 <transition-container type="fade">
                     <div
                         v-if="openIndex === index"
-                        class="border-t border-slate-200 dark:border-slate-800 px-3.5 py-3 text-xs text-slate-600 dark:text-slate-300 space-y-3 bg-white dark:bg-slate-900">
+                        class="space-y-3 border-t border-slate-200 bg-white px-3.5 py-3 text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
                         <div class="grid gap-2 sm:grid-cols-2">
                             <div
                                 v-for="meta in metadataRows(report)"
                                 :key="meta.label + meta.value"
-                                class="border border-slate-200 dark:border-slate-800 rounded-xl p-2 bg-slate-50 dark:bg-slate-800/60">
-                                <p class="uppercase text-[0.65rem] font-semibold text-slate-400 tracking-wider">
+                                class="rounded-xl border border-slate-200 bg-slate-50 p-2 dark:border-slate-800 dark:bg-slate-800/60">
+                                <p class="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400">
                                     {{ meta.label }}
                                 </p>
-                                <p class="font-bold text-slate-800 dark:text-slate-200 text-xs mt-0.5">
+                                <p class="mt-0.5 text-xs font-bold text-slate-800 dark:text-slate-200">
                                     {{ meta.value }}
                                 </p>
                             </div>
@@ -148,29 +148,29 @@ export default {
                                 v-if="reportLink(report)"
                                 :href="reportLink(report)"
                                 target="_blank"
-                                class="border border-lime-600 text-lime-600 dark:text-lime-400 rounded-xl p-2 text-center text-xs font-bold hover:bg-lime-600 hover:text-white transition-colors flex items-center justify-center">
+                                class="flex items-center justify-center rounded-xl border border-lime-600 p-2 text-center text-xs font-bold text-lime-600 transition-colors hover:bg-lime-600 hover:text-white dark:text-lime-400">
                                 Open in Reports
                             </a>
                         </div>
                         <div
                             v-if="report.notes"
-                            class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-xl p-2.5 text-xs text-amber-900 dark:text-amber-200">
+                            class="rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200">
                             <span class="font-bold">Notes:</span>
                             <p class="mt-1 whitespace-pre-line text-slate-700 dark:text-slate-300">
                                 {{ report.notes }}
                             </p>
                         </div>
                         <div>
-                            <p class="text-[0.7rem] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Template Fields</p>
+                            <p class="mb-1.5 text-[0.7rem] font-bold uppercase tracking-wider text-slate-400">Template Fields</p>
                             <dl class="grid gap-1.5 text-xs">
                                 <div
                                     v-for="([entryKey, entryValue], idx) in fieldEntries(report)"
                                     :key="entryKey + idx"
-                                    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 border border-slate-200 dark:border-slate-800 rounded-xl p-2 bg-slate-50 dark:bg-slate-800/40">
+                                    class="flex flex-col gap-1 rounded-xl border border-slate-200 bg-slate-50 p-2 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800 dark:bg-slate-800/40">
                                     <dt class="font-bold text-slate-700 dark:text-slate-300">
                                         {{ startCase(entryKey) }}
                                     </dt>
-                                    <dd class="text-slate-800 dark:text-slate-200 font-medium">
+                                    <dd class="font-medium text-slate-800 dark:text-slate-200">
                                         {{ normalizeFieldValue(entryValue) }}
                                     </dd>
                                 </div>

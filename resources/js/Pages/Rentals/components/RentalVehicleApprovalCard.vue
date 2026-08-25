@@ -155,30 +155,30 @@ export default {
     <!-- Optimized Card UI -->
     <div
         @click="showModal = true"
-        class="group relative overflow-hidden rounded-xl border bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 shadow-sm hover:shadow-lg hover:border-gray-300 dark:hover:border-slate-600 transition-all duration-300 cursor-pointer">
+        class="group relative cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:border-gray-300 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-600">
         <!-- Status Indicator Line -->
         <div :class="['absolute left-0 top-0 h-full w-1.5 transition-colors', statusConfig.border]"></div>
 
         <div class="p-5 pl-6">
             <div class="flex items-start justify-between gap-4">
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2.5 mb-1.5">
-                        <div :class="['rounded-lg p-1.5 shrink-0', statusConfig.iconBg]">
+                <div class="min-w-0 flex-1">
+                    <div class="mb-1.5 flex items-center gap-2.5">
+                        <div :class="['shrink-0 rounded-lg p-1.5', statusConfig.iconBg]">
                             <LuCar :class="['h-4 w-4', statusConfig.iconColor]" />
                         </div>
-                        <h3 class="font-bold text-gray-900 dark:text-slate-100 truncate text-base">
+                        <h3 class="truncate text-base font-bold text-gray-900 dark:text-slate-100">
                             {{ formState.requested_by || "Unknown" }}
                         </h3>
                     </div>
 
-                    <p class="text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">
+                    <p class="mb-1 text-sm font-medium text-gray-600 dark:text-slate-400">
                         {{ tripTypeMeta.label }}
                     </p>
-                    <p class="text-xs text-gray-500 dark:text-slate-500 mb-3 line-clamp-1">
+                    <p class="mb-3 line-clamp-1 text-xs text-gray-500 dark:text-slate-500">
                         {{ assignedVehicleLabel }}
                     </p>
 
-                    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-600 dark:text-slate-400 bg-gray-50 dark:bg-slate-800/50 p-2.5 rounded-lg border border-gray-100 dark:border-slate-800">
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-gray-100 bg-gray-50 p-2.5 text-xs text-gray-600 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-400">
                         <span class="flex items-center gap-1.5 font-medium">
                             <LuCalendar class="h-3.5 w-3.5 text-gray-400 dark:text-slate-500" />
                             {{ formatDate(formState.date_from) }} -
@@ -192,21 +192,21 @@ export default {
                     </div>
                 </div>
 
-                <div class="flex flex-col items-end gap-2 shrink-0">
-                    <span :class="['inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold border', statusConfig.badge]">
+                <div class="flex shrink-0 flex-col items-end gap-2">
+                    <span :class="['inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold', statusConfig.badge]">
                         <component
                             :is="statusConfig.icon"
                             class="h-3.5 w-3.5" />
                         {{ statusConfig.label }}
                     </span>
-                    <span class="text-[0.65rem] text-gray-400 dark:text-slate-500 font-medium">Updated {{ formatDate(formState.updated_at) }}</span>
+                    <span class="text-[0.65rem] font-medium text-gray-400 dark:text-slate-500">Updated {{ formatDate(formState.updated_at) }}</span>
                 </div>
             </div>
 
             <!-- Hover Prompt -->
-            <div class="mt-3.5 flex items-center justify-end text-xs font-semibold text-gray-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-2 group-hover:translate-x-0 duration-300">
+            <div class="mt-3.5 flex translate-x-2 transform items-center justify-end text-xs font-semibold text-gray-400 opacity-0 transition-opacity duration-300 group-hover:translate-x-0 group-hover:opacity-100 dark:text-slate-500">
                 <span>View Details</span>
-                <LuChevronRight class="h-3.5 w-3.5 ml-0.5" />
+                <LuChevronRight class="ml-0.5 h-3.5 w-3.5" />
             </div>
         </div>
     </div>
@@ -217,15 +217,15 @@ export default {
         :show="showModal"
         @close="showModal = false">
         <template #title>
-            <div :class="['relative overflow-hidden px-6 py-5 border-b border-gray-200/50 dark:border-slate-700/50', statusConfig.header]">
-                <div class="absolute -right-4 -top-4 opacity-10 pointer-events-none">
+            <div :class="['relative overflow-hidden border-b border-gray-200/50 px-6 py-5 dark:border-slate-700/50', statusConfig.header]">
+                <div class="pointer-events-none absolute -right-4 -top-4 opacity-10">
                     <LuCar class="h-32 w-32" />
                 </div>
 
-                <div class="relative flex items-start justify-between z-10">
+                <div class="relative z-10 flex items-start justify-between">
                     <div>
-                        <div class="flex items-center gap-2 mb-2">
-                            <span :class="['inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold border shadow-sm', statusConfig.badge]">
+                        <div class="mb-2 flex items-center gap-2">
+                            <span :class="['inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-bold shadow-sm', statusConfig.badge]">
                                 <component
                                     :is="statusConfig.icon"
                                     class="h-3.5 w-3.5" />
@@ -233,14 +233,14 @@ export default {
                             </span>
                             <span class="text-xs font-medium text-gray-500 dark:text-slate-400">Updated {{ formatDate(formState.updated_at) }}</span>
                         </div>
-                        <h2 class="text-xl font-extrabold text-gray-900 dark:text-slate-100 tracking-tight">Vehicle Rental Request</h2>
+                        <h2 class="text-xl font-extrabold tracking-tight text-gray-900 dark:text-slate-100">Vehicle Rental Request</h2>
                         <p class="mt-0.5 text-sm font-medium text-gray-600 dark:text-slate-400">
                             {{ tripTypeMeta.label }}
                         </p>
                     </div>
                     <button
                         @click="showModal = false"
-                        class="rounded-lg p-1.5 text-gray-400 dark:text-slate-500 hover:bg-gray-200/50 dark:hover:bg-slate-800 hover:text-gray-600 dark:hover:text-slate-300 transition-colors">
+                        class="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-200/50 hover:text-gray-600 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-300">
                         <LuXCircle class="h-6 w-6" />
                     </button>
                 </div>
@@ -250,16 +250,16 @@ export default {
         <template #content>
             <div class="space-y-6">
                 <!-- Requester Info -->
-                <div class="flex items-center gap-4 p-4 rounded-xl border border-gray-100 dark:border-slate-700/50 bg-white dark:bg-slate-800 shadow-sm">
-                    <div class="rounded-xl bg-blue-50 dark:bg-blue-500/10 p-3 shadow-inner">
+                <div class="flex items-center gap-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm dark:border-slate-700/50 dark:bg-slate-800">
+                    <div class="rounded-xl bg-blue-50 p-3 shadow-inner dark:bg-blue-500/10">
                         <LuUser class="h-6 w-6 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div class="flex-1">
-                        <p class="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-0.5">Requested By</p>
-                        <p class="text-lg font-bold text-gray-900 dark:text-slate-100 leading-tight">
+                        <p class="mb-0.5 text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">Requested By</p>
+                        <p class="text-lg font-bold leading-tight text-gray-900 dark:text-slate-100">
                             {{ formState.requested_by || "N/A" }}
                         </p>
-                        <p class="text-sm font-medium text-gray-500 dark:text-slate-400 mt-1">
+                        <p class="mt-1 text-sm font-medium text-gray-500 dark:text-slate-400">
                             {{ assignedVehicleLabel }}
                         </p>
                     </div>
@@ -273,27 +273,27 @@ export default {
                     :shared-ride-reference="formState.shared_ride_reference || ''" />
 
                 <!-- Date & Time Card -->
-                <div class="rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-800/50 p-5">
+                <div class="rounded-xl border border-gray-200 bg-gray-50/50 p-5 dark:border-slate-700 dark:bg-slate-800/50">
                     <div class="grid gap-6 sm:grid-cols-2">
                         <div>
-                            <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400 mb-1.5">
+                            <div class="mb-1.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400">
                                 <LuCalendar class="h-4 w-4" />
                                 Date Range
                             </div>
                             <p class="text-sm font-semibold text-gray-900 dark:text-slate-200">
                                 {{ formatDate(formState.date_from) }}
-                                <span class="text-gray-400 mx-1">→</span>
+                                <span class="mx-1 text-gray-400">→</span>
                                 {{ formatDate(formState.date_to) }}
                             </p>
                         </div>
                         <div>
-                            <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400 mb-1.5">
+                            <div class="mb-1.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400">
                                 <LuClock class="h-4 w-4" />
                                 Time
                             </div>
                             <p class="text-sm font-semibold text-gray-900 dark:text-slate-200">
                                 {{ formatTime(formState.time_from) || "N/A" }}
-                                <span class="text-gray-400 mx-1">→</span>
+                                <span class="mx-1 text-gray-400">→</span>
                                 {{ formatTime(formState.time_to) || "N/A" }}
                             </p>
                         </div>
@@ -304,8 +304,8 @@ export default {
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div
                         v-if="formState.purpose"
-                        class="p-4 rounded-xl border border-gray-100 dark:border-slate-700/50 bg-white dark:bg-slate-800">
-                        <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400 mb-2">
+                        class="rounded-xl border border-gray-100 bg-white p-4 dark:border-slate-700/50 dark:bg-slate-800">
+                        <div class="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400">
                             <LuFileText class="h-4 w-4" />
                             Purpose
                         </div>
@@ -316,8 +316,8 @@ export default {
 
                     <div
                         v-if="formState.contact_number"
-                        class="p-4 rounded-xl border border-gray-100 dark:border-slate-700/50 bg-white dark:bg-slate-800">
-                        <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400 mb-2">
+                        class="rounded-xl border border-gray-100 bg-white p-4 dark:border-slate-700/50 dark:bg-slate-800">
+                        <div class="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400">
                             <LuUser class="h-4 w-4" />
                             Contact
                         </div>
@@ -330,8 +330,8 @@ export default {
                 <!-- Members of Party -->
                 <div
                     v-if="formState.members_of_party?.length"
-                    class="p-4 rounded-xl border border-gray-100 dark:border-slate-700/50 bg-white dark:bg-slate-800">
-                    <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400 mb-3">
+                    class="rounded-xl border border-gray-100 bg-white p-4 dark:border-slate-700/50 dark:bg-slate-800">
+                    <div class="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400">
                         <LuUsers class="h-4 w-4" />
                         Members of Party ({{ formState.members_of_party.length }})
                     </div>
@@ -339,7 +339,7 @@ export default {
                         <span
                             v-for="(member, index) in formState.members_of_party"
                             :key="index"
-                            class="inline-flex items-center rounded-lg bg-gray-100 dark:bg-slate-700 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-slate-600 shadow-sm">
+                            class="inline-flex items-center rounded-lg border border-gray-200 bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300">
                             {{ member }}
                         </span>
                     </div>
@@ -348,12 +348,12 @@ export default {
         </template>
 
         <template #footer>
-            <div class="flex flex-col w-full bg-gray-100 dark:bg-gray-800 dark:bg-slate-900 rounded-lg border-gray-200 dark:border-slate-700">
+            <div class="flex w-full flex-col rounded-lg border-gray-200 bg-gray-100 dark:border-slate-700 dark:bg-gray-800 dark:bg-slate-900">
                 <!-- Reviewer Form Section -->
                 <div
                     v-if="canApprove"
-                    class="p-6 border-b border-gray-100 dark:border-slate-800/50 bg-gray-50/50 dark:bg-slate-800/20">
-                    <div class="flex flex-col gap-4 max-w-2xl mx-auto">
+                    class="border-b border-gray-100 bg-gray-50/50 p-6 dark:border-slate-800/50 dark:bg-slate-800/20">
+                    <div class="mx-auto flex max-w-2xl flex-col gap-4">
                         <custom-dropdown
                             label="Assign Vehicle"
                             required
@@ -375,15 +375,15 @@ export default {
                             v-model="formState.notes"
                             :rows="3"
                             label="Reviewer Notes (Optional)"
-                            class="w-full rounded-xl border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm transition-colors"
+                            class="w-full rounded-xl border-gray-300 text-sm shadow-sm transition-colors focus:border-blue-500 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
                             placeholder="Add internal notes about this decision..." />
                     </div>
                 </div>
 
                 <div
                     v-else-if="formState.notes"
-                    class="p-6 border-b border-gray-100 dark:border-slate-800/50 bg-amber-50/50 dark:bg-amber-900/10">
-                    <p class="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-500 mb-1.5">Reviewer Notes</p>
+                    class="border-b border-gray-100 bg-amber-50/50 p-6 dark:border-slate-800/50 dark:bg-amber-900/10">
+                    <p class="mb-1.5 text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-500">Reviewer Notes</p>
                     <p class="text-sm font-medium text-gray-800 dark:text-slate-300">
                         {{ formState.notes }}
                     </p>
@@ -392,11 +392,11 @@ export default {
                 <!-- Action Buttons -->
                 <div
                     v-if="canApprove"
-                    class="flex flex-col sm:flex-row items-center justify-end gap-3 px-6 py-5">
+                    class="flex flex-col items-center justify-end gap-3 px-6 py-5 sm:flex-row">
                     <button
                         @click="updateStatus('cancelled')"
                         :disabled="['cancelled', 'completed'].includes(formState.status) || processing"
-                        class="w-full sm:w-auto inline-flex justify-center items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 transition-all hover:bg-gray-50 dark:hover:bg-slate-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-sm font-bold text-gray-700 shadow-sm transition-all hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:focus:ring-offset-slate-900">
                         <LuXCircle class="h-4 w-4" />
                         Cancel Request
                     </button>
@@ -404,8 +404,8 @@ export default {
                     <button
                         @click="updateStatus('rejected')"
                         :disabled="['rejected', 'completed'].includes(formState.status) || processing"
-                        class="w-full sm:w-auto inline-flex justify-center items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition-all focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-                        :class="formState.status === 'rejected' ? 'bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-500 border border-transparent' : 'bg-white dark:bg-slate-800 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 dark:hover:border-red-800'">
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold shadow-sm transition-all focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto dark:focus:ring-offset-slate-900"
+                        :class="formState.status === 'rejected' ? 'border border-transparent bg-gray-100 text-gray-400 dark:bg-slate-800 dark:text-slate-500' : 'border border-red-200 bg-white text-red-600 hover:border-red-300 hover:bg-red-50 dark:border-red-900/50 dark:bg-slate-800 dark:text-red-400 dark:hover:border-red-800 dark:hover:bg-red-900/20'">
                         <LuXCircle
                             v-if="!processing"
                             class="h-4 w-4" />
@@ -416,8 +416,8 @@ export default {
                     <button
                         @click="updateStatus('approved')"
                         :disabled="['approved', 'in_progress', 'completed'].includes(formState.status) || processing"
-                        class="w-full sm:w-auto inline-flex justify-center items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-bold transition-all focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-                        :class="formState.status === 'approved' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-transparent' : 'bg-emerald-600 dark:bg-emerald-500 text-white hover:bg-emerald-700 dark:hover:bg-emerald-600 shadow-emerald-600/20'">
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-2.5 text-sm font-bold shadow-md transition-all focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto dark:focus:ring-offset-slate-900"
+                        :class="formState.status === 'approved' ? 'border border-transparent bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-emerald-600 text-white shadow-emerald-600/20 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600'">
                         <LuLoader2
                             v-if="processing"
                             class="h-4 w-4 animate-spin" />
@@ -431,8 +431,8 @@ export default {
 
                 <div
                     v-else
-                    class="flex items-center justify-center border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 px-6 py-4">
-                    <p class="text-xs font-bold tracking-wide text-gray-500 dark:text-slate-400 uppercase">You don't have permission to modify this request</p>
+                    class="flex items-center justify-center border-t border-gray-200 bg-gray-50 px-6 py-4 dark:border-slate-700 dark:bg-slate-800/50">
+                    <p class="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-slate-400">You don't have permission to modify this request</p>
                 </div>
             </div>
         </template>

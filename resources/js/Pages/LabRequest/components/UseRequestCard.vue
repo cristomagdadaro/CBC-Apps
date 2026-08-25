@@ -165,7 +165,7 @@ export default {
     <!-- Main Card -->
     <div
         v-if="formsData"
-        class="group relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-300 ease-out overflow-hidden max-w-full min-w-[20rem] sm:min-w-[30rem] cursor-pointer"
+        class="group relative min-w-[20rem] max-w-full cursor-pointer overflow-hidden rounded-2xl border border-slate-200/60 bg-white/80 shadow-sm backdrop-blur-xl transition-all duration-300 ease-out hover:shadow-xl sm:min-w-[30rem] dark:border-slate-800 dark:bg-slate-900/80"
         role="button"
         tabindex="0"
         @click="openDetails"
@@ -173,30 +173,30 @@ export default {
         @keydown.space.prevent="openDetails">
         <!-- Status Indicator Strip -->
         <div
-            class="absolute left-0 top-0 bottom-0 w-1.5 transition-colors duration-300 group-hover:w-2"
+            class="absolute bottom-0 left-0 top-0 w-1.5 transition-colors duration-300 group-hover:w-2"
             :class="statusConfig.border"></div>
 
-        <div class="p-5 pl-6 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+        <div class="flex flex-col justify-between gap-4 p-5 pl-6 sm:flex-row sm:items-start">
             <!-- Left: User Info -->
-            <div class="flex items-start gap-3.5 flex-1 min-w-0">
-                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-sm shrink-0 border border-slate-200 dark:border-slate-700">
+            <div class="flex min-w-0 flex-1 items-start gap-3.5">
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-gradient-to-br from-indigo-500 to-blue-600 text-lg font-bold text-white shadow-sm dark:border-slate-700">
                     {{ requesterInitial }}
                 </div>
 
-                <div class="flex flex-col items-start gap-1 w-full">
-                    <h3 class="font-bold text-slate-900 dark:text-white truncate w-full text-base tracking-tight">
+                <div class="flex w-full flex-col items-start gap-1">
+                    <h3 class="w-full truncate text-base font-bold tracking-tight text-slate-900 dark:text-white">
                         {{ requesterDisplayName }}
                     </h3>
 
-                    <div class="flex flex-col gap-0.5 mt-0.5 w-full">
-                        <div class="text-[0.7rem] font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 w-full">
-                            <Briefcase class="w-3.5 h-3.5 shrink-0" />
+                    <div class="mt-0.5 flex w-full flex-col gap-0.5">
+                        <div class="flex w-full items-center gap-1.5 text-[0.7rem] font-semibold text-slate-500 dark:text-slate-400">
+                            <Briefcase class="h-3.5 w-3.5 shrink-0" />
                             <span class="truncate">
                                 {{ displayText(formsData.requester?.position) }}
                             </span>
                         </div>
-                        <div class="text-[0.7rem] font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 w-full">
-                            <Building2 class="w-3.5 h-3.5 shrink-0" />
+                        <div class="flex w-full items-center gap-1.5 text-[0.7rem] font-semibold text-slate-500 dark:text-slate-400">
+                            <Building2 class="h-3.5 w-3.5 shrink-0" />
                             <span class="truncate">
                                 {{ displayText(formsData.requester?.affiliation) }}
                             </span>
@@ -206,18 +206,18 @@ export default {
             </div>
 
             <!-- Right: Actions & Status -->
-            <div class="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2.5 shrink-0 mt-2 sm:mt-0 w-full sm:w-auto">
+            <div class="mt-2 flex w-full shrink-0 flex-row items-center justify-between gap-2.5 sm:mt-0 sm:w-auto sm:flex-col sm:items-end sm:justify-start">
                 <span
-                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border shadow-sm"
+                    class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-widest shadow-sm"
                     :class="statusConfig.badge">
                     <component
                         :is="statusConfig.icon"
-                        class="w-3.5 h-3.5" />
+                        class="h-3.5 w-3.5" />
                     {{ statusConfig.label }}
                 </span>
 
                 <div class="flex flex-col items-end gap-0.5 text-right">
-                    <span class="text-[0.65rem] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-1">
+                    <span class="flex items-center gap-1 text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
                         {{ formatDate(formsData.updated_at) }}
                     </span>
                     <span
@@ -230,9 +230,9 @@ export default {
             </div>
 
             <!-- Hover Prompt (Desktop only) -->
-            <div class="absolute right-5 bottom-4 hidden sm:flex items-center text-[0.65rem] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-0 translate-x-2">
+            <div class="absolute bottom-4 right-5 hidden translate-x-2 transform items-center text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 sm:flex dark:text-slate-500">
                 Review
-                <ChevronRight class="w-3.5 h-3.5 ml-0.5" />
+                <ChevronRight class="ml-0.5 h-3.5 w-3.5" />
             </div>
         </div>
     </div>
@@ -243,51 +243,51 @@ export default {
         :closeable="true"
         @close="closeModal"
         max-width="2xl">
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-2xl">
+        <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
             <!-- Header -->
-            <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 flex items-start justify-between backdrop-blur-md sticky top-0 z-20">
+            <div class="sticky top-0 z-20 flex items-start justify-between border-b border-slate-100 bg-slate-50 px-6 py-5 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/80">
                 <div class="flex items-center gap-3.5">
-                    <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center border border-indigo-200 dark:border-indigo-500/30 shadow-sm shrink-0">
-                        <FileText class="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-indigo-200 bg-indigo-100 shadow-sm dark:border-indigo-500/30 dark:bg-indigo-500/20">
+                        <FileText class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                     </div>
                     <div>
-                        <h3 class="text-xl font-black text-slate-900 dark:text-white tracking-tight leading-none">Request Details</h3>
-                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1.5">
+                        <h3 class="text-xl font-black leading-none tracking-tight text-slate-900 dark:text-white">Request Details</h3>
+                        <p class="mt-1.5 text-xs font-bold uppercase tracking-widest text-slate-400">
                             {{ formsData.id }}
                         </p>
                     </div>
                 </div>
                 <button
                     @click="closeModal"
-                    class="p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors text-slate-500 dark:text-slate-400">
-                    <X class="w-5 h-5" />
+                    class="rounded-xl bg-slate-100 p-2 text-slate-500 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700">
+                    <X class="h-5 w-5" />
                 </button>
             </div>
 
             <!-- Content Area -->
-            <div class="p-6 space-y-8 max-h-[75vh] overflow-y-auto custom-scrollbar bg-slate-50/50 dark:bg-slate-900/50">
+            <div class="custom-scrollbar max-h-[75vh] space-y-8 overflow-y-auto bg-slate-50/50 p-6 dark:bg-slate-900/50">
                 <!-- Status Timeline -->
                 <div class="space-y-4">
-                    <h4 class="text-[0.65rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                        <Clock class="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                    <h4 class="flex items-center gap-2 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                        <Clock class="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                         Request Timeline
                     </h4>
 
-                    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 relative overflow-hidden">
+                    <div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                         <!-- Connecting Line -->
                         <div
-                            class="absolute left-9 top-8 bottom-8 w-0.5 bg-slate-200 dark:bg-slate-700"
+                            class="absolute bottom-8 left-9 top-8 w-0.5 bg-slate-200 dark:bg-slate-700"
                             aria-hidden="true"></div>
 
                         <div class="space-y-6">
                             <!-- Submitted -->
-                            <div class="flex items-start gap-4 relative z-10">
-                                <div class="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center shrink-0 border-2 border-white dark:border-slate-800 ring-2 ring-emerald-50 dark:ring-emerald-900/30">
-                                    <CheckCircle2 class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                            <div class="relative z-10 flex items-start gap-4">
+                                <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-white bg-emerald-100 ring-2 ring-emerald-50 dark:border-slate-800 dark:bg-emerald-500/20 dark:ring-emerald-900/30">
+                                    <CheckCircle2 class="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                                 </div>
                                 <div>
-                                    <p class="font-bold text-slate-900 dark:text-white text-sm">Submitted</p>
-                                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+                                    <p class="text-sm font-bold text-slate-900 dark:text-white">Submitted</p>
+                                    <p class="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">
                                         {{ formatDate(formsData.created_at) }}
                                     </p>
                                 </div>
@@ -296,20 +296,20 @@ export default {
                             <!-- Approved -->
                             <div
                                 v-if="formsData.approved_at"
-                                class="flex items-start gap-4 relative z-10">
-                                <div class="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center shrink-0 border-2 border-white dark:border-slate-800 ring-2 ring-emerald-50 dark:ring-emerald-900/30">
-                                    <CheckCircle2 class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                class="relative z-10 flex items-start gap-4">
+                                <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-white bg-emerald-100 ring-2 ring-emerald-50 dark:border-slate-800 dark:bg-emerald-500/20 dark:ring-emerald-900/30">
+                                    <CheckCircle2 class="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                                 </div>
                                 <div>
-                                    <p class="font-bold text-slate-900 dark:text-white text-sm">
+                                    <p class="text-sm font-bold text-slate-900 dark:text-white">
                                         Approved
                                         <span
                                             v-if="formsData.approved_by"
-                                            class="text-slate-400 font-medium ml-1">
+                                            class="ml-1 font-medium text-slate-400">
                                             by {{ formsData.approved_by }}
                                         </span>
                                     </p>
-                                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+                                    <p class="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">
                                         {{ formatDate(formsData.approved_at) }}
                                     </p>
                                 </div>
@@ -318,20 +318,20 @@ export default {
                             <!-- Released -->
                             <div
                                 v-if="formsData.released_at"
-                                class="flex items-start gap-4 relative z-10">
-                                <div class="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center shrink-0 border-2 border-white dark:border-slate-800 ring-2 ring-blue-50 dark:ring-blue-900/30">
-                                    <Package class="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                class="relative z-10 flex items-start gap-4">
+                                <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-white bg-blue-100 ring-2 ring-blue-50 dark:border-slate-800 dark:bg-blue-500/20 dark:ring-blue-900/30">
+                                    <Package class="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                 </div>
                                 <div>
-                                    <p class="font-bold text-slate-900 dark:text-white text-sm">
+                                    <p class="text-sm font-bold text-slate-900 dark:text-white">
                                         Released
                                         <span
                                             v-if="formsData.released_by"
-                                            class="text-slate-400 font-medium ml-1">
+                                            class="ml-1 font-medium text-slate-400">
                                             by {{ formsData.released_by }}
                                         </span>
                                     </p>
-                                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+                                    <p class="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">
                                         {{ formatDate(formsData.released_at) }}
                                     </p>
                                 </div>
@@ -340,20 +340,20 @@ export default {
                             <!-- Returned -->
                             <div
                                 v-if="formsData.returned_at"
-                                class="flex items-start gap-4 relative z-10">
-                                <div class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center shrink-0 border-2 border-white dark:border-slate-800 ring-2 ring-slate-50 dark:ring-slate-800">
-                                    <CheckCircle2 class="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                                class="relative z-10 flex items-start gap-4">
+                                <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-white bg-slate-200 ring-2 ring-slate-50 dark:border-slate-800 dark:bg-slate-700 dark:ring-slate-800">
+                                    <CheckCircle2 class="h-4 w-4 text-slate-600 dark:text-slate-400" />
                                 </div>
                                 <div>
-                                    <p class="font-bold text-slate-900 dark:text-white text-sm">
+                                    <p class="text-sm font-bold text-slate-900 dark:text-white">
                                         Returned
                                         <span
                                             v-if="formsData.returned_by"
-                                            class="text-slate-400 font-medium ml-1">
+                                            class="ml-1 font-medium text-slate-400">
                                             by {{ formsData.returned_by }}
                                         </span>
                                     </p>
-                                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+                                    <p class="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">
                                         {{ formatDate(formsData.returned_at) }}
                                     </p>
                                 </div>
@@ -362,13 +362,13 @@ export default {
                             <!-- Rejected -->
                             <div
                                 v-if="formsData.request_status === 'rejected'"
-                                class="flex items-start gap-4 relative z-10">
-                                <div class="w-7 h-7 rounded-full bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center shrink-0 border-2 border-white dark:border-slate-800 ring-2 ring-rose-50 dark:ring-rose-900/30">
-                                    <XCircle class="w-4 h-4 text-rose-600 dark:text-rose-400" />
+                                class="relative z-10 flex items-start gap-4">
+                                <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-white bg-rose-100 ring-2 ring-rose-50 dark:border-slate-800 dark:bg-rose-500/20 dark:ring-rose-900/30">
+                                    <XCircle class="h-4 w-4 text-rose-600 dark:text-rose-400" />
                                 </div>
                                 <div>
-                                    <p class="font-bold text-slate-900 dark:text-white text-sm">Rejected</p>
-                                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+                                    <p class="text-sm font-bold text-slate-900 dark:text-white">Rejected</p>
+                                    <p class="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">
                                         {{ formatDate(formsData.updated_at) }}
                                     </p>
                                 </div>
@@ -378,28 +378,28 @@ export default {
                 </div>
 
                 <!-- Requester & Schedule Info -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div class="space-y-4">
-                        <h4 class="text-[0.65rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                            <User class="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                        <h4 class="flex items-center gap-2 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                            <User class="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                             Requester
                         </h4>
-                        <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-slate-700 space-y-3">
+                        <div class="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                             <div>
-                                <p class="text-base font-black text-slate-900 dark:text-white tracking-tight">
+                                <p class="text-base font-black tracking-tight text-slate-900 dark:text-white">
                                     {{ requesterDisplayName }}
                                 </p>
-                                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wider">
+                                <p class="mt-1 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                                     {{ displayText(formsData.requester?.position) }}
                                 </p>
                             </div>
-                            <div class="pt-3 border-t border-slate-100 dark:border-slate-700/50">
-                                <p class="text-sm font-medium text-slate-600 dark:text-slate-300 leading-relaxed">
+                            <div class="border-t border-slate-100 pt-3 dark:border-slate-700/50">
+                                <p class="text-sm font-medium leading-relaxed text-slate-600 dark:text-slate-300">
                                     {{ displayText(formsData.requester?.affiliation) }}
                                 </p>
                                 <p
                                     v-if="formsData.requester?.philrice_id"
-                                    class="text-xs font-bold text-indigo-600 dark:text-indigo-400 mt-1.5 uppercase tracking-wide">
+                                    class="mt-1.5 text-xs font-bold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">
                                     ID: {{ formsData.requester.philrice_id }}
                                 </p>
                             </div>
@@ -407,16 +407,16 @@ export default {
                     </div>
 
                     <div class="space-y-4">
-                        <h4 class="text-[0.65rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                            <Clock class="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                        <h4 class="flex items-center gap-2 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                            <Clock class="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                             Schedule
                         </h4>
-                        <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-slate-700 space-y-4">
+                        <div class="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                             <div>
-                                <p class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 mb-1">From</p>
+                                <p class="mb-1 text-[0.65rem] font-bold uppercase tracking-widest text-slate-400">From</p>
                                 <p class="text-sm font-bold text-slate-800 dark:text-slate-200">
                                     {{ formatDate(formsData.requestForm?.date_of_use) }}
-                                    <span class="text-slate-400 mx-1">·</span>
+                                    <span class="mx-1 text-slate-400">·</span>
                                     <span class="text-indigo-600 dark:text-indigo-400">
                                         {{ formatTime(formsData.requestForm?.time_of_use) }}
                                     </span>
@@ -424,11 +424,11 @@ export default {
                             </div>
                             <div
                                 v-if="formsData.requestForm?.date_of_use_end"
-                                class="pt-4 border-t border-slate-100 dark:border-slate-700/50">
-                                <p class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 mb-1">To</p>
+                                class="border-t border-slate-100 pt-4 dark:border-slate-700/50">
+                                <p class="mb-1 text-[0.65rem] font-bold uppercase tracking-widest text-slate-400">To</p>
                                 <p class="text-sm font-bold text-slate-800 dark:text-slate-200">
                                     {{ formatDate(formsData.requestForm?.date_of_use_end) }}
-                                    <span class="text-slate-400 mx-1">·</span>
+                                    <span class="mx-1 text-slate-400">·</span>
                                     <span class="text-indigo-600 dark:text-indigo-400">
                                         {{ formatTime(formsData.requestForm?.time_of_use_end) }}
                                     </span>
@@ -440,26 +440,26 @@ export default {
 
                 <!-- Project Info -->
                 <div class="space-y-4">
-                    <h4 class="text-[0.65rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                        <Info class="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                    <h4 class="flex items-center gap-2 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                        <Info class="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                         Other Information
                     </h4>
-                    <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-slate-700 space-y-4">
+                    <div class="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                         <div v-if="formsData.requestForm?.project_title">
-                            <span class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 block mb-1">Project Title</span>
+                            <span class="mb-1 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-400">Project Title</span>
                             <p class="text-sm font-medium text-slate-800 dark:text-slate-200">
                                 {{ displayText(formsData.requestForm?.project_title) }}
                             </p>
                         </div>
                         <div v-if="formsData.requestForm?.request_purpose">
-                            <span class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 block mb-1">Purpose</span>
+                            <span class="mb-1 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-400">Purpose</span>
                             <p class="text-sm font-medium text-slate-800 dark:text-slate-200">
                                 {{ displayText(formsData.requestForm?.request_purpose) }}
                             </p>
                         </div>
                         <div v-if="formsData.requestForm?.request_details">
-                            <span class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 block mb-1">Details</span>
-                            <p class="text-sm font-medium text-slate-800 dark:text-slate-200 whitespace-pre-wrap">
+                            <span class="mb-1 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-400">Details</span>
+                            <p class="whitespace-pre-wrap text-sm font-medium text-slate-800 dark:text-slate-200">
                                 {{ displayText(formsData.requestForm.request_details) }}
                             </p>
                         </div>
@@ -470,8 +470,8 @@ export default {
                 <div
                     v-if="hasItems"
                     class="space-y-4">
-                    <h4 class="text-[0.65rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                        <Package class="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                    <h4 class="flex items-center gap-2 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                        <Package class="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                         Requested Items
                     </h4>
 
@@ -479,13 +479,13 @@ export default {
                         <!-- Laboratories -->
                         <div
                             v-if="formsData.requestForm?.laboratories_labels?.length || formsData.requestForm?.labs_to_use?.length"
-                            class="flex items-start gap-4 p-4 bg-purple-50 dark:bg-purple-500/10 rounded-2xl border border-purple-100 dark:border-purple-500/30">
-                            <div class="p-2 bg-purple-100 dark:bg-purple-500/20 rounded-xl">
-                                <Microscope class="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                            class="flex items-start gap-4 rounded-2xl border border-purple-100 bg-purple-50 p-4 dark:border-purple-500/30 dark:bg-purple-500/10">
+                            <div class="rounded-xl bg-purple-100 p-2 dark:bg-purple-500/20">
+                                <Microscope class="h-5 w-5 text-purple-600 dark:text-purple-400" />
                             </div>
-                            <div class="flex-1 min-w-0">
+                            <div class="min-w-0 flex-1">
                                 <span class="text-xs font-bold uppercase tracking-widest text-purple-800 dark:text-purple-300">Laboratories</span>
-                                <p class="text-sm font-medium text-purple-900 dark:text-purple-100 mt-1 leading-relaxed">
+                                <p class="mt-1 text-sm font-medium leading-relaxed text-purple-900 dark:text-purple-100">
                                     {{ formatItems(formsData.requestForm.laboratories_labels, formsData.requestForm.labs_to_use) }}
                                 </p>
                             </div>
@@ -494,13 +494,13 @@ export default {
                         <!-- Equipment -->
                         <div
                             v-if="formsData.requestForm?.equipments_labels?.length || formsData.requestForm?.equipments_to_use?.length"
-                            class="flex items-start gap-4 p-4 bg-blue-50 dark:bg-blue-500/10 rounded-2xl border border-blue-100 dark:border-blue-500/30">
-                            <div class="p-2 bg-blue-100 dark:bg-blue-500/20 rounded-xl">
-                                <FlaskConical class="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                            class="flex items-start gap-4 rounded-2xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-500/30 dark:bg-blue-500/10">
+                            <div class="rounded-xl bg-blue-100 p-2 dark:bg-blue-500/20">
+                                <FlaskConical class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                             </div>
-                            <div class="flex-1 min-w-0">
+                            <div class="min-w-0 flex-1">
                                 <span class="text-xs font-bold uppercase tracking-widest text-blue-800 dark:text-blue-300">Equipment</span>
-                                <p class="text-sm font-medium text-blue-900 dark:text-blue-100 mt-1 leading-relaxed">
+                                <p class="mt-1 text-sm font-medium leading-relaxed text-blue-900 dark:text-blue-100">
                                     {{ formatItems(formsData.requestForm.equipments_labels, formsData.requestForm.equipments_to_use) }}
                                 </p>
                             </div>
@@ -509,13 +509,13 @@ export default {
                         <!-- Consumables -->
                         <div
                             v-if="formsData.requestForm?.consumables_to_use?.length || formsData.requestForm?.consumables_labels?.length"
-                            class="flex items-start gap-4 p-4 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl border border-emerald-100 dark:border-emerald-500/30">
-                            <div class="p-2 bg-emerald-100 dark:bg-emerald-500/20 rounded-xl">
-                                <Package class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                            class="flex items-start gap-4 rounded-2xl border border-emerald-100 bg-emerald-50 p-4 dark:border-emerald-500/30 dark:bg-emerald-500/10">
+                            <div class="rounded-xl bg-emerald-100 p-2 dark:bg-emerald-500/20">
+                                <Package class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                             </div>
-                            <div class="flex-1 min-w-0">
+                            <div class="min-w-0 flex-1">
                                 <span class="text-xs font-bold uppercase tracking-widest text-emerald-800 dark:text-emerald-300">Consumables</span>
-                                <p class="text-sm font-medium text-emerald-900 dark:text-emerald-100 mt-1 leading-relaxed">
+                                <p class="mt-1 text-sm font-medium leading-relaxed text-emerald-900 dark:text-emerald-100">
                                     {{ formatItems(formsData.requestForm.consumables_labels, formsData.requestForm.consumables_to_use) }}
                                 </p>
                             </div>
@@ -525,7 +525,7 @@ export default {
             </div>
 
             <!-- Footer -->
-            <div class="px-6 py-5 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-3 sticky bottom-0">
+            <div class="sticky bottom-0 flex items-center justify-end gap-3 border-t border-slate-200 bg-white px-6 py-5 dark:border-slate-800 dark:bg-slate-900">
                 <UseRequestApprovalBtn
                     :data="formsData"
                     @updated="refreshData" />

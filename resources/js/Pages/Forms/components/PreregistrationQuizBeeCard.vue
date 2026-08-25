@@ -55,15 +55,15 @@ export default {
     <form
         v-if="form"
         @submit.prevent="handleSubmit()"
-        class="py-3 relative bg-white px-3"
-        :class="{ 'border border-red-600 rounded-md': form.hasErrors }">
+        class="relative bg-white px-3 py-3"
+        :class="{ 'rounded-md border border-red-600': form.hasErrors }">
         <transition-container type="slide-top">
             <div
                 v-show="showSuccess"
-                class="absolute flex top-0 left-0 bg-AB w-full h-full z-50 text-white text-xl font-medium justify-center items-center rounded-b-md shadow">
+                class="absolute left-0 top-0 z-50 flex h-full w-full items-center justify-center rounded-b-md bg-AB text-xl font-medium text-white shadow">
                 <button
                     @click.prevent="showSuccess = false"
-                    class="absolute top-0 right-0 p-2">
+                    class="absolute right-0 top-0 p-2">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
@@ -74,8 +74,8 @@ export default {
                         <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
                     </svg>
                 </button>
-                <div class="flex flex-col text-center w-full gap-0.5">
-                    <div class="text-xl w-full flex flex-col gap-1 justify-center mb-1 py-2">
+                <div class="flex w-full flex-col gap-0.5 text-center">
+                    <div class="mb-1 flex w-full flex-col justify-center gap-1 py-2 text-xl">
                         {{ registrationIDHashed }}
                         <qrcode-vue
                             v-if="registrationIDHashed"
@@ -86,13 +86,13 @@ export default {
                             class="mx-auto border-4 shadow"
                             ref="qrcodeCanvas" />
                     </div>
-                    <span class="drop-shadow leading-none font-light">Pre-registration Successful!</span>
-                    <span class="drop-shadow leading-none text-sm">Check your email or take a screenshot</span>
+                    <span class="font-light leading-none drop-shadow">Pre-registration Successful!</span>
+                    <span class="text-sm leading-none drop-shadow">Check your email or take a screenshot</span>
                 </div>
             </div>
         </transition-container>
         <div class="pb-3 pt-1">
-            <h3 class="text-lg leading-tight uppercase font-extrabold">
+            <h3 class="text-lg font-extrabold uppercase leading-tight">
                 {{ isEditMode ? "Update Pre-registration" : "Pre-register Now!" }}
             </h3>
             <p class="text-sm leading-tight">
@@ -100,12 +100,12 @@ export default {
                 <span class="text-red-600">*</span>
                 are required.
             </p>
-            <label class="text-red-700 uppercase justify-center flex text-sm leading-tight">
+            <label class="flex justify-center text-sm uppercase leading-tight text-red-700">
                 {{ form.errors.suspended || form.errors.full || form.errors.expired || form.errors.limit }}
             </label>
         </div>
         <div class="flex flex-col gap-3">
-            <div class="flex flex-row gap-2 items-center">
+            <div class="flex flex-row items-center gap-2">
                 <TextInput
                     id="name"
                     v-model="form.response_data.name"
@@ -130,7 +130,7 @@ export default {
                     @input="form.clearErrors('age')" />
                 <div
                     :class="{ 'border-red-500': form.errors.is_ip }"
-                    class="w-full relative px-2 py-0.5 flex text-center leading-none lg:flex-row flex-col-reverse items-center lg:gap-2 bg-white rounded-md border border-gray-600"
+                    class="relative flex w-full flex-col-reverse items-center rounded-md border border-gray-600 bg-white px-2 py-0.5 text-center leading-none lg:flex-row lg:gap-2"
                     @click.prevent="form.response_data.is_ip = !form.response_data.is_ip">
                     <label class="text-xs">Are you a member of indigenous people?</label>
                     <Checkbox
@@ -148,7 +148,7 @@ export default {
                 </div>
                 <div
                     :class="{ 'border-red-500': form.errors.is_pwd }"
-                    class="w-full relative px-2 py-0.5 flex text-center leading-none lg:flex-row flex-col-reverse items-center lg:gap-2 bg-white rounded-md border border-gray-600"
+                    class="relative flex w-full flex-col-reverse items-center rounded-md border border-gray-600 bg-white px-2 py-0.5 text-center leading-none lg:flex-row lg:gap-2"
                     @click.prevent="form.response_data.is_pwd = !form.response_data.is_pwd">
                     <label class="text-xs">Are you a person with disability?</label>
                     <Checkbox
@@ -199,7 +199,7 @@ export default {
                     autocomplete="phone"
                     @input="form.clearErrors('phone')" />
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <div class="grid grid-cols-1 gap-2 md:grid-cols-3">
                 <SelectRegion
                     v-model="form.response_data.region_address"
                     :error="form.errors.region_address"
@@ -239,7 +239,7 @@ export default {
                     ]">
                     <template #icon>
                         <svg
-                            class="ms-2 -me-0.5 h-4 w-4"
+                            class="-me-0.5 ms-2 h-4 w-4"
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
@@ -254,7 +254,7 @@ export default {
                 </custom-dropdown>
                 <div
                     :class="{ 'border-red-500': form.errors.join_quiz_bee }"
-                    class="relative flex gap-3 items-center px-3 py-2 bg-white rounded-md border border-gray-600"
+                    class="relative flex items-center gap-3 rounded-md border border-gray-600 bg-white px-3 py-2"
                     @click.prevent="form.response_data.join_quiz_bee = !form.response_data.join_quiz_bee">
                     <Checkbox
                         id="join_quiz_bee"
@@ -274,7 +274,7 @@ export default {
                 </div>
                 <div
                     v-if="form.hasErrors"
-                    class="flex gap-2 text-red-600 text-sm leading-tight">
+                    class="flex gap-2 text-sm leading-tight text-red-600">
                     {{ Object.values(form.errors).join(",") }}
                 </div>
                 <CertifySection

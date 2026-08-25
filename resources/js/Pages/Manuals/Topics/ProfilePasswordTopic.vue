@@ -21,16 +21,16 @@ export default {
         description="Instructions for all users on updating personal information, managing passwords, and enhancing account security[cite: 3]."
         icon="LuUserCircle">
         <div class="space-y-4">
-            <h3 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-1">For All Users</h3>
+            <h3 class="ml-1 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">For All Users</h3>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <!-- Accessing Profile -->
-                <div class="bg-sky-50/50 dark:bg-sky-500/5 border border-sky-100 dark:border-sky-500/20 rounded-xl p-5 shadow-sm">
-                    <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400 mb-4 flex items-center gap-1.5">
-                        <LuUserCircle class="w-3.5 h-3.5" />
+                <div class="rounded-xl border border-sky-100 bg-sky-50/50 p-5 shadow-sm dark:border-sky-500/20 dark:bg-sky-500/5">
+                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400">
+                        <LuUserCircle class="h-3.5 w-3.5" />
                         Accessing Your Profile
                     </h4>
-                    <ol class="space-y-2.5 text-xs font-medium text-slate-600 dark:text-slate-300 list-decimal list-inside ml-1">
+                    <ol class="ml-1 list-inside list-decimal space-y-2.5 text-xs font-medium text-slate-600 dark:text-slate-300">
                         <li>
                             Click on your
                             <span class="font-semibold text-slate-800 dark:text-slate-200">user avatar or name</span>
@@ -46,12 +46,12 @@ export default {
                 </div>
 
                 <!-- Updating Profile -->
-                <div class="bg-emerald-50/50 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/20 rounded-xl p-5 shadow-sm">
-                    <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-4 flex items-center gap-1.5">
-                        <LuUserCog class="w-3.5 h-3.5" />
+                <div class="rounded-xl border border-emerald-100 bg-emerald-50/50 p-5 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/5">
+                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                        <LuUserCog class="h-3.5 w-3.5" />
                         Updating Profile Information
                     </h4>
-                    <ol class="space-y-2.5 text-xs font-medium text-slate-600 dark:text-slate-300 list-decimal list-inside ml-1">
+                    <ol class="ml-1 list-inside list-decimal space-y-2.5 text-xs font-medium text-slate-600 dark:text-slate-300">
                         <li>
                             On your profile page, find the
                             <span class="font-semibold text-slate-800 dark:text-slate-200">"Update Profile Information"</span>
@@ -59,17 +59,17 @@ export default {
                         </li>
                         <li>
                             Update the following fields as needed:[cite: 3]
-                            <ul class="list-none space-y-1.5 ml-5 mt-2">
+                            <ul class="ml-5 mt-2 list-none space-y-1.5">
                                 <li class="flex items-center gap-2">
-                                    <div class="w-1 h-1 rounded-full bg-emerald-400"></div>
+                                    <div class="h-1 w-1 rounded-full bg-emerald-400"></div>
                                     Name[cite: 3]
                                 </li>
                                 <li class="flex items-center gap-2">
-                                    <div class="w-1 h-1 rounded-full bg-emerald-400"></div>
+                                    <div class="h-1 w-1 rounded-full bg-emerald-400"></div>
                                     Email address[cite: 3]
                                 </li>
                                 <li class="flex items-center gap-2">
-                                    <div class="w-1 h-1 rounded-full bg-emerald-400"></div>
+                                    <div class="h-1 w-1 rounded-full bg-emerald-400"></div>
                                     Photo / Avatar[cite: 3]
                                 </li>
                             </ul>
@@ -84,12 +84,12 @@ export default {
                 </div>
 
                 <!-- Updating Password -->
-                <div class="bg-amber-50/50 dark:bg-amber-500/5 border border-amber-100 dark:border-amber-500/20 rounded-xl p-5 shadow-sm">
-                    <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400 mb-4 flex items-center gap-1.5">
-                        <LuKeyRound class="w-3.5 h-3.5" />
+                <div class="rounded-xl border border-amber-100 bg-amber-50/50 p-5 shadow-sm dark:border-amber-500/20 dark:bg-amber-500/5">
+                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                        <LuKeyRound class="h-3.5 w-3.5" />
                         Updating Your Password
                     </h4>
-                    <ol class="space-y-2.5 text-xs font-medium text-slate-600 dark:text-slate-300 list-decimal list-inside ml-1">
+                    <ol class="ml-1 list-inside list-decimal space-y-2.5 text-xs font-medium text-slate-600 dark:text-slate-300">
                         <li>
                             On your profile page, find the
                             <span class="font-semibold text-slate-800 dark:text-slate-200">"Update Password"</span>
@@ -116,30 +116,30 @@ export default {
                 </div>
 
                 <!-- Password Security Tips -->
-                <div class="bg-rose-50/50 dark:bg-rose-500/5 border border-rose-100 dark:border-rose-500/20 rounded-xl p-5 shadow-sm">
-                    <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400 mb-4 flex items-center gap-1.5">
-                        <LuShieldAlert class="w-3.5 h-3.5" />
+                <div class="rounded-xl border border-rose-100 bg-rose-50/50 p-5 shadow-sm dark:border-rose-500/20 dark:bg-rose-500/5">
+                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400">
+                        <LuShieldAlert class="h-3.5 w-3.5" />
                         Password Security Tips
                     </h4>
-                    <ul class="space-y-3 text-xs font-medium text-slate-600 dark:text-slate-300 ml-1">
+                    <ul class="ml-1 space-y-3 text-xs font-medium text-slate-600 dark:text-slate-300">
                         <li class="flex items-start gap-2.5">
-                            <LuAlertTriangle class="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5" />
+                            <LuAlertTriangle class="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-400" />
                             <span class="leading-relaxed">Use a strong password with uppercase, lowercase, numbers, and symbols[cite: 3].</span>
                         </li>
                         <li class="flex items-start gap-2.5">
-                            <LuAlertTriangle class="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5" />
+                            <LuAlertTriangle class="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-400" />
                             <span class="leading-relaxed">Never share your password with anyone[cite: 3].</span>
                         </li>
                         <li class="flex items-start gap-2.5">
-                            <LuAlertTriangle class="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5" />
+                            <LuAlertTriangle class="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-400" />
                             <span class="leading-relaxed">Change your password regularly (at least every 3 months)[cite: 3].</span>
                         </li>
                         <li class="flex items-start gap-2.5">
-                            <LuAlertTriangle class="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5" />
+                            <LuAlertTriangle class="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-400" />
                             <span class="leading-relaxed">Do not reuse old passwords[cite: 3].</span>
                         </li>
                         <li class="flex items-start gap-2.5">
-                            <LuAlertTriangle class="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5" />
+                            <LuAlertTriangle class="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-400" />
                             <span class="leading-relaxed">If you suspect unauthorized access, change your password immediately[cite: 3].</span>
                         </li>
                     </ul>
@@ -147,22 +147,22 @@ export default {
             </div>
 
             <!-- Other Options -->
-            <div class="bg-purple-50/50 dark:bg-purple-500/5 border border-purple-100 dark:border-purple-500/20 rounded-xl p-5 shadow-sm">
-                <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400 mb-4 flex items-center gap-1.5">
-                    <LuMoreHorizontal class="w-3.5 h-3.5" />
+            <div class="rounded-xl border border-purple-100 bg-purple-50/50 p-5 shadow-sm dark:border-purple-500/20 dark:bg-purple-500/5">
+                <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400">
+                    <LuMoreHorizontal class="h-3.5 w-3.5" />
                     Other Account Options
                 </h4>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="bg-white/60 dark:bg-slate-800/50 rounded-lg p-3 border border-purple-100 dark:border-purple-500/20">
-                        <p class="text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Two-Factor Authentication</p>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div class="rounded-lg border border-purple-100 bg-white/60 p-3 dark:border-purple-500/20 dark:bg-slate-800/50">
+                        <p class="mb-1 text-xs font-semibold text-slate-800 dark:text-slate-200">Two-Factor Authentication</p>
                         <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400">Enable for extra security[cite: 3].</p>
                     </div>
-                    <div class="bg-white/60 dark:bg-slate-800/50 rounded-lg p-3 border border-purple-100 dark:border-purple-500/20">
-                        <p class="text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Logout Other Sessions</p>
+                    <div class="rounded-lg border border-purple-100 bg-white/60 p-3 dark:border-purple-500/20 dark:bg-slate-800/50">
+                        <p class="mb-1 text-xs font-semibold text-slate-800 dark:text-slate-200">Logout Other Sessions</p>
                         <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400">Sign out from other devices[cite: 3].</p>
                     </div>
-                    <div class="bg-white/60 dark:bg-slate-800/50 rounded-lg p-3 border border-purple-100 dark:border-purple-500/20">
-                        <p class="text-xs font-semibold text-rose-600 dark:text-rose-400 mb-1">Delete Account</p>
+                    <div class="rounded-lg border border-purple-100 bg-white/60 p-3 dark:border-purple-500/20 dark:bg-slate-800/50">
+                        <p class="mb-1 text-xs font-semibold text-rose-600 dark:text-rose-400">Delete Account</p>
                         <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400">Permanently remove your account (careful!)[cite: 3].</p>
                     </div>
                 </div>
@@ -172,15 +172,15 @@ export default {
         <!-- For Programmers -->
         <div
             v-if="showDeveloperSections"
-            class="space-y-4 pt-6 border-t border-slate-100 dark:border-slate-800/60">
-            <h3 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-1">For Programmers (Architecture)</h3>
+            class="space-y-4 border-t border-slate-100 pt-6 dark:border-slate-800/60">
+            <h3 class="ml-1 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">For Programmers (Architecture)</h3>
 
-            <div class="bg-sky-50/50 dark:bg-sky-500/5 border border-sky-100 dark:border-sky-500/20 rounded-xl p-5 shadow-sm">
-                <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400 mb-4 flex items-center gap-1.5">
-                    <LuUserCircle class="w-3.5 h-3.5" />
+            <div class="rounded-xl border border-sky-100 bg-sky-50/50 p-5 shadow-sm dark:border-sky-500/20 dark:bg-sky-500/5">
+                <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400">
+                    <LuUserCircle class="h-3.5 w-3.5" />
                     Accessing Your Profile
                 </h4>
-                <ol class="space-y-2.5 text-xs font-medium text-slate-600 dark:text-slate-300 list-decimal list-inside ml-1">
+                <ol class="ml-1 list-inside list-decimal space-y-2.5 text-xs font-medium text-slate-600 dark:text-slate-300">
                     <li>
                         Click on your
                         <span class="font-semibold text-slate-800 dark:text-slate-200">user avatar or name</span>
@@ -196,12 +196,12 @@ export default {
             </div>
 
             <!-- Updating Profile -->
-            <div class="bg-emerald-50/50 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/20 rounded-xl p-5 shadow-sm">
-                <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-4 flex items-center gap-1.5">
-                    <LuUserCog class="w-3.5 h-3.5" />
+            <div class="rounded-xl border border-emerald-100 bg-emerald-50/50 p-5 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/5">
+                <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                    <LuUserCog class="h-3.5 w-3.5" />
                     Updating Profile Information
                 </h4>
-                <ol class="space-y-2.5 text-xs font-medium text-slate-600 dark:text-slate-300 list-decimal list-inside ml-1">
+                <ol class="ml-1 list-inside list-decimal space-y-2.5 text-xs font-medium text-slate-600 dark:text-slate-300">
                     <li>
                         On your profile page, find the
                         <span class="font-semibold text-slate-800 dark:text-slate-200">"Update Profile Information"</span>
@@ -209,17 +209,17 @@ export default {
                     </li>
                     <li>
                         Update the following fields as needed:[cite: 3]
-                        <ul class="list-none space-y-1.5 ml-5 mt-2">
+                        <ul class="ml-5 mt-2 list-none space-y-1.5">
                             <li class="flex items-center gap-2">
-                                <div class="w-1 h-1 rounded-full bg-emerald-400"></div>
+                                <div class="h-1 w-1 rounded-full bg-emerald-400"></div>
                                 Name[cite: 3]
                             </li>
                             <li class="flex items-center gap-2">
-                                <div class="w-1 h-1 rounded-full bg-emerald-400"></div>
+                                <div class="h-1 w-1 rounded-full bg-emerald-400"></div>
                                 Email address[cite: 3]
                             </li>
                             <li class="flex items-center gap-2">
-                                <div class="w-1 h-1 rounded-full bg-emerald-400"></div>
+                                <div class="h-1 w-1 rounded-full bg-emerald-400"></div>
                                 Photo / Avatar[cite: 3]
                             </li>
                         </ul>
@@ -234,12 +234,12 @@ export default {
             </div>
 
             <!-- Updating Password -->
-            <div class="bg-amber-50/50 dark:bg-amber-500/5 border border-amber-100 dark:border-amber-500/20 rounded-xl p-5 shadow-sm">
-                <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400 mb-4 flex items-center gap-1.5">
-                    <LuKeyRound class="w-3.5 h-3.5" />
+            <div class="rounded-xl border border-amber-100 bg-amber-50/50 p-5 shadow-sm dark:border-amber-500/20 dark:bg-amber-500/5">
+                <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                    <LuKeyRound class="h-3.5 w-3.5" />
                     Updating Your Password
                 </h4>
-                <ol class="space-y-2.5 text-xs font-medium text-slate-600 dark:text-slate-300 list-decimal list-inside ml-1">
+                <ol class="ml-1 list-inside list-decimal space-y-2.5 text-xs font-medium text-slate-600 dark:text-slate-300">
                     <li>
                         On your profile page, find the
                         <span class="font-semibold text-slate-800 dark:text-slate-200">"Update Password"</span>
@@ -266,30 +266,30 @@ export default {
             </div>
 
             <!-- Password Security Tips -->
-            <div class="bg-rose-50/50 dark:bg-rose-500/5 border border-rose-100 dark:border-rose-500/20 rounded-xl p-5 shadow-sm">
-                <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400 mb-4 flex items-center gap-1.5">
-                    <LuShieldAlert class="w-3.5 h-3.5" />
+            <div class="rounded-xl border border-rose-100 bg-rose-50/50 p-5 shadow-sm dark:border-rose-500/20 dark:bg-rose-500/5">
+                <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400">
+                    <LuShieldAlert class="h-3.5 w-3.5" />
                     Password Security Tips
                 </h4>
-                <ul class="space-y-3 text-xs font-medium text-slate-600 dark:text-slate-300 ml-1">
+                <ul class="ml-1 space-y-3 text-xs font-medium text-slate-600 dark:text-slate-300">
                     <li class="flex items-start gap-2.5">
-                        <LuAlertTriangle class="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5" />
+                        <LuAlertTriangle class="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-400" />
                         <span class="leading-relaxed">Use a strong password with uppercase, lowercase, numbers, and symbols[cite: 3].</span>
                     </li>
                     <li class="flex items-start gap-2.5">
-                        <LuAlertTriangle class="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5" />
+                        <LuAlertTriangle class="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-400" />
                         <span class="leading-relaxed">Never share your password with anyone[cite: 3].</span>
                     </li>
                     <li class="flex items-start gap-2.5">
-                        <LuAlertTriangle class="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5" />
+                        <LuAlertTriangle class="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-400" />
                         <span class="leading-relaxed">Change your password regularly (at least every 3 months)[cite: 3].</span>
                     </li>
                     <li class="flex items-start gap-2.5">
-                        <LuAlertTriangle class="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5" />
+                        <LuAlertTriangle class="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-400" />
                         <span class="leading-relaxed">Do not reuse old passwords[cite: 3].</span>
                     </li>
                     <li class="flex items-start gap-2.5">
-                        <LuAlertTriangle class="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5" />
+                        <LuAlertTriangle class="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-400" />
                         <span class="leading-relaxed">If you suspect unauthorized access, change your password immediately[cite: 3].</span>
                     </li>
                 </ul>
@@ -297,22 +297,22 @@ export default {
         </div>
 
         <!-- Other Options -->
-        <div class="bg-purple-50/50 dark:bg-purple-500/5 border border-purple-100 dark:border-purple-500/20 rounded-xl p-5 shadow-sm">
-            <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400 mb-4 flex items-center gap-1.5">
-                <LuMoreHorizontal class="w-3.5 h-3.5" />
+        <div class="rounded-xl border border-purple-100 bg-purple-50/50 p-5 shadow-sm dark:border-purple-500/20 dark:bg-purple-500/5">
+            <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400">
+                <LuMoreHorizontal class="h-3.5 w-3.5" />
                 Other Account Options
             </h4>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="bg-white/60 dark:bg-slate-800/50 rounded-lg p-3 border border-purple-100 dark:border-purple-500/20">
-                    <p class="text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Two-Factor Authentication</p>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div class="rounded-lg border border-purple-100 bg-white/60 p-3 dark:border-purple-500/20 dark:bg-slate-800/50">
+                    <p class="mb-1 text-xs font-semibold text-slate-800 dark:text-slate-200">Two-Factor Authentication</p>
                     <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400">Enable for extra security[cite: 3].</p>
                 </div>
-                <div class="bg-white/60 dark:bg-slate-800/50 rounded-lg p-3 border border-purple-100 dark:border-purple-500/20">
-                    <p class="text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Logout Other Sessions</p>
+                <div class="rounded-lg border border-purple-100 bg-white/60 p-3 dark:border-purple-500/20 dark:bg-slate-800/50">
+                    <p class="mb-1 text-xs font-semibold text-slate-800 dark:text-slate-200">Logout Other Sessions</p>
                     <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400">Sign out from other devices[cite: 3].</p>
                 </div>
-                <div class="bg-white/60 dark:bg-slate-800/50 rounded-lg p-3 border border-purple-100 dark:border-purple-500/20">
-                    <p class="text-xs font-semibold text-rose-600 dark:text-rose-400 mb-1">Delete Account</p>
+                <div class="rounded-lg border border-purple-100 bg-white/60 p-3 dark:border-purple-500/20 dark:bg-slate-800/50">
+                    <p class="mb-1 text-xs font-semibold text-rose-600 dark:text-rose-400">Delete Account</p>
                     <p class="text-[0.65rem] font-medium text-slate-500 dark:text-slate-400">Permanently remove your account (careful!)[cite: 3].</p>
                 </div>
             </div>
@@ -321,57 +321,57 @@ export default {
         <!-- For Programmers -->
         <div
             v-if="showDeveloperSections"
-            class="space-y-4 pt-6 border-t border-slate-100 dark:border-slate-800/60">
-            <h3 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 ml-1">For Programmers (Architecture)</h3>
+            class="space-y-4 border-t border-slate-100 pt-6 dark:border-slate-800/60">
+            <h3 class="ml-1 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">For Programmers (Architecture)</h3>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <!-- Components -->
-                <div class="bg-indigo-50/50 dark:bg-indigo-500/5 border border-indigo-100 dark:border-indigo-500/20 rounded-xl p-5 shadow-sm">
-                    <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-4 flex items-center gap-1.5">
-                        <LuLayoutTemplate class="w-3.5 h-3.5" />
+                <div class="rounded-xl border border-indigo-100 bg-indigo-50/50 p-5 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/5">
+                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
+                        <LuLayoutTemplate class="h-3.5 w-3.5" />
                         Profile Management Components
                     </h4>
                     <ul class="space-y-3.5 text-xs font-medium text-slate-600 dark:text-slate-400">
                         <li>
-                            <span class="block mb-1.5 text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider text-[0.6rem]">Main profile page</span>
-                            <code class="block px-2 py-1.5 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-indigo-500 dark:text-indigo-400 break-all">resources/js/Pages/Profile/Show.vue</code>
+                            <span class="mb-1.5 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Main profile page</span>
+                            <code class="block break-all rounded-md border border-slate-200 bg-white px-2 py-1.5 font-mono text-[0.65rem] font-semibold text-indigo-500 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-400">resources/js/Pages/Profile/Show.vue</code>
                             [cite: 3]
                         </li>
                         <li>
-                            <span class="block mb-1.5 text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider text-[0.6rem]">Profile update form</span>
-                            <code class="block px-2 py-1.5 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-indigo-500 dark:text-indigo-400 break-all">resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.vue</code>
+                            <span class="mb-1.5 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Profile update form</span>
+                            <code class="block break-all rounded-md border border-slate-200 bg-white px-2 py-1.5 font-mono text-[0.65rem] font-semibold text-indigo-500 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-400">resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.vue</code>
                             [cite: 3]
                         </li>
                         <li>
-                            <span class="block mb-1.5 text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider text-[0.6rem]">Password update form</span>
-                            <code class="block px-2 py-1.5 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-indigo-500 dark:text-indigo-400 break-all">resources/js/Pages/Profile/Partials/UpdatePasswordForm.vue</code>
+                            <span class="mb-1.5 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Password update form</span>
+                            <code class="block break-all rounded-md border border-slate-200 bg-white px-2 py-1.5 font-mono text-[0.65rem] font-semibold text-indigo-500 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-400">resources/js/Pages/Profile/Partials/UpdatePasswordForm.vue</code>
                             [cite: 3]
                         </li>
                     </ul>
                 </div>
 
                 <!-- Backend -->
-                <div class="bg-slate-50/50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-5 shadow-sm h-fit">
-                    <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-600 dark:text-slate-300 mb-4 flex items-center gap-1.5">
-                        <LuDatabase class="w-3.5 h-3.5" />
+                <div class="h-fit rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
+                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-600 dark:text-slate-300">
+                        <LuDatabase class="h-3.5 w-3.5" />
                         User Model & Authentication
                     </h4>
                     <ul class="space-y-4 text-xs font-medium text-slate-600 dark:text-slate-400">
                         <li>
-                            <span class="block mb-1.5 text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider text-[0.6rem]">User model with profile fields</span>
-                            <code class="px-1.5 py-0.5 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-slate-700 dark:text-slate-300 break-all">app/Models/User.php</code>
+                            <span class="mb-1.5 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">User model with profile fields</span>
+                            <code class="break-all rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">app/Models/User.php</code>
                             [cite: 3]
                         </li>
                         <li>
-                            <span class="block mb-1.5 text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider text-[0.6rem]">Built-in authentication system</span>
-                            <code class="px-1.5 py-0.5 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-slate-700 dark:text-slate-300">Laravel Fortify</code>
+                            <span class="mb-1.5 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Built-in authentication system</span>
+                            <code class="rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">Laravel Fortify</code>
                             [cite: 3]
                         </li>
                         <li>
-                            <span class="block mb-1.5 text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider text-[0.6rem]">Hashing Algorithm</span>
+                            <span class="mb-1.5 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Hashing Algorithm</span>
                             <p class="leading-relaxed">
                                 Passwords are hashed using
-                                <code class="px-1.5 py-0.5 mx-0.5 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[0.65rem] font-semibold shadow-sm text-slate-700 dark:text-slate-300">bcrypt</code>
+                                <code class="mx-0.5 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">bcrypt</code>
                                 algorithm[cite: 3].
                             </p>
                         </li>

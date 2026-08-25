@@ -49,7 +49,7 @@ export default {
     <div class="relative">
         <label
             v-if="field.label"
-            class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">
             {{ field.label }}
             <span
                 v-if="required"
@@ -59,24 +59,24 @@ export default {
         </label>
         <div
             v-if="field.description"
-            class="text-xs text-gray-600 dark:text-gray-400 mb-2">
+            class="mb-2 text-xs text-gray-600 dark:text-gray-400">
             {{ field.description }}
         </div>
 
         <div
-            class="flex items-center justify-between gap-1 p-2 bg-gray-50 dark:bg-gray-800 rounded-md transition-colors"
+            class="flex items-center justify-between gap-1 rounded-md bg-gray-50 p-2 transition-colors dark:bg-gray-800"
             :class="{
                 'border border-red-500 dark:border-red-600': error,
                 'border border-gray-200 dark:border-gray-700': !error,
             }">
-            <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-left">
+            <span class="w-16 text-left text-xs text-gray-600 dark:text-gray-400">
                 {{ getLabel(min) }}
             </span>
-            <div class="flex items-center gap-1 flex-1 justify-evenly">
+            <div class="flex flex-1 items-center justify-evenly gap-1">
                 <label
                     v-for="value in scaleValues"
                     :key="value"
-                    class="flex flex-col items-center cursor-pointer group">
+                    class="group flex cursor-pointer flex-col items-center">
                     <input
                         type="radio"
                         :name="field.field_key"
@@ -84,16 +84,16 @@ export default {
                         v-model="inputValue"
                         class="sr-only" />
                     <span
-                        class="w-8 h-8 flex items-center justify-center rounded-full border-2 transition-all font-semibold text-sm"
+                        class="flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-semibold transition-all"
                         :class="{
-                            'bg-AB text-white border-AB': inputValue === value,
-                            'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 group-hover:border-AB dark:group-hover:border-blue-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20': inputValue !== value,
+                            'border-AB bg-AB text-white': inputValue === value,
+                            'border-gray-300 bg-white text-gray-700 group-hover:border-AB group-hover:bg-blue-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:group-hover:border-blue-400 dark:group-hover:bg-blue-900/20': inputValue !== value,
                         }">
                         {{ value }}
                     </span>
                 </label>
             </div>
-            <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">
+            <span class="w-16 text-right text-xs text-gray-600 dark:text-gray-400">
                 {{ getLabel(max) }}
             </span>
         </div>

@@ -143,15 +143,15 @@ export default {
     <form
         v-if="form"
         @submit.prevent="submitProxy"
-        class="mx-auto max-w-5xl space-y-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-800 p-6 md:p-8">
+        class="mx-auto max-w-5xl space-y-6 rounded-2xl border border-slate-200/60 bg-white/80 p-6 shadow-sm backdrop-blur-xl md:p-8 dark:border-slate-800 dark:bg-slate-900/80">
         <!-- Header -->
-        <div class="flex items-start gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-6">
-            <div class="p-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-xl shadow-sm shrink-0">
-                <Link2 class="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+        <div class="flex items-start gap-4 border-b border-slate-100 pb-6 dark:border-slate-800/60">
+            <div class="shrink-0 rounded-xl border border-emerald-100 bg-emerald-50 p-3 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10">
+                <Link2 class="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-                <p class="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-1">Go Link Manager</p>
-                <h2 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                <p class="mb-1 text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Go Link Manager</p>
+                <h2 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
                     {{ formTitle }}
                 </h2>
                 <p class="mt-1.5 max-w-2xl text-sm font-medium leading-relaxed text-slate-500 dark:text-slate-400">
@@ -172,19 +172,19 @@ export default {
                     placeholder="https://example.com/destination" />
 
                 <!-- Slug Field with Generator -->
-                <div class="bg-slate-50/50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-4 shadow-sm space-y-2">
+                <div class="space-y-2 rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
                     <label class="block text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Slug</label>
                     <div class="flex gap-2">
                         <input
                             v-model="form.slug"
                             type="text"
-                            class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 shadow-sm transition-colors"
+                            class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                             placeholder="Leave empty to auto-generate" />
                         <button
                             type="button"
-                            class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-xs font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300 transition-all hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm shrink-0 active:scale-95"
+                            class="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold uppercase tracking-widest text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                             @click="generateSlug">
-                            <Sparkles class="w-3.5 h-3.5 text-emerald-500" />
+                            <Sparkles class="h-3.5 w-3.5 text-emerald-500" />
                             Generate
                         </button>
                     </div>
@@ -193,7 +193,7 @@ export default {
                         class="text-xs font-semibold text-rose-600 dark:text-rose-400">
                         {{ form.errors.slug }}
                     </p>
-                    <p class="text-[0.65rem] font-medium text-slate-400 dark:text-slate-500 truncate">
+                    <p class="truncate text-[0.65rem] font-medium text-slate-400 dark:text-slate-500">
                         Preview:
                         <span class="font-mono text-slate-600 dark:text-slate-300">
                             {{ publicUrlPreview || `${publicBaseUrl}/go/[auto-generated]` }}
@@ -211,12 +211,12 @@ export default {
                 <!-- Checkboxes -->
                 <div class="grid gap-3 sm:grid-cols-2">
                     <label
-                        class="group relative flex items-start gap-3 p-4 rounded-xl border-2 transition-all duration-300 cursor-pointer shadow-sm"
-                        :class="form.status ? 'bg-emerald-50/50 border-emerald-400 dark:bg-emerald-500/10 dark:border-emerald-500/50' : 'bg-white border-slate-200/60 hover:border-emerald-300 dark:bg-slate-900/50 dark:border-slate-700/60 dark:hover:border-emerald-500/50'">
+                        class="group relative flex cursor-pointer items-start gap-3 rounded-xl border-2 p-4 shadow-sm transition-all duration-300"
+                        :class="form.status ? 'border-emerald-400 bg-emerald-50/50 dark:border-emerald-500/50 dark:bg-emerald-500/10' : 'border-slate-200/60 bg-white hover:border-emerald-300 dark:border-slate-700/60 dark:bg-slate-900/50 dark:hover:border-emerald-500/50'">
                         <input
                             v-model="form.status"
                             type="checkbox"
-                            class="mt-0.5 rounded-md border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-emerald-600 focus:ring-emerald-500 cursor-pointer" />
+                            class="mt-0.5 cursor-pointer rounded-md border-slate-300 bg-white text-emerald-600 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-800" />
                         <div>
                             <span class="block text-sm font-bold text-slate-900 dark:text-white">Active</span>
                             <span class="mt-0.5 block text-xs font-medium leading-relaxed text-slate-500 dark:text-slate-400">Inactive links stop redirecting.</span>
@@ -224,12 +224,12 @@ export default {
                     </label>
 
                     <label
-                        class="group relative flex items-start gap-3 p-4 rounded-xl border-2 transition-all duration-300 cursor-pointer shadow-sm"
-                        :class="form.is_public ? 'bg-indigo-50/50 border-indigo-400 dark:bg-indigo-500/10 dark:border-indigo-500/50' : 'bg-white border-slate-200/60 hover:border-indigo-300 dark:bg-slate-900/50 dark:border-slate-700/60 dark:hover:border-indigo-500/50'">
+                        class="group relative flex cursor-pointer items-start gap-3 rounded-xl border-2 p-4 shadow-sm transition-all duration-300"
+                        :class="form.is_public ? 'border-indigo-400 bg-indigo-50/50 dark:border-indigo-500/50 dark:bg-indigo-500/10' : 'border-slate-200/60 bg-white hover:border-indigo-300 dark:border-slate-700/60 dark:bg-slate-900/50 dark:hover:border-indigo-500/50'">
                         <input
                             v-model="form.is_public"
                             type="checkbox"
-                            class="mt-0.5 rounded-md border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-indigo-600 focus:ring-indigo-500 cursor-pointer" />
+                            class="mt-0.5 cursor-pointer rounded-md border-slate-300 bg-white text-indigo-600 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800" />
                         <div>
                             <span class="block text-sm font-bold text-slate-900 dark:text-white">Public Flow</span>
                             <span class="mt-0.5 block text-xs font-medium leading-relaxed text-slate-500 dark:text-slate-400">Originate from public submission.</span>
@@ -258,9 +258,9 @@ export default {
             <!-- Right Column: Previews & QR Code -->
             <div class="space-y-5">
                 <!-- Public Link Preview Card -->
-                <div class="bg-slate-50/50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-5 shadow-sm space-y-2">
-                    <p class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                        <ExternalLink class="w-3.5 h-3.5" />
+                <div class="space-y-2 rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
+                    <p class="flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                        <ExternalLink class="h-3.5 w-3.5" />
                         Public Link Preview
                     </p>
                     <a
@@ -268,22 +268,22 @@ export default {
                         :href="publicUrlPreview"
                         target="_blank"
                         rel="noopener"
-                        class="block break-all text-sm font-bold text-emerald-600 dark:text-emerald-400 hover:underline underline-offset-2">
+                        class="block break-all text-sm font-bold text-emerald-600 underline-offset-2 hover:underline dark:text-emerald-400">
                         {{ publicUrlPreview }}
                     </a>
                     <p
                         v-else
-                        class="text-xs font-medium text-slate-400 dark:text-slate-500 italic">
+                        class="text-xs font-medium italic text-slate-400 dark:text-slate-500">
                         Generate or enter a slug to preview the Go Link.
                     </p>
                 </div>
 
                 <!-- QR Code Generator Card -->
-                <div class="bg-slate-50/50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-5 shadow-sm">
-                    <div class="flex items-center justify-between gap-3 mb-4">
+                <div class="rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
+                    <div class="mb-4 flex items-center justify-between gap-3">
                         <div>
-                            <p class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                                <QrCode class="w-3.5 h-3.5" />
+                            <p class="flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                                <QrCode class="h-3.5 w-3.5" />
                                 QR Code Generator
                             </p>
                             <p class="mt-0.5 text-xs font-medium text-slate-400 dark:text-slate-500">Rendered from the public Go Link URL.</p>
@@ -291,16 +291,16 @@ export default {
                         <button
                             type="button"
                             :disabled="!publicUrlPreview"
-                            class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300 transition-all hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm disabled:cursor-not-allowed disabled:opacity-50 active:scale-95 shrink-0"
+                            class="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold uppercase tracking-widest text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                             @click="downloadQrCode">
-                            <Download class="w-3.5 h-3.5" />
+                            <Download class="h-3.5 w-3.5" />
                             Download QR
                         </button>
                     </div>
 
                     <div
                         ref="qrWrapper"
-                        class="flex min-h-64 items-center justify-center rounded-xl border border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 p-4 shadow-sm">
+                        class="flex min-h-64 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900/50">
                         <qrcode-vue
                             v-if="publicUrlPreview"
                             :id="qrCanvasId"
@@ -310,7 +310,7 @@ export default {
                             render-as="canvas" />
                         <p
                             v-else
-                            class="text-xs font-medium text-slate-400 dark:text-slate-500 italic text-center">
+                            class="text-center text-xs font-medium italic text-slate-400 dark:text-slate-500">
                             QR preview will appear here once a slug is available.
                         </p>
                     </div>
@@ -319,19 +319,19 @@ export default {
         </div>
 
         <!-- Form Actions -->
-        <div class="flex flex-col sm:flex-row flex-wrap items-center justify-end gap-3 border-t border-slate-100 dark:border-slate-800/60 pt-6">
+        <div class="flex flex-col flex-wrap items-center justify-end gap-3 border-t border-slate-100 pt-6 sm:flex-row dark:border-slate-800/60">
             <Link
                 :href="route('golinks.index')"
-                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-semibold px-5 py-2.5 text-sm shadow-sm transition-all active:scale-95">
-                <X class="w-4 h-4" />
+                class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-100 active:scale-95 sm:w-auto dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:hover:bg-slate-800">
+                <X class="h-4 w-4" />
                 Cancel
             </Link>
 
             <button
                 type="button"
-                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-semibold px-5 py-2.5 text-sm shadow-sm transition-all active:scale-95"
+                class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-100 active:scale-95 sm:w-auto dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:hover:bg-slate-800"
                 @click="resetToSource">
-                <RotateCcw class="w-4 h-4" />
+                <RotateCcw class="h-4 w-4" />
                 Reset
             </button>
 
@@ -339,21 +339,21 @@ export default {
                 v-if="isEdit"
                 type="button"
                 :disabled="processing"
-                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-rose-200 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-500/10 px-5 py-2.5 text-sm font-bold text-rose-700 dark:text-rose-400 shadow-sm transition-all hover:bg-rose-100 dark:hover:bg-rose-500/20 active:scale-95 disabled:opacity-60 disabled:pointer-events-none"
+                class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-5 py-2.5 text-sm font-bold text-rose-700 shadow-sm transition-all hover:bg-rose-100 active:scale-95 disabled:pointer-events-none disabled:opacity-60 sm:w-auto dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20"
                 @click="handleDelete">
-                <Trash2 class="w-4 h-4" />
+                <Trash2 class="h-4 w-4" />
                 Delete
             </button>
 
             <button
                 :disabled="processing"
-                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 text-sm shadow-sm transition-all active:scale-95 disabled:opacity-70 disabled:pointer-events-none">
+                class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-95 disabled:pointer-events-none disabled:opacity-70 sm:w-auto">
                 <Loader2
                     v-if="processing"
-                    class="w-4 h-4 animate-spin" />
+                    class="h-4 w-4 animate-spin" />
                 <Save
                     v-else
-                    class="w-4 h-4" />
+                    class="h-4 w-4" />
                 {{ submitLabel }}
             </button>
         </div>

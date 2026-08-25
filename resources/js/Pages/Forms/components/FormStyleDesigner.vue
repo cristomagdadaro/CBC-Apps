@@ -91,12 +91,12 @@ export default {
 </script>
 
 <template>
-    <div class="w-full max-w-3xl mx-auto space-y-5">
+    <div class="mx-auto w-full max-w-3xl space-y-5">
         <!-- Error Alert -->
         <div
             v-if="error"
-            class="flex items-center gap-2 text-sm font-semibold text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 px-4 py-3 rounded-xl shadow-sm">
-            <LuAlertCircle class="w-5 h-5 shrink-0" />
+            class="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 shadow-sm dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400">
+            <LuAlertCircle class="h-5 w-5 shrink-0" />
             {{ error }}
         </div>
 
@@ -105,42 +105,42 @@ export default {
             <div
                 v-for="field in fields"
                 :key="field.key"
-                class="group bg-white dark:bg-slate-800/80 backdrop-blur-sm border rounded-xl overflow-hidden transition-all duration-200"
-                :class="[isActive(field.key) ? 'border-indigo-300 dark:border-indigo-500/50 shadow-sm shadow-indigo-500/5' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600', expandedFields[field.key] ? 'ring-1 ring-slate-900/5 dark:ring-white/5 shadow-md' : '']">
+                class="group overflow-hidden rounded-xl border bg-white backdrop-blur-sm transition-all duration-200 dark:bg-slate-800/80"
+                :class="[isActive(field.key) ? 'border-indigo-300 shadow-sm shadow-indigo-500/5 dark:border-indigo-500/50' : 'border-slate-200 hover:border-slate-300 dark:border-slate-700 dark:hover:border-slate-600', expandedFields[field.key] ? 'shadow-md ring-1 ring-slate-900/5 dark:ring-white/5' : '']">
                 <!-- Field Header (Click to expand) -->
                 <button
                     type="button"
                     @click="toggleExpand(field.key)"
-                    class="w-full flex items-center justify-between p-4 sm:px-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    class="flex w-full items-center justify-between p-4 transition-colors hover:bg-slate-50 sm:px-5 dark:hover:bg-slate-800/50">
                     <div class="flex items-center gap-3.5">
                         <!-- Status Indicator -->
                         <div
-                            class="w-2.5 h-2.5 rounded-full transition-all duration-300"
+                            class="h-2.5 w-2.5 rounded-full transition-all duration-300"
                             :class="isActive(field.key) ? 'bg-indigo-500 shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'bg-slate-200 dark:bg-slate-700'" />
 
                         <div class="text-left">
-                            <p class="font-bold text-slate-800 dark:text-slate-200 text-sm tracking-wide">
+                            <p class="text-sm font-bold tracking-wide text-slate-800 dark:text-slate-200">
                                 {{ field.label }}
                             </p>
-                            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+                            <p class="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">
                                 {{ field.description }}
                             </p>
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-3 shrink-0">
+                    <div class="flex shrink-0 items-center gap-3">
                         <!-- Active Mode Badge -->
                         <span
                             v-if="localTokens[field.key]?.mode"
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[0.65rem] font-bold uppercase tracking-widest border"
-                            :class="localTokens[field.key]?.mode === 'color' ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/30' : 'bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-500/30'">
+                            class="inline-flex items-center rounded-md border px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-widest"
+                            :class="localTokens[field.key]?.mode === 'color' ? 'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-400' : 'border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/10 dark:text-purple-400'">
                             {{ localTokens[field.key]?.mode }}
                         </span>
 
                         <!-- Expand Icon -->
-                        <div class="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-colors">
+                        <div class="rounded-lg bg-slate-100 p-1.5 transition-colors group-hover:bg-slate-200 dark:bg-slate-800 dark:group-hover:bg-slate-700">
                             <LuChevronDown
-                                class="w-4 h-4 text-slate-500 dark:text-slate-400 transition-transform duration-300"
+                                class="h-4 w-4 text-slate-500 transition-transform duration-300 dark:text-slate-400"
                                 :class="expandedFields[field.key] ? 'rotate-180' : ''" />
                         </div>
                     </div>
@@ -156,21 +156,21 @@ export default {
                     leave-to-class="opacity-0 max-h-0">
                     <div
                         v-show="expandedFields[field.key]"
-                        class="border-t border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/30">
-                        <div class="p-4 sm:p-5 space-y-6">
+                        class="border-t border-slate-100 bg-slate-50/50 dark:border-slate-700/50 dark:bg-slate-900/30">
+                        <div class="space-y-6 p-4 sm:p-5">
                             <!-- Mode Selector (For Backgrounds) -->
                             <div
                                 v-if="!isTextColorOrShadowField(field.key)"
                                 class="space-y-2.5">
-                                <label class="text-[0.65rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Style Type</label>
+                                <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Style Type</label>
                                 <div class="grid grid-cols-3 gap-3">
                                     <button
                                         type="button"
                                         @click="handleModeChange(field.key, '')"
-                                        class="flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 active:scale-95"
-                                        :class="!localTokens[field.key]?.mode ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 dark:border-indigo-400 shadow-sm' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800'">
+                                        class="flex flex-col items-center gap-2 rounded-xl border-2 p-3 transition-all duration-200 active:scale-95"
+                                        :class="!localTokens[field.key]?.mode ? 'border-indigo-500 bg-indigo-50 shadow-sm dark:border-indigo-400 dark:bg-indigo-500/10' : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600'">
                                         <LuCircle
-                                            class="w-5 h-5"
+                                            class="h-5 w-5"
                                             :class="!localTokens[field.key]?.mode ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'" />
                                         <span
                                             class="text-xs font-bold"
@@ -182,10 +182,10 @@ export default {
                                     <button
                                         type="button"
                                         @click="handleModeChange(field.key, 'color')"
-                                        class="flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 active:scale-95"
-                                        :class="localTokens[field.key]?.mode === 'color' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 dark:border-indigo-400 shadow-sm' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800'">
+                                        class="flex flex-col items-center gap-2 rounded-xl border-2 p-3 transition-all duration-200 active:scale-95"
+                                        :class="localTokens[field.key]?.mode === 'color' ? 'border-indigo-500 bg-indigo-50 shadow-sm dark:border-indigo-400 dark:bg-indigo-500/10' : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600'">
                                         <div
-                                            class="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-600 shadow-inner"
+                                            class="h-5 w-5 rounded-full border border-slate-300 shadow-inner dark:border-slate-600"
                                             :style="{
                                                 background: localTokens[field.key]?.value || '#1f2937',
                                             }" />
@@ -199,10 +199,10 @@ export default {
                                     <button
                                         type="button"
                                         @click="handleModeChange(field.key, 'image')"
-                                        class="flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 active:scale-95"
-                                        :class="localTokens[field.key]?.mode === 'image' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 dark:border-indigo-400 shadow-sm' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800'">
+                                        class="flex flex-col items-center gap-2 rounded-xl border-2 p-3 transition-all duration-200 active:scale-95"
+                                        :class="localTokens[field.key]?.mode === 'image' ? 'border-indigo-500 bg-indigo-50 shadow-sm dark:border-indigo-400 dark:bg-indigo-500/10' : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600'">
                                         <LuImage
-                                            class="w-5 h-5"
+                                            class="h-5 w-5"
                                             :class="localTokens[field.key]?.mode === 'image' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'" />
                                         <span
                                             class="text-xs font-bold"
@@ -217,7 +217,7 @@ export default {
                             <div
                                 v-if="localTokens[field.key]?.mode === 'color' || isTextColorOrShadowField(field.key)"
                                 class="space-y-2.5">
-                                <label class="text-[0.65rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block">
+                                <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
                                     {{ isTextColorOrShadowField(field.key) ? "Color Value" : "Background Color" }}
                                 </label>
 
@@ -225,7 +225,7 @@ export default {
                                     <div class="relative shrink-0">
                                         <input
                                             type="color"
-                                            class="w-12 h-12 rounded-xl cursor-pointer border border-slate-200 dark:border-slate-700 p-1 bg-white dark:bg-slate-800 shadow-sm"
+                                            class="h-12 w-12 cursor-pointer rounded-xl border border-slate-200 bg-white p-1 shadow-sm dark:border-slate-700 dark:bg-slate-800"
                                             :value="localTokens[field.key]?.value || (isTextColorOrShadowField(field.key) ? '#111827' : '#1f2937')"
                                             @input="
                                                 updateToken(field.key, {
@@ -234,8 +234,8 @@ export default {
                                             " />
                                     </div>
 
-                                    <div class="flex-1 relative">
-                                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-sm font-bold pointer-events-none">#</span>
+                                    <div class="relative flex-1">
+                                        <span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-mono text-sm font-bold text-slate-400">#</span>
                                         <input
                                             type="text"
                                             :value="(localTokens[field.key]?.value || '').replace('#', '')"
@@ -244,7 +244,7 @@ export default {
                                                     value: '#' + $event.target.value,
                                                 })
                                             "
-                                            class="w-full pl-8 pr-4 py-3 text-sm font-mono font-bold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm transition-all"
+                                            class="w-full rounded-xl border border-slate-300 bg-white py-3 pl-8 pr-4 font-mono text-sm font-bold text-slate-900 shadow-sm transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                                             placeholder="1F2937"
                                             maxlength="6" />
                                     </div>
@@ -255,17 +255,17 @@ export default {
                             <div
                                 v-if="localTokens[field.key]?.mode === 'image'"
                                 class="space-y-2.5">
-                                <label class="text-[0.65rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Image URL</label>
+                                <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Image URL</label>
                                 <div class="relative">
-                                    <LuLink class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <LuLink class="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                                     <input
                                         v-model="localTokens[field.key].value"
                                         type="url"
                                         placeholder="https://cdn.example.com/background.jpg"
-                                        class="w-full pl-10 pr-4 py-3 text-sm font-medium bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm transition-all" />
+                                        class="w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-4 text-sm font-medium text-slate-900 shadow-sm transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white" />
                                 </div>
-                                <p class="text-[0.65rem] font-semibold text-slate-500 flex items-center gap-1.5 mt-2">
-                                    <LuInfo class="w-3.5 h-3.5 text-indigo-400" />
+                                <p class="mt-2 flex items-center gap-1.5 text-[0.65rem] font-semibold text-slate-500">
+                                    <LuInfo class="h-3.5 w-3.5 text-indigo-400" />
                                     Use a public URL or relative storage path
                                 </p>
                             </div>
@@ -274,21 +274,21 @@ export default {
                             <div
                                 v-if="field.key === 'form-text-shadow'"
                                 class="space-y-2.5">
-                                <label class="text-[0.65rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Shadow Value</label>
+                                <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Shadow Value</label>
                                 <input
                                     v-model="localTokens[field.key].value"
                                     type="text"
                                     placeholder="0 1px 2px rgba(0, 0, 0, 0.35)"
-                                    class="w-full px-4 py-3 text-sm font-mono font-medium bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm transition-all" />
+                                    class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 font-mono text-sm font-medium text-slate-900 shadow-sm transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white" />
                                 <p class="text-[0.65rem] font-semibold text-slate-500">Must be a valid CSS text-shadow format.</p>
                             </div>
 
                             <!-- Mini Preview & Reset -->
-                            <div class="flex items-center justify-between pt-5 mt-2 border-t border-slate-200/60 dark:border-slate-700/60">
+                            <div class="mt-2 flex items-center justify-between border-t border-slate-200/60 pt-5 dark:border-slate-700/60">
                                 <div class="flex items-center gap-3">
-                                    <span class="text-[0.65rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Preview</span>
+                                    <span class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Preview</span>
                                     <div
-                                        class="w-20 h-10 rounded-lg border border-slate-200 dark:border-slate-700 shadow-inner flex items-center justify-center text-sm font-black overflow-hidden relative"
+                                        class="relative flex h-10 w-20 items-center justify-center overflow-hidden rounded-lg border border-slate-200 text-sm font-black shadow-inner dark:border-slate-700"
                                         :style="{
                                             backgroundColor: localTokens[field.key]?.mode === 'color' ? localTokens[field.key]?.value : undefined,
                                             backgroundImage: localTokens[field.key]?.mode === 'image' ? `url(${localTokens[field.key]?.value})` : undefined,
@@ -299,7 +299,7 @@ export default {
                                         }">
                                         <div
                                             v-if="!localTokens[field.key]?.value"
-                                            class="absolute inset-0 bg-slate-100 dark:bg-slate-800 opacity-50"></div>
+                                            class="absolute inset-0 bg-slate-100 opacity-50 dark:bg-slate-800"></div>
                                         <span
                                             class="relative z-10"
                                             :class="!localTokens[field.key]?.value ? 'text-slate-400' : ''">
@@ -311,8 +311,8 @@ export default {
                                 <button
                                     type="button"
                                     @click="clearToken(field.key)"
-                                    class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors">
-                                    <LuRotateCcw class="w-3.5 h-3.5" />
+                                    class="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-500/10 dark:hover:text-red-400">
+                                    <LuRotateCcw class="h-3.5 w-3.5" />
                                     Reset
                                 </button>
                             </div>
@@ -323,8 +323,8 @@ export default {
         </div>
 
         <!-- Global Actions Footer -->
-        <div class="flex items-center justify-between pt-6 border-t border-slate-200 dark:border-slate-800">
-            <div class="text-[0.65rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+        <div class="flex items-center justify-between border-t border-slate-200 pt-6 dark:border-slate-800">
+            <div class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
                 <span class="text-indigo-600 dark:text-indigo-400">
                     {{ fields.filter((f) => isActive(f.key)).length }}
                 </span>
@@ -333,8 +333,8 @@ export default {
             <button
                 type="button"
                 @click="fields.forEach((f) => clearToken(f.key))"
-                class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-red-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors">
-                <LuTrash2 class="w-4 h-4" />
+                class="inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold text-red-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400">
+                <LuTrash2 class="h-4 w-4" />
                 Reset All Fields
             </button>
         </div>

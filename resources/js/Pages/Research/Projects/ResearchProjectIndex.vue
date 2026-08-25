@@ -64,7 +64,7 @@ export default {
                     class="group relative flex flex-col rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition-all hover:shadow-md hover:ring-indigo-200">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
-                            <p class="text-xs font-mono text-slate-500">{{ project.code }}</p>
+                            <p class="font-mono text-xs text-slate-500">{{ project.code }}</p>
                             <h3 class="mt-1 line-clamp-2 text-base font-semibold text-slate-900 group-hover:text-indigo-600">
                                 {{ project.title }}
                             </h3>
@@ -88,7 +88,7 @@ export default {
                         <div class="flex justify-between">
                             <span class="text-slate-500">Funding</span>
                             <span
-                                class="truncate max-w-[150px] font-medium text-slate-900"
+                                class="max-w-[150px] truncate font-medium text-slate-900"
                                 :title="project.funding_agency">
                                 {{ project.funding_agency || "—" }}
                             </span>
@@ -96,10 +96,10 @@ export default {
                     </div>
 
                     <div class="mt-6 border-t border-slate-100 pt-4">
-                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Recent Studies</p>
+                        <p class="text-xs font-medium uppercase tracking-wider text-slate-500">Recent Studies</p>
                         <div
                             v-if="!(project.studies || []).length"
-                            class="mt-2 text-sm text-slate-400 italic">
+                            class="mt-2 text-sm italic text-slate-400">
                             No studies yet
                         </div>
                         <div

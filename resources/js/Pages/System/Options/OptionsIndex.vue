@@ -200,7 +200,7 @@ export default {
                 subtitle="Configure system settings, manage module access, and toggle core workflows from the controls tab. The options tab provides a comprehensive view of all configurable options across modules."
                 route-link="system.options.index">
                 <Link :href="route('system.options.create')">
-                    <add-icon class="h-auto w-5 text-white dark:text-gray-800 dark:bg-gray-200" />
+                    <add-icon class="h-auto w-5 text-white dark:bg-gray-200 dark:text-gray-800" />
                 </Link>
             </ActionHeaderLayout>
         </template>
@@ -216,28 +216,28 @@ export default {
                             v-if="activeKey === 'controls'"
                             class="space-y-6 pt-4">
                             <!-- Form Workflow Toggles -->
-                            <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-800 p-5 md:p-7">
-                                <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6 pb-5 border-b border-slate-100 dark:border-slate-800/60">
+                            <div class="rounded-2xl border border-slate-200/60 bg-white/80 p-5 shadow-sm backdrop-blur-xl md:p-7 dark:border-slate-800 dark:bg-slate-900/80">
+                                <div class="mb-6 flex flex-col justify-between gap-4 border-b border-slate-100 pb-5 sm:flex-row sm:items-start dark:border-slate-800/60">
                                     <div class="flex items-start gap-3.5">
-                                        <div class="p-2.5 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-xl shadow-sm shrink-0">
-                                            <LayoutGrid class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                                        <div class="shrink-0 rounded-xl border border-indigo-100 bg-indigo-50 p-2.5 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/10">
+                                            <LayoutGrid class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                                         </div>
                                         <div>
-                                            <h3 class="text-base font-semibold text-slate-900 dark:text-white tracking-tight">Form Workflow Toggles</h3>
-                                            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">Enable or disable event, participant, and verification workflows across the system.</p>
+                                            <h3 class="text-base font-semibold tracking-tight text-slate-900 dark:text-white">Form Workflow Toggles</h3>
+                                            <p class="mt-0.5 text-xs font-medium leading-relaxed text-slate-500 dark:text-slate-400">Enable or disable event, participant, and verification workflows across the system.</p>
                                         </div>
                                     </div>
                                     <button
                                         type="button"
                                         @click="saveWorkflowToggles"
                                         :disabled="workflowToggleLoading || workflowToggleSaving"
-                                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2.5 text-sm shadow-sm transition-all active:scale-95 disabled:opacity-70 disabled:pointer-events-none shrink-0">
+                                        class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-indigo-700 active:scale-95 disabled:pointer-events-none disabled:opacity-70">
                                         <Loader2
                                             v-if="workflowToggleSaving"
-                                            class="w-4 h-4 animate-spin" />
+                                            class="h-4 w-4 animate-spin" />
                                         <Save
                                             v-else
-                                            class="w-4 h-4" />
+                                            class="h-4 w-4" />
                                         <span>
                                             {{ workflowToggleSaving ? "Saving..." : "Save Changes" }}
                                         </span>
@@ -247,110 +247,110 @@ export default {
                                 <div
                                     v-if="workflowToggleLoading"
                                     class="flex flex-col items-center justify-center py-10 text-slate-500 dark:text-slate-400">
-                                    <Loader2 class="w-6 h-6 animate-spin mb-3 text-indigo-500" />
+                                    <Loader2 class="mb-3 h-6 w-6 animate-spin text-indigo-500" />
                                     <span class="text-sm font-medium">Loading workflow settings...</span>
                                 </div>
 
                                 <div
                                     v-else
-                                    class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    class="grid grid-cols-1 gap-4 md:grid-cols-3">
                                     <!-- Event Workflow -->
                                     <label
-                                        class="group relative flex items-center justify-between p-4 rounded-2xl border-2 transition-all duration-300 cursor-pointer shadow-sm"
-                                        :class="workflowToggles.event_workflow_enabled ? 'bg-indigo-50/50 border-indigo-500 dark:bg-indigo-500/10 dark:border-indigo-500' : 'bg-slate-50/50 border-slate-200/60 hover:border-indigo-300 dark:bg-slate-800/30 dark:border-slate-700/60 dark:hover:border-indigo-600'">
+                                        class="group relative flex cursor-pointer items-center justify-between rounded-2xl border-2 p-4 shadow-sm transition-all duration-300"
+                                        :class="workflowToggles.event_workflow_enabled ? 'border-indigo-500 bg-indigo-50/50 dark:border-indigo-500 dark:bg-indigo-500/10' : 'border-slate-200/60 bg-slate-50/50 hover:border-indigo-300 dark:border-slate-700/60 dark:bg-slate-800/30 dark:hover:border-indigo-600'">
                                         <div class="flex items-center gap-3.5">
                                             <div
-                                                class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm border"
-                                                :class="workflowToggles.event_workflow_enabled ? 'bg-white dark:bg-slate-800 border-indigo-200 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-400' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500'">
+                                                class="flex h-10 w-10 items-center justify-center rounded-xl border shadow-sm transition-colors"
+                                                :class="workflowToggles.event_workflow_enabled ? 'border-indigo-200 bg-white text-indigo-600 dark:border-indigo-500/30 dark:bg-slate-800 dark:text-indigo-400' : 'border-slate-200 bg-white text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500'">
                                                 <CheckCircle2
                                                     v-if="workflowToggles.event_workflow_enabled"
-                                                    class="w-5 h-5" />
+                                                    class="h-5 w-5" />
                                                 <XCircle
                                                     v-else
-                                                    class="w-5 h-5" />
+                                                    class="h-5 w-5" />
                                             </div>
                                             <div>
-                                                <span class="block text-sm font-bold text-slate-900 dark:text-white tracking-tight">Event Workflow</span>
-                                                <span class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 mt-0.5 block">Manage Processing</span>
+                                                <span class="block text-sm font-bold tracking-tight text-slate-900 dark:text-white">Event Workflow</span>
+                                                <span class="mt-0.5 block text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Manage Processing</span>
                                             </div>
                                         </div>
                                         <input
                                             v-model="workflowToggles.event_workflow_enabled"
                                             type="checkbox"
-                                            class="w-5 h-5 rounded-md border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0 cursor-pointer transition-colors" />
+                                            class="h-5 w-5 cursor-pointer rounded-md border-slate-300 bg-white text-indigo-600 transition-colors focus:ring-indigo-500 focus:ring-offset-0 dark:border-slate-600 dark:bg-slate-800" />
                                     </label>
 
                                     <!-- Participant Workflow -->
                                     <label
-                                        class="group relative flex items-center justify-between p-4 rounded-2xl border-2 transition-all duration-300 cursor-pointer shadow-sm"
-                                        :class="workflowToggles.participant_workflow_enabled ? 'bg-indigo-50/50 border-indigo-500 dark:bg-indigo-500/10 dark:border-indigo-500' : 'bg-slate-50/50 border-slate-200/60 hover:border-indigo-300 dark:bg-slate-800/30 dark:border-slate-700/60 dark:hover:border-indigo-600'">
+                                        class="group relative flex cursor-pointer items-center justify-between rounded-2xl border-2 p-4 shadow-sm transition-all duration-300"
+                                        :class="workflowToggles.participant_workflow_enabled ? 'border-indigo-500 bg-indigo-50/50 dark:border-indigo-500 dark:bg-indigo-500/10' : 'border-slate-200/60 bg-slate-50/50 hover:border-indigo-300 dark:border-slate-700/60 dark:bg-slate-800/30 dark:hover:border-indigo-600'">
                                         <div class="flex items-center gap-3.5">
                                             <div
-                                                class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm border"
-                                                :class="workflowToggles.participant_workflow_enabled ? 'bg-white dark:bg-slate-800 border-indigo-200 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-400' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500'">
+                                                class="flex h-10 w-10 items-center justify-center rounded-xl border shadow-sm transition-colors"
+                                                :class="workflowToggles.participant_workflow_enabled ? 'border-indigo-200 bg-white text-indigo-600 dark:border-indigo-500/30 dark:bg-slate-800 dark:text-indigo-400' : 'border-slate-200 bg-white text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500'">
                                                 <CheckCircle2
                                                     v-if="workflowToggles.participant_workflow_enabled"
-                                                    class="w-5 h-5" />
+                                                    class="h-5 w-5" />
                                                 <XCircle
                                                     v-else
-                                                    class="w-5 h-5" />
+                                                    class="h-5 w-5" />
                                             </div>
                                             <div>
-                                                <span class="block text-sm font-bold text-slate-900 dark:text-white tracking-tight">Participant Workflow</span>
-                                                <span class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 mt-0.5 block">Handle Logic</span>
+                                                <span class="block text-sm font-bold tracking-tight text-slate-900 dark:text-white">Participant Workflow</span>
+                                                <span class="mt-0.5 block text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Handle Logic</span>
                                             </div>
                                         </div>
                                         <input
                                             v-model="workflowToggles.participant_workflow_enabled"
                                             type="checkbox"
-                                            class="w-5 h-5 rounded-md border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0 cursor-pointer transition-colors" />
+                                            class="h-5 w-5 cursor-pointer rounded-md border-slate-300 bg-white text-indigo-600 transition-colors focus:ring-indigo-500 focus:ring-offset-0 dark:border-slate-600 dark:bg-slate-800" />
                                     </label>
 
                                     <!-- Verification Workflow -->
                                     <label
-                                        class="group relative flex items-center justify-between p-4 rounded-2xl border-2 transition-all duration-300 cursor-pointer shadow-sm"
-                                        :class="workflowToggles.participant_verification_enabled ? 'bg-indigo-50/50 border-indigo-500 dark:bg-indigo-500/10 dark:border-indigo-500' : 'bg-slate-50/50 border-slate-200/60 hover:border-indigo-300 dark:bg-slate-800/30 dark:border-slate-700/60 dark:hover:border-indigo-600'">
+                                        class="group relative flex cursor-pointer items-center justify-between rounded-2xl border-2 p-4 shadow-sm transition-all duration-300"
+                                        :class="workflowToggles.participant_verification_enabled ? 'border-indigo-500 bg-indigo-50/50 dark:border-indigo-500 dark:bg-indigo-500/10' : 'border-slate-200/60 bg-slate-50/50 hover:border-indigo-300 dark:border-slate-700/60 dark:bg-slate-800/30 dark:hover:border-indigo-600'">
                                         <div class="flex items-center gap-3.5">
                                             <div
-                                                class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm border"
-                                                :class="workflowToggles.participant_verification_enabled ? 'bg-white dark:bg-slate-800 border-indigo-200 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-400' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500'">
+                                                class="flex h-10 w-10 items-center justify-center rounded-xl border shadow-sm transition-colors"
+                                                :class="workflowToggles.participant_verification_enabled ? 'border-indigo-200 bg-white text-indigo-600 dark:border-indigo-500/30 dark:bg-slate-800 dark:text-indigo-400' : 'border-slate-200 bg-white text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500'">
                                                 <CheckCircle2
                                                     v-if="workflowToggles.participant_verification_enabled"
-                                                    class="w-5 h-5" />
+                                                    class="h-5 w-5" />
                                                 <XCircle
                                                     v-else
-                                                    class="w-5 h-5" />
+                                                    class="h-5 w-5" />
                                             </div>
                                             <div>
-                                                <span class="block text-sm font-bold text-slate-900 dark:text-white tracking-tight">Verification</span>
-                                                <span class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 mt-0.5 block">Enable Steps</span>
+                                                <span class="block text-sm font-bold tracking-tight text-slate-900 dark:text-white">Verification</span>
+                                                <span class="mt-0.5 block text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Enable Steps</span>
                                             </div>
                                         </div>
                                         <input
                                             v-model="workflowToggles.participant_verification_enabled"
                                             type="checkbox"
-                                            class="w-5 h-5 rounded-md border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0 cursor-pointer transition-colors" />
+                                            class="h-5 w-5 cursor-pointer rounded-md border-slate-300 bg-white text-indigo-600 transition-colors focus:ring-indigo-500 focus:ring-offset-0 dark:border-slate-600 dark:bg-slate-800" />
                                     </label>
                                 </div>
                             </div>
 
                             <!-- Module Access Controls -->
-                            <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-800 p-5 md:p-7">
-                                <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6 pb-5 border-b border-slate-100 dark:border-slate-800/60">
+                            <div class="rounded-2xl border border-slate-200/60 bg-white/80 p-5 shadow-sm backdrop-blur-xl md:p-7 dark:border-slate-800 dark:bg-slate-900/80">
+                                <div class="mb-6 flex flex-col justify-between gap-4 border-b border-slate-100 pb-5 sm:flex-row sm:items-start dark:border-slate-800/60">
                                     <div class="flex items-start gap-3.5">
-                                        <div class="p-2.5 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-xl shadow-sm shrink-0">
-                                            <ShieldCheck class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                                        <div class="shrink-0 rounded-xl border border-emerald-100 bg-emerald-50 p-2.5 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10">
+                                            <ShieldCheck class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                                         </div>
                                         <div>
-                                            <h3 class="text-base font-semibold text-slate-900 dark:text-white tracking-tight">Module Access Controls</h3>
-                                            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed max-w-xl">Configure deployment visibility and runtime mode for each module. Deployment access applies to the module's web pages and APIs together.</p>
-                                            <div class="mt-3 flex flex-wrap gap-2 text-[0.65rem] font-mono font-semibold">
-                                                <span class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 flex items-center gap-1.5 shadow-sm">
-                                                    <Server class="w-3 h-3" />
+                                            <h3 class="text-base font-semibold tracking-tight text-slate-900 dark:text-white">Module Access Controls</h3>
+                                            <p class="mt-0.5 max-w-xl text-xs font-medium leading-relaxed text-slate-500 dark:text-slate-400">Configure deployment visibility and runtime mode for each module. Deployment access applies to the module's web pages and APIs together.</p>
+                                            <div class="mt-3 flex flex-wrap gap-2 font-mono text-[0.65rem] font-semibold">
+                                                <span class="flex items-center gap-1.5 rounded-md border border-slate-200 bg-slate-100 px-2.5 py-1 text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                                    <Server class="h-3 w-3" />
                                                     Local: {{ deploymentAccessMeta.local_url }}
                                                 </span>
-                                                <span class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 flex items-center gap-1.5 shadow-sm">
-                                                    <Globe class="w-3 h-3" />
+                                                <span class="flex items-center gap-1.5 rounded-md border border-slate-200 bg-slate-100 px-2.5 py-1 text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                                    <Globe class="h-3 w-3" />
                                                     Internet:
                                                     {{ deploymentAccessMeta.internet_url }}
                                                 </span>
@@ -361,13 +361,13 @@ export default {
                                         type="button"
                                         @click="saveDeploymentAccess"
                                         :disabled="deploymentAccessLoading || deploymentAccessSaving"
-                                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2.5 text-sm shadow-sm transition-all active:scale-95 disabled:opacity-70 disabled:pointer-events-none shrink-0">
+                                        class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-95 disabled:pointer-events-none disabled:opacity-70">
                                         <Loader2
                                             v-if="deploymentAccessSaving"
-                                            class="w-4 h-4 animate-spin" />
+                                            class="h-4 w-4 animate-spin" />
                                         <Save
                                             v-else
-                                            class="w-4 h-4" />
+                                            class="h-4 w-4" />
                                         <span>
                                             {{ deploymentAccessSaving ? "Saving..." : "Save Module Rules" }}
                                         </span>
@@ -377,17 +377,17 @@ export default {
                                 <div
                                     v-if="deploymentAccessLoading"
                                     class="flex flex-col items-center justify-center py-10 text-slate-500 dark:text-slate-400">
-                                    <Loader2 class="w-6 h-6 animate-spin mb-3 text-emerald-500" />
+                                    <Loader2 class="mb-3 h-6 w-6 animate-spin text-emerald-500" />
                                     <span class="text-sm font-medium">Loading module controls...</span>
                                 </div>
 
                                 <div
                                     v-else
-                                    class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                                    class="grid grid-cols-1 gap-6 xl:grid-cols-2">
                                     <section
                                         v-for="section in deploymentAccessSections"
                                         :key="section.key"
-                                        class="bg-slate-50/50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-5 shadow-sm">
+                                        class="rounded-2xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
                                         <div class="mb-4">
                                             <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
                                                 {{ section.label }}
@@ -398,12 +398,12 @@ export default {
                                             <div
                                                 v-for="item in section.items"
                                                 :key="item.module"
-                                                class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 p-5 shadow-sm hover:border-emerald-300 dark:hover:border-emerald-600 transition-colors">
-                                                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-5">
+                                                class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:border-emerald-300 dark:border-slate-700 dark:bg-slate-900/50 dark:hover:border-emerald-600">
+                                                <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                                                     <!-- Module Header -->
                                                     <div class="flex-1">
-                                                        <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                                                            <h5 class="text-sm font-bold text-slate-900 dark:text-white tracking-tight">
+                                                        <div class="mb-1.5 flex flex-wrap items-center gap-2">
+                                                            <h5 class="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
                                                                 {{ item.label }}
                                                             </h5>
                                                             <span
@@ -413,17 +413,17 @@ export default {
                                                             </span>
                                                             <span
                                                                 v-if="isModuleProtected(item)"
-                                                                class="inline-flex items-center rounded-md bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/30 shadow-sm">
+                                                                class="inline-flex items-center rounded-md border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-indigo-600 shadow-sm dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-400">
                                                                 Safeguarded
                                                             </span>
                                                         </div>
-                                                        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">
+                                                        <p class="text-xs font-medium leading-relaxed text-slate-500 dark:text-slate-400">
                                                             {{ item.description }}
                                                         </p>
                                                     </div>
 
                                                     <!-- Selects -->
-                                                    <div class="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-3 w-full lg:w-auto shrink-0">
+                                                    <div class="flex w-full shrink-0 flex-col gap-3 sm:flex-row lg:w-auto lg:flex-col xl:flex-row">
                                                         <div class="w-full sm:w-40 lg:w-full xl:w-40">
                                                             <label
                                                                 :for="`${item.module}-access`"
@@ -433,7 +433,7 @@ export default {
                                                             <select
                                                                 :id="`${item.module}-access`"
                                                                 v-model="deploymentAccessValues[item.module].access"
-                                                                class="block w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 py-2 text-sm font-medium text-slate-900 dark:text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors shadow-sm appearance-none">
+                                                                class="block w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-sm font-medium text-slate-900 shadow-sm transition-colors focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white">
                                                                 <option
                                                                     v-for="option in item.access_options"
                                                                     :key="`${item.module}-access-${option.value}`"
@@ -452,7 +452,7 @@ export default {
                                                             <select
                                                                 :id="`${item.module}-mode`"
                                                                 v-model="deploymentAccessValues[item.module].mode"
-                                                                class="block w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 py-2 text-sm font-medium text-slate-900 dark:text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors shadow-sm appearance-none">
+                                                                class="block w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-sm font-medium text-slate-900 shadow-sm transition-colors focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white">
                                                                 <option
                                                                     v-for="option in item.mode_options"
                                                                     :key="`${item.module}-mode-${option.value}`"
@@ -469,7 +469,7 @@ export default {
                                                 <div class="mt-4 space-y-2">
                                                     <p
                                                         v-if="isModuleProtected(item)"
-                                                        class="text-[0.65rem] font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-500/30 rounded-lg p-2.5 leading-relaxed">
+                                                        class="rounded-lg border border-indigo-200 bg-indigo-50 p-2.5 text-[0.65rem] font-semibold leading-relaxed text-indigo-700 dark:border-indigo-500/30 dark:bg-indigo-900/20 dark:text-indigo-300">
                                                         This module cannot be deactivated from the admin UI to avoid locking out system settings.
                                                     </p>
 
@@ -490,7 +490,7 @@ export default {
                         <!-- OPTIONS TAB -->
                         <div
                             v-else
-                            class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-800 p-3 mt-4 overflow-hidden">
+                            class="mt-4 overflow-hidden rounded-2xl border border-slate-200/60 bg-white/80 p-3 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/80">
                             <CRCMDatatable
                                 :base-model="optionsModel"
                                 :can-view="true"

@@ -15,7 +15,7 @@ export default {
     <div class="py-2">
         <label
             v-if="field.label"
-            class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
             {{ field.label }}
             <span
                 v-if="required"
@@ -25,7 +25,7 @@ export default {
         </label>
         <p
             v-if="field.description"
-            class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+            class="mt-1 text-xs text-gray-600 dark:text-gray-400">
             {{ field.description }}
         </p>
     </div>

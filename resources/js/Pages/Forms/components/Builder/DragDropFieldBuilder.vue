@@ -309,22 +309,22 @@ export default {
 <template>
     <div class="flex h-full bg-gray-100">
         <!-- Field Type Palette (Left Sidebar) -->
-        <div class="w-64 bg-white border-r border-gray-200 overflow-y-auto flex-shrink-0">
-            <div class="p-4 border-b border-gray-200">
+        <div class="w-64 flex-shrink-0 overflow-y-auto border-r border-gray-200 bg-white">
+            <div class="border-b border-gray-200 p-4">
                 <h3 class="font-semibold text-gray-800">Add Fields</h3>
-                <p class="text-xs text-gray-500 mt-1">Drag fields to the form area</p>
+                <p class="mt-1 text-xs text-gray-500">Drag fields to the form area</p>
             </div>
 
             <!-- Search Input -->
-            <div class="p-2 border-b border-gray-200">
+            <div class="border-b border-gray-200 p-2">
                 <div class="relative">
                     <input
                         v-model="fieldSearch"
                         type="text"
                         placeholder="Search fields..."
-                        class="w-full pl-8 pr-8 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-AB focus:border-AB" />
+                        class="w-full rounded-md border border-gray-300 py-1.5 pl-8 pr-8 text-sm focus:border-AB focus:ring-AB" />
                     <svg
-                        class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                        class="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24">
@@ -339,7 +339,7 @@ export default {
                         @click="fieldSearch = ''"
                         class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                         <svg
-                            class="w-4 h-4"
+                            class="h-4 w-4"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24">
@@ -365,10 +365,10 @@ export default {
                     <div class="mb-2">
                         <button
                             @click="toggleCategory(categoryKey)"
-                            class="w-full flex items-center justify-between p-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 rounded">
+                            class="flex w-full items-center justify-between rounded p-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-50">
                             <span>{{ fieldCategories[categoryKey]?.label || categoryKey }}</span>
                             <svg
-                                class="w-4 h-4 transition-transform"
+                                class="h-4 w-4 transition-transform"
                                 :class="{ 'rotate-180': isCategoryExpanded(categoryKey) }"
                                 fill="none"
                                 stroke="currentColor"
@@ -391,7 +391,7 @@ export default {
                                 @dragstart="onFieldTypeDragStart($event, fieldType.key)"
                                 @dragend="onFieldTypeDragEnd"
                                 @click="addFieldToEnd(fieldType.key)"
-                                class="flex items-center gap-2 p-2 text-sm bg-gray-50 hover:bg-gray-100 rounded cursor-grab active:cursor-grabbing">
+                                class="flex cursor-grab items-center gap-2 rounded bg-gray-50 p-2 text-sm hover:bg-gray-100 active:cursor-grabbing">
                                 <span class="text-gray-500">✦</span>
                                 <span>{{ fieldType.title }}</span>
                             </div>
@@ -402,28 +402,28 @@ export default {
         </div>
 
         <!-- Form Builder (Main Area) -->
-        <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="flex flex-1 flex-col overflow-hidden">
             <!-- Form Metadata Header -->
-            <div class="bg-white border-b border-gray-200 p-4">
-                <div class="max-w-3xl mx-auto space-y-3">
+            <div class="border-b border-gray-200 bg-white p-4">
+                <div class="mx-auto max-w-3xl space-y-3">
                     <input
                         v-model="template.name"
                         type="text"
                         placeholder="Form Template Name*"
-                        class="w-full text-xl font-semibold border-0 border-b-2 border-gray-200 focus:border-AB focus:ring-0 px-0"
+                        class="w-full border-0 border-b-2 border-gray-200 px-0 text-xl font-semibold focus:border-AB focus:ring-0"
                         :disabled="!canEdit" />
                     <textarea
                         v-model="template.description"
                         placeholder="Form description (optional)"
                         rows="2"
-                        class="w-full text-sm text-gray-600 border-0 border-b border-gray-100 focus:border-AB focus:ring-0 px-0 resize-none"
+                        class="w-full resize-none border-0 border-b border-gray-100 px-0 text-sm text-gray-600 focus:border-AB focus:ring-0"
                         :disabled="!canEdit"></textarea>
-                    <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                    <div class="flex items-center justify-between border-b border-gray-100 py-2">
                         <div>
                             <p class="text-sm font-medium text-gray-700">Require participant verification</p>
                             <p class="text-xs text-gray-500">When enabled, users must verify/select an existing participant before submitting this step.</p>
                         </div>
-                        <label class="inline-flex items-center cursor-pointer">
+                        <label class="inline-flex cursor-pointer items-center">
                             <input
                                 v-model="template.form_config.require_participant_verification"
                                 type="checkbox"
@@ -436,11 +436,11 @@ export default {
 
             <!-- Fields Canvas -->
             <div class="flex-1 overflow-y-auto p-4">
-                <div class="max-w-3xl mx-auto">
+                <div class="mx-auto max-w-3xl">
                     <!-- Empty State -->
                     <div
                         v-if="fields.length === 0"
-                        class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center"
+                        class="rounded-lg border-2 border-dashed border-gray-300 p-8 text-center"
                         @dragover.prevent="dragOverIndex = 0"
                         @dragleave="dragOverIndex = null"
                         @drop="onDropZoneDrop($event, 0)"
@@ -468,9 +468,9 @@ export default {
                             :key="field.field_key">
                             <!-- Drop Zone Before Field -->
                             <div
-                                class="h-2 -my-1 transition-all"
+                                class="-my-1 h-2 transition-all"
                                 :class="{
-                                    'h-12 bg-blue-100 border-2 border-dashed border-AB rounded': dragOverIndex === index,
+                                    'h-12 rounded border-2 border-dashed border-AB bg-blue-100': dragOverIndex === index,
                                 }"
                                 @dragover="onDropZoneDragOver($event, index)"
                                 @dragleave="onDropZoneDragLeave"
@@ -481,15 +481,15 @@ export default {
                                 :draggable="canEdit"
                                 @dragstart="onFieldDragStart($event, index)"
                                 @dragend="onFieldDragEnd"
-                                class="bg-white border border-gray-200 rounded-lg shadow-sm group hover:shadow-md transition-shadow"
+                                class="group rounded-lg border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md"
                                 :class="{ 'opacity-50': draggedFieldIndex === index }">
                                 <div class="flex items-start gap-3 p-4">
                                     <!-- Drag Handle -->
                                     <div
                                         v-if="canEdit"
-                                        class="flex-shrink-0 text-gray-400 cursor-grab active:cursor-grabbing pt-1">
+                                        class="flex-shrink-0 cursor-grab pt-1 text-gray-400 active:cursor-grabbing">
                                         <svg
-                                            class="w-5 h-5"
+                                            class="h-5 w-5"
                                             fill="currentColor"
                                             viewBox="0 0 20 20">
                                             <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z" />
@@ -497,36 +497,36 @@ export default {
                                     </div>
 
                                     <!-- Field Content -->
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex items-center gap-2 mb-1">
-                                            <span class="text-xs px-2 py-0.5 bg-gray-100 rounded text-gray-600">
+                                    <div class="min-w-0 flex-1">
+                                        <div class="mb-1 flex items-center gap-2">
+                                            <span class="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
                                                 {{ getFieldTypeConfig(field.field_type).title }}
                                             </span>
                                             <span
                                                 v-if="field.validation_rules?.required"
-                                                class="text-red-500 text-xs">
+                                                class="text-xs text-red-500">
                                                 Required
                                             </span>
                                         </div>
                                         <h4 class="font-medium text-gray-800">{{ field.label }}</h4>
                                         <p
                                             v-if="field.description"
-                                            class="text-sm text-gray-500 mt-1">
+                                            class="mt-1 text-sm text-gray-500">
                                             {{ field.description }}
                                         </p>
-                                        <p class="text-xs text-gray-400 mt-1">Key: {{ field.field_key }}</p>
+                                        <p class="mt-1 text-xs text-gray-400">Key: {{ field.field_key }}</p>
                                     </div>
 
                                     <!-- Actions -->
                                     <div
                                         v-if="canEdit"
-                                        class="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        class="flex flex-shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                                         <button
                                             @click="editField(index)"
-                                            class="p-1.5 text-gray-500 hover:text-AB hover:bg-gray-100 rounded"
+                                            class="rounded p-1.5 text-gray-500 hover:bg-gray-100 hover:text-AB"
                                             title="Edit field">
                                             <svg
-                                                class="w-4 h-4"
+                                                class="h-4 w-4"
                                                 fill="none"
                                                 stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -539,10 +539,10 @@ export default {
                                         </button>
                                         <button
                                             @click="duplicateField(index)"
-                                            class="p-1.5 text-gray-500 hover:text-AB hover:bg-gray-100 rounded"
+                                            class="rounded p-1.5 text-gray-500 hover:bg-gray-100 hover:text-AB"
                                             title="Duplicate field">
                                             <svg
-                                                class="w-4 h-4"
+                                                class="h-4 w-4"
                                                 fill="none"
                                                 stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -555,10 +555,10 @@ export default {
                                         </button>
                                         <button
                                             @click="removeField(index)"
-                                            class="p-1.5 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded"
+                                            class="rounded p-1.5 text-gray-500 hover:bg-red-50 hover:text-red-500"
                                             title="Remove field">
                                             <svg
-                                                class="w-4 h-4"
+                                                class="h-4 w-4"
                                                 fill="none"
                                                 stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -578,7 +578,7 @@ export default {
                         <div
                             class="h-2 transition-all"
                             :class="{
-                                'h-12 bg-blue-100 border-2 border-dashed border-AB rounded': dragOverIndex === fields.length,
+                                'h-12 rounded border-2 border-dashed border-AB bg-blue-100': dragOverIndex === fields.length,
                             }"
                             @dragover="onDropZoneDragOver($event, fields.length)"
                             @dragleave="onDropZoneDragLeave"
@@ -588,19 +588,19 @@ export default {
             </div>
 
             <!-- Footer Actions -->
-            <div class="bg-white border-t border-gray-200 p-4">
-                <div class="max-w-3xl mx-auto flex justify-between items-center">
+            <div class="border-t border-gray-200 bg-white p-4">
+                <div class="mx-auto flex max-w-3xl items-center justify-between">
                     <span class="text-sm text-gray-500">{{ fields.length }} field{{ fields.length !== 1 ? "s" : "" }}</span>
                     <div class="flex gap-3">
                         <button
                             @click="handleCancel"
-                            class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
+                            class="rounded-md bg-gray-100 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-200">
                             Cancel
                         </button>
                         <button
                             @click="handleSave"
                             :disabled="!isValid || !canEdit"
-                            class="px-4 py-2 bg-AB text-white rounded-md hover:bg-AB/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            class="rounded-md bg-AB px-4 py-2 text-white transition-colors hover:bg-AB/90 disabled:cursor-not-allowed disabled:opacity-50">
                             Save Template
                         </button>
                     </div>

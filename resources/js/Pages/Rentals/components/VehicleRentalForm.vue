@@ -281,42 +281,42 @@ export default {
         :message="successMessage"
         @close="showSuccessModal = false" />
 
-    <div class="grid lg:grid-cols-4 gap-6 mt-3 md:mt-0">
+    <div class="mt-3 grid gap-6 md:mt-0 lg:grid-cols-4">
         <!-- Left Column: Form -->
         <div
             data-guide="rental-form-shell"
             v-if="form"
-            class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 p-6 rounded-2xl shadow-sm h-fit w-full lg:col-span-1">
-            <div class="flex items-center gap-3 pb-5 mb-5 border-b border-slate-100 dark:border-slate-800/60">
-                <div class="p-2.5 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-xl shadow-sm shrink-0">
-                    <Car class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            class="h-fit w-full rounded-2xl border border-slate-200/60 bg-white/80 p-6 shadow-sm backdrop-blur-xl lg:col-span-1 dark:border-slate-800 dark:bg-slate-900/80">
+            <div class="mb-5 flex items-center gap-3 border-b border-slate-100 pb-5 dark:border-slate-800/60">
+                <div class="shrink-0 rounded-xl border border-indigo-100 bg-indigo-50 p-2.5 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/10">
+                    <Car class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
-                    <p class="text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-0.5">Booking</p>
-                    <h2 class="text-lg font-bold text-slate-900 dark:text-white tracking-tight">Vehicle Request</h2>
+                    <p class="mb-0.5 text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Booking</p>
+                    <h2 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Vehicle Request</h2>
                 </div>
             </div>
 
             <!-- Informational Alerts -->
-            <div class="space-y-3 mb-6">
-                <div class="bg-amber-50/80 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 p-4 rounded-xl shadow-xs">
+            <div class="mb-6 space-y-3">
+                <div class="shadow-xs rounded-xl border border-amber-200 bg-amber-50/80 p-4 dark:border-amber-500/30 dark:bg-amber-500/10">
                     <div class="flex items-start gap-3">
-                        <AlertTriangle class="w-5 h-5 text-amber-600 dark:text-amber-500 mt-0.5 shrink-0" />
+                        <AlertTriangle class="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-500" />
                         <div>
-                            <p class="text-amber-800 dark:text-amber-400 font-medium text-xs leading-relaxed">
-                                <span class="font-bold uppercase tracking-wider block mb-1">Internal Use Only:</span>
+                            <p class="text-xs font-medium leading-relaxed text-amber-800 dark:text-amber-400">
+                                <span class="mb-1 block font-bold uppercase tracking-wider">Internal Use Only:</span>
                                 This form is exclusively for CBC internal use. Please note that submission does not replace the official PhilRice Travel Filing Protocols, which must still be followed.
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-indigo-50/80 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 rounded-xl p-4 shadow-xs">
-                    <h2 class="text-xs font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 flex items-center gap-2 mb-2">
-                        <Info class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                <div class="shadow-xs rounded-xl border border-indigo-200 bg-indigo-50/80 p-4 dark:border-indigo-500/30 dark:bg-indigo-500/10">
+                    <h2 class="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300">
+                        <Info class="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                         Important Reminders
                     </h2>
-                    <ul class="text-[0.7rem] font-medium text-indigo-800 dark:text-indigo-400 space-y-1.5 ml-6 list-disc">
+                    <ul class="ml-6 list-disc space-y-1.5 text-[0.7rem] font-medium text-indigo-800 dark:text-indigo-400">
                         <li>Ensure all required fields are completed accurately.</li>
                         <li>Refer to the filled Travel Order (TO).</li>
                     </ul>
@@ -325,11 +325,11 @@ export default {
 
             <form
                 @submit.prevent="submitProxyCreate"
-                class="space-y-5 w-full h-fit">
+                class="h-fit w-full space-y-5">
                 <!-- General Error -->
                 <div
                     v-if="form.errors.general"
-                    class="p-4 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-xl text-rose-700 dark:text-rose-400 text-xs font-bold shadow-sm">
+                    class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-bold text-rose-700 shadow-sm dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-400">
                     {{ form.errors.general }}
                 </div>
 
@@ -352,19 +352,19 @@ export default {
 
                     <div
                         v-if="selectedTripTypeMeta"
-                        class="rounded-xl border border-slate-200/60 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-800/30 p-4 shadow-xs">
+                        class="shadow-xs rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 dark:border-slate-700/60 dark:bg-slate-800/30">
                         <p class="text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Selected Workflow</p>
                         <p class="mt-1 text-sm font-bold text-slate-900 dark:text-white">
                             {{ selectedTripTypeMeta.label }}
                         </p>
-                        <p class="mt-1 text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed">
+                        <p class="mt-1 text-xs font-medium leading-relaxed text-slate-600 dark:text-slate-400">
                             {{ selectedTripTypeMeta.description }}
                         </p>
                     </div>
                 </div>
 
                 <!-- Date Range -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
                     <DateInput
                         id="date_from"
                         label="Start Date"
@@ -385,7 +385,7 @@ export default {
                 </div>
 
                 <!-- Time Range -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
                     <TimeInput
                         id="time_from"
                         label="Start Time"
@@ -414,7 +414,7 @@ export default {
 
                 <!-- Destination Location -->
                 <div>
-                    <label class="block text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Destination Location</label>
+                    <label class="mb-2 block text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Destination Location</label>
                     <div class="grid grid-cols-1 gap-4">
                         <SelectRegion
                             v-model="form.destination_region"
@@ -458,12 +458,12 @@ export default {
                     class="block w-full"></TextArea>
 
                 <!-- Shared Ride Checkbox -->
-                <div class="rounded-xl border border-slate-200/60 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-800/30 p-4 shadow-xs">
+                <div class="shadow-xs rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 dark:border-slate-700/60 dark:bg-slate-800/30">
                     <Checkbox
                         v-model:checked="form.is_shared_ride"
                         name="is_shared_ride"
                         label="Shared/Hitch Ride" />
-                    <span class="block text-xs font-medium text-slate-500 dark:text-slate-400 mt-1.5 pl-6 leading-relaxed">Enable this if the trip can be grouped with another approved request.</span>
+                    <span class="mt-1.5 block pl-6 text-xs font-medium leading-relaxed text-slate-500 dark:text-slate-400">Enable this if the trip can be grouped with another approved request.</span>
                 </div>
 
                 <TextInput
@@ -502,18 +502,18 @@ export default {
                     :error="form.errors.organization"
                     class="block w-full" />
 
-                <div class="rounded-xl border border-slate-200/60 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-800/30 p-5 shadow-xs space-y-4">
+                <div class="shadow-xs space-y-4 rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 dark:border-slate-700/60 dark:bg-slate-800/30">
                     <div class="flex items-center justify-between">
                         <label class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Members of the Party (MOP)</label>
                         <button
                             type="button"
-                            class="inline-flex items-center gap-1 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-wider border border-dashed border-indigo-300 dark:border-indigo-500/50 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors"
+                            class="inline-flex items-center gap-1 rounded-lg border border-dashed border-indigo-300 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-wider text-indigo-600 transition-colors hover:bg-indigo-50 dark:border-indigo-500/50 dark:text-indigo-400 dark:hover:bg-indigo-500/10"
                             @click="addMemberOfPartyRow">
                             + Add Member
                         </button>
                     </div>
 
-                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">Add companions for this trip. Leave empty if none.</p>
+                    <p class="text-xs font-medium leading-relaxed text-slate-500 dark:text-slate-400">Add companions for this trip. Leave empty if none.</p>
 
                     <div
                         v-if="form.errors.members_of_party"
@@ -527,7 +527,7 @@ export default {
                         <div
                             v-for="(member, index) in membersOfPartyRows"
                             :key="`mop-${index}`"
-                            class="flex gap-3 items-start">
+                            class="flex items-start gap-3">
                             <div class="flex-1">
                                 <TextInput
                                     :id="`members_of_party_${index}`"
@@ -539,7 +539,7 @@ export default {
                                     class="block w-full" />
                                 <p
                                     v-if="memberRowError(index)"
-                                    class="text-xs font-semibold text-rose-600 dark:text-rose-400 mt-1">
+                                    class="mt-1 text-xs font-semibold text-rose-600 dark:text-rose-400">
                                     {{ memberRowError(index) }}
                                 </p>
                             </div>
@@ -547,7 +547,7 @@ export default {
                             <div class="flex gap-1 pt-[1.65rem]">
                                 <button
                                     type="button"
-                                    class="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-colors border border-transparent hover:border-rose-200 dark:hover:border-rose-500/30"
+                                    class="rounded-xl border border-transparent p-2 text-rose-500 transition-colors hover:border-rose-200 hover:bg-rose-50 dark:hover:border-rose-500/30 dark:hover:bg-rose-500/10"
                                     @click="removeMemberOfPartyRow(index)"
                                     title="Remove member">
                                     <X class="h-4 w-4" />
@@ -575,14 +575,14 @@ export default {
                     class="block w-full" />
 
                 <!-- Submit Button -->
-                <div class="pt-5 border-t border-slate-100 dark:border-slate-800/60 mt-6">
+                <div class="mt-6 border-t border-slate-100 pt-5 dark:border-slate-800/60">
                     <button
                         type="submit"
                         :disabled="processing"
-                        class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3.5 text-sm shadow-sm transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none">
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-indigo-700 active:scale-95 disabled:pointer-events-none disabled:opacity-50">
                         <Loader2
                             v-if="processing"
-                            class="animate-spin w-4 h-4" />
+                            class="h-4 w-4 animate-spin" />
                         <span>{{ processing ? "Submitting..." : "Submit Vehicle Request" }}</span>
                     </button>
                 </div>
@@ -590,21 +590,21 @@ export default {
         </div>
 
         <!-- Right Column: Calendar -->
-        <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 p-6 rounded-2xl shadow-sm lg:col-span-3 h-fit flex flex-col gap-4">
-            <div class="border-b border-slate-100 dark:border-slate-800/60 pb-4 flex items-center gap-3">
-                <div class="p-2 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-xl shadow-sm shrink-0">
-                    <CalendarDays class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+        <div class="flex h-fit flex-col gap-4 rounded-2xl border border-slate-200/60 bg-white/80 p-6 shadow-sm backdrop-blur-xl lg:col-span-3 dark:border-slate-800 dark:bg-slate-900/80">
+            <div class="flex items-center gap-3 border-b border-slate-100 pb-4 dark:border-slate-800/60">
+                <div class="shrink-0 rounded-xl border border-indigo-100 bg-indigo-50 p-2 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/10">
+                    <CalendarDays class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
-                    <h3 class="text-base font-bold text-slate-900 dark:text-white tracking-tight">Vehicle Availability Calendar</h3>
+                    <h3 class="text-base font-bold tracking-tight text-slate-900 dark:text-white">Vehicle Availability Calendar</h3>
                     <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Review current request schedules and workflow states before submitting.</p>
                 </div>
             </div>
 
             <div
                 v-if="calendarLoading"
-                class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 flex items-center gap-2 justify-center py-16">
-                <Loader2 class="w-5 h-5 text-indigo-500 animate-spin" />
+                class="flex items-center justify-center gap-2 py-16 text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                <Loader2 class="h-5 w-5 animate-spin text-indigo-500" />
                 Loading booking calendars...
             </div>
 
@@ -619,7 +619,7 @@ export default {
                 :show-type-filter="true"
                 :show-status-filter="true"
                 :show-stats="false"
-                class="!bg-transparent !shadow-none !border-0" />
+                class="!border-0 !bg-transparent !shadow-none" />
         </div>
     </div>
 </template>

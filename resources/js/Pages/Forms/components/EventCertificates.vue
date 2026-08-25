@@ -540,37 +540,37 @@ export default {
 <template>
     <div class="space-y-6">
         <!-- Main Generator Card -->
-        <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-800 overflow-hidden transition-all duration-300">
+        <div class="overflow-hidden rounded-2xl border border-slate-200/60 bg-white/80 shadow-sm backdrop-blur-xl transition-all duration-300 dark:border-slate-800 dark:bg-slate-900/80">
             <!-- Premium Header -->
-            <div class="px-6 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 relative overflow-hidden">
-                <div class="absolute inset-0 bg-white/10 dark:bg-black/10 mix-blend-overlay"></div>
+            <div class="relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5">
+                <div class="absolute inset-0 bg-white/10 mix-blend-overlay dark:bg-black/10"></div>
                 <div class="relative z-10 flex items-center gap-3.5">
-                    <div class="p-2.5 bg-white/20 rounded-xl shadow-sm border border-white/30 shrink-0">
-                        <LuFileText class="w-6 h-6 text-white" />
+                    <div class="shrink-0 rounded-xl border border-white/30 bg-white/20 p-2.5 shadow-sm">
+                        <LuFileText class="h-6 w-6 text-white" />
                     </div>
                     <div>
-                        <h3 class="text-xl font-black text-white tracking-tight leading-none drop-shadow-md">Bulk Certificate Generator</h3>
-                        <p class="text-sm font-semibold text-blue-100 mt-1 drop-shadow-sm">Generate and email certificates automatically</p>
+                        <h3 class="text-xl font-black leading-none tracking-tight text-white drop-shadow-md">Bulk Certificate Generator</h3>
+                        <p class="mt-1 text-sm font-semibold text-blue-100 drop-shadow-sm">Generate and email certificates automatically</p>
                     </div>
                 </div>
             </div>
 
-            <div class="p-6 space-y-8">
+            <div class="space-y-8 p-6">
                 <!-- Section 1: Template Source -->
                 <div class="space-y-4">
-                    <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800/50">
-                        <div class="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 uppercase">
-                            <LuFileType class="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800/50">
+                        <div class="flex items-center gap-2 text-sm font-bold uppercase text-slate-800 dark:text-slate-200">
+                            <LuFileType class="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                             Template Source
                         </div>
                         <label
-                            class="inline-flex items-center gap-2 cursor-pointer bg-slate-50 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm transition-all hover:bg-slate-100 dark:hover:bg-slate-800"
-                            :class="{ 'opacity-50 cursor-not-allowed': !hasSavedTemplate }">
+                            class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 shadow-sm transition-all hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-800"
+                            :class="{ 'cursor-not-allowed opacity-50': !hasSavedTemplate }">
                             <input
                                 v-model="useSavedTemplate"
                                 type="checkbox"
                                 :disabled="!hasSavedTemplate"
-                                class="w-4 h-4 text-indigo-600 rounded border-slate-300 dark:border-slate-600 focus:ring-indigo-500 bg-white dark:bg-slate-900" />
+                                class="h-4 w-4 rounded border-slate-300 bg-white text-indigo-600 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-900" />
                             <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Use saved template</span>
                         </label>
                     </div>
@@ -578,22 +578,22 @@ export default {
                     <!-- Saved Template Info Box -->
                     <div
                         v-if="useSavedTemplate && hasSavedTemplate"
-                        class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-xl shadow-sm">
+                        class="flex flex-col justify-between gap-4 rounded-xl border border-indigo-100 bg-indigo-50 p-5 shadow-sm sm:flex-row sm:items-center dark:border-indigo-500/20 dark:bg-indigo-500/10">
                         <div class="flex items-center gap-4">
-                            <div class="p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-indigo-100 dark:border-indigo-500/30">
-                                <LuFileCheck class="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                            <div class="rounded-xl border border-indigo-100 bg-white p-3 shadow-sm dark:border-indigo-500/30 dark:bg-slate-800">
+                                <LuFileCheck class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                             </div>
                             <div>
                                 <p class="text-base font-bold text-slate-900 dark:text-white">
                                     {{ savedTemplateName }}
                                 </p>
-                                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Event-specific template</p>
+                                <p class="mt-0.5 text-xs font-semibold text-slate-500 dark:text-slate-400">Event-specific template</p>
                             </div>
                         </div>
                         <button
                             @click="viewSavedTemplate"
-                            class="inline-flex justify-center items-center gap-2 px-4 py-2 text-sm font-bold text-indigo-700 dark:text-indigo-300 bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-500/30 hover:bg-indigo-100 dark:hover:bg-indigo-500/30 rounded-xl shadow-sm transition-all active:scale-95 w-full sm:w-auto">
-                            <LuEye class="w-4 h-4" />
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-white px-4 py-2 text-sm font-bold text-indigo-700 shadow-sm transition-all hover:bg-indigo-100 active:scale-95 sm:w-auto dark:border-indigo-500/30 dark:bg-slate-800 dark:text-indigo-300 dark:hover:bg-indigo-500/30">
+                            <LuEye class="h-4 w-4" />
                             Preview
                         </button>
                     </div>
@@ -601,51 +601,51 @@ export default {
                     <!-- Upload Template Dropzone -->
                     <div
                         v-else
-                        class="relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300"
-                        :class="dragOver.template ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10' : 'border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 hover:border-indigo-400 dark:hover:border-indigo-500/50'"
+                        class="relative rounded-xl border-2 border-dashed p-8 text-center transition-all duration-300"
+                        :class="dragOver.template ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10' : 'border-slate-300 bg-slate-50/50 hover:border-indigo-400 dark:border-slate-700 dark:bg-slate-800/30 dark:hover:border-indigo-500/50'"
                         @dragover.prevent="onDragOver('template', $event)"
                         @dragleave.prevent="onDragLeave('template', $event)"
                         @drop.prevent="onDrop('template', $event)">
                         <input
                             type="file"
                             accept=".pptx"
-                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                             @change="onFileInput('template', $event)" />
 
                         <div
                             v-if="!templateFile"
-                            class="space-y-3 pointer-events-none">
+                            class="pointer-events-none space-y-3">
                             <div
-                                class="mx-auto w-14 h-14 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full flex items-center justify-center shadow-sm transition-transform duration-300"
+                                class="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm transition-transform duration-300 dark:border-slate-700 dark:bg-slate-800"
                                 :class="{
                                     'scale-110 border-indigo-300 dark:border-indigo-500': dragOver.template,
                                 }">
                                 <LuUploadCloud
-                                    class="w-6 h-6 text-slate-400 dark:text-slate-500"
+                                    class="h-6 w-6 text-slate-400 dark:text-slate-500"
                                     :class="{
                                         'text-indigo-500 dark:text-indigo-400': dragOver.template,
                                     }" />
                             </div>
                             <div>
                                 <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Drop your .pptx template here or click to browse</p>
-                                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">Maximum file size: 10MB</p>
+                                <p class="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">Maximum file size: 10MB</p>
                             </div>
                         </div>
 
                         <!-- Selected File -->
                         <div
                             v-else
-                            class="flex flex-col sm:flex-row items-center justify-center gap-3">
-                            <div class="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-xl shadow-sm pointer-events-auto">
-                                <LuFile class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                            class="flex flex-col items-center justify-center gap-3 sm:flex-row">
+                            <div class="pointer-events-auto flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 shadow-sm dark:border-emerald-500/30 dark:bg-emerald-500/10">
+                                <LuFile class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                                 <span class="text-sm font-bold text-emerald-800 dark:text-emerald-300">
                                     {{ templateFile.name }}
                                 </span>
-                                <div class="w-px h-4 bg-emerald-200 dark:bg-emerald-500/30 mx-1"></div>
+                                <div class="mx-1 h-4 w-px bg-emerald-200 dark:bg-emerald-500/30"></div>
                                 <button
                                     @click.stop="templateFile = null"
-                                    class="p-1 hover:bg-emerald-200 dark:hover:bg-emerald-500/30 rounded-md transition-colors">
-                                    <LuX class="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                                    class="rounded-md p-1 transition-colors hover:bg-emerald-200 dark:hover:bg-emerald-500/30">
+                                    <LuX class="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
                                 </button>
                             </div>
                         </div>
@@ -655,15 +655,15 @@ export default {
                 <!-- Section 2: Data Source -->
                 <div class="space-y-4">
                     <div class="flex items-center justify-between">
-                        <div class="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 uppercase">
-                            <LuDatabase class="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                        <div class="flex items-center gap-2 text-sm font-bold uppercase text-slate-800 dark:text-slate-200">
+                            <LuDatabase class="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                             Data Source to Template Column Mapping
                         </div>
-                        <label class="inline-flex items-center gap-2 cursor-pointer bg-slate-50 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm transition-all hover:bg-slate-100 dark:hover:bg-slate-800">
+                        <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 shadow-sm transition-all hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-800">
                             <input
                                 v-model="useEventData"
                                 type="checkbox"
-                                class="w-4 h-4 text-indigo-600 rounded border-slate-300 dark:border-slate-600 focus:ring-indigo-500 bg-white dark:bg-slate-900" />
+                                class="h-4 w-4 rounded border-slate-300 bg-white text-indigo-600 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-900" />
                             <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Use event responses</span>
                         </label>
                     </div>
@@ -672,13 +672,13 @@ export default {
                     <div
                         v-if="useEventData"
                         class="space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/60 rounded-xl p-4 sm:p-5 shadow-sm">
+                        <div class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm sm:p-5 md:grid-cols-3 dark:border-slate-700/60 dark:bg-slate-800/30">
                             <div class="space-y-2">
-                                <label class="text-[0.65rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Name Column</label>
+                                <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Name Column</label>
                                 <div class="relative">
                                     <select
                                         v-model="selectedNameColumn"
-                                        class="block w-full pl-3 pr-10 py-2.5 text-sm font-semibold border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg shadow-sm appearance-none transition-colors">
+                                        class="block w-full appearance-none rounded-lg border border-slate-300 bg-white py-2.5 pl-3 pr-10 text-sm font-semibold text-slate-800 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200">
                                         <option
                                             value=""
                                             disabled>
@@ -691,16 +691,16 @@ export default {
                                             {{ column }}
                                         </option>
                                     </select>
-                                    <LuChevronDown class="absolute right-3 top-3 w-4 h-4 text-slate-400 pointer-events-none" />
+                                    <LuChevronDown class="pointer-events-none absolute right-3 top-3 h-4 w-4 text-slate-400" />
                                 </div>
                             </div>
 
                             <div class="space-y-2">
-                                <label class="text-[0.65rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Email Column</label>
+                                <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Email Column</label>
                                 <div class="relative">
                                     <select
                                         v-model="selectedEmailColumn"
-                                        class="block w-full pl-3 pr-10 py-2.5 text-sm font-semibold border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg shadow-sm appearance-none transition-colors">
+                                        class="block w-full appearance-none rounded-lg border border-slate-300 bg-white py-2.5 pl-3 pr-10 text-sm font-semibold text-slate-800 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200">
                                         <option
                                             value=""
                                             disabled>
@@ -713,16 +713,16 @@ export default {
                                             {{ column }}
                                         </option>
                                     </select>
-                                    <LuChevronDown class="absolute right-3 top-3 w-4 h-4 text-slate-400 pointer-events-none" />
+                                    <LuChevronDown class="pointer-events-none absolute right-3 top-3 h-4 w-4 text-slate-400" />
                                 </div>
                             </div>
 
                             <div class="space-y-2">
-                                <label class="text-[0.65rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Subform Filter</label>
+                                <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Subform Filter</label>
                                 <div class="relative">
                                     <select
                                         v-model="selectedSubformType"
-                                        class="block w-full pl-3 pr-10 py-2.5 text-sm font-semibold border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg shadow-sm appearance-none transition-colors">
+                                        class="block w-full appearance-none rounded-lg border border-slate-300 bg-white py-2.5 pl-3 pr-10 text-sm font-semibold text-slate-800 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200">
                                         <option value="">All types</option>
                                         <option
                                             v-for="type in subformTypes"
@@ -731,26 +731,26 @@ export default {
                                             {{ type }}
                                         </option>
                                     </select>
-                                    <LuChevronDown class="absolute right-3 top-3 w-4 h-4 text-slate-400 pointer-events-none" />
+                                    <LuChevronDown class="pointer-events-none absolute right-3 top-3 h-4 w-4 text-slate-400" />
                                 </div>
                             </div>
                         </div>
 
                         <!-- Data Table (Recipients) -->
-                        <div class="border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm bg-white dark:bg-slate-900">
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 bg-slate-50/80 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-                                <div class="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                                    <span class="inline-flex items-center justify-center bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 px-2 py-0.5 rounded-full text-xs font-black">
+                        <div class="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                            <div class="flex flex-col justify-between gap-3 border-b border-slate-200 bg-slate-50/80 px-5 py-4 sm:flex-row sm:items-center dark:border-slate-700 dark:bg-slate-800/50">
+                                <div class="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-slate-200">
+                                    <span class="inline-flex items-center justify-center rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-black text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400">
                                         {{ selectedRecipientCount }}
                                     </span>
                                     Possible Recipients
                                 </div>
-                                <label class="inline-flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer shadow-sm">
+                                <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
                                     <input
                                         type="checkbox"
                                         :checked="allFilteredRecipientsSelected"
                                         @change="toggleAllFilteredRecipients"
-                                        class="w-4 h-4 text-indigo-600 rounded border-slate-300 dark:border-slate-600 focus:ring-indigo-500 bg-slate-50 dark:bg-slate-900" />
+                                        class="h-4 w-4 rounded border-slate-300 bg-slate-50 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-900" />
                                     Select all shown
                                 </label>
                             </div>
@@ -778,31 +778,31 @@ export default {
                                             v-model="selectedRecipientIds"
                                             :value="recipient.id"
                                             type="checkbox"
-                                            class="w-4 h-4 text-indigo-600 rounded border-slate-300 dark:border-slate-600 focus:ring-indigo-500 bg-slate-50 dark:bg-slate-800" />
+                                            class="h-4 w-4 rounded border-slate-300 bg-slate-50 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800" />
                                     </template>
 
                                     <template #cell-name="{ row: recipient }">
-                                        <span class="font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[150px] inline-block align-bottom">
+                                        <span class="inline-block max-w-[150px] truncate align-bottom font-semibold text-slate-800 dark:text-slate-200">
                                             {{ recipientName(recipient) }}
                                         </span>
                                     </template>
 
                                     <template #cell-email="{ row: recipient }">
-                                        <span class="font-medium text-slate-600 dark:text-slate-400 truncate max-w-[180px] inline-block align-bottom">
+                                        <span class="inline-block max-w-[180px] truncate align-bottom font-medium text-slate-600 dark:text-slate-400">
                                             {{ recipientEmail(recipient) }}
                                         </span>
                                     </template>
 
                                     <template #cell-status="{ row: recipient }">
-                                        <div class="flex flex-col gap-1 w-fit">
+                                        <div class="flex w-fit flex-col gap-1">
                                             <span
-                                                class="inline-flex w-fit items-center border rounded-full px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider"
+                                                class="inline-flex w-fit items-center rounded-full border px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider"
                                                 :class="recipientCertificateStatusConfig(recipient).badge">
                                                 {{ recipientCertificateStatusConfig(recipient).label }}
                                             </span>
                                             <span
                                                 v-if="recipientCertificateStatus(recipient) === 'sent' && formatCertificateSentAt(recipient)"
-                                                class="text-[0.65rem] font-semibold text-slate-500 dark:text-slate-500 ml-1">
+                                                class="ml-1 text-[0.65rem] font-semibold text-slate-500 dark:text-slate-500">
                                                 {{ formatCertificateSentAt(recipient) }}
                                             </span>
                                         </div>
@@ -817,8 +817,8 @@ export default {
                             </div>
                             <div
                                 v-else
-                                class="px-6 py-12 text-sm font-medium text-slate-400 dark:text-slate-500 text-center flex flex-col items-center">
-                                <LuInbox class="w-8 h-8 opacity-40 mb-3" />
+                                class="flex flex-col items-center px-6 py-12 text-center text-sm font-medium text-slate-400 dark:text-slate-500">
+                                <LuInbox class="mb-3 h-8 w-8 opacity-40" />
                                 No recipients found for the selected filters.
                             </div>
                         </div>
@@ -826,8 +826,8 @@ export default {
                         <!-- Missing Data Warning -->
                         <div
                             v-if="!loadingColumns && responseColumns.length === 0"
-                            class="flex items-center gap-2 p-4 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-sm font-bold text-amber-700 dark:text-amber-400 shadow-sm">
-                            <LuAlertTriangle class="w-5 h-5 shrink-0" />
+                            class="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-700 shadow-sm dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-400">
+                            <LuAlertTriangle class="h-5 w-5 shrink-0" />
                             No response data found for this event.
                         </div>
                     </div>
@@ -835,51 +835,51 @@ export default {
                     <!-- Upload Data Dropzone -->
                     <div
                         v-else
-                        class="relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300"
-                        :class="dragOver.data ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10' : 'border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 hover:border-indigo-400 dark:hover:border-indigo-500/50'"
+                        class="relative rounded-xl border-2 border-dashed p-8 text-center transition-all duration-300"
+                        :class="dragOver.data ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10' : 'border-slate-300 bg-slate-50/50 hover:border-indigo-400 dark:border-slate-700 dark:bg-slate-800/30 dark:hover:border-indigo-500/50'"
                         @dragover.prevent="onDragOver('data', $event)"
                         @dragleave.prevent="onDragLeave('data', $event)"
                         @drop.prevent="onDrop('data', $event)">
                         <input
                             type="file"
                             accept=".xlsx,.csv"
-                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                             @change="onFileInput('data', $event)" />
 
                         <div
                             v-if="!dataFile"
-                            class="space-y-3 pointer-events-none">
+                            class="pointer-events-none space-y-3">
                             <div
-                                class="mx-auto w-14 h-14 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full flex items-center justify-center shadow-sm transition-transform duration-300"
+                                class="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm transition-transform duration-300 dark:border-slate-700 dark:bg-slate-800"
                                 :class="{
                                     'scale-110 border-indigo-300 dark:border-indigo-500': dragOver.data,
                                 }">
                                 <LuSheet
-                                    class="w-6 h-6 text-slate-400 dark:text-slate-500"
+                                    class="h-6 w-6 text-slate-400 dark:text-slate-500"
                                     :class="{
                                         'text-indigo-500 dark:text-indigo-400': dragOver.data,
                                     }" />
                             </div>
                             <div>
                                 <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Drop your Excel/CSV file here or click to browse</p>
-                                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">Supports .xlsx and .csv formats up to 10MB</p>
+                                <p class="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">Supports .xlsx and .csv formats up to 10MB</p>
                             </div>
                         </div>
 
                         <!-- Selected File -->
                         <div
                             v-else
-                            class="flex flex-col sm:flex-row items-center justify-center gap-3">
-                            <div class="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-xl shadow-sm pointer-events-auto">
-                                <LuSheet class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                            class="flex flex-col items-center justify-center gap-3 sm:flex-row">
+                            <div class="pointer-events-auto flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 shadow-sm dark:border-emerald-500/30 dark:bg-emerald-500/10">
+                                <LuSheet class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                                 <span class="text-sm font-bold text-emerald-800 dark:text-emerald-300">
                                     {{ dataFile.name }}
                                 </span>
-                                <div class="w-px h-4 bg-emerald-200 dark:bg-emerald-500/30 mx-1"></div>
+                                <div class="mx-1 h-4 w-px bg-emerald-200 dark:bg-emerald-500/30"></div>
                                 <button
                                     @click.stop="dataFile = null"
-                                    class="p-1 hover:bg-emerald-200 dark:hover:bg-emerald-500/30 rounded-md transition-colors">
-                                    <LuX class="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                                    class="rounded-md p-1 transition-colors hover:bg-emerald-200 dark:hover:bg-emerald-500/30">
+                                    <LuX class="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
                                 </button>
                             </div>
                         </div>
@@ -887,47 +887,47 @@ export default {
                 </div>
 
                 <!-- Section 3: Output Settings -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-5 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-slate-200 dark:border-slate-700/60 shadow-sm">
+                <div class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50 p-5 shadow-sm md:grid-cols-2 dark:border-slate-700/60 dark:bg-slate-800/30">
                     <div class="space-y-2">
-                        <label class="text-[0.65rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Output Format</label>
+                        <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Output Format</label>
                         <div class="relative">
                             <select
                                 v-model="outputFormat"
-                                class="block w-full pl-3 pr-10 py-2.5 text-sm font-semibold border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg shadow-sm appearance-none transition-colors">
+                                class="block w-full appearance-none rounded-lg border border-slate-300 bg-white py-2.5 pl-3 pr-10 text-sm font-semibold text-slate-800 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200">
                                 <option value="pdf">PDF Document (.pdf)</option>
                                 <option value="png">PNG Image (.png)</option>
                                 <option value="jpg">JPG Image (.jpg)</option>
                                 <option value="pptx">PowerPoint (.pptx)</option>
                             </select>
-                            <LuChevronDown class="absolute right-3 top-3 w-4 h-4 text-slate-400 pointer-events-none" />
+                            <LuChevronDown class="pointer-events-none absolute right-3 top-3 h-4 w-4 text-slate-400" />
                         </div>
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-[0.65rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block">File Naming Pattern</label>
+                        <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">File Naming Pattern</label>
                         <input
                             v-model="namingTemplate"
                             type="text"
-                            class="block w-full px-4 py-2.5 text-sm font-mono font-medium border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg shadow-sm transition-colors"
+                            class="block w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-mono text-sm font-medium text-slate-800 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
                             placeholder="{event}_{Fullname}_{date}" />
-                        <p class="text-[0.65rem] font-semibold text-slate-500 dark:text-slate-400 mt-1">Placeholders: {event}, {Fullname}, {date}</p>
+                        <p class="mt-1 text-[0.65rem] font-semibold text-slate-500 dark:text-slate-400">Placeholders: {event}, {Fullname}, {date}</p>
                     </div>
                 </div>
 
                 <!-- Progress Bar -->
                 <div
                     v-if="uploading"
-                    class="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm">
-                    <div class="flex justify-between text-xs font-bold uppercase tracking-wider mb-2">
-                        <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                            <LuUploadCloud class="w-4 h-4" />
+                    class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                    <div class="mb-2 flex justify-between text-xs font-bold uppercase tracking-wider">
+                        <span class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                            <LuUploadCloud class="h-4 w-4" />
                             Uploading files...
                         </span>
                         <span class="text-indigo-600 dark:text-indigo-400">{{ uploadProgress }}%</span>
                     </div>
-                    <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden shadow-inner">
+                    <div class="h-2 w-full overflow-hidden rounded-full bg-slate-100 shadow-inner dark:bg-slate-800">
                         <div
-                            class="bg-indigo-600 dark:bg-indigo-500 h-full rounded-full transition-all duration-300 ease-out"
+                            class="h-full rounded-full bg-indigo-600 transition-all duration-300 ease-out dark:bg-indigo-500"
                             :style="{ width: `${uploadProgress}%` }"></div>
                     </div>
                 </div>
@@ -935,23 +935,23 @@ export default {
                 <!-- Server Status Panel -->
                 <div
                     v-if="processingOnServer || serverStatus !== 'idle'"
-                    class="flex items-center gap-4 p-5 rounded-xl border shadow-sm transition-all"
+                    class="flex items-center gap-4 rounded-xl border p-5 shadow-sm transition-all"
                     :class="{
-                        'bg-blue-50 border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/30': statusConfig.color === 'blue',
-                        'bg-amber-50 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30': statusConfig.color === 'amber',
-                        'bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30': statusConfig.color === 'emerald',
-                        'bg-red-50 border-red-200 dark:bg-red-500/10 dark:border-red-500/30': statusConfig.color === 'red',
-                        'bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-700': statusConfig.color === 'slate',
+                        'border-blue-200 bg-blue-50 dark:border-blue-500/30 dark:bg-blue-500/10': statusConfig.color === 'blue',
+                        'border-amber-200 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-500/10': statusConfig.color === 'amber',
+                        'border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-500/10': statusConfig.color === 'emerald',
+                        'border-red-200 bg-red-50 dark:border-red-500/30 dark:bg-red-500/10': statusConfig.color === 'red',
+                        'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50': statusConfig.color === 'slate',
                     }">
                     <div
-                        class="p-2 rounded-lg bg-white/50 dark:bg-slate-900/50 shadow-sm shrink-0"
+                        class="shrink-0 rounded-lg bg-white/50 p-2 shadow-sm dark:bg-slate-900/50"
                         :class="`text-${statusConfig.color}-600 dark:text-${statusConfig.color}-400`">
                         <component
                             :is="statusConfig.icon"
-                            class="w-6 h-6"
+                            class="h-6 w-6"
                             :class="{ 'animate-spin': statusConfig.spin }" />
                     </div>
-                    <div class="flex-1 min-w-0">
+                    <div class="min-w-0 flex-1">
                         <p
                             class="text-sm font-bold tracking-wide"
                             :class="`text-${statusConfig.color}-900 dark:text-${statusConfig.color}-200`">
@@ -959,7 +959,7 @@ export default {
                         </p>
                         <p
                             v-if="message"
-                            class="text-xs font-semibold mt-0.5 truncate"
+                            class="mt-0.5 truncate text-xs font-semibold"
                             :class="`text-${statusConfig.color}-700 dark:text-${statusConfig.color}-400/80`">
                             {{ message }}
                         </p>
@@ -974,60 +974,60 @@ export default {
                     <div
                         v-if="errorMessage"
                         key="error"
-                        class="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl shadow-sm">
-                        <LuAlertCircle class="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+                        class="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 shadow-sm dark:border-red-500/30 dark:bg-red-500/10">
+                        <LuAlertCircle class="mt-0.5 h-5 w-5 shrink-0 text-red-600 dark:text-red-400" />
                         <div class="flex-1">
                             <p class="text-sm font-bold text-red-900 dark:text-red-200">Error</p>
-                            <p class="text-sm font-medium text-red-700 dark:text-red-300 mt-0.5 leading-relaxed">
+                            <p class="mt-0.5 text-sm font-medium leading-relaxed text-red-700 dark:text-red-300">
                                 {{ errorMessage }}
                             </p>
                         </div>
                         <button
                             @click="errorMessage = ''"
-                            class="p-1 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-md transition-colors text-red-500">
-                            <LuX class="w-4 h-4" />
+                            class="rounded-md p-1 text-red-500 transition-colors hover:bg-red-100 dark:hover:bg-red-500/20">
+                            <LuX class="h-4 w-4" />
                         </button>
                     </div>
 
                     <div
                         v-if="message && !processingOnServer && serverStatus === 'completed'"
                         key="success"
-                        class="flex items-start gap-3 p-4 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-xl shadow-sm">
-                        <LuCheckCircle2 class="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                        class="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm dark:border-emerald-500/30 dark:bg-emerald-500/10">
+                        <LuCheckCircle2 class="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
                         <div class="flex-1">
                             <p class="text-sm font-bold text-emerald-900 dark:text-emerald-200">Success</p>
-                            <p class="text-sm font-medium text-emerald-700 dark:text-emerald-300 mt-0.5 leading-relaxed">
+                            <p class="mt-0.5 text-sm font-medium leading-relaxed text-emerald-700 dark:text-emerald-300">
                                 {{ message }}
                             </p>
                         </div>
                         <button
                             @click="message = ''"
-                            class="p-1 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded-md transition-colors text-emerald-500">
-                            <LuX class="w-4 h-4" />
+                            class="rounded-md p-1 text-emerald-500 transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-500/20">
+                            <LuX class="h-4 w-4" />
                         </button>
                     </div>
                 </TransitionGroup>
 
                 <!-- Action Buttons -->
-                <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <div class="flex flex-col gap-4 border-t border-slate-100 pt-4 sm:flex-row dark:border-slate-800">
                     <button
-                        class="inline-flex items-center justify-center gap-2.5 flex-1 px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-black tracking-wide rounded-xl shadow-md shadow-indigo-600/20 hover:shadow-lg hover:shadow-indigo-600/30 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:pointer-events-none disabled:shadow-none"
+                        class="inline-flex flex-1 items-center justify-center gap-2.5 rounded-xl bg-indigo-600 px-6 py-3.5 text-sm font-black tracking-wide text-white shadow-md shadow-indigo-600/20 transition-all duration-200 hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-600/30 active:scale-95 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
                         :disabled="uploading || processingOnServer || !isReadyToProcess"
                         @click="submitForProcessing">
                         <LuLoader2
                             v-if="uploading || processingOnServer"
-                            class="w-5 h-5 animate-spin" />
+                            class="h-5 w-5 animate-spin" />
                         <LuPlay
                             v-else
-                            class="w-5 h-5" />
+                            class="h-5 w-5" />
                         {{ uploading ? "Uploading..." : processingOnServer ? "Processing..." : "Generate Certificates" }}
                     </button>
 
                     <button
-                        class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-black tracking-wide rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/80 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+                        class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-6 py-3.5 text-sm font-black tracking-wide text-slate-700 transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 active:scale-95 disabled:pointer-events-none disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:bg-slate-700/80"
                         :disabled="serverStatus !== 'completed'"
                         @click="downloadZip">
-                        <LuDownload class="w-5 h-5" />
+                        <LuDownload class="h-5 w-5" />
                         Download ZIP
                     </button>
                 </div>
@@ -1035,49 +1035,49 @@ export default {
         </div>
 
         <!-- Instructions Card -->
-        <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm border border-slate-200/60 dark:border-slate-800 overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
-                <div class="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2 uppercase">
-                    <LuInfo class="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+        <div class="overflow-hidden rounded-2xl border border-slate-200/60 bg-white/80 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/80">
+            <div class="border-b border-slate-100 bg-slate-50/50 px-6 py-4 dark:border-slate-800 dark:bg-slate-800/20">
+                <div class="flex items-center gap-2 text-sm font-bold uppercase text-slate-800 dark:text-slate-200">
+                    <LuInfo class="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                     Template Formatting Guide
                 </div>
             </div>
             <div class="p-6">
                 <ul class="space-y-4 text-sm font-medium text-slate-600 dark:text-slate-300">
                     <li class="flex items-start gap-3">
-                        <LuCheck class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" />
+                        <LuCheck class="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
                         <span>
                             Use placeholder format
-                            <code class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-indigo-600 dark:text-indigo-400 font-mono text-xs font-bold">&lt;&lt;COLUMN_NAME&gt;&gt;</code>
+                            <code class="rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-xs font-bold text-indigo-600 dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-400">&lt;&lt;COLUMN_NAME&gt;&gt;</code>
                             in text boxes.
                         </span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <LuCheck class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" />
+                        <LuCheck class="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
                         <span>
                             Match column names exactly from your data source (e.g.,
-                            <code class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-indigo-600 dark:text-indigo-400 font-mono text-xs font-bold">fullname_8647</code>
+                            <code class="rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-xs font-bold text-indigo-600 dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-400">fullname_8647</code>
                             ).
                         </span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <LuCheck class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" />
+                        <LuCheck class="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
                         <span class="leading-relaxed">
                             You can use built-in system placeholders
-                            <code class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-indigo-600 dark:text-indigo-400 font-mono text-xs font-bold">&lt;&lt;EVENT_TITLE&gt;&gt;</code>
+                            <code class="rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-xs font-bold text-indigo-600 dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-400">&lt;&lt;EVENT_TITLE&gt;&gt;</code>
                             ,
-                            <code class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-indigo-600 dark:text-indigo-400 font-mono text-xs font-bold">&lt;&lt;EVENT_DATE&gt;&gt;</code>
+                            <code class="rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-xs font-bold text-indigo-600 dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-400">&lt;&lt;EVENT_DATE&gt;&gt;</code>
                             , and
-                            <code class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-indigo-600 dark:text-indigo-400 font-mono text-xs font-bold">&lt;&lt;DATE_GIVEN&gt;&gt;</code>
+                            <code class="rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-xs font-bold text-indigo-600 dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-400">&lt;&lt;DATE_GIVEN&gt;&gt;</code>
                             .
                         </span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <LuCheck class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" />
+                        <LuCheck class="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
                         <span>Keep each placeholder inside a single text element—do not split them across multiple boxes.</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <LuCheck class="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" />
+                        <LuCheck class="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
                         <span>
                             Save your template explicitly in
                             <strong>.pptx</strong>

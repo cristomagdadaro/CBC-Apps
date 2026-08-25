@@ -47,13 +47,13 @@ export default {
         <form
             v-if="!!form"
             @submit.prevent="submitUpdate"
-            class="py-6 sm:py-10 max-w-3xl mx-auto px-4">
-            <div class="flex flex-col gap-4 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs rounded-2xl p-4 sm:p-6 text-slate-900 dark:text-slate-100">
-                <div class="flex flex-col pb-3 border-b border-slate-200 dark:border-slate-800">
-                    <h2 class="font-bold text-xs sm:text-sm uppercase tracking-wider text-slate-900 dark:text-slate-100">Personnel Update Form</h2>
-                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Use this form to update personnel information.</p>
+            class="mx-auto max-w-3xl px-4 py-6 sm:py-10">
+            <div class="shadow-xs flex w-full flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 sm:p-6 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
+                <div class="flex flex-col border-b border-slate-200 pb-3 dark:border-slate-800">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-900 sm:text-sm dark:text-slate-100">Personnel Update Form</h2>
+                    <p class="mt-0.5 text-xs text-slate-500 sm:text-sm dark:text-slate-400">Use this form to update personnel information.</p>
                 </div>
-                <div class="flex sm:flex-row flex-col gap-2">
+                <div class="flex flex-col gap-2 sm:flex-row">
                     <text-input
                         required
                         label="First Name"
@@ -92,24 +92,24 @@ export default {
                     label="Address"
                     v-model="form.address"
                     :error="form.errors.address" />
-                <div class="flex flex-col sm:flex-row gap-3">
+                <div class="flex flex-col gap-3 sm:flex-row">
                     <text-input
                         label="Employee ID / CBC ID"
                         required
                         class="flex-1"
                         v-model="form.employee_id"
                         :error="form.errors.employee_id" />
-                    <div class="flex flex-col gap-1 w-full sm:w-1/3">
-                        <label class="block font-semibold text-xs sm:text-sm text-slate-700 dark:text-slate-300">Status</label>
+                    <div class="flex w-full flex-col gap-1 sm:w-1/3">
+                        <label class="block text-xs font-semibold text-slate-700 sm:text-sm dark:text-slate-300">Status</label>
                         <select
                             v-model="form.status"
-                            class="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-lime-500 focus:ring-lime-500 rounded-xl shadow-xs w-full text-xs sm:text-sm py-2.5">
+                            class="shadow-xs w-full rounded-xl border-slate-200 bg-white py-2.5 text-xs text-slate-900 focus:border-lime-500 focus:ring-lime-500 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
                             <option value="Active">Active</option>
                             <option value="Suspended">Suspended</option>
                         </select>
                         <p
                             v-if="form.errors.status"
-                            class="text-xs text-rose-500 mt-1 font-semibold">
+                            class="mt-1 text-xs font-semibold text-rose-500">
                             {{ form.errors.status }}
                         </p>
                     </div>
@@ -126,8 +126,8 @@ export default {
                         :error="form.errors.expires_at" />
                     <p class="text-xs text-slate-500 dark:text-slate-400">Set an expiry date for temporary personnel (OJT, Student, Thesis). Status will auto-set to Suspended after this date.</p>
                 </div>
-                <div class="flex flex-col sm:flex-row gap-3 justify-between items-center pt-2">
-                    <div class="flex gap-2 w-full sm:w-auto">
+                <div class="flex flex-col items-center justify-between gap-3 pt-2 sm:flex-row">
+                    <div class="flex w-full gap-2 sm:w-auto">
                         <reset-btn @click="resetField($page.props.data)">Reset</reset-btn>
                         <danger-button
                             v-if="$isAdminUser"

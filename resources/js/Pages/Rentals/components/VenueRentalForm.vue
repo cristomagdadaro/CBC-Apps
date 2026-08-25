@@ -276,47 +276,47 @@ export default {
         :message="successMessage"
         @close="showSuccessModal = false" />
 
-    <div class="grid lg:grid-cols-4 gap-6">
+    <div class="grid gap-6 lg:grid-cols-4">
         <!-- Left Column: Form -->
         <div
             v-if="form"
             data-guide="rental-form-shell"
-            class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 p-6 rounded-2xl shadow-sm h-fit lg:col-span-1">
-            <div class="flex items-center gap-3 pb-5 mb-5 border-b border-slate-100 dark:border-slate-800/60">
-                <div class="p-2.5 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-xl shadow-sm shrink-0">
-                    <Building2 class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            class="h-fit rounded-2xl border border-slate-200/60 bg-white/80 p-6 shadow-sm backdrop-blur-xl lg:col-span-1 dark:border-slate-800 dark:bg-slate-900/80">
+            <div class="mb-5 flex items-center gap-3 border-b border-slate-100 pb-5 dark:border-slate-800/60">
+                <div class="shrink-0 rounded-xl border border-indigo-100 bg-indigo-50 p-2.5 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/10">
+                    <Building2 class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
-                    <p class="text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-0.5">Booking</p>
-                    <h2 class="text-lg font-bold text-slate-900 dark:text-white tracking-tight">Venue Request</h2>
+                    <p class="mb-0.5 text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Booking</p>
+                    <h2 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Venue Request</h2>
                 </div>
             </div>
 
             <form
                 @submit.prevent="submitProxyCreate"
-                class="space-y-5 w-full h-fit">
+                class="h-fit w-full space-y-5">
                 <!-- General Error -->
                 <div
                     v-if="form.errors.general"
-                    class="p-4 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-xl text-rose-700 dark:text-rose-400 text-xs font-bold shadow-sm">
+                    class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-bold text-rose-700 shadow-sm dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-400">
                     {{ form.errors.general }}
                 </div>
 
                 <!-- Availability Status -->
                 <div
                     v-if="form.date_from && form.date_to && form.venue_type"
-                    class="px-4 py-3.5 rounded-xl transition-all duration-300 shadow-sm border"
-                    :class="isAvailable ? 'bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30' : 'bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30'">
+                    class="rounded-xl border px-4 py-3.5 shadow-sm transition-all duration-300"
+                    :class="isAvailable ? 'border-emerald-200 bg-emerald-50/70 dark:border-emerald-500/30 dark:bg-emerald-500/10' : 'border-rose-200 bg-rose-50/70 dark:border-rose-500/30 dark:bg-rose-500/10'">
                     <div class="flex items-center gap-2.5">
                         <Loader2
                             v-if="availabilityChecking"
-                            class="text-indigo-500 animate-spin w-4 h-4" />
+                            class="h-4 w-4 animate-spin text-indigo-500" />
                         <CheckCircle2
                             v-else-if="isAvailable"
-                            class="text-emerald-600 dark:text-emerald-400 w-4 h-4" />
+                            class="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                         <X
                             v-else
-                            class="text-rose-600 dark:text-rose-400 w-4 h-4" />
+                            class="h-4 w-4 text-rose-600 dark:text-rose-400" />
 
                         <span
                             class="text-[0.65rem] font-bold uppercase tracking-wider"
@@ -352,8 +352,8 @@ export default {
                             v-if="venueRates && venueRates.length > 0"
                             type="button"
                             @click="showRatesModal = true"
-                            class="inline-flex items-center gap-1 text-[0.65rem] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors">
-                            <Info class="w-3.5 h-3.5" />
+                            class="inline-flex items-center gap-1 text-[0.65rem] font-bold uppercase tracking-wider text-indigo-600 transition-colors hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">
+                            <Info class="h-3.5 w-3.5" />
                             View Rates
                         </button>
                     </div>
@@ -370,7 +370,7 @@ export default {
                     class="block w-full" />
 
                 <!-- Date Range -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
                     <DateInput
                         id="date_from"
                         required
@@ -389,7 +389,7 @@ export default {
                 </div>
 
                 <!-- Time Range -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
                     <DateInput
                         id="date_to"
                         required
@@ -461,14 +461,14 @@ export default {
                     class="block w-full"></TextArea>
 
                 <!-- Submit Button -->
-                <div class="pt-5 border-t border-slate-100 dark:border-slate-800/60 mt-6">
+                <div class="mt-6 border-t border-slate-100 pt-5 dark:border-slate-800/60">
                     <button
                         type="submit"
                         :disabled="processing || !isAvailable"
-                        class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3.5 text-sm shadow-sm transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none">
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-indigo-700 active:scale-95 disabled:pointer-events-none disabled:opacity-50">
                         <Loader2
                             v-if="processing"
-                            class="animate-spin w-4 h-4" />
+                            class="h-4 w-4 animate-spin" />
                         <span>{{ processing ? "Submitting..." : "Submit Venue Request" }}</span>
                     </button>
                 </div>
@@ -476,21 +476,21 @@ export default {
         </div>
 
         <!-- Right Column: Calendar -->
-        <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800 p-6 rounded-2xl shadow-sm lg:col-span-3 h-fit flex flex-col gap-4">
-            <div class="border-b border-slate-100 dark:border-slate-800/60 pb-4 flex items-center gap-3">
-                <div class="p-2 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-xl shadow-sm shrink-0">
-                    <CalendarDays class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+        <div class="flex h-fit flex-col gap-4 rounded-2xl border border-slate-200/60 bg-white/80 p-6 shadow-sm backdrop-blur-xl lg:col-span-3 dark:border-slate-800 dark:bg-slate-900/80">
+            <div class="flex items-center gap-3 border-b border-slate-100 pb-4 dark:border-slate-800/60">
+                <div class="shrink-0 rounded-xl border border-indigo-100 bg-indigo-50 p-2 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/10">
+                    <CalendarDays class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
-                    <h3 class="text-base font-bold text-slate-900 dark:text-white tracking-tight">Venue Availability Calendar</h3>
+                    <h3 class="text-base font-bold tracking-tight text-slate-900 dark:text-white">Venue Availability Calendar</h3>
                     <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Check current venue workflow states before submitting.</p>
                 </div>
             </div>
 
             <div
                 v-if="calendarLoading"
-                class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 flex items-center gap-2 justify-center py-16">
-                <Loader2 class="w-5 h-5 text-indigo-500 animate-spin" />
+                class="flex items-center justify-center gap-2 py-16 text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                <Loader2 class="h-5 w-5 animate-spin text-indigo-500" />
                 Loading booking calendars...
             </div>
 
@@ -505,7 +505,7 @@ export default {
                 :show-type-filter="true"
                 :show-status-filter="true"
                 :show-stats="false"
-                class="!bg-transparent !shadow-none !border-0" />
+                class="!border-0 !bg-transparent !shadow-none" />
         </div>
     </div>
 
@@ -514,67 +514,67 @@ export default {
         :show="showRatesModal"
         maxWidth="5xl"
         @close="showRatesModal = false">
-        <div class="bg-white dark:bg-slate-900 max-h-[90vh] flex flex-col">
+        <div class="flex max-h-[90vh] flex-col bg-white dark:bg-slate-900">
             <!-- Modal Header -->
-            <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between bg-white dark:bg-slate-900 sticky top-0 z-10">
+            <div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white px-6 py-5 dark:border-slate-800/60 dark:bg-slate-900">
                 <div class="flex items-center gap-3">
-                    <div class="p-2 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-xl">
-                        <Building2 class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                    <div class="rounded-xl border border-emerald-100 bg-emerald-50 p-2 dark:border-emerald-500/20 dark:bg-emerald-500/10">
+                        <Building2 class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                     </div>
                     <div>
-                        <h2 class="text-base font-bold text-slate-900 dark:text-white tracking-tight">DA-CBC Venue Rental Rates</h2>
+                        <h2 class="text-base font-bold tracking-tight text-slate-900 dark:text-white">DA-CBC Venue Rental Rates</h2>
                         <p class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Disclaimer: These rates aren't updated in real-time, kindly call 451 for confirmation. Thank you!</p>
                     </div>
                 </div>
                 <button
                     @click="showRatesModal = false"
-                    class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
-                    <X class="w-5 h-5" />
+                    class="rounded-xl p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-200">
+                    <X class="h-5 w-5" />
                 </button>
             </div>
 
             <!-- Modal Body -->
-            <div class="p-6 overflow-y-auto bg-slate-50/50 dark:bg-slate-900">
-                <div class="overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm bg-white dark:bg-slate-800/50">
-                    <table class="w-full text-left border-collapse whitespace-nowrap">
+            <div class="overflow-y-auto bg-slate-50/50 p-6 dark:bg-slate-900">
+                <div class="overflow-x-auto rounded-2xl border border-slate-200/60 bg-white shadow-sm dark:border-slate-700/60 dark:bg-slate-800/50">
+                    <table class="w-full border-collapse whitespace-nowrap text-left">
                         <thead class="bg-slate-50 dark:bg-slate-800/80">
                             <tr>
-                                <th class="px-5 py-4 font-bold uppercase tracking-wider text-[0.65rem] text-slate-500 dark:text-slate-400 border-b border-slate-200/60 dark:border-slate-700/60 w-1/4">Venue</th>
-                                <th class="px-5 py-4 font-bold uppercase tracking-wider text-[0.65rem] text-slate-500 dark:text-slate-400 border-b border-slate-200/60 dark:border-slate-700/60 text-center w-24">Maximum Capacity</th>
-                                <th class="px-5 py-4 font-bold uppercase tracking-wider text-[0.65rem] text-slate-500 dark:text-slate-400 border-b border-slate-200/60 dark:border-slate-700/60">Outsider/Guest</th>
-                                <th class="px-5 py-4 font-bold uppercase tracking-wider text-[0.65rem] text-slate-500 dark:text-slate-400 border-b border-slate-200/60 dark:border-slate-700/60">Core Funds(20% only)</th>
-                                <th class="px-5 py-4 font-bold uppercase tracking-wider text-[0.65rem] text-slate-500 dark:text-slate-400 border-b border-slate-200/60 dark:border-slate-700/60">External/Trust Funds (50% only)</th>
+                                <th class="w-1/4 border-b border-slate-200/60 px-5 py-4 text-[0.65rem] font-bold uppercase tracking-wider text-slate-500 dark:border-slate-700/60 dark:text-slate-400">Venue</th>
+                                <th class="w-24 border-b border-slate-200/60 px-5 py-4 text-center text-[0.65rem] font-bold uppercase tracking-wider text-slate-500 dark:border-slate-700/60 dark:text-slate-400">Maximum Capacity</th>
+                                <th class="border-b border-slate-200/60 px-5 py-4 text-[0.65rem] font-bold uppercase tracking-wider text-slate-500 dark:border-slate-700/60 dark:text-slate-400">Outsider/Guest</th>
+                                <th class="border-b border-slate-200/60 px-5 py-4 text-[0.65rem] font-bold uppercase tracking-wider text-slate-500 dark:border-slate-700/60 dark:text-slate-400">Core Funds(20% only)</th>
+                                <th class="border-b border-slate-200/60 px-5 py-4 text-[0.65rem] font-bold uppercase tracking-wider text-slate-500 dark:border-slate-700/60 dark:text-slate-400">External/Trust Funds (50% only)</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-700/60">
                             <tr
                                 v-for="(rate, i) in venueRates"
                                 :key="i"
-                                class="hover:bg-slate-50/80 dark:hover:bg-slate-800/80 transition-colors group">
+                                class="group transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/80">
                                 <td class="px-5 py-5 align-top">
-                                    <div class="font-bold text-sm text-slate-900 dark:text-white whitespace-normal leading-snug">
+                                    <div class="whitespace-normal text-sm font-bold leading-snug text-slate-900 dark:text-white">
                                         {{ rate.venue }}
                                     </div>
                                 </td>
-                                <td class="px-5 py-5 align-top text-center">
-                                    <div class="inline-flex items-center justify-center px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-mono text-xs font-bold">
+                                <td class="px-5 py-5 text-center align-top">
+                                    <div class="inline-flex items-center justify-center rounded-lg bg-slate-100 px-2.5 py-1 font-mono text-xs font-bold text-slate-700 dark:bg-slate-700 dark:text-slate-300">
                                         {{ rate.pax }}
                                     </div>
                                 </td>
 
                                 <!-- Outsider Column -->
-                                <td class="px-5 py-5 align-top min-w-[220px]">
+                                <td class="min-w-[220px] px-5 py-5 align-top">
                                     <div class="space-y-2.5">
                                         <div
                                             v-if="rate.outsider.status"
-                                            class="inline-flex px-2 py-1 rounded-md bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 text-[0.65rem] font-bold uppercase tracking-widest">
+                                            class="inline-flex rounded-md bg-indigo-50 px-2 py-1 text-[0.65rem] font-bold uppercase tracking-widest text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400">
                                             {{ rate.outsider.status }}
                                         </div>
 
                                         <div
                                             v-if="rate.outsider.weekday"
-                                            class="flex justify-between items-center text-xs">
-                                            <span class="text-slate-500 dark:text-slate-400 font-medium">Weekday</span>
+                                            class="flex items-center justify-between text-xs">
+                                            <span class="font-medium text-slate-500 dark:text-slate-400">Weekday</span>
                                             <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.outsider.weekday) }}
                                             </span>
@@ -582,8 +582,8 @@ export default {
 
                                         <div
                                             v-if="rate.outsider.weekend"
-                                            class="flex justify-between items-center text-xs">
-                                            <span class="text-slate-500 dark:text-slate-400 font-medium">Weekend</span>
+                                            class="flex items-center justify-between text-xs">
+                                            <span class="font-medium text-slate-500 dark:text-slate-400">Weekend</span>
                                             <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.outsider.weekend) }}
                                             </span>
@@ -591,8 +591,8 @@ export default {
 
                                         <div
                                             v-if="rate.outsider.half_day"
-                                            class="flex justify-between items-center text-xs">
-                                            <span class="text-slate-500 dark:text-slate-400 font-medium">Half Day</span>
+                                            class="flex items-center justify-between text-xs">
+                                            <span class="font-medium text-slate-500 dark:text-slate-400">Half Day</span>
                                             <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.outsider.half_day) }}
                                             </span>
@@ -600,8 +600,8 @@ export default {
 
                                         <div
                                             v-if="rate.outsider.per_day"
-                                            class="flex justify-between items-center text-xs">
-                                            <span class="text-slate-500 dark:text-slate-400 font-medium">Day</span>
+                                            class="flex items-center justify-between text-xs">
+                                            <span class="font-medium text-slate-500 dark:text-slate-400">Day</span>
                                             <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.outsider.per_day) }}
                                             </span>
@@ -609,8 +609,8 @@ export default {
 
                                         <div
                                             v-if="rate.outsider.per_hour"
-                                            class="flex justify-between items-center text-xs">
-                                            <span class="text-slate-500 dark:text-slate-400 font-medium">Hour</span>
+                                            class="flex items-center justify-between text-xs">
+                                            <span class="font-medium text-slate-500 dark:text-slate-400">Hour</span>
                                             <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.outsider.per_hour) }}
                                             </span>
@@ -619,18 +619,18 @@ export default {
                                 </td>
 
                                 <!-- Internal Core Column -->
-                                <td class="px-5 py-5 align-top min-w-[220px]">
+                                <td class="min-w-[220px] px-5 py-5 align-top">
                                     <div class="space-y-2.5">
                                         <div
                                             v-if="rate.internal_core_20.status"
-                                            class="inline-flex px-2 py-1 rounded-md bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 text-[0.65rem] font-bold uppercase tracking-widest">
+                                            class="inline-flex rounded-md bg-indigo-50 px-2 py-1 text-[0.65rem] font-bold uppercase tracking-widest text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400">
                                             {{ rate.internal_core_20.status }}
                                         </div>
 
                                         <div
                                             v-if="rate.internal_core_20.weekday"
-                                            class="flex justify-between items-center text-xs">
-                                            <span class="text-slate-500 dark:text-slate-400 font-medium">Weekday</span>
+                                            class="flex items-center justify-between text-xs">
+                                            <span class="font-medium text-slate-500 dark:text-slate-400">Weekday</span>
                                             <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.internal_core_20.weekday) }}
                                             </span>
@@ -638,8 +638,8 @@ export default {
 
                                         <div
                                             v-if="rate.internal_core_20.weekend"
-                                            class="flex justify-between items-center text-xs">
-                                            <span class="text-slate-500 dark:text-slate-400 font-medium">Weekend</span>
+                                            class="flex items-center justify-between text-xs">
+                                            <span class="font-medium text-slate-500 dark:text-slate-400">Weekend</span>
                                             <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.internal_core_20.weekend) }}
                                             </span>
@@ -647,8 +647,8 @@ export default {
 
                                         <div
                                             v-if="rate.internal_core_20.half_day"
-                                            class="flex justify-between items-center text-xs">
-                                            <span class="text-slate-500 dark:text-slate-400 font-medium">Half Day</span>
+                                            class="flex items-center justify-between text-xs">
+                                            <span class="font-medium text-slate-500 dark:text-slate-400">Half Day</span>
                                             <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.internal_core_20.half_day) }}
                                             </span>
@@ -656,8 +656,8 @@ export default {
 
                                         <div
                                             v-if="rate.internal_core_20.per_day"
-                                            class="flex justify-between items-center text-xs">
-                                            <span class="text-slate-500 dark:text-slate-400 font-medium">Day</span>
+                                            class="flex items-center justify-between text-xs">
+                                            <span class="font-medium text-slate-500 dark:text-slate-400">Day</span>
                                             <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.internal_core_20.per_day) }}
                                             </span>
@@ -665,8 +665,8 @@ export default {
 
                                         <div
                                             v-if="rate.internal_core_20.per_hour"
-                                            class="flex justify-between items-center text-xs">
-                                            <span class="text-slate-500 dark:text-slate-400 font-medium">Hour</span>
+                                            class="flex items-center justify-between text-xs">
+                                            <span class="font-medium text-slate-500 dark:text-slate-400">Hour</span>
                                             <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.internal_core_20.per_hour) }}
                                             </span>
@@ -675,18 +675,18 @@ export default {
                                 </td>
 
                                 <!-- Internal Ext/Trust Column -->
-                                <td class="px-5 py-5 align-top min-w-[220px]">
+                                <td class="min-w-[220px] px-5 py-5 align-top">
                                     <div class="space-y-2.5">
                                         <div
                                             v-if="rate.internal_ext_50.status"
-                                            class="inline-flex px-2 py-1 rounded-md bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 text-[0.65rem] font-bold uppercase tracking-widest">
+                                            class="inline-flex rounded-md bg-indigo-50 px-2 py-1 text-[0.65rem] font-bold uppercase tracking-widest text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400">
                                             {{ rate.internal_ext_50.status }}
                                         </div>
 
                                         <div
                                             v-if="rate.internal_ext_50.weekday"
-                                            class="flex justify-between items-center text-xs">
-                                            <span class="text-slate-500 dark:text-slate-400 font-medium">Weekday</span>
+                                            class="flex items-center justify-between text-xs">
+                                            <span class="font-medium text-slate-500 dark:text-slate-400">Weekday</span>
                                             <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.internal_ext_50.weekday) }}
                                             </span>
@@ -694,8 +694,8 @@ export default {
 
                                         <div
                                             v-if="rate.internal_ext_50.weekend"
-                                            class="flex justify-between items-center text-xs">
-                                            <span class="text-slate-500 dark:text-slate-400 font-medium">Weekend</span>
+                                            class="flex items-center justify-between text-xs">
+                                            <span class="font-medium text-slate-500 dark:text-slate-400">Weekend</span>
                                             <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.internal_ext_50.weekend) }}
                                             </span>
@@ -703,8 +703,8 @@ export default {
 
                                         <div
                                             v-if="rate.internal_ext_50.half_day"
-                                            class="flex justify-between items-center text-xs">
-                                            <span class="text-slate-500 dark:text-slate-400 font-medium">Half Day</span>
+                                            class="flex items-center justify-between text-xs">
+                                            <span class="font-medium text-slate-500 dark:text-slate-400">Half Day</span>
                                             <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.internal_ext_50.half_day) }}
                                             </span>
@@ -712,8 +712,8 @@ export default {
 
                                         <div
                                             v-if="rate.internal_ext_50.per_day"
-                                            class="flex justify-between items-center text-xs">
-                                            <span class="text-slate-500 dark:text-slate-400 font-medium">Day</span>
+                                            class="flex items-center justify-between text-xs">
+                                            <span class="font-medium text-slate-500 dark:text-slate-400">Day</span>
                                             <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.internal_ext_50.per_day) }}
                                             </span>
@@ -721,8 +721,8 @@ export default {
 
                                         <div
                                             v-if="rate.internal_ext_50.per_hour"
-                                            class="flex justify-between items-center text-xs">
-                                            <span class="text-slate-500 dark:text-slate-400 font-medium">Hour</span>
+                                            class="flex items-center justify-between text-xs">
+                                            <span class="font-medium text-slate-500 dark:text-slate-400">Hour</span>
                                             <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.internal_ext_50.per_hour) }}
                                             </span>
@@ -736,11 +736,11 @@ export default {
             </div>
 
             <!-- Modal Footer -->
-            <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800/60 bg-white dark:bg-slate-900 flex justify-end">
+            <div class="flex justify-end border-t border-slate-100 bg-white px-6 py-4 dark:border-slate-800/60 dark:bg-slate-900">
                 <button
                     type="button"
                     @click="showRatesModal = false"
-                    class="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-sm transition-all">
+                    class="rounded-xl bg-slate-900 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-all hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600">
                     Close
                 </button>
             </div>

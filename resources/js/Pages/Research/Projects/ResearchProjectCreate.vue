@@ -29,7 +29,7 @@ export default {
         </template>
 
         <div class="mx-auto max-w-6xl space-y-6 px-4 py-6">
-            <section class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm text-sm leading-6 text-gray-600">Project creation stays separate from the project dashboard so the list and summary pages remain easy to scan. After saving this profile, add studies and experiments from their own dedicated pages.</section>
+            <section class="rounded-3xl border border-gray-200 bg-white p-6 text-sm leading-6 text-gray-600 shadow-sm">Project creation stays separate from the project dashboard so the list and summary pages remain easy to scan. After saving this profile, add studies and experiments from their own dedicated pages.</section>
 
             <ResearchProjectForm
                 :catalog="catalog"

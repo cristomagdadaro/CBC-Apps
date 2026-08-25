@@ -386,20 +386,20 @@ export default {
 <template>
     <div class="flex flex-col gap-4">
         <!-- Top Control Bar -->
-        <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 p-4 sm:p-5 flex flex-col gap-3">
+        <div class="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white/80 p-4 shadow-xl backdrop-blur-lg sm:p-5 dark:border-slate-800 dark:bg-slate-900/80">
             <!-- Header & Toggle -->
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            <div class="flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center">
                 <div class="flex items-center gap-3">
-                    <div class="p-2.5 bg-primary-100 dark:bg-primary-900/30 rounded-xl">
-                        <lu-calendar-days class="w-5 h-5 sm:w-6 sm:h-6 text-gray-800 dark:text-gray-100" />
+                    <div class="bg-primary-100 dark:bg-primary-900/30 rounded-xl p-2.5">
+                        <lu-calendar-days class="h-5 w-5 text-gray-800 sm:h-6 sm:w-6 dark:text-gray-100" />
                     </div>
                     <div>
-                        <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight">
+                        <h2 class="text-base font-bold leading-tight text-slate-900 sm:text-lg dark:text-white">
                             {{ title }}
                         </h2>
                         <p
                             v-if="subtitle"
-                            class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                            class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                             {{ subtitle }}
                         </p>
                     </div>
@@ -408,21 +408,21 @@ export default {
                 <button
                     type="button"
                     @click="showFilters = !showFilters"
-                    class="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-semibold transition-all shrink-0 active:scale-95"
-                    :class="showFilters || activeFilterCount > 0 ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 shadow-sm' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'">
-                    <lu-filter class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-semibold transition-all active:scale-95"
+                    :class="showFilters || activeFilterCount > 0 ? 'border-emerald-300 bg-emerald-50 text-emerald-700 shadow-sm dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300' : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'">
+                    <lu-filter class="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                     <span>Filters</span>
                     <span
                         v-if="activeFilterCount > 0"
-                        class="px-1.5 py-0.5 rounded-full text-[0.65rem] font-bold bg-emerald-600 text-white">
+                        class="rounded-full bg-emerald-600 px-1.5 py-0.5 text-[0.65rem] font-bold text-white">
                         {{ activeFilterCount }}
                     </span>
                     <lu-chevron-up-icon
                         v-if="showFilters"
-                        class="w-3.5 h-3.5 text-slate-400" />
+                        class="h-3.5 w-3.5 text-slate-400" />
                     <lu-chevron-down
                         v-else
-                        class="w-3.5 h-3.5 text-slate-400" />
+                        class="h-3.5 w-3.5 text-slate-400" />
                 </button>
             </div>
 
@@ -430,7 +430,7 @@ export default {
             <transition-container type="pop-in">
                 <div
                     v-if="showFilters"
-                    class="flex flex-col gap-3 pt-3 mt-1 border-t border-slate-100 dark:border-slate-800">
+                    class="mt-1 flex flex-col gap-3 border-t border-slate-100 pt-3 dark:border-slate-800">
                     <!-- Filters -->
                     <div class="flex flex-wrap items-center gap-3">
                         <div
@@ -440,7 +440,7 @@ export default {
                             <div class="relative">
                                 <select
                                     v-model="filterType"
-                                    class="text-xs pl-7 pr-7 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all appearance-none cursor-pointer">
+                                    class="cursor-pointer appearance-none rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-7 pr-7 text-xs text-slate-900 transition-all focus:border-transparent focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
                                     <option value="all">All Resources</option>
                                     <option
                                         v-for="option in typeOptions"
@@ -449,7 +449,7 @@ export default {
                                         {{ option.label }}
                                     </option>
                                 </select>
-                                <lu-filter class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                <lu-filter class="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
                             </div>
                         </div>
 
@@ -460,7 +460,7 @@ export default {
                             <div class="relative">
                                 <select
                                     v-model="filterStatus"
-                                    class="text-xs pl-7 pr-7 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all appearance-none cursor-pointer">
+                                    class="cursor-pointer appearance-none rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-7 pr-7 text-xs text-slate-900 transition-all focus:border-transparent focus:ring-2 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
                                     <option value="all">All Statuses</option>
                                     <option
                                         v-for="option in statusOptions"
@@ -469,7 +469,7 @@ export default {
                                         {{ option.label }}
                                     </option>
                                 </select>
-                                <lu-check-circle-2 class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                <lu-check-circle-2 class="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
                             </div>
                         </div>
 
@@ -477,8 +477,8 @@ export default {
                             v-if="showToday"
                             type="button"
                             @click="goToToday"
-                            class="ml-auto sm:ml-0 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition-all">
-                            <lu-refresh-cw class="w-3.5 h-3.5" />
+                            class="ml-auto inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 transition-all hover:bg-slate-200 sm:ml-0 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
+                            <lu-refresh-cw class="h-3.5 w-3.5" />
                             Today
                         </button>
                     </div>
@@ -488,15 +488,15 @@ export default {
 
         <!-- Main Calendar Area -->
         <main
-            class="flex-1 min-w-0"
+            class="min-w-0 flex-1"
             data-guide="calendar-main-area">
-            <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800">
+            <div class="rounded-2xl border border-gray-100 bg-white/80 shadow-xl backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/80">
                 <!-- Calendar Header -->
-                <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-t-2xl sticky top-0 z-10">
+                <div class="sticky top-0 z-10 flex items-center justify-between rounded-t-2xl border-b border-gray-100 bg-slate-50/80 px-4 py-3 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-800/80">
                     <button
                         type="button"
                         @click="previousMonth"
-                        class="p-2 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm hover:shadow border border-transparent hover:border-slate-200 dark:hover:border-slate-600">
+                        class="rounded-lg border border-transparent p-2 text-slate-600 shadow-sm transition-all hover:border-slate-200 hover:bg-white hover:text-slate-900 hover:shadow dark:text-slate-400 dark:hover:border-slate-600 dark:hover:bg-slate-700 dark:hover:text-white">
                         <lu-chevron-left-icon />
                     </button>
 
@@ -507,7 +507,7 @@ export default {
                     <button
                         type="button"
                         @click="nextMonth"
-                        class="p-2 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm hover:shadow border border-transparent hover:border-slate-200 dark:hover:border-slate-600">
+                        class="rounded-lg border border-transparent p-2 text-slate-600 shadow-sm transition-all hover:border-slate-200 hover:bg-white hover:text-slate-900 hover:shadow dark:text-slate-400 dark:hover:border-slate-600 dark:hover:bg-slate-700 dark:hover:text-white">
                         <lu-chevron-right />
                     </button>
                 </div>
@@ -520,7 +520,7 @@ export default {
                             <div
                                 v-for="(day, index) in weekDays"
                                 :key="day"
-                                class="px-3 py-2 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 bg-slate-50/50 dark:bg-slate-800/50"
+                                class="bg-slate-50/50 px-3 py-2 text-center text-xs font-semibold text-slate-600 dark:bg-slate-800/50 dark:text-slate-400"
                                 :class="{
                                     'text-red-500 dark:text-red-400': index === 0 || index === 6,
                                 }">
@@ -544,7 +544,7 @@ export default {
                                     <div
                                         v-for="(day, dayIndex) in week"
                                         :key="`day-${weekIndex}-${dayIndex}`"
-                                        class="day-cell border-r border-gray-100 dark:border-slate-800 p-2 transition-all hover:bg-slate-50/80 dark:hover:bg-slate-700/30"
+                                        class="day-cell border-r border-gray-100 p-2 transition-all hover:bg-slate-50/80 dark:border-slate-800 dark:hover:bg-slate-700/30"
                                         :class="{
                                             'bg-slate-50/30 dark:bg-slate-800/20': !day,
                                             'border-r-0': dayIndex === 6,
@@ -553,10 +553,10 @@ export default {
                                             v-if="day"
                                             class="flex flex-col">
                                             <span
-                                                class="text-sm font-semibold w-7 h-7 flex items-center justify-center rounded-full transition-colors"
+                                                class="flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold transition-colors"
                                                 :class="{
-                                                    'bg-indigo-500 text-white shadow-md shadow-primary-500/30': isToday(day),
-                                                    'text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600': !isToday(day),
+                                                    'shadow-primary-500/30 bg-indigo-500 text-white shadow-md': isToday(day),
+                                                    'text-slate-700 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-600': !isToday(day),
                                                 }">
                                                 {{ day }}
                                             </span>
@@ -582,7 +582,7 @@ export default {
                                                         return layout.startCol === col - 1;
                                                     })"
                                                     :key="`event-${event.id}-${weekIndex}`"
-                                                    class="event-bar rounded cursor-pointer pointer-events-auto hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] overflow-hidden mx-0.5 p-1.5"
+                                                    class="event-bar pointer-events-auto mx-0.5 cursor-pointer overflow-hidden rounded p-1.5 transition-all hover:scale-[1.02] hover:shadow-md active:scale-[0.98]"
                                                     :style="{
                                                         backgroundColor: getEventColor(event) + '20',
                                                         borderLeft: `3px solid ${getEventColor(event)}`,
@@ -592,12 +592,12 @@ export default {
                                                     :title="event.subtitle ? event.label + ' - ' + event.subtitle : event.label"
                                                     @click="handleEventClick(event)">
                                                     <div class="flex h-full flex-col justify-center">
-                                                        <div class="font-medium text-xs text-slate-900 dark:text-slate-100 truncate">
+                                                        <div class="truncate text-xs font-medium text-slate-900 dark:text-slate-100">
                                                             {{ event.label }}
                                                         </div>
                                                         <div
                                                             v-if="event.subtitle"
-                                                            class="text-[11px] text-slate-600 dark:text-slate-400 truncate">
+                                                            class="truncate text-[11px] text-slate-600 dark:text-slate-400">
                                                             {{ event.subtitle }}
                                                         </div>
                                                         <div
@@ -605,7 +605,7 @@ export default {
                                                             :style="{
                                                                 color: statusColors[event.status] || '#6B7280',
                                                             }"
-                                                            class="text-[11px] font-semibold capitalize truncate">
+                                                            class="truncate text-[11px] font-semibold capitalize">
                                                             {{ event.status }}
                                                         </div>
                                                     </div>
@@ -621,7 +621,7 @@ export default {
                                         <div
                                             v-for="col in 7"
                                             :key="`overflow-${weekIndex}-${col}`"
-                                            class="border-r border-gray-100 dark:border-slate-800 p-1"
+                                            class="border-r border-gray-100 p-1 dark:border-slate-800"
                                             :class="{ 'border-r-0': col === 7 }">
                                             <!-- Show indicator only on first column -->
                                             <Dropdown
@@ -632,14 +632,14 @@ export default {
                                                 <template #trigger>
                                                     <button
                                                         type="button"
-                                                        class="text-xs w-full text-left px-1.5 py-1 rounded border border-slate-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                                                        class="w-full rounded border border-slate-300 px-1.5 py-1 text-left text-xs text-gray-700 transition-colors hover:bg-slate-100 dark:border-slate-600 dark:text-gray-300 dark:hover:bg-slate-700">
                                                         +{{ assignEventLanes(getEventsForWeek(week, weekIndex), week).overflowCount }}
                                                         more
                                                     </button>
                                                 </template>
 
                                                 <template #content>
-                                                    <div class="w-72 max-w-[85vw] p-2 space-y-1">
+                                                    <div class="w-72 max-w-[85vw] space-y-1 p-2">
                                                         <div
                                                             v-for="event in assignEventLanes(getEventsForWeek(week, weekIndex), week).overflowEvents"
                                                             :key="`overflow-${event.id}-${weekIndex}`"
@@ -647,15 +647,15 @@ export default {
                                                                 backgroundColor: getEventColor(event) + '20',
                                                                 borderColor: getEventColor(event),
                                                             }"
-                                                            class="text-xs p-1.5 rounded border-l-2 cursor-pointer hover:opacity-80 hover:shadow-md transition-opacity"
+                                                            class="cursor-pointer rounded border-l-2 p-1.5 text-xs transition-opacity hover:opacity-80 hover:shadow-md"
                                                             :title="event.subtitle ? event.label + ' - ' + event.subtitle : event.label"
                                                             @click="handleEventClick(event)">
-                                                            <div class="font-medium text-slate-900 dark:text-slate-100 truncate">
+                                                            <div class="truncate font-medium text-slate-900 dark:text-slate-100">
                                                                 {{ event.label }}
                                                             </div>
                                                             <div
                                                                 v-if="event.subtitle"
-                                                                class="text-slate-600 dark:text-slate-400 truncate">
+                                                                class="truncate text-slate-600 dark:text-slate-400">
                                                                 {{ event.subtitle }}
                                                             </div>
                                                             <div
@@ -663,7 +663,7 @@ export default {
                                                                 :style="{
                                                                     color: statusColors[event.status] || '#6B7280',
                                                                 }"
-                                                                class="text-xs font-semibold capitalize truncate">
+                                                                class="truncate text-xs font-semibold capitalize">
                                                                 {{ event.status }}
                                                             </div>
                                                         </div>
@@ -680,7 +680,7 @@ export default {
                                         <div
                                             v-for="col in 7"
                                             :key="`empty-${weekIndex}-${col}`"
-                                            class="border-r border-gray-100 dark:border-slate-800 min-h-[60px]"
+                                            class="min-h-[60px] border-r border-gray-100 dark:border-slate-800"
                                             :class="{ 'border-r-0': col === 7 }"></div>
                                     </div>
                                 </div>
@@ -689,11 +689,11 @@ export default {
                     </div>
                 </div>
             </div>
-            <div class="flex items-center justify-between mt-3 px-4 w-full">
+            <div class="mt-3 flex w-full items-center justify-between px-4">
                 <!-- Stats in Footer -->
                 <div
                     v-if="showStats"
-                    class="flex items-center gap-4 text-xs bg-slate-50 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                    class="flex items-center gap-4 rounded-lg border border-slate-100 bg-slate-50 px-3 py-1.5 text-xs dark:border-slate-800 dark:bg-slate-800/50">
                     <span class="text-slate-500 dark:text-slate-400">
                         Total:
                         <span class="font-semibold text-slate-800 dark:text-slate-200">
@@ -711,7 +711,7 @@ export default {
 
                 <a
                     :href="route('google-calendar.rentals')"
-                    class="text-xs text-blue-500 hover:underline hover:text-blue-600 transition-colors"
+                    class="text-xs text-blue-500 transition-colors hover:text-blue-600 hover:underline"
                     target="_blank"
                     rel="noopener noreferrer">
                     Add to Google Calendar

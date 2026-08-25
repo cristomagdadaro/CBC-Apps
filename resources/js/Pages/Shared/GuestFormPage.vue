@@ -49,25 +49,25 @@ export default {
     <!-- UX: Added horizontal padding and vertical padding to prevent edge-hugging on mobile -->
     <div
         id="main-content-overlay"
-        class="flex justify-center min-h-screen px-4 sm:px-6 py-6 sm:py-10 m-0 md:m-5 overflow-visible">
-        <div class="relative flex flex-col md:gap-6 justify-start items-center w-full h-full overflow-visible pointer-events-none mt-8 md:mt-0">
+        class="m-0 flex min-h-screen justify-center overflow-visible px-4 py-6 sm:px-6 sm:py-10 md:m-5">
+        <div class="pointer-events-none relative mt-8 flex h-full w-full flex-col items-center justify-start overflow-visible md:mt-0 md:gap-6">
             <div
-                class="md:relative flex flex-col gap-6 w-full overflow-visible pointer-events-auto"
+                class="pointer-events-auto flex w-full flex-col gap-6 overflow-visible md:relative"
                 :class="maxWidth">
                 <!-- Header / search / top content -->
                 <slot name="top">
                     <div
                         v-show="delayReady"
-                        class="w-full flex flex-col gap-4">
+                        class="flex w-full flex-col gap-4">
                         <!-- Premium Frosted Glass Header -->
                         <div
                             data-guide="guest-page-header"
-                            class="relative flex flex-row items-start sm:items-center gap-2.5 sm:gap-4 p-4 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-gray-200/60 dark:border-slate-700/60 shadow-lg rounded-xl sm:rounded-2xl transition-all duration-300">
+                            class="relative flex w-full flex-row items-start gap-2.5 rounded-xl border border-gray-200/60 bg-white/80 p-4 shadow-lg backdrop-blur-lg transition-all duration-300 sm:items-center sm:gap-4 sm:rounded-2xl dark:border-slate-700/60 dark:bg-slate-900/80">
                             <!-- Mobile Back Button -->
                             <!-- UX Fix: Reduced padding, aligned near the top to match the title -->
                             <button
                                 @click="goBack"
-                                class="md:hidden flex-shrink-0 flex items-center justify-center p-1.5 mt-0.5 sm:mt-0 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors">
+                                class="mt-0.5 flex flex-shrink-0 items-center justify-center rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-200/50 hover:text-slate-900 sm:mt-0 md:hidden dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-white">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     width="22"
@@ -85,28 +85,28 @@ export default {
                             <!-- UX Fix: Shrunk logo slightly on mobile (w-10 h-10) to give text more horizontal space -->
                             <Link
                                 href="/"
-                                class="flex-shrink-0 mt-0.5 sm:mt-0">
+                                class="mt-0.5 flex-shrink-0 sm:mt-0">
                                 <!-- Visible in Light Mode, Hidden in Dark Mode -->
                                 <img
                                     src="/imgs/logo-black.png"
                                     alt="logo"
-                                    class="block dark:hidden w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 drop-shadow-md" />
+                                    class="block h-10 w-10 drop-shadow-md sm:h-12 sm:w-12 md:h-14 md:w-14 dark:hidden" />
 
                                 <!-- Hidden in Light Mode, Visible in Dark Mode -->
                                 <img
                                     src="/imgs/logo.png"
                                     alt="logo"
-                                    class="hidden dark:block w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 drop-shadow-md" />
+                                    class="hidden h-10 w-10 drop-shadow-md sm:h-12 sm:w-12 md:h-14 md:w-14 dark:block" />
                             </Link>
 
-                            <div class="flex flex-col justify-start flex-1 min-w-0">
+                            <div class="flex min-w-0 flex-1 flex-col justify-start">
                                 <!-- UX Fix: Removed 'truncate' and added 'leading-tight' so long titles safely wrap to the next line -->
-                                <h1 class="font-extrabold text-base sm:text-lg lg:text-xl text-slate-800 dark:text-slate-100 uppercase tracking-wide leading-tight">
+                                <h1 class="text-base font-extrabold uppercase leading-tight tracking-wide text-slate-800 sm:text-lg lg:text-xl dark:text-slate-100">
                                     {{ title }}
                                 </h1>
                                 <p
                                     v-if="subtitle"
-                                    class="text-[0.7rem] sm:text-xs md:text-sm leading-snug font-medium text-slate-600 dark:text-slate-400 mt-1 sm:mt-0.5">
+                                    class="mt-1 text-[0.7rem] font-medium leading-snug text-slate-600 sm:mt-0.5 sm:text-xs md:text-sm dark:text-slate-400">
                                     {{ subtitle }}
                                 </p>
                             </div>
@@ -119,7 +119,7 @@ export default {
                 <!-- Main body content under header -->
                 <div
                     data-guide="guest-page-content"
-                    class="w-full mt-2 sm:mt-0">
+                    class="mt-2 w-full sm:mt-0">
                     <slot />
                 </div>
             </div>

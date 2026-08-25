@@ -26,7 +26,7 @@ export default {
 
 <template>
     <div
-        class="w-full relative py-2 px-1 flex text-center leading-none items-center gap-2 bg-white dark:bg-gray-800 rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+        class="relative flex w-full cursor-pointer items-center gap-2 rounded-md bg-white px-1 py-2 text-center leading-none transition-colors hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700"
         :class="{
             'border-red-500 dark:border-red-600': error,
             'border-gray-600 dark:border-gray-700': !error,
@@ -39,7 +39,7 @@ export default {
             :checked="inputValue" />
         <label
             :for="field.field_key"
-            class="text-sm cursor-pointer text-gray-700 dark:text-gray-200">
+            class="cursor-pointer text-sm text-gray-700 dark:text-gray-200">
             {{ field.label }}
             <span
                 v-if="required"

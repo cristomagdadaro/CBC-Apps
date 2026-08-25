@@ -5,7 +5,7 @@ export default {
 </script>
 
 <template>
-    <base-btn class="bg-lime-600 hover:bg-lime-700 active:scale-95 text-white font-bold rounded-xl shadow-xs transition-all text-xs sm:text-sm flex items-center justify-center gap-1.5 px-4 py-2.5">
+    <base-btn class="shadow-xs flex items-center justify-center gap-1.5 rounded-xl bg-lime-600 px-4 py-2.5 text-xs font-bold text-white transition-all hover:bg-lime-700 active:scale-95 sm:text-sm">
         <template #icon>
             <svg
                 xmlns="http://www.w3.org/2000/svg"

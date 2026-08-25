@@ -1,9 +1,9 @@
 <template>
     <tr id="dtRowProcessing">
         <td
-            class="text-center p-8"
+            class="p-8 text-center"
             :colspan="colspan + 1">
-            <div class="flex justify-center gap-1 items-center">
+            <div class="flex items-center justify-center gap-1">
                 <loader-icon />
                 <span>processing...</span>
             </div>

@@ -16,7 +16,7 @@ export default {
 </script>
 
 <template>
-    <div class="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-2 p-2 md:p-4">
+    <div class="grid grid-cols-1 gap-2 p-2 sm:grid-cols-2 md:grid-cols-3 md:p-4 lg:grid-cols-4">
         <event-card
             v-for="data in formsData"
             :key="data.id"

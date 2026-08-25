@@ -5,7 +5,7 @@ export default {
 </script>
 
 <template>
-    <base-btn class="text-sm text-AA dark:text-gray-800 dark:bg-gray-200">
+    <base-btn class="text-sm text-AA dark:bg-gray-200 dark:text-gray-800">
         <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"

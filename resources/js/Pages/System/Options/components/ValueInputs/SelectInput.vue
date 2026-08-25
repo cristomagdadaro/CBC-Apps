@@ -12,10 +12,10 @@
         <div class="flex items-center gap-1.5 px-1">
             <AlertTriangle
                 v-if="!normalizedOptions.length"
-                class="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                class="h-3.5 w-3.5 shrink-0 text-amber-500" />
             <Info
                 v-else
-                class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
+                class="h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-slate-500" />
 
             <p
                 class="text-[0.65rem] font-semibold uppercase tracking-widest"

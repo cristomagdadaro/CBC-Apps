@@ -81,7 +81,7 @@ export default {
             </p>
         </div>
 
-        <div class="p-6 space-y-6">
+        <div class="space-y-6 p-6">
             <div class="grid gap-6 md:grid-cols-2">
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-slate-700">
@@ -190,7 +190,7 @@ export default {
             </div>
         </div>
 
-        <div class="flex items-center justify-end gap-3 border-t border-slate-100 px-6 py-4 bg-slate-50 rounded-b-xl">
+        <div class="flex items-center justify-end gap-3 rounded-b-xl border-t border-slate-100 bg-slate-50 px-6 py-4">
             <button
                 v-if="showCancelButton"
                 type="button"

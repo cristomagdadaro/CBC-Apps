@@ -12,7 +12,7 @@ export default {
 
 <template>
     <tr
-        class="transition-colors duration-150 cursor-pointer"
+        class="cursor-pointer transition-colors duration-150"
         :class="{
             'bg-blue-50 dark:bg-blue-900/20': selected,
             'hover:bg-gray-50 dark:hover:bg-gray-700/50': !selected,

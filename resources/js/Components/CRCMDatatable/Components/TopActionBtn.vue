@@ -1,8 +1,8 @@
 <template>
     <base-button
         :top-text="topText"
-        class="flex items-center justify-center gap-0.5 h-8 w-8 sm:h-8.5 sm:w-8.5 p-0">
-        <div class="flex items-center justify-center w-full h-full">
+        class="sm:h-8.5 sm:w-8.5 flex h-8 w-8 items-center justify-center gap-0.5 p-0">
+        <div class="flex h-full w-full items-center justify-center">
             <slot name="icon" />
             <slot />
         </div>

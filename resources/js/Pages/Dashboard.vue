@@ -518,42 +518,42 @@ export default {
         </template>
 
         <div class="py-3 sm:py-6">
-            <div class="px-2.5 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
+            <div class="space-y-4 px-2.5 sm:space-y-6 sm:px-6 lg:px-8">
                 <!-- Empty State -->
                 <div
                     v-if="!hasDashboardContent"
-                    class="rounded-xl border border-dashed border-gray-300 bg-white p-4 sm:p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                    <LuShield class="mx-auto h-8 w-8 sm:h-10 sm:w-10 text-gray-400 dark:text-slate-500" />
-                    <h3 class="mt-3 sm:mt-4 text-base sm:text-lg font-semibold text-gray-900 dark:text-white">No dashboard modules are available right now</h3>
-                    <p class="mt-1.5 sm:mt-2 text-xs sm:text-sm text-gray-500 dark:text-slate-400 leading-relaxed">This dashboard now follows Module Access Controls and your assigned permissions. If you expected more sections here, verify the deployment-access settings and your current role permissions.</p>
+                    class="rounded-xl border border-dashed border-gray-300 bg-white p-4 text-center shadow-sm sm:p-8 dark:border-slate-800 dark:bg-slate-900">
+                    <LuShield class="mx-auto h-8 w-8 text-gray-400 sm:h-10 sm:w-10 dark:text-slate-500" />
+                    <h3 class="mt-3 text-base font-semibold text-gray-900 sm:mt-4 sm:text-lg dark:text-white">No dashboard modules are available right now</h3>
+                    <p class="mt-1.5 text-xs leading-relaxed text-gray-500 sm:mt-2 sm:text-sm dark:text-slate-400">This dashboard now follows Module Access Controls and your assigned permissions. If you expected more sections here, verify the deployment-access settings and your current role permissions.</p>
                 </div>
 
                 <!-- ═══════ SYSTEM PULSE KPI BANNER ═══════ -->
                 <div
                     v-if="hasDashboardContent"
-                    class="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
+                    class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
                     <div
                         v-for="(kpi, idx) in pulseKpis"
                         :key="idx"
-                        class="relative overflow-hidden rounded-2xl border border-white/20 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group">
+                        class="group relative overflow-hidden rounded-2xl border border-white/20 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900">
                         <!-- Gradient accent bar -->
                         <div
-                            class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r"
+                            class="absolute left-0 right-0 top-0 h-1 bg-gradient-to-r"
                             :class="kpi.gradient"></div>
 
                         <div class="p-3.5 sm:p-5">
                             <div class="flex items-center justify-between">
                                 <div
-                                    class="p-2 sm:p-2.5 rounded-xl border transition-transform group-hover:scale-110"
+                                    class="rounded-xl border p-2 transition-transform group-hover:scale-110 sm:p-2.5"
                                     :class="{
-                                        'bg-violet-500/10 dark:bg-violet-400/15 border-violet-500/20': kpi.color === 'violet',
-                                        'bg-sky-500/10 dark:bg-sky-400/15 border-sky-500/20': kpi.color === 'sky',
-                                        'bg-emerald-500/10 dark:bg-emerald-400/15 border-emerald-500/20': kpi.color === 'emerald',
-                                        'bg-amber-500/10 dark:bg-amber-400/15 border-amber-500/20': kpi.color === 'amber',
+                                        'border-violet-500/20 bg-violet-500/10 dark:bg-violet-400/15': kpi.color === 'violet',
+                                        'border-sky-500/20 bg-sky-500/10 dark:bg-sky-400/15': kpi.color === 'sky',
+                                        'border-emerald-500/20 bg-emerald-500/10 dark:bg-emerald-400/15': kpi.color === 'emerald',
+                                        'border-amber-500/20 bg-amber-500/10 dark:bg-amber-400/15': kpi.color === 'amber',
                                     }">
                                     <component
                                         :is="kpi.icon"
-                                        class="w-4 h-4 sm:w-5 sm:h-5"
+                                        class="h-4 w-4 sm:h-5 sm:w-5"
                                         :class="{
                                             'text-violet-600 dark:text-violet-400': kpi.color === 'violet',
                                             'text-sky-600 dark:text-sky-400': kpi.color === 'sky',
@@ -562,10 +562,10 @@ export default {
                                         }" />
                                 </div>
                             </div>
-                            <p class="mt-3 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                            <p class="mt-3 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
                                 {{ kpi.value.toLocaleString() }}
                             </p>
-                            <p class="mt-0.5 text-[0.7rem] sm:text-xs font-medium text-slate-500 dark:text-slate-400">
+                            <p class="mt-0.5 text-[0.7rem] font-medium text-slate-500 sm:text-xs dark:text-slate-400">
                                 {{ kpi.label }}
                             </p>
                         </div>
@@ -575,15 +575,15 @@ export default {
                 <!-- ═══════ 7-DAY ACTIVITY TREND ═══════ -->
                 <div
                     v-if="hasDashboardContent && weeklyTrend.length"
-                    class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
-                    <div class="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
+                    class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3.5 sm:px-6 sm:py-4 dark:border-slate-800">
                         <div class="flex items-center gap-2.5">
-                            <div class="p-2 bg-sky-500/10 dark:bg-sky-400/15 rounded-lg border border-sky-500/20">
-                                <LuTrendingUp class="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                            <div class="rounded-lg border border-sky-500/20 bg-sky-500/10 p-2 dark:bg-sky-400/15">
+                                <LuTrendingUp class="h-4 w-4 text-sky-600 dark:text-sky-400" />
                             </div>
                             <div>
-                                <h3 class="font-bold text-sm sm:text-base text-slate-900 dark:text-white">7-Day Activity Trend</h3>
-                                <p class="text-[0.65rem] sm:text-xs text-slate-500 dark:text-slate-400">Cross-module activity over the past week</p>
+                                <h3 class="text-sm font-bold text-slate-900 sm:text-base dark:text-white">7-Day Activity Trend</h3>
+                                <p class="text-[0.65rem] text-slate-500 sm:text-xs dark:text-slate-400">Cross-module activity over the past week</p>
                             </div>
                         </div>
                     </div>
@@ -597,34 +597,34 @@ export default {
                 <!-- ═══════ MODULE HEALTH SUMMARY ═══════ -->
                 <div
                     v-if="hasDashboardContent && moduleHealth.length"
-                    class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
-                    <div class="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-100 dark:border-slate-800 flex items-center gap-2.5">
-                        <div class="p-2 bg-indigo-500/10 dark:bg-indigo-400/15 rounded-lg border border-indigo-500/20">
-                            <LuBarChart3 class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                    class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <div class="flex items-center gap-2.5 border-b border-gray-100 px-4 py-3.5 sm:px-6 sm:py-4 dark:border-slate-800">
+                        <div class="rounded-lg border border-indigo-500/20 bg-indigo-500/10 p-2 dark:bg-indigo-400/15">
+                            <LuBarChart3 class="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         <div>
-                            <h3 class="font-bold text-sm sm:text-base text-slate-900 dark:text-white">Module Health Overview</h3>
-                            <p class="text-[0.65rem] sm:text-xs text-slate-500 dark:text-slate-400">Status distribution across all modules</p>
+                            <h3 class="text-sm font-bold text-slate-900 sm:text-base dark:text-white">Module Health Overview</h3>
+                            <p class="text-[0.65rem] text-slate-500 sm:text-xs dark:text-slate-400">Status distribution across all modules</p>
                         </div>
                     </div>
 
-                    <div class="p-3 sm:p-5 space-y-3 sm:space-y-4">
+                    <div class="space-y-3 p-3 sm:space-y-4 sm:p-5">
                         <!-- Legend -->
-                        <div class="flex items-center gap-4 text-[0.65rem] sm:text-xs font-medium text-slate-500 dark:text-slate-400">
+                        <div class="flex items-center gap-4 text-[0.65rem] font-medium text-slate-500 sm:text-xs dark:text-slate-400">
                             <span class="flex items-center gap-1.5">
-                                <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500"></span>
+                                <span class="h-2.5 w-2.5 rounded-sm bg-emerald-500"></span>
                                 Active
                             </span>
                             <span class="flex items-center gap-1.5">
-                                <span class="w-2.5 h-2.5 rounded-sm bg-amber-500"></span>
+                                <span class="h-2.5 w-2.5 rounded-sm bg-amber-500"></span>
                                 Pending
                             </span>
                             <span class="flex items-center gap-1.5">
-                                <span class="w-2.5 h-2.5 rounded-sm bg-slate-400"></span>
+                                <span class="h-2.5 w-2.5 rounded-sm bg-slate-400"></span>
                                 Completed
                             </span>
                             <span class="flex items-center gap-1.5">
-                                <span class="w-2.5 h-2.5 rounded-sm bg-rose-500"></span>
+                                <span class="h-2.5 w-2.5 rounded-sm bg-rose-500"></span>
                                 Overdue/Rejected
                             </span>
                         </div>
@@ -636,32 +636,32 @@ export default {
                             <div class="flex items-center gap-3 sm:gap-4">
                                 <Link
                                     :href="route(mod.route)"
-                                    class="w-28 sm:w-36 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate shrink-0">
+                                    class="w-28 shrink-0 truncate text-xs font-semibold text-slate-700 transition-colors hover:text-blue-600 sm:w-36 sm:text-sm dark:text-slate-300 dark:hover:text-blue-400">
                                     {{ mod.module }}
                                 </Link>
-                                <div class="flex-1 h-5 sm:h-6 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
+                                <div class="flex h-5 flex-1 overflow-hidden rounded-full bg-slate-100 sm:h-6 dark:bg-slate-800">
                                     <div
                                         v-if="mod.active"
-                                        class="bg-emerald-500 h-full transition-all duration-500"
+                                        class="h-full bg-emerald-500 transition-all duration-500"
                                         :style="{ width: moduleBarWidth(mod, 'active') }"
                                         :title="`Active: ${mod.active}`"></div>
                                     <div
                                         v-if="mod.pending"
-                                        class="bg-amber-500 h-full transition-all duration-500"
+                                        class="h-full bg-amber-500 transition-all duration-500"
                                         :style="{ width: moduleBarWidth(mod, 'pending') }"
                                         :title="`Pending: ${mod.pending}`"></div>
                                     <div
                                         v-if="mod.completed"
-                                        class="bg-slate-400 dark:bg-slate-500 h-full transition-all duration-500"
+                                        class="h-full bg-slate-400 transition-all duration-500 dark:bg-slate-500"
                                         :style="{ width: moduleBarWidth(mod, 'completed') }"
                                         :title="`Completed: ${mod.completed}`"></div>
                                     <div
                                         v-if="mod.overdue"
-                                        class="bg-rose-500 h-full transition-all duration-500"
+                                        class="h-full bg-rose-500 transition-all duration-500"
                                         :style="{ width: moduleBarWidth(mod, 'overdue') }"
                                         :title="`Overdue: ${mod.overdue}`"></div>
                                 </div>
-                                <span class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 w-10 text-right shrink-0 tabular-nums">
+                                <span class="w-10 shrink-0 text-right text-xs font-bold tabular-nums text-slate-800 sm:text-sm dark:text-slate-200">
                                     {{ moduleHealthTotal(mod) }}
                                 </span>
                             </div>
@@ -672,54 +672,54 @@ export default {
                 <!-- ═══════ SUMMARY STATS GRID (existing cards, preserved) ═══════ -->
                 <div
                     v-if="hasSummaryCards"
-                    class="grid gap-3.5 sm:gap-4.5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                    class="sm:gap-4.5 grid grid-cols-1 gap-3.5 md:grid-cols-2 lg:grid-cols-3">
                     <!-- Event Forms Card -->
                     <div
                         v-if="dashboardAccess.events"
-                        class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col justify-between">
+                        class="flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
                         <div class="p-4 sm:p-5">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-center gap-3">
-                                    <div class="p-2.5 bg-green-500/10 dark:bg-green-400/15 rounded-xl border border-green-500/20">
-                                        <LuCalendar class="w-5 h-5 text-green-600 dark:text-green-400" />
+                                    <div class="rounded-xl border border-green-500/20 bg-green-500/10 p-2.5 dark:bg-green-400/15">
+                                        <LuCalendar class="h-5 w-5 text-green-600 dark:text-green-400" />
                                     </div>
                                     <div>
-                                        <p class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">Event Forms</p>
-                                        <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5 tracking-tight">
+                                        <p class="text-xs font-semibold text-slate-500 sm:text-sm dark:text-slate-400">Event Forms</p>
+                                        <p class="mt-0.5 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
                                             {{ stats.events.total }}
                                         </p>
                                     </div>
                                 </div>
                                 <Link
                                     :href="route('forms.index')"
-                                    class="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-                                    <LuArrowRight class="w-5 h-5" />
+                                    class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800 dark:hover:text-blue-400">
+                                    <LuArrowRight class="h-5 w-5" />
                                 </Link>
                             </div>
-                            <div class="mt-3.5 sm:mt-4 flex items-center justify-between text-[0.7rem] sm:text-xs font-medium">
+                            <div class="mt-3.5 flex items-center justify-between text-[0.7rem] font-medium sm:mt-4 sm:text-xs">
                                 <div class="flex items-center gap-1.5">
-                                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                    <span class="h-2 w-2 rounded-full bg-green-500"></span>
                                     <span class="text-slate-600 dark:text-slate-300">{{ stats.events.active }} Active</span>
                                 </div>
                                 <div class="flex items-center gap-1.5">
-                                    <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                    <span class="h-2 w-2 rounded-full bg-blue-500"></span>
                                     <span class="text-slate-600 dark:text-slate-300">{{ stats.events.upcoming }} Upcoming</span>
                                 </div>
                                 <div class="flex items-center gap-1.5">
-                                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                    <span class="h-2 w-2 rounded-full bg-amber-500"></span>
                                     <span class="text-slate-600 dark:text-slate-300">{{ stats.events.suspended }} Suspended</span>
                                 </div>
                             </div>
-                            <div class="mt-3 sm:mt-4 h-24 sm:h-28">
+                            <div class="mt-3 h-24 sm:mt-4 sm:h-28">
                                 <canvas ref="eventsChartCanvas"></canvas>
                             </div>
                         </div>
-                        <div class="px-4 sm:px-5 py-2.5 sm:py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-800">
+                        <div class="border-t border-gray-100 bg-slate-50 px-4 py-2.5 sm:px-5 sm:py-3 dark:border-slate-800 dark:bg-slate-800/50">
                             <Link
                                 :href="route('forms.index')"
-                                class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                                class="flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
                                 View all events
-                                <LuChevronRight class="w-4 h-4" />
+                                <LuChevronRight class="h-4 w-4" />
                             </Link>
                         </div>
                     </div>
@@ -727,50 +727,50 @@ export default {
                     <!-- FES Requests Card -->
                     <div
                         v-if="dashboardAccess.fes"
-                        class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col justify-between">
+                        class="flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
                         <div class="p-4 sm:p-5">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-center gap-3">
-                                    <div class="p-2.5 bg-amber-500/10 dark:bg-amber-400/15 rounded-xl border border-amber-500/20">
-                                        <LuShield class="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                                    <div class="rounded-xl border border-amber-500/20 bg-amber-500/10 p-2.5 dark:bg-amber-400/15">
+                                        <LuShield class="h-5 w-5 text-amber-600 dark:text-amber-400" />
                                     </div>
                                     <div>
-                                        <p class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">FES Requests</p>
-                                        <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5 tracking-tight">
+                                        <p class="text-xs font-semibold text-slate-500 sm:text-sm dark:text-slate-400">FES Requests</p>
+                                        <p class="mt-0.5 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
                                             {{ stats.access_requests.total }}
                                         </p>
                                     </div>
                                 </div>
                                 <Link
                                     :href="route('accessUseRequest.index')"
-                                    class="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-                                    <LuArrowRight class="w-5 h-5" />
+                                    class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800 dark:hover:text-blue-400">
+                                    <LuArrowRight class="h-5 w-5" />
                                 </Link>
                             </div>
-                            <div class="mt-3.5 sm:mt-4 flex items-center justify-between text-[0.7rem] sm:text-xs font-medium">
+                            <div class="mt-3.5 flex items-center justify-between text-[0.7rem] font-medium sm:mt-4 sm:text-xs">
                                 <div class="flex items-center gap-1">
-                                    <LuClock class="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                                    <LuClock class="h-3.5 w-3.5 shrink-0 text-amber-500" />
                                     <span class="text-slate-600 dark:text-slate-300">{{ stats.access_requests.pending }} Pending</span>
                                 </div>
                                 <div class="flex items-center gap-1">
-                                    <LuCheckCircle class="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                                    <LuCheckCircle class="h-3.5 w-3.5 shrink-0 text-emerald-500" />
                                     <span class="text-slate-600 dark:text-slate-300">{{ stats.access_requests.approved }} Approved</span>
                                 </div>
                                 <div class="flex items-center gap-1">
-                                    <LuXCircle class="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                                    <LuXCircle class="h-3.5 w-3.5 shrink-0 text-rose-500" />
                                     <span class="text-slate-600 dark:text-slate-300">{{ stats.access_requests.rejected }} Rejected</span>
                                 </div>
                             </div>
-                            <div class="mt-3 sm:mt-4 h-24 sm:h-28">
+                            <div class="mt-3 h-24 sm:mt-4 sm:h-28">
                                 <canvas ref="accessChartCanvas"></canvas>
                             </div>
                         </div>
-                        <div class="px-4 sm:px-5 py-2.5 sm:py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-800">
+                        <div class="border-t border-gray-100 bg-slate-50 px-4 py-2.5 sm:px-5 sm:py-3 dark:border-slate-800 dark:bg-slate-800/50">
                             <Link
                                 :href="route('accessUseRequest.index')"
-                                class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                                class="flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
                                 Review requests
-                                <LuChevronRight class="w-4 h-4" />
+                                <LuChevronRight class="h-4 w-4" />
                             </Link>
                         </div>
                     </div>
@@ -778,16 +778,16 @@ export default {
                     <!-- Inventory Card -->
                     <div
                         v-if="dashboardAccess.inventory"
-                        class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col justify-between">
+                        class="flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
                         <div class="p-4 sm:p-5">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-center gap-3">
-                                    <div class="p-2.5 bg-blue-500/10 dark:bg-blue-400/15 rounded-xl border border-blue-500/20">
-                                        <LuPackage class="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                    <div class="rounded-xl border border-blue-500/20 bg-blue-500/10 p-2.5 dark:bg-blue-400/15">
+                                        <LuPackage class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                                     </div>
                                     <div>
-                                        <p class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">Inventory Items</p>
-                                        <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5 tracking-tight">
+                                        <p class="text-xs font-semibold text-slate-500 sm:text-sm dark:text-slate-400">Inventory Items</p>
+                                        <p class="mt-0.5 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
                                             {{ stats.inventory.items }}
                                         </p>
                                     </div>
@@ -795,44 +795,44 @@ export default {
                                 <div class="flex gap-1">
                                     <Link
                                         :href="route('items.index')"
-                                        class="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-                                        <LuArrowRight class="w-5 h-5" />
+                                        class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800 dark:hover:text-blue-400">
+                                        <LuArrowRight class="h-5 w-5" />
                                     </Link>
                                 </div>
                             </div>
-                            <div class="mt-3.5 sm:mt-4 grid grid-cols-2 gap-1.5 text-[0.7rem] sm:text-xs font-medium">
-                                <div class="flex items-center gap-1.5 px-2 py-1 bg-slate-100 dark:bg-slate-800/60 rounded-md">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                            <div class="mt-3.5 grid grid-cols-2 gap-1.5 text-[0.7rem] font-medium sm:mt-4 sm:text-xs">
+                                <div class="flex items-center gap-1.5 rounded-md bg-slate-100 px-2 py-1 dark:bg-slate-800/60">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
                                     <span class="text-slate-600 dark:text-slate-300">{{ stats.inventory.stock_buckets?.empty ?? 0 }} Empty</span>
                                 </div>
-                                <div class="flex items-center gap-1.5 px-2 py-1 bg-orange-50 dark:bg-orange-950/40 rounded-md">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                                <div class="flex items-center gap-1.5 rounded-md bg-orange-50 px-2 py-1 dark:bg-orange-950/40">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
                                     <span class="text-orange-700 dark:text-orange-300">{{ stats.inventory.stock_buckets?.low ?? 0 }} Low</span>
                                 </div>
-                                <div class="flex items-center gap-1.5 px-2 py-1 bg-blue-50 dark:bg-blue-950/40 rounded-md">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                <div class="flex items-center gap-1.5 rounded-md bg-blue-50 px-2 py-1 dark:bg-blue-950/40">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
                                     <span class="text-blue-700 dark:text-blue-300">{{ stats.inventory.stock_buckets?.mid ?? 0 }} Mid</span>
                                 </div>
-                                <div class="flex items-center gap-1.5 px-2 py-1 bg-emerald-50 dark:bg-emerald-950/40 rounded-md">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                <div class="flex items-center gap-1.5 rounded-md bg-emerald-50 px-2 py-1 dark:bg-emerald-950/40">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                                     <span class="text-emerald-700 dark:text-emerald-300">{{ stats.inventory.stock_buckets?.high ?? 0 }} High</span>
                                 </div>
                             </div>
-                            <div class="mt-3 sm:mt-4 h-24 sm:h-28">
+                            <div class="mt-3 h-24 sm:mt-4 sm:h-28">
                                 <canvas ref="inventoryChartCanvas"></canvas>
                             </div>
                         </div>
-                        <div class="px-4 sm:px-5 py-2.5 sm:py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-800 flex justify-between">
+                        <div class="flex justify-between border-t border-gray-100 bg-slate-50 px-4 py-2.5 sm:px-5 sm:py-3 dark:border-slate-800 dark:bg-slate-800/50">
                             <Link
                                 :href="route('items.index')"
-                                class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                                class="flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
                                 View items
-                                <LuChevronRight class="w-4 h-4" />
+                                <LuChevronRight class="h-4 w-4" />
                             </Link>
                             <Link
                                 :href="route('transactions.index')"
-                                class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors">
-                                <LuArrowLeftRight class="w-4 h-4" />
+                                class="flex items-center gap-1.5 text-xs font-semibold text-slate-600 transition-colors hover:text-slate-900 sm:text-sm dark:text-slate-400 dark:hover:text-slate-200">
+                                <LuArrowLeftRight class="h-4 w-4" />
                                 Transactions
                             </Link>
                         </div>
@@ -841,62 +841,62 @@ export default {
                     <!-- Vehicle Rentals Card -->
                     <div
                         v-if="dashboardAccess.rentals"
-                        class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col justify-between">
+                        class="flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
                         <div class="p-4 sm:p-5">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-center gap-3">
-                                    <div class="p-2.5 bg-amber-500/10 dark:bg-amber-400/15 rounded-xl border border-amber-500/20">
-                                        <LuCar class="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                                    <div class="rounded-xl border border-amber-500/20 bg-amber-500/10 p-2.5 dark:bg-amber-400/15">
+                                        <LuCar class="h-5 w-5 text-amber-600 dark:text-amber-400" />
                                     </div>
                                     <div>
-                                        <p class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">Vehicle Rentals</p>
-                                        <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5 tracking-tight">
+                                        <p class="text-xs font-semibold text-slate-500 sm:text-sm dark:text-slate-400">Vehicle Rentals</p>
+                                        <p class="mt-0.5 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
                                             {{ stats.vehicle_rentals.total }}
                                         </p>
                                     </div>
                                 </div>
                                 <Link
                                     :href="route('rentals.vehicle.index')"
-                                    class="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-                                    <LuArrowRight class="w-5 h-5" />
+                                    class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800 dark:hover:text-blue-400">
+                                    <LuArrowRight class="h-5 w-5" />
                                 </Link>
                             </div>
-                            <div class="mt-3.5 sm:mt-4 grid grid-cols-4 gap-1 text-center text-[0.65rem] sm:text-xs font-medium">
-                                <div class="p-1 rounded-md bg-amber-50 dark:bg-amber-950/40">
+                            <div class="mt-3.5 grid grid-cols-4 gap-1 text-center text-[0.65rem] font-medium sm:mt-4 sm:text-xs">
+                                <div class="rounded-md bg-amber-50 p-1 dark:bg-amber-950/40">
                                     <p class="font-bold text-amber-700 dark:text-amber-300">
                                         {{ stats.vehicle_rentals.pending }}
                                     </p>
                                     <p class="text-amber-600/80 dark:text-amber-400/80">Pending</p>
                                 </div>
-                                <div class="p-1 rounded-md bg-green-50 dark:bg-green-950/40">
+                                <div class="rounded-md bg-green-50 p-1 dark:bg-green-950/40">
                                     <p class="font-bold text-green-700 dark:text-green-300">
                                         {{ stats.vehicle_rentals.approved }}
                                     </p>
                                     <p class="text-green-600/80 dark:text-green-400/80">Approved</p>
                                 </div>
-                                <div class="p-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40">
+                                <div class="rounded-md bg-emerald-50 p-1 dark:bg-emerald-950/40">
                                     <p class="font-bold text-emerald-700 dark:text-emerald-300">
                                         {{ stats.vehicle_rentals.completed }}
                                     </p>
                                     <p class="text-emerald-600/80 dark:text-emerald-400/80">Done</p>
                                 </div>
-                                <div class="p-1 rounded-md bg-rose-50 dark:bg-rose-950/40">
+                                <div class="rounded-md bg-rose-50 p-1 dark:bg-rose-950/40">
                                     <p class="font-bold text-rose-700 dark:text-rose-300">
                                         {{ stats.vehicle_rentals.rejected }}
                                     </p>
                                     <p class="text-rose-600/80 dark:text-rose-400/80">Rejected</p>
                                 </div>
                             </div>
-                            <div class="mt-3 sm:mt-4 h-24 sm:h-28">
+                            <div class="mt-3 h-24 sm:mt-4 sm:h-28">
                                 <canvas ref="vehicleChartCanvas"></canvas>
                             </div>
                         </div>
-                        <div class="px-4 sm:px-5 py-2.5 sm:py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-800">
+                        <div class="border-t border-gray-100 bg-slate-50 px-4 py-2.5 sm:px-5 sm:py-3 dark:border-slate-800 dark:bg-slate-800/50">
                             <Link
                                 :href="route('rentals.vehicle.index')"
-                                class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                                class="flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
                                 Manage bookings
-                                <LuChevronRight class="w-4 h-4" />
+                                <LuChevronRight class="h-4 w-4" />
                             </Link>
                         </div>
                     </div>
@@ -904,62 +904,62 @@ export default {
                     <!-- Venue Rentals Card -->
                     <div
                         v-if="dashboardAccess.rentals"
-                        class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col justify-between">
+                        class="flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
                         <div class="p-4 sm:p-5">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-center gap-3">
-                                    <div class="p-2.5 bg-purple-500/10 dark:bg-purple-400/15 rounded-xl border border-purple-500/20">
-                                        <LuBuilding class="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                                    <div class="rounded-xl border border-purple-500/20 bg-purple-500/10 p-2.5 dark:bg-purple-400/15">
+                                        <LuBuilding class="h-5 w-5 text-purple-600 dark:text-purple-400" />
                                     </div>
                                     <div>
-                                        <p class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">Venue Rentals</p>
-                                        <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5 tracking-tight">
+                                        <p class="text-xs font-semibold text-slate-500 sm:text-sm dark:text-slate-400">Venue Rentals</p>
+                                        <p class="mt-0.5 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
                                             {{ stats.venue_rentals.total }}
                                         </p>
                                     </div>
                                 </div>
                                 <Link
                                     :href="route('rentals.venue.index')"
-                                    class="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-                                    <LuArrowRight class="w-5 h-5" />
+                                    class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800 dark:hover:text-blue-400">
+                                    <LuArrowRight class="h-5 w-5" />
                                 </Link>
                             </div>
-                            <div class="mt-3.5 sm:mt-4 grid grid-cols-4 gap-1 text-center text-[0.65rem] sm:text-xs font-medium">
-                                <div class="p-1 rounded-md bg-amber-50 dark:bg-amber-950/40">
+                            <div class="mt-3.5 grid grid-cols-4 gap-1 text-center text-[0.65rem] font-medium sm:mt-4 sm:text-xs">
+                                <div class="rounded-md bg-amber-50 p-1 dark:bg-amber-950/40">
                                     <p class="font-bold text-amber-700 dark:text-amber-300">
                                         {{ stats.venue_rentals.pending }}
                                     </p>
                                     <p class="text-amber-600/80 dark:text-amber-400/80">Pending</p>
                                 </div>
-                                <div class="p-1 rounded-md bg-green-50 dark:bg-green-950/40">
+                                <div class="rounded-md bg-green-50 p-1 dark:bg-green-950/40">
                                     <p class="font-bold text-green-700 dark:text-green-300">
                                         {{ stats.venue_rentals.approved }}
                                     </p>
                                     <p class="text-green-600/80 dark:text-green-400/80">Approved</p>
                                 </div>
-                                <div class="p-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40">
+                                <div class="rounded-md bg-emerald-50 p-1 dark:bg-emerald-950/40">
                                     <p class="font-bold text-emerald-700 dark:text-emerald-300">
                                         {{ stats.venue_rentals.completed }}
                                     </p>
                                     <p class="text-emerald-600/80 dark:text-emerald-400/80">Done</p>
                                 </div>
-                                <div class="p-1 rounded-md bg-rose-50 dark:bg-rose-950/40">
+                                <div class="rounded-md bg-rose-50 p-1 dark:bg-rose-950/40">
                                     <p class="font-bold text-rose-700 dark:text-rose-300">
                                         {{ stats.venue_rentals.rejected }}
                                     </p>
                                     <p class="text-rose-600/80 dark:text-rose-400/80">Rejected</p>
                                 </div>
                             </div>
-                            <div class="mt-3 sm:mt-4 h-24 sm:h-28">
+                            <div class="mt-3 h-24 sm:mt-4 sm:h-28">
                                 <canvas ref="venueChartCanvas"></canvas>
                             </div>
                         </div>
-                        <div class="px-4 sm:px-5 py-2.5 sm:py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-800">
+                        <div class="border-t border-gray-100 bg-slate-50 px-4 py-2.5 sm:px-5 sm:py-3 dark:border-slate-800 dark:bg-slate-800/50">
                             <Link
                                 :href="route('rentals.venue.index')"
-                                class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                                class="flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
                                 Manage venues
-                                <LuChevronRight class="w-4 h-4" />
+                                <LuChevronRight class="h-4 w-4" />
                             </Link>
                         </div>
                     </div>
@@ -967,65 +967,65 @@ export default {
                     <!-- Lab Equipment Card -->
                     <div
                         v-if="dashboardAccess.laboratory"
-                        class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col justify-between">
+                        class="flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
                         <div class="p-4 sm:p-5">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-center gap-3">
-                                    <div class="p-2.5 bg-indigo-500/10 dark:bg-indigo-400/15 rounded-xl border border-indigo-500/20">
-                                        <LuMicroscope class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                                    <div class="rounded-xl border border-indigo-500/20 bg-indigo-500/10 p-2.5 dark:bg-indigo-400/15">
+                                        <LuMicroscope class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                                     </div>
                                     <div>
-                                        <p class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">Lab Equipment</p>
-                                        <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5 tracking-tight">
+                                        <p class="text-xs font-semibold text-slate-500 sm:text-sm dark:text-slate-400">Lab Equipment</p>
+                                        <p class="mt-0.5 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
                                             {{ stats.laboratory_equipment.total }}
                                         </p>
                                     </div>
                                 </div>
                                 <Link
                                     :href="route('equipment-logger.dashboard')"
-                                    class="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-                                    <LuArrowRight class="w-5 h-5" />
+                                    class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800 dark:hover:text-blue-400">
+                                    <LuArrowRight class="h-5 w-5" />
                                 </Link>
                             </div>
-                            <div class="mt-3.5 sm:mt-4 flex items-center justify-around text-[0.7rem] sm:text-xs font-medium">
+                            <div class="mt-3.5 flex items-center justify-around text-[0.7rem] font-medium sm:mt-4 sm:text-xs">
                                 <div class="flex flex-col items-center gap-0.5">
-                                    <div class="flex items-center gap-1 px-2.5 py-1 bg-green-50 dark:bg-green-950/40 rounded-full">
-                                        <LuActivity class="w-3 h-3 text-green-500" />
+                                    <div class="flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 dark:bg-green-950/40">
+                                        <LuActivity class="h-3 w-3 text-green-500" />
                                         <span class="font-bold text-green-700 dark:text-green-300">
                                             {{ stats.laboratory_equipment.active }}
                                         </span>
                                     </div>
-                                    <span class="text-slate-500 dark:text-slate-400 mt-0.5">Active</span>
+                                    <span class="mt-0.5 text-slate-500 dark:text-slate-400">Active</span>
                                 </div>
                                 <div class="flex flex-col items-center gap-0.5">
-                                    <div class="flex items-center gap-1 px-2.5 py-1 bg-amber-50 dark:bg-amber-950/40 rounded-full">
-                                        <LuAlertTriangle class="w-3 h-3 text-amber-500" />
+                                    <div class="flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 dark:bg-amber-950/40">
+                                        <LuAlertTriangle class="h-3 w-3 text-amber-500" />
                                         <span class="font-bold text-amber-700 dark:text-amber-300">
                                             {{ stats.laboratory_equipment.overdue }}
                                         </span>
                                     </div>
-                                    <span class="text-slate-500 dark:text-slate-400 mt-0.5">Overdue</span>
+                                    <span class="mt-0.5 text-slate-500 dark:text-slate-400">Overdue</span>
                                 </div>
                                 <div class="flex flex-col items-center gap-0.5">
-                                    <div class="flex items-center gap-1 px-2.5 py-1 bg-blue-50 dark:bg-blue-950/40 rounded-full">
-                                        <LuCheckCircle class="w-3 h-3 text-blue-500" />
+                                    <div class="flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 dark:bg-blue-950/40">
+                                        <LuCheckCircle class="h-3 w-3 text-blue-500" />
                                         <span class="font-bold text-blue-700 dark:text-blue-300">
                                             {{ stats.laboratory_equipment.completed }}
                                         </span>
                                     </div>
-                                    <span class="text-slate-500 dark:text-slate-400 mt-0.5">Done</span>
+                                    <span class="mt-0.5 text-slate-500 dark:text-slate-400">Done</span>
                                 </div>
                             </div>
-                            <div class="mt-3 sm:mt-4 h-24 sm:h-28">
+                            <div class="mt-3 h-24 sm:mt-4 sm:h-28">
                                 <canvas ref="labChartCanvas"></canvas>
                             </div>
                         </div>
-                        <div class="px-4 sm:px-5 py-2.5 sm:py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-800">
+                        <div class="border-t border-gray-100 bg-slate-50 px-4 py-2.5 sm:px-5 sm:py-3 dark:border-slate-800 dark:bg-slate-800/50">
                             <Link
                                 :href="route('equipment-logger.dashboard')"
-                                class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                                class="flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
                                 View logs
-                                <LuChevronRight class="w-4 h-4" />
+                                <LuChevronRight class="h-4 w-4" />
                             </Link>
                         </div>
                     </div>
@@ -1034,78 +1034,78 @@ export default {
                 <!-- ═══════ QUICK ACTIONS ═══════ -->
                 <div
                     v-if="hasQuickActions"
-                    class="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
+                    class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
                     <Link
                         v-if="dashboardAccess.events"
                         :href="route('forms.create')"
-                        class="group bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 p-4 sm:p-5 hover:shadow-md hover:border-blue-500/40 dark:hover:border-blue-400/40 hover:-translate-y-0.5 transition-all duration-300">
+                        class="group rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-500/40 hover:shadow-md sm:p-5 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-400/40">
                         <div class="flex items-start justify-between">
-                            <div class="p-2.5 bg-blue-500/10 dark:bg-blue-400/15 rounded-xl border border-blue-500/20 group-hover:scale-105 transition-transform">
-                                <LuCalendarPlus class="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                            <div class="rounded-xl border border-blue-500/20 bg-blue-500/10 p-2.5 transition-transform group-hover:scale-105 dark:bg-blue-400/15">
+                                <LuCalendarPlus class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                             </div>
-                            <LuArrowUpRight class="w-5 h-5 text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
+                            <LuArrowUpRight class="h-5 w-5 text-slate-400 transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400" />
                         </div>
-                        <h3 class="mt-3 font-bold text-sm sm:text-base text-slate-900 dark:text-white">Create Event</h3>
+                        <h3 class="mt-3 text-sm font-bold text-slate-900 sm:text-base dark:text-white">Create Event</h3>
                         <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">New event form</p>
                     </Link>
 
                     <Link
                         v-if="dashboardAccess.events"
                         :href="route('forms.scan')"
-                        class="group bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 p-4 sm:p-5 hover:shadow-md hover:border-emerald-500/40 dark:hover:border-emerald-400/40 hover:-translate-y-0.5 transition-all duration-300">
+                        class="group rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-500/40 hover:shadow-md sm:p-5 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-400/40">
                         <div class="flex items-start justify-between">
-                            <div class="p-2.5 bg-emerald-500/10 dark:bg-emerald-400/15 rounded-xl border border-emerald-500/20 group-hover:scale-105 transition-transform">
-                                <LuQrCode class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                            <div class="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-2.5 transition-transform group-hover:scale-105 dark:bg-emerald-400/15">
+                                <LuQrCode class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                             </div>
-                            <LuArrowUpRight class="w-5 h-5 text-slate-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors" />
+                            <LuArrowUpRight class="h-5 w-5 text-slate-400 transition-colors group-hover:text-emerald-600 dark:group-hover:text-emerald-400" />
                         </div>
-                        <h3 class="mt-3 font-bold text-sm sm:text-base text-slate-900 dark:text-white">Scan QR</h3>
+                        <h3 class="mt-3 text-sm font-bold text-slate-900 sm:text-base dark:text-white">Scan QR</h3>
                         <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Check attendance</p>
                     </Link>
 
                     <Link
                         v-if="dashboardAccess.rentals"
                         :href="route('rentals.vehicle.index')"
-                        class="group bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 p-4 sm:p-5 hover:shadow-md hover:border-amber-500/40 dark:hover:border-amber-400/40 hover:-translate-y-0.5 transition-all duration-300">
+                        class="group rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-500/40 hover:shadow-md sm:p-5 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-amber-400/40">
                         <div class="flex items-start justify-between">
-                            <div class="p-2.5 bg-amber-500/10 dark:bg-amber-400/15 rounded-xl border border-amber-500/20 group-hover:scale-105 transition-transform">
-                                <LuClipboardList class="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                            <div class="rounded-xl border border-amber-500/20 bg-amber-500/10 p-2.5 transition-transform group-hover:scale-105 dark:bg-amber-400/15">
+                                <LuClipboardList class="h-5 w-5 text-amber-600 dark:text-amber-400" />
                             </div>
-                            <LuArrowUpRight class="w-5 h-5 text-slate-400 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors" />
+                            <LuArrowUpRight class="h-5 w-5 text-slate-400 transition-colors group-hover:text-amber-600 dark:group-hover:text-amber-400" />
                         </div>
-                        <h3 class="mt-3 font-bold text-sm sm:text-base text-slate-900 dark:text-white">Bookings</h3>
+                        <h3 class="mt-3 text-sm font-bold text-slate-900 sm:text-base dark:text-white">Bookings</h3>
                         <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Rentals & venues</p>
                     </Link>
 
                     <Link
                         v-if="dashboardAccess.laboratory"
                         :href="route('equipment-logger.dashboard')"
-                        class="group bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 p-4 sm:p-5 hover:shadow-md hover:border-indigo-500/40 dark:hover:border-indigo-400/40 hover:-translate-y-0.5 transition-all duration-300">
+                        class="group rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-indigo-500/40 hover:shadow-md sm:p-5 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-indigo-400/40">
                         <div class="flex items-start justify-between">
-                            <div class="p-2.5 bg-indigo-500/10 dark:bg-indigo-400/15 rounded-xl border border-indigo-500/20 group-hover:scale-105 transition-transform">
-                                <LuFlaskConical class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                            <div class="rounded-xl border border-indigo-500/20 bg-indigo-500/10 p-2.5 transition-transform group-hover:scale-105 dark:bg-indigo-400/15">
+                                <LuFlaskConical class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                             </div>
-                            <LuArrowUpRight class="w-5 h-5 text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
+                            <LuArrowUpRight class="h-5 w-5 text-slate-400 transition-colors group-hover:text-indigo-600 dark:group-hover:text-indigo-400" />
                         </div>
-                        <h3 class="mt-3 font-bold text-sm sm:text-base text-slate-900 dark:text-white">Laboratory</h3>
+                        <h3 class="mt-3 text-sm font-bold text-slate-900 sm:text-base dark:text-white">Laboratory</h3>
                         <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Equipment logs</p>
                     </Link>
                 </div>
 
                 <!-- ═══════ BOTTOM GRID: Activity Timeline + Top Active Equipment ═══════ -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+                <div class="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-3">
                     <!-- Unified Recent Activity Timeline -->
                     <div
                         v-if="recentSystemActivity.length"
-                        class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
-                        <div class="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
+                        class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm lg:col-span-2 dark:border-slate-800 dark:bg-slate-900">
+                        <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3.5 sm:px-6 sm:py-4 dark:border-slate-800">
                             <div class="flex items-center gap-2.5">
-                                <div class="p-2 bg-emerald-500/10 dark:bg-emerald-400/15 rounded-lg border border-emerald-500/20">
-                                    <LuActivity class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                <div class="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-2 dark:bg-emerald-400/15">
+                                    <LuActivity class="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                                 </div>
                                 <div>
-                                    <h3 class="font-bold text-sm sm:text-base text-slate-900 dark:text-white">Recent System Activity</h3>
-                                    <p class="text-[0.65rem] sm:text-xs text-slate-500 dark:text-slate-400">Latest actions across all modules</p>
+                                    <h3 class="text-sm font-bold text-slate-900 sm:text-base dark:text-white">Recent System Activity</h3>
+                                    <p class="text-[0.65rem] text-slate-500 sm:text-xs dark:text-slate-400">Latest actions across all modules</p>
                                 </div>
                             </div>
                         </div>
@@ -1114,34 +1114,34 @@ export default {
                             <div
                                 v-for="(activity, idx) in recentSystemActivity"
                                 :key="idx"
-                                class="flex items-start gap-3 px-4 sm:px-6 py-3 sm:py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors border-l-[3px]"
+                                class="flex items-start gap-3 border-l-[3px] px-4 py-3 transition-colors hover:bg-slate-50 sm:px-6 sm:py-3.5 dark:hover:bg-slate-800/40"
                                 :class="activityColorClass(activity.color)">
                                 <div class="min-w-0 flex-1">
-                                    <div class="flex items-center gap-2 flex-wrap">
+                                    <div class="flex flex-wrap items-center gap-2">
                                         <span
-                                            class="inline-flex px-2 py-0.5 rounded-full text-[0.6rem] sm:text-[0.65rem] font-bold uppercase"
+                                            class="inline-flex rounded-full px-2 py-0.5 text-[0.6rem] font-bold uppercase sm:text-[0.65rem]"
                                             :class="activityModuleBadgeClass(activity.color)">
                                             {{ activity.module }}
                                         </span>
-                                        <p class="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">
+                                        <p class="truncate text-xs font-semibold text-slate-800 sm:text-sm dark:text-slate-200">
                                             {{ activity.title }}
                                         </p>
                                     </div>
                                     <p
                                         v-if="activity.subtitle"
-                                        class="mt-0.5 text-[0.65rem] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
+                                        class="mt-0.5 truncate text-[0.65rem] text-slate-500 sm:text-xs dark:text-slate-400">
                                         {{ activity.subtitle }}
                                     </p>
                                 </div>
-                                <span class="text-[0.6rem] sm:text-xs text-slate-400 dark:text-slate-500 whitespace-nowrap shrink-0 tabular-nums">
+                                <span class="shrink-0 whitespace-nowrap text-[0.6rem] tabular-nums text-slate-400 sm:text-xs dark:text-slate-500">
                                     {{ timeAgo(activity.timestamp) }}
                                 </span>
                             </div>
 
                             <div
                                 v-if="!recentSystemActivity.length"
-                                class="px-5 py-8 text-center text-xs sm:text-sm text-slate-400 dark:text-slate-500">
-                                <LuActivity class="w-8 h-8 mx-auto mb-2 opacity-20" />
+                                class="px-5 py-8 text-center text-xs text-slate-400 sm:text-sm dark:text-slate-500">
+                                <LuActivity class="mx-auto mb-2 h-8 w-8 opacity-20" />
                                 <p>No recent activity</p>
                             </div>
                         </div>
@@ -1150,14 +1150,14 @@ export default {
                     <!-- Top Active Equipment -->
                     <div
                         v-if="dashboardAccess.laboratory"
-                        class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
-                        <div class="px-4 sm:px-5 py-3.5 sm:py-4 border-b border-gray-100 dark:border-slate-800 flex items-center gap-2.5">
-                            <div class="p-2 bg-rose-500/10 dark:bg-rose-400/15 rounded-lg border border-rose-500/20">
-                                <LuTimer class="w-4 h-4 text-rose-600 dark:text-rose-400" />
+                        class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <div class="flex items-center gap-2.5 border-b border-gray-100 px-4 py-3.5 sm:px-5 sm:py-4 dark:border-slate-800">
+                            <div class="rounded-lg border border-rose-500/20 bg-rose-500/10 p-2 dark:bg-rose-400/15">
+                                <LuTimer class="h-4 w-4 text-rose-600 dark:text-rose-400" />
                             </div>
                             <div>
-                                <h3 class="font-bold text-sm sm:text-base text-slate-900 dark:text-white">Active Sessions</h3>
-                                <p class="text-[0.65rem] sm:text-xs text-slate-500 dark:text-slate-400">Currently checked-out equipment</p>
+                                <h3 class="text-sm font-bold text-slate-900 sm:text-base dark:text-white">Active Sessions</h3>
+                                <p class="text-[0.65rem] text-slate-500 sm:text-xs dark:text-slate-400">Currently checked-out equipment</p>
                             </div>
                         </div>
 
@@ -1165,24 +1165,24 @@ export default {
                             <div
                                 v-for="eq in topActiveEquipment"
                                 :key="eq.id"
-                                class="px-4 sm:px-5 py-3 sm:py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                                class="px-4 py-3 transition-colors hover:bg-slate-50 sm:px-5 sm:py-3.5 dark:hover:bg-slate-800/40">
                                 <div class="flex items-start justify-between gap-2">
                                     <div class="min-w-0">
-                                        <p class="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">
+                                        <p class="truncate text-xs font-semibold text-slate-800 sm:text-sm dark:text-slate-200">
                                             {{ eq.equipment?.name || "Equipment" }}
                                         </p>
-                                        <p class="text-[0.65rem] sm:text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                                        <p class="mt-0.5 truncate text-[0.65rem] text-slate-500 sm:text-xs dark:text-slate-400">
                                             {{ formatPersonnelName(eq.personnel) }}
                                         </p>
                                         <p
                                             v-if="eq.location_label"
-                                            class="text-[0.6rem] text-slate-400 dark:text-slate-500 truncate">
+                                            class="truncate text-[0.6rem] text-slate-400 dark:text-slate-500">
                                             {{ eq.location_label }}
                                         </p>
                                     </div>
-                                    <div class="text-right shrink-0">
+                                    <div class="shrink-0 text-right">
                                         <span
-                                            class="inline-flex px-2 py-0.5 rounded-full text-[0.6rem] sm:text-[0.65rem] font-bold uppercase"
+                                            class="inline-flex rounded-full px-2 py-0.5 text-[0.6rem] font-bold uppercase sm:text-[0.65rem]"
                                             :class="eq.status === 'overdue' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'">
                                             {{ elapsedTime(eq.started_at) }}
                                         </span>
@@ -1192,18 +1192,18 @@ export default {
 
                             <div
                                 v-if="!topActiveEquipment.length"
-                                class="px-5 py-8 text-center text-xs sm:text-sm text-slate-400 dark:text-slate-500">
-                                <LuFlaskConical class="w-8 h-8 mx-auto mb-2 opacity-20" />
+                                class="px-5 py-8 text-center text-xs text-slate-400 sm:text-sm dark:text-slate-500">
+                                <LuFlaskConical class="mx-auto mb-2 h-8 w-8 opacity-20" />
                                 <p>No active sessions</p>
                             </div>
                         </div>
 
-                        <div class="px-4 sm:px-5 py-2.5 sm:py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-800">
+                        <div class="border-t border-gray-100 bg-slate-50 px-4 py-2.5 sm:px-5 sm:py-3 dark:border-slate-800 dark:bg-slate-800/50">
                             <Link
                                 :href="route('equipment-logger.dashboard')"
-                                class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                                class="flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
                                 View all sessions
-                                <LuChevronRight class="w-4 h-4" />
+                                <LuChevronRight class="h-4 w-4" />
                             </Link>
                         </div>
                     </div>
@@ -1211,7 +1211,7 @@ export default {
                     <!-- Fallback: If no lab access but activity exists, make timeline full width -->
                     <div
                         v-if="!dashboardAccess.laboratory && !recentSystemActivity.length"
-                        class="lg:col-span-3 text-center py-6 text-xs text-slate-400 dark:text-slate-500">
+                        class="py-6 text-center text-xs text-slate-400 lg:col-span-3 dark:text-slate-500">
                         <!-- Empty spacer -->
                     </div>
                 </div>
@@ -1219,19 +1219,19 @@ export default {
                 <!-- ═══════ LEGACY: Recent Transactions + Equipment Logs (kept as fallback) ═══════ -->
                 <div
                     v-if="(dashboardAccess.inventory || dashboardAccess.laboratory) && !recentSystemActivity.length"
-                    class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+                    class="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2">
                     <!-- Recent Transactions Section -->
                     <div
                         v-if="dashboardAccess.inventory"
-                        class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200/80 dark:border-slate-800 overflow-hidden">
-                        <div class="px-3.5 sm:px-5 py-3 sm:py-4 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
+                        class="overflow-hidden rounded-xl border border-gray-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <div class="flex items-center justify-between border-b border-gray-100 px-3.5 py-3 sm:px-5 sm:py-4 dark:border-slate-800">
                             <div class="flex items-center gap-2">
-                                <LuActivity class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-                                <h3 class="font-semibold text-sm sm:text-base text-gray-900 dark:text-white">Recent Transactions</h3>
+                                <LuActivity class="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
+                                <h3 class="text-sm font-semibold text-gray-900 sm:text-base dark:text-white">Recent Transactions</h3>
                             </div>
                             <Link
                                 :href="route('transactions.index')"
-                                class="text-xs sm:text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
+                                class="text-xs font-medium text-blue-600 hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
                                 View all
                             </Link>
                         </div>
@@ -1240,28 +1240,28 @@ export default {
                                 v-for="transaction in recentTransactions"
                                 :key="transaction.id"
                                 :href="route('transactions.show', transaction.id)"
-                                class="flex items-center justify-between px-3.5 sm:px-5 py-3 sm:py-4 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors group">
-                                <div class="flex items-center gap-2.5 sm:gap-4 min-w-0">
+                                class="group flex items-center justify-between px-3.5 py-3 transition-colors hover:bg-gray-50 sm:px-5 sm:py-4 dark:hover:bg-slate-800/50">
+                                <div class="flex min-w-0 items-center gap-2.5 sm:gap-4">
                                     <div
-                                        class="p-2 rounded-full shrink-0 hidden sm:block"
-                                        :class="transaction.transac_type === 'incoming' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'">
+                                        class="hidden shrink-0 rounded-full p-2 sm:block"
+                                        :class="transaction.transac_type === 'incoming' ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'">
                                         <LuArrowDownLeft
                                             v-if="transaction.transac_type === 'incoming'"
-                                            class="w-4 h-4" />
+                                            class="h-4 w-4" />
                                         <LuArrowUpRight
                                             v-else
-                                            class="w-4 h-4" />
+                                            class="h-4 w-4" />
                                     </div>
                                     <div class="min-w-0">
-                                        <p class="font-medium text-xs sm:text-sm text-gray-900 dark:text-white truncate">
+                                        <p class="truncate text-xs font-medium text-gray-900 sm:text-sm dark:text-white">
                                             {{ transaction?.item?.name ?? "Unknown Item" }}
                                             <span
-                                                class="text-[0.65rem] font-normal uppercase px-1.5 py-0.5 rounded-full ml-1.5 inline-block"
-                                                :class="transaction.transac_type === 'incoming' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'">
+                                                class="ml-1.5 inline-block rounded-full px-1.5 py-0.5 text-[0.65rem] font-normal uppercase"
+                                                :class="transaction.transac_type === 'incoming' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'">
                                                 {{ transaction.transac_type }}
                                             </span>
                                         </p>
-                                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5 truncate">
+                                        <p class="mt-0.5 truncate text-xs text-gray-500 dark:text-slate-400">
                                             {{ transaction?.quantity }} {{ transaction?.unit }} by
                                             <span class="font-medium text-gray-700 dark:text-slate-300">
                                                 {{ transaction?.personnel ? `${transaction.personnel.fname} ${transaction.personnel.lname}` : "Unknown" }}
@@ -1269,16 +1269,16 @@ export default {
                                         </p>
                                     </div>
                                 </div>
-                                <div class="text-right shrink-0 ml-2">
-                                    <p class="text-[0.7rem] sm:text-xs text-gray-500 dark:text-slate-400">
+                                <div class="ml-2 shrink-0 text-right">
+                                    <p class="text-[0.7rem] text-gray-500 sm:text-xs dark:text-slate-400">
                                         {{ new Date(transaction?.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }) }}
                                     </p>
                                 </div>
                             </Link>
                             <div
                                 v-if="!recentTransactions?.length"
-                                class="px-5 py-6 text-center text-xs sm:text-sm text-gray-500 dark:text-slate-400">
-                                <LuPackage class="w-10 h-10 mx-auto mb-2 opacity-20" />
+                                class="px-5 py-6 text-center text-xs text-gray-500 sm:text-sm dark:text-slate-400">
+                                <LuPackage class="mx-auto mb-2 h-10 w-10 opacity-20" />
                                 <p>No recent transactions</p>
                             </div>
                         </div>
@@ -1287,15 +1287,15 @@ export default {
                     <!-- Recent Equipment Logs Section -->
                     <div
                         v-if="dashboardAccess.laboratory"
-                        class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200/80 dark:border-slate-800 overflow-hidden">
-                        <div class="px-3.5 sm:px-5 py-3 sm:py-4 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
+                        class="overflow-hidden rounded-xl border border-gray-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <div class="flex items-center justify-between border-b border-gray-100 px-3.5 py-3 sm:px-5 sm:py-4 dark:border-slate-800">
                             <div class="flex items-center gap-2">
-                                <LuMicroscope class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-                                <h3 class="font-semibold text-sm sm:text-base text-gray-900 dark:text-white">Recent Equipment Logs</h3>
+                                <LuMicroscope class="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
+                                <h3 class="text-sm font-semibold text-gray-900 sm:text-base dark:text-white">Recent Equipment Logs</h3>
                             </div>
                             <Link
                                 :href="route('equipment-logger.dashboard')"
-                                class="text-xs sm:text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
+                                class="text-xs font-medium text-blue-600 hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
                                 View all
                             </Link>
                         </div>
@@ -1303,25 +1303,25 @@ export default {
                             <a
                                 v-for="log in recentEquipmentLogs"
                                 :key="log.id"
-                                class="flex items-center justify-between gap-3 px-3.5 sm:px-5 py-3 sm:py-4 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors"
+                                class="flex items-center justify-between gap-3 px-3.5 py-3 transition-colors hover:bg-gray-50 sm:px-5 sm:py-4 dark:hover:bg-slate-800/50"
                                 :href="equipmentShowRoute(log)"
                                 target="_blank">
                                 <div class="min-w-0 flex-1">
-                                    <div class="flex items-center gap-1.5 flex-wrap">
-                                        <p class="font-medium text-xs sm:text-sm text-gray-900 dark:text-white truncate">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <p class="truncate text-xs font-medium text-gray-900 sm:text-sm dark:text-white">
                                             {{ log?.equipment?.name ?? "Unknown Equipment" }}
                                         </p>
                                         <span
-                                            class="text-[0.65rem] uppercase px-1.5 py-0.5 rounded-full inline-block"
+                                            class="inline-block rounded-full px-1.5 py-0.5 text-[0.65rem] uppercase"
                                             :class="equipmentStatusBadge(log.status).className">
                                             {{ equipmentStatusBadge(log.status).label }}
                                         </span>
                                     </div>
-                                    <p class="mt-0.5 text-xs text-gray-500 dark:text-slate-400 truncate">
+                                    <p class="mt-0.5 truncate text-xs text-gray-500 dark:text-slate-400">
                                         {{ formatPersonnelName(log?.personnel) }}
                                     </p>
                                 </div>
-                                <div class="text-right shrink-0 text-[0.65rem] sm:text-xs text-gray-500 dark:text-slate-400">
+                                <div class="shrink-0 text-right text-[0.65rem] text-gray-500 sm:text-xs dark:text-slate-400">
                                     <p class="flex flex-col">
                                         <span>Started {{ formatDateTime(log?.started_at) }}</span>
                                         <span
@@ -1339,8 +1339,8 @@ export default {
                             </a>
                             <div
                                 v-if="!recentEquipmentLogs?.length"
-                                class="px-5 py-6 text-center text-xs sm:text-sm text-gray-500 dark:text-slate-400">
-                                <LuMicroscope class="w-10 h-10 mx-auto mb-2 opacity-20" />
+                                class="px-5 py-6 text-center text-xs text-gray-500 sm:text-sm dark:text-slate-400">
+                                <LuMicroscope class="mx-auto mb-2 h-10 w-10 opacity-20" />
                                 <p>No recent equipment logs</p>
                             </div>
                         </div>

@@ -5,7 +5,7 @@ export default {
 </script>
 
 <template>
-    <base-btn class="text-sm text-white bg-AC dark:text-gray-800 dark:bg-gray-200">
+    <base-btn class="bg-AC text-sm text-white dark:bg-gray-200 dark:text-gray-800">
         <slot />
     </base-btn>
 </template>

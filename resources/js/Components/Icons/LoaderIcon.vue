@@ -1,5 +1,5 @@
 <template>
-    <div class="w-5 h-auto animate-spin">
+    <div class="h-auto w-5 animate-spin">
         <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="currentColor"

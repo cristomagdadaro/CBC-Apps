@@ -1,6 +1,6 @@
 <template>
-    <div class="flex flex-col gap-2 p-2 text-center bg-white rounded-md m-2 border border-gray-500">
-        <div class="font-bold text-2xl">No Form Found</div>
+    <div class="m-2 flex flex-col gap-2 rounded-md border border-gray-500 bg-white p-2 text-center">
+        <div class="text-2xl font-bold">No Form Found</div>
         <div>Can't find the form or none was assigned.</div>
     </div>
 </template>

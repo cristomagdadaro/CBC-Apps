@@ -5,7 +5,7 @@ export default {
 </script>
 
 <template>
-    <tr class="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+    <tr class="border-b border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800">
         <slot />
     </tr>
 </template>

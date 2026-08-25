@@ -37,7 +37,7 @@ export default {
                 :show-back-button="true" />
         </template>
         <div class="py-10">
-            <div class="max-w-4xl mx-auto space-y-6 px-4">
+            <div class="mx-auto max-w-4xl space-y-6 px-4">
                 <supp-equip-report-form
                     :report-templates="reportTemplates"
                     :mode="mode"

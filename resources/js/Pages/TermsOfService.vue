@@ -10,26 +10,26 @@ defineProps({
 <template>
     <Head title="Terms of Service" />
 
-    <div class="font-sans text-slate-900 dark:text-slate-100 antialiased min-h-screen bg-slate-50 dark:bg-slate-950">
-        <div class="py-6 sm:py-12 px-3.5 sm:px-6 flex flex-col items-center justify-center min-h-screen">
-            <div class="shrink-0 mb-4 sm:mb-6">
+    <div class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
+        <div class="flex min-h-screen flex-col items-center justify-center px-3.5 py-6 sm:px-6 sm:py-12">
+            <div class="mb-4 shrink-0 sm:mb-6">
                 <Link
                     href="/"
-                    class="transition-transform hover:scale-105 inline-block">
+                    class="inline-block transition-transform hover:scale-105">
                     <AuthenticationCardLogo />
                 </Link>
             </div>
 
             <div
-                class="w-full max-w-4xl p-5 sm:p-10 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-xl rounded-2xl prose dark:prose-invert max-w-none text-xs sm:text-sm md:text-base leading-relaxed tracking-normal"
+                class="prose w-full max-w-4xl max-w-none rounded-2xl border border-gray-200 bg-white p-5 text-xs leading-relaxed tracking-normal shadow-xl dark:prose-invert sm:p-10 sm:text-sm md:text-base dark:border-slate-800 dark:bg-slate-900"
                 v-html="terms" />
 
             <div class="mt-6 text-center">
                 <Link
                     href="/"
-                    class="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-lime-600 dark:text-lime-400 hover:underline">
+                    class="inline-flex items-center gap-2 text-xs font-semibold text-lime-600 hover:underline sm:text-sm dark:text-lime-400">
                     <svg
-                        class="w-4 h-4"
+                        class="h-4 w-4"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24">

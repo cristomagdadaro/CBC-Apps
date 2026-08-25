@@ -328,18 +328,18 @@ export default {
     <form
         v-if="!!form"
         @submit.prevent="submitForm"
-        class="grid gap-6 w-full"
+        class="grid w-full gap-6"
         :class="currentFormAction === 'create' ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-[1fr,320px] xl:grid-cols-[1fr,360px]'">
         <!-- Main Form Column -->
-        <div class="flex flex-col w-full mx-auto bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl overflow-hidden rounded-2xl h-fit border border-slate-200/60 dark:border-slate-800 shadow-sm ring-1 ring-slate-900/5 dark:ring-white/5 transition-all duration-300">
+        <div class="mx-auto flex h-fit w-full flex-col overflow-hidden rounded-2xl border border-slate-200/60 bg-white/90 shadow-sm ring-1 ring-slate-900/5 backdrop-blur-xl transition-all duration-300 dark:border-slate-800 dark:bg-slate-900/90 dark:ring-white/5">
             <!-- Header Section -->
-            <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-800/20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div class="flex flex-col items-start justify-between gap-4 border-b border-slate-100 bg-slate-50/50 px-6 py-5 sm:flex-row sm:items-center dark:border-slate-800/60 dark:bg-slate-800/20">
                 <div>
-                    <div class="flex items-center gap-2.5 mb-1.5">
-                        <div class="p-1.5 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg shrink-0">
-                            <Package class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                    <div class="mb-1.5 flex items-center gap-2.5">
+                        <div class="shrink-0 rounded-lg bg-indigo-50 p-1.5 dark:bg-indigo-500/10">
+                            <Package class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                         </div>
-                        <h2 class="font-black uppercase tracking-tight text-lg text-slate-900 dark:text-white leading-none">
+                        <h2 class="text-lg font-black uppercase leading-none tracking-tight text-slate-900 dark:text-white">
                             {{ isUpdate ? "Update Transaction" : "Incoming Transaction" }}
                         </h2>
                     </div>
@@ -351,17 +351,17 @@ export default {
                 <!-- Barcode Display -->
                 <div
                     v-if="svgText && selectedStorage"
-                    class="flex items-center justify-center p-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm shrink-0 min-h-[4rem]">
+                    class="flex min-h-[4rem] shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white p-2 shadow-sm dark:border-slate-700 dark:bg-slate-950">
                     <img
                         id="barcode-image"
                         :src="svgText"
                         alt="Generated barcode"
-                        class="h-12 w-auto object-contain rounded bg-white mix-blend-multiply dark:mix-blend-normal" />
+                        class="h-12 w-auto rounded bg-white object-contain mix-blend-multiply dark:mix-blend-normal" />
                 </div>
             </div>
 
             <!-- Form Content Body -->
-            <div class="p-6 space-y-6">
+            <div class="space-y-6 p-6">
                 <!-- Reports Accordion (Only visible on Update) -->
                 <transaction-report-accordion
                     v-if="isUpdate"
@@ -369,8 +369,8 @@ export default {
                     :reports="attachedReportsList" />
 
                 <!-- Core Information Card -->
-                <div class="bg-slate-50/50 dark:bg-slate-800/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/60 space-y-5">
-                    <div class="flex flex-col sm:flex-row items-end gap-3 w-full">
+                <div class="space-y-5 rounded-2xl border border-slate-100 bg-slate-50/50 p-5 dark:border-slate-700/60 dark:bg-slate-800/30">
+                    <div class="flex w-full flex-col items-end gap-3 sm:flex-row">
                         <div class="w-full flex-1">
                             <select-search-field
                                 :disabled="isUpdate"
@@ -382,18 +382,18 @@ export default {
                         </div>
                         <div
                             v-if="!isUpdate"
-                            class="w-full sm:w-auto shrink-0">
+                            class="w-full shrink-0 sm:w-auto">
                             <button
                                 v-if="!showNewItemForm"
                                 @click.prevent="toggleShowNewItemForm"
-                                class="w-full inline-flex justify-center items-center gap-1.5 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-xl shadow-sm transition-all active:scale-95 whitespace-nowrap">
+                                class="inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition-all hover:border-indigo-400 hover:text-indigo-600 active:scale-95 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:text-indigo-400">
                                 <Plus class="h-4 w-4" />
                                 New Item
                             </button>
                             <button
                                 v-else
                                 @click.prevent="toggleShowNewItemForm"
-                                class="w-full inline-flex justify-center items-center gap-1.5 px-4 py-2.5 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-400 text-sm font-bold rounded-xl shadow-sm hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all active:scale-95 whitespace-nowrap">
+                                class="inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-bold text-rose-600 shadow-sm transition-all hover:bg-rose-100 active:scale-95 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20">
                                 <X class="h-4 w-4" />
                                 Close Panel
                             </button>
@@ -410,11 +410,11 @@ export default {
                         :error="form.errors.project_code"
                         hint="Enter the project code assigned to this transaction">
                         <template #icon>
-                            <FileText class="w-4 h-4 text-slate-400" />
+                            <FileText class="h-4 w-4 text-slate-400" />
                         </template>
                     </text-input>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <custom-dropdown
                             searchable
                             :with-all-option="false"
@@ -426,7 +426,7 @@ export default {
                             :error="form.errors.personnel_id"
                             @selectedChange="form.personnel_id = $event">
                             <template #icon>
-                                <User class="w-4 h-4 text-slate-400" />
+                                <User class="h-4 w-4 text-slate-400" />
                             </template>
                         </custom-dropdown>
 
@@ -441,14 +441,14 @@ export default {
                             :error="form.errors.barcode"
                             @selectedChange="generateBarcode($event)">
                             <template #icon>
-                                <MapPin class="w-4 h-4 text-slate-400" />
+                                <MapPin class="h-4 w-4 text-slate-400" />
                             </template>
                         </custom-dropdown>
                     </div>
                 </div>
 
                 <!-- Identification & Barcodes Card -->
-                <div class="bg-slate-50/50 dark:bg-slate-800/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/60 space-y-4">
+                <div class="space-y-4 rounded-2xl border border-slate-100 bg-slate-50/50 p-5 dark:border-slate-700/60 dark:bg-slate-800/30">
                     <text-input
                         label="Parent Barcode / Link"
                         v-model="form.parent_barcode"
@@ -456,23 +456,23 @@ export default {
                         placeholder="Optional: link this as a sub-component"
                         hint="Used to link this as a sub-component of another transaction">
                         <template #icon>
-                            <GitBranch class="w-4 h-4 text-slate-400" />
+                            <GitBranch class="h-4 w-4 text-slate-400" />
                         </template>
                     </text-input>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <text-input
                             label="PRRI QR/Barcode"
                             v-model="form.barcode_prri"
                             :error="form.errors.barcode_prri">
-                            <template #icon><Hash class="w-4 h-4 text-slate-400" /></template>
+                            <template #icon><Hash class="h-4 w-4 text-slate-400" /></template>
                         </text-input>
 
                         <text-input
                             label="PAR No."
                             v-model="form.par_no"
                             :error="form.errors.par_no">
-                            <template #icon><Tag class="w-4 h-4 text-slate-400" /></template>
+                            <template #icon><Tag class="h-4 w-4 text-slate-400" /></template>
                         </text-input>
 
                         <custom-dropdown
@@ -485,44 +485,44 @@ export default {
                             label="Condition"
                             :error="form.errors.condition"
                             @selectedChange="form.condition = $event">
-                            <template #icon><Info class="w-4 h-4 text-slate-400" /></template>
+                            <template #icon><Info class="h-4 w-4 text-slate-400" /></template>
                         </custom-dropdown>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <text-input
                             label="PO No."
                             v-model="form.po_no"
                             :error="form.errors.po_no">
-                            <template #icon><FileText class="w-4 h-4 text-slate-400" /></template>
+                            <template #icon><FileText class="h-4 w-4 text-slate-400" /></template>
                         </text-input>
 
                         <text-input
                             label="PR No."
                             v-model="form.pr_no"
                             :error="form.errors.pr_no">
-                            <template #icon><FileText class="w-4 h-4 text-slate-400" /></template>
+                            <template #icon><FileText class="h-4 w-4 text-slate-400" /></template>
                         </text-input>
 
                         <text-input
                             label="Serial No."
                             v-model="form.serial_no"
                             :error="form.errors.serial_no">
-                            <template #icon><Hash class="w-4 h-4 text-slate-400" /></template>
+                            <template #icon><Hash class="h-4 w-4 text-slate-400" /></template>
                         </text-input>
                     </div>
                 </div>
 
                 <!-- Pricing & Details Card -->
-                <div class="bg-slate-50/50 dark:bg-slate-800/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/60 space-y-4">
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="space-y-4 rounded-2xl border border-slate-100 bg-slate-50/50 p-5 dark:border-slate-700/60 dark:bg-slate-800/30">
+                    <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
                         <text-input
                             required
                             type="number"
                             label="Quantity"
                             v-model="form.quantity"
                             :error="form.errors.quantity">
-                            <template #icon><Box class="w-4 h-4 text-slate-400" /></template>
+                            <template #icon><Box class="h-4 w-4 text-slate-400" /></template>
                         </text-input>
 
                         <text-input
@@ -530,7 +530,7 @@ export default {
                             label="Unit"
                             v-model="form.unit"
                             :error="form.errors.unit">
-                            <template #icon><Scale class="w-4 h-4 text-slate-400" /></template>
+                            <template #icon><Scale class="h-4 w-4 text-slate-400" /></template>
                         </text-input>
 
                         <text-input
@@ -538,7 +538,7 @@ export default {
                             label="Unit Price"
                             v-model="form.unit_price"
                             :error="form.errors.unit_price">
-                            <template #icon><DollarSign class="w-4 h-4 text-slate-400" /></template>
+                            <template #icon><DollarSign class="h-4 w-4 text-slate-400" /></template>
                         </text-input>
 
                         <text-input
@@ -547,7 +547,7 @@ export default {
                             v-model="form.total_cost"
                             :error="form.errors.total_cost"
                             :disabled="true">
-                            <template #icon><DollarSign class="w-4 h-4 text-slate-400" /></template>
+                            <template #icon><DollarSign class="h-4 w-4 text-slate-400" /></template>
                         </text-input>
                     </div>
 
@@ -564,7 +564,7 @@ export default {
                             :rows="3" />
                     </div>
 
-                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 mt-2 shadow-sm">
+                    <div class="mt-2 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
                         <custom-dropdown
                             required
                             :with-all-option="false"
@@ -575,10 +575,10 @@ export default {
                             :error="form.errors.equipment_logger_mode"
                             @selectedChange="form.equipment_logger_mode = $event">
                             <template #icon>
-                                <AlertCircle class="w-4 h-4 text-indigo-500" />
+                                <AlertCircle class="h-4 w-4 text-indigo-500" />
                             </template>
                         </custom-dropdown>
-                        <p class="mt-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400 leading-relaxed">
+                        <p class="mt-2.5 text-xs font-semibold leading-relaxed text-slate-500 dark:text-slate-400">
                             {{ equipmentLoggerModeHelpText }}
                         </p>
                     </div>
@@ -586,25 +586,25 @@ export default {
             </div>
 
             <!-- Form Footer Actions -->
-            <div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-4 sticky bottom-0 z-10">
+            <div class="sticky bottom-0 z-10 flex items-center justify-between gap-4 border-t border-slate-100 bg-slate-50 px-6 py-4 dark:border-slate-800 dark:bg-slate-800/50">
                 <button
                     type="button"
                     @click="resetIncomingForm"
-                    class="flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl shadow-sm transition-all active:scale-95">
-                    <RotateCcw class="w-4 h-4" />
+                    class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-600 shadow-sm transition-all hover:bg-slate-50 active:scale-95 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
+                    <RotateCcw class="h-4 w-4" />
                     Reset
                 </button>
 
                 <button
                     type="submit"
                     :disabled="model.api.processing"
-                    class="flex items-center gap-2 px-8 py-2.5 text-sm font-black text-white bg-indigo-600 hover:bg-indigo-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl shadow-md shadow-indigo-600/20 hover:shadow-lg hover:shadow-indigo-600/30 transition-all">
+                    class="flex items-center gap-2 rounded-xl bg-indigo-600 px-8 py-2.5 text-sm font-black text-white shadow-md shadow-indigo-600/20 transition-all hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-600/30 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50">
                     <Loader2
                         v-if="model.api.processing"
-                        class="w-4 h-4 animate-spin" />
+                        class="h-4 w-4 animate-spin" />
                     <Save
                         v-else
-                        class="w-4 h-4" />
+                        class="h-4 w-4" />
                     <span v-if="model.api.processing">
                         {{ isUpdate ? "Updating..." : "Saving..." }}
                     </span>
@@ -614,7 +614,7 @@ export default {
 
             <audit-info-card
                 v-if="isUpdate"
-                class="border-t-0 rounded-none rounded-b-2xl"
+                class="rounded-none rounded-b-2xl border-t-0"
                 :audit-logs="$page.props.auditLogs"
                 :created-at="data?.created_at"
                 :updated-at="data?.updated_at" />
@@ -624,16 +624,16 @@ export default {
         <div
             v-if="currentFormAction !== 'create'"
             class="flex flex-col gap-6">
-            <div class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl shadow-sm ring-1 ring-slate-900/5 dark:ring-white/5 border border-slate-200/60 dark:border-slate-800 p-5 sm:p-6 space-y-6">
+            <div class="space-y-6 rounded-2xl border border-slate-200/60 bg-white/90 p-5 shadow-sm ring-1 ring-slate-900/5 backdrop-blur-xl sm:p-6 dark:border-slate-800 dark:bg-slate-900/90 dark:ring-white/5">
                 <!-- Workflow Info -->
-                <div class="p-4 bg-indigo-50/80 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/30 rounded-xl shadow-sm">
+                <div class="rounded-xl border border-indigo-100 bg-indigo-50/80 p-4 shadow-sm dark:border-indigo-500/30 dark:bg-indigo-500/10">
                     <div class="flex items-start gap-3">
-                        <div class="p-2 bg-white dark:bg-slate-800 rounded-lg border border-indigo-100 dark:border-slate-700 shrink-0 shadow-sm">
-                            <GitBranch class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                        <div class="shrink-0 rounded-lg border border-indigo-100 bg-white p-2 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                            <GitBranch class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                         </div>
-                        <div class="flex-1 min-w-0 pt-0.5">
-                            <h3 class="font-bold text-xs uppercase tracking-widest text-indigo-900 dark:text-indigo-300 mb-1.5">Sub-Component Workflow</h3>
-                            <p class="text-xs font-medium text-indigo-700 dark:text-indigo-400/80 leading-relaxed">Save each equipment part as its own incoming transaction, then use the parent CBC or PRRI barcode above to link it back to the main equipment record.</p>
+                        <div class="min-w-0 flex-1 pt-0.5">
+                            <h3 class="mb-1.5 text-xs font-bold uppercase tracking-widest text-indigo-900 dark:text-indigo-300">Sub-Component Workflow</h3>
+                            <p class="text-xs font-medium leading-relaxed text-indigo-700 dark:text-indigo-400/80">Save each equipment part as its own incoming transaction, then use the parent CBC or PRRI barcode above to link it back to the main equipment record.</p>
                         </div>
                     </div>
                 </div>
@@ -641,49 +641,49 @@ export default {
                 <!-- Parent Transaction Card -->
                 <div
                     v-if="hasParentTransaction"
-                    class="border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 rounded-xl p-5 space-y-4">
+                    class="space-y-4 rounded-xl border border-slate-200 bg-slate-50/50 p-5 dark:border-slate-700 dark:bg-slate-800/30">
                     <div class="flex items-start justify-between gap-3">
                         <div class="flex items-start gap-3">
-                            <div class="p-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg shrink-0">
-                                <ArrowUpRight class="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                            <div class="shrink-0 rounded-lg bg-slate-200 p-1.5 dark:bg-slate-700">
+                                <ArrowUpRight class="h-4 w-4 text-slate-600 dark:text-slate-400" />
                             </div>
                             <div>
                                 <h3 class="text-xs font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200">Parent Transaction</h3>
-                                <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">Linked as sub-component</p>
+                                <p class="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">Linked as sub-component</p>
                             </div>
                         </div>
                         <Link
                             :href="route('transactions.show', parentTransaction.id)"
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm group">
+                            class="group inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 shadow-sm transition-all hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-indigo-400 dark:hover:bg-slate-800">
                             <span>View</span>
-                            <ArrowUpRight class="w-3 h-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                            <ArrowUpRight class="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                         </Link>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-3 text-sm bg-white dark:bg-slate-900 rounded-lg p-3 border border-slate-100 dark:border-slate-800">
+                    <div class="grid grid-cols-1 gap-3 rounded-lg border border-slate-100 bg-white p-3 text-sm dark:border-slate-800 dark:bg-slate-900">
                         <div class="flex items-start gap-2.5">
-                            <Package class="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                            <Package class="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
                             <div class="min-w-0">
-                                <span class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 block mb-0.5">Item</span>
-                                <span class="text-slate-800 dark:text-slate-200 font-semibold truncate block">
+                                <span class="mb-0.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500">Item</span>
+                                <span class="block truncate font-semibold text-slate-800 dark:text-slate-200">
                                     {{ parentTransaction?.item?.name ?? "—" }}
                                 </span>
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <div class="grid grid-cols-2 gap-3 border-t border-slate-100 pt-2 dark:border-slate-800">
                             <div class="flex items-start gap-2">
-                                <Hash class="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
+                                <Hash class="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
                                 <div>
-                                    <span class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 block mb-0.5">CBC Barcode</span>
+                                    <span class="mb-0.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500">CBC Barcode</span>
                                     <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">
                                         {{ parentTransaction?.barcode ?? "—" }}
                                     </span>
                                 </div>
                             </div>
                             <div class="flex items-start gap-2">
-                                <Hash class="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
+                                <Hash class="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
                                 <div>
-                                    <span class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 block mb-0.5">PRRI Barcode</span>
+                                    <span class="mb-0.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500">PRRI Barcode</span>
                                     <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">
                                         {{ parentTransaction?.barcode_prri ?? "—" }}
                                     </span>
@@ -697,7 +697,7 @@ export default {
             <!-- Sub-Components Accordion -->
             <div
                 v-if="currentFormAction !== 'create'"
-                class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl shadow-sm ring-1 ring-slate-900/5 dark:ring-white/5 border border-slate-200/60 dark:border-slate-800 overflow-hidden">
+                class="overflow-hidden rounded-2xl border border-slate-200/60 bg-white/90 shadow-sm ring-1 ring-slate-900/5 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/90 dark:ring-white/5">
                 <transaction-component-accordion
                     :components="attachedComponentsList"
                     title="Sub-Components"

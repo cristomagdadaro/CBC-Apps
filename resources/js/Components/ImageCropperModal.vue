@@ -88,7 +88,7 @@ const cropImage = () => {
         <template #title>Crop ID Photo</template>
         <template #content>
             <div
-                class="w-full bg-slate-900 flex items-center justify-center overflow-hidden rounded-lg"
+                class="flex w-full items-center justify-center overflow-hidden rounded-lg bg-slate-900"
                 style="height: 50vh">
                 <img
                     v-if="imageUrl"
@@ -97,7 +97,7 @@ const cropImage = () => {
                     class="block max-w-full"
                     alt="To be cropped" />
             </div>
-            <p class="mt-3 text-sm text-slate-500 text-center">Drag the image to position your face in the center. Pinch or scroll to zoom.</p>
+            <p class="mt-3 text-center text-sm text-slate-500">Drag the image to position your face in the center. Pinch or scroll to zoom.</p>
         </template>
         <template #footer>
             <SecondaryButton @click="$emit('close')">Cancel</SecondaryButton>

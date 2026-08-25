@@ -43,7 +43,7 @@ export default {
             type="slide-bottom">
             <div
                 data-guide="fes-request-card"
-                class="flex gap-5 flex-col w-full">
+                class="flex w-full flex-col gap-5">
                 <requester-guest-card
                     :data="requestForm"
                     :request-type-options="requestTypeOptions" />

@@ -180,15 +180,15 @@ export default {
     <form
         v-if="form"
         @submit.prevent="handleSubmit()"
-        class="py-3 relative bg-white px-3"
-        :class="{ 'border border-red-600 rounded-md': form.hasErrors }">
+        class="relative bg-white px-3 py-3"
+        :class="{ 'rounded-md border border-red-600': form.hasErrors }">
         <transition-container type="slide-top">
             <div
                 v-show="showSuccess"
-                class="absolute flex top-0 left-0 bg-AB w-full h-full z-50 text-white text-xl font-medium justify-center items-center rounded-b-md shadow">
+                class="absolute left-0 top-0 z-50 flex h-full w-full items-center justify-center rounded-b-md bg-AB text-xl font-medium text-white shadow">
                 <button
                     @click.prevent="showSuccess = false"
-                    class="absolute top-0 right-0 p-2">
+                    class="absolute right-0 top-0 p-2">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
@@ -199,15 +199,15 @@ export default {
                         <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
                     </svg>
                 </button>
-                <div class="flex flex-col text-center w-full gap-0.5">
-                    <span class="drop-shadow leading-none font-light">Pre-registration Successful!</span>
-                    <span class="drop-shadow leading-none text-sm">We will review your submission and contact your coach.</span>
+                <div class="flex w-full flex-col gap-0.5 text-center">
+                    <span class="font-light leading-none drop-shadow">Pre-registration Successful!</span>
+                    <span class="text-sm leading-none drop-shadow">We will review your submission and contact your coach.</span>
                 </div>
             </div>
         </transition-container>
 
         <div class="pb-3 pt-1">
-            <h3 class="text-lg leading-tight uppercase font-extrabold">
+            <h3 class="text-lg font-extrabold uppercase leading-tight">
                 {{ isEditMode ? "Update Quiz Bee Team Registration" : "Quiz Bee Team Registration" }}
             </h3>
             <p class="text-sm leading-tight">
@@ -215,7 +215,7 @@ export default {
                 <span class="text-red-600">*</span>
                 are required.
             </p>
-            <label class="text-red-700 uppercase justify-center flex text-sm leading-tight">
+            <label class="flex justify-center text-sm uppercase leading-tight text-red-700">
                 {{ form.errors.suspended || form.errors.full || form.errors.expired || form.errors.limit }}
             </label>
         </div>
@@ -228,7 +228,7 @@ export default {
                 placeholder="School / Organization*"
                 autocomplete="organization"
                 @input="form.clearErrors('organization')" />
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <div class="grid grid-cols-1 gap-2 md:grid-cols-3">
                 <custom-dropdown
                     :value="form.response_data.region_address"
                     @selectedChange="form.response_data.region_address = $event"
@@ -239,7 +239,7 @@ export default {
                     :options="locationRegions.map((region) => ({ name: region, label: region }))">
                     <template #icon>
                         <svg
-                            class="ms-2 -me-0.5 h-4 w-4"
+                            class="-me-0.5 ms-2 h-4 w-4"
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
@@ -261,7 +261,7 @@ export default {
                     :options="locationProvinces.map((province) => ({ name: province, label: province }))">
                     <template #icon>
                         <svg
-                            class="ms-2 -me-0.5 h-4 w-4"
+                            class="-me-0.5 ms-2 h-4 w-4"
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
@@ -288,7 +288,7 @@ export default {
                     ">
                     <template #icon>
                         <svg
-                            class="ms-2 -me-0.5 h-4 w-4"
+                            class="-me-0.5 ms-2 h-4 w-4"
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
@@ -355,7 +355,7 @@ export default {
                     ]">
                     <template #icon>
                         <svg
-                            class="ms-2 -me-0.5 h-4 w-4"
+                            class="-me-0.5 ms-2 h-4 w-4"
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
@@ -380,7 +380,7 @@ export default {
                     ]">
                     <template #icon>
                         <svg
-                            class="ms-2 -me-0.5 h-4 w-4"
+                            class="-me-0.5 ms-2 h-4 w-4"
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
@@ -455,7 +455,7 @@ export default {
                 @input="form.clearErrors('coach_phone')" />
             <div
                 v-if="form.hasErrors"
-                class="flex gap-2 text-red-600 text-sm leading-tight">
+                class="flex gap-2 text-sm leading-tight text-red-600">
                 {{ Object.values(form.errors).join(",") }}
             </div>
             <CertifySection

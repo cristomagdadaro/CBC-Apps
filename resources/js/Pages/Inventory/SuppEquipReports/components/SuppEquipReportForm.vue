@@ -270,17 +270,17 @@ export default {
 <template>
     <form
         v-if="!!form"
-        class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg shadow-2xl rounded-2xl p-6 sm:p-10 border border-gray-100 dark:border-slate-800 mx-auto w-full max-w-4xl"
+        class="mx-auto w-full max-w-4xl rounded-2xl border border-gray-100 bg-white/90 p-6 shadow-2xl backdrop-blur-lg sm:p-10 dark:border-slate-800 dark:bg-slate-900/90"
         @submit.prevent="submitForm">
-        <div class="flex items-center justify-between mb-8">
+        <div class="mb-8 flex items-center justify-between">
             <div>
-                <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Attach Supplies & Equipment Report</h2>
+                <h2 class="mb-2 text-xl font-bold text-gray-900 sm:text-2xl dark:text-gray-100">Attach Supplies & Equipment Report</h2>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Link a structured report to a specific transaction for audit readiness.</p>
             </div>
             <transition-container type="fade">
                 <div
                     v-if="successMessage"
-                    class="text-sm text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 rounded">
+                    class="rounded bg-emerald-100 px-3 py-1 text-sm text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
                     {{ successMessage }}
                 </div>
             </transition-container>
@@ -288,14 +288,14 @@ export default {
 
         <div
             v-if="!hasTemplates"
-            class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-3 py-2 rounded">
+            class="rounded bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-900/30 dark:text-red-400">
             Configure at least one template in config/suppequipreportforms.php to start logging reports.
         </div>
 
         <div
             v-else
             class="space-y-8">
-            <div class="grid md:grid-cols-2 gap-6">
+            <div class="grid gap-6 md:grid-cols-2">
                 <custom-dropdown
                     :value="form.report_type"
                     :options="templateOptions"
@@ -326,7 +326,7 @@ export default {
                 </label>
                 <div
                     v-if="!isUpdateMode"
-                    class="flex flex-col md:flex-row gap-3">
+                    class="flex flex-col gap-3 md:flex-row">
                     <text-input
                         class="flex-1 rounded-xl shadow-sm"
                         :placeholder="'Scan barcode or paste transaction ID'"
@@ -334,7 +334,7 @@ export default {
                         :error="form.errors.transaction_id || transactionLookupError" />
                     <search-btn
                         type="button"
-                        class="px-8 py-2.5 rounded-xl shadow-md hover:-translate-y-0.5 transition-all duration-300"
+                        class="rounded-xl px-8 py-2.5 shadow-md transition-all duration-300 hover:-translate-y-0.5"
                         :disabled="model.api.processing || transactionLoading"
                         @click="searchTransactions">
                         <span v-if="!transactionLoading">Lookup Transaction</span>
@@ -345,7 +345,7 @@ export default {
                     <div
                         v-if="transactionLoading"
                         class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                        <loader-icon class="w-4 h-4" />
+                        <loader-icon class="h-4 w-4" />
                         <span>Fetching transactions…</span>
                     </div>
                 </transition-container>
@@ -363,7 +363,7 @@ export default {
                     <div
                         v-for="tx in transactionResults"
                         :key="tx.id"
-                        class="border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-2 cursor-pointer hover:border-emerald-500 dark:hover:border-emerald-400 transition-colors bg-white/50 dark:bg-slate-800/50"
+                        class="cursor-pointer rounded-xl border border-gray-200 bg-white/50 px-3 py-2 transition-colors hover:border-emerald-500 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-emerald-400"
                         @click="selectTransaction(tx)">
                         <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">
                             {{ tx.item?.brand || "" }} {{ tx.item?.fullName || "Unnamed Item" }} by
@@ -376,7 +376,7 @@ export default {
 
                 <div
                     v-if="selectedTransaction"
-                    class="rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/50 dark:bg-emerald-900/20 px-3 py-2 flex flex-col gap-1">
+                    class="flex flex-col gap-1 rounded-xl border border-emerald-200 bg-emerald-50/50 px-3 py-2 dark:border-emerald-900/50 dark:bg-emerald-900/20">
                     <div class="flex items-center justify-between">
                         <p class="text-sm font-semibold text-emerald-800 dark:text-emerald-400">
                             Attached to {{ selectedTransaction.item?.brand || "" }}
@@ -385,7 +385,7 @@ export default {
                         <button
                             v-if="!isUpdateMode"
                             type="button"
-                            class="text-xs text-red-500 dark:text-red-400 hover:underline"
+                            class="text-xs text-red-500 hover:underline dark:text-red-400"
                             @click="clearTransaction">
                             Clear
                         </button>
@@ -403,7 +403,7 @@ export default {
                     v-for="(fieldConfig, fieldKey) in templateFields"
                     :key="fieldKey"
                     class="flex flex-col gap-2">
-                    <label class="text-sm text-gray-700 dark:text-gray-300 font-semibold">
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
                         {{ fieldConfig.label || startCase(fieldKey) }}
                         <span
                             v-if="(fieldConfig.rules || '').includes('required')"
@@ -413,7 +413,7 @@ export default {
                     </label>
                     <textarea
                         v-if="fieldConfig.type === 'textarea'"
-                        class="w-full border border-gray-300 dark:border-slate-700 rounded-xl shadow-sm text-sm p-3 focus:border-emerald-500 focus:ring-emerald-500 transition-shadow bg-white/50 dark:bg-slate-800/50 dark:text-gray-100"
+                        class="w-full rounded-xl border border-gray-300 bg-white/50 p-3 text-sm shadow-sm transition-shadow focus:border-emerald-500 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800/50 dark:text-gray-100"
                         rows="3"
                         :placeholder="getFieldPlaceholder(fieldConfig, 'Enter details')"
                         :value="getFieldValue(fieldKey)"
@@ -443,9 +443,9 @@ export default {
             </div>
 
             <div>
-                <label class="text-sm text-gray-700 dark:text-gray-300 font-semibold mb-2 block">Additional Notes</label>
+                <label class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">Additional Notes</label>
                 <textarea
-                    class="w-full border border-gray-300 dark:border-slate-700 rounded-xl shadow-sm text-sm p-3 focus:border-emerald-500 focus:ring-emerald-500 transition-shadow bg-white/50 dark:bg-slate-800/50 dark:text-gray-100"
+                    class="w-full rounded-xl border border-gray-300 bg-white/50 p-3 text-sm shadow-sm transition-shadow focus:border-emerald-500 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800/50 dark:text-gray-100"
                     rows="3"
                     placeholder="Optional context, follow-up actions, or references"
                     v-model="form.notes" />
@@ -454,15 +454,15 @@ export default {
                     :message="form.errors.notes" />
             </div>
 
-            <div class="flex justify-between items-center pt-4 border-t border-gray-100 dark:border-slate-800">
+            <div class="flex items-center justify-between border-t border-gray-100 pt-4 dark:border-slate-800">
                 <div>
                     <a
                         v-if="isUpdateMode"
                         :href="route('suppEquipReports.pdf', form.id)"
                         target="_blank"
-                        class="inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300 font-bold shadow-sm hover:bg-gray-200 dark:hover:bg-slate-700 transition-all hover:-translate-y-0.5 duration-300 gap-2">
+                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-100 px-6 py-2.5 font-bold text-gray-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-200 dark:bg-slate-800 dark:text-gray-300 dark:hover:bg-slate-700">
                         <svg
-                            class="w-4 h-4"
+                            class="h-4 w-4"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24">
@@ -476,7 +476,7 @@ export default {
                     </a>
                 </div>
                 <submit-btn
-                    class="px-8 py-2.5 rounded-xl bg-AB text-white font-bold shadow-md hover:bg-AB/90 transition-all hover:-translate-y-0.5 duration-300"
+                    class="rounded-xl bg-AB px-8 py-2.5 font-bold text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:bg-AB/90"
                     :disabled="model.api.processing || !form.transaction_id">
                     <span>{{ submitLabel }}</span>
                 </submit-btn>

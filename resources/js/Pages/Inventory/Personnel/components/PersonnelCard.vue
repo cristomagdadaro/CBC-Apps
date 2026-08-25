@@ -8,16 +8,16 @@ export default {
 </script>
 
 <template>
-    <div class="border border-gray-700 p-2 rounded-md gap-2 motion-safe:hover:scale-[1.02] duration-200">
-        <div class="flex flex-col text-center w-full'">
-            <span class="font-bold border-b border-gray-700">
+    <div class="gap-2 rounded-md border border-gray-700 p-2 duration-200 motion-safe:hover:scale-[1.02]">
+        <div class="w-full' flex flex-col text-center">
+            <span class="border-b border-gray-700 font-bold">
                 {{ `${data.fname} ${data.mname} ${data.lname} ${data.suffix}.` }}
             </span>
             <span class="text-normal leading-none">
                 {{ data.position }}
             </span>
         </div>
-        <div class="flex flex-col text-center w-full'">
+        <div class="w-full' flex flex-col text-center">
             <span class="text-xs leading-tight">
                 {{ data.email }}
             </span>

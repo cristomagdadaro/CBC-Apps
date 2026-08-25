@@ -159,14 +159,14 @@ export default {
             <RentalsHeaderAction />
         </template>
 
-        <div class="default-container py-5 space-y-4">
+        <div class="default-container space-y-4 py-5">
             <div
                 v-if="loading"
-                class="rounded-2xl border border-gray-100 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg p-8">
+                class="rounded-2xl border border-gray-100 bg-white/80 p-8 backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/80">
                 <div class="flex flex-col items-center justify-center space-y-4 py-12">
                     <div class="relative">
                         <div class="h-12 w-12 rounded-full border-4 border-gray-200 dark:border-slate-700"></div>
-                        <div class="absolute inset-0 h-12 w-12 animate-spin rounded-full border-4 border-blue-600 dark:border-blue-500 border-t-transparent dark:border-t-transparent"></div>
+                        <div class="absolute inset-0 h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent dark:border-blue-500 dark:border-t-transparent"></div>
                     </div>
                     <p class="text-sm font-medium text-gray-600 dark:text-slate-400">Loading rental details...</p>
                 </div>

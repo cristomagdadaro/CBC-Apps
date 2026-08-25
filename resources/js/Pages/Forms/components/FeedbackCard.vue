@@ -111,15 +111,15 @@ export default {
     <form
         v-if="form"
         @submit.prevent="handleSubmit()"
-        class="py-3 relative bg-white px-3"
-        :class="{ 'border border-red-600 rounded-md': form.hasErrors }">
+        class="relative bg-white px-3 py-3"
+        :class="{ 'rounded-md border border-red-600': form.hasErrors }">
         <transition-container type="slide-top">
             <div
                 v-show="showSuccess"
-                class="absolute flex top-0 left-0 bg-AC w-full h-full z-50 text-white text-xl font-medium justify-center items-center rounded-b-md shadow">
+                class="absolute left-0 top-0 z-50 flex h-full w-full items-center justify-center rounded-b-md bg-AC text-xl font-medium text-white shadow">
                 <button
                     @click.prevent="showSuccess = false"
-                    class="absolute top-0 right-0 p-2">
+                    class="absolute right-0 top-0 p-2">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
@@ -130,15 +130,15 @@ export default {
                         <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
                     </svg>
                 </button>
-                <div class="flex flex-col text-center w-full gap-0.5">
-                    <div class="text-xl bg-AC w-full flex flex-col gap-1 justify-center mb-1 py-2"></div>
-                    <span class="drop-shadow leading-none font-light">Thank you for your feedback!</span>
-                    <span class="drop-shadow leading-none text-sm">See you in our future activities!</span>
+                <div class="flex w-full flex-col gap-0.5 text-center">
+                    <div class="mb-1 flex w-full flex-col justify-center gap-1 bg-AC py-2 text-xl"></div>
+                    <span class="font-light leading-none drop-shadow">Thank you for your feedback!</span>
+                    <span class="text-sm leading-none drop-shadow">See you in our future activities!</span>
                 </div>
             </div>
         </transition-container>
         <div class="pb-3 pt-1">
-            <h3 class="text-lg leading-tight uppercase font-extrabold">
+            <h3 class="text-lg font-extrabold uppercase leading-tight">
                 {{ isEditMode ? "Update Feedback" : "Post Activity Feedback Form" }}
             </h3>
             <p class="text-sm leading-none">
@@ -146,7 +146,7 @@ export default {
                 <span class="text-red-600">*</span>
                 are required.
             </p>
-            <label class="text-red-700 uppercase justify-center flex text-sm leading-tight">
+            <label class="flex justify-center text-sm uppercase leading-tight text-red-700">
                 {{ form.errors.suspended || form.errors.full || form.errors.expired || form.errors.limit }}
             </label>
         </div>
@@ -245,7 +245,7 @@ export default {
                     <textarea
                         id="comments_event_coordination"
                         v-model="form.response_data.comments_event_coordination"
-                        class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"
+                        class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                         rows="3"
                         @input="form.clearErrors('comments_event_coordination')" />
                     <InputError :message="form.errors.comments_event_coordination" />
@@ -257,7 +257,7 @@ export default {
                     <textarea
                         id="other_topics"
                         v-model="form.response_data.other_topics"
-                        class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"
+                        class="rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                         rows="3"
                         @input="form.clearErrors('other_topics')" />
                     <InputError :message="form.errors.other_topics" />

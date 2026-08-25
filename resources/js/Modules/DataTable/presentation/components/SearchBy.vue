@@ -1,14 +1,14 @@
 <template>
     <div class="space-y-1.5">
         <div class="flex items-center justify-between">
-            <label class="text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wide">Filter By</label>
-            <label class="inline-flex items-center gap-1.5 cursor-pointer group">
+            <label class="text-xs font-medium uppercase tracking-wide text-gray-700 dark:text-gray-300">Filter By</label>
+            <label class="group inline-flex cursor-pointer items-center gap-1.5">
                 <input
                     type="checkbox"
                     v-model="is_exact"
                     @change="toggle()"
-                    class="w-3.5 h-3.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                <span class="text-xs text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300">Exact match</span>
+                    class="h-3.5 w-3.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                <span class="text-xs text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300">Exact match</span>
             </label>
         </div>
 
@@ -20,7 +20,7 @@
             class="w-full"
             :show-valid-indicator="false">
             <template #icon>
-                <LuFilter class="w-4 h-4 text-gray-400" />
+                <LuFilter class="h-4 w-4 text-gray-400" />
             </template>
         </custom-dropdown>
     </div>

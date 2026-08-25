@@ -24,10 +24,10 @@ export default {
         <form
             v-if="!!form"
             @submit.prevent="submitCreate"
-            class="max-w-xl mx-auto">
-            <div class="flex flex-col gap-2 w-full mx-auto sm:p-2 lg:p-4 bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+            class="mx-auto max-w-xl">
+            <div class="mx-auto flex w-full flex-col gap-2 overflow-hidden bg-white shadow-xl sm:rounded-lg sm:p-2 lg:p-4 dark:bg-gray-800">
                 <div class="flex flex-col">
-                    <h2 class="font-bold uppercase leading-none py-2 mb-1 border-b">Supplier Registration Form</h2>
+                    <h2 class="mb-1 border-b py-2 font-bold uppercase leading-none">Supplier Registration Form</h2>
                     <p>Use this form to register new suppliers of goods and services.</p>
                 </div>
                 <text-input
@@ -51,7 +51,7 @@ export default {
                     label="Description"
                     v-model="form.description"
                     :error="form.errors.description" />
-                <div class="flex gap-1 justify-end">
+                <div class="flex justify-end gap-1">
                     <submit-btn :disabled="model.api.processing">
                         <span v-if="model.api.processing">Saving</span>
                         <span v-else>Save</span>

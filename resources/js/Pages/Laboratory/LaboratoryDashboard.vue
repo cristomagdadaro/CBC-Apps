@@ -815,13 +815,13 @@ export default {
         </template>
 
         <div class="space-y-6">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-xs">
+            <div class="shadow-xs flex flex-col items-start justify-between gap-3 border-b border-slate-200 bg-white p-4 sm:p-5 md:flex-row md:items-center dark:border-slate-800 dark:bg-slate-900">
                 <div class="space-y-0.5">
                     <div class="flex items-center gap-2">
-                        <Activity class="w-5 h-5 text-lime-600 dark:text-lime-400" />
-                        <h2 class="text-lg sm:text-xl font-bold tracking-tight">Equipment Analytics</h2>
+                        <Activity class="h-5 w-5 text-lime-600 dark:text-lime-400" />
+                        <h2 class="text-lg font-bold tracking-tight sm:text-xl">Equipment Analytics</h2>
                     </div>
-                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                    <p class="text-xs text-slate-500 sm:text-sm dark:text-slate-400">
                         Viewing equipment logs
                         <span class="font-semibold text-lime-600 dark:text-lime-400">
                             {{ scopeCaption }}
@@ -829,7 +829,7 @@ export default {
                     </p>
                 </div>
 
-                <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+                <div class="flex w-full flex-wrap items-center gap-2.5 md:w-auto">
                     <div class="w-full sm:w-52">
                         <custom-dropdown
                             label="Filter Scope"
@@ -847,7 +847,7 @@ export default {
                             {{ periodInputLabel }}
                         </label>
                         <input
-                            class="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-lime-500 focus:ring-1 focus:ring-lime-500 shadow-xs transition-colors"
+                            class="shadow-xs w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs text-slate-900 transition-colors focus:border-lime-500 focus:ring-1 focus:ring-lime-500 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                             :type="periodInputType"
                             :value="periodInputValue"
                             min="2000"
@@ -856,10 +856,10 @@ export default {
                     </div>
                     <button
                         @click="loadDashboard"
-                        class="p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-600 dark:text-slate-300 transition-all active:scale-95 shadow-xs"
+                        class="shadow-xs rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-600 transition-all hover:bg-slate-100 active:scale-95 sm:p-2.5 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700/80"
                         title="Refresh Analytics">
                         <RefreshCw
-                            class="w-4 h-4 sm:w-4.5 sm:h-4.5"
+                            class="sm:w-4.5 sm:h-4.5 h-4 w-4"
                             :class="{ 'animate-spin': loading }" />
                     </button>
                 </div>
@@ -875,18 +875,18 @@ export default {
                 class="space-y-6 px-5">
                 <!-- KPI Analytics Banner -->
                 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
+                    <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
                         <div class="flex items-center justify-between">
                             <h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400">Equipment Users</h3>
-                            <Activity class="w-4 h-4 text-lime-600 dark:text-lime-400" />
+                            <Activity class="h-4 w-4 text-lime-600 dark:text-lime-400" />
                         </div>
-                        <p class="mt-2 text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">
+                        <p class="mt-2 text-2xl font-bold text-slate-900 sm:text-3xl dark:text-slate-100">
                             {{ currentInUseCount }}
                         </p>
                         <p class="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Active + overdue sessions</p>
                     </div>
 
-                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
+                    <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
                         <Dropdown
                             align="right"
                             width="auto"
@@ -897,9 +897,9 @@ export default {
                                     class="w-full text-left">
                                     <div class="flex items-center justify-between">
                                         <h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400">Active Equipment</h3>
-                                        <CheckCircle2 class="w-4 h-4 text-emerald-500" />
+                                        <CheckCircle2 class="h-4 w-4 text-emerald-500" />
                                     </div>
-                                    <p class="mt-2 text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+                                    <p class="mt-2 text-2xl font-bold text-emerald-600 sm:text-3xl dark:text-emerald-400">
                                         {{ activeUniqueEquipmentCount }}
                                     </p>
                                     <p class="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Click to view location details</p>
@@ -914,28 +914,28 @@ export default {
                                         <div
                                             v-for="group in groupedActiveLogs"
                                             :key="group.location"
-                                            class="border border-slate-200 dark:border-slate-800 rounded-xl p-2.5">
-                                            <div class="font-bold text-slate-900 dark:text-slate-100 px-2 py-1">{{ group.location }} ({{ group.items.length }})</div>
+                                            class="rounded-xl border border-slate-200 p-2.5 dark:border-slate-800">
+                                            <div class="px-2 py-1 font-bold text-slate-900 dark:text-slate-100">{{ group.location }} ({{ group.items.length }})</div>
                                             <DropdownOption
                                                 v-for="log in group.items"
                                                 :key="log.id"
-                                                class="!px-2 !py-2 !whitespace-normal">
+                                                class="!whitespace-normal !px-2 !py-2">
                                                 <a
                                                     class="font-semibold text-lime-600 hover:underline"
                                                     target="_blank"
                                                     :href="route(equipmentShowRoute(log), log.equipment?.id)">
                                                     {{ log.equipment?.name || "Equipment" }}
                                                 </a>
-                                                <div class="text-slate-500 text-xs">Barcode: {{ log.equipment_barcode || "-" }}</div>
-                                                <div class="text-slate-500 text-xs">Started: {{ formatDateTime(log.started_at) }}</div>
-                                                <div class="text-slate-500 text-xs">Ends: {{ formatDateTime(log.end_use_at) }}</div>
-                                                <div class="text-slate-500 text-xs">User: {{ formatPersonnelName(log.personnel) }}</div>
+                                                <div class="text-xs text-slate-500">Barcode: {{ log.equipment_barcode || "-" }}</div>
+                                                <div class="text-xs text-slate-500">Started: {{ formatDateTime(log.started_at) }}</div>
+                                                <div class="text-xs text-slate-500">Ends: {{ formatDateTime(log.end_use_at) }}</div>
+                                                <div class="text-xs text-slate-500">User: {{ formatPersonnelName(log.personnel) }}</div>
                                             </DropdownOption>
                                         </div>
                                     </div>
                                     <div
                                         v-else
-                                        class="text-slate-500 p-2">
+                                        class="p-2 text-slate-500">
                                         No active equipment logs.
                                     </div>
                                 </div>
@@ -943,7 +943,7 @@ export default {
                         </Dropdown>
                     </div>
 
-                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
+                    <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
                         <Dropdown
                             align="right"
                             width="auto"
@@ -954,9 +954,9 @@ export default {
                                     class="w-full text-left">
                                     <div class="flex items-center justify-between">
                                         <h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400">Overdue Equipment</h3>
-                                        <AlertTriangle class="w-4 h-4 text-rose-500" />
+                                        <AlertTriangle class="h-4 w-4 text-rose-500" />
                                     </div>
-                                    <p class="mt-2 text-2xl sm:text-3xl font-bold text-rose-600 dark:text-rose-400">
+                                    <p class="mt-2 text-2xl font-bold text-rose-600 sm:text-3xl dark:text-rose-400">
                                         {{ overdueUniqueEquipmentCount }}
                                     </p>
                                     <p class="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Click to review overdue logs</p>
@@ -971,30 +971,30 @@ export default {
                                         <div
                                             v-for="group in groupedOverdueLogs"
                                             :key="group.location"
-                                            class="border border-slate-200 dark:border-slate-800 rounded-xl p-2.5">
-                                            <div class="font-bold text-slate-900 dark:text-slate-100 px-2 py-1">{{ group.location }} ({{ group.items.length }})</div>
+                                            class="rounded-xl border border-slate-200 p-2.5 dark:border-slate-800">
+                                            <div class="px-2 py-1 font-bold text-slate-900 dark:text-slate-100">{{ group.location }} ({{ group.items.length }})</div>
                                             <DropdownOption
                                                 v-for="log in group.items"
                                                 :key="log.id"
-                                                class="!px-2 !py-2 !whitespace-normal">
+                                                class="!whitespace-normal !px-2 !py-2">
                                                 <a
                                                     class="font-semibold text-rose-600 hover:underline"
                                                     target="_blank"
                                                     :href="route(equipmentShowRoute(log), log.equipment?.id)">
                                                     {{ log.equipment?.name || "Equipment" }}
                                                 </a>
-                                                <div class="text-slate-500 text-xs">Barcode: {{ log.equipment_barcode || "-" }}</div>
-                                                <div class="text-slate-500 text-xs">
+                                                <div class="text-xs text-slate-500">Barcode: {{ log.equipment_barcode || "-" }}</div>
+                                                <div class="text-xs text-slate-500">
                                                     Expected end:
                                                     {{ formatDateTime(log.end_use_at) }}
                                                 </div>
-                                                <div class="text-slate-500 text-xs">User: {{ formatPersonnelName(log.personnel) }}</div>
+                                                <div class="text-xs text-slate-500">User: {{ formatPersonnelName(log.personnel) }}</div>
                                             </DropdownOption>
                                         </div>
                                     </div>
                                     <div
                                         v-else
-                                        class="text-slate-500 p-2">
+                                        class="p-2 text-slate-500">
                                         No overdue equipment.
                                     </div>
                                 </div>
@@ -1002,12 +1002,12 @@ export default {
                         </Dropdown>
                     </div>
 
-                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
+                    <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
                         <div class="flex items-center justify-between">
                             <h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400">Peak Usage Window</h3>
-                            <Flame class="w-4 h-4 text-amber-500" />
+                            <Flame class="h-4 w-4 text-amber-500" />
                         </div>
-                        <p class="mt-2 text-lg font-bold text-slate-900 dark:text-slate-100 truncate">
+                        <p class="mt-2 truncate text-lg font-bold text-slate-900 dark:text-slate-100">
                             {{ peakActivityStats.label }}
                         </p>
                         <p class="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Highest concurrent demand period</p>
@@ -1017,27 +1017,27 @@ export default {
                 <!-- Main Visualization Charts Section -->
                 <div class="grid gap-5 lg:grid-cols-12">
                     <!-- Top Equipment Usage Pattern Chart (8 Cols) -->
-                    <div class="lg:col-span-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                    <div class="shadow-xs flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 lg:col-span-8 dark:border-slate-800 dark:bg-slate-900">
+                        <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
-                                <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                                    <BarChart3 class="w-4 h-4 text-lime-600 dark:text-lime-400" />
+                                <h3 class="flex items-center gap-2 text-sm font-bold text-slate-900 sm:text-base dark:text-slate-100">
+                                    <BarChart3 class="h-4 w-4 text-lime-600 dark:text-lime-400" />
                                     Top Equipment Usage Patterns
                                 </h3>
                                 <p class="text-xs text-slate-500 dark:text-slate-400">Comparative usage intensity across laboratory assets.</p>
                             </div>
-                            <div class="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl shrink-0">
+                            <div class="flex shrink-0 items-center rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
                                 <button
                                     type="button"
-                                    class="px-3 py-1 text-xs font-semibold rounded-lg transition-all"
-                                    :class="chartMetricMode === 'frequency' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs font-bold' : 'text-slate-600 dark:text-slate-400'"
+                                    class="rounded-lg px-3 py-1 text-xs font-semibold transition-all"
+                                    :class="chartMetricMode === 'frequency' ? 'shadow-xs bg-white font-bold text-slate-900 dark:bg-slate-900 dark:text-slate-100' : 'text-slate-600 dark:text-slate-400'"
                                     @click="setMetricMode('frequency')">
                                     Frequency (Sessions)
                                 </button>
                                 <button
                                     type="button"
-                                    class="px-3 py-1 text-xs font-semibold rounded-lg transition-all"
-                                    :class="chartMetricMode === 'duration' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs font-bold' : 'text-slate-600 dark:text-slate-400'"
+                                    class="rounded-lg px-3 py-1 text-xs font-semibold transition-all"
+                                    :class="chartMetricMode === 'duration' ? 'shadow-xs bg-white font-bold text-slate-900 dark:bg-slate-900 dark:text-slate-100' : 'text-slate-600 dark:text-slate-400'"
                                     @click="setMetricMode('duration')">
                                     Operating Hours
                                 </button>
@@ -1046,7 +1046,7 @@ export default {
 
                         <div
                             v-if="mostUsed.length"
-                            class="h-80 w-full relative">
+                            class="relative h-80 w-full">
                             <canvas
                                 ref="mostUsedChartCanvas"
                                 :key="chartMetricMode"
@@ -1054,49 +1054,49 @@ export default {
                         </div>
                         <div
                             v-else
-                            class="h-80 flex items-center justify-center text-slate-500 text-xs sm:text-sm">
+                            class="flex h-80 items-center justify-center text-xs text-slate-500 sm:text-sm">
                             No usage pattern data available yet.
                         </div>
                     </div>
 
                     <!-- Category Share & Duration Distribution Side Cards (4 Cols) -->
-                    <div class="lg:col-span-4 space-y-5">
+                    <div class="space-y-5 lg:col-span-4">
                         <!-- Category Distribution -->
-                        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
-                            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 mb-3">
-                                <PieChart class="w-4 h-4 text-sky-500" />
+                        <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+                            <h3 class="mb-3 flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-slate-100">
+                                <PieChart class="h-4 w-4 text-sky-500" />
                                 Category Distribution
                             </h3>
-                            <div class="h-44 w-full relative">
+                            <div class="relative h-44 w-full">
                                 <canvas
                                     ref="categoryChartCanvas"
                                     style="max-height: 100%; max-width: 100%"></canvas>
                             </div>
                             <div class="mt-3 grid grid-cols-2 gap-2 text-center text-xs">
-                                <div class="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/60 dark:border-slate-800">
-                                    <span class="text-slate-500 dark:text-slate-400 block text-[10px]">Laboratory</span>
-                                    <div class="flex items-baseline justify-center gap-1 mt-0.5">
-                                        <span class="font-bold text-lime-600 dark:text-lime-400 text-sm">{{ equipmentTypeShares.labPercent }}%</span>
-                                        <span class="text-[0.65rem] text-slate-400 font-medium">({{ equipmentTypeShares.labCount }})</span>
+                                <div class="rounded-xl border border-slate-200/60 bg-slate-50 p-2 dark:border-slate-800 dark:bg-slate-800/60">
+                                    <span class="block text-[10px] text-slate-500 dark:text-slate-400">Laboratory</span>
+                                    <div class="mt-0.5 flex items-baseline justify-center gap-1">
+                                        <span class="text-sm font-bold text-lime-600 dark:text-lime-400">{{ equipmentTypeShares.labPercent }}%</span>
+                                        <span class="text-[0.65rem] font-medium text-slate-400">({{ equipmentTypeShares.labCount }})</span>
                                     </div>
                                 </div>
-                                <div class="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/60 dark:border-slate-800">
-                                    <span class="text-slate-500 dark:text-slate-400 block text-[10px]">ICT Assets</span>
-                                    <div class="flex items-baseline justify-center gap-1 mt-0.5">
-                                        <span class="font-bold text-sky-600 dark:text-sky-400 text-sm">{{ equipmentTypeShares.ictPercent }}%</span>
-                                        <span class="text-[0.65rem] text-slate-400 font-medium">({{ equipmentTypeShares.ictCount }})</span>
+                                <div class="rounded-xl border border-slate-200/60 bg-slate-50 p-2 dark:border-slate-800 dark:bg-slate-800/60">
+                                    <span class="block text-[10px] text-slate-500 dark:text-slate-400">ICT Assets</span>
+                                    <div class="mt-0.5 flex items-baseline justify-center gap-1">
+                                        <span class="text-sm font-bold text-sky-600 dark:text-sky-400">{{ equipmentTypeShares.ictPercent }}%</span>
+                                        <span class="text-[0.65rem] font-medium text-slate-400">({{ equipmentTypeShares.ictCount }})</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Session Duration Breakdown -->
-                        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
-                            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 mb-3">
-                                <Clock class="w-4 h-4 text-indigo-500" />
+                        <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+                            <h3 class="mb-3 flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-slate-100">
+                                <Clock class="h-4 w-4 text-indigo-500" />
                                 Session Duration Spectrum
                             </h3>
-                            <div class="h-40 w-full relative">
+                            <div class="relative h-40 w-full">
                                 <canvas
                                     ref="durationChartCanvas"
                                     style="max-height: 100%; max-width: 100%"></canvas>
@@ -1104,37 +1104,37 @@ export default {
                         </div>
 
                         <!-- Recently Reported Equipments List -->
-                        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
-                            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 mb-3">
-                                <Layers class="w-4 h-4 text-emerald-500" />
+                        <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+                            <h3 class="mb-3 flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-slate-100">
+                                <Layers class="h-4 w-4 text-emerald-500" />
                                 Recently reported equipments
                             </h3>
-                            <div class="space-y-3 mt-4">
+                            <div class="mt-4 space-y-3">
                                 <template
                                     v-for="(item, index) in recentReports.slice(0, 5)"
                                     :key="item.id">
                                     <a
                                         :href="item.transaction_id ? route('transactions.show', item.transaction_id) : route(equipmentShowRoute(item), item.equipment_barcode)"
                                         target="_blank"
-                                        class="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group cursor-pointer">
+                                        class="group flex cursor-pointer items-center justify-between rounded-xl border border-slate-100 bg-slate-50 p-3 transition-colors hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-800/40 dark:hover:bg-slate-800">
                                         <div class="flex items-center gap-3 overflow-hidden">
-                                            <div class="w-6 h-6 shrink-0 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-500 dark:text-slate-400">
+                                            <div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-200 text-xs font-bold text-slate-500 dark:bg-slate-700 dark:text-slate-400">
                                                 {{ index + 1 }}
                                             </div>
                                             <div class="min-w-0">
-                                                <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate group-hover:text-emerald-600 transition-colors">
+                                                <p class="truncate text-sm font-semibold text-slate-900 transition-colors group-hover:text-emerald-600 dark:text-slate-100">
                                                     {{ item.equipment_name || "Unknown" }}
                                                 </p>
-                                                <p class="text-[10px] text-slate-500 truncate">
+                                                <p class="truncate text-[10px] text-slate-500">
                                                     {{ item.equipment_barcode || "No barcode" }}
                                                 </p>
                                             </div>
                                         </div>
                                         <div class="shrink-0 text-right">
-                                            <span class="inline-flex rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                                            <span class="inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-semibold uppercase text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
                                                 {{ item.report_type }}
                                             </span>
-                                            <span class="text-[9px] text-slate-500 block mt-1">
+                                            <span class="mt-1 block text-[9px] text-slate-500">
                                                 {{ formatDateTime(item.reported_at) }}
                                             </span>
                                         </div>
@@ -1142,7 +1142,7 @@ export default {
                                 </template>
                                 <div
                                     v-if="!recentReports.length"
-                                    class="text-xs text-slate-500 text-center py-4">
+                                    class="py-4 text-center text-xs text-slate-500">
                                     No recently reported equipment.
                                 </div>
                             </div>
@@ -1151,24 +1151,24 @@ export default {
                 </div>
 
                 <!-- Usage Heatmap Matrix Card -->
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+                    <div class="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                         <div>
-                            <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                                <Flame class="w-4 h-4 text-amber-500" />
+                            <h3 class="flex items-center gap-2 text-sm font-bold text-slate-900 sm:text-base dark:text-slate-100">
+                                <Flame class="h-4 w-4 text-amber-500" />
                                 24-Hour Usage Heatmap Matrix
                             </h3>
                             <p class="text-xs text-slate-500 dark:text-slate-400">Hourly density of equipment checkout and checkin activity across days of the week.</p>
                         </div>
 
                         <div class="flex items-center gap-2 text-xs">
-                            <span class="text-slate-500 dark:text-slate-400 font-semibold text-[10px] uppercase">Intensity</span>
+                            <span class="text-[10px] font-semibold uppercase text-slate-500 dark:text-slate-400">Intensity</span>
                             <div class="flex flex-wrap gap-2 text-xs text-slate-600 dark:text-slate-300">
                                 <div
                                     v-for="legend in heatLegend"
                                     :key="legend.label"
                                     class="flex items-center gap-1.5 text-[11px]">
-                                    <span :class="['inline-block h-3 w-4 rounded-md shadow-2xs', legend.className]"></span>
+                                    <span :class="['shadow-2xs inline-block h-3 w-4 rounded-md', legend.className]"></span>
                                     <span>{{ legend.label }}</span>
                                 </div>
                             </div>
@@ -1178,32 +1178,32 @@ export default {
                     <div class="overflow-x-auto">
                         <div class="min-w-[700px]">
                             <div
-                                class="grid gap-1 text-xs mb-1"
+                                class="mb-1 grid gap-1 text-xs"
                                 style="grid-template-columns: repeat(25, minmax(0, 1fr))">
-                                <div class="text-[0.65rem] text-slate-400 font-bold uppercase">Day / Hr</div>
+                                <div class="text-[0.65rem] font-bold uppercase text-slate-400">Day / Hr</div>
                                 <div
                                     v-for="hour in 24"
                                     :key="hour"
-                                    class="text-center text-[0.65rem] text-slate-500 font-semibold">
+                                    class="text-center text-[0.65rem] font-semibold text-slate-500">
                                     {{ hour - 1 }}h
                                 </div>
                             </div>
                             <div
                                 v-for="(row, dayIndex) in heatmap"
                                 :key="dayIndex"
-                                class="grid gap-1 mb-1"
+                                class="mb-1 grid gap-1"
                                 style="grid-template-columns: repeat(25, minmax(0, 1fr))">
-                                <div class="text-[0.7rem] text-slate-600 dark:text-slate-300 font-bold flex items-center">
+                                <div class="flex items-center text-[0.7rem] font-bold text-slate-600 dark:text-slate-300">
                                     {{ dayLabels[dayIndex] }}
                                 </div>
                                 <div
                                     v-for="(cell, hourIndex) in row"
                                     :key="hourIndex"
-                                    :class="['h-6 rounded-md transition-all duration-200 hover:scale-110 hover:z-10 cursor-pointer flex items-center justify-center text-[9px]', heatColor(cell)]"
+                                    :class="['flex h-6 cursor-pointer items-center justify-center rounded-md text-[9px] transition-all duration-200 hover:z-10 hover:scale-110', heatColor(cell)]"
                                     :title="`${dayLabels[dayIndex]} @ ${hourIndex}:00 — ${cell} log(s)`">
                                     <span
                                         v-if="cell > 0"
-                                        class="opacity-90 font-bold">
+                                        class="font-bold opacity-90">
                                         {{ cell }}
                                     </span>
                                 </div>
@@ -1211,9 +1211,9 @@ export default {
                         </div>
                     </div>
 
-                    <div class="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                    <div class="mt-4 grid grid-cols-2 gap-3 border-t border-slate-200 pt-3 text-xs sm:grid-cols-3 dark:border-slate-800">
                         <div class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                            <Layers class="w-4 h-4 text-lime-600 dark:text-lime-400" />
+                            <Layers class="h-4 w-4 text-lime-600 dark:text-lime-400" />
                             <span>
                                 Busiest Day:
                                 <strong class="text-slate-900 dark:text-slate-100">
@@ -1222,7 +1222,7 @@ export default {
                             </span>
                         </div>
                         <div class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                            <Activity class="w-4 h-4 text-emerald-500" />
+                            <Activity class="h-4 w-4 text-emerald-500" />
                             <span>
                                 Total Sessions Logged:
                                 <strong class="text-slate-900 dark:text-slate-100">
@@ -1230,8 +1230,8 @@ export default {
                                 </strong>
                             </span>
                         </div>
-                        <div class="flex items-center gap-2 text-slate-600 dark:text-slate-300 col-span-2 sm:col-span-1">
-                            <Cpu class="w-4 h-4 text-sky-500" />
+                        <div class="col-span-2 flex items-center gap-2 text-slate-600 sm:col-span-1 dark:text-slate-300">
+                            <Cpu class="h-4 w-4 text-sky-500" />
                             <span>
                                 Top Used:
                                 <strong class="text-slate-900 dark:text-slate-100">
@@ -1266,19 +1266,19 @@ export default {
             <div
                 v-show="activeTab === 'logs'"
                 class="space-y-4 px-5">
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
-                    <div class="flex items-center justify-between gap-3 mb-4">
+                <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+                    <div class="mb-4 flex items-center justify-between gap-3">
                         <div>
                             <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">Currently Active Sessions</h3>
                             <p class="text-xs text-slate-500 dark:text-slate-400">Active and overdue sessions for ICT/laboratory equipment currently in use.</p>
                         </div>
-                        <span class="inline-flex items-center rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-700 dark:text-slate-300">{{ currentWorkingLogs.length }} active sessions</span>
+                        <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-300">{{ currentWorkingLogs.length }} active sessions</span>
                     </div>
 
                     <div
                         v-if="currentWorkingLogs.length"
                         class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-xs sm:text-sm">
+                        <table class="min-w-full divide-y divide-slate-200 text-xs sm:text-sm dark:divide-slate-800">
                             <thead class="bg-slate-50 dark:bg-slate-800/60">
                                 <tr>
                                     <th class="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300">Equipment</th>
@@ -1299,7 +1299,7 @@ export default {
                                         <a
                                             :href="route(equipmentShowRoute(log), log?.equipment_barcode)"
                                             target="_blank"
-                                            class="font-semibold text-lime-600 dark:text-lime-400 hover:underline">
+                                            class="font-semibold text-lime-600 hover:underline dark:text-lime-400">
                                             {{ log.equipment?.name || "Equipment" }}
                                         </a>
                                         <div class="text-xs text-slate-500">
@@ -1338,7 +1338,7 @@ export default {
                     </div>
                     <div
                         v-else
-                        class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 p-4">
+                        class="p-4 text-xs text-slate-500 sm:text-sm dark:text-slate-400">
                         No ICT or laboratory equipment is currently checked in.
                     </div>
                 </div>
@@ -1375,22 +1375,22 @@ export default {
                             "
                             :show-valid-indicator="false">
                             <template #icon>
-                                <LuFilter class="w-4 h-4 text-gray-400" />
+                                <LuFilter class="h-4 w-4 text-gray-400" />
                             </template>
                         </custom-dropdown>
                     </template>
                     <template #cell-name="{ row, value }">
-                        <div class="py-1.5 leading-tight whitespace-normal w-full">
+                        <div class="w-full whitespace-normal py-1.5 leading-tight">
                             <div class="font-medium">
                                 <Link
                                     v-if="transactionShowHref(row)"
                                     :href="transactionShowHref(row)"
-                                    class="text-lime-600 dark:text-lime-400 hover:text-primary-800 hover:underline">
+                                    class="hover:text-primary-800 text-lime-600 hover:underline dark:text-lime-400">
                                     {{ row.name }}
                                 </Link>
                                 <span
                                     v-if="row.description"
-                                    class="text-gray-500 block text-xs">
+                                    class="block text-xs text-gray-500">
                                     Model: {{ row.description }}
                                 </span>
                             </div>
@@ -1457,7 +1457,7 @@ export default {
                                         personnelId: row.id,
                                     })
                                 "
-                                class="font-semibold text-lime-600 dark:text-lime-400 hover:underline">
+                                class="font-semibold text-lime-600 hover:underline dark:text-lime-400">
                                 {{ value }}
                             </a>
                             <div class="text-xs text-slate-500">
@@ -1481,7 +1481,7 @@ export default {
 
                 <template #content>
                     <div class="space-y-4">
-                        <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 px-4 py-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                        <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-700 sm:text-sm dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-300">
                             <p class="font-bold text-slate-900 dark:text-slate-100">
                                 {{ selectedEquipmentAsset?.name || "Equipment" }}
                             </p>
@@ -1513,14 +1513,14 @@ export default {
                     <div class="flex w-full justify-between gap-3">
                         <button
                             type="button"
-                            class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                            class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                             :disabled="updatingLoggerMode"
                             @click="closeLoggerModeModal">
                             Cancel
                         </button>
                         <button
                             type="button"
-                            class="rounded-xl bg-lime-600 hover:bg-lime-700 active:scale-95 px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-xs transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                            class="shadow-xs rounded-xl bg-lime-600 px-4 py-2 text-xs font-bold text-white transition-all hover:bg-lime-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
                             :disabled="!canSubmitLoggerModeUpdate"
                             @click="submitLoggerModeUpdate">
                             {{ updatingLoggerMode ? "Updating..." : "Update Mode" }}
@@ -1542,7 +1542,7 @@ export default {
 
                 <template #content>
                     <div class="space-y-4">
-                        <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 px-4 py-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                        <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-700 sm:text-sm dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-300">
                             <p class="font-bold text-slate-900 dark:text-slate-100">
                                 {{ selectedEquipmentAsset?.name || "Equipment" }}
                             </p>
@@ -1575,14 +1575,14 @@ export default {
                     <div class="flex w-full justify-between gap-3">
                         <button
                             type="button"
-                            class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                            class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                             :disabled="isUpdatingLocation"
                             @click="closeLocationModal">
                             Cancel
                         </button>
                         <button
                             type="button"
-                            class="rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-xs transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                            class="shadow-xs rounded-xl bg-amber-600 px-4 py-2 text-xs font-bold text-white transition-all hover:bg-amber-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
                             :disabled="isUpdatingLocation || !selectedLocationCode"
                             @click="submitLocationUpdate">
                             {{ isUpdatingLocation ? "Saving..." : "Save Location" }}

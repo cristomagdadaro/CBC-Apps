@@ -37,9 +37,9 @@ export default defineComponent({
     <form
         v-if="!!form"
         @submit.prevent="handleFormSubmit"
-        class="flex flex-col w-full h-full max-h-full">
+        class="flex h-full max-h-full w-full flex-col">
         <!-- Scrollable Content Area -->
-        <div class="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-6">
+        <div class="custom-scrollbar flex-1 space-y-6 overflow-y-auto p-5">
             <div class="space-y-4">
                 <text-input
                     required
@@ -59,7 +59,7 @@ export default defineComponent({
 
                 <div class="flex flex-col gap-1">
                     <label class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Supplier *</label>
-                    <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="flex flex-col gap-3 sm:flex-row">
                         <div class="flex-1">
                             <custom-dropdown
                                 required
@@ -76,12 +76,12 @@ export default defineComponent({
                                 </template>
                             </custom-dropdown>
                         </div>
-                        <div class="sm:w-36 shrink-0 mt-2 sm:mt-0">
+                        <div class="mt-2 shrink-0 sm:mt-0 sm:w-36">
                             <Link
                                 :href="route('suppliers.create')"
                                 target="_blank"
-                                class="inline-flex items-center justify-center gap-1.5 w-full py-2.5 px-3 border border-slate-200 dark:border-slate-700 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-indigo-600 dark:text-indigo-400 rounded-xl text-xs font-bold transition-colors shadow-sm">
-                                <Link2 class="w-3.5 h-3.5" />
+                                class="inline-flex w-full items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-bold text-indigo-600 shadow-sm transition-colors hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-400 dark:hover:bg-slate-700">
+                                <Link2 class="h-3.5 w-3.5" />
                                 <span>New Supplier</span>
                             </Link>
                         </div>
@@ -132,7 +132,7 @@ export default defineComponent({
                 </div>
 
                 <div class="flex flex-col gap-1 pb-4">
-                    <label class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">Item Image</label>
+                    <label class="mb-1 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Item Image</label>
                     <file-input
                         v-model="form.image"
                         file-type="image"
@@ -140,15 +140,15 @@ export default defineComponent({
 
                     <div
                         v-if="form.image"
-                        class="mt-3 w-full bg-slate-50 dark:bg-slate-800/50 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-3 flex justify-center items-center relative overflow-hidden">
+                        class="relative mt-3 flex w-full items-center justify-center overflow-hidden rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/50">
                         <div
-                            class="absolute inset-0 opacity-[0.03] dark:opacity-10 pointer-events-none"
+                            class="pointer-events-none absolute inset-0 opacity-[0.03] dark:opacity-10"
                             style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 10px 10px"></div>
                         <img
                             :src="form.image"
                             @click.right.prevent="null"
                             draggable="false"
-                            class="max-w-[12rem] max-h-48 object-contain rounded z-10 drop-shadow-md"
+                            class="z-10 max-h-48 max-w-[12rem] rounded object-contain drop-shadow-md"
                             alt="Uploaded item image" />
                     </div>
                 </div>
@@ -156,23 +156,23 @@ export default defineComponent({
         </div>
 
         <!-- Sticky Footer Actions -->
-        <div class="p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md flex justify-end gap-3 sticky bottom-0 z-10 shrink-0 rounded-b-2xl">
+        <div class="sticky bottom-0 z-10 flex shrink-0 justify-end gap-3 rounded-b-2xl border-t border-slate-100 bg-slate-50/80 p-5 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/80">
             <button
                 type="button"
                 @click="$emit('close')"
-                class="px-5 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors active:scale-95 shadow-sm">
+                class="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-600 shadow-sm transition-colors hover:bg-slate-50 active:scale-95 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
                 Cancel
             </button>
             <button
                 type="submit"
                 :disabled="model.api.processing"
-                class="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold rounded-xl shadow-md shadow-indigo-600/20 transition-all active:scale-95">
+                class="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-600/20 transition-all hover:bg-indigo-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50">
                 <Loader2
                     v-if="model.api.processing"
-                    class="w-4 h-4 animate-spin" />
+                    class="h-4 w-4 animate-spin" />
                 <Save
                     v-else
-                    class="w-4 h-4" />
+                    class="h-4 w-4" />
                 <span>{{ model.api.processing ? "Saving..." : "Save Item" }}</span>
             </button>
         </div>

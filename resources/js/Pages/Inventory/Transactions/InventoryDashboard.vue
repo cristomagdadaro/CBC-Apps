@@ -355,15 +355,15 @@ export default {
             <TransactionHeaderAction />
         </template>
 
-        <div class="default-container py-4 sm:py-6 space-y-4 sm:space-y-6 text-slate-900 dark:text-slate-100">
+        <div class="default-container space-y-4 py-4 text-slate-900 sm:space-y-6 sm:py-6 dark:text-slate-100">
             <!-- Header Bar & Scope Selectors -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 sm:p-5 rounded-2xl shadow-xs">
+            <div class="shadow-xs flex flex-col items-start justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 md:flex-row md:items-center dark:border-slate-800 dark:bg-slate-900">
                 <div class="space-y-0.5">
                     <div class="flex items-center gap-2">
-                        <TrendingUp class="w-5 h-5 text-lime-600 dark:text-lime-400" />
-                        <h2 class="text-lg sm:text-xl font-bold tracking-tight">Stock Analytics & Movement</h2>
+                        <TrendingUp class="h-5 w-5 text-lime-600 dark:text-lime-400" />
+                        <h2 class="text-lg font-bold tracking-tight sm:text-xl">Stock Analytics & Movement</h2>
                     </div>
-                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                    <p class="text-xs text-slate-500 sm:text-sm dark:text-slate-400">
                         Viewing inventory transaction metrics
                         <span class="font-semibold text-lime-600 dark:text-lime-400">
                             {{ scopeCaption }}
@@ -371,7 +371,7 @@ export default {
                     </p>
                 </div>
 
-                <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+                <div class="flex w-full flex-wrap items-center gap-2.5 md:w-auto">
                     <div class="w-full sm:w-52">
                         <custom-dropdown
                             label="Filter Scope"
@@ -389,7 +389,7 @@ export default {
                             {{ periodInputLabel }}
                         </label>
                         <input
-                            class="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-lime-500 focus:ring-1 focus:ring-lime-500 shadow-xs transition-colors"
+                            class="shadow-xs w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs text-slate-900 transition-colors focus:border-lime-500 focus:ring-1 focus:ring-lime-500 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                             :type="periodInputType"
                             :value="periodInputValue"
                             min="2000"
@@ -398,51 +398,51 @@ export default {
                     </div>
                     <button
                         @click="loadDashboard"
-                        class="p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-600 dark:text-slate-300 transition-all active:scale-95 shadow-xs"
+                        class="shadow-xs rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-600 transition-all hover:bg-slate-100 active:scale-95 sm:p-2.5 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700/80"
                         title="Refresh Analytics">
                         <RefreshCw
-                            class="w-4 h-4 sm:w-4.5 sm:h-4.5"
+                            class="sm:w-4.5 sm:h-4.5 h-4 w-4"
                             :class="{ 'animate-spin': loading }" />
                     </button>
                 </div>
             </div>
 
             <!-- Top Metric Cards Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+            <div class="grid grid-cols-1 gap-3.5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
                 <!-- Total Transactions Card -->
-                <div class="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs relative overflow-hidden group hover:border-lime-500/50 transition-all duration-200">
+                <div class="shadow-xs group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 transition-all duration-200 hover:border-lime-500/50 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Movements</span>
-                        <div class="p-2.5 rounded-xl bg-lime-500/10 text-lime-600 dark:text-lime-400">
-                            <ArrowUpDown class="w-5 h-5" />
+                        <div class="rounded-xl bg-lime-500/10 p-2.5 text-lime-600 dark:text-lime-400">
+                            <ArrowUpDown class="h-5 w-5" />
                         </div>
                     </div>
                     <div class="mt-3">
-                        <p class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
+                        <p class="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100">
                             {{ dashboard.totals.total_transactions || dashboard.totals.incoming + dashboard.totals.outgoing }}
                         </p>
-                        <p class="text-[0.7rem] sm:text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
+                        <p class="mt-1 flex items-center gap-1 text-[0.7rem] text-slate-500 sm:text-xs dark:text-slate-400">
                             <span class="font-medium">Total log records</span>
                         </p>
                     </div>
                 </div>
 
                 <!-- Stock In Card -->
-                <div class="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs relative overflow-hidden group hover:border-emerald-500/50 transition-all duration-200">
+                <div class="shadow-xs group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 transition-all duration-200 hover:border-emerald-500/50 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Stock In (Restock)</span>
-                        <div class="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                            <ArrowDownLeft class="w-5 h-5" />
+                        <div class="rounded-xl bg-emerald-500/10 p-2.5 text-emerald-600 dark:text-emerald-400">
+                            <ArrowDownLeft class="h-5 w-5" />
                         </div>
                     </div>
                     <div class="mt-3">
                         <div class="flex items-baseline gap-2">
-                            <p class="text-2xl sm:text-3xl font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400">
+                            <p class="text-2xl font-extrabold tracking-tight text-emerald-600 sm:text-3xl dark:text-emerald-400">
                                 {{ dashboard.totals.incoming }}
                             </p>
                             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">transactions</span>
                         </div>
-                        <p class="text-[0.7rem] sm:text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        <p class="mt-1 text-[0.7rem] text-slate-500 sm:text-xs dark:text-slate-400">
                             Total Item Qty Added:
                             <span class="font-bold text-emerald-600 dark:text-emerald-400">
                                 {{ dashboard.totals.incoming_quantity || "-" }}
@@ -452,21 +452,21 @@ export default {
                 </div>
 
                 <!-- Stock Out Card -->
-                <div class="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs relative overflow-hidden group hover:border-rose-500/50 transition-all duration-200">
+                <div class="shadow-xs group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 transition-all duration-200 hover:border-rose-500/50 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-semibold uppercase tracking-wider text-rose-600 dark:text-rose-400">Stock Out (Issued)</span>
-                        <div class="p-2.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400">
-                            <ArrowUpRight class="w-5 h-5" />
+                        <div class="rounded-xl bg-rose-500/10 p-2.5 text-rose-600 dark:text-rose-400">
+                            <ArrowUpRight class="h-5 w-5" />
                         </div>
                     </div>
                     <div class="mt-3">
                         <div class="flex items-baseline gap-2">
-                            <p class="text-2xl sm:text-3xl font-extrabold tracking-tight text-rose-600 dark:text-rose-400">
+                            <p class="text-2xl font-extrabold tracking-tight text-rose-600 sm:text-3xl dark:text-rose-400">
                                 {{ dashboard.totals.outgoing }}
                             </p>
                             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">transactions</span>
                         </div>
-                        <p class="text-[0.7rem] sm:text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        <p class="mt-1 text-[0.7rem] text-slate-500 sm:text-xs dark:text-slate-400">
                             Total Item Qty Issued:
                             <span class="font-bold text-rose-600 dark:text-rose-400">
                                 {{ dashboard.totals.outgoing_quantity || "-" }}
@@ -476,21 +476,21 @@ export default {
                 </div>
 
                 <!-- Low & Empty Reorder Warning Card -->
-                <div class="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs relative overflow-hidden group hover:border-amber-500/50 transition-all duration-200">
+                <div class="shadow-xs group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 transition-all duration-200 hover:border-amber-500/50 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">Low / Empty Items</span>
-                        <div class="p-2.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                            <AlertTriangle class="w-5 h-5" />
+                        <div class="rounded-xl bg-amber-500/10 p-2.5 text-amber-600 dark:text-amber-400">
+                            <AlertTriangle class="h-5 w-5" />
                         </div>
                     </div>
                     <div class="mt-3">
                         <div class="flex items-baseline gap-2">
-                            <p class="text-2xl sm:text-3xl font-extrabold tracking-tight text-amber-600 dark:text-amber-400">
+                            <p class="text-2xl font-extrabold tracking-tight text-amber-600 sm:text-3xl dark:text-amber-400">
                                 {{ (dashboard.stock_buckets.empty || 0) + (dashboard.stock_buckets.low || 0) }}
                             </p>
                             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">items</span>
                         </div>
-                        <p class="text-[0.7rem] sm:text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        <p class="mt-1 text-[0.7rem] text-slate-500 sm:text-xs dark:text-slate-400">
                             Empty:
                             <span class="font-bold text-rose-500">
                                 {{ dashboard.stock_buckets.empty || 0 }}
@@ -505,15 +505,15 @@ export default {
             </div>
 
             <!-- Middle Section: Stock Buckets & Top Issued Items -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            <div class="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
                 <!-- Stock Health Buckets Card -->
-                <div class="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs">
-                    <div class="flex items-center justify-between mb-4">
+                <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
+                    <div class="mb-4 flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <PackageCheck class="w-4.5 h-4.5 text-lime-600 dark:text-lime-400" />
-                            <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">Stock Level Health Matrix</h3>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">Stock Level Health Matrix</h3>
                         </div>
-                        <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Inventory Distribution</span>
+                        <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Inventory Distribution</span>
                     </div>
 
                     <div class="space-y-3.5">
@@ -521,7 +521,7 @@ export default {
                             v-for="bucket in stockBucketRows"
                             :key="bucket.key"
                             class="space-y-1">
-                            <div class="flex justify-between items-center text-xs">
+                            <div class="flex items-center justify-between text-xs">
                                 <span class="font-medium text-slate-700 dark:text-slate-300">
                                     {{ bucket.label }}
                                 </span>
@@ -531,7 +531,7 @@ export default {
                                     {{ bucket.value }} items ({{ bucket.percent }}%)
                                 </span>
                             </div>
-                            <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-3.5 overflow-hidden p-0.5 border border-slate-200/60 dark:border-slate-700/60">
+                            <div class="h-3.5 w-full overflow-hidden rounded-full border border-slate-200/60 bg-slate-100 p-0.5 dark:border-slate-700/60 dark:bg-slate-800">
                                 <div
                                     class="h-full rounded-full transition-all duration-500"
                                     :class="bucket.colorClass"
@@ -542,13 +542,13 @@ export default {
                 </div>
 
                 <!-- Top Issued Items Leaderboard -->
-                <div class="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs">
-                    <div class="flex items-center justify-between mb-4">
+                <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
+                    <div class="mb-4 flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <Box class="w-4.5 h-4.5 text-rose-500" />
-                            <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">Top Issued Stock Items</h3>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">Top Issued Stock Items</h3>
                         </div>
-                        <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Highest Outgoing Volume</span>
+                        <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Highest Outgoing Volume</span>
                     </div>
 
                     <div
@@ -557,15 +557,15 @@ export default {
                         <div
                             v-for="(item, idx) in dashboard.top_issued_items"
                             :key="`top-item-${idx}`"
-                            class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/70 flex items-center justify-between gap-3">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <span class="flex items-center justify-center w-6 h-6 rounded-lg text-xs font-bold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 shrink-0">#{{ idx + 1 }}</span>
+                            class="flex items-center justify-between gap-3 rounded-xl border border-slate-200/70 bg-slate-50 p-2.5 dark:border-slate-700/70 dark:bg-slate-800/60">
+                            <div class="flex min-w-0 items-center gap-3">
+                                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-slate-200 text-xs font-bold text-slate-700 dark:bg-slate-700 dark:text-slate-300">#{{ idx + 1 }}</span>
                                 <div class="min-w-0 leading-tight">
-                                    <p class="text-xs sm:text-sm font-semibold truncate text-slate-900 dark:text-slate-100">
+                                    <p class="truncate text-xs font-semibold text-slate-900 sm:text-sm dark:text-slate-100">
                                         {{ item.name }}
                                     </p>
                                     <p
-                                        class="text-[0.7rem] text-slate-500 dark:text-slate-400 truncate"
+                                        class="truncate text-[0.7rem] text-slate-500 dark:text-slate-400"
                                         v-if="item.brand || item.description">
                                         {{ item.brand }}
                                         {{ item.description ? `(${item.description})` : "" }}
@@ -573,8 +573,8 @@ export default {
                                 </div>
                             </div>
 
-                            <div class="text-right shrink-0">
-                                <span class="text-xs sm:text-sm font-extrabold text-rose-600 dark:text-rose-400">{{ item.total_quantity }} units</span>
+                            <div class="shrink-0 text-right">
+                                <span class="text-xs font-extrabold text-rose-600 sm:text-sm dark:text-rose-400">{{ item.total_quantity }} units</span>
                                 <p class="text-[0.65rem] text-slate-500 dark:text-slate-400">{{ item.transac_count }} transactions</p>
                             </div>
                         </div>
@@ -588,12 +588,12 @@ export default {
             </div>
 
             <!-- Bottom Section: Category, Location & Project Allocation -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+            <div class="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3">
                 <!-- Items per Category -->
-                <div class="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs">
-                    <div class="flex items-center gap-2 mb-4">
-                        <Layers class="w-4 h-4 text-indigo-500" />
-                        <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">Category Allocation</h3>
+                <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
+                    <div class="mb-4 flex items-center gap-2">
+                        <Layers class="h-4 w-4 text-indigo-500" />
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">Category Allocation</h3>
                     </div>
                     <div
                         v-if="dashboard.items_per_category && dashboard.items_per_category.length"
@@ -608,9 +608,9 @@ export default {
                                 </span>
                                 <span class="font-bold text-indigo-600 dark:text-indigo-400">{{ row.total }} items</span>
                             </div>
-                            <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+                            <div class="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                                 <div
-                                    class="bg-indigo-500 h-2 rounded-full transition-all"
+                                    class="h-2 rounded-full bg-indigo-500 transition-all"
                                     :style="{
                                         width: `${(row.total / maxCategoryTotal) * 100}%`,
                                     }" />
@@ -619,16 +619,16 @@ export default {
                     </div>
                     <div
                         v-else
-                        class="text-xs text-slate-500 dark:text-slate-400 py-4 text-center">
+                        class="py-4 text-center text-xs text-slate-500 dark:text-slate-400">
                         No category data.
                     </div>
                 </div>
 
                 <!-- Items per Storage Location -->
-                <div class="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs">
-                    <div class="flex items-center gap-2 mb-4">
-                        <MapPin class="w-4 h-4 text-emerald-500" />
-                        <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">Storage Locations</h3>
+                <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
+                    <div class="mb-4 flex items-center gap-2">
+                        <MapPin class="h-4 w-4 text-emerald-500" />
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">Storage Locations</h3>
                     </div>
                     <div
                         v-if="dashboard.items_per_location && dashboard.items_per_location.length"
@@ -643,9 +643,9 @@ export default {
                                 </span>
                                 <span class="font-bold text-emerald-600 dark:text-emerald-400">{{ row.total }} items</span>
                             </div>
-                            <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+                            <div class="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                                 <div
-                                    class="bg-emerald-500 h-2 rounded-full transition-all"
+                                    class="h-2 rounded-full bg-emerald-500 transition-all"
                                     :style="{
                                         width: `${(row.total / maxLocationTotal) * 100}%`,
                                     }" />
@@ -654,16 +654,16 @@ export default {
                     </div>
                     <div
                         v-else
-                        class="text-xs text-slate-500 dark:text-slate-400 py-4 text-center">
+                        class="py-4 text-center text-xs text-slate-500 dark:text-slate-400">
                         No location data.
                     </div>
                 </div>
 
                 <!-- Items per Project Code -->
-                <div class="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs">
-                    <div class="flex items-center gap-2 mb-4">
-                        <FolderGit2 class="w-4 h-4 text-amber-500" />
-                        <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">Project Codes</h3>
+                <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
+                    <div class="mb-4 flex items-center gap-2">
+                        <FolderGit2 class="h-4 w-4 text-amber-500" />
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">Project Codes</h3>
                     </div>
                     <div
                         v-if="dashboard.items_per_project_code && dashboard.items_per_project_code.length"
@@ -678,31 +678,31 @@ export default {
                                 </span>
                                 <span class="font-bold text-amber-600 dark:text-amber-400">{{ row.total }} items</span>
                             </div>
-                            <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+                            <div class="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                                 <div
-                                    class="bg-amber-500 h-2 rounded-full transition-all"
+                                    class="h-2 rounded-full bg-amber-500 transition-all"
                                     :style="{ width: `${(row.total / maxProjectTotal) * 100}%` }" />
                             </div>
                         </div>
                     </div>
                     <div
                         v-else
-                        class="text-xs text-slate-500 dark:text-slate-400 py-4 text-center">
+                        class="py-4 text-center text-xs text-slate-500 dark:text-slate-400">
                         No project code data.
                     </div>
                 </div>
             </div>
 
             <!-- Recent Movement Log Table -->
-            <div class="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">Recent Movement Log Feed</h3>
-                    <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Last 10 Records</span>
+            <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
+                <div class="mb-4 flex items-center justify-between">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">Recent Movement Log Feed</h3>
+                    <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Last 10 Records</span>
                 </div>
 
                 <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
-                    <table class="w-full text-xs sm:text-sm text-left">
-                        <thead class="bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 uppercase text-[0.68rem] font-semibold border-b border-slate-200 dark:border-slate-700">
+                    <table class="w-full text-left text-xs sm:text-sm">
+                        <thead class="border-b border-slate-200 bg-slate-50 text-[0.68rem] font-semibold uppercase text-slate-500 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-400">
                             <tr>
                                 <th class="p-3">Date & Time</th>
                                 <th class="p-3">Personnel</th>
@@ -715,11 +715,11 @@ export default {
                             <tr
                                 v-for="row in dashboard.recent_transactions"
                                 :key="row.id"
-                                class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
-                                <td class="p-3 whitespace-nowrap text-slate-600 dark:text-slate-300 font-medium">
+                                class="transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
+                                <td class="whitespace-nowrap p-3 font-medium text-slate-600 dark:text-slate-300">
                                     {{ formatDateTime(row.created_at) }}
                                 </td>
-                                <td class="p-3 whitespace-nowrap font-semibold text-slate-900 dark:text-slate-100">
+                                <td class="whitespace-nowrap p-3 font-semibold text-slate-900 dark:text-slate-100">
                                     {{ row.actor_display_name || "-" }}
                                 </td>
                                 <td class="p-3 text-slate-900 dark:text-slate-100">
@@ -730,17 +730,17 @@ export default {
                                         {{ row.item.brand }}
                                     </span>
                                 </td>
-                                <td class="p-3 whitespace-nowrap">
+                                <td class="whitespace-nowrap p-3">
                                     <span
-                                        class="px-2.5 py-1 rounded-full text-[0.65rem] font-extrabold uppercase tracking-wider inline-flex items-center gap-1"
-                                        :class="row.transac_type === 'incoming' ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800' : 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800'">
+                                        class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[0.65rem] font-extrabold uppercase tracking-wider"
+                                        :class="row.transac_type === 'incoming' ? 'border border-emerald-300 bg-emerald-100 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' : 'border border-rose-300 bg-rose-100 text-rose-700 dark:border-rose-800 dark:bg-rose-950/60 dark:text-rose-300'">
                                         <component
                                             :is="row.transac_type === 'incoming' ? 'ArrowDownLeft' : 'ArrowUpRight'"
-                                            class="w-3 h-3" />
+                                            class="h-3 w-3" />
                                         {{ row.transac_type }}
                                     </span>
                                 </td>
-                                <td class="p-3 text-right whitespace-nowrap font-extrabold text-slate-900 dark:text-slate-100">{{ row.quantity }} {{ row.unit || "" }}</td>
+                                <td class="whitespace-nowrap p-3 text-right font-extrabold text-slate-900 dark:text-slate-100">{{ row.quantity }} {{ row.unit || "" }}</td>
                             </tr>
                             <tr v-if="!dashboard.recent_transactions.length">
                                 <td

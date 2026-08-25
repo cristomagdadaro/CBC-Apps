@@ -122,13 +122,13 @@ export default {
         </template>
 
         <template #footer>
-            <div class="flex justify-between w-full">
+            <div class="flex w-full justify-between">
                 <div class="flex gap-2">
                     <delete-btn
                         @click="handleConfirm"
                         :disabled="isProcessing"
                         :class="{ 'animate-pulse': isProcessing }">
-                        <div class="flex gap-1 items-center">
+                        <div class="flex items-center gap-1">
                             <loader-icon v-if="isProcessing" />
                             <span v-if="!isProcessing">{{ confirmButtonLabel }}</span>
                             <span v-else>Deleting...</span>

@@ -6,7 +6,7 @@ export default {
 
 <template>
     <button
-        class="bg-edit text-white px-4 py-2 rounded-md hover:bg-edit active:bg-edit duration-200"
+        class="rounded-md bg-edit px-4 py-2 text-white duration-200 hover:bg-edit active:bg-edit"
         type="submit">
         Update
     </button>

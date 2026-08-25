@@ -11,16 +11,16 @@
             <div
                 class="flex items-center gap-1.5"
                 title="Turn on exact match filter">
-                <span class="text-[10px] uppercase font-semibold tracking-wider text-slate-500">Exact</span>
+                <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Exact</span>
                 <input
                     type="checkbox"
                     v-model="is_exact"
                     @change="toggle"
-                    class="rounded-sm border-slate-300 text-indigo-600 focus:ring-indigo-600 dark:border-slate-700 dark:bg-slate-900 cursor-pointer w-3.5 h-3.5 transition-colors" />
+                    class="h-3.5 w-3.5 cursor-pointer rounded-sm border-slate-300 text-indigo-600 transition-colors focus:ring-indigo-600 dark:border-slate-700 dark:bg-slate-900" />
             </div>
         </template>
         <template #label-icon>
-            <LuFilter class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
+            <LuFilter class="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
         </template>
     </custom-dropdown>
 </template>

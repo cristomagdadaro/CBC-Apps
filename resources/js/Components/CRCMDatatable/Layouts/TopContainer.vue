@@ -1,7 +1,7 @@
 <template>
     <div
         id="dtTopContainer"
-        class="flex flex-col sm:gap-1 gap-3 w-full">
+        class="flex w-full flex-col gap-3 sm:gap-1">
         <slot />
     </div>
 </template>

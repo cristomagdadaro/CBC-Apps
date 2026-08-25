@@ -56,7 +56,7 @@ export default {
 </script>
 
 <template>
-    <div class="fixed top-4 right-4 z-[100] flex flex-col gap-2 w-[min(92vw,380px)]">
+    <div class="fixed right-4 top-4 z-[100] flex w-[min(92vw,380px)] flex-col gap-2">
         <transition-group
             name="toast"
             tag="div"
@@ -64,16 +64,16 @@ export default {
             <div
                 v-for="item in notifications"
                 :key="item.id"
-                class="border rounded-lg shadow-lg px-3 py-3 flex items-start gap-3"
+                class="flex items-start gap-3 rounded-lg border px-3 py-3 shadow-lg"
                 :class="typeStyles[item.type].box">
                 <span
-                    class="w-2.5 h-2.5 mt-1 rounded-full"
+                    class="mt-1 h-2.5 w-2.5 rounded-full"
                     :class="typeStyles[item.type].badge"></span>
-                <div class="flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
                     <p class="text-xs font-semibold uppercase tracking-wide">
                         {{ typeStyles[item.type].title }}
                     </p>
-                    <p class="text-sm leading-tight break-words">{{ item.message }}</p>
+                    <p class="break-words text-sm leading-tight">{{ item.message }}</p>
                 </div>
                 <button
                     type="button"

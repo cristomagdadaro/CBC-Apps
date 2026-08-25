@@ -18,25 +18,25 @@ export default {
 
 <template>
     <div class="flex flex-col gap-0.5">
-        <div class="flex justify-between whitespace-nowrap gap-3">
+        <div class="flex justify-between gap-3 whitespace-nowrap">
             <label
                 for="searchbox"
-                class="text-gray-600 text-xs">
+                class="text-xs text-gray-600">
                 Search
             </label>
-            <span class="text-gray-500 text-xs">Scan / Type to search</span>
+            <span class="text-xs text-gray-500">Scan / Type to search</span>
         </div>
         <div class="relative">
             <div
                 v-if="modelValue"
                 @click="clearSearch"
-                class="absolute right-0 h-full flex items-center justify-center">
+                class="absolute right-0 flex h-full items-center justify-center">
                 <close-icon
-                    class="w-7 h-auto text-gray-600 mr-3 hover:bg-gray-100 rounded hover:scale-110 duration-100 active:scale-100"
+                    class="mr-3 h-auto w-7 rounded text-gray-600 duration-100 hover:scale-110 hover:bg-gray-100 active:scale-100"
                     @click="$emit('update:modelValue', '')" />
             </div>
             <input
-                class="rounded-md drop-shadow border focus:outline-none focus:ring-0 w-full overflow-hidden overflow-ellipsis"
+                class="w-full overflow-hidden overflow-ellipsis rounded-md border drop-shadow focus:outline-none focus:ring-0"
                 type="text"
                 name="search"
                 id="searchbox"

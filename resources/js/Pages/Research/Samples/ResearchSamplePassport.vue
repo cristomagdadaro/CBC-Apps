@@ -99,18 +99,18 @@ export default {
                 title="Research Sample Passport">
                 <Link
                     :href="route('research.samples.inventory')"
-                    class="rounded-lg border border-white/25 px-4 py-2 text-sm font-medium text-white hover:bg-white/10 transition-colors">
+                    class="rounded-lg border border-white/25 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10">
                     ← Inventory
                 </Link>
             </ActionHeaderLayout>
         </template>
 
-        <div class="max-w-7xl mx-auto p-6 space-y-6">
+        <div class="mx-auto max-w-7xl space-y-6 p-6">
             <!-- Identity Card -->
-            <section class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-                <div class="border-b border-gray-100 bg-gray-50/50 px-6 py-4 flex items-center justify-between">
+            <section class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                <div class="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-6 py-4">
                     <div class="flex items-center gap-3">
-                        <div class="h-8 w-1 bg-emerald-500 rounded-full"></div>
+                        <div class="h-8 w-1 rounded-full bg-emerald-500"></div>
                         <h2 class="text-lg font-semibold text-gray-900">Sample Identity</h2>
                     </div>
                     <span
@@ -123,30 +123,30 @@ export default {
                 <div class="p-6">
                     <div class="grid gap-6 lg:grid-cols-3">
                         <!-- Main Info -->
-                        <div class="lg:col-span-2 space-y-4">
+                        <div class="space-y-4 lg:col-span-2">
                             <div>
-                                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">
+                                <h1 class="text-2xl font-bold tracking-tight text-gray-900">
                                     {{ sample.accession_name || "Unnamed Sample" }}
                                 </h1>
-                                <p class="mt-1 text-sm text-gray-500 font-mono">{{ sample.uid }}</p>
+                                <p class="mt-1 font-mono text-sm text-gray-500">{{ sample.uid }}</p>
                             </div>
 
                             <div class="grid gap-4 sm:grid-cols-2">
                                 <div class="space-y-3">
                                     <div class="group">
-                                        <label class="text-xs font-medium text-gray-400 uppercase tracking-wider">Sample Type</label>
+                                        <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Sample Type</label>
                                         <p class="mt-0.5 text-sm font-medium text-gray-900">
                                             {{ sample.sample_type || "-" }}
                                         </p>
                                     </div>
                                     <div class="group">
-                                        <label class="text-xs font-medium text-gray-400 uppercase tracking-wider">Commodity</label>
+                                        <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Commodity</label>
                                         <p class="mt-0.5 text-sm font-medium text-gray-900">
                                             {{ sample.commodity || "-" }}
                                         </p>
                                     </div>
                                     <div class="group">
-                                        <label class="text-xs font-medium text-gray-400 uppercase tracking-wider">Current Location</label>
+                                        <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Current Location</label>
                                         <p class="mt-0.5 text-sm font-medium text-gray-900">
                                             {{ sample.current_location || "-" }}
                                         </p>
@@ -154,25 +154,25 @@ export default {
                                 </div>
                                 <div class="space-y-3">
                                     <div class="group">
-                                        <label class="text-xs font-medium text-gray-400 uppercase tracking-wider">Storage Location</label>
+                                        <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Storage Location</label>
                                         <p class="mt-0.5 text-sm font-medium text-gray-900">
                                             {{ sample.storage_location || "-" }}
                                         </p>
                                     </div>
                                     <div class="group">
-                                        <label class="text-xs font-medium text-gray-400 uppercase tracking-wider">Legacy Reference</label>
+                                        <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Legacy Reference</label>
                                         <p class="mt-0.5 text-sm font-medium text-gray-900">
                                             {{ sample.legacy_reference || "-" }}
                                         </p>
                                     </div>
                                     <div class="group">
-                                        <label class="text-xs font-medium text-gray-400 uppercase tracking-wider">Priority</label>
+                                        <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Priority</label>
                                         <p class="mt-0.5 text-sm font-medium text-gray-900">
                                             <span
                                                 v-if="sample.is_priority"
                                                 class="inline-flex items-center gap-1 text-amber-600">
                                                 <svg
-                                                    class="w-4 h-4"
+                                                    class="h-4 w-4"
                                                     fill="currentColor"
                                                     viewBox="0 0 20 20">
                                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -191,7 +191,7 @@ export default {
                         </div>
 
                         <!-- QR / Barcode -->
-                        <div class="flex flex-col items-center justify-center rounded-xl border border-gray-100 bg-gray-50/50 p-5 space-y-3">
+                        <div class="flex flex-col items-center justify-center space-y-3 rounded-xl border border-gray-100 bg-gray-50/50 p-5">
                             <QrBarCode
                                 mode="both"
                                 :barcode-value="sample.uid"
@@ -201,13 +201,13 @@ export default {
                                 :barcode-height="40"
                                 :font-size="10"
                                 container-class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm" />
-                            <div class="flex flex-col items-center gap-2 w-full">
+                            <div class="flex w-full flex-col items-center gap-2">
                                 <button
                                     @click="copyToClipboard(sample.uid)"
-                                    class="text-xs text-gray-500 hover:text-gray-900 transition-colors flex items-center gap-1"
+                                    class="flex items-center gap-1 text-xs text-gray-500 transition-colors hover:text-gray-900"
                                     title="Copy UID">
                                     <svg
-                                        class="w-3 h-3"
+                                        class="h-3 w-3"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -221,11 +221,11 @@ export default {
                                 </button>
                                 <a
                                     :href="apiLink"
-                                    class="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                                    class="inline-flex items-center gap-1 text-xs font-medium text-blue-600 transition-colors hover:text-blue-800"
                                     target="_blank"
                                     rel="noopener noreferrer">
                                     <svg
-                                        class="w-3 h-3"
+                                        class="h-3 w-3"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -244,9 +244,9 @@ export default {
             </section>
 
             <!-- Experiment Context -->
-            <section class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-                <div class="border-b border-gray-100 bg-gray-50/50 px-6 py-4 flex items-center gap-3">
-                    <div class="h-8 w-1 bg-blue-500 rounded-full"></div>
+            <section class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                <div class="flex items-center gap-3 border-b border-gray-100 bg-gray-50/50 px-6 py-4">
+                    <div class="h-8 w-1 rounded-full bg-blue-500"></div>
                     <h3 class="text-lg font-semibold text-gray-900">Experiment Context</h3>
                 </div>
 
@@ -254,7 +254,7 @@ export default {
                     <!-- Breadcrumb Path -->
                     <div
                         v-if="experimentPath.length"
-                        class="mb-5 flex items-center gap-2 text-sm flex-wrap">
+                        class="mb-5 flex flex-wrap items-center gap-2 text-sm">
                         <template
                             v-for="(part, index) in experimentPath"
                             :key="index">
@@ -275,37 +275,37 @@ export default {
 
                     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         <div class="rounded-lg border border-gray-100 bg-gray-50/30 p-4">
-                            <label class="text-xs font-medium text-gray-400 uppercase tracking-wider">Project</label>
+                            <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Project</label>
                             <p class="mt-1 text-sm font-semibold text-gray-900">
                                 {{ sample.experiment?.study?.project?.title || "-" }}
                             </p>
                         </div>
                         <div class="rounded-lg border border-gray-100 bg-gray-50/30 p-4">
-                            <label class="text-xs font-medium text-gray-400 uppercase tracking-wider">Study</label>
+                            <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Study</label>
                             <p class="mt-1 text-sm font-semibold text-gray-900">
                                 {{ sample.experiment?.study?.title || "-" }}
                             </p>
                         </div>
                         <div class="rounded-lg border border-gray-100 bg-gray-50/30 p-4">
-                            <label class="text-xs font-medium text-gray-400 uppercase tracking-wider">Experiment</label>
+                            <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Experiment</label>
                             <p class="mt-1 text-sm font-semibold text-gray-900">
                                 {{ sample.experiment?.title || "-" }}
                             </p>
                         </div>
                         <div class="rounded-lg border border-gray-100 bg-gray-50/30 p-4">
-                            <label class="text-xs font-medium text-gray-400 uppercase tracking-wider">Generation</label>
+                            <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Generation</label>
                             <p class="mt-1 text-sm font-semibold text-gray-900">
                                 {{ sample.generation || "-" }}
                             </p>
                         </div>
                         <div class="rounded-lg border border-gray-100 bg-gray-50/30 p-4">
-                            <label class="text-xs font-medium text-gray-400 uppercase tracking-wider">PR Code</label>
-                            <p class="mt-1 text-sm font-mono text-gray-900">
+                            <label class="text-xs font-medium uppercase tracking-wider text-gray-400">PR Code</label>
+                            <p class="mt-1 font-mono text-sm text-gray-900">
                                 {{ sample.pr_code || "-" }}
                             </p>
                         </div>
                         <div class="rounded-lg border border-gray-100 bg-gray-50/30 p-4">
-                            <label class="text-xs font-medium text-gray-400 uppercase tracking-wider">Line Label</label>
+                            <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Line Label</label>
                             <p class="mt-1 text-sm font-semibold text-gray-900">
                                 {{ sample.line_label || "-" }}
                             </p>
@@ -315,9 +315,9 @@ export default {
             </section>
 
             <!-- Lifecycle Details -->
-            <section class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-                <div class="border-b border-gray-100 bg-gray-50/50 px-6 py-4 flex items-center gap-3">
-                    <div class="h-8 w-1 bg-purple-500 rounded-full"></div>
+            <section class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                <div class="flex items-center gap-3 border-b border-gray-100 bg-gray-50/50 px-6 py-4">
+                    <div class="h-8 w-1 rounded-full bg-purple-500"></div>
                     <h3 class="text-lg font-semibold text-gray-900">Lifecycle & Field Data</h3>
                 </div>
 
@@ -325,9 +325,9 @@ export default {
                     <div class="grid gap-6 lg:grid-cols-2">
                         <!-- Dates -->
                         <div class="space-y-4">
-                            <h4 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                            <h4 class="flex items-center gap-2 text-sm font-semibold text-gray-900">
                                 <svg
-                                    class="w-4 h-4 text-gray-400"
+                                    class="h-4 w-4 text-gray-400"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24">
@@ -340,19 +340,19 @@ export default {
                                 Key Dates
                             </h4>
                             <div class="space-y-3">
-                                <div class="flex items-center justify-between py-2 border-b border-gray-50">
+                                <div class="flex items-center justify-between border-b border-gray-50 py-2">
                                     <span class="text-sm text-gray-500">Germination</span>
                                     <span class="text-sm font-medium text-gray-900">
                                         {{ formatDate(sample.germination_date) }}
                                     </span>
                                 </div>
-                                <div class="flex items-center justify-between py-2 border-b border-gray-50">
+                                <div class="flex items-center justify-between border-b border-gray-50 py-2">
                                     <span class="text-sm text-gray-500">Sowing</span>
                                     <span class="text-sm font-medium text-gray-900">
                                         {{ formatDate(sample.sowing_date) }}
                                     </span>
                                 </div>
-                                <div class="flex items-center justify-between py-2 border-b border-gray-50">
+                                <div class="flex items-center justify-between border-b border-gray-50 py-2">
                                     <span class="text-sm text-gray-500">Harvest</span>
                                     <span class="text-sm font-medium text-gray-900">
                                         {{ formatDate(sample.harvest_date) }}
@@ -363,9 +363,9 @@ export default {
 
                         <!-- Field Data -->
                         <div class="space-y-4">
-                            <h4 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                            <h4 class="flex items-center gap-2 text-sm font-semibold text-gray-900">
                                 <svg
-                                    class="w-4 h-4 text-gray-400"
+                                    class="h-4 w-4 text-gray-400"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24">
@@ -379,19 +379,19 @@ export default {
                             </h4>
                             <div class="grid grid-cols-2 gap-3">
                                 <div class="rounded-lg bg-gray-50 p-3">
-                                    <label class="text-xs text-gray-400 uppercase">Plot</label>
+                                    <label class="text-xs uppercase text-gray-400">Plot</label>
                                     <p class="text-lg font-semibold text-gray-900">
                                         {{ sample.plot_number || "-" }}
                                     </p>
                                 </div>
                                 <div class="rounded-lg bg-gray-50 p-3">
-                                    <label class="text-xs text-gray-400 uppercase">Field</label>
+                                    <label class="text-xs uppercase text-gray-400">Field</label>
                                     <p class="text-lg font-semibold text-gray-900">
                                         {{ sample.field_number || "-" }}
                                     </p>
                                 </div>
                                 <div class="rounded-lg bg-gray-50 p-3">
-                                    <label class="text-xs text-gray-400 uppercase">Replication</label>
+                                    <label class="text-xs uppercase text-gray-400">Replication</label>
                                     <p class="text-lg font-semibold text-gray-900">
                                         {{ sample.replication_number || "-" }}
                                     </p>
@@ -401,11 +401,11 @@ export default {
                     </div>
 
                     <!-- Audit Trail -->
-                    <div class="mt-6 pt-6 border-t border-gray-100">
+                    <div class="mt-6 border-t border-gray-100 pt-6">
                         <div class="flex items-center gap-6 text-xs text-gray-500">
                             <div class="flex items-center gap-1.5">
                                 <svg
-                                    class="w-3.5 h-3.5"
+                                    class="h-3.5 w-3.5"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24">
@@ -422,7 +422,7 @@ export default {
                             </div>
                             <div class="flex items-center gap-1.5">
                                 <svg
-                                    class="w-3.5 h-3.5"
+                                    class="h-3.5 w-3.5"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24">
@@ -447,23 +447,23 @@ export default {
             </section>
 
             <!-- Monitoring Records -->
-            <section class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-                <div class="border-b border-gray-100 bg-gray-50/50 px-6 py-4 flex items-center justify-between">
+            <section class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                <div class="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-6 py-4">
                     <div class="flex items-center gap-3">
-                        <div class="h-8 w-1 bg-amber-500 rounded-full"></div>
+                        <div class="h-8 w-1 rounded-full bg-amber-500"></div>
                         <h3 class="text-lg font-semibold text-gray-900">Monitoring Records</h3>
                     </div>
-                    <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{{ monitoringRecords.length }} records</span>
+                    <span class="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-500">{{ monitoringRecords.length }} records</span>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="border-b border-gray-100 bg-gray-50/30">
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Stage</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Recorder</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Notes</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Stage</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Recorder</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Notes</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50">
@@ -473,7 +473,7 @@ export default {
                                     colspan="4">
                                     <div class="flex flex-col items-center gap-2">
                                         <svg
-                                            class="w-8 h-8 text-gray-300"
+                                            class="h-8 w-8 text-gray-300"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24">
@@ -490,8 +490,8 @@ export default {
                             <tr
                                 v-for="record in monitoringRecords"
                                 :key="record.id"
-                                class="hover:bg-gray-50/50 transition-colors">
-                                <td class="px-6 py-3.5 text-gray-900 font-medium whitespace-nowrap">
+                                class="transition-colors hover:bg-gray-50/50">
+                                <td class="whitespace-nowrap px-6 py-3.5 font-medium text-gray-900">
                                     {{ formatDate(record.recorded_on) }}
                                 </td>
                                 <td class="px-6 py-3.5">
@@ -503,7 +503,7 @@ export default {
                                     {{ record.recorder?.name || "-" }}
                                 </td>
                                 <td
-                                    class="px-6 py-3.5 text-gray-600 max-w-xs truncate"
+                                    class="max-w-xs truncate px-6 py-3.5 text-gray-600"
                                     :title="record.notes">
                                     {{ record.notes || "-" }}
                                 </td>
@@ -514,23 +514,23 @@ export default {
             </section>
 
             <!-- Inventory History -->
-            <section class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-                <div class="border-b border-gray-100 bg-gray-50/50 px-6 py-4 flex items-center justify-between">
+            <section class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                <div class="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-6 py-4">
                     <div class="flex items-center gap-3">
-                        <div class="h-8 w-1 bg-rose-500 rounded-full"></div>
+                        <div class="h-8 w-1 rounded-full bg-rose-500"></div>
                         <h3 class="text-lg font-semibold text-gray-900">Inventory History</h3>
                     </div>
-                    <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{{ inventoryLogs.length }} entries</span>
+                    <span class="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-500">{{ inventoryLogs.length }} entries</span>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="border-b border-gray-100 bg-gray-50/30">
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">User</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Payload</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Action</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">User</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Payload</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50">
@@ -540,7 +540,7 @@ export default {
                                     colspan="4">
                                     <div class="flex flex-col items-center gap-2">
                                         <svg
-                                            class="w-8 h-8 text-gray-300"
+                                            class="h-8 w-8 text-gray-300"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24">
@@ -557,12 +557,12 @@ export default {
                             <tr
                                 v-for="log in inventoryLogs"
                                 :key="log.id"
-                                class="hover:bg-gray-50/50 transition-colors">
-                                <td class="px-6 py-3.5 text-gray-900 whitespace-nowrap">
+                                class="transition-colors hover:bg-gray-50/50">
+                                <td class="whitespace-nowrap px-6 py-3.5 text-gray-900">
                                     {{ formatDateTime(log.created_at) }}
                                 </td>
                                 <td class="px-6 py-3.5">
-                                    <span class="inline-flex items-center rounded-md bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700 capitalize">
+                                    <span class="inline-flex items-center rounded-md bg-rose-50 px-2 py-0.5 text-xs font-medium capitalize text-rose-700">
                                         {{ log.action || "-" }}
                                     </span>
                                 </td>
@@ -570,7 +570,7 @@ export default {
                                     {{ log.actor?.name || "System" }}
                                 </td>
                                 <td class="px-6 py-3.5 text-gray-600">
-                                    <code class="text-xs bg-gray-100 px-1.5 py-0.5 rounded text-gray-700 break-all">
+                                    <code class="break-all rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700">
                                         {{ log.qr_payload || log.barcode_value || "-" }}
                                     </code>
                                 </td>
@@ -583,11 +583,11 @@ export default {
             <!-- Metadata -->
             <section
                 v-if="metadataEntries.length"
-                class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-                <div class="border-b border-gray-100 bg-gray-50/50 px-6 py-4 flex items-center gap-3">
-                    <div class="h-8 w-1 bg-slate-500 rounded-full"></div>
+                class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                <div class="flex items-center gap-3 border-b border-gray-100 bg-gray-50/50 px-6 py-4">
+                    <div class="h-8 w-1 rounded-full bg-slate-500"></div>
                     <h3 class="text-lg font-semibold text-gray-900">Metadata</h3>
-                    <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{{ metadataEntries.length }} fields</span>
+                    <span class="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-500">{{ metadataEntries.length }} fields</span>
                 </div>
 
                 <div class="p-6">
@@ -595,11 +595,11 @@ export default {
                         <div
                             v-for="entry in metadataEntries"
                             :key="entry[0]"
-                            class="group rounded-xl border border-gray-200 bg-gray-50/30 p-4 hover:border-gray-300 hover:shadow-sm transition-all">
-                            <label class="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                            class="group rounded-xl border border-gray-200 bg-gray-50/30 p-4 transition-all hover:border-gray-300 hover:shadow-sm">
+                            <label class="text-xs font-medium uppercase tracking-wider text-gray-400">
                                 {{ entry[0] }}
                             </label>
-                            <p class="mt-1 text-sm font-medium text-gray-900 break-all">
+                            <p class="mt-1 break-all text-sm font-medium text-gray-900">
                                 {{ toDisplay(entry[1]) }}
                             </p>
                         </div>

@@ -71,7 +71,7 @@ export default {
             </p>
         </div>
 
-        <div class="p-6 space-y-6">
+        <div class="space-y-6 p-6">
             <div class="grid gap-6 md:grid-cols-2">
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-slate-700">
@@ -193,7 +193,7 @@ export default {
             </div>
         </div>
 
-        <div class="flex items-center justify-end gap-3 border-t border-slate-100 px-6 py-4 bg-slate-50 rounded-b-xl">
+        <div class="flex items-center justify-end gap-3 rounded-b-xl border-t border-slate-100 bg-slate-50 px-6 py-4">
             <button
                 v-if="showCancelButton"
                 type="button"
@@ -213,7 +213,7 @@ export default {
             <button
                 type="submit"
                 :disabled="processing"
-                class="inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                class="inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
                 <LuLoader2
                     v-if="processing"
                     class="mr-2 h-4 w-4 animate-spin" />

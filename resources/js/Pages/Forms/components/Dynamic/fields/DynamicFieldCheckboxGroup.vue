@@ -52,7 +52,7 @@ export default {
     <div class="relative">
         <label
             v-if="field.label"
-            class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">
             {{ field.label }}
             <span
                 v-if="required"
@@ -64,20 +64,20 @@ export default {
             <label
                 v-for="option in options"
                 :key="option.value"
-                class="flex items-center gap-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded transition-colors">
+                class="flex cursor-pointer items-center gap-2 rounded p-1 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700">
                 <input
                     type="checkbox"
                     :value="option.value"
                     :required="required"
                     :checked="isChecked(option.value)"
                     @change="toggleOption(option.value)"
-                    class="w-4 h-4 text-AB focus:ring-AB border-gray-800 dark:border-gray-600 dark:bg-gray-100 rounded" />
+                    class="h-4 w-4 rounded border-gray-800 text-AB focus:ring-AB dark:border-gray-600 dark:bg-gray-100" />
                 <span class="text-sm text-gray-700 dark:text-gray-200">{{ option.label }}</span>
             </label>
         </div>
         <div
             v-if="field.description"
-            class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+            class="mt-1 text-xs text-gray-600 dark:text-gray-400">
             {{ field.description }}
         </div>
         <transition-container type="slide-bottom">

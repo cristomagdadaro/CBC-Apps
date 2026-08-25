@@ -106,7 +106,7 @@ export default {
 
             <div class="mt-6 grid gap-6 lg:grid-cols-3">
                 <!-- Sample Inventory Card -->
-                <div class="lg:col-span-2 rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+                <div class="rounded-xl bg-white shadow-sm ring-1 ring-slate-200 lg:col-span-2">
                     <div class="border-b border-slate-100 px-6 py-4">
                         <div class="flex items-center gap-2">
                             <LuScanLine class="h-5 w-5 text-indigo-600" />
@@ -176,8 +176,8 @@ export default {
 
             <!-- Recent Projects & Permissions -->
             <div class="mt-6 grid gap-6 lg:grid-cols-3">
-                <div class="lg:col-span-2 rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
-                    <div class="border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+                <div class="rounded-xl bg-white shadow-sm ring-1 ring-slate-200 lg:col-span-2">
+                    <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
                         <div>
                             <h2 class="text-lg font-semibold text-slate-900">Recent Projects</h2>
                             <p class="mt-1 text-sm text-slate-500">Active research portfolios</p>
@@ -208,10 +208,10 @@ export default {
                             v-for="project in recentProjects"
                             :key="project.id"
                             :href="route('research.projects.show', projectRouteIdentifier(project))"
-                            class="group flex items-start justify-between px-6 py-4 hover:bg-slate-50 transition-colors">
+                            class="group flex items-start justify-between px-6 py-4 transition-colors hover:bg-slate-50">
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs font-mono text-slate-500">
+                                    <span class="font-mono text-xs text-slate-500">
                                         {{ project.code }}
                                     </span>
                                     <span class="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{{ project.studies_count }} studies</span>
@@ -234,7 +234,7 @@ export default {
                         <h2 class="text-lg font-semibold text-slate-900">Access Control</h2>
                         <p class="mt-1 text-sm text-slate-500">Role-based permissions</p>
                     </div>
-                    <div class="p-6 space-y-4">
+                    <div class="space-y-4 p-6">
                         <div
                             v-for="item in permissionMatrix"
                             :key="item.role"
@@ -245,7 +245,7 @@ export default {
                                     v-for="permission in item.permissions"
                                     :key="permission"
                                     class="flex items-start gap-2 text-sm text-slate-600">
-                                    <LuCheck class="h-4 w-4 flex-none text-emerald-500 mt-0.5" />
+                                    <LuCheck class="mt-0.5 h-4 w-4 flex-none text-emerald-500" />
                                     <span>{{ permission }}</span>
                                 </li>
                             </ul>

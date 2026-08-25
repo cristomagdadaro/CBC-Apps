@@ -701,18 +701,18 @@ export default {
     <form
         v-if="form"
         @submit.prevent="handleSubmit()"
-        class="py-3 relative bg-white dark:bg-gray-800 px-3 transition-colors"
-        :class="{ 'border border-red-600 dark:border-red-600 rounded-md': form.hasErrors }">
+        class="relative bg-white px-3 py-3 transition-colors dark:bg-gray-800"
+        :class="{ 'rounded-md border border-red-600 dark:border-red-600': form.hasErrors }">
         <!-- Success Overlay -->
         <transition-container type="slide-top">
             <div
                 v-show="showSuccess"
                 ref="successOverlay"
                 :id="`success-${successEventId}-${participantIdHash}`"
-                class="absolute flex top-0 left-0 bg-AB w-full h-full z-50 text-white text-xl font-medium justify-center items-center rounded-b-md shadow">
+                class="absolute left-0 top-0 z-50 flex h-full w-full items-center justify-center rounded-b-md bg-AB text-xl font-medium text-white shadow">
                 <button
                     @click.prevent="dismissSuccess"
-                    class="absolute top-0 right-0 p-2">
+                    class="absolute right-0 top-0 p-2">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
@@ -724,13 +724,13 @@ export default {
                 </button>
                 <div
                     ref="successCapture"
-                    class="flex flex-col text-center w-full gap-0.5 px-3">
-                    <div class="text-sm leading-tight opacity-95 mb-1">
+                    class="flex w-full flex-col gap-0.5 px-3 text-center">
+                    <div class="mb-1 text-sm leading-tight opacity-95">
                         <div>{{ successEventId }} - {{ successSubformTitle }}</div>
                     </div>
                     <div
                         v-if="participantIdHash"
-                        class="text-sm w-full flex flex-col gap-1 justify-center mb-1 py-2">
+                        class="mb-1 flex w-full flex-col justify-center gap-1 py-2 text-sm">
                         <qrcode-vue
                             :value="participantIdHash"
                             :size="300"
@@ -739,12 +739,12 @@ export default {
                             class="mx-auto border-4 shadow" />
                         {{ participantIdHash }}
                     </div>
-                    <span class="drop-shadow leading-none text-sm">DA-Crop Biotechnology Center</span>
-                    <span class="drop-shadow leading-none text-sm font-light">cropbiotechcenter@gmail.com</span>
+                    <span class="text-sm leading-none drop-shadow">DA-Crop Biotechnology Center</span>
+                    <span class="text-sm font-light leading-none drop-shadow">cropbiotechcenter@gmail.com</span>
                     <button
                         type="button"
                         data-html2canvas-ignore="true"
-                        class="mx-auto mt-3 px-3 py-1 text-sm rounded-md border border-white/80 hover:bg-white/15 disabled:opacity-60"
+                        class="mx-auto mt-3 rounded-md border border-white/80 px-3 py-1 text-sm hover:bg-white/15 disabled:opacity-60"
                         :disabled="isDownloadingImage"
                         @click.prevent="downloadSuccessAsPng">
                         {{ isDownloadingImage ? "Preparing PNG..." : "Save this QR for your next step" }}
@@ -757,7 +757,7 @@ export default {
         <div class="py-1">
             <label
                 v-if="form.errors.suspended || form.errors.full || form.errors.expired || form.errors.limit"
-                class="text-red-700 uppercase justify-center flex text-sm leading-tight">
+                class="flex justify-center text-sm uppercase leading-tight text-red-700">
                 {{ form.errors.suspended || form.errors.full || form.errors.expired || form.errors.limit }}
             </label>
         </div>
@@ -794,7 +794,7 @@ export default {
                         v-for="field in section.fields"
                         :key="field.field_key">
                         <div
-                            :class="isFieldLocked(field) ? 'opacity-80 pointer-events-none cursor-not-allowed' : 'cursor-text'"
+                            :class="isFieldLocked(field) ? 'pointer-events-none cursor-not-allowed opacity-80' : 'cursor-text'"
                             :title="isFieldLocked(field) ? 'Default value is locked for this field.' : ''">
                             <component
                                 :is="getFieldComponent(field.field_type)"
@@ -828,7 +828,7 @@ export default {
                 v-if="currentSectionIndex > minAccessibleSectionIndex"
                 type="button"
                 @click="goToPreviousSection"
-                class="px-4 py-2 text-sm border text-gray-900 dark:text-gray-200 border-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-900 transition hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700">
                 ← Previous
             </button>
             <div v-else></div>
@@ -837,7 +837,7 @@ export default {
                 v-if="hasNextSection && !isLastSection"
                 type="button"
                 @click="goToNextSection"
-                class="px-4 py-2 text-sm bg-AB text-white rounded-md hover:bg-AB/90 transition">
+                class="rounded-md bg-AB px-4 py-2 text-sm text-white transition hover:bg-AB/90">
                 Next →
             </button>
         </div>
@@ -849,10 +849,10 @@ export default {
             <button
                 :disabled="isSubmitting || form.processing"
                 type="submit"
-                class="w-full px-4 py-2 bg-AB text-white font-semibold rounded-md hover:bg-AB/90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                class="flex w-full items-center justify-center gap-2 rounded-md bg-AB px-4 py-2 font-semibold text-white transition hover:bg-AB/90 disabled:cursor-not-allowed disabled:opacity-50">
                 <svg
                     v-if="isSubmitting || form.processing"
-                    class="animate-spin h-4 w-4"
+                    class="h-4 w-4 animate-spin"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24">

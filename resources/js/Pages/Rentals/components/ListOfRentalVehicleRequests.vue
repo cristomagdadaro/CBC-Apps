@@ -20,7 +20,7 @@ export default {
 </script>
 
 <template>
-    <div class="grid xl:grid-cols-3 lg:grid-cols-2 grid-flow-row gap-2 p-2">
+    <div class="grid grid-flow-row gap-2 p-2 lg:grid-cols-2 xl:grid-cols-3">
         <rental-vehicle-approval-card
             v-for="data in rentalsData"
             :key="data.id"

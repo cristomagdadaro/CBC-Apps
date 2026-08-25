@@ -118,75 +118,75 @@ export default {
 </script>
 
 <template>
-    <div class="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-200 rounded-xl overflow-hidden">
+    <div class="min-h-screen overflow-hidden rounded-xl bg-slate-50 transition-colors duration-200 dark:bg-slate-900">
         <!-- Mobile Navigation Floating Header -->
-        <div class="lg:hidden sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 shadow-sm px-4 py-3">
+        <div class="sticky top-0 z-40 border-b border-slate-200/80 bg-white/80 px-4 py-3 shadow-sm backdrop-blur-xl lg:hidden dark:border-slate-800 dark:bg-slate-900/80">
             <!-- Mobile Header Top Row (Title & Save) -->
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex-1 min-w-0 pr-4">
-                    <h1 class="text-sm font-bold text-slate-900 dark:text-white truncate">
+            <div class="mb-3 flex items-center justify-between">
+                <div class="min-w-0 flex-1 pr-4">
+                    <h1 class="truncate text-sm font-bold text-slate-900 dark:text-white">
                         {{ isEdit ? "Edit: " + (form.title || "Form") : "Create New Form" }}
                     </h1>
-                    <div class="text-[0.65rem] text-slate-500 dark:text-slate-400 mt-0.5 font-medium uppercase tracking-wider">
+                    <div class="mt-0.5 text-[0.65rem] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
                         {{ form.event_id ? `ID: #${form.event_id}` : "Draft" }}
                     </div>
                 </div>
                 <button
                     @click="submitProxy"
                     :disabled="processing || isSaving"
-                    class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-bold rounded-lg shadow-sm shadow-indigo-600/20 active:scale-95 transition-transform">
+                    class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm shadow-indigo-600/20 transition-transform hover:bg-indigo-700 active:scale-95 disabled:opacity-50">
                     <LuLoader2
                         v-if="processing || isSaving"
-                        class="w-3.5 h-3.5 animate-spin" />
+                        class="h-3.5 w-3.5 animate-spin" />
                     <LuSave
                         v-else
-                        class="w-3.5 h-3.5" />
+                        class="h-3.5 w-3.5" />
                     Save
                 </button>
             </div>
 
             <!-- Mobile Navigation Tabs -->
-            <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1">
+            <div class="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
                 <button
                     @click="activeSection = 'details'"
-                    class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap"
-                    :class="activeSection === 'details' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'">
-                    <LuFileText class="w-4 h-4" />
+                    class="flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-bold transition-all"
+                    :class="activeSection === 'details' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'">
+                    <LuFileText class="h-4 w-4" />
                     Details
                 </button>
                 <button
                     @click="activeSection = 'requirements'"
-                    class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap"
-                    :class="activeSection === 'requirements' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'">
-                    <LuListChecks class="w-4 h-4" />
+                    class="flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-bold transition-all"
+                    :class="activeSection === 'requirements' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'">
+                    <LuListChecks class="h-4 w-4" />
                     Attached Forms
                 </button>
                 <button
                     @click="activeSection = 'style'"
-                    class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap"
-                    :class="activeSection === 'style' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'">
-                    <LuPalette class="w-4 h-4" />
+                    class="flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-bold transition-all"
+                    :class="activeSection === 'style' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'">
+                    <LuPalette class="h-4 w-4" />
                     Theme
                 </button>
                 <button
                     @click="showMobilePreview = true"
-                    class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                    <LuEye class="w-4 h-4" />
+                    class="flex items-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-bold text-slate-600 transition-all dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                    <LuEye class="h-4 w-4" />
                     Preview
                 </button>
             </div>
         </div>
 
         <!-- Desktop Header Frame -->
-        <div class="hidden lg:block bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40">
+        <div class="sticky top-0 z-40 hidden border-b border-slate-200 bg-white/50 backdrop-blur-md lg:block dark:border-slate-800 dark:bg-slate-900/50">
             <div class="mx-auto px-4 lg:px-8">
-                <div class="flex items-center justify-between h-[4.5rem]">
+                <div class="flex h-[4.5rem] items-center justify-between">
                     <div class="flex items-center gap-4">
-                        <div class="p-2.5 bg-indigo-100 dark:bg-indigo-500/20 rounded-xl border border-indigo-200 dark:border-indigo-500/30 shadow-sm shrink-0">
-                            <LuFileEdit class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                        <div class="shrink-0 rounded-xl border border-indigo-200 bg-indigo-100 p-2.5 shadow-sm dark:border-indigo-500/30 dark:bg-indigo-500/20">
+                            <LuFileEdit class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         <div>
-                            <h1 class="text-normal font-semibold text-slate-900 dark:text-white tracking-tight leading-none">
+                            <h1 class="text-normal font-semibold leading-none tracking-tight text-slate-900 dark:text-white">
                                 {{ isEdit ? "Edit Event Form" : "Create New Form" }}
                             </h1>
                         </div>
@@ -196,19 +196,19 @@ export default {
                             v-if="formUrl"
                             :href="formUrl"
                             target="_blank"
-                            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-all active:scale-95">
-                            <LuExternalLink class="w-4 h-4 text-slate-400" />
+                            class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700/80">
+                            <LuExternalLink class="h-4 w-4 text-slate-400" />
                             Open Form
                         </a>
                         <button
                             @click="copyFormLink"
                             v-if="formUrl"
-                            class="p-2.5 text-slate-500 hover:text-indigo-600 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm transition-all"
+                            class="rounded-xl border border-slate-200 bg-white p-2.5 text-slate-500 shadow-sm transition-all hover:bg-indigo-50 hover:text-indigo-600 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-indigo-500/10"
                             title="Copy link">
-                            <LuCopy class="w-4 h-4" />
+                            <LuCopy class="h-4 w-4" />
                         </button>
 
-                        <div class="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-2" />
+                        <div class="mx-2 h-8 w-px bg-slate-200 dark:bg-slate-700" />
 
                         <suspend-form-btn
                             v-if="isEdit"
@@ -218,13 +218,13 @@ export default {
                         <button
                             @click="submitProxy"
                             :disabled="processing || isSaving"
-                            class="inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold rounded-xl shadow-md shadow-indigo-600/20 transition-all active:scale-95">
+                            class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-600/20 transition-all hover:bg-indigo-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50">
                             <LuLoader2
                                 v-if="processing || isSaving"
-                                class="w-4 h-4 animate-spin" />
+                                class="h-4 w-4 animate-spin" />
                             <LuSave
                                 v-else
-                                class="w-4 h-4" />
+                                class="h-4 w-4" />
                             {{ processing || isSaving ? "Saving..." : "Save Form" }}
                         </button>
                     </div>
@@ -233,36 +233,36 @@ export default {
         </div>
 
         <!-- Main Content Area -->
-        <div class="mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 xl:gap-8">
+        <div class="mx-auto px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-12 xl:gap-8">
                 <!-- Left Sidebar Navigation (Desktop) -->
-                <div class="hidden lg:block lg:col-span-3 xl:col-span-2 space-y-6">
-                    <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm ring-1 ring-slate-900/5 dark:ring-white/5 overflow-hidden">
-                        <nav class="flex flex-col p-2 space-y-1">
+                <div class="hidden space-y-6 lg:col-span-3 lg:block xl:col-span-2">
+                    <div class="overflow-hidden rounded-2xl bg-white/80 shadow-sm ring-1 ring-slate-900/5 backdrop-blur-xl dark:bg-slate-900/80 dark:ring-white/5">
+                        <nav class="flex flex-col space-y-1 p-2">
                             <button
                                 @click="activeSection = 'details'"
-                                class="flex items-center gap-3 px-4 py-3 text-left rounded-xl transition-all font-semibold text-sm"
-                                :class="activeSection === 'details' ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60'">
+                                class="flex items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition-all"
+                                :class="activeSection === 'details' ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/60'">
                                 <LuFileText
-                                    class="w-5 h-5"
+                                    class="h-5 w-5"
                                     :class="activeSection === 'details' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'" />
                                 Event Details
                             </button>
                             <button
                                 @click="activeSection = 'requirements'"
-                                class="flex items-center gap-3 px-4 py-3 text-left rounded-xl transition-all font-semibold text-sm"
-                                :class="activeSection === 'requirements' ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60'">
+                                class="flex items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition-all"
+                                :class="activeSection === 'requirements' ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/60'">
                                 <LuListChecks
-                                    class="w-5 h-5"
+                                    class="h-5 w-5"
                                     :class="activeSection === 'requirements' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'" />
                                 Attached Forms
                             </button>
                             <button
                                 @click="activeSection = 'style'"
-                                class="flex items-center gap-3 px-4 py-3 text-left rounded-xl transition-all font-semibold text-sm"
-                                :class="activeSection === 'style' ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60'">
+                                class="flex items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition-all"
+                                :class="activeSection === 'style' ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/60'">
                                 <LuPalette
-                                    class="w-5 h-5"
+                                    class="h-5 w-5"
                                     :class="activeSection === 'style' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'" />
                                 Theme & Style
                             </button>
@@ -271,7 +271,7 @@ export default {
                 </div>
 
                 <!-- Main Form Editor Area -->
-                <div class="lg:col-span-3 xl:col-span-4 space-y-6">
+                <div class="space-y-6 lg:col-span-3 xl:col-span-4">
                     <form
                         v-if="!!form"
                         @submit.prevent="submitProxy"
@@ -279,28 +279,28 @@ export default {
                         <!-- Event Details Section -->
                         <div
                             v-show="activeSection === 'details'"
-                            class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm ring-1 ring-slate-900/5 dark:ring-white/5 overflow-hidden transition-all duration-300">
-                            <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
-                                <h2 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide flex items-center gap-2.5">
-                                    <LuFileText class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                            class="overflow-hidden rounded-2xl bg-white/80 shadow-sm ring-1 ring-slate-900/5 backdrop-blur-xl transition-all duration-300 dark:bg-slate-900/80 dark:ring-white/5">
+                            <div class="border-b border-slate-100 bg-slate-50/50 px-6 py-5 dark:border-slate-800 dark:bg-slate-800/20">
+                                <h2 class="flex items-center gap-2.5 text-sm font-black uppercase tracking-wide text-slate-900 dark:text-white">
+                                    <LuFileText class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                                     Event Details
                                 </h2>
                             </div>
 
-                            <div class="p-6 space-y-6">
+                            <div class="space-y-6 p-6">
                                 <!-- Title & ID -->
-                                <div class="flex flex-col sm:flex-row gap-5">
+                                <div class="flex flex-col gap-5 sm:flex-row">
                                     <div class="flex-1">
-                                        <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Form Title</label>
+                                        <label class="mb-2 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Form Title</label>
                                         <text-input
                                             placeholder="Enter form title"
                                             v-model="form.title"
                                             :error="form.errors.title"
                                             class="w-full text-base font-medium" />
                                     </div>
-                                    <div class="w-full sm:w-28 flex-shrink-0">
-                                        <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Event ID</label>
-                                        <div class="px-4 py-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-center font-black tracking-widest text-slate-700 dark:text-slate-300 shadow-inner">
+                                    <div class="w-full flex-shrink-0 sm:w-28">
+                                        <label class="mb-2 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Event ID</label>
+                                        <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-center font-black tracking-widest text-slate-700 shadow-inner dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300">
                                             {{ form.event_id || "—" }}
                                         </div>
                                     </div>
@@ -308,7 +308,7 @@ export default {
 
                                 <!-- Description -->
                                 <div>
-                                    <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Description</label>
+                                    <label class="mb-2 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Description</label>
                                     <text-area
                                         placeholder="Describe your event or form purpose"
                                         v-model="form.description"
@@ -318,11 +318,11 @@ export default {
                                 </div>
 
                                 <!-- Date & Time Grid -->
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-slate-50/50 dark:bg-slate-800/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50">
+                                <div class="grid grid-cols-1 gap-6 rounded-2xl border border-slate-100 bg-slate-50/50 p-5 sm:grid-cols-2 dark:border-slate-700/50 dark:bg-slate-800/30">
                                     <div class="space-y-4">
                                         <div>
-                                            <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-1.5">
-                                                <LuCalendar class="w-3.5 h-3.5" />
+                                            <label class="mb-2 block flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                                                <LuCalendar class="h-3.5 w-3.5" />
                                                 Start Date
                                             </label>
                                             <date-input
@@ -331,8 +331,8 @@ export default {
                                                 class="w-full" />
                                         </div>
                                         <div>
-                                            <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-1.5">
-                                                <LuClock class="w-3.5 h-3.5" />
+                                            <label class="mb-2 block flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                                                <LuClock class="h-3.5 w-3.5" />
                                                 Start Time
                                             </label>
                                             <time-input
@@ -343,8 +343,8 @@ export default {
                                     </div>
                                     <div class="space-y-4">
                                         <div>
-                                            <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-1.5">
-                                                <LuCalendar class="w-3.5 h-3.5" />
+                                            <label class="mb-2 block flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                                                <LuCalendar class="h-3.5 w-3.5" />
                                                 End Date
                                             </label>
                                             <date-input
@@ -353,8 +353,8 @@ export default {
                                                 class="w-full" />
                                         </div>
                                         <div>
-                                            <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-1.5">
-                                                <LuClock class="w-3.5 h-3.5" />
+                                            <label class="mb-2 block flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                                                <LuClock class="h-3.5 w-3.5" />
                                                 End Time
                                             </label>
                                             <time-input
@@ -367,8 +367,8 @@ export default {
 
                                 <!-- Venue -->
                                 <div>
-                                    <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-1.5">
-                                        <LuMapPin class="w-3.5 h-3.5" />
+                                    <label class="mb-2 block flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                                        <LuMapPin class="h-3.5 w-3.5" />
                                         Venue
                                     </label>
                                     <text-input
@@ -380,7 +380,7 @@ export default {
 
                                 <!-- Details -->
                                 <div>
-                                    <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Additional Details</label>
+                                    <label class="mb-2 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Additional Details</label>
                                     <text-area
                                         placeholder="Any other important information for participants"
                                         v-model="form.details"
@@ -394,13 +394,13 @@ export default {
                         <!-- Requirements Section -->
                         <div
                             v-show="activeSection === 'requirements'"
-                            class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm ring-1 ring-slate-900/5 dark:ring-white/5 overflow-hidden transition-all duration-300">
-                            <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
-                                <h2 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide flex items-center gap-2.5">
-                                    <LuListChecks class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                            class="overflow-hidden rounded-2xl bg-white/80 shadow-sm ring-1 ring-slate-900/5 backdrop-blur-xl transition-all duration-300 dark:bg-slate-900/80 dark:ring-white/5">
+                            <div class="border-b border-slate-100 bg-slate-50/50 px-6 py-5 dark:border-slate-800 dark:bg-slate-800/20">
+                                <h2 class="flex items-center gap-2.5 text-sm font-black uppercase tracking-wide text-slate-900 dark:text-white">
+                                    <LuListChecks class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                                     Attached Forms
                                 </h2>
-                                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1.5 ml-7.5">Attach other subforms that must be completed within this event.</p>
+                                <p class="ml-7.5 mt-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">Attach other subforms that must be completed within this event.</p>
                             </div>
                             <div class="p-6">
                                 <requirements-manager
@@ -412,13 +412,13 @@ export default {
                         <!-- Style Section -->
                         <div
                             v-show="activeSection === 'style'"
-                            class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm ring-1 ring-slate-900/5 dark:ring-white/5 overflow-hidden transition-all duration-300">
-                            <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
-                                <h2 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide flex items-center gap-2.5">
-                                    <LuPalette class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                            class="overflow-hidden rounded-2xl bg-white/80 shadow-sm ring-1 ring-slate-900/5 backdrop-blur-xl transition-all duration-300 dark:bg-slate-900/80 dark:ring-white/5">
+                            <div class="border-b border-slate-100 bg-slate-50/50 px-6 py-5 dark:border-slate-800 dark:bg-slate-800/20">
+                                <h2 class="flex items-center gap-2.5 text-sm font-black uppercase tracking-wide text-slate-900 dark:text-white">
+                                    <LuPalette class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                                     Theme & Appearance
                                 </h2>
-                                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1.5 ml-7.5">Customize colors and imagery for the guest-facing form.</p>
+                                <p class="ml-7.5 mt-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">Customize colors and imagery for the guest-facing form.</p>
                             </div>
                             <div class="p-6">
                                 <form-style-designer
@@ -428,17 +428,17 @@ export default {
                         </div>
 
                         <!-- Mobile Save Button Container -->
-                        <div class="lg:hidden pt-4 pb-8">
+                        <div class="pb-8 pt-4 lg:hidden">
                             <button
                                 @click="submitProxy"
                                 :disabled="processing || isSaving"
-                                class="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-black tracking-wide rounded-xl shadow-md shadow-indigo-600/20 transition-all active:scale-95">
+                                class="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3.5 font-black tracking-wide text-white shadow-md shadow-indigo-600/20 transition-all hover:bg-indigo-700 active:scale-95 disabled:opacity-50">
                                 <LuLoader2
                                     v-if="processing || isSaving"
-                                    class="w-5 h-5 animate-spin" />
+                                    class="h-5 w-5 animate-spin" />
                                 <LuSave
                                     v-else
-                                    class="w-5 h-5" />
+                                    class="h-5 w-5" />
                                 {{ processing || isSaving ? "Saving Form..." : "Save Complete Form" }}
                             </button>
                         </div>
@@ -446,42 +446,42 @@ export default {
                 </div>
 
                 <!-- Live Preview Panel (Desktop) -->
-                <div class="hidden lg:block lg:col-span-4 xl:col-span-6 sticky top-[5.5rem] self-start h-[calc(100vh-6.5rem)] overflow-y-auto no-scrollbar pb-8">
+                <div class="no-scrollbar sticky top-[5.5rem] hidden h-[calc(100vh-6.5rem)] self-start overflow-y-auto pb-8 lg:col-span-4 lg:block xl:col-span-6">
                     <div class="space-y-4">
                         <div class="flex items-center justify-between px-2">
-                            <h2 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide flex items-center gap-2.5">
-                                <LuEye class="w-4 h-4 text-indigo-500" />
+                            <h2 class="flex items-center gap-2.5 text-sm font-black uppercase tracking-wide text-slate-900 dark:text-white">
+                                <LuEye class="h-4 w-4 text-indigo-500" />
                                 Live Preview
                             </h2>
                             <span
                                 v-if="!canPreview"
-                                class="text-[0.65rem] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                                class="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-amber-600 shadow-sm dark:border-amber-800/50 dark:bg-amber-900/20 dark:text-amber-400">
                                 Fill details to preview
                             </span>
                         </div>
 
                         <!-- Mobile Device Mockup for Preview -->
                         <div
-                            class="relative mx-auto drop-shadow-2xl mt-4 origin-top scale-[0.82] xl:scale-[0.95]"
+                            class="relative mx-auto mt-4 origin-top scale-[0.82] drop-shadow-2xl xl:scale-[0.95]"
                             style="width: 426px; height: 866px">
                             <!-- Device Frame Image -->
                             <div
-                                class="absolute inset-0 z-10 pointer-events-none"
+                                class="pointer-events-none absolute inset-0 z-10"
                                 style="background-image: url(&quot;/imgs/iphone14-promax.png&quot;); background-size: 100% 100%; width: 478px; height: 973px; transform: scale(0.89); transform-origin: top left"></div>
 
                             <!-- Screen Content -->
                             <div
-                                class="absolute z-20 overflow-y-auto no-scrollbar bg-slate-900"
+                                class="no-scrollbar absolute z-20 overflow-y-auto bg-slate-900"
                                 style="width: 428px; height: 928px; top: 20.47px; left: 23.14px; transform: scale(0.89); transform-origin: top left; clip-path: url(#viewport-mask1)">
                                 <guest-card
                                     v-if="canPreview"
                                     :data="form"
-                                    class="w-full shadow-none border-none rounded-none min-h-full pb-10" />
+                                    class="min-h-full w-full rounded-none border-none pb-10 shadow-none" />
                                 <div
                                     v-else
-                                    class="flex flex-col items-center justify-center h-full px-6 text-center text-slate-400 dark:text-slate-500">
-                                    <div class="w-20 h-20 bg-slate-800 rounded-3xl flex items-center justify-center mb-5 shadow-sm border border-slate-700">
-                                        <LuFileQuestion class="w-10 h-10 opacity-60" />
+                                    class="flex h-full flex-col items-center justify-center px-6 text-center text-slate-400 dark:text-slate-500">
+                                    <div class="mb-5 flex h-20 w-20 items-center justify-center rounded-3xl border border-slate-700 bg-slate-800 shadow-sm">
+                                        <LuFileQuestion class="h-10 w-10 opacity-60" />
                                     </div>
                                     <p class="text-base font-semibold tracking-wide">Enter form title and start date to see the live preview.</p>
                                 </div>
@@ -491,7 +491,7 @@ export default {
                             <svg
                                 fill="none"
                                 xmlns="http://www.w3.org/2000/svg"
-                                class="absolute w-0 h-0">
+                                class="absolute h-0 w-0">
                                 <clipPath id="viewport-mask1">
                                     <path
                                         fill-rule="evenodd"
@@ -519,26 +519,26 @@ export default {
                     class="fixed inset-0 z-50 bg-slate-900/60 lg:hidden"
                     @click="showMobilePreview = false">
                     <div
-                        class="absolute inset-x-0 bottom-0 top-[4.5rem] bg-slate-100 dark:bg-slate-950 rounded-t-3xl overflow-y-auto shadow-2xl ring-1 ring-white/10"
+                        class="absolute inset-x-0 bottom-0 top-[4.5rem] overflow-y-auto rounded-t-3xl bg-slate-100 shadow-2xl ring-1 ring-white/10 dark:bg-slate-950"
                         @click.stop>
                         <!-- Drag Handle / Header -->
-                        <div class="sticky top-0 bg-slate-100 dark:bg-slate-950 pt-3 pb-2 z-10 flex flex-col items-center justify-center border-b border-slate-200 dark:border-slate-800/50">
+                        <div class="sticky top-0 z-10 flex flex-col items-center justify-center border-b border-slate-200 bg-slate-100 pb-2 pt-3 dark:border-slate-800/50 dark:bg-slate-950">
                             <div
-                                class="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full mb-3 cursor-pointer"
+                                class="mb-3 h-1.5 w-12 cursor-pointer rounded-full bg-slate-300 dark:bg-slate-700"
                                 @click="showMobilePreview = false"></div>
                             <h3 class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-300">Live Form Preview</h3>
                         </div>
 
-                        <div class="p-4 sm:p-6 pb-20">
+                        <div class="p-4 pb-20 sm:p-6">
                             <guest-card
                                 v-if="canPreview"
                                 :data="form"
-                                class="w-full mx-auto max-w-md shadow-xl" />
+                                class="mx-auto w-full max-w-md shadow-xl" />
                             <div
                                 v-else
-                                class="bg-white dark:bg-slate-900 rounded-2xl p-10 text-center text-slate-400 dark:text-slate-500 shadow-sm border border-slate-200 dark:border-slate-800 max-w-md mx-auto mt-10">
-                                <div class="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
-                                    <LuFileQuestion class="w-8 h-8 opacity-60" />
+                                class="mx-auto mt-10 max-w-md rounded-2xl border border-slate-200 bg-white p-10 text-center text-slate-400 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-500">
+                                <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-50 shadow-inner dark:bg-slate-800">
+                                    <LuFileQuestion class="h-8 w-8 opacity-60" />
                                 </div>
                                 <p class="text-sm font-bold">Add a title and date to preview</p>
                             </div>

@@ -310,72 +310,72 @@ export default {
             </ActionHeaderLayout>
         </template>
 
-        <div class="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8 space-y-6">
+        <div class="min-h-screen space-y-6 bg-slate-50 p-4 sm:p-6 lg:p-8">
             <!-- Experiment Overview -->
             <div class="rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
                 <div class="border-b border-slate-100 px-6 py-4">
-                    <p class="text-xs font-mono text-slate-500">{{ experiment.code }}</p>
+                    <p class="font-mono text-xs text-slate-500">{{ experiment.code }}</p>
                     <h2 class="text-lg font-semibold text-slate-900">Experiment Details</h2>
                 </div>
                 <div class="p-6">
                     <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                         <div>
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Location</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Location</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ experiment.geographic_location || "—" }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Season</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Season</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ experiment.season || "—" }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Commodity</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Commodity</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ experiment.commodity || "—" }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Sample Type</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Sample Type</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ experiment.sample_type || "—" }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Generation</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Generation</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ experiment.generation || experiment.filial_generation || "—" }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Plot/Field</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Plot/Field</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ experiment.plot_number || "—" }} /
                                 {{ experiment.field_number || "—" }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Replications</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Replications</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ experiment.replication_number || "—" }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Planned Plants</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Planned Plants</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ experiment.planned_plant_count || "—" }}
                             </dd>
                         </div>
                         <div class="md:col-span-2">
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Cross Combination</dt>
-                            <dd class="mt-1 text-sm font-mono text-slate-700 bg-slate-50 rounded px-3 py-2">
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Cross Combination</dt>
+                            <dd class="mt-1 rounded bg-slate-50 px-3 py-2 font-mono text-sm text-slate-700">
                                 {{ experiment.cross_combination || "Not recorded" }}
                             </dd>
                         </div>
                         <div class="md:col-span-2">
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Parental Background</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Parental Background</dt>
                             <dd class="mt-1 text-sm text-slate-700">
                                 {{ experiment.parental_background || "Not recorded" }}
                             </dd>
@@ -450,12 +450,12 @@ export default {
                 <div
                     v-for="sample in experiment.samples || []"
                     :key="sample.id"
-                    class="rounded-xl bg-white shadow-sm ring-1 ring-slate-200 overflow-hidden">
+                    class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
                     <!-- Sample card content -->
-                    <div class="border-b border-slate-100 px-6 py-4 flex items-center justify-between bg-slate-50/50">
+                    <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50/50 px-6 py-4">
                         <div>
                             <div class="flex items-center gap-3">
-                                <span class="text-xs font-mono text-slate-500">
+                                <span class="font-mono text-xs text-slate-500">
                                     {{ sample.uid }}
                                 </span>
                                 <span

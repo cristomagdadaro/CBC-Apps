@@ -91,9 +91,9 @@ export default {
         <div class="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
             <!-- Study Overview -->
             <div class="rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
-                <div class="border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
                     <div>
-                        <p class="text-xs font-mono text-slate-500">{{ study.code }}</p>
+                        <p class="font-mono text-xs text-slate-500">{{ study.code }}</p>
                         <h2 class="text-lg font-semibold text-slate-900">Study Overview</h2>
                     </div>
                     <div class="flex items-center gap-3">
@@ -111,7 +111,7 @@ export default {
                 <div class="p-6">
                     <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                         <div>
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Study Leader</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Study Leader</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ study.study_leader?.name || "Unassigned" }}
                                 <span
@@ -122,7 +122,7 @@ export default {
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Supervisor</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Supervisor</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ study.supervisor?.name || "Unassigned" }}
                                 <span
@@ -133,13 +133,13 @@ export default {
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Budget</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Budget</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ formatCurrency(study.budget) }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Project</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Project</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 <Link
                                     :href="route('research.projects.show', projectRouteIdentifier)"
@@ -149,17 +149,17 @@ export default {
                             </dd>
                         </div>
                         <div class="md:col-span-2">
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Objective</dt>
-                            <dd class="mt-1 text-sm text-slate-700 leading-relaxed">
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Objective</dt>
+                            <dd class="mt-1 text-sm leading-relaxed text-slate-700">
                                 {{ study.objective || "No objective recorded." }}
                             </dd>
                         </div>
                         <div class="md:col-span-2">
-                            <dt class="text-xs font-medium text-slate-500 uppercase tracking-wider">Study Staff</dt>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Study Staff</dt>
                             <dd class="mt-1 flex flex-wrap gap-2">
                                 <span
                                     v-if="!staffMembers.length"
-                                    class="text-sm text-slate-400 italic">
+                                    class="text-sm italic text-slate-400">
                                     No staff assigned
                                 </span>
                                 <span
@@ -187,7 +187,7 @@ export default {
 
             <!-- Experiments Section -->
             <div class="mt-6 rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
-                <div class="border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
                     <div>
                         <h2 class="text-lg font-semibold text-slate-900">Experiments</h2>
                         <p class="text-sm text-slate-500">Manage experimental protocols and sample tracking</p>

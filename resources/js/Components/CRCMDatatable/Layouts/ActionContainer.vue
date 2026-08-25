@@ -1,7 +1,7 @@
 <template>
     <div
         id="dtActionContainer"
-        class="flex-wrap flex w-full gap-1 py-0.5 sm:justify-center justify-evenly items-center">
+        class="flex w-full flex-wrap items-center justify-evenly gap-1 py-0.5 sm:justify-center">
         <slot />
     </div>
 </template>
