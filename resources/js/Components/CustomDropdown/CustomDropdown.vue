@@ -23,30 +23,37 @@
 
         <template #default="{ inputId, isInvalid, isValid, guideId }">
             <!-- Dropdown Trigger -->
-            <div class="relative w-full rounded-xl border">
+            <div :class="['relative rounded-xl border', !showSelectedOption ? 'inline-block w-auto' : 'w-full']">
                 <div
                     :id="inputId"
-                    :class="['flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2.5 transition-all duration-200', 'bg-white dark:bg-slate-900 dark:text-slate-100', disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer', isInvalid ? '' : 'focus-within:ring-0']"
+                    :class="['flex items-center justify-between gap-2 rounded-xl px-3 py-2.5 transition-all duration-200', !showSelectedOption ? 'w-auto' : 'w-full', 'bg-white dark:bg-slate-900 dark:text-slate-100', disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer', isInvalid ? '' : 'focus-within:ring-0']"
                     :aria-invalid="isInvalid"
                     :aria-describedby="guideId"
                     @click.prevent="toggle">
-                    <!-- Non-searchable Display -->
-                    <div
-                        v-if="!searchable"
-                        :class="['flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs sm:text-sm', selected ? 'font-medium text-slate-900 dark:text-slate-100' : 'text-slate-400 dark:text-slate-500', { 'text-slate-400 dark:text-slate-500': disabled }]">
-                        {{ selected ? selected.label : value ? value : placeholder }}
-                    </div>
+                    <template v-if="showSelectedOption">
+                        <!-- Non-searchable Display -->
+                        <div
+                            v-if="!searchable"
+                            :class="['flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs sm:text-sm', selected ? 'font-medium text-slate-900 dark:text-slate-100' : 'text-slate-400 dark:text-slate-500', { 'text-slate-400 dark:text-slate-500': disabled }]">
+                            {{ selected ? selected.label : value ? value : placeholder }}
+                        </div>
 
-                    <!-- Searchable Input -->
-                    <input
-                        v-else
-                        ref="searchInput"
-                        type="text"
-                        v-model="search"
-                        @keydown.esc="search = null"
-                        @input="filterOptions"
-                        class="w-full border-none bg-transparent p-0 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 sm:text-sm dark:text-slate-100 dark:placeholder:text-slate-500"
-                        :placeholder="selected ? selected.label : placeholder" />
+                        <!-- Searchable Input -->
+                        <input
+                            v-else
+                            ref="searchInput"
+                            type="text"
+                            v-model="search"
+                            @keydown.esc="search = null"
+                            @input="filterOptions"
+                            class="w-full border-none bg-transparent p-0 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 sm:text-sm dark:text-slate-100 dark:placeholder:text-slate-500"
+                            :placeholder="selected ? selected.label : placeholder" />
+                    </template>
+                    <template v-else>
+                        <div :class="['flex items-center', !showSelectedOption ? 'flex-none' : 'flex-1']">
+                            <slot name="trigger"></slot>
+                        </div>
+                    </template>
 
                     <!-- Actions -->
                     <div class="flex flex-shrink-0 items-center gap-1.5">
@@ -76,9 +83,9 @@
                 <transition-container type="fade">
                     <div
                         v-show="open"
-                        class="absolute z-50 mt-1.5 flex max-h-[30vh] w-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900">
+                        class="absolute z-50 mt-1.5 flex max-h-[30vh] min-w-full w-max flex-col overflow-visible rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900">
                         <!-- Options List -->
-                        <div class="flex-1 overflow-y-auto py-1">
+                        <div class="flex-1 overflow-visible overflow-y-auto py-1">
                             <!-- No Options -->
                             <div
                                 v-if="!filteredOptions.length"
@@ -146,6 +153,10 @@ export default {
             required: false,
         },
         showClear: {
+            type: Boolean,
+            default: true,
+        },
+        showSelectedOption: {
             type: Boolean,
             default: true,
         },

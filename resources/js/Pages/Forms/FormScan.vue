@@ -297,7 +297,7 @@ export default {
                 <div class="grid gap-6 p-6 md:grid-cols-[1.5fr,1fr] lg:gap-8">
                     <!-- Left Side: Camera -->
                     <div class="flex flex-col">
-                        <div class="relative min-h-[300px] flex-1 overflow-hidden rounded-2xl border-2 border-slate-200/50 bg-black shadow-inner dark:border-slate-700/50">
+                        <div class="relative min-h-[300px] flex-1 overflow-visible">
                             <CameraScanner
                                 v-if="eventId"
                                 :enabled="!isProcessing"
@@ -305,15 +305,16 @@ export default {
                                 :defaultOpenSmall="true"
                                 @decoded="handleDecode"
                                 @error="(err) => setStatus('invalid', 'Camera error', err?.toString() || 'Unknown error')"
-                                class="absolute inset-0 h-full w-full object-cover" />
+                                class="absolute inset-0 h-full w-full object-cover"
+                                :scannerHeight="'360px'" />
                             <div
                                 v-else
-                                class="absolute inset-0 flex flex-col items-center justify-center bg-slate-800/50 p-6 text-center backdrop-blur-sm">
+                                class="absolute inset-0 flex flex-col items-center justify-center rounded-3xl border p-6 text-center backdrop-blur-sm">
                                 <div class="mb-4 rounded-full bg-slate-800/80 p-4 shadow-inner ring-1 ring-white/10">
-                                    <LuScanLine class="h-8 w-8 text-slate-400" />
+                                    <LuScanLine class="h-8 w-8 text-slate-100" />
                                 </div>
-                                <p class="text-lg font-bold text-white">Event ID Required</p>
-                                <p class="mt-2 max-w-[200px] text-sm font-medium text-slate-400">Please enter an Event ID above to initialize the scanner.</p>
+                                <p class="text-lg font-bold text-slate-700 dark:text-slate-200">Event ID Required</p>
+                                <p class="mt-2 max-w-[200px] text-sm font-medium text-slate-500">Please enter an Event ID above to initialize the scanner.</p>
                             </div>
                         </div>
                         <div class="mt-3 flex items-center justify-between px-1">

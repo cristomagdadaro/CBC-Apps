@@ -494,7 +494,7 @@ export default {
     <div
         class="camera-scanner gap-2rere flex flex-col"
         :class="[`variant-${variant}`]">
-        <div class="flex w-full flex-col gap-2">
+        <div class="flex w-full flex-col gap-1 md:flex-row md:gap-2">
             <!-- Toggle Button -->
             <div
                 v-if="showToggle"
@@ -532,47 +532,19 @@ export default {
                     </span>
                 </button>
             </div>
-
-            <!-- Device Selection -->
-            <transition name="scanner-slide">
-                <div
-                    v-show="showDeviceSelect && isOpen && devices.length"
-                    class="device-select w-full">
-                    <div class="relative flex h-full items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-slate-800 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-200">
-                        <Camera class="h-4 w-4 shrink-0 text-slate-400" />
-                        <div class="min-w-0 flex-1">
-                            <CustomDropdown
-                                required
-                                :value="selectedDeviceId"
-                                :with-all-option="false"
-                                :show-clear="false"
-                                :placeholder="placeholder"
-                                :options="devices.map((d) => ({ label: d.label, name: d.deviceId }))"
-                                @selectedChange="selectedDeviceId = $event" />
-                        </div>
-                        <button
-                            v-if="hasMultipleDevices"
-                            @click="switchCamera"
-                            class="shrink-0 rounded-lg bg-slate-200 p-2 text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
-                            title="Switch camera">
-                            <SwitchCamera class="h-4 w-4 transition-transform duration-300 active:rotate-180" />
-                        </button>
-                    </div>
-                </div>
-            </transition>
         </div>
 
         <!-- Scanner Viewport -->
         <transition name="scanner-slide">
             <div
                 v-show="isOpen"
-                class="scanner-viewport shadow-xs relative overflow-hidden rounded-2xl border bg-slate-950 transition-all duration-300"
+                class="scanner-viewport shadow-xs overflow-visibl relative mt-1 rounded-2xl border bg-slate-950 transition-all duration-300 md:mt-2"
                 :class="[borderColorClass, showSuccessBorder ? 'border-emerald-500 ring-2 ring-emerald-500/30' : '']"
                 :style="{ height: scannerHeight }">
                 <!-- Active Scanner -->
                 <div
                     v-if="enabled && isClient"
-                    class="absolute inset-0">
+                    class="absolute inset-0 overflow-hidden rounded-2xl">
                     <video
                         ref="scannerVideo"
                         class="h-full w-full object-cover"
@@ -590,7 +562,7 @@ export default {
                     <!-- Loading State -->
                     <div
                         v-if="!isReady"
-                        class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/90 text-slate-200">
+                        class="text-slate-xl absolute inset-0 flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-900/90">
                         <div class="mb-2 h-10 w-10 animate-spin rounded-full border-b-2 border-lime-500"></div>
                         <p class="text-xs font-semibold text-slate-400">Initializing camera...</p>
                     </div>
@@ -629,6 +601,38 @@ export default {
                     class="absolute bottom-3 left-3 right-3 rounded-xl border border-slate-700 bg-slate-900/90 px-3 py-1.5 text-center font-mono text-xs font-bold tracking-wider text-lime-400">
                     Scanned: {{ lastDecoded }}
                 </div>
+                <!-- Device Selection -->
+                <transition name="scanner-slide">
+                    <div
+                        v-show="showDeviceSelect && isOpen && devices.length"
+                        class="device-select flex w-full justify-end">
+                        <div class="relative m-2 flex h-full w-fit items-center justify-end gap-2 rounded-xl border border-slate-200 bg-slate-50 p-1.5 text-slate-800 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-200">
+                            <div class="min-w-0 flex-1">
+                                <CustomDropdown
+                                    required
+                                    :value="selectedDeviceId"
+                                    :with-all-option="false"
+                                    :show-clear="false"
+                                    :placeholder="placeholder"
+                                    :options="devices.map((d) => ({ label: d.label, name: d.deviceId }))"
+                                    @selectedChange="selectedDeviceId = $event"
+                                    :show-valid-indicator="false"
+                                    :show-selected-option="false">
+                                    <template #trigger>
+                                        <Camera class="h-4 w-4 shrink-0 text-slate-400" />
+                                    </template>
+                                </CustomDropdown>
+                            </div>
+                            <button
+                                v-if="hasMultipleDevices"
+                                @click="switchCamera"
+                                class="shrink-0 rounded-lg bg-slate-200 p-2 text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
+                                title="Switch camera">
+                                <SwitchCamera class="h-4 w-4 transition-transform duration-300 active:rotate-180" />
+                            </button>
+                        </div>
+                    </div>
+                </transition>
             </div>
         </transition>
 
